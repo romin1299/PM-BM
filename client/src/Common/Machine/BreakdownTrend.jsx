@@ -8,6 +8,7 @@ import { barChartOptions } from "../../BM/Utils/ChartUtils/chartOptions";
 import { chartColors } from "../../BM/Utils/ChartUtils/chartEnums";
 import { useLocation, useNavigate } from "react-router-dom";
 import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
+import MainRequestSheetForView from "../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
 
 const BreakdownTrend = ({ machine_code, selectedYear, search }) => {
   const [BdTrendAndLastFiveProblem, setBdTrendAndLastFiveProblem] = useState({
@@ -17,6 +18,13 @@ const BreakdownTrend = ({ machine_code, selectedYear, search }) => {
     },
     lastFiveProblem: [],
   });
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+    useState(false);
+  const [selectedRow, setSelectedRow] = useState();
+
+  const handleRequestSheetShowAndCloseState = () => {
+    setRequestSheetModalOpenClose(!requestSheetModalOpenClose);
+  };
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,64 +75,83 @@ const BreakdownTrend = ({ machine_code, selectedYear, search }) => {
     ],
   };
 
+  console.log(requestSheetModalOpenClose);
+
   return (
-    <Row className="mt-1 gy-2 gx-3">
-      <Col lg={6}>
-        <Box className="cell p-3">
-          <ChartTitleBar title={"Breakdown Trend"} />
+    <>
+      <Row className="mt-1 gy-2 gx-3">
+        <Col lg={6}>
+          <Box className="cell p-3">
+            <ChartTitleBar title={"Breakdown Trend"} />
 
-          <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-            <Bar
-              data={dataset}
-              options={{
-                ...barChartOptions,
-                legend: {
-                  display: true,
-                  position: "top",
-                },
-              }}
-            />
+            <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+              <Bar
+                data={dataset}
+                options={{
+                  ...barChartOptions,
+                  legend: {
+                    display: true,
+                    position: "top",
+                  },
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
-      </Col>
+        </Col>
 
-      <Col lg={6}>
-        <Box className="cell p-3">
-          <ChartTitleBar title={"Last Five Problems"} />
+        <Col lg={6}>
+          <Box className="cell p-3">
+            <ChartTitleBar title={"Last Five Problems"} />
 
-          <ListGroup as="ol" numbered>
-            {BdTrendAndLastFiveProblem?.lastFiveProblem?.map((item) => (
-              <ListGroup.Item
-                as="li"
-                className="d-flex align-items-center py-1"
-              >
-                {item?.problem}
+            <ListGroup as="ol" numbered>
+              {BdTrendAndLastFiveProblem?.lastFiveProblem?.map((item) => (
+                <ListGroup.Item
+                  as="li"
+                  className="d-flex align-items-center py-1"
+                >
+                  {item?.problem}
 
-                <div style={{ marginLeft: "auto" }}>
-                  <Tooltip title="View Request Sheet" disableInteractive>
-                    <IconButton size="small"
-                      onClick={() => {
-                        navigate(
-                          `/bm/view/request-sheet/${machine_code}/${item?._id}/${currentYear}`,
-                          {
-                            state: {
-                              prevPath: location?.pathname,
-                              prevPathSearch: location?.search,
-                            },
-                          }
-                        );
-                      }}
-                    >
-                      <VisibilityIcon className="text-primary" />
-                    </IconButton>
-                  </Tooltip>
-                </div>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </Box>
-      </Col>
-    </Row>
+                  <div style={{ marginLeft: "auto" }}>
+                    <Tooltip title="View Request Sheet" disableInteractive>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          handleRequestSheetShowAndCloseState();
+                          setSelectedRow(item);
+                          // navigate(
+                          //   `/bm/view/request-sheet/${machine_code}/${item?._id}/${currentYear}`,
+                          //   {
+                          //     state: {
+                          //       prevPath: location?.pathname,
+                          //       prevPathSearch: location?.search,
+                          //     },
+                          //   }
+                          // );
+                        }}
+                      >
+                        <VisibilityIcon className="text-primary" />
+                      </IconButton>
+                    </Tooltip>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Box>
+        </Col>
+      </Row>
+
+      {requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={currentYear}
+          machine_code={machine_code}
+          requestSheetID={selectedRow?._id}
+          modelProp={{
+            show: requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
+    </>
   );
 };
 

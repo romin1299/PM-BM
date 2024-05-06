@@ -75,6 +75,8 @@ app.use(express.static(path.join(__dirname, "DrawingsOfBD")));
 app.use(express.static(path.join(__dirname, "attachments")));
 //for BM Image or Video By PRD User while generate request-sheet
 app.use(express.static(path.join(__dirname, "ImagesOrVideoOfPRD")));
+//for Other Loss BM Files
+app.use(express.static(path.join(__dirname, "OtherLossFiles")));
 
 // index file path
 app.get("/*", (req, res) => {

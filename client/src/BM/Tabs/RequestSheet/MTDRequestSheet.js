@@ -119,7 +119,6 @@ function MyTable({
         );
       }
       const { ...otherFields } = requestSheetData;
-      // console.log(otherFields);
 
       formData.append("otherData", JSON.stringify(otherFields));
 
@@ -2282,7 +2281,7 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
-                          accept="image/png, image/gif, image/jpeg"
+                          // accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
                             setValue("attachedDrawings", e.target.files, {
                               shouldDirty: true,

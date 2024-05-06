@@ -253,16 +253,17 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                         <ArrowBackIcon />
                       </IconButton>
                     </Tooltip> */}
-
                       <button
                         className="btn bg-button"
-                        onClick={() => {
-                          navigate(
-                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
-                          );
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // navigate(
+                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                          // );
+                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,"_blank")
                         }}
                       >
-                        Machine Details
+                       Machine Details
                       </button>
                     </Col>
 

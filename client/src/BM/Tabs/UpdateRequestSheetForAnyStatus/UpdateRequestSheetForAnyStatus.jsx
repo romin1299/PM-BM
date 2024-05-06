@@ -52,6 +52,7 @@ const UpdateRequestSheetForAnyStatus = () => {
         users: [initialUserObj],
       },
     ],
+    requestSheetDataOfBM: {},
   });
 
   // var curr = new Date();
@@ -113,7 +114,7 @@ const UpdateRequestSheetForAnyStatus = () => {
             ?.actionAndCounterMeasureStep
         );
         setParts(data?.requestSheetDataOfBM?.changedParts);
-        delete data["requestSheetDataOfBM"];
+        // delete data["requestSheetDataOfBM"];
         setAllData(data);
       }
     } catch (error) {
@@ -239,10 +240,15 @@ const UpdateRequestSheetForAnyStatus = () => {
                       Back
                     </button>
                     <button
-                      className="btn bg-button m-2"
-                      onClick={() => {
-                        navigate(
-                          `/machine-history/${machine_code}/${selectedYear}/?machineId=${AllData?.machine?._id}`
+                      className="btn bg-button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // navigate(
+                        //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                        // );
+                        window.open(
+                          `/machine-history/${machine_code}/${selectedYear}/?machineId=${AllData?.machine?._id}`,
+                          "_blank"
                         );
                       }}
                     >
@@ -768,7 +774,8 @@ const UpdateRequestSheetForAnyStatus = () => {
                       <b>MTD TL</b>
                     </small>
                     <br />
-                    {watch("approvalOfMTD_TL_name")}
+                    {AllData?.requestSheetDataOfBM?.approvalStatusOfMTD_TL !==
+                      "Rejected" && watch("approvalOfMTD_TL_name")}
 
                     {/* <DropdownElem
                       name={"approvalOfMTD_TL"}
@@ -913,7 +920,13 @@ const UpdateRequestSheetForAnyStatus = () => {
                               ) : (
                                 ""
                               )}
-                              <p>{watch("approvalOfMTD_HOSS.tm_name")}</p>
+                              <p>
+                                {AllData?.requestSheetDataOfBM
+                                  ?.approvalStatusOfMTD_HOSS === "Accepted" &&
+                                  AllData?.requestSheetDataOfBM
+                                    ?.requestSheetStatus !== "Rejected" &&
+                                  watch("approvalOfMTD_HOSS.tm_name")}
+                              </p>
                             </Col>
                             <Col
                               lg={6}
@@ -926,7 +939,11 @@ const UpdateRequestSheetForAnyStatus = () => {
                                   "MTD_HOS"?.replace("_", " ")
                                 ) && <small>MTD HOS</small>}
 
-                              {watch("approvalOfMTD_HOS?.tm_name")}
+                              {AllData?.requestSheetDataOfBM
+                                ?.approvalStatusOfMTD_HOS === "Accepted" &&
+                                AllData?.requestSheetDataOfBM
+                                  ?.requestSheetStatus !== "Rejected" &&
+                                watch("approvalOfMTD_HOS?.tm_name")}
                             </Col>
                           </Row>
                         </Col>
@@ -1881,22 +1898,38 @@ const UpdateRequestSheetForAnyStatus = () => {
                     <Row>
                       <Col lg={2} md={2} className="border">
                         <div className="p-1">
-                          {watch("approvalOfMTD_HOSS_name")}
+                          {AllData?.requestSheetDataOfBM
+                            ?.approvalStatusOfMTD_HOD === "Accepted" &&
+                            AllData?.requestSheetDataOfBM
+                              ?.requestSheetStatus !== "Rejected" &&
+                            watch("approvalOfMTD_HOD_name")}
                         </div>
                       </Col>
                       <Col lg={2} md={2} className="border">
                         <div className="p-1">
-                          {watch("approvalOfPRD_HOD_name")}
+                          {AllData?.requestSheetDataOfBM
+                            ?.approvalStatusOfPRD_HOD === "Accepted" &&
+                            AllData?.requestSheetDataOfBM
+                              ?.requestSheetStatus !== "Rejected" &&
+                            watch("approvalOfPRD_HOD_name")}
                         </div>
                       </Col>
                       <Col lg={2} md={2} className="border">
                         <div className="p-1">
-                          {watch("approvalOfPRD_HOS_name")}
+                          {AllData?.requestSheetDataOfBM
+                            ?.approvalStatusOfPRD_HOS === "Accepted" &&
+                            AllData?.requestSheetDataOfBM
+                              ?.requestSheetStatus !== "Rejected" &&
+                            watch("approvalOfPRD_HOS_name")}
                         </div>
                       </Col>
                       <Col lg={2} md={2} className="border">
                         <div className="p-1">
-                          {watch("approvalOfPRD_TL_name")}
+                          {AllData?.requestSheetDataOfBM
+                            ?.approvalStatusOfPRD_TL === "Accepted" &&
+                            AllData?.requestSheetDataOfBM
+                              ?.requestSheetStatus !== "Rejected" &&
+                            watch("approvalOfPRD_TL_name")}
                         </div>
                       </Col>
                     </Row>

@@ -125,29 +125,37 @@ const NoLossBDEntryForm = () => {
 
   const postNoLossBDFormData = async (noLossData) => {
     try {
+      const formData = new FormData();
+      noLossData.problemsOfBM = problems;
+      noLossData.actionAndCounterMeasureStep = actions;
+      noLossData.selectedSupportedTM = selectedSupportedTM;
+      noLossData.breakDownTime =
+        moment(watch("workEndedDateOfBM"))
+          .tz("Asia/Kolkata")
+          .diff(
+            moment(watch("workStartedDateOfBM")).tz("Asia/Kolkata"),
+            "minutes"
+          ) || 0;
+      noLossData.selectedSection = reduceState?.selectedSection;
+      noLossData.selectedSubSection = reduceState?.selectedSubSection;
+      noLossData.selectedCell = reduceState?.selectedCell;
+      noLossData.selectedLine = reduceState?.selectedLine;
+      noLossData.selectedMachine = reduceState?.selectedMachine;
+      for (let i = 0; i < noLossData?.attachedFilesForOtherLoss?.length; i++) {
+        formData.append(
+          "attachedFilesForOtherLoss",
+          noLossData?.attachedFilesForOtherLoss[i]
+        );
+      }
+
+      formData.append("otherData", JSON.stringify({...noLossData}));
+
       const res = await fetch(`/postNewNoLossBDData`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          noLossData,
-          problemsOfBM: problems,
-          actionAndCounterMeasureStep: actions,
-          selectedSupportedTM,
-          breakDownTime:
-            moment(watch("workEndedDateOfBM"))
-              .tz("Asia/Kolkata")
-              .diff(
-                moment(watch("workStartedDateOfBM")).tz("Asia/Kolkata"),
-                "minutes"
-              ) || 0,
-          selectedSection: reduceState?.selectedSection,
-          selectedSubSection: reduceState?.selectedSubSection,
-          selectedCell: reduceState?.selectedCell,
-          selectedLine: reduceState?.selectedLine,
-          selectedMachine: reduceState?.selectedMachine,
-        }),
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
+        body: formData,
       });
 
       const data = await res.json();
@@ -584,6 +592,28 @@ const NoLossBDEntryForm = () => {
                     )}
                   />
                 </small>
+              </Col>
+              <Col lg={12}>
+                <small className="mb-0">
+                  <b>ATTACHED FILES</b>
+                </small>
+                <br />
+                <Form.Group controlId="formFileMultiple" className="mb-3">
+                  <Form.Control
+                    type="file"
+                    multiple
+                    // accept="image/png, image/gif, image/jpeg"
+                    onChange={(e) => {
+                      setValue("attachedFilesForOtherLoss", e.target.files, {
+                        shouldDirty: true,
+                      });
+                    }}
+                  />
+                  {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
+                        <p className="text-error">{"This field is required"}</p>
+                      )} */}
+                </Form.Group>
+                {/* {selectedAttendee} */}
               </Col>
             </Row>
           </Col>

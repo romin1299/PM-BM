@@ -26,6 +26,8 @@ import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
 import SummeryCard from "../HistoryCard/SummeryCard";
 import moment from "moment";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
+import { InputAdornment, TextField } from "@mui/material";
+
 import {
   Box,
   Button,
@@ -56,6 +58,8 @@ import { ReactComponent as EditSheetIcon } from "../../static/svg/edit-sheet-2.s
 import EditSheetIconSVG from "../../static/svg/edit-sheet-2.svg";
 import EditIcon from "@mui/icons-material/Edit";
 import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
+import ContactMailIcon from "@mui/icons-material/ContactMail";
+import SparePartsRequestForm from "../SparePartsRequest/SparePartsRequestForm";
 
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
@@ -69,6 +73,10 @@ const RequestSheetMainDashboard = () => {
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const [summeryCardModal, setSummeryCardModal] = useState(false);
   const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
+  const [sparePartsRequestModal, setSparePartsRequestModal] = useState(false);
+  const [greaterValue, setGreaterValue] = useState(
+    localStorage.getItem("greaterValue")
+  );
 
   const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
     useState(false);
@@ -175,14 +183,23 @@ const RequestSheetMainDashboard = () => {
   const [reduceStateForRequestSheetData, reducerDispatchForRequestSheetData] =
     useReducer(reducerForRequestSheetData, initialStateForRequestSheetData);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState("Yes"));
+  const [reduceState, reducerDispatch] = useReducer(
+    reducer,
+    initialState("Yes")
+  );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const getAllRequestSheetData = async () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}`,
+        `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${
+          reduceState?.selectedValue
+        }/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${
+          reduceState?.selectedMonth
+        }&&selectedRSStatus=${reduceState?.selectedRSStatus}&&greaterValue=${
+          greaterValue || 0
+        }`,
         {
           method: "GET",
           headers: {
@@ -317,6 +334,11 @@ const RequestSheetMainDashboard = () => {
   const handleGenerateBMNavigation = async () => {
     navigate(`/bm/generateRequestSheetMainDashboard`);
   };
+
+  const handleSparePartsModelState = () =>
+    setSparePartsRequestModal(
+      (sparePartsRequestModal) => !sparePartsRequestModal
+    );
 
   // const conditionalBasedEditableFunctionForPRD = (_, row) => {
   //   if (
@@ -691,6 +713,25 @@ const RequestSheetMainDashboard = () => {
         context?.tm_department !== "PRD" &&
         RSStatusArray.slice(0, 6).includes(rowData?.requestSheetStatus),
     }),
+
+    (row) => ({
+      icon: () => (
+        <ContactMailIcon />
+
+        // <SvgIcon
+        //   component={HistoryIcon}
+        //   sx={{ color: "#FF6F00" }}
+        //   // viewBox="0 0 22 22"
+        //   inheritViewBox
+        // />
+      ),
+      tooltip: "Spare Require Mail",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        handleSparePartsModelState();
+      },
+    }),
   ];
 
   if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
@@ -745,6 +786,56 @@ const RequestSheetMainDashboard = () => {
             }
           />
         </Tooltip>
+      </Box>
+
+      <Box
+        component="form"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+        }}
+      >
+        {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
+        <TextField
+          type="number"
+          id="outlined-basic"
+          // sx={{ width: "80px" }}
+          variant="outlined"
+          sx={{
+            // width: "12ch",
+            width: "6rem",
+            pl: 0,
+            "& .MuiOutlinedInput-root": { pl: 0 },
+            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
+          }}
+          InputProps={{
+            sx: { fontSize: 14 },
+            startAdornment: (
+              <InputAdornment position="start">&gt; &#61;</InputAdornment>
+            ),
+          }}
+          size="small"
+          onChange={(e) => {
+            setGreaterValue(e.target.value);
+            localStorage.setItem("greaterValue", e.target.value);
+          }}
+          value={greaterValue}
+        />
+        <Button
+          // size="small"
+          disableElevation
+          className="bg-button"
+          variant="contained"
+          sx={{
+            minWidth: "30px",
+            height: "32px",
+            paddingInline: "10px",
+          }}
+          onClick={getAllRequestSheetData}
+        >
+          Go
+        </Button>
       </Box>
     </div>,
   ];
@@ -1137,10 +1228,20 @@ const RequestSheetMainDashboard = () => {
         <MainRequestSheetForView
           selectedYear={reduceState?.selectedYear}
           machine_code={selectedRow?.machineNo}
-          requestSheetID= {selectedRow?._id}
+          requestSheetID={selectedRow?._id}
           modelProp={{
             show: requestSheetModalOpenClose,
             onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
+
+      {sparePartsRequestModal && (
+        <SparePartsRequestForm
+          selectedRow={selectedRow}
+          modelProp={{
+            show: sparePartsRequestModal,
+            onHide: handleSparePartsModelState,
           }}
         />
       )}

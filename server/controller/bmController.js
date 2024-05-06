@@ -23,6 +23,7 @@ const sendMailForBD = require("../sendMailForBM/sendMailForBDRequestSheet");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 const truncValue = require("../utils/truncValue");
+const sendMailForSpareRequest = require("../sendMailForBM/sendMailForSpareRequest");
 
 router.use(cookieParser());
 // router.use(authenticate);
@@ -185,12 +186,15 @@ router.get(
 
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
+    // console.log(file.fieldname);
     if (file.fieldname === "attachedDataSheets") {
       cb(null, "./DataSheetOfBD/");
-    } else if (file.fieldname === "drawingOfRequestSheet") {
+    } else if (file.fieldname === "attachedDrawings") {
       cb(null, "./DrawingsOfBD/");
     } else if (file.fieldname === "attachedImagesOrVideoByPRDUser") {
       cb(null, "./ImagesOrVideoOfPRD/");
+    } else if (file.fieldname === "attachedFilesForOtherLoss") {
+      cb(null, "./OtherLossFiles/");
     }
   },
   filename: function (req, file, cb) {
@@ -208,9 +212,9 @@ const fileFilterOfDataSheetOfBD = (req, file, cb) => {
 
 const uploadDataSheetsOfBD = multer({
   storage: storageForDataSheetsOfBD,
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
+  // limits: {
+  //   fileSize: 1024 * 1024 * 5,
+  // },
   // fileFilter: fileFilterOfDataSheetOfBD,
 });
 
@@ -258,7 +262,6 @@ router.post(
   async (req, res, next) => {
     try {
       const dataSheet = req.files;
-
       const machine = await Machine.findOne({
         machine_code: req.query?.machineRef,
       })
@@ -429,7 +432,9 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
             requestSheetStatus:
               // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
-              getRequestSheetData?.getDataForApprovalDashboard?.Id
+              getRequestSheetData?.getDataForApprovalDashboard?.Id ||
+              getRequestSheetData?.requestSheetStatus === "Completed" ||
+              getRequestSheetData?.requestSheetStatus === "Rejected"
                 ? getRequestSheetData?.requestSheetStatus
                 : "Fill Sheet",
             // (
@@ -1312,28 +1317,26 @@ router.patch(
               ? new Date(req?.body?.handOverTime)
               : moment(req.body?.handOverTime, "DD-MM-YYYY [T]HH:mm").toDate()
             : new Date();
-        if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser)) {
+
+        let firstWordOfFinalAction = req.body?.finalActivity?.split(" ")[0];
+        queryObj = {
+          finalActivity: req.body?.finalActivity.replace(
+            firstWordOfFinalAction,
+            firstWordOfFinalAction?.charAt(0)?.toUpperCase() +
+              firstWordOfFinalAction?.substring(1).toLowerCase()
+          ),
+          "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
+          "maintenanceReportFilledByMTD.refHandOverTime": workEndedDateOfBM,
+          requestSheetStatus,
+          "maintenanceReportFilledByMTD.breakDownTime": timeDifferenceMinutes,
+          dataSheetOfRequestSheet: timeDifferenceMinutes > 120 && "Yes",
+          work_order_status: req.body?.work_order_status,
+        };
+        if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser))
           queryObj = {
-            finalActivity: req.body?.finalActivity,
-            "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
-            "maintenanceReportFilledByMTD.refHandOverTime": workEndedDateOfBM,
+            ...queryObj,
             handOverUser: req.body?.handOverUser,
-            requestSheetStatus,
-            "maintenanceReportFilledByMTD.breakDownTime": timeDifferenceMinutes,
-            dataSheetOfRequestSheet: timeDifferenceMinutes > 120 && "Yes",
-            work_order_status: req.body?.work_order_status,
           };
-        } else {
-          queryObj = {
-            finalActivity: req.body?.finalActivity,
-            "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
-            "maintenanceReportFilledByMTD.refHandOverTime": workEndedDateOfBM,
-            requestSheetStatus,
-            "maintenanceReportFilledByMTD.breakDownTime": timeDifferenceMinutes,
-            dataSheetOfRequestSheet: timeDifferenceMinutes > 120 && "Yes",
-            work_order_status: req.body?.work_order_status,
-          };
-        }
       }
       const updateRequestSheetData = await RequestSheetOfBM.findOneAndUpdate(
         req.query,
@@ -1968,6 +1971,23 @@ router.get(
         },
       ];
 
+      let condForGraterValue = {};
+      if (req.query?.greaterValue !== "0") {
+        condForGraterValue = {
+          "maintenanceReportFilledByMTD.breakDownTime": {
+            $gte: req.query?.greaterValue * 1,
+          },
+        };
+        queryPipeline = [
+          {
+            $match: {
+              ...condForGraterValue,
+              ...req.queryObj,
+            },
+          },
+        ];
+      }
+
       //For fetching data while updating
       if (req.query?._id) {
         queryPipeline = [
@@ -1994,6 +2014,7 @@ router.get(
                 },
               ],
               ...req.queryObj,
+              ...condForGraterValue,
             },
           },
         ];
@@ -3042,10 +3063,25 @@ router.get(
         {
           $lookup: {
             from: "requestsheetofbms",
-            localField: "_id",
-            foreignField: "approvalOfMTD_TL",
+            // localField: "_id",
+            // foreignField: "approvalOfMTD_TL",
+            let: {
+              id: {
+                $arrayElemAt: ["$approvalOfMTD_TL", -1],
+              },
+            },
             pipeline: [
               {
+                $match: {
+                  $expr: {
+                    $eq: [
+                      "$_id",
+                      {
+                        $toObjectId: "$$id",
+                      },
+                    ],
+                  },
+                },
                 $project: {
                   pendingApprovalUser: {
                     $arrayElemAt: ["$approvalOfMTD_TL", -1],
@@ -3253,7 +3289,10 @@ router.get(
     try {
       const UserWisePendingApprovalCount = await RequestSheetOfBM.aggregate([
         {
-          $match: req.queryObj,
+          $match: {
+            // _id: mongoose.Types.ObjectId("6628e1b9c9c4cd5412677635"),
+            ...req.queryObj,
+          },
         },
         {
           $project: {
@@ -3290,19 +3329,6 @@ router.get(
                         },
                       },
                       {
-                        userType: "MTD HOS",
-                        userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
-                        userName: {
-                          $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
-                        },
-                        timeStamp: {
-                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-                        },
-                        status: {
-                          $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-                        },
-                      },
-                      {
                         userType: "PRD TL",
                         userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
                         userName: {
@@ -3313,6 +3339,19 @@ router.get(
                         },
                         status: {
                           $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
+                        },
+                      },
+                      {
+                        userType: "MTD HOS",
+                        userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
                         },
                       },
                       {
@@ -3329,19 +3368,6 @@ router.get(
                         },
                       },
                       {
-                        userType: "PRD HOD",
-                        userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
-                        userName: {
-                          $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
-                        },
-                        timeStamp: {
-                          $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-                        },
-                        status: {
-                          $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-                        },
-                      },
-                      {
                         userType: "MTD HOD",
                         userId: { $arrayElemAt: ["$approvalOfMTD_HOD", -1] },
                         userName: {
@@ -3352,6 +3378,19 @@ router.get(
                         },
                         status: {
                           $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
+                        },
+                      },
+                      {
+                        userType: "PRD HOD",
+                        userId: { $arrayElemAt: ["$approvalOfPRD_HOD", -1] },
+                        userName: {
+                          $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
+                        },
+                        timeStamp: {
+                          $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
+                        },
+                        status: {
+                          $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
                         },
                       },
                     ],
@@ -3444,7 +3483,7 @@ router.get(
           },
         },
       ]);
-
+      console.log(UserWisePendingApprovalCount);
       return res.status(201).json({
         message:
           "Monitoring request-sheet UserWise pending data get successfully",
@@ -4146,12 +4185,48 @@ const getRequestSheetData = async (req, res, next) => {
           as: "approvalOfMTD_SL",
         },
       },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "approvalOfMTD_TL",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           user_type: 1,
+      //           tm_no: 1,
+      //           tm_name: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "approvalOfMTD_TL",
+      //   },
+      // },
       {
         $lookup: {
           from: "users",
-          localField: "approvalOfMTD_TL",
-          foreignField: "_id",
+          // localField: "approvalOfMTD_TL",
+          // foreignField: "_id",
+          let: {
+            id: {
+              $arrayElemAt: ["$approvalOfMTD_TL", -1],
+            },
+          },
           pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    "$_id",
+                    "$$id",
+                    // {
+                    //   $toObjectId: "$$id",
+                    // },
+                  ],
+                },
+              },
+            },
             {
               $project: {
                 user_type: 1,
@@ -4167,9 +4242,26 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
-          localField: "approvalOfMTD_HOSS",
-          foreignField: "_id",
+          // localField: "approvalOfMTD_HOSS",
+          // foreignField: "_id",
+          let: {
+            id: {
+              $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
+            },
+          },
           pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    "$_id",
+                    {
+                      $toObjectId: "$$id",
+                    },
+                  ],
+                },
+              },
+            },
             {
               $project: {
                 user_type: 1,
@@ -4185,9 +4277,26 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
-          localField: "approvalOfMTD_HOS",
-          foreignField: "_id",
+          // localField: "approvalOfMTD_HOS",
+          // foreignField: "_id",
+          let: {
+            id: {
+              $arrayElemAt: ["$approvalOfMTD_HOS", -1],
+            },
+          },
           pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    "$_id",
+                    {
+                      $toObjectId: "$$id",
+                    },
+                  ],
+                },
+              },
+            },
             {
               $project: {
                 user_type: 1,
@@ -4203,9 +4312,26 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
-          localField: "approvalOfPRD_TL",
-          foreignField: "_id",
+          // localField: "approvalOfPRD_TL",
+          // foreignField: "_id",
+          let: {
+            id: {
+              $arrayElemAt: ["$approvalOfPRD_TL", -1],
+            },
+          },
           pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    "$_id",
+                    {
+                      $toObjectId: "$$id",
+                    },
+                  ],
+                },
+              },
+            },
             {
               $project: {
                 user_type: 1,
@@ -4221,9 +4347,26 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
-          localField: "approvalOfPRD_HOS",
-          foreignField: "_id",
+          // localField: "approvalOfPRD_HOS",
+          // foreignField: "_id",
+          let: {
+            id: {
+              $arrayElemAt: ["$approvalOfPRD_HOS", -1],
+            },
+          },
           pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    "$_id",
+                    {
+                      $toObjectId: "$$id",
+                    },
+                  ],
+                },
+              },
+            },
             {
               $project: {
                 user_type: 1,
@@ -4239,9 +4382,26 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
-          localField: "approvalOfPRD_HOD",
-          foreignField: "_id",
+          // localField: "approvalOfPRD_HOD",
+          // foreignField: "_id",
+          let: {
+            id: {
+              $arrayElemAt: ["$approvalOfPRD_HOD", -1],
+            },
+          },
           pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    "$_id",
+                    {
+                      $toObjectId: "$$id",
+                    },
+                  ],
+                },
+              },
+            },
             {
               $project: {
                 user_type: 1,
@@ -4257,9 +4417,26 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
-          localField: "approvalOfMTD_HOD",
-          foreignField: "_id",
+          // localField: "approvalOfMTD_HOD",
+          // foreignField: "_id",
+          let: {
+            id: {
+              $arrayElemAt: ["$approvalOfMTD_HOD", -1],
+            },
+          },
           pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [
+                    "$_id",
+                    {
+                      $toObjectId: "$$id",
+                    },
+                  ],
+                },
+              },
+            },
             {
               $project: {
                 user_type: 1,
@@ -4876,28 +5053,56 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
             $arrayElemAt: ["$approverNameLogOfMTD_TL", -1],
           },
 
+          approvalStatusOfMTD_TL: {
+            $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+          },
+
           approvalOfMTD_HOSS_name: {
             $arrayElemAt: ["$approverNameLogOfMTD_HOSS", -1],
+          },
+
+          approvalStatusOfMTD_HOSS: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
           },
 
           approvalOfMTD_HOS_name: {
             $arrayElemAt: ["$approverNameLogOfMTD_HOS", -1],
           },
 
+          approvalStatusOfMTD_HOS: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
+          },
+
           approvalOfPRD_TL_name: {
             $arrayElemAt: ["$approverNameLogOfPRD_TL", -1],
+          },
+
+          approvalStatusOfPRD_TL: {
+            $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
           },
 
           approvalOfPRD_HOS_name: {
             $arrayElemAt: ["$approverNameLogOfPRD_HOS", -1],
           },
 
+          approvalStatusOfPRD_HOS: {
+            $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
+          },
+
           approvalOfPRD_HOD_name: {
             $arrayElemAt: ["$approverNameLogOfPRD_HOD", -1],
           },
 
+          approvalStatusOfPRD_HOD: {
+            $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
+          },
+
           approvalOfMTD_HOD_name: {
             $arrayElemAt: ["$approverNameLogOfMTD_HOD", -1],
+          },
+
+          approvalStatusOfMTD_HOD: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
           },
 
           partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
@@ -6624,7 +6829,6 @@ router.get(
               {
                 $project: {
                   line_name: 1,
-                  // monthlyProductionHrs: "$allTargetData.monthlyProductionHrs",
                   monthlyBDHrsTarget: {
                     $map: {
                       input: {
@@ -6677,39 +6881,6 @@ router.get(
                       "$$month",
                     ],
                   },
-                  // eachMonthBDHrsTarget: {
-                  //   $arrayElemAt: [
-                  //     {
-                  //       $filter: {
-                  //         input: {
-                  //           $objectToArray: "$allTargetData.monthlyBDHrsTarget",
-                  //         },
-                  //         as: "monthlyTarget",
-                  //         cond: {
-                  //           $eq: ["$$monthlyTarget.k", "$$month"],
-                  //         },
-                  //       },
-                  //     },
-                  //     0,
-                  //   ],
-                  // },
-                  // eachMonthProductionHrs: {
-                  //   $arrayElemAt: [
-                  //     {
-                  //       $filter: {
-                  //         input: {
-                  //           $objectToArray:
-                  //             "$allTargetData.monthlyProductionHrs",
-                  //         },
-                  //         as: "monthlyProduction",
-                  //         cond: {
-                  //           $eq: ["$$monthlyProduction.k", "$$month"],
-                  //         },
-                  //       },
-                  //     },
-                  //     0,
-                  //   ],
-                  // },
                 },
               },
             ],
@@ -6722,6 +6893,7 @@ router.get(
         {
           $group: {
             _id: {
+              lineId: "$line._id",
               lineName: "$line.line_name",
               monthlyBDHrsTarget: "$line.monthlyBDHrsTarget",
               monthlyMTTRTarget: "$line.monthlyMTTRTarget",
@@ -6774,78 +6946,110 @@ router.get(
                   ],
                 },
                 mtbfData: {
-                  $divide: [
+                  $cond: [
+                    { $eq: ["$line.eachMonthProductionHrs", 0] },
+                    0,
                     {
-                      $subtract: ["$line.eachMonthProductionHrs", "$bdHours"],
+                      $divide: [
+                        {
+                          $subtract: [
+                            "$line.eachMonthProductionHrs",
+                            "$bdHours",
+                          ],
+                        },
+                        "$count",
+                      ],
                     },
-                    "$count",
                   ],
                 },
                 backgroundColorForMTBF: {
                   $cond: [
+                    { $eq: ["$line.eachMonthProductionHrs", 0] },
+                    "ef5350",
                     {
-                      $lte: [
+                      $cond: [
                         {
-                          $divide: [
+                          $lte: [
                             {
-                              $subtract: [
-                                "$line.eachMonthProductionHrs",
-                                "$bdHours",
+                              $divide: [
+                                {
+                                  $subtract: [
+                                    "$line.eachMonthProductionHrs",
+                                    "$bdHours",
+                                  ],
+                                },
+                                "$count",
                               ],
                             },
-                            "$count",
+                            {
+                              $arrayElemAt: [
+                                "$line.monthlyMTBFTarget",
+                                "$_id.monthInDecimal",
+                              ],
+                            },
+                            // "$line.eachMonthBDHrsTarget.v",
                           ],
                         },
-                        {
-                          $arrayElemAt: [
-                            "$line.monthlyMTBFTarget",
-                            "$_id.monthInDecimal",
-                          ],
-                        },
-                        // "$line.eachMonthBDHrsTarget.v",
+                        "ef5350",
+                        "16FF00",
                       ],
                     },
-                    "ef5350",
-                    "16FF00",
                   ],
                 },
                 bdPercentage: {
-                  $multiply: [
-                    { $divide: ["$bdHours", "$line.eachMonthProductionHrs"] },
-                    100,
+                  $cond: [
+                    { $eq: ["$line.eachMonthProductionHrs", 0] },
+                    0,
+                    {
+                      $multiply: [
+                        {
+                          $divide: ["$bdHours", "$line.eachMonthProductionHrs"],
+                        },
+                        100,
+                      ],
+                    },
                   ],
                 },
                 backgroundColorForBDPercentage: {
                   $cond: [
+                    { $eq: ["$line.eachMonthProductionHrs", 0] },
+                    "ef5350",
                     {
-                      $gt: [
+                      $cond: [
                         {
-                          $multiply: [
+                          $gt: [
                             {
-                              $divide: [
-                                "$bdHours",
-                                "$line.eachMonthProductionHrs",
+                              $multiply: [
+                                {
+                                  $divide: [
+                                    "$bdHours",
+                                    "$line.eachMonthProductionHrs",
+                                  ],
+                                },
+                                100,
                               ],
                             },
-                            100,
+                            {
+                              $arrayElemAt: [
+                                "$line.monthlyBDPercentageTarget",
+                                "$_id.monthInDecimal",
+                              ],
+                            },
+                            // "$line.eachMonthBDHrsTarget.v",
                           ],
                         },
-                        {
-                          $arrayElemAt: [
-                            "$line.monthlyBDPercentageTarget",
-                            "$_id.monthInDecimal",
-                          ],
-                        },
-                        // "$line.eachMonthBDHrsTarget.v",
+                        "ef5350",
+                        "16FF00",
                       ],
                     },
-                    "ef5350",
-                    "16FF00",
                   ],
                 },
               },
             },
           },
+        },
+        {
+          $sort: { "_id.lineId": 1 },
         },
         {
           $project: {
@@ -8175,7 +8379,7 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
       data: {
         ...getBdPercentage?.[0],
         target: req?.target,
-        backgroundColor: getBdPercentage?.[0]?.data?.map((item, index) =>
+        backgroundColor: req.target?.map((item, index) =>
           getBdPercentage?.[0]?.data?.[index] <= item ? "#16FF00" : "red"
         ),
       },
@@ -11234,7 +11438,7 @@ router.get(
                               ],
                             },
                             {
-                              $gte: [
+                              $gt: [
                                 "$maintenanceReportFilledByMTD.breakDownTime",
                                 120,
                               ],
@@ -11365,7 +11569,7 @@ router.get(
                               ],
                             },
                             {
-                              $gte: [
+                              $gt: [
                                 "$maintenanceReportFilledByMTD.breakDownTime",
                                 120,
                               ],
@@ -11531,7 +11735,7 @@ router.get(
                               ],
                             },
                             {
-                              $gte: [
+                              $gt: [
                                 "$maintenanceReportFilledByMTD.breakDownTime",
                                 120,
                               ],
@@ -14840,6 +15044,7 @@ const filterMiddlewareForMTBFReport = async (req, res, next) => {
             {
               $match: {
                 "allTargetData.current_year": req.query?.selectedYear,
+                "allTargetData.yearTotalMTBFTarget": { $gt: 0 },
               },
             },
             {
@@ -15563,8 +15768,6 @@ router.get(
             ?.priority || 0;
         return priorityA - priorityB;
       });
-
-      // console.log("In log query---",req.queryObj)
 
       const getDataOfRequestSheetApprovalLogs =
         await RequestSheetOfBM?.aggregate([
@@ -18972,7 +19175,7 @@ router.post(
       if (req.params?.filter === "based-on-cell") {
         let sumOfMonthlyMBDtargetForYearlyTarget = Object.values(
           targetValue?.monthlyMBDCountTarget
-        )?.reduce((acc, value) => acc + parseInt(value === "" ? 0 : value), 0);
+        )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         const yearExistsOrNotInCellTargetField = await Cell.findOne({
           _id: mongoose.Types.ObjectId(req?.params?.selectedId),
@@ -19188,9 +19391,9 @@ const storageForDataAttachmentFile = multer.diskStorage({
 
 const uploadAttachments = multer({
   storage: storageForDataAttachmentFile,
-  limits: {
-    fileSize: 1024 * 1024 * 1024,
-  },
+  // limits: {
+  //   fileSize: 1024 * 1024 * 1024,
+  // },
   // fileFilter: filterOptions,
 });
 
@@ -19447,107 +19650,142 @@ router.get(
   }
 );
 
-router.post("/postNewNoLossBDData", authenticate, async (req, res, next) => {
-  try {
-    const {
-      noLossData,
-      problemsOfBM,
-      actionAndCounterMeasureStep,
-      selectedSupportedTM,
-      breakDownTime,
-      selectedSection,
-      selectedSubSection,
-      selectedCell,
-      selectedLine,
-      selectedMachine,
-    } = req.body;
+router.post(
+  "/postNewNoLossBDData",
+  authenticate,
+  uploadDataSheetsOfBD.fields([
+    { name: "attachedFilesForOtherLoss", maxCount: 10 },
+  ]),
+  async (req, res, next) => {
+    try {
+      const noLossRequestSheetData = JSON.parse(
+        req.body.otherData
+      );
+      const dataSheet = req.files;
+      // const {
+      //   noLossData,
+      //   problemsOfBM,
+      //   actionAndCounterMeasureStep,
+      //   selectedSupportedTM,
+      //   breakDownTime,
+      //   selectedSection,
+      //   selectedSubSection,
+      //   selectedCell,
+      //   selectedLine,
+      //   selectedMachine,
+      // } = req.body;
 
-    const noLossBDSheetExistsOrNot = await NoLossBD.findOne({
-      _id: noLossData?._id,
-    });
+      const noLossBDSheetExistsOrNot = await NoLossBD.findOne({
+        _id: noLossRequestSheetData?._id,
+      });
 
-    let resultOfSaveOrUpdateNoLossBD;
+      let resultOfSaveOrUpdateNoLossBD;
 
-    let convertedData =
-      noLossData?.categories &&
-      Object.keys(noLossData?.categories)?.map((key) => ({
-        category: key,
-        subCategory: noLossData?.categories?.[key],
-      }));
+      let convertedData =
+        noLossRequestSheetData?.categories &&
+        Object.keys(noLossRequestSheetData?.categories)?.map((key) => ({
+          category: key,
+          subCategory: noLossRequestSheetData?.categories?.[key],
+        }));
 
-    if (noLossBDSheetExistsOrNot) {
-      resultOfSaveOrUpdateNoLossBD = await NoLossBD.findOneAndUpdate(
-        {
-          _id: noLossData?._id,
-        },
-        {
-          $set: {
-            ...noLossData,
-            problemsOfBM,
-            actionAndCounterMeasureStep,
-            supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
-            breakDownTime,
-            categoriesOfRequestSheet: convertedData,
+      if (noLossBDSheetExistsOrNot) {
+
+        if(dataSheet?.attachedFilesForOtherLoss?.length > 0){
+          noLossBDSheetExistsOrNot?.attachedFilesForOtherLoss?.map((noLossFileName) => {
+            fs.unlink(
+              path.join(__dirname, `../OtherLossFiles/${noLossFileName}`),
+              function (err) {
+                if (err) {
+                  console.error(err);
+                } else {
+                  console.log("Other loss files Removed Successfully");
+                }
+              }
+            );
+          });
+        }
+
+        resultOfSaveOrUpdateNoLossBD = await NoLossBD.findOneAndUpdate(
+          {
+            _id: noLossRequestSheetData?._id,
           },
-        },
-        {
-          new: true,
-        }
-      );
-    } else {
-      const currentMonth = moment().format("MMM");
-      const currentYear = moment().tz(timezone).year();
+          {
+            $set: {
+              ...noLossRequestSheetData,
+              problemsOfBM : noLossRequestSheetData?.problemsOfBM,
+              actionAndCounterMeasureStep : noLossRequestSheetData?.actionAndCounterMeasureStep,
+              supportingTM: noLossRequestSheetData?.selectedSupportedTM?.map((obj) => obj?._id),
+              breakDownTime: noLossRequestSheetData?.breakDownTime,
+              categoriesOfRequestSheet: convertedData,
+              attachedFilesForOtherLoss: dataSheet?.attachedFilesForOtherLoss?.map(
+                (obj) => obj?.filename
+              ),
+            },
+          },
+          {
+            new: true,
+          }
+        );
+      } else {
+        const currentMonth = moment().format("MMM");
+        const currentYear = moment().tz(timezone).year();
 
-      const getPlantIdForNoLossBDEntry = await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
+        const getPlantIdForNoLossBDEntry = await Plant.findOne({
+          plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        });
 
-      const addNewNoLossNo = await HandlingActions.findOneAndUpdate(
-        { plant_id: getPlantIdForNoLossBDEntry._id },
-        { $inc: { noLossBdNos: 1 } },
-        {
-          new: true,
-        }
-      );
+        const addNewNoLossNo = await HandlingActions.findOneAndUpdate(
+          { plant_id: getPlantIdForNoLossBDEntry._id },
+          { $inc: { noLossBdNos: 1 } },
+          {
+            new: true,
+          }
+        );
 
-      const noLossBDNo = `${currentYear}-${currentMonth}-${addNewNoLossNo.noLossBdNos}`;
-      const addNewNoLossBD = new NoLossBD({
-        ...noLossData,
-        noLossBDNo,
-        problemsOfBM,
-        actionAndCounterMeasureStep,
-        supportingTM: selectedSupportedTM?.map((obj) => obj?._id),
-        breakDownTime,
-        categoriesOfRequestSheet: convertedData,
-        plantRef: getPlantIdForNoLossBDEntry?._id || null,
-        sectionRef: selectedSection || null,
-        subSectionRef: selectedSubSection || null,
-        cellRef: selectedCell || null,
-        lineRef: selectedLine || null,
-        machineRef: selectedMachine || null,
-        preAggregationTimeStampOfRequestSheet: {
-          requestSheet_year: gettingFYYearForSelectedDate(
-            noLossData?.DateOfNoLossBD
+        const noLossBDNo = `${currentYear}-${currentMonth}-${addNewNoLossNo.noLossBdNos}`;
+        const addNewNoLossBD = new NoLossBD({
+          ...noLossRequestSheetData,
+          noLossBDNo,
+          problemsOfBM : noLossRequestSheetData?.problemsOfBM,
+          actionAndCounterMeasureStep : noLossRequestSheetData?.actionAndCounterMeasureStep,
+          supportingTM: noLossRequestSheetData?.selectedSupportedTM?.map((obj) => obj?._id),
+          breakDownTime : noLossRequestSheetData?.breakDownTime,
+          categoriesOfRequestSheet: convertedData,
+          attachedFilesForOtherLoss: dataSheet?.attachedFilesForOtherLoss?.map(
+            (obj) => obj?.filename
           ),
-          requestSheet_month: gettingMonthForSelectedDate(
-            noLossData?.DateOfNoLossBD
-          ),
-        },
-      });
+          plantRef: getPlantIdForNoLossBDEntry?._id || null,
+          sectionRef: noLossRequestSheetData?.selectedSection || null,
+          subSectionRef: noLossRequestSheetData?.selectedSubSection || null,
+          cellRef: noLossRequestSheetData?.selectedCell || null,
+          lineRef: noLossRequestSheetData?.selectedLine || null,
+          machineRef: noLossRequestSheetData?.selectedMachine || null,
+          preAggregationTimeStampOfRequestSheet: {
+            requestSheet_year: gettingFYYearForSelectedDate(
+              noLossRequestSheetData?.DateOfNoLossBD
+            ),
+            requestSheet_month: gettingMonthForSelectedDate(
+              noLossRequestSheetData?.DateOfNoLossBD
+            ),
+          },
+        });
 
-      resultOfSaveOrUpdateNoLossBD = await addNewNoLossBD.save();
+        resultOfSaveOrUpdateNoLossBD = await addNewNoLossBD.save();
+      }
+      if (resultOfSaveOrUpdateNoLossBD) {
+        res.status(201).json({
+          message: "No Loss data added successfully",
+          resultOfSaveOrUpdateNoLossBD,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .json({ message: error?.message, error: new Error(error) });
     }
-    if (resultOfSaveOrUpdateNoLossBD) {
-      res.status(201).json({
-        message: "No Loss data added successfully",
-        resultOfSaveOrUpdateNoLossBD,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error?.message, error: new Error(error) });
   }
-});
+);
 
 router.get("/getNoLossBDEntryData", authenticate, async (req, res, next) => {
   try {
@@ -19669,6 +19907,7 @@ router.get("/getNoLossBDEntryData", authenticate, async (req, res, next) => {
           cell: 1,
           subSection: 1,
           section: 1,
+          attachedFilesForOtherLoss: 1
         },
       },
     ]);
@@ -19696,5 +19935,133 @@ router.delete("/deleteNoLossRequestSheet/", async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 });
+
+router.post(
+  "/sendSparePartsRequestMail",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const sparePartsDataMapping = (item, index) => {
+        return `<tr>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  index + 1
+                }</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  item?.partNo
+                }</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  item?.partName
+                }</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  item?.makerName
+                }</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  item?.quantity
+                }</td>
+                <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+                  item?.cost
+                }</td>
+                
+            </tr>`;
+      };
+
+      let sparePartsListTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+                        <tr style="background-color: #dddddd;">
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>SR. NO.</b></td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>PART NO.</b></td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>PART NAME</b></td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>MAKER</b></td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>QUANTITY</b></td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;"><b>Cost</b></td>
+                        </tr>
+                        
+                        ${await req?.body?.data?.parts
+                          ?.map((item, index) =>
+                            sparePartsDataMapping(item, index)
+                          )
+                          ?.join("")}
+                        </table>`;
+
+      const bodyContent = () => {
+        return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+
+  
+        <tr style="background-color: #dddddd;">
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+          req.body?.data?.line_name
+        }</td>
+        </tr>
+  
+        <tr>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              req.body?.data?.machine_name
+            }</td>
+        </tr>
+  
+        <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              req.body?.data?.machine_code
+            }</td>
+        </tr>
+  
+        <tr>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Send By</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+          req?.rootUser?.tm_name
+        }</td>
+        </tr>   
+
+        <tr style="background-color: #dddddd;">
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+            <td style="border: 1px solid black;text-align: left;padding: 8px;">${
+              req?.rootUser?.user_type
+            }</td>
+        </tr>
+  
+        <tr>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">Requested Date and Time</td>
+        <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
+          new Date()
+        )
+          .tz("Asia/Kolkata")
+          .format("DD-MM-YYYY THH:mm")}</td>
+        </tr>
+
+        <b><p>Requested Spare List Below In Table:</p></b>
+
+        ${sparePartsListTable}
+  
+    </table>`;
+      };
+
+      let bodyTable = bodyContent();
+
+      sendMailForSpareRequest({
+        subject: `Request for Spare Parts (${req.body?.data?.line_name}/${req.body?.data?.machine_code}/${req.body?.data?.machine_name})`,
+        title: `Request for Spare Parts`,
+        greetings: `Sir\\Ma'am`,
+        // toEmailIds: [
+        //   req.requestSheetData?.[0]?.assignUserEmail,
+        //   req.requestSheetData?.[0]?.requestSheetCreatedByForSendingEmail
+        //     ?.email,
+        // ],
+        // ccEmailIds: getMTDTL
+        //   ?.map((obj) => obj?.email)
+        //   .concat(getMTDHOS?.map((obj) => obj?.email)),
+        bodyTable: bodyTable,
+        sparePartsListTable,
+      });
+
+      res.status(201).json({
+        message: "Email sent successfully",
+      });
+    } catch (error) {
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
 
 module.exports = router;

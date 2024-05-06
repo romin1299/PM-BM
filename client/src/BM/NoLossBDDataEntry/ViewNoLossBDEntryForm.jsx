@@ -12,6 +12,7 @@ import { SuccessToast, WarningToast } from "../Component/ShowTostify";
 import { Modal, Button } from "react-bootstrap";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Tooltip, IconButton } from "@mui/material";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const ViewNoLossBDEntryForm = ({
   modelProp,
@@ -21,7 +22,7 @@ const ViewNoLossBDEntryForm = ({
   plantShiftsData,
   plantCategories,
   supportingTMList,
-  removeDataFromMaster
+  removeDataFromMaster,
 }) => {
   const {
     register,
@@ -69,24 +70,32 @@ const ViewNoLossBDEntryForm = ({
 
   const postNoLossBDFormData = async (noLossData) => {
     try {
+      const formData = new FormData();
+      noLossData.problemsOfBM = problems;
+      noLossData.actionAndCounterMeasureStep = actions;
+      noLossData.selectedSupportedTM = selectedSupportedTM;
+      noLossData.breakDownTime =
+        moment(watch("workEndedDateOfBM"))
+          .tz("Asia/Kolkata")
+          .diff(
+            moment(watch("workStartedDateOfBM")).tz("Asia/Kolkata"),
+            "minutes"
+          ) || 0;
+
+      for (let i = 0; i < noLossData?.attachedFilesForOtherLoss?.length; i++) {
+        formData.append(
+          "attachedFilesForOtherLoss",
+          noLossData?.attachedFilesForOtherLoss[i]
+        );
+      }
+
+      formData.append("otherData", JSON.stringify({ ...noLossData }));
       const res = await fetch(`/postNewNoLossBDData`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          noLossData,
-          problemsOfBM: problems,
-          actionAndCounterMeasureStep: actions,
-          selectedSupportedTM,
-          breakDownTime:
-            moment(watch("workEndedDateOfBM"))
-              .tz("Asia/Kolkata")
-              .diff(
-                moment(watch("workStartedDateOfBM")).tz("Asia/Kolkata"),
-                "minutes"
-              ) || 0,
-        }),
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
+        body: formData,
       });
 
       const data = await res.json();
@@ -115,7 +124,7 @@ const ViewNoLossBDEntryForm = ({
       if (res.status === 201) {
         SuccessToast(message);
         modelProp?.onHide();
-        removeDataFromMaster(deletedNoLossRequestSheet?._id)
+        removeDataFromMaster(deletedNoLossRequestSheet?._id);
       } else {
         console.log("error");
       }
@@ -173,11 +182,11 @@ const ViewNoLossBDEntryForm = ({
               </Col>
               <Col className="d-flex justify-content-end">
                 <Tooltip title="Delete Other Loss Request-sheet">
-                    <DeleteIcon
-                      className="text-danger"
-                      role="button"
-                      onClick={deleteNoLossRequestSheet}
-                    />
+                  <DeleteIcon
+                    className="text-danger"
+                    role="button"
+                    onClick={deleteNoLossRequestSheet}
+                  />
                 </Tooltip>
               </Col>
             </Row>
@@ -566,6 +575,52 @@ const ViewNoLossBDEntryForm = ({
                       />
                     </small>
                   </Col>
+                  <Col lg={12}>
+                    <small className="mb-0">
+                      <b>ATTACHED FILES</b>
+                    </small>
+                    <br />
+                    <Form.Group controlId="formFileMultiple" className="mb-3">
+                      <Form.Control
+                        type="file"
+                        multiple
+                        // accept="image/png, image/gif, image/jpeg"
+                        onChange={(e) => {
+                          setValue(
+                            "attachedFilesForOtherLoss",
+                            e.target.files,
+                            {
+                              shouldDirty: true,
+                            }
+                          );
+                        }}
+                      />
+                      {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
+                        <p className="text-error">{"This field is required"}</p>
+                      )} */}
+                    </Form.Group>
+                    {/* {selectedAttendee} */}
+                  </Col>
+                  <Col lg={12}>
+                    {dataOfNoLossBD?.attachedFilesForOtherLoss?.map(
+                      (filesOfNoLoss, idx) => (
+                        <a
+                          target="_blank"
+                          // href={`http://localhost:7000/${image}`}
+                          href={`${BASE_URL}${filesOfNoLoss}`}
+                          style={{
+                            width: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          {filesOfNoLoss}
+                        </a>
+                      )
+                    )}
+                  </Col>
                 </Row>
               </Col>
             </Row>
@@ -590,7 +645,7 @@ const ViewNoLossBDEntryForm = ({
                       name="causeOfNoLoss"
                       className="mt-2 w-100"
                       {...register("causeOfNoLoss", {
-                        required: "This field is required",
+                        // required: "This field is required",
                       })}
                     />
                   </div>
@@ -606,7 +661,7 @@ const ViewNoLossBDEntryForm = ({
                       name="counterMeasureStep"
                       className="mt-2 w-100"
                       {...register("counterMeasureStep", {
-                        required: "This field is required",
+                        // required: "This field is required",
                       })}
                     />
                   </div>

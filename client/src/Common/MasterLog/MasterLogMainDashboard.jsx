@@ -1,10 +1,9 @@
 import React, { useState, useReducer, useEffect } from "react";
 import { Col, Container, Row } from "react-bootstrap";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import ChartsToolbar from "../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
-import { ChartDownloadMenu } from "../../BM/Reports/Common/ChartTitleBar";
 import {
   initialState,
   reducer,
@@ -16,7 +15,10 @@ import { MuiNavigateBack } from "../ButtonComponents/CustomHooksForBackNavigatio
 import { CSVLink } from "react-csv";
 
 const MasterLogInnerComponent = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState("Yes"));
+  const [reduceState, reducerDispatch] = useReducer(
+    reducer,
+    initialState("Yes")
+  );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const [csvDataOfMasterLog, setCsvDataOfMasterLog] = useState([]);

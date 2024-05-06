@@ -17,9 +17,9 @@ const sendMailForBD = async ({subject, title, greetings, toEmailIds, ccEmailIds,
         // logger: false,
         // debug: false,
         // ignoreTLS: true,
-        // tls: {
-        //     ciphers: 'SSLv3'
-        // },
+        tls: {
+            ciphers: 'SSLv3'
+        },
         
 
         //for local-development

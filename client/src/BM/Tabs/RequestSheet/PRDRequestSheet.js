@@ -261,13 +261,15 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       </button>
                       <button
                         className="btn bg-button"
-                        onClick={() => {
-                          navigate(
-                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`
-                          );
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // navigate(
+                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                          // );
+                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`,"_blank")
                         }}
                       >
-                        Machine Details
+                       Machine Details
                       </button>
                     </Col>
 

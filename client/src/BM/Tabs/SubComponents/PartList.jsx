@@ -84,7 +84,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
   return (
     <div className="mtd-parts-section">
       <Row className="m-0 d-flex">
-        <Col lg={2} md={1} sm={2} className="border">
+        <Col lg={2} md={2} sm={2} className="border">
           <small style={{ fontSize: "12px" }}>
             <b>PART NO.</b>
           </small>
@@ -94,7 +94,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
             <b>PART NAME</b>
           </small>
         </Col>
-        <Col lg={2} md={1} sm={2} className="border">
+        <Col lg={2} md={2} sm={2} className="border">
           <small style={{ fontSize: "12px" }}>
             <b>MAKER</b>
           </small>
@@ -104,7 +104,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
             <b>QUANTITY</b>
           </small>
         </Col>
-        <Col lg={2} md={1} sm={2} className="border">
+        <Col lg={2} md={2} sm={2} className="border">
           <small style={{ fontSize: "12px" }}>
             <b>Cost</b>
           </small>
@@ -127,7 +127,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
         editedPart && editedPart.id === index ? (
           <Row key={index} className="m-0 d-flex">
             {/* Render input fields for editing */}
-            <Col lg={2} md={1} sm={2} className="border">
+            <Col lg={2} md={2} sm={2} className="border">
               <input
                 type="text"
                 className="mb-2 mt-2"
@@ -147,7 +147,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
                 }
               />
             </Col>
-            <Col lg={2} md={1} sm={2} className="border">
+            <Col lg={2} md={2} sm={2} className="border">
               <input
                 type="text"
                 className="mb-2 mt-2"
@@ -167,7 +167,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
                 }
               />
             </Col>
-            <Col lg={2} md={1} sm={2} className="border">
+            <Col lg={2} md={2} sm={2} className="border">
               <input
                 type="number"
                 className="mb-2 mt-2"
@@ -198,19 +198,19 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
         ) : (
           <Row key={index} className="m-0">
             {/* Render part information */}
-            <Col lg={2} md={1} sm={2} className="border">
+            <Col lg={2} md={2} sm={2} className="border">
               {part.partNo}
             </Col>
             <Col lg={2} md={2} sm={2} className="border">
               {part.partName}
             </Col>
-            <Col lg={2} md={1} sm={2} className="border">
+            <Col lg={2} md={2} sm={2} className="border">
               {part.makerName}
             </Col>
             <Col lg={2} md={2} sm={2} className="border">
               {part.quantity}
             </Col>
-            <Col lg={2} md={1} sm={2} className="border">
+            <Col lg={2} md={2} sm={2} className="border">
               {part.cost}
             </Col>
             <Col
@@ -242,7 +242,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
 
       {isAdding ? (
         <Row className="m-0">
-          <Col lg={2} md={1} sm={2} className="border">
+          <Col lg={2} md={2} sm={2} className="border">
             <input
               type="text"
               className="mb-2 mt-2"
@@ -264,7 +264,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
               }
             />
           </Col>
-          <Col lg={2} md={1} sm={2} className="border">
+          <Col lg={2} md={2} sm={2} className="border">
             <input
               type="text"
               className="mb-2 mt-2"
@@ -286,7 +286,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
               }
             />
           </Col>
-          <Col lg={2} md={1} sm={2} className="border">
+          <Col lg={2} md={2} sm={2} className="border">
             <input
               type="number"
               placeholder="cost"

@@ -500,7 +500,7 @@ export default function LineSelectionDropdown({
             }}
             input={<OutlinedInput />}
             sx={{
-              width: 130,
+              width: 180,
               "& .MuiSelect-select": {
                 paddingTop: "5px",
                 paddingBottom: "5px",
@@ -543,7 +543,7 @@ export default function LineSelectionDropdown({
             }}
             input={<OutlinedInput />}
             sx={{
-              width: 130,
+              width: 180,
               "& .MuiSelect-select": {
                 paddingTop: "5px",
                 paddingBottom: "5px",

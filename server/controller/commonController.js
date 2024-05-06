@@ -52,6 +52,8 @@ const machineCommonInitialPipeline = (matchObj, selectedYear) => [
   {
     $match: {
       "checkSheet_data.current_year": selectedYear,
+      "checkSheet_data.PMStatus": { $ne: undefined },
+      checkSheet_data: { $ne: undefined },
     },
   },
 ];
@@ -433,7 +435,7 @@ router.get(
       {
         $addFields: {
           users: {
-            $setUnion: [["$doneByNoLossBD"], "$supportingTM"],
+            $setUnion: [[{ $toObjectId: "$doneByNoLossBD" }], "$supportingTM"],
           },
         },
       },
@@ -444,7 +446,7 @@ router.get(
           date: {
             $dateToString: {
               format: "%d-%m-%Y T%H:%M",
-              date: "$DateOfNoLossBD",
+              date: "$workStartedDateOfBM",
               timezone: "Asia/Kolkata",
             },
           },
@@ -1259,7 +1261,6 @@ router.get(
         },
       },
     ]);
-
 
     successResponse(res, "Get all spare consumption logs", {
       GetAllSpareConsumption: GetAllPMSpareConsumption.concat(

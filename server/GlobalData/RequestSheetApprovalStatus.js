@@ -15,13 +15,13 @@ exports.APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM = [
     priority: 3,
   },
   {
-    key: "PRD_HOS",
-    value: "PRD HOS",
+    key: "MTD_HOS",
+    value: "MTD HOS",
     priority: 4,
   },
   {
-    key: "MTD_HOS",
-    value: "MTD HOS",
+    key: "PRD_HOS",
+    value: "PRD HOS",
     priority: 5,
   },
   {

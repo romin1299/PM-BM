@@ -40,86 +40,6 @@ const getLineWiseKpiStatusData = async (urlOptions) => {
   }
 };
 
-// implement data fetching logic here
-function fetchData() {
-  let prevDataType = [
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 0, 150),
-      bdPercentage: getRandomDataArray(12, 0, 150),
-      mttrData: getRandomDataArray(12, 0, 150),
-      mtbfData: getRandomDataArray(12, 0, 150),
-    },
-  ];
-
-  let colorOptions = ["9ccc65", "9ccc65", "9ccc65", "ef5350"];
-  let generateData = [
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      allData: {
-        bdHours: getRandomDataArray(12, 0, 150),
-        bdPercentage: getRandomDataArray(12, 0, 150),
-        mttrData: getRandomDataArray(12, 0, 150),
-        mtbfData: getRandomDataArray(12, 0, 150),
-
-        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
-        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
-      },
-    },
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      allData: {
-        bdHours: getRandomDataArray(12, 0, 150),
-        bdPercentage: getRandomDataArray(12, 0, 150),
-        mttrData: getRandomDataArray(12, 0, 150),
-        mtbfData: getRandomDataArray(12, 0, 150),
-
-        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
-        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
-      },
-    },
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      allData: {
-        bdHours: getRandomDataArray(12, 0, 150),
-        bdPercentage: getRandomDataArray(12, 0, 150),
-        mttrData: getRandomDataArray(12, 0, 150),
-        mtbfData: getRandomDataArray(12, 0, 150),
-
-        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
-        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
-      },
-    },
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      allData: {
-        bdHours: getRandomDataArray(12, 0, 150),
-        bdPercentage: getRandomDataArray(12, 0, 150),
-        mttrData: getRandomDataArray(12, 0, 150),
-        mtbfData: getRandomDataArray(12, 0, 150),
-
-        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
-        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
-      },
-    },
-  ];
-
-  return generateData;
-}
-
 function convertResData(data) {
   // console.log("data:", data);
   const comboData = [
@@ -213,6 +133,7 @@ export async function genChartMatrix(pptx, dataArray) {
     valAxisLabelFontSize: fontSize,
     showTitle: false,
     title: "BD Hours",
+    showValue: false,
   };
 
   function addTitle(slide, title, coordinates) {

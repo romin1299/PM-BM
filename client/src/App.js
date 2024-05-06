@@ -85,10 +85,9 @@ import {
 } from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import RoutingContext from "./context/routing/RoutingContext";
 import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
-import PM from './static/Icons/PM.png'
-import BM from './static/Icons/BM.png'
-import MTD_KPI from './static/Icons/MTD_KPI.png'
-
+import PM from "./static/Icons/PM_history_4.png";
+import BM from "./static/Icons/BM_History_1.png";
+import MTD_KPI from "./static/Icons/MTD_KPI.png";
 
 function App() {
   //DENSO-HARYANA
@@ -244,10 +243,23 @@ function App() {
 
   return (
     <div>
-      <Row className="text-center justify-content-center">
-        <h4>
-          <b>Integrated Maintenance Operation System</b>
-        </h4>
+      <Row>
+        <Col lg={2} md={2} sm={1}>
+          <img src={denso_logo} alt="" className="bg-white" height={50}  width={150} />
+        </Col>
+        <Col
+          lg={8}
+          md={8}
+          sm={1}
+          className="d-flex align-items-center justify-content-center"
+        >
+          <h4>
+            <b>Integrated Maintenance Operation System</b>
+          </h4>
+        </Col>
+        <Col lg={2} md={2} sm={1} className="d-flex justify-content-end">
+          <RightNavbar />
+        </Col>
       </Row>
       <Row style={{ background: "#ddebf9" }}>
         <Col
@@ -262,7 +274,7 @@ function App() {
             onSelect={handleTabSelect}
             id="uncontrolled-tab-example"
           >
-            <div
+            {/* <div
               variant="pills"
               style={{ background: "#ffffff !important" }}
               title={
@@ -271,8 +283,7 @@ function App() {
                 </>
               }
             >
-              {/* Content of the first tab */}
-            </div>
+            </div> */}
 
             {tabs?.map((item) => (
               <Tab
@@ -280,7 +291,14 @@ function App() {
                 eventKey={item?.keyUrl}
                 title={
                   <>
-                    <img src={item?.icon} alt="" srcset="" height={25} width={25} /> &nbsp;&nbsp; <b>{item?.name}</b>
+                    <img
+                      src={item?.icon}
+                      alt=""
+                      srcset=""
+                      height={25}
+                      width={25}
+                    />{" "}
+                    &nbsp;&nbsp; <b>{item?.name}</b>
                   </>
                 }
               ></Tab>
@@ -306,9 +324,9 @@ function App() {
             </Tab> */}
           </Tabs>
         </Col>
-        <Col lg={1} md={1} sm={1} className="d-flex justify-content-end">
+        {/* <Col lg={1} md={1} sm={1} className="d-flex justify-content-end">
           <RightNavbar />
-        </Col>
+        </Col> */}
       </Row>
       <Row>
         {/* Content of both tabs */}

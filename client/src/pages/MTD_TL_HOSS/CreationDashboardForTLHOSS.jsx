@@ -649,8 +649,9 @@ const CreationDashboardForTLHOSS = () => {
       tooltip: "Machine Details",
       isFreeAction: false,
       onClick: (event, selectedRow) => {
-        navigate(
-          `/machine-history/machine-document/${selectedRow?.machine_code}/?machineId=${selectedRow?._id}`
+        event.preventDefault();
+        window.open(
+          `/machine-history/machine-document/${selectedRow?.machine_code}/?machineId=${selectedRow?._id}`, "_blank"
         );
       },
     },

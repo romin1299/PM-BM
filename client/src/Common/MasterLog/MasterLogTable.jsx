@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useReducer } from "react";
-import { Table, ConfigProvider } from "antd";
+import { Table, ConfigProvider, Space, Button } from "antd";
 import axios from "axios";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 import MainRequestSheetForView from "../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
 import ViewNoLossBDEntryForm from "../../BM/NoLossBDDataEntry/ViewNoLossBDEntryForm";
-import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import moment from "moment";
 
 const MasterLogTable = ({
   flagForTogglingFilter,
@@ -14,6 +14,7 @@ const MasterLogTable = ({
   selectedYear,
   selectedMonth,
   setCsvDataOfMasterLog,
+  selectedDateForFilter,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -181,6 +182,74 @@ const MasterLogTable = ({
       title: "Date",
       dataIndex: "date",
       width: 120,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+        close,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Space>
+            <input
+              type="date"
+              value={selectedKeys}
+              onChange={(e) =>
+                setSelectedKeys([e.target.value])
+              }
+              allowClear={true}
+            />
+          </Space>
+          <Space>
+            <Button
+              // type="link"
+              style={{ width: 90 }}
+              size="small"
+              onClick={() => {
+                confirm({ closeDropdown: false });
+              }}
+            >
+              Filter
+            </Button>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => {
+                setSelectedKeys([]);
+                close();
+              }}
+            >
+              close
+            </Button>
+          </Space>
+
+          <Space>
+            <Button
+              type="link"
+              onClick={() => {
+                setSelectedKeys([]);
+                confirm({ closeDropdown: false });
+                clearFilters();
+                close();
+              }}
+              size="small"
+            >
+              Reset
+            </Button>
+          </Space>
+        </div>
+      ),
+      // filterMode: "tree",
+      // filterSearch: true,
+      onFilter: (value, record) => {
+        return (
+          (moment(record["date"], "DD-MM-YYYY", true).isValid()
+            ? record["date"]
+            : moment(record["date"], ["D/M/YYYY h:mm a", "DD-MM-YYYY"]).format(
+                "DD-MM-YYYY"
+              )) === moment(value).format("DD-MM-YYYY")
+        );
+      },
     },
     {
       title: "Cell",
@@ -396,7 +465,6 @@ const MasterLogTable = ({
       onFilter: (value, record) => {
         if (
           record?.doneBy?.filter((obj) => {
-            console.log(typeof obj?.tm_name, value);
             if ((obj?.tm_name).toLowerCase() === value.toLowerCase())
               return obj;
           })?.length > 0
@@ -521,7 +589,10 @@ const MasterLogTable = ({
                       selectedRowForViewForm: res.data?.machine,
                     },
                   });
-                } else if (value?.maintenanceType === "BM" || value?.maintenanceType === "CM") {
+                } else if (
+                  value?.maintenanceType === "BM" ||
+                  value?.maintenanceType === "CM"
+                ) {
                   // navigate(
                   //   `/bm/view/request-sheet/${value?.machine_code}/${value?._id}/${selectedYear}`,
                   //   {
@@ -558,8 +629,24 @@ const MasterLogTable = ({
   };
 
   useEffect(() => {
-    if (selectedValue) getMasterLog();
+    if (selectedValue) {
+      getMasterLog();
+    }
   }, [selectedValue, selectedYear, selectedMonth]);
+
+  // const filterDataBasedOnSelectedDate = () => {
+  //   console.log(selectedDateForFilter);
+  //   let filteredData = masterLogData?.filter(
+  //     (data) =>
+  //       (moment(data?.date, "DD-MM-YYYY", true).isValid()
+  //         ? data?.date
+  //         : moment(data?.date, ["D/M/YYYY h:mm a", "DD-MM-YYYY"]).format(
+  //             "DD-MM-YYYY"
+  //           )) === moment(selectedDateForFilter).format("DD-MM-YYYY")
+  //   );
+
+  //   console.log(filteredData);
+  // };
 
   return (
     <>
@@ -622,7 +709,9 @@ const MasterLogTable = ({
         >
           <Table
             columns={columns}
-            dataSource={masterLogData}
+            dataSource={
+              masterLogData
+            }
             scroll={{ x: 2500, y: 700 }}
             pagination={false}
             bordered

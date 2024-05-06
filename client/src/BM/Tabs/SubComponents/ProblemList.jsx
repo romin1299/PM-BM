@@ -9,7 +9,7 @@ const ProblemList = ({
   clearErrors,
   handleOnchangeFlag,
 }) => {
-  console.log(problems)
+  // console.log(problems)
   const [newProblemText, setNewProblemText] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [editedProblem, setEditedProblem] = useState(null);

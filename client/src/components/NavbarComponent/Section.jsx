@@ -229,30 +229,28 @@ const Section = ({ userData, userDepartment }) => {
                 </MenuItem>
               </SubMenu>
             ) : (
-              NAME_OF_THE_COMPANY !== LIST_OF_COMPANY?.[0] && (
-                <SubMenu
-                  className="text-white"
-                  title="Creation"
-                  icon={<FaThList className="text-white" />}
+              <SubMenu
+                className="text-white"
+                title="Creation"
+                icon={<FaThList className="text-white" />}
+              >
+                <MenuItem
+                  className="text"
+                  icon={
+                    <PersonAddIcon
+                      className="text-white"
+                      style={{
+                        background: "#004B5B",
+                        borderRadius: "3px",
+                        padding: "2px",
+                      }}
+                    />
+                  }
                 >
-                  <MenuItem
-                    className="text"
-                    icon={
-                      <PersonAddIcon
-                        className="text-white"
-                        style={{
-                          background: "#004B5B",
-                          borderRadius: "3px",
-                          padding: "2px",
-                        }}
-                      />
-                    }
-                  >
-                    <NavLink to="/pm/userAssign"></NavLink>
-                    User Assign
-                  </MenuItem>
-                </SubMenu>
-              )
+                  <NavLink to="/pm/userAssign"></NavLink>
+                  User Assign
+                </MenuItem>
+              </SubMenu>
             )}
 
             <SubMenu

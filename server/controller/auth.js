@@ -21925,6 +21925,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
             serverIP: values.server_ip,
             emailPort: values.email_port,
             fromEmailId: values.email,
+            emailForSpareRequest: values.emailForSpareRequest
           },
         }
       );
@@ -21934,6 +21935,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
         serverIP: values.server_ip,
         emailPort: values.email_port,
         fromEmailId: values.email,
+        emailForSpareRequest: values.emailForSpareRequest
       });
       result = addNewEmailConf.save();
     }

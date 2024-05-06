@@ -110,7 +110,7 @@ const ProblemModeHistory = ({
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            Problem Mode: <b>{problemMode}</b>
+            Problem Occurred: <b>{problemMode}</b>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="container">
