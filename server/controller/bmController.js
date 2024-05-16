@@ -405,6 +405,8 @@ router.post(
               parseInt(requestSheetDataFilledByMTDUser?.spareWaitingTime) || 0,
             "maintenanceReportFilledByMTD.replacementTime":
               parseInt(requestSheetDataFilledByMTDUser?.replacementTime) || 0,
+              "maintenanceReportFilledByMTD.maintenanceTime":
+              parseInt(requestSheetDataFilledByMTDUser?.maintenanceTime) || 0,
             "maintenanceReportFilledByMTD.analysisTime":
               parseInt(requestSheetDataFilledByMTDUser?.analysisTime) || 0,
             "maintenanceReportFilledByMTD.adjustmentTime":
@@ -1669,6 +1671,7 @@ const filterMiddleware = async (req, res, next) => {
         "maintenanceReportFilledByMTD.breakDownTime": {
           $gt: 0,
         },
+        maintenanceType: "BM",
       },
       queryObjForPM = {};
 
@@ -1977,6 +1980,7 @@ router.get(
           "maintenanceReportFilledByMTD.breakDownTime": {
             $gte: req.query?.greaterValue * 1,
           },
+          maintenanceType: "BM",
         };
         queryPipeline = [
           {
@@ -3483,7 +3487,6 @@ router.get(
           },
         },
       ]);
-      console.log(UserWisePendingApprovalCount);
       return res.status(201).json({
         message:
           "Monitoring request-sheet UserWise pending data get successfully",
@@ -6460,12 +6463,18 @@ router.get(
     try {
       let nextDate = new Date(req.params.date);
       nextDate.setDate(nextDate.getDate() + 1);
-
+      console.log(
+        new Date(req.params.date),
+        "----",
+        nextDate,
+        "*****",
+        moment(req.params.date).endOf('day').format()
+      );
       req.queryObj = {
         ...req.queryObj,
         problemOccurredDateAndTimeOfBM: {
           $gte: new Date(req.params.date),
-          $lt: nextDate,
+          $lt: (moment(req.params.date).endOf('day')).format(),
         },
       };
 
@@ -6785,12 +6794,13 @@ router.get(
       const lineWisePptExportationData = await RequestSheetOfBM.aggregate([
         {
           $match: {
-            // cellRef: mongoose.Types.ObjectId(req.params.selectedId),
+            cellRef: mongoose.Types.ObjectId(req.params.selectedId),
             "preAggregationTimeStampOfRequestSheet.requestSheet_year":
               req.query?.selectedYear,
             "maintenanceReportFilledByMTD.breakDownTime": {
               $gt: 0,
             },
+            maintenanceType: "BM",
           },
         },
         {
@@ -6828,6 +6838,7 @@ router.get(
               },
               {
                 $project: {
+                  line_sequence: 1,
                   line_name: 1,
                   monthlyBDHrsTarget: {
                     $map: {
@@ -6895,6 +6906,7 @@ router.get(
             _id: {
               lineId: "$line._id",
               lineName: "$line.line_name",
+              line_sequence: "$line.line_sequence",
               monthlyBDHrsTarget: "$line.monthlyBDHrsTarget",
               monthlyMTTRTarget: "$line.monthlyMTTRTarget",
               monthlyMTBFTarget: "$line.monthlyMTBFTarget",
@@ -7049,7 +7061,7 @@ router.get(
           },
         },
         {
-          $sort: { "_id.lineId": 1 },
+          $sort: { "_id.line_sequence": 1 },
         },
         {
           $project: {
@@ -7137,6 +7149,7 @@ router.post(
           "maintenanceReportFilledByMTD.breakDownTime": {
             $gt: 0,
           },
+          maintenanceType: "BM",
         };
 
       if (req.params?.filter === "based-on-section") {
@@ -12232,6 +12245,7 @@ router.get(
           "maintenanceReportFilledByMTD.breakDownTime": {
             $gt: 0,
           },
+          maintenanceType: "BM",
         };
 
       if (req.query?.selectedMonth) {
@@ -12334,6 +12348,7 @@ router.get(
             "maintenanceReportFilledByMTD.breakDownTime": {
               $gt: 0,
             },
+            maintenanceType: "BM",
           },
         },
         {
@@ -16001,6 +16016,7 @@ const filtrationMiddleware = async (req, res, next) => {
       "maintenanceReportFilledByMTD.breakDownTime": {
         $gt: 0,
       },
+      maintenanceType: "BM",
     };
     let queryObjForPM = {};
 
@@ -16591,6 +16607,7 @@ router.get(
           "maintenanceReportFilledByMTD.breakDownTime": {
             $gt: 0,
           },
+          maintenanceType: "BM",
         };
 
       if (req.query?.selectedMonth) {
@@ -16948,6 +16965,7 @@ router.get(
           "maintenanceReportFilledByMTD.breakDownTime": {
             $gt: 0,
           },
+          maintenanceType: "BM",
         };
 
       if (req.query?.selectedMonth) {
@@ -19608,6 +19626,7 @@ router.get(
         "maintenanceReportFilledByMTD.breakDownTime": {
           $gt: 0,
         },
+        maintenanceType: "BM",
       };
       req.queryObj = queryObj;
       next();
@@ -19658,9 +19677,7 @@ router.post(
   ]),
   async (req, res, next) => {
     try {
-      const noLossRequestSheetData = JSON.parse(
-        req.body.otherData
-      );
+      const noLossRequestSheetData = JSON.parse(req.body.otherData);
       const dataSheet = req.files;
       // const {
       //   noLossData,
@@ -19689,20 +19706,21 @@ router.post(
         }));
 
       if (noLossBDSheetExistsOrNot) {
-
-        if(dataSheet?.attachedFilesForOtherLoss?.length > 0){
-          noLossBDSheetExistsOrNot?.attachedFilesForOtherLoss?.map((noLossFileName) => {
-            fs.unlink(
-              path.join(__dirname, `../OtherLossFiles/${noLossFileName}`),
-              function (err) {
-                if (err) {
-                  console.error(err);
-                } else {
-                  console.log("Other loss files Removed Successfully");
+        if (dataSheet?.attachedFilesForOtherLoss?.length > 0) {
+          noLossBDSheetExistsOrNot?.attachedFilesForOtherLoss?.map(
+            (noLossFileName) => {
+              fs.unlink(
+                path.join(__dirname, `../OtherLossFiles/${noLossFileName}`),
+                function (err) {
+                  if (err) {
+                    console.error(err);
+                  } else {
+                    console.log("Other loss files Removed Successfully");
+                  }
                 }
-              }
-            );
-          });
+              );
+            }
+          );
         }
 
         resultOfSaveOrUpdateNoLossBD = await NoLossBD.findOneAndUpdate(
@@ -19712,14 +19730,18 @@ router.post(
           {
             $set: {
               ...noLossRequestSheetData,
-              problemsOfBM : noLossRequestSheetData?.problemsOfBM,
-              actionAndCounterMeasureStep : noLossRequestSheetData?.actionAndCounterMeasureStep,
-              supportingTM: noLossRequestSheetData?.selectedSupportedTM?.map((obj) => obj?._id),
+              problemsOfBM: noLossRequestSheetData?.problemsOfBM,
+              actionAndCounterMeasureStep:
+                noLossRequestSheetData?.actionAndCounterMeasureStep,
+              supportingTM: noLossRequestSheetData?.selectedSupportedTM?.map(
+                (obj) => obj?._id
+              ),
               breakDownTime: noLossRequestSheetData?.breakDownTime,
               categoriesOfRequestSheet: convertedData,
-              attachedFilesForOtherLoss: dataSheet?.attachedFilesForOtherLoss?.map(
-                (obj) => obj?.filename
-              ),
+              attachedFilesForOtherLoss:
+                dataSheet?.attachedFilesForOtherLoss?.map(
+                  (obj) => obj?.filename
+                ),
             },
           },
           {
@@ -19746,10 +19768,13 @@ router.post(
         const addNewNoLossBD = new NoLossBD({
           ...noLossRequestSheetData,
           noLossBDNo,
-          problemsOfBM : noLossRequestSheetData?.problemsOfBM,
-          actionAndCounterMeasureStep : noLossRequestSheetData?.actionAndCounterMeasureStep,
-          supportingTM: noLossRequestSheetData?.selectedSupportedTM?.map((obj) => obj?._id),
-          breakDownTime : noLossRequestSheetData?.breakDownTime,
+          problemsOfBM: noLossRequestSheetData?.problemsOfBM,
+          actionAndCounterMeasureStep:
+            noLossRequestSheetData?.actionAndCounterMeasureStep,
+          supportingTM: noLossRequestSheetData?.selectedSupportedTM?.map(
+            (obj) => obj?._id
+          ),
+          breakDownTime: noLossRequestSheetData?.breakDownTime,
           categoriesOfRequestSheet: convertedData,
           attachedFilesForOtherLoss: dataSheet?.attachedFilesForOtherLoss?.map(
             (obj) => obj?.filename
@@ -19907,7 +19932,7 @@ router.get("/getNoLossBDEntryData", authenticate, async (req, res, next) => {
           cell: 1,
           subSection: 1,
           section: 1,
-          attachedFilesForOtherLoss: 1
+          attachedFilesForOtherLoss: 1,
         },
       },
     ]);

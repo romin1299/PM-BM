@@ -88,6 +88,10 @@ function MTDRequestSheetForView({
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.spareWaitingTime
       );
       setValue(
+        "maintenanceTime",
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime
+      );
+      setValue(
         "replacementTime",
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.replacementTime
       );
@@ -854,7 +858,34 @@ function MTDRequestSheetForView({
                   md={6}
                   sm={6}
                   className="border text-center pb-2 pt-2"
-                ></Col>
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>MAINTENANCE</b>
+                  </small>
+                  <input
+                    type="number"
+                    disabled
+                    style={{ width: "100%" }}
+                    id="maintenance"
+                    name="maintenance"
+                    {...register("maintenanceTime", {
+                      // required: "This field is required",
+                    })}
+                    onChange={(e) => {
+                      setValue("maintenanceTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("maintenanceTime");
+                      clearErrors("totalTimeValidation");
+                    }}
+                    // onChange={handlemaintenanceTime}
+                  />
+                  {errors?.["maintenanceTime"] && (
+                    <p className="text-error">
+                      {errors?.["maintenanceTime"]?.message}
+                    </p>
+                  )}
+                </Col>
                 <Col
                   lg={3}
                   md={6}

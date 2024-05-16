@@ -169,6 +169,9 @@ const BDRequestSheetAntDesignTable = ({
               headerBg: "#0fa3b1",
               fontWeightStrong: 700,
               borderColor: "#9f9f9f",
+              fontSize: 18,
+              fontSizeIcon: 15,
+              opacityLoading: 2.65,
             },
           },
         }}

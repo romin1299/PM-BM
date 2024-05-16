@@ -9,7 +9,7 @@ const sendMailForBD = async ({subject, title, greetings, toEmailIds, ccEmailIds,
 
     let transporter = nodemailer.createTransport({
         service: 'smtp-mail.outlook.com',
-        // pool: true,
+        pool: true,
         host: emailConfData.serverIP,
         port: emailConfData.emailPort,
         secureConnection: false,

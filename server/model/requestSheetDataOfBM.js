@@ -66,6 +66,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     adjustmentTime: { type: Number },
     qualityCheckTime: { type: Number },
     breakTime: { type: Number },
+    maintenanceTime: { type: Number },
 
     minorBD: { type: String },
     majorBD: { type: String },

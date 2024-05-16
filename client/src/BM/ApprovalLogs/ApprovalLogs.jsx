@@ -341,6 +341,9 @@ const ApprovalLogs = () => {
               headerBg: "#0fa3b1",
               borderColor: "#9f9f9f",
               fontWeightStrong: 700,
+              fontSize: 18,
+              fontSizeIcon: 15,
+              opacityLoading: 2.65,
             },
           },
         }}

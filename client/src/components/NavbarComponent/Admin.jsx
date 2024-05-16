@@ -8,7 +8,8 @@ import {
   // NoteAddIcon,
   DashboardIcon,
 } from "./ImportModules";
-
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import Logout from "../../Integration/Logout/Logout";
 import { useNavigate } from "react-router-dom";
 
@@ -49,7 +50,7 @@ const Admin = ({ userData }) => {
   const [collapsed, setCollapsed] = useState(true);
   const styles = {
     sideBarHeight: {
-      height: "100vh",
+      height: "110vh",
     },
     menuIcon: {
       float: "left",
@@ -117,7 +118,7 @@ const Admin = ({ userData }) => {
         </div>
       </div>
       <SidebarContent>
-        <Menu iconShape="square" style={styles.bg}>
+        <Menu iconShape="square" style={{ ...styles.bg, height: "75vh" }}>
           <Menuitem
             className="text-white"
             data-toggle="tooltip"
@@ -139,6 +140,19 @@ const Admin = ({ userData }) => {
             Admin Dashboard
           </Menuitem>
         </Menu>
+        <Menuitem
+          className="text-white"
+          icon={<MenuBookIcon className="text-white" />}
+          data-toggle="tooltip"
+          data-placement="right"
+          title="User Manual"
+        >
+          <NavLink
+            to={`${BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
+            target="_blank"
+          ></NavLink>
+          User Manual
+        </Menuitem>
         <Menu iconShape="square">
           <MenuItem
             className="text"

@@ -171,12 +171,12 @@ const MasterLogTable = ({
       render: (value, item, idx) => {
         return ++idx;
       },
-      width: 60,
+      width: 70,
     },
     {
       title: "Month",
       dataIndex: "month",
-      width: 80,
+      width: 90,
     },
     {
       title: "Date",
@@ -194,9 +194,7 @@ const MasterLogTable = ({
             <input
               type="date"
               value={selectedKeys}
-              onChange={(e) =>
-                setSelectedKeys([e.target.value])
-              }
+              onChange={(e) => setSelectedKeys([e.target.value])}
               allowClear={true}
             />
           </Space>
@@ -292,6 +290,10 @@ const MasterLogTable = ({
         {
           value: "BM",
           text: "BM",
+        },
+        {
+          value: "CM",
+          text: "CM",
         },
         {
           value: "CM Entry",
@@ -568,7 +570,7 @@ const MasterLogTable = ({
     {
       title: "View",
       dataIndex: "",
-      width: 66,
+      width: 70,
       fixed: "right",
 
       render: (value) => (
@@ -700,18 +702,19 @@ const MasterLogTable = ({
                 headerBg: "#0fa3b1",
                 fontWeightStrong: 700,
                 borderColor: "#9f9f9f",
-
                 headerFilterActiveBg: "rgb(255, 230, 230)",
                 headerFilterHoverBg: "rgb(255, 255, 255)",
+                fontSize: 18,
+                fontSizeIcon: 15,
+                fontSizeSM: 15,
+                opacityLoading: 2.65,
               },
             },
           }}
         >
           <Table
             columns={columns}
-            dataSource={
-              masterLogData
-            }
+            dataSource={masterLogData}
             scroll={{ x: 2500, y: 700 }}
             pagination={false}
             bordered

@@ -41,6 +41,8 @@ import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -60,7 +62,7 @@ const Plant = ({ userData, userDepartment }) => {
   const [collapsed, setCollapsed] = useState(true);
   const styles = {
     sideBarHeight: {
-      height: "100vh",
+      height: "110vh",
     },
     menuIcon: {
       float: "left",
@@ -90,7 +92,7 @@ const Plant = ({ userData, userDepartment }) => {
       </div> */}
         <div>
           <SidebarHeader>
-           {/* <div className="logotext">
+            {/* <div className="logotext">
               <p className="d-flex align-items-center justify-content-center m-2 sticky-top bg-white">
                 {menuCollapse ? (
                   <img
@@ -128,7 +130,7 @@ const Plant = ({ userData, userDepartment }) => {
         </div>
       </div>
       <SidebarContent>
-        <Menu iconShape="square" style={styles.bg}>
+        <Menu iconShape="square" style={{ ...styles.bg, height: "75vh" }}>
           <SubMenu
             className="text-white"
             title="Dashboard"
@@ -504,6 +506,20 @@ const Plant = ({ userData, userDepartment }) => {
           >
             <NavLink to="/pm/spareReportDashboard"></NavLink>
             Spare Report
+          </Menuitem>
+
+          <Menuitem
+            className="text-white"
+            icon={<MenuBookIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="User Manual"
+          >
+            <NavLink
+              to={`${BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
+              target="_blank"
+            ></NavLink>
+            User Manual
           </Menuitem>
         </Menu>
         <Menu iconShape="square">

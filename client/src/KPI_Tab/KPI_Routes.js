@@ -22,7 +22,8 @@ import MachineAgeReport from "../BM/Reports/MachineAge/MachineAgeReport";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import TargetDashboard from "../BM/TargetOfBD/TargetDashboard";
 import MainRequestSheetForView from "../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
-
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import { BASE_URL } from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 const KPI_Routes = ({ commonRoutes, loggedUser }) => {
   const userData = useContext(RoutingContext);
   const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
@@ -175,6 +176,11 @@ const KPI_Routes = ({ commonRoutes, loggedUser }) => {
       title: "Spare Report",
       icon: <SummarizeIcon className="text-white" />,
       route: "/kpi/spareReportDashboard",
+    },
+    {
+      icon: <MenuBookIcon className="text-white" />,
+      title: "User Manual",
+      route: `${BASE_URL}/Denso BM User Manual_OSL14May2024.pdf`,
     },
   ];
 

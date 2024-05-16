@@ -236,6 +236,17 @@ function MyTable({
         flagCountForHandlingError++;
         // console.log(flagCountForHandlingError);
       }
+      if (watch("maintenanceTime") === undefined) {
+        setError(
+          "maintenanceTime",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
+      }
       if (watch("replacementTime") === undefined) {
         setError(
           "replacementTime",
@@ -285,6 +296,7 @@ function MyTable({
         parseInt(watch("analysisTime")) +
           parseInt(watch("spareWaitingTime")) +
           parseInt(watch("replacementTime")) +
+          parseInt(watch("maintenanceTime")) +
           parseInt(watch("adjustmentTime")) +
           parseInt(watch("qualityCheckTime")) +
           parseInt(watch("breakTime")) !==
@@ -677,6 +689,10 @@ function MyTable({
       setValue(
         "qualityCheckTime",
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.qualityCheckTime
+      );
+      setValue(
+        "maintenanceTime",
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime
       );
       setValue(
         "breakTime",
@@ -1455,7 +1471,33 @@ function MyTable({
                   md={6}
                   sm={6}
                   className="border text-center pb-2 pt-2"
-                ></Col>
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>MAINTENANCE</b>
+                  </small>
+                  <input
+                    type="number"
+                    style={{ width: "100%" }}
+                    id="maintenance"
+                    name="maintenance"
+                    {...register("maintenanceTime", {
+                      // required: "This field is required",
+                    })}
+                    onChange={(e) => {
+                      setValue("maintenanceTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("maintenanceTime");
+                      clearErrors("totalTimeValidation");
+                    }}
+                    // onChange={handlemaintenanceTime}
+                  />
+                  {errors?.["maintenanceTime"] && (
+                    <p className="text-error">
+                      {errors?.["maintenanceTime"]?.message}
+                    </p>
+                  )}
+                </Col>
                 <Col
                   lg={3}
                   md={6}

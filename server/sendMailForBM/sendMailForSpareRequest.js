@@ -9,7 +9,7 @@ const sendMailForSpareRequest = async ({subject, title, greetings, toEmailIds, c
 
     let transporter = nodemailer.createTransport({
         service: 'smtp-mail.outlook.com',
-        // pool: true,
+        pool: true,
         host: emailConfData.serverIP,
         port: emailConfData.emailPort,
         secureConnection: false,

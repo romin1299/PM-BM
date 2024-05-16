@@ -77,6 +77,8 @@ app.use(express.static(path.join(__dirname, "attachments")));
 app.use(express.static(path.join(__dirname, "ImagesOrVideoOfPRD")));
 //for Other Loss BM Files
 app.use(express.static(path.join(__dirname, "OtherLossFiles")));
+//for User manual
+app.use(express.static(path.join(__dirname, "manuals")));
 
 // index file path
 app.get("/*", (req, res) => {

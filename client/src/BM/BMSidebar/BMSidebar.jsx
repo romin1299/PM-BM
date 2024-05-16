@@ -127,7 +127,11 @@ const BMSidebar = ({ userData, filteredItems }) => {
                   icon={menuItem.icon}
                   onClick={clearLocalStorage}
                 >
-                  <NavLink to={menuItem.route}></NavLink> {menuItem.title}
+                  <NavLink
+                    to={menuItem.route}
+                    target={menuItem.title === "User Manual" ? "_blank" : "_self"}
+                  ></NavLink>{" "}
+                  {menuItem.title}
                 </MenuItem>
               );
             }

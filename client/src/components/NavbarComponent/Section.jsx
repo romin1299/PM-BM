@@ -9,6 +9,7 @@ import {
   AddTaskIcon,
   FactCheckIcon,
 } from "./ImportModules";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 import { useNavigate } from "react-router-dom";
 
@@ -30,6 +31,7 @@ import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
 import ArticleIcon from "@mui/icons-material/Article";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -71,9 +73,9 @@ const Section = ({ userData, userDepartment }) => {
 
   const [collapsed, setCollapsed] = useState(true);
   const styles = {
-    sideBarHeight: {
-      height: "100vh",
-    },
+    // sideBarHeight: {
+    //   height: "110vh",
+    // },
     menuIcon: {
       float: "left",
       marginBottom: "1rem",
@@ -141,7 +143,7 @@ const Section = ({ userData, userDepartment }) => {
           </div>
         </div>
         <SidebarContent>
-          <Menu iconShape="square" style={styles.bg}>
+          <Menu iconShape="square" style={{ ...styles.bg, height: "75vh" }}>
             <SubMenu
               className="text-white"
               title="Dashboard"
@@ -583,8 +585,20 @@ const Section = ({ userData, userDepartment }) => {
               <NavLink to="/pm/spareReportDashboard"></NavLink>
               Spare Report
             </Menuitem>
-          </Menu>
-          <Menu iconShape="square">
+            <Menuitem
+              className="text-white"
+              icon={<MenuBookIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="User Manual"
+            >
+              <NavLink
+                to={`${BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
+                target="_blank"
+              ></NavLink>
+              User Manual
+            </Menuitem>
+            {/* <Menu iconShape="square"> */}
             <MenuItem
               className="text"
               icon={
@@ -607,6 +621,7 @@ const Section = ({ userData, userDepartment }) => {
               {" "}
               Logout{" "}
             </MenuItem>
+            {/* </Menu> */}
           </Menu>
         </SidebarContent>
         {/* <SidebarFooter fixed="bottom">

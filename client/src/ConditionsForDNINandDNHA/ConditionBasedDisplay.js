@@ -11,5 +11,5 @@ export const LIST_OF_COMPANY = ["DNHA", "DNIN"];
 //for DENSO-INDIA
 // export const BASE_URL = 'https://172.28.31.14:7000/'
 
-//for DENSO-Hayana
+//for DENSO-Haryana
 export const BASE_URL = 'https://172.28.14.6:7000/'

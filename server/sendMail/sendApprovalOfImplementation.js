@@ -1,37 +1,54 @@
-const nodemailer = require('nodemailer');
-const EmailConfigurationController = require('../controller/emailConfigurationController')
+const nodemailer = require("nodemailer");
+const EmailConfigurationController = require("../controller/emailConfigurationController");
 
-const sendApproval = async (subject, title, greetings, bodyTable,assign_member_name, tm_no, tm_name, machine_code, machine_name, checksheet_status, firstEmail, secondEmail, prdtlApproval, mtdtlApproval, mtdhosApproval, rejected_remarks) => {
-    // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
-    // console.log("==============>", prdtlApproval, mtdhosApproval)
-    // console.log("==============>", request)
-    let emailConfData = await EmailConfigurationController()
+const sendApproval = async (
+  subject,
+  title,
+  greetings,
+  bodyTable,
+  assign_member_name,
+  tm_no,
+  tm_name,
+  machine_code,
+  machine_name,
+  checksheet_status,
+  firstEmail,
+  secondEmail,
+  prdtlApproval,
+  mtdtlApproval,
+  mtdhosApproval,
+  rejected_remarks
+) => {
+  // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
+  // console.log("==============>", prdtlApproval, mtdhosApproval)
+  // console.log("==============>", request)
+  let emailConfData = await EmailConfigurationController();
 
-    let transpoter = nodemailer.createTransport({
-        service: 'smtp-mail.outlook.com',
-        // pool: true,
-        host: emailConfData.serverIP,
-        port: emailConfData.emailPort,
-        secureConnection: false,
-        secure: false,
-        logger: true,
-        debug: true,
+  let transpoter = nodemailer.createTransport({
+    service: "smtp-mail.outlook.com",
+    // pool: true,
+    host: emailConfData.serverIP,
+    port: emailConfData.emailPort,
+    secureConnection: false,
+    secure: false,
+    logger: false,
+    debug: false,
 
-        // ignoreTLS: true
-        tls: {
-            ciphers: 'SSLv3'
-        },
-        // auth: {
-        //     user: "sm_sample11@outlook.com",
-        //     pass: "Sendemail@111"
-        // }
-    });
-    //sending an email for forgot password
-    let mailOptions = {
-        from: emailConfData.fromEmailId,
-        to: [firstEmail, secondEmail],
-        subject: subject,
-        html: `
+    // ignoreTLS: true
+    tls: {
+      ciphers: "SSLv3",
+    },
+    // auth: {
+    //     user: "sm_sample11@outlook.com",
+    //     pass: "Sendemail@111"
+    // }
+  });
+  //sending an email for forgot password
+  let mailOptions = {
+    from: emailConfData.fromEmailId,
+    to: [firstEmail, secondEmail],
+    subject: subject,
+    html: `
         <!doctype html>
 <html lang="en-US">
 <head>
@@ -82,11 +99,37 @@ const sendApproval = async (subject, title, greetings, bodyTable,assign_member_n
                                         <h4>For Machine Code : </h4>${machine_code}<br/>
                                         <h4>For Machine Name :</h4> ${machine_name}<br/> 
                                         
-                                        <h4>PRD Tl Approval : </h4>${prdtlApproval === "Accepted" ? "Accepted" : prdtlApproval === "Rejected" ? "Rejected" : "Pending"}<br/> 
-                                        <h4>MTD TL Approval : </h4>${mtdtlApproval === "Accepted" ? "Accepted" : mtdtlApproval === "Rejected" ? "Rejected" : "Pending"}<br/>
-                                        <h4>MTD HOS Approval : </h4>${mtdhosApproval === "Accepted" ? "Accepted" : mtdhosApproval === "Rejected" ? "Rejected" : "Pending"}
+                                        <h4>PRD Tl Approval : </h4>${
+                                          prdtlApproval === "Accepted"
+                                            ? "Accepted"
+                                            : prdtlApproval === "Rejected"
+                                            ? "Rejected"
+                                            : "Pending"
+                                        }<br/> 
+                                        <h4>MTD TL Approval : </h4>${
+                                          mtdtlApproval === "Accepted"
+                                            ? "Accepted"
+                                            : mtdtlApproval === "Rejected"
+                                            ? "Rejected"
+                                            : "Pending"
+                                        }<br/>
+                                        <h4>MTD HOS Approval : </h4>${
+                                          mtdhosApproval === "Accepted"
+                                            ? "Accepted"
+                                            : mtdhosApproval === "Rejected"
+                                            ? "Rejected"
+                                            : "Pending"
+                                        }
                 
-                                        <h4>If rejected then : </h4>${mtdhosApproval === "Accepted" || prdtlApproval === "Accepted" ? "" : mtdhosApproval === "Rejected" || prdtlApproval === "Rejected" ? `Rejected remarks is : ${rejected_remarks}` : ""}<br/>
+                                        <h4>If rejected then : </h4>${
+                                          mtdhosApproval === "Accepted" ||
+                                          prdtlApproval === "Accepted"
+                                            ? ""
+                                            : mtdhosApproval === "Rejected" ||
+                                              prdtlApproval === "Rejected"
+                                            ? `Rejected remarks is : ${rejected_remarks}`
+                                            : ""
+                                        }<br/>
 
                                         </p>
                                         
@@ -114,17 +157,16 @@ const sendApproval = async (subject, title, greetings, bodyTable,assign_member_n
     </table>
     <!--/100% body table-->
 </body>
-</html>`
-    }
+</html>`,
+  };
 
-    transpoter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        }
-        else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
-}
+  transpoter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+};
 
 module.exports = sendApproval;

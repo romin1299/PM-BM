@@ -1069,7 +1069,21 @@ const UpdateRequestSheetForAnyStatus = () => {
                     md={6}
                     sm={6}
                     className="border text-center pb-2 pt-2"
-                  ></Col>
+                  >
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>MAINTENANCE</b>
+                    </small>
+                    <input
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="maintenanceTime"
+                      name="maintenanceTime"
+                      {...register(
+                        "maintenanceReportFilledByMTD.maintenanceTime"
+                      )}
+                    />
+                  </Col>
                   <Col
                     lg={3}
                     md={6}

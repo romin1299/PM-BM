@@ -26,9 +26,11 @@ import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import { FaWpforms } from "react-icons/fa6";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import {
   NAME_OF_THE_COMPANY,
   LIST_OF_COMPANY,
+  BASE_URL,
 } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const allusers = [
@@ -188,6 +190,12 @@ export const menuItems = [
     title: "Master Log",
     icon: <LibraryBooksIcon className="text-white" />,
     route: "/master-log",
+    allowedRoles: allusers,
+  },
+  {
+    icon: <MenuBookIcon className="text-white" />,
+    title: "User Manual",
+    route: `${BASE_URL}/Denso BM User Manual_OSL14May2024.pdf`,
     allowedRoles: allusers,
   },
   {

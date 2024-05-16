@@ -1,37 +1,35 @@
-const nodemailer = require('nodemailer');
-const EmailConfigurationController = require('../controller/emailConfigurationController')
+const nodemailer = require("nodemailer");
+const EmailConfigurationController = require("../controller/emailConfigurationController");
 
 const autoMailSendForSixMonthApproval = async (toMail) => {
+  let emailConfData = await EmailConfigurationController();
 
-    let emailConfData = await EmailConfigurationController()
+  let transpoter = nodemailer.createTransport({
+    service: "smtp-mail.outlook.com",
+    // pool: true,
+    host: emailConfData.serverIP,
+    port: emailConfData.emailPort,
+    secureConnection: false,
+    secure: false,
+    logger: false,
+    debug: false,
 
-
-    let transpoter = nodemailer.createTransport({
-        service: 'smtp-mail.outlook.com',
-        // pool: true,
-        host: emailConfData.serverIP,
-        port: emailConfData.emailPort,
-        secureConnection: false,
-        secure: false,
-        logger: true,
-        debug: true,
-
-        // ignoreTLS: true
-        tls: {
-            ciphers: 'SSLv3'
-        },
-        // auth: {
-        //     user: "sm_sample11@outlook.com",
-        //     pass: "Sendemail@111"
-        // }
-    });
-    //sending an email for forgot password
-    let mailOptions = {
-        from: emailConfData.fromEmailId,
-        to: [toMail],
-        // cc: ccEmailArray,
-        subject: `Checksheet Six-Month Approval Plan vs Actual`,
-        html: `
+    // ignoreTLS: true
+    tls: {
+      ciphers: "SSLv3",
+    },
+    // auth: {
+    //     user: "sm_sample11@outlook.com",
+    //     pass: "Sendemail@111"
+    // }
+  });
+  //sending an email for forgot password
+  let mailOptions = {
+    from: emailConfData.fromEmailId,
+    to: [toMail],
+    // cc: ccEmailArray,
+    subject: `Checksheet Six-Month Approval Plan vs Actual`,
+    html: `
         <!doctype html>
 <html lang="en-US">
 <head>
@@ -101,17 +99,16 @@ const autoMailSendForSixMonthApproval = async (toMail) => {
     </table>
     <!--/100% body table-->
 </body>
-</html>`
-    }
+</html>`,
+  };
 
-    transpoter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        }
-        else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
-}
+  transpoter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+};
 
 module.exports = autoMailSendForSixMonthApproval;

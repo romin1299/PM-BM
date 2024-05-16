@@ -160,13 +160,16 @@ router.post("/signIn", async (req, res) => {
       if (!passwordMatch) {
         res.status(400).json({ error: "Invalid password " });
       } else {
-        res.json({ message: "user login successfully", userLogin: {
-          tm_no: userLogin?.tm_no,
-          tm_name: userLogin?.tm_name,
-          tm_department: userLogin?.tm_department,
-          tm_grade: userLogin?.tm_grade,
-          user_type: userLogin?.user_type
-        } });
+        res.json({
+          message: "user login successfully",
+          userLogin: {
+            tm_no: userLogin?.tm_no,
+            tm_name: userLogin?.tm_name,
+            tm_department: userLogin?.tm_department,
+            tm_grade: userLogin?.tm_grade,
+            user_type: userLogin?.user_type,
+          },
+        });
       }
       // }
     } else {
@@ -4898,6 +4901,13 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           machine_code: selected_machine_data.machine_code,
         },
       },
+      { $unwind: "$checkSheet_data" },
+      {
+        $match: {
+          "checkSheet_data.current_year":
+            selected_machine_data.checkSheet_data.current_year,
+        },
+      },
       {
         $project: {
           machine_code: 1,
@@ -4910,7 +4920,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           manufacturingDate: 1,
           isPM: 1,
           line_names: 1,
-          checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+          checkSheet_data: 1,
         },
       },
     ]);
@@ -6556,13 +6566,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
                     </table>`;
 
-        console.log(
-          "when click on button",
-          selected_machine_data.checkSheet_data.assign_HOS[
-            selected_machine_data.checkSheet_data.checkSheetSendingUser.length -
-              1
-          ]
-        );
+        // console.log(
+        //   "when click on button",
+        //   selected_machine_data.checkSheet_data.assign_HOS[
+        //     selected_machine_data.checkSheet_data.checkSheetSendingUser.length -
+        //       1
+        //   ]
+        // );
 
         sendApproval(
           subject,
@@ -7121,6 +7131,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               machine_code: selected_machine_data.machine_code,
             },
           },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                selected_machine_data.checkSheet_data.current_year,
+            },
+          },
           {
             $project: {
               machine_code: 1,
@@ -7133,16 +7150,16 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
+              // checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
             },
           },
         ]);
 
         // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_approved_by_PRD_TL": { $exists: true } });
-
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_approved_by_PRD_TL
+          machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+          ?.implementation_approved_by_PRD_TL  === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
             { machine_code: selected_machine_data.machine_code },
@@ -7199,7 +7216,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         }
         const PRDTLApprovalStatusUpdateOfImplementation =
-          await Machine.updateOne(
+          await Machine.findOneAndUpdate(
             { machine_code: selected_machine_data.machine_code },
             {
               $set: {
@@ -7224,9 +7241,9 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     selected_machine_data.checkSheet_data.current_year,
                 },
               ],
+              new: true,
             }
           );
-
         // console.log(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth])
         let ccMail =
           selected_machine_data?.checkSheet_data
@@ -7344,6 +7361,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               machine_code: selected_machine_data.machine_code,
             },
           },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                selected_machine_data.checkSheet_data.current_year,
+            },
+          },
           {
             $project: {
               machine_code: 1,
@@ -7356,7 +7380,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
@@ -7364,8 +7388,10 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_approved_by_MTD_TL": { $exists: true } });
 
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_approved_by_MTD_TL
+          
+            machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+              ?.implementation_approved_by_MTD_TL
+           === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
             { machine_code: selected_machine_data.machine_code },
@@ -7581,6 +7607,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               machine_code: selected_machine_data.machine_code,
             },
           },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                selected_machine_data.checkSheet_data.current_year,
+            },
+          },
           {
             $project: {
               machine_code: 1,
@@ -7593,14 +7626,16 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
 
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_approved_by_MTD_HOS
+          
+            machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+              ?.implementation_approved_by_MTD_HOS
+           === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
             { machine_code: selected_machine_data.machine_code },
@@ -8283,6 +8318,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               machine_code: selected_machine_data.machine_code,
             },
           },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                selected_machine_data.checkSheet_data.current_year,
+            },
+          },
           {
             $project: {
               machine_code: 1,
@@ -8295,7 +8337,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
@@ -8303,8 +8345,10 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
 
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_rejected_remarks
+          
+            machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+              ?.implementation_rejected_remarks
+           === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
             { machine_code: selected_machine_data.machine_code },
@@ -8414,6 +8458,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               machine_code: selected_machine_data.machine_code,
             },
           },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                selected_machine_data.checkSheet_data.current_year,
+            },
+          },
           {
             $project: {
               machine_code: 1,
@@ -8426,7 +8477,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
@@ -8434,8 +8485,10 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
 
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_rejected_remarks
+          
+            machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+              ?.implementation_rejected_remarks
+           === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
             { machine_code: selected_machine_data.machine_code },
@@ -8504,6 +8557,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               machine_code: selected_machine_data.machine_code,
             },
           },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                selected_machine_data.checkSheet_data.current_year,
+            },
+          },
           {
             $project: {
               machine_code: 1,
@@ -8516,7 +8576,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
@@ -21925,7 +21985,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
             serverIP: values.server_ip,
             emailPort: values.email_port,
             fromEmailId: values.email,
-            emailForSpareRequest: values.emailForSpareRequest
+            emailForSpareRequest: values.emailForSpareRequest,
           },
         }
       );
@@ -21935,7 +21995,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
         serverIP: values.server_ip,
         emailPort: values.email_port,
         fromEmailId: values.email,
-        emailForSpareRequest: values.emailForSpareRequest
+        emailForSpareRequest: values.emailForSpareRequest,
       });
       result = addNewEmailConf.save();
     }

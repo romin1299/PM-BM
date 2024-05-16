@@ -1,34 +1,34 @@
-const nodemailer = require('nodemailer');
-const EmailConfigurationController = require('../controller/emailConfigurationController')
+const nodemailer = require("nodemailer");
+const EmailConfigurationController = require("../controller/emailConfigurationController");
 
 const sendEmail = async (email, token) => {
-    let emailConfData = await EmailConfigurationController()
+  let emailConfData = await EmailConfigurationController();
 
-    let transpoter = nodemailer.createTransport({
-        service: 'smtp-mail.outlook.com',
-        // pool: true,
-        host: emailConfData.serverIP,
-        port: emailConfData.emailPort,
-        secureConnection: false,
-        secure: false,
-        logger: true,
-        debug: true,
+  let transpoter = nodemailer.createTransport({
+    service: "smtp-mail.outlook.com",
+    // pool: true,
+    host: emailConfData.serverIP,
+    port: emailConfData.emailPort,
+    secureConnection: false,
+    secure: false,
+    logger: false,
+    debug: false,
 
-        // ignoreTLS: true
-        tls: {
-            ciphers: 'SSLv3'
-        },
-        // auth: {
-        //     user: "sm_sample11@outlook.com",
-        //     pass: "Sendemail@111"
-        // }
-    });
-    //sending an email for forgot password
-    let mailOptions = {
-        from: emailConfData.fromEmailId,
-        to: email,
-        subject: 'password set link',
-        html: `
+    // ignoreTLS: true
+    tls: {
+      ciphers: "SSLv3",
+    },
+    // auth: {
+    //     user: "sm_sample11@outlook.com",
+    //     pass: "Sendemail@111"
+    // }
+  });
+  //sending an email for forgot password
+  let mailOptions = {
+    from: emailConfData.fromEmailId,
+    to: email,
+    subject: "password set link",
+    html: `
         <!doctype html>
 <html lang="en-US">
 <head>
@@ -104,17 +104,16 @@ const sendEmail = async (email, token) => {
     </table>
     <!--/100% body table-->
 </body>
-</html>`
-    }
+</html>`,
+  };
 
-    transpoter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        }
-        else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
-}
+  transpoter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+};
 
 module.exports = sendEmail;
