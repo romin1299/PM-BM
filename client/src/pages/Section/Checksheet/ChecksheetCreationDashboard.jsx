@@ -17,7 +17,8 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { ToastContainer, toast } from "react-toastify";
 import currentYear from "../../Dashboard/DashboardComponent/currentYear";
-
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "../../../components/Footer/Footer";
 
@@ -262,6 +263,33 @@ const ChecksheetCreationDashboard = ({}) => {
       type: "numeric",
       validate: (row) => (row.PM_time || "").length !== 0,
     },
+    {
+      title: "Remarks Compulsory",
+      field: "remarksCompulsoryOrNot",
+      align: "center",
+      width: "5%",
+      editComponent: ({ value, onChange }) => {
+        const isChecked = value === "Yes";
+
+        const handleCheckboxChange = (e) => {
+          const newValue = e.target.checked ? "Yes" : "No";
+          onChange(newValue);
+        };
+
+        return (
+          <FormControlLabel
+            control={
+              <Checkbox
+                onChange={handleCheckboxChange}
+                inputProps={{ "aria-label": "controlled" }}
+                checked={isChecked}
+              />
+            }
+            label="Yes"
+          />
+        );
+      },
+    },
   ];
 
   const checksheetCreationDataOfCSV = [
@@ -416,7 +444,9 @@ const ChecksheetCreationDashboard = ({}) => {
         },
         body: JSON.stringify({
           machineId: selectedMachineData.state.selectedRow.machine_code,
-          yearOfCheckSheet: selectedMachineData.state.selectedRow?.checkSheet_data?.current_year
+          yearOfCheckSheet:
+            selectedMachineData.state.selectedRow?.checkSheet_data
+              ?.current_year,
         }),
       });
       const data = await res.json();
@@ -437,7 +467,6 @@ const ChecksheetCreationDashboard = ({}) => {
     }
   };
 
-
   const addNewChecksheetData = async (selectedRow) => {
     try {
       const res = await fetch("/addNewChecksheetData", {
@@ -454,6 +483,7 @@ const ChecksheetCreationDashboard = ({}) => {
           line,
           personInCharge: selectedRow.personInCharge,
           PM_time: selectedRow.PM_time,
+          remarksCompulsoryOrNot: selectedRow?.remarksCompulsoryOrNot,
           machineId: selectedMachineData.state.selectedRow.machine_code,
           isAdded:
             machineData[0]?.checkSheet_data?.checksheet_status ===
@@ -580,7 +610,7 @@ const ChecksheetCreationDashboard = ({}) => {
         body: JSON.stringify({
           line: selectedLine,
           selectedRequest,
-          yearOfCheckSheet: currentYear
+          yearOfCheckSheet: currentYear,
         }),
       });
       const data = await res.json();
@@ -779,7 +809,7 @@ const ChecksheetCreationDashboard = ({}) => {
 
   return (
     <>
-      <ToastContainer style={{ width: "30rem" }} />
+      {/* <ToastContainer style={{ width: "30rem" }} /> */}
 
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">

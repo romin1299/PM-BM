@@ -130,7 +130,7 @@ const CheckSheet = ({
     return `${day}/${month}/${year} - ${getTime}`;
   };
 
-  console.log(selectedSupportedTM);
+  // console.log(selectedSupportedTM);
 
   const formik = useFormik({
     initialValues: {
@@ -201,7 +201,7 @@ const CheckSheet = ({
     validationSchema: validationSchema1,
 
     onSubmit: async (values) => {
-      console.log(HOSList[values.mtd_hos_list])
+      console.log(HOSList[values.mtd_hos_list]);
       const res = await fetch("/sendRequestForApproval", {
         method: "Post",
         headers: { "Content-Type": "application/json" },
@@ -294,7 +294,7 @@ const CheckSheet = ({
     }
   };
 
-  console.log(supportingTMList);
+  // console.log(supportingTMList);
 
   let Data = {};
 
@@ -471,6 +471,16 @@ const CheckSheet = ({
                 print: false,
               })
             )
+          : key === "remarksCompulsoryOrNot"
+          ? newColData.push(
+              new Object({
+                key: key,
+                value: obj[key],
+                rowspan: 1,
+                // colspan: 1,
+                print: false,
+              })
+            )
           : newColData.push(
               new Object({
                 key: key,
@@ -575,7 +585,7 @@ const CheckSheet = ({
 
       newRowData.push(newColData);
     }
-    // console.log(newRowData);
+    console.log(newRowData);
     getDataWithSpanCount(newRowData);
   };
   const getDataWithSpanCount = (myProps) => {
@@ -591,7 +601,7 @@ const CheckSheet = ({
           myProps[k + 1][j].print = false;
         }
       }
-      for (let j = 10; j < 11; j++) {
+      for (let j = 11; j < 12; j++) {
         for (
           let k = i - 1;
           k >= 0 && myProps[i][j].value == myProps[k][j].value;
@@ -615,7 +625,7 @@ const CheckSheet = ({
     // console.log(myProps);
     setNewTableData(myProps);
   };
-  console.log(newTableData);
+  // console.log(newTableData);
   const close = () => {
     setWorkOnImplementationPM("");
     setStateForOpeningSummeryPopups("");
@@ -786,7 +796,6 @@ const CheckSheet = ({
 
   return (
     <>
-
       {workOnImplementationPM}
       {stateForOpeningSummeryPopups}
       {stateForEditRemarksAfterReject}
@@ -1280,6 +1289,10 @@ const CheckSheet = ({
                                                   }
                                                   refKeyForScheduleMonthInLogHistory={
                                                     colData?.value?.[0]
+                                                  }
+
+                                                  remarksCompulsoryOrNot ={
+                                                    rData[10].value
                                                   }
                                                 />
                                               );

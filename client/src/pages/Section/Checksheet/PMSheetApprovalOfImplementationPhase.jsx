@@ -11,6 +11,7 @@ import { Row, Col } from "react-bootstrap";
 import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 import { postLineToGetAllMachineData } from "../../../Integration/APIExports";
 import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
+import DisplayTotalAcceptedAndApproveOnApprovalLog from "../../../Popups/DisplayTotalAcceptedAndApproveOnApprovalLog";
 
 function PMSheetApprovalOfImplementationPhase() {
   const context = useContext(RoutingContext);
@@ -31,6 +32,14 @@ function PMSheetApprovalOfImplementationPhase() {
     useState(0);
 
   const [allLineData, setAllLineData] = useState([]);
+
+  const [
+    acceptedAndApproveTotalCountOfImplementation,
+    setAcceptedAndApproveTotalCountOfImplementation,
+  ] = useState([]);
+
+  const [displayAndCloseCountModal, setDisplayAndCloseCountModal] =
+    useState(false);
 
   const [selectedLine, setSelectedLine] = useState();
   const [selectedMachine, setSelectedMachine] = useState();
@@ -242,22 +251,30 @@ function PMSheetApprovalOfImplementationPhase() {
     setTableData([]);
     setStateForAnimationAndNotFound(<LoadingAnimation />);
     try {
-      const res = await fetch("/postSectionToGetPMSheetApprovalData", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          section: sectionData,
-          selectedYear,
-        }),
-      });
+      const res = await fetch(
+        `/postSectionToGetPMSheetApprovalData/implementationPhaseApprovalLog/?lineId=${selectedLine}&&machine_code=${selectedMachine}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section: sectionData,
+            selectedYear,
+            selectedMonth
+          }),
+        }
+      );
       const data = await res.json();
 
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        setTableData(data.machineDataOfPrepAndPlanApproval);
+        setTableData(data.approvalLogOfPM);
+        setAcceptedAndApproveTotalCountOfImplementation(
+          data?.countOfAcceptedAndTotalApprovalOfUsers
+        );
+        setAllLineData(data?.lineData);
         setStateForAnimationAndNotFound(<NotFound />);
       }
     } catch (error) {
@@ -265,11 +282,11 @@ function PMSheetApprovalOfImplementationPhase() {
     }
   };
 
-  useEffect(() => {
-    if (context?.user_type !== "Plant-Admin") {
-      postSectionToGetAllDataForMainDashboard();
-    }
-  }, [refKey, selectedYear]);
+  // useEffect(() => {
+  //   if (context?.user_type !== "Plant-Admin") {
+  //     postSectionToGetAllDataForMainDashboard();
+  //   }
+  // }, [refKey, selectedYear]);
 
   useEffect(() => {
     if (context?.user_type === "Plant-Admin") {
@@ -278,12 +295,26 @@ function PMSheetApprovalOfImplementationPhase() {
   }, [selectedYear]);
 
   useEffect(() => {
-    if (context?.user_type === "Plant-Admin") {
+    if (context?.user_type === "Plant-Admin" && selectedSectionOrSubSection) {
       postSectionToGetPMSheetApprovalData(
         sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
       );
+    } else {
+      postSectionToGetPMSheetApprovalData(context.section_data);
     }
-  }, [selectedSectionOrSubSection, selectedYear]);
+  }, [
+    selectedSectionOrSubSection,
+    selectedYear,
+    selectedLine,
+    selectedMachine,
+    selectedMonth,
+    refKey,
+  ]);
+
+  const handleDisplayAcceptedAndApproveCount = () =>
+    setDisplayAndCloseCountModal(
+      (displayAndCloseCountModal) => !displayAndCloseCountModal
+    );
 
   // const postSectionToGetAllDataForMainDashboard12 = async () => {
   //   // setSubSection(undefined);
@@ -508,7 +539,20 @@ function PMSheetApprovalOfImplementationPhase() {
       )}
       {tableData?.length > 0 ? (
         <div className="container-fluid" style={{ overflow: "auto" }}>
-          <h4 style={{ padding: "1rem 0 0 0" }}>PM Plan vs Actual Approval</h4>
+          <div className="d-flex justify-content-between">
+            <div>
+              <h4>PM Plan vs Actual Approval</h4>
+            </div>
+            <div>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleDisplayAcceptedAndApproveCount}
+              >
+                Show Approved / Total Approval
+              </button>
+            </div>
+          </div>
 
           <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol container-fluid">
             <thead className="mt-5">
@@ -560,12 +604,6 @@ function PMSheetApprovalOfImplementationPhase() {
                   index?.checkSheet_data
                     ?.implemetation_mtd_hod_approval_status?.[monthKey]
                     ?.length > 0 ? (
-                    (selectedLine
-                      ? index?.line_names._id === selectedLine
-                      : true) &&
-                    (selectedMachine
-                      ? index?.machine_code === selectedMachine
-                      : true) &&
                     (selectedMonth ? monthKey === selectedMonth : true) ? (
                       <tr className="ar-table-thead-header4 tableRowColor">
                         <td className="td-padding">
@@ -750,6 +788,18 @@ function PMSheetApprovalOfImplementationPhase() {
       <br />
       <br />
       <Footer />
+
+      {displayAndCloseCountModal && (
+        <DisplayTotalAcceptedAndApproveOnApprovalLog
+          acceptedAndApproveTotalCount={
+            acceptedAndApproveTotalCountOfImplementation
+          }
+          modelProp={{
+            show: displayAndCloseCountModal,
+            onHide: handleDisplayAcceptedAndApproveCount,
+          }}
+        />
+      )}
     </>
   );
 }

@@ -476,6 +476,10 @@ const machineSchema = mongoose.Schema({
 
             Mar: { type: String },
           },
+          remarksCompulsoryOrNot: {
+            type: String,
+            default: "No",
+          },
         },
       ],
       isEditedMonth: {},

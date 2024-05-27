@@ -22,6 +22,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "../../components/Footer/Footer";
 import DeleteConfirmation from "../../Popups/DeleteConfirmation";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
@@ -319,7 +320,7 @@ const CheckSheetDashboard = () => {
     setShowCheckSheet((showCheckSheet) => !showCheckSheet);
   };
 
-  const actions =
+  let actions =
     currentYear === selectedYear
       ? [
           (rowData) => {
@@ -402,7 +403,7 @@ const CheckSheetDashboard = () => {
             icon: () => <button className="btn-primary1">View</button>,
             // tooltip: <h1>I am a tooltip</h1>,
             onClick: (event, selectedRow) => {
-              console.log(selectedRow?.checkSheet_data?.checkSheet)
+              // console.log(selectedRow?.checkSheet_data?.checkSheet)
               navigate("/viewCheckSheet", {
                 state: {
                   selectedRowForViewForm: selectedRow,
@@ -508,6 +509,27 @@ const CheckSheetDashboard = () => {
           },
         ];
 
+        if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
+          actions?.push({
+            icon: () => <button className="btn btn-info"><DriveFileRenameOutlineIcon className="text-primary" /></button>,
+            tooltip: "Edit After All Approval",
+            position: "row",
+            onClick: (event, selectedRow) => {
+              navigate(
+                `/pm/edit/check-sheet/${selectedRow?.machine_code}/${selectedRow?._id}/${selectedYear}`,
+                // {
+                //   state: {
+                //     prevPath: location?.pathname,
+                //     prevPathSearch: location?.search,
+                //     supportingTM:
+                //       reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+                //   },
+                // }
+              );
+            },
+          });
+        }
+
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
     setTableData([])
@@ -603,7 +625,7 @@ const CheckSheetDashboard = () => {
         selectedRow={selectedRow}
         functionToSetRefKey={functionToSetRefKey}
       />
-      <ToastContainer style={{ width: "30rem" }} />
+      {/* <ToastContainer style={{ width: "30rem" }} /> */}
       <div className="pageCard">
         <div className="creationDashboard">
           <h4 style={{ padding: "1rem 0 0 1rem" }}>Checksheet Dashboard</h4>

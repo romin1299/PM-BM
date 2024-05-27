@@ -16,6 +16,8 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 import Footer from "../../../../components/Footer/Footer";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 function PlanningPhaseTable() {
   const [tableData, setTableData] = useState([]);
@@ -359,6 +361,34 @@ function PlanningPhaseTable() {
         </select>
       ),
       width: "5%",
+    },
+    {
+      title: "Remarks Compulsory",
+      field: "remarksCompulsoryOrNot",
+      align: "center",
+      width: "5%",
+      editable: false,
+      editComponent: ({ value, onChange }) => {
+        const isChecked = value === "Yes";
+
+        const handleCheckboxChange = (e) => {
+          const newValue = e.target.checked ? "Yes" : "No";
+          onChange(newValue);
+        };
+
+        return (
+          <FormControlLabel
+            control={
+              <Checkbox
+                onChange={handleCheckboxChange}
+                inputProps={{ "aria-label": "controlled" }}
+                checked={isChecked}
+              />
+            }
+            label="Yes"
+          />
+        );
+      },
     },
   ];
 

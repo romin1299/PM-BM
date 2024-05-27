@@ -231,7 +231,8 @@ function App({ commonRoutes }) {
                 />
                 <Route
                   path="/pm/sparePartUsageHistory"
-                  element={<SparePartUsageHistory />}
+                  // element={<SparePartUsageHistory />}
+                  element={<AllSparePartsUsageHistory />}
                 />
                 <Route
                   path="/pm/backupTableData"
@@ -341,7 +342,8 @@ function App({ commonRoutes }) {
                 />
                 <Route
                   path="/pm/sparePartUsageHistory"
-                  element={<SparePartUsageHistory />}
+                  // element={<SparePartUsageHistory />}
+                  element={<AllSparePartsUsageHistory />}
                 />
                 <Route
                   path="/pm/backupTableData"
@@ -436,7 +438,8 @@ function App({ commonRoutes }) {
                 />
                 <Route
                   path="/pm/sparePartUsageHistory"
-                  element={<SparePartUsageHistory />}
+                  // element={<SparePartUsageHistory />}
+                  element={<AllSparePartsUsageHistory />}
                 />
                 <Route path="/pm/profile" element={<Profile />} />
                 <Route

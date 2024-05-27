@@ -1036,7 +1036,12 @@ router.get(
                   partNo: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.partNo`,
                   cost: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.cost`,
                   doneBy: `$checkSheet_data.checkSheet.inspectionCompletionBy.${req.query.selectedMonth}`,
-                  date: `$checkSheet_data.checkSheet.completionDateOfInspection.${req.query.selectedMonth}`,
+                  date: {
+                    $dateFromString: {
+                      dateString: `$checkSheet_data.checkSheet.completionDateOfInspection.${req.query.selectedMonth}`,
+                      format: "%d/%m/%Y - %z"
+                    },
+                  },
                 },
                 else: 0,
               },
@@ -1193,6 +1198,20 @@ router.get(
       },
     ]);
 
+    let queryPipelineForBMSpareCost = [
+      {
+        $addFields: {
+          "changedParts.date": {
+            $dateToString: {
+              format: "%d-%m-%Y T%H:%M",
+              date: "$problemOccurredDateAndTimeOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
+        },
+      },
+    ];
+
     const GetAllBMSpareConsumption = await RequestSheetOfBM.aggregate([
       {
         $match: { ...req.queryObj, changedParts: { $ne: [] } },
@@ -1249,6 +1268,7 @@ router.get(
           as: "doneBy",
         },
       },
+      ...queryPipelineForBMSpareCost,
       {
         $project: {
           totalSpareDataUsageHistory: "$changedParts",

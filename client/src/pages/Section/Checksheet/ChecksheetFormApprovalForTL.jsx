@@ -17,6 +17,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 import Footer from "../../../components/Footer/Footer";
 import EastIcon from "@mui/icons-material/East";
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 
 function ChecksheetFormApprovalForTL() {
   const context = useContext(RoutingContext);
@@ -143,7 +145,6 @@ function ChecksheetFormApprovalForTL() {
 
   const revisedColumns = ["Sr. No.", "Revision contents", "Date", "Revised by"];
 
-
   const monthKeyArray = [
     "Jan",
     "Feb",
@@ -235,7 +236,8 @@ function ChecksheetFormApprovalForTL() {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"
+          key === "inspectionCompletionBy"||
+          key === "remarksCompulsoryOrNot"
         ) {
           continue;
         }
@@ -745,6 +747,21 @@ function ChecksheetFormApprovalForTL() {
                         Submit
                       </button>
                     </div>
+                    {machineAllData?.checkSheet_data?.dataSheet ? (
+                      <div className="col">
+                        <a
+                          href={`${BASE_URL}/${machineAllData?.checkSheet_data?.dataSheet}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="btn-reset" type="button">
+                            <SimCardDownloadIcon /> Download DATA-SHEET
+                          </button>
+                        </a>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </form>
               </div>
@@ -785,7 +802,8 @@ function ChecksheetFormApprovalForTL() {
                           ?.length - 1
                       ]
                         ? `${
-                            machineAllData?.checkSheet_data?.approved_by_PRD_TL?.[
+                            machineAllData?.checkSheet_data
+                              ?.approved_by_PRD_TL?.[
                               machineAllData?.checkSheet_data
                                 ?.approved_by_PRD_TL?.length - 1
                             ]
@@ -845,7 +863,7 @@ function ChecksheetFormApprovalForTL() {
                     colSpan={3}
                     rowSpan={5}
                   >
-                    Line:- {machineAllData?.line_names?.lineName}
+                    Line:- {machineAllData?.line_names?.line_name}
                     <br />
                     M/c No : {machineAllData?.machine_code}
                   </th>
@@ -909,7 +927,8 @@ function ChecksheetFormApprovalForTL() {
                     <br />
 
                     {machineAllData?.checkSheet_data?.approved_by_TL?.[
-                      machineAllData?.checkSheet_data?.approved_by_TL?.length - 1
+                      machineAllData?.checkSheet_data?.approved_by_TL?.length -
+                        1
                     ]
                       ? `,${
                           machineAllData?.checkSheet_data?.approved_by_TL?.[
@@ -921,7 +940,8 @@ function ChecksheetFormApprovalForTL() {
                   </th>
                   <th className="approvalName" colSpan={2} rowSpan={5}>
                     {machineAllData?.checkSheet_data?.sender_tm_name?.[
-                      machineAllData?.checkSheet_data?.sender_tm_name?.length - 1
+                      machineAllData?.checkSheet_data?.sender_tm_name?.length -
+                        1
                     ]
                       ? machineAllData?.checkSheet_data?.sender_tm_name?.[
                           machineAllData?.checkSheet_data?.sender_tm_name
@@ -955,12 +975,22 @@ function ChecksheetFormApprovalForTL() {
                     (MTD HOD)
                   </th>
                   <td className="ar-table-col1" colSpan={6}>
-                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.length - 1]}
-
+                    {
+                      machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_HOD?.Sep?.[
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_HOD?.Sep?.length - 1
+                      ]
+                    }
                   </td>
                   <td className="ar-table-col1" colSpan={6}>
-                  {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.length -1]}
-
+                    {
+                      machineAllData?.checkSheet_data
+                        ?.implementation_approved_by_MTD_HOD?.Mar?.[
+                        machineAllData?.checkSheet_data
+                          ?.implementation_approved_by_MTD_HOD?.Mar?.length - 1
+                      ]
+                    }
                   </td>
                 </tr>
               </thead>
@@ -1272,7 +1302,10 @@ function ChecksheetFormApprovalForTL() {
           </Col>
           <Col>
             <div className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-              <button className="btn-danger" onClick={funForOpeningSummeryPopups}>
+              <button
+                className="btn-danger"
+                onClick={funForOpeningSummeryPopups}
+              >
                 Summary
               </button>
             </div>
