@@ -245,7 +245,13 @@ function App() {
     <div>
       <Row>
         <Col lg={2} md={2} sm={1}>
-          <img src={denso_logo} alt="" className="bg-white" height={50}  width={150} />
+          <img
+            src={denso_logo}
+            alt=""
+            className="bg-white"
+            height={50}
+            width={150}
+          />
         </Col>
         <Col
           lg={8}

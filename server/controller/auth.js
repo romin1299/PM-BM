@@ -16398,6 +16398,704 @@ router.post(
   }
 );
 
+router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
+  try {
+    const financialYearWiseMonthKeyArray = [
+      "Apr",
+      "May",
+      "June",
+      "July",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+    ];
+    let previousMonth =
+      financialYearWiseMonthKeyArray[
+        financialYearWiseMonthKeyArray.indexOf(req.query?.selectedMonth) - 1
+      ];
+
+    let keyForSelectedMonth = `$checkSheet_data.PMStatus.${req.query?.selectedMonth}`;
+    let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${req.query?.selectedMonth}`;
+    let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${req.query?.selectedMonth}`;
+    let keyOfTotalDoneWithDelay = `$checkSheet_data.PMStatus.${previousMonth}`;
+
+    let monthWiseAllStatusArray = [];
+    for (let i = 0; i < financialYearWiseMonthKeyArray.length; i++) {
+      monthWiseAllStatusArray.push({
+        indexForSorting: i,
+        currentMonth: financialYearWiseMonthKeyArray[i],
+        previousMonth: financialYearWiseMonthKeyArray[i - 1],
+        PMStatus: `$checkSheet_data.PMStatus.${financialYearWiseMonthKeyArray[i]}`,
+        carriedPMStatus: `$checkSheet_data.carriedPMStatus.${financialYearWiseMonthKeyArray[i]}`,
+        currentMonthScheduleOrNotStatus: `$checkSheet_data.currentMonthScheduleOrNotStatus.${financialYearWiseMonthKeyArray[i]}`,
+        keyOfTotalDoneWithDelayForAnnualChart: `$checkSheet_data.PMStatus.${
+          financialYearWiseMonthKeyArray[i - 1]
+        }`,
+      });
+    }
+
+    let groupId = {
+        _id: "$cell_names",
+      },
+      addFieldsPipeline = [],
+      addFieldsPipelineForAnnualData = [
+        {
+          $addFields: {
+            monthWiseAllStatusArray,
+          },
+        },
+      ];
+
+    if (req.query?.filter === "Section") {
+      const sections_with_dashboard_level_yes = await Section.aggregate([
+        {
+          $match: {
+            dashboardLevel: "Yes",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            data: {
+              $push: "$_id",
+            },
+          },
+        },
+      ]);
+
+      addFieldsPipeline = [
+        {
+          $addFields: {
+            groupId: {
+              $cond: [
+                {
+                  $in: [
+                    "$section_names",
+                    sections_with_dashboard_level_yes?.[0]?.data,
+                  ],
+                },
+                "$section_names",
+                "$subSection_names",
+              ],
+            },
+          },
+        },
+      ];
+
+      addFieldsPipelineForAnnualData = [
+        {
+          $addFields: {
+            groupId: {
+              $cond: [
+                {
+                  $in: [
+                    "$section_names",
+                    sections_with_dashboard_level_yes?.[0]?.data,
+                  ],
+                },
+                "$section_names",
+                "$subSection_names",
+              ],
+            },
+            monthWiseAllStatusArray,
+          },
+        },
+      ];
+
+      groupId = {
+        _id: "$groupId",
+      };
+    }
+
+    const monthData = await Machine.aggregate([
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req.query?.selectedYear,
+          "checkSheet_data.PMStatus": { $ne: undefined },
+        },
+      },
+      ...addFieldsPipeline,
+      {
+        $group: {
+          ...groupId,
+          total_pmSchedule: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $ne: [keyForSelectedMonth, ""],
+                    },
+                    {
+                      $ne: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_completed: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: [keyForSelectedMonth, "Completed"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_ongoing: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: [keyForSelectedMonth, "Ongoing"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_done_with_delay: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [keyOfTotalDoneWithDelay, "Done with delay"],
+                    },
+                    {
+                      $eq: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_previous_pending: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [keyForPreviousMonth, "CarriedPM"],
+                    },
+                    {
+                      $eq: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          total_pmSchedule: 1,
+          total_previous_pending: 1,
+          total_completed: {
+            $sum: ["$total_completed", "$total_done_with_delay"],
+          },
+          total_ongoing: 1,
+          total_remaining_current_month: {
+            $subtract: [
+              {
+                $sum: ["$total_pmSchedule", "$total_previous_pending"],
+              },
+              {
+                $sum: [
+                  "$total_completed",
+                  "$total_done_with_delay",
+                  "$total_ongoing",
+                ],
+              },
+            ],
+          },
+          percentage: {
+            $trunc: [
+              {
+                $cond: [
+                  {
+                    $ne: [
+                      {
+                        $sum: ["$total_pmSchedule", "$total_previous_pending"],
+                      },
+                      0,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      {
+                        $multiply: [
+                          {
+                            $sum: [
+                              "$total_completed",
+                              "$total_done_with_delay",
+                            ],
+                          },
+                          100,
+                        ],
+                      },
+                      {
+                        $sum: ["$total_pmSchedule", "$total_previous_pending"],
+                      },
+                    ],
+                  },
+                  0,
+                ],
+              },
+              2,
+            ],
+          },
+        },
+      },
+    ]);
+
+    const annualData = await Machine.aggregate([
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req.query?.selectedYear,
+          "checkSheet_data.PMStatus": { $ne: undefined },
+        },
+      },
+      ...addFieldsPipelineForAnnualData,
+      {
+        $unwind: "$monthWiseAllStatusArray",
+      },
+      {
+        $group: {
+          _id: {
+            ...groupId,
+            month: "$monthWiseAllStatusArray.currentMonth",
+            indexForSorting: "$monthWiseAllStatusArray.indexForSorting",
+          },
+          total_pmSchedule: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $ne: ["$monthWiseAllStatusArray.PMStatus", ""],
+                    },
+                    {
+                      $ne: [
+                        "$monthWiseAllStatusArray.currentMonthScheduleOrNotStatus",
+                        "",
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_completed: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$monthWiseAllStatusArray.PMStatus", "Completed"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_done_with_delay: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [
+                        "$monthWiseAllStatusArray.keyOfTotalDoneWithDelayForAnnualChart",
+                        "Done with delay",
+                      ],
+                    },
+                    {
+                      $eq: [
+                        "$monthWiseAllStatusArray.currentMonthScheduleOrNotStatus",
+                        "",
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_Previous: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [
+                        "$monthWiseAllStatusArray.carriedPMStatus",
+                        "CarriedPM",
+                      ],
+                    },
+                    {
+                      $eq: [
+                        "$monthWiseAllStatusArray.currentMonthScheduleOrNotStatus",
+                        "",
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id._id",
+          annualData: {
+            $push: {
+              month: "$_id.month",
+              indexForSorting: "$_id.indexForSorting",
+              data: {
+                $trunc: [
+                  {
+                    $cond: [
+                      {
+                        $ne: [
+                          {
+                            $add: ["$total_pmSchedule", "$total_Previous"],
+                          },
+                          0,
+                        ],
+                      },
+                      {
+                        $divide: [
+                          {
+                            $multiply: [
+                              {
+                                $add: [
+                                  "$total_completed",
+                                  "$total_done_with_delay",
+                                ],
+                              },
+                              100,
+                            ],
+                          },
+                          {
+                            $add: ["$total_pmSchedule", "$total_Previous"],
+                          },
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                  2,
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          total_done_with_delay: 1,
+          total_completed: 1,
+          completedPer: 1,
+          annualData: {
+            $sortArray: {
+              input: "$annualData",
+              sortBy: { indexForSorting: 1 },
+            },
+          },
+        },
+      },
+    ]);
+
+    let finalData = [];
+    const conditionFunctionForDashboardLevel = {
+      $eq: ["$section.dashboardLevel", "Yes"],
+    };
+
+    if (req.query?.filter === "Section") {
+      const sectionOrSubSection = await SubSection.aggregate([
+        {
+          $match: {},
+        },
+        {
+          $lookup: {
+            from: "sections",
+            localField: "section_names",
+            foreignField: "_id",
+            as: "section",
+          },
+        },
+        {
+          $unwind: "$section",
+        },
+        {
+          $project: {
+            _id: {
+              $cond: [
+                conditionFunctionForDashboardLevel,
+                "$section._id",
+                "$_id",
+              ],
+            },
+            name: {
+              $cond: [
+                conditionFunctionForDashboardLevel,
+                "$section.section_name",
+                "$subSection_name",
+              ],
+            },
+            plant_names: "$section.plant_names",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              _id: "$_id",
+              name: "$name",
+              plant_names: "$plant_names",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.plant_names",
+            details: {
+              $push: {
+                _id: "$_id._id",
+                name: "$_id.name",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "plants",
+            localField: "_id",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  plant_name: 1,
+                },
+              },
+            ],
+            as: "plant",
+          },
+        },
+        {
+          $unwind: "$plant",
+        },
+        {
+          $sort: {
+            "plant._id": 1,
+          },
+        },
+        {
+          $project: {
+            plant: 1,
+            details: {
+              $sortArray: {
+                input: "$details",
+                sortBy: { _id: 1 },
+              },
+            },
+          },
+        },
+      ]);
+
+      finalData = sectionOrSubSection?.map((item) => ({
+        plant_name: item?.plant?.plant_name,
+        details: item?.details?.map((item1) => {
+          let monthDataForSelectedSection = monthData?.find(
+            (item2) => item2?._id.toString() === item1?._id.toString()
+          );
+          let annualDataForSelectedSection = annualData?.find(
+            (item2) => item2?._id.toString() === item1?._id.toString()
+          );
+
+          return {
+            ...item1,
+            monthData: monthDataForSelectedSection,
+            annualData: annualDataForSelectedSection?.annualData?.map(
+              (monthWiseData) => monthWiseData?.data
+            ),
+          };
+        }),
+      }));
+    } else {
+      const cells = await Cell.aggregate([
+        {
+          $match: {},
+        },
+        {
+          $lookup: {
+            from: "sections",
+            localField: "section_names",
+            foreignField: "_id",
+            as: "section",
+          },
+        },
+        {
+          $unwind: "$section",
+        },
+        {
+          $lookup: {
+            from: "subsections",
+            localField: "subSection_names",
+            foreignField: "_id",
+            as: "subSection",
+          },
+        },
+        {
+          $unwind: "$subSection",
+        },
+        {
+          $project: {
+            toggleId: {
+              $cond: [
+                conditionFunctionForDashboardLevel,
+                "$section._id",
+                "$subSection._id",
+              ],
+            },
+            toggleName: {
+              $cond: [
+                conditionFunctionForDashboardLevel,
+                "$section.section_name",
+                "$subSection.subSection_name",
+              ],
+            },
+            plant_names: "$plant_names",
+            cell_name: 1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              plant_names: "$plant_names",
+              sectionOrSubSection: "$toggleId",
+              nameSectionOrSubSection: "$toggleName",
+            },
+            cells: {
+              $push: {
+                _id: "$_id",
+                cell_name: "$cell_name",
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.plant_names",
+            details: {
+              $push: {
+                sectionOrSubSection: "$_id.sectionOrSubSection",
+                nameSectionOrSubSection: "$_id.nameSectionOrSubSection",
+                cells: "$cells",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "plants",
+            localField: "_id",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  plant_name: 1,
+                },
+              },
+            ],
+            as: "plant",
+          },
+        },
+        {
+          $unwind: "$plant",
+        },
+        {
+          $sort: {
+            "plant._id": 1,
+          },
+        },
+        {
+          $project: {
+            plant: 1,
+            details: {
+              $sortArray: {
+                input: "$details",
+                sortBy: { _id: 1 },
+              },
+            },
+          },
+        },
+      ]);
+
+      finalData = cells?.map((item) => ({
+        plant_name: item?.plant?.plant_name,
+        sectionOrSubSectionWiseData: item?.details?.map((item1) => ({
+          nameSectionOrSubSection: item1?.nameSectionOrSubSection,
+          details: item1?.cells?.map((item2) => {
+            console.log(item2);
+
+            let monthDataForSelectedSection = monthData?.find(
+              (item3) => item3?._id.toString() === item2?._id.toString()
+            );
+            let annualDataForSelectedSection = annualData?.find(
+              (item3) => item3?._id.toString() === item2?._id.toString()
+            );
+
+            return {
+              name: item2?.cell_name,
+              monthData: monthDataForSelectedSection,
+              annualData: annualDataForSelectedSection?.annualData?.map(
+                (monthWiseData) => monthWiseData?.data
+              ),
+            };
+          }),
+        })),
+      }));
+    }
+
+    return res.status(201).json({
+      message: "Summery data get successfully!!!",
+      annualData,
+      finalData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Something went wrong...",
+      error,
+    });
+  }
+});
+
 router.post(
   "/postSectionToGetSubSectionForSummeryDashboard",
   authenticate,

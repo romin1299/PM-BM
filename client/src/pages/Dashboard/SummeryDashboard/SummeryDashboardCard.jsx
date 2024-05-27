@@ -5,123 +5,63 @@ import NotFound from "../../Reports/ReportComponents/NotFound";
 import { Card, Button, ListGroup, Row, Col, Table } from "react-bootstrap";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 
-const SummeryDashboardCard = ({ cartTitle, data }) => {
-  const fetchAllSummeryData = async () => {
-    try {
-      const res = await fetch("/fetchAllSummeryData", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-      const data = await res.json();
-      //   console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    // fetchAllSummeryData();
-  }, []);
-
-  // let currentMonthCompletionData =
-  //   parseInt(data._id.replace(/[^\d.]/g, "")) % 100;
-
-  // console.log(data?.chartData);
-
+const SummeryDashboardCard = ({ cartTitle, data, filter }) => {
   let TotalPlan = [
     {
       name: "Completed",
-      value: data?.chartData?.sumVariableForTotalCompleted,
+      value: data?.monthData?.total_completed,
     },
     {
       name: "Ongoing",
-      value: data?.chartData?.sumVariableForTotalOngoing,
+      value: data?.monthData?.total_ongoing,
     },
     {
       name: "Pending",
-      value:
-        data?.chartData?.sumVariableForTotalSchedule +
-        data?.chartData?.sumVariableForTotalPreviousPending -
-        data?.chartData?.sumVariableForTotalCompleted -
-        data?.chartData?.sumVariableForTotalOngoing,
+      value: data?.monthData?.total_remaining_current_month,
     },
   ];
   let TableData = [
     {
       name: "Planned",
       bgColor: "table-primary",
-      value: data?.chartData?.sumVariableForTotalSchedule,
+      value: data?.monthData?.total_pmSchedule,
     },
     {
       name: "Pending(Previous Month)",
       bgColor: "table-danger",
-      value: data?.chartData?.sumVariableForTotalPreviousPending,
+      value: data?.monthData?.total_previous_pending,
     },
     {
       name: "Completed",
       bgColor: "table-success",
-      value: data?.chartData?.sumVariableForTotalCompleted,
+      value: data?.monthData?.total_completed,
     },
     {
       name: "Ongoing",
       bgColor: "table-warning",
-      value: data?.chartData?.sumVariableForTotalOngoing,
+      value: data?.monthData?.total_ongoing,
     },
   ];
 
   let PendingStatusData = {
     name: "Remaining(Current Month)",
-    // bgColor: "table-danger",
-    //value = planned - completed - ongoing
-    value: (TableData[0].value + TableData[1].value) - TableData[2].value - TableData[3].value,
+    value: data?.monthData?.total_remaining_current_month,
   };
-
-  // console.log(
-  //   TableData[0].value +
-  //     TableData[1].value -
-  //     TableData[2].value -
-  //     TableData[3].value
-  // );
-
-  // let TableData = [
-  //   {
-  //     name: "Planned",
-  //     bgColor: "#5bc0de",
-  //     value: 100,
-  //   },
-  //   {
-  //     name: "Last Month Pending",
-  //     bgColor: "#e2a06b",
-  //     value: 5,
-  //   },
-  //   {
-  //     name: "Completed",
-  //     bgColor: "#789c50",
-  //     // bgColor: "table-success",
-  //     value: 70,
-  //   },
-  //   {
-  //     name: "Ongoing",
-  //     bgColor: "#ddb14d",
-  //     // bgColor: "table-warning",
-  //     value: 15,
-  //   },
-  //   {
-  //     name: "Pending",
-  //     bgColor: "#fff",
-  //     value: 10,
-  //   },
-  // ];
 
   return (
     <Col className="col-lg-3 col-md-12 col-sm-12 d-flex justify-content-center d-flex align-items-center">
-      <Card className="pt-0">
-        <h4 className="text-dark">{cartTitle}</h4>
-        {data?.chartData ? (
+      <Card
+        className="pt-0"
+        style={
+          filter === "Cell"
+            ? {
+                marginTop: "10px",
+              }
+            : {}
+        }
+      >
+        <h5 className="text-dark">{cartTitle}</h5>
+        {data?.monthData ? (
           <div>
             <Row className=" gy-4 ">
               <Col
@@ -132,12 +72,7 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
                   <DoughnutChart TableData={TotalPlan} />
                   <div class="centered">
                     <h5 className="text-dark">
-                      {data?.chartData?.sumVariableForTotalCompleted ?((
-                        (data?.chartData?.sumVariableForTotalCompleted * 100) /
-                        (data?.chartData?.sumVariableForTotalSchedule +
-                          data?.chartData?.sumVariableForTotalPreviousPending)
-                      ).toFixed(2)) : 0}
-                      %
+                      {data?.monthData?.percentage}%
                     </h5>
                   </div>
                 </div>
@@ -193,7 +128,7 @@ const SummeryDashboardCard = ({ cartTitle, data }) => {
                 sm
                 className="d-flex justify-content-center align-items-center"
               >
-                <SummeryBarChart annualChartData={data?.annualChartData} />
+                <SummeryBarChart annualChartData={data?.annualData} />
               </Col>
             </Row>
           </div>
