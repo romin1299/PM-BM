@@ -16,8 +16,10 @@ import { Container, Row, Col } from "react-bootstrap";
 import EastIcon from "@mui/icons-material/East";
 import SummeryPopups from "../Operator/PopupsForChecksheet/SummeryPopups";
 import Footer from "../../components/Footer/Footer";
+import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 
 import { jsPDF } from "jspdf";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
   const context = useContext(RoutingContext);
@@ -218,7 +220,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"
+          key === "inspectionCompletionBy"||
+          key === "remarksCompulsoryOrNot"
         ) {
           continue;
         }
@@ -511,21 +514,37 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
             </Button>
           </Modal.Header>
           <Modal.Body>
-            <div className="row">
-              <div className="col-11"></div>
-            </div>
-            <button className="btn-reset" onClick={handleDownload}>
-              Download
-            </button>
-
-            <br />
-
             <div id="doc-target">
               <div>
                 <Container fluid>
                   <Row>
                     <Col lg={6} md={6} sm={6}>
                       {" "}
+                      <div className="row d-flex gx-1">
+                        <div className="col">
+                          <button
+                            className="btn-reset"
+                            onClick={handleDownload}
+                          >
+                            Download
+                          </button>
+                        </div>
+                        {machineAllData?.checkSheet_data?.dataSheet ? (
+                          <div className="col">
+                            <a
+                              href={`${BASE_URL}/${machineData?.checkSheet_data?.dataSheet}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <button className="btn-reset">
+                                <SimCardDownloadIcon /> Download DATA-SHEET
+                              </button>
+                            </a>
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
                     </Col>
                     <Col lg={6} md={6} sm={6}>
                       <table className="ar-table tableCol1">
@@ -878,8 +897,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                       colData.value.length === 1 &&
                                       colData.key ===
                                         monthForCompareSystemMonth &&
-                                        rData[10]?.["key"] !== "isDeleted" &&
-                                        rData[10]?.["value"] !== true ? (
+                                      rData[10]?.["key"] !== "isDeleted" &&
+                                      rData[10]?.["value"] !== true ? (
                                         <>
                                           {" "}
                                           <div style={{ fontWeight: "900" }}>

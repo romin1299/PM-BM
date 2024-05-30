@@ -15,6 +15,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { ToastContainer, toast } from "react-toastify";
 import Footer from "../../../components/Footer/Footer";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
   const [tableData, setTableData] = useState([]);
@@ -286,6 +288,33 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
       width: "5%",
       type: "numeric",
       validate: (row) => (row.PM_time || "").length !== 0,
+    },
+    {
+      title: "Remarks Compulsory",
+      field: "remarksCompulsoryOrNot",
+      align: "center",
+      width: "5%",
+      editComponent: ({ value, onChange }) => {
+        const isChecked = value === "Yes";
+
+        const handleCheckboxChange = (e) => {
+          const newValue = e.target.checked ? "Yes" : "No";
+          onChange(newValue);
+        };
+
+        return (
+          <FormControlLabel
+            control={
+              <Checkbox
+                onChange={handleCheckboxChange}
+                inputProps={{ "aria-label": "controlled" }}
+                checked={isChecked}
+              />
+            }
+            label="Yes"
+          />
+        );
+      },
     },
   ];
 

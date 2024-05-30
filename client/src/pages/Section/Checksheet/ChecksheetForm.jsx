@@ -284,7 +284,8 @@ function CheckSheetForm() {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"
+          key === "inspectionCompletionBy" ||
+          key === "remarksCompulsoryOrNot"
         ) {
           continue;
         }

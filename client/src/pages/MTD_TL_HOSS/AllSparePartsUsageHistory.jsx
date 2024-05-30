@@ -12,6 +12,7 @@ import RoutingContext from "../../context/routing/RoutingContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ToastContainer } from "react-toastify";
 import { SuccessToast } from "../../BM/Component/ShowTostify";
+import { CSVLink } from "react-csv";
 
 const AllSparePartsUsageHistory = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
@@ -25,6 +26,53 @@ const AllSparePartsUsageHistory = () => {
     border: "none",
     textDecoration: "underline",
   };
+
+  let columns = [
+    {
+      label: "Date",
+      key: "totalSpareDataUsageHistory.date",
+    },
+    {
+      label: "Line",
+      key: "line",
+    },
+    {
+      label: "Machine",
+      key: "machine_name",
+    },
+    {
+      label: "M/c.No",
+      key: "machine_code",
+    },
+    {
+      label: "Category",
+      key: "type",
+    },
+    {
+      label: "P Name",
+      key: "totalSpareDataUsageHistory.partName",
+    },
+    {
+      label: "Part No",
+      key: "totalSpareDataUsageHistory.partNo",
+    },
+    {
+      label: "Used By",
+      key: "doneBy",
+    },
+    {
+      label: "Cost",
+      key: "totalSpareDataUsageHistory.cost",
+    },
+    {
+      label: "Abnormality",
+      key: "abnormality",
+    },
+    {
+      label: "Spare Part",
+      key: "totalSpareDataUsageHistory.spareParts",
+    },
+  ];
 
   const deleteCategoryPoint = async (rowValue) => {
     // console.log(rowValue);
@@ -68,11 +116,21 @@ const AllSparePartsUsageHistory = () => {
       title: "Date",
       dataIndex: ["totalSpareDataUsageHistory", "date"],
       render: (value) => {
-        if (moment(value, "YYYY-MM-DD", true).isValid()) {
-          return moment(value).format("D/M/YYYY - hh:mm A");
-        } else {
+        if (
+          moment(value, "D/M/YYYY - hh:mm A", true).isValid() ||
+          moment(value, "D/M/YYYY - h:mm a", true).isValid()
+        ) {
+          return moment(value, "D/M/YYYY - hh:mm A").format(
+            "DD-MM-YYYY THH:mm"
+          );
+        }
+        if (moment(value, "YYYY-MM-DDTHH:mm", true).isValid()) {
           return value;
         }
+        if (moment(value, "YYYY-MM-DD", true).isValid()) {
+          return moment(value, "YYYY-MM-DD").format("MM-DD-YYYY [T]HH:mm");
+        }
+        return value;
       },
     },
     {
@@ -146,7 +204,7 @@ const AllSparePartsUsageHistory = () => {
     },
 
     {
-      title: "SparePart",
+      title: "Spare Part",
       dataIndex: ["totalSpareDataUsageHistory", "spareParts"],
     },
     {
@@ -227,19 +285,33 @@ const AllSparePartsUsageHistory = () => {
         <BMTitlebar
           title="Spare Usage History"
           Toolbar={
-            <ChartsToolbar
-              baseUrlForFiltering={baseUrlForFiltering}
-              reduceState={reduceState}
-              reducerDispatch={reducerDispatch}
-              monthFiltration
-              yearFiltration
-              sectionFiltration
-              subSectionFiltration
-              cellFiltration
-              lineFiltration
-              machineFiltration
-              resetButtonFiltration
-            />
+            <>
+              <ChartsToolbar
+                baseUrlForFiltering={baseUrlForFiltering}
+                reduceState={reduceState}
+                reducerDispatch={reducerDispatch}
+                monthFiltration
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                machineFiltration
+                resetButtonFiltration
+              />
+              <div className="col-auto m-1">
+                <CSVLink
+                  headers={columns}
+                  className="downloadCSV text-decoration-none"
+                  data={allSparePartsUsageData ? allSparePartsUsageData : []}
+                  filename={`All_Spare_Usage_History`}
+                  style={{ textDecoration: "none", color: "white" }}
+                >
+                  {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+                  CSV
+                </CSVLink>
+              </div>
+            </>
           }
         />
         <ConfigProvider
@@ -249,7 +321,7 @@ const AllSparePartsUsageHistory = () => {
                 headerBg: "#0fa3b1",
                 fontWeightStrong: 700,
                 borderColor: "#9f9f9f",
-                "fontSize": 18,
+                fontSize: 18,
                 fontSizeIcon: 15,
                 opacityLoading: 2.65,
               },

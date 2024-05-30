@@ -2554,49 +2554,6 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
         lineIdArray.push(lineData[i]._id);
       }
 
-      // console.log(cellIdArray)
-
-      // const x = "new ObjectId("63243decc42b17be9a33f982")"
-      // let groupData
-      // let linedataWithGroup = []
-      // for (let i = 0; i < cellIdArray.length; i++) {
-      //     groupData = await Line.aggregate([
-
-      //         {
-      //             $group:{
-      //                 _id:"$cell_names",
-      //                 books: { $push: "$$ROOT" }
-      //             }
-
-      //         },
-      //         {
-      //             $match:{
-      //                 "books": {
-      //                     $elemMatch:{cell_names: cellIdArray[i]}
-      //                 }
-      //             }
-      //         },
-      //         // {$match: {"books[0].cell_names":{$in: [
-      //         //     `new ObjectId("63243decc42b17be9a33f982")`
-
-      //         //   ]}}},
-      //         {
-      //             $project:{
-      //                 "_id":0
-      //             }
-      //         }
-
-      //     ])
-      //     if(groupData.length > 0){
-      //         for (let i = 0; i < groupData[0].books.length; i++) {
-      //             linedataWithGroup.push(groupData[0].books[i])
-      //         }
-      //     }
-
-      // }
-      // let xyz = await Line.populate(linedataWithGroup,{path:"cell_names"})
-      // console.log(xyz);
-      // console.log(linedataWithGroup)
       //machine data of preparation and planning approval
       machineDataOfPrepAndPlanApproval = await Machine.aggregate([
         {
@@ -2768,36 +2725,12 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
 });
 
 router.post(
-  "/postSectionToGetPMSheetApprovalData",
+  "/postSectionToGetPMSheetApprovalData/:dashboard",
   authenticate,
   async (req, res) => {
     try {
-      let { section, selectedYear } = req.body;
+      let { section, selectedYear, selectedMonth } = req.body;
       let loggedUserData = req.rootUser;
-
-      let currentYear =
-        new Date().getMonth() < 3
-          ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-          : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-      // let selectedYearOfCheckSheet =
-      //     selectedYear === currentYear ? [{
-      //         "checkSheet_data.current_year": selectedYear
-
-      //     },
-      //     {
-      //         "checkSheet_data": []
-
-      //     },
-      //     {
-      //         "checkSheet_data": undefined
-
-      //     }
-      //     ] : [{
-      //         "checkSheet_data.current_year": selectedYear
-
-      //     },
-
-      //     ]
 
       let subSectionsData,
         subSectionIdArray = [],
@@ -2805,246 +2738,65 @@ router.post(
         cellIdArray = [],
         lineData,
         lineIdArray = [],
-        machineData,
-        machineDataForChecksheet,
-        machineDataOfPrepAndPlanApproval,
+        approvalLogMiddleware = [],
+        approvalLogOfPM,
         subsectionSplitIdArrayForChecksheet = [],
-        machineLastData;
+        acceptedAndTotalApprovalCount = [];
 
-      if (section?.dashboardLevel === "Yes") {
+      let sectionInfo =
+        typeof section === "string"
+          ? await Section.findOne({
+              section_id: section.split("-")?.[0],
+            })
+          : section;
+
+      if (sectionInfo.dashboardLevel === "Yes") {
         subSectionsData = await SubSection.find({
-          section_names: section?._id,
+          section_names: sectionInfo._id,
         }).sort({ subSection_sequence: 1 });
-
-        for (let i = 0; i < subSectionsData.length; i++) {
-          subSectionIdArray.push(subSectionsData[i]._id);
-        }
-
-        cellData = await Cell.find({
-          subSection_names: { $in: subSectionIdArray },
-        }).sort({ cell_sequence: 1 });
-
-        for (let i = 0; i < cellData.length; i++) {
-          cellIdArray.push(cellData[i]._id);
-        }
-
-        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({
-          line_sequence: 1,
-        });
-
-        for (let i = 0; i < lineData.length; i++) {
-          lineIdArray.push(lineData[i]._id);
-        }
-
-        machineDataOfImplementationApproval = await Machine.aggregate([
-          {
-            $match: {
-              line_names: { $in: lineIdArray },
-            },
-          },
-          {
-            $unwind: "$checkSheet_data",
-          },
-          {
-            $match: {
-              "checkSheet_data.current_year": selectedYear,
-            },
-          },
-          // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-          {
-            $match: {
-              $and: [
-                {
-                  "checkSheet_data.checksheet_status": "Implementation",
-                },
-                {
-                  "checkSheet_data.checksheet_status": { $ne: "" },
-                },
-              ],
-            },
-          },
-          {
-            $project: {
-              machine_code: 1,
-              machine_name: 1,
-              machine_nickname: 1,
-              machine_sequence: 1,
-              installation_date: 1,
-              maker_name: 1,
-              maker_sr_no: 1,
-              manufacturingDate: 1,
-              isPM: 1,
-              line_names: 1,
-              checkSheet_data: 1,
-            },
-          },
-        ]);
-        // console.log(machineData)
-        machineDataOfImplementationApproval = await Machine.populate(
-          machineDataOfImplementationApproval,
-          {
-            path: "line_names",
-            populate: { path: "cell_names", model: "Cells" },
-          }
-        );
-
-        //machine data of preparation and planning approval
-        machineDataOfPrepAndPlanApproval = await Machine.aggregate([
-          {
-            $match: {
-              line_names: { $in: lineIdArray },
-            },
-          },
-          {
-            $project: {
-              machine_code: 1,
-              machine_name: 1,
-              machine_nickname: 1,
-              machine_sequence: 1,
-              installation_date: 1,
-              maker_name: 1,
-              maker_sr_no: 1,
-              manufacturingDate: 1,
-              isPM: 1,
-              line_names: 1,
-              checkSheet_data: 1,
-            },
-          },
-          {
-            $unwind: "$checkSheet_data",
-          },
-          {
-            $match: {
-              "checkSheet_data.current_year": selectedYear,
-            },
-          },
-
-          // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-          {
-            $match: {
-              $and: [
-                // {
-                //     "checkSheet_data.checksheet_status": { $ne: "Implementation" }
-                // },
-                {
-                  "checkSheet_data.checksheet_status": { $ne: "" },
-                },
-                {
-                  "checkSheet_data.assign_TL": { $ne: [] },
-                },
-                {
-                  checkSheet_data: { $ne: undefined },
-                },
-              ],
-            },
-          },
-        ]);
-        // console.log(machineData)
-        machineDataOfPrepAndPlanApproval = await Machine.populate(
-          machineDataOfPrepAndPlanApproval,
-          {
-            path: "line_names",
-            populate: { path: "cell_names", model: "Cells" },
-          }
-        );
-
-        // console.log(selectedYear, typeof (selectedYear))
-        // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-        // machineLastData = await Machine.aggregate([{
-        //     $match: {
-        //         line_names: { $in: lineIdArray },
-
-        //     }
-        // },
-        // {
-        //     $project: {
-        //         machine_code: 1,
-        //         machine_name: 1,
-        //         machine_nickname: 1,
-        //         machine_sequence: 1,
-        //         installation_date: 1,
-        //         maker_name: 1,
-        //         maker_sr_no: 1,
-        //         manufacturingDate: 1,
-        //         isPM: 1,
-        //         line_names: 1,
-        //         // checkSheet_data: 1
-        //         checkSheet_data: 1
-        //     }
-        // },
-        // {
-        //     $unwind: {
-        //         path: "$checkSheet_data",
-        //         preserveNullAndEmptyArrays: true
-        //     }
-        // },
-        // {
-        //     $match: {
-        //         $or: selectedYearOfCheckSheet
-
-        //         // "checkSheet_data.current_year": selectedYear
-        //     }
-        // },
-        // ])
-
-        // machineLastData = await Machine.populate(machineLastData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-        // console.log(machineLastData)
       } else {
-        cellData = await Cell.find({ subSection_names: section?._id }).sort({
-          cell_sequence: 1,
+        loggedUserData.subSection_data.map((ids) => {
+          let subsectionsId = ids.split("-");
+          subsectionSplitIdArrayForChecksheet.push(subsectionsId[0]);
         });
+        subSectionsData = await SubSection.find({
+          subSection_id: { $in: subsectionSplitIdArrayForChecksheet },
+        }).sort({ subSection_sequence: 1 });
+      }
 
-        for (let i = 0; i < cellData.length; i++) {
-          cellIdArray.push(cellData[i]._id);
-        }
+      cellData = await Cell.find({
+        subSection_names: { $in: subSectionsData?.map((item) => item?._id) },
+      }).sort({ cell_sequence: 1 });
 
-        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({
-          line_sequence: 1,
-        });
+      lineData = await Line.find({
+        cell_names: { $in: cellData?.map((item) => item?._id) },
+      }).sort({ line_sequence: 1 });
 
-        for (let i = 0; i < lineData.length; i++) {
-          lineIdArray.push(lineData[i]._id);
-        }
+      let queryObj = {};
 
-        //machine data of preparation and planning approval
-        machineDataOfPrepAndPlanApproval = await Machine.aggregate([
-          {
-            $match: {
-              line_names: { $in: lineIdArray },
-            },
-          },
-          {
-            $project: {
-              machine_code: 1,
-              machine_name: 1,
-              machine_nickname: 1,
-              machine_sequence: 1,
-              installation_date: 1,
-              maker_name: 1,
-              maker_sr_no: 1,
-              manufacturingDate: 1,
-              isPM: 1,
-              line_names: 1,
-              checkSheet_data: 1,
-            },
-          },
-          {
-            $unwind: "$checkSheet_data",
-          },
-          {
-            $match: {
-              "checkSheet_data.current_year": selectedYear,
-            },
-          },
+      queryObj = {
+        line_names: { $in: lineData?.map((item) => item?._id) },
+      };
+      if (req?.query?.lineId !== "undefined" && req?.query?.lineId) {
+        queryObj = {
+          line_names: mongoose.Types.ObjectId(req?.query?.lineId),
+        };
+      }
+      if (
+        req?.query?.machine_code !== "undefined" &&
+        req?.query?.machine_code
+      ) {
+        queryObj = {
+          ...queryObj,
+          machine_code: req?.query?.machine_code,
+        };
+      }
 
-          // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+      if (req?.params?.dashboard === "preparationAndPlanningPhaseApprovalLog") {
+        approvalLogMiddleware = [
           {
             $match: {
               $and: [
-                // {
-                //     "checkSheet_data.checksheet_status": { $ne: "Implementation" }
-                // },
                 {
                   "checkSheet_data.checksheet_status": { $ne: "" },
                 },
@@ -3057,32 +2809,50 @@ router.post(
               ],
             },
           },
-        ]);
-        // console.log(machineData)
-        machineDataOfPrepAndPlanApproval = await Machine.populate(
-          machineDataOfPrepAndPlanApproval,
+        ];
+        acceptedAndTotalApprovalCount = [
           {
-            path: "line_names",
-            populate: { path: "cell_names", model: "Cells" },
-          }
-        );
-
-        // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checksheet_status: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-        machineDataOfImplementationApproval = await Machine.aggregate([
-          {
-            $match: {
-              line_names: { $in: lineIdArray },
+            $addFields: {
+              userWithStatusInfo: [
+                {
+                  userType: "MTD TL/HOSS",
+                  // userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                  userName: {
+                    $arrayElemAt: ["$checkSheet_data.assign_TL_name", -1],
+                  },
+                  status: {
+                    $arrayElemAt: ["$checkSheet_data.tl_approval_status", -1],
+                  },
+                },
+                {
+                  userType: "MTD HOS",
+                  // userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                  userName: {
+                    $arrayElemAt: ["$checkSheet_data.assign_HOS_name", -1],
+                  },
+                  status: {
+                    $arrayElemAt: ["$checkSheet_data.hos_approval_status", -1],
+                  },
+                },
+                {
+                  userType: "PRD TL",
+                  // userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                  userName: {
+                    $arrayElemAt: ["$checkSheet_data.assign_PRD_TL_name", -1],
+                  },
+                  status: {
+                    $arrayElemAt: [
+                      "$checkSheet_data.prd_tl_approval_status",
+                      -1,
+                    ],
+                  },
+                },
+              ],
             },
           },
-          {
-            $unwind: "$checkSheet_data",
-          },
-          {
-            $match: {
-              "checkSheet_data.current_year": selectedYear,
-            },
-          },
-          // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+        ];
+      } else {
+        approvalLogMiddleware = [
           {
             $match: {
               $and: [
@@ -3095,71 +2865,309 @@ router.post(
               ],
             },
           },
+        ];
+        acceptedAndTotalApprovalCount = [
           {
-            $project: {
-              machine_code: 1,
-              machine_name: 1,
-              machine_nickname: 1,
-              machine_sequence: 1,
-              installation_date: 1,
-              maker_name: 1,
-              maker_sr_no: 1,
-              manufacturingDate: 1,
-              isPM: 1,
-              line_names: 1,
-              checkSheet_data: 1,
+            $addFields: {
+              userWithStatusInfo: {
+                $concatArrays: [
+                  {
+                    $map: {
+                      input: {
+                        $objectToArray:
+                          "$checkSheet_data.implemetation_prd_tl_approval_status",
+                      },
+                      as: "prdStatusArray",
+                      in: {
+                        userType: "PRD TL/HOSS",
+
+                        userName: {
+                          $arrayElemAt: [
+                            {
+                              $getField: {
+                                field: "v",
+                                input: {
+                                  $arrayElemAt: [
+                                    {
+                                      $filter: {
+                                        input: {
+                                          $objectToArray:
+                                            "$checkSheet_data.implementation_assign_PRD_TL_name",
+                                        },
+                                        as: "prdName",
+                                        cond: {
+                                          $eq: [
+                                            "$$prdStatusArray.k",
+                                            "$$prdName.k",
+                                          ],
+                                        },
+                                      },
+                                    },
+                                    0,
+                                  ],
+                                },
+                              },
+                            },
+                            -1,
+                          ],
+                        },
+                        status: {
+                          $arrayElemAt: ["$$prdStatusArray.v", -1],
+                        },
+                      },
+                    },
+                  },
+                  {
+                    $map: {
+                      input: {
+                        $objectToArray:
+                          "$checkSheet_data.implemetation_mtd_tl_approval_status",
+                      },
+                      as: "mtdTlStatusArray",
+                      in: {
+                        userType: "MTD TL/HOSS",
+
+                        userName: {
+                          $arrayElemAt: [
+                            {
+                              $getField: {
+                                field: "v",
+                                input: {
+                                  $arrayElemAt: [
+                                    {
+                                      $filter: {
+                                        input: {
+                                          $objectToArray:
+                                            "$checkSheet_data.implementation_assign_MTD_TL_name",
+                                        },
+                                        as: "mtdName",
+                                        cond: {
+                                          $eq: [
+                                            "$$mtdTlStatusArray.k",
+                                            "$$mtdName.k",
+                                          ],
+                                        },
+                                      },
+                                    },
+                                    0,
+                                  ],
+                                },
+                              },
+                            },
+                            -1,
+                          ],
+                        },
+                        status: {
+                          $arrayElemAt: ["$$mtdTlStatusArray.v", -1],
+                        },
+                      },
+                    },
+                  },
+                  {
+                    $map: {
+                      input: {
+                        $objectToArray:
+                          "$checkSheet_data.implemetation_mtd_hos_approval_status",
+                      },
+                      as: "mtdHosStatusArray",
+                      in: {
+                        userType: "MTD HOS",
+                        userName: {
+                          $arrayElemAt: [
+                            {
+                              $getField: {
+                                field: "v",
+                                input: {
+                                  $arrayElemAt: [
+                                    {
+                                      $filter: {
+                                        input: {
+                                          $objectToArray:
+                                            "$checkSheet_data.implementation_assign_MTD_HOS_name",
+                                        },
+                                        as: "mtdHosName",
+                                        cond: {
+                                          $eq: [
+                                            "$$mtdHosStatusArray.k",
+                                            "$$mtdHosName.k",
+                                          ],
+                                        },
+                                      },
+                                    },
+                                    0,
+                                  ],
+                                },
+                              },
+                            },
+                            -1,
+                          ],
+                        },
+                        status: {
+                          $arrayElemAt: ["$$mtdHosStatusArray.v", -1],
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
             },
           },
-        ]);
-        // console.log(machineData)
-        machineDataOfImplementationApproval = await Machine.populate(
-          machineDataOfImplementationApproval,
-          {
-            path: "line_names",
-            populate: { path: "cell_names", model: "Cells" },
-          }
-        );
-        // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-        // machineLastData = await Machine.aggregate([{
-        //     $match: {
-        //         line_names: { $in: lineIdArray },
-        //         $or: selectedYearOfCheckSheet
-
-        //     }
-        // },
-        // {
-        //     $project: {
-        //         machine_code: 1,
-        //         machine_name: 1,
-        //         machine_nickname: 1,
-        //         machine_sequence: 1,
-        //         installation_date: 1,
-        //         maker_name: 1,
-        //         maker_sr_no: 1,
-        //         manufacturingDate: 1,
-        //         isPM: 1,
-        //         line_names: 1,
-        //         checkSheet_data: 1
-        //     }
-        // },
-        // {
-        //     $unwind: {
-        //         path: "$checkSheet_data",
-        //         preserveNullAndEmptyArrays: true
-        //     }
-        // },
-        // {
-        //     $match: {
-        //         $or: selectedYearOfCheckSheet
-
-        //         // "checkSheet_data.current_year": selectedYear
-        //     }
-        // },
-        // ])
-
-        // machineLastData = await Machine.populate(machineLastData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+        ];
+        if (selectedMonth) {
+          acceptedAndTotalApprovalCount = [
+            {
+              $addFields: {
+                userWithStatusInfo: [
+                  {
+                    userType: "PRD TL/HOSS",
+                    // userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                    userName: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implementation_assign_PRD_TL_name.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                    status: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implemetation_prd_tl_approval_status.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                  },
+                  {
+                    userType: "MTD TL/HOSS",
+                    // userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                    userName: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implementation_assign_MTD_TL_name.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                    status: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implemetation_mtd_tl_approval_status.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                  },
+                  {
+                    userType: "MTD HOS",
+                    // userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                    userName: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implementation_assign_MTD_HOS_name.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                    status: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implemetation_mtd_hos_approval_status.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ];
+        }
       }
+
+      approvalLogOfPM = await Machine.aggregate([
+        {
+          $match: {
+            ...queryObj,
+          },
+        },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: {
+            "checkSheet_data.current_year": selectedYear,
+          },
+        },
+        ...approvalLogMiddleware,
+        {
+          $project: {
+            machine_code: 1,
+            machine_name: 1,
+            machine_nickname: 1,
+            machine_sequence: 1,
+            installation_date: 1,
+            maker_name: 1,
+            maker_sr_no: 1,
+            manufacturingDate: 1,
+            isPM: 1,
+            line_names: 1,
+            checkSheet_data: 1,
+          },
+        },
+      ]);
+
+      approvalLogOfPM = await Machine.populate(approvalLogOfPM, {
+        path: "line_names",
+        populate: { path: "cell_names", model: "Cells" },
+      });
+
+      const countOfAcceptedAndTotalApprovalOfUsers = await Machine.aggregate([
+        {
+          $match: {
+            ...queryObj,
+          },
+        },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: {
+            "checkSheet_data.current_year": selectedYear,
+          },
+        },
+        ...acceptedAndTotalApprovalCount,
+        {
+          $unwind: "$userWithStatusInfo",
+        },
+        {
+          $match: {
+            "userWithStatusInfo.userName": { $nin: [undefined, null, ""] },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              userName: "$userWithStatusInfo.userName",
+              userType: "$userWithStatusInfo.userType",
+            },
+            countOfAccepted: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: ["$userWithStatusInfo.status", "Accepted"],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            totalApproval: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.userType",
+            data: {
+              $push: {
+                userName: "$_id.userName",
+                countOfAccepted: "$countOfAccepted",
+                totalApproval: "$totalApproval",
+              },
+            },
+          },
+        },
+      ]);
 
       res.json({
         subSectionsData,
@@ -3168,8 +3176,8 @@ router.post(
         cellIdArray,
         lineData,
         lineIdArray,
-        machineDataOfPrepAndPlanApproval,
-        machineDataOfImplementationApproval,
+        approvalLogOfPM,
+        countOfAcceptedAndTotalApprovalOfUsers,
       });
     } catch (error) {
       console.log(error);
@@ -3913,6 +3921,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
       PM_time,
       machineId,
       isAdded,
+      remarksCompulsoryOrNot,
     } = req.body;
     // console.log(req.body)
     let tableRowId;
@@ -4030,6 +4039,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   personInCharge,
                   PM_time,
                   isAdded,
+                  remarksCompulsoryOrNot,
                 },
               },
             }
@@ -4055,6 +4065,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                     cycle,
                     personInCharge,
                     PM_time,
+                    remarksCompulsoryOrNot,
                   },
                 },
               },
@@ -4081,6 +4092,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   cycle,
                   personInCharge,
                   PM_time,
+                  remarksCompulsoryOrNot,
                 },
               },
             }
@@ -4132,6 +4144,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                     personInCharge,
                     PM_time,
                     isAdded,
+                    remarksCompulsoryOrNot,
                   },
                   flagForRevisionContent: true,
                 },
@@ -4162,6 +4175,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   personInCharge,
                   PM_time,
                   isAdded,
+                  remarksCompulsoryOrNot,
                 },
               },
             }
@@ -4187,6 +4201,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                     cycle,
                     personInCharge,
                     PM_time,
+                    remarksCompulsoryOrNot,
                   },
                 },
               },
@@ -4212,6 +4227,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   cycle,
                   personInCharge,
                   PM_time,
+                  remarksCompulsoryOrNot,
                 },
               },
             }
@@ -4389,6 +4405,8 @@ router.post(
                 rowData.personInCharge,
               "checkSheet_data.$[outer].checkSheet.$[inner].PM_time":
                 rowData.PM_time,
+              "checkSheet_data.$[outer].checkSheet.$[inner].remarksCompulsoryOrNot":
+                rowData.remarksCompulsoryOrNot,
               "checkSheet_data.$[outer].checkSheet.$[inner].isEdited": isEdited,
               "checkSheet_data.$[outer].isEditedMonth": new Date(),
               "checkSheet_data.$[outer].flagForRevisionContent": true,
@@ -4427,6 +4445,8 @@ router.post(
                 rowData.personInCharge,
               "checkSheet_data.$[outer].checkSheet.$[inner].PM_time":
                 rowData.PM_time,
+              "checkSheet_data.$[outer].checkSheet.$[inner].remarksCompulsoryOrNot":
+                rowData.remarksCompulsoryOrNot,
             },
           },
           {
@@ -7121,7 +7141,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           selected_machine_data.checkSheet_data
             .implemetation_prd_tl_approval_status[senderApprovalMonth]?.length -
             1
-        ] === "Pending"
+        ] === "Pending" &&
+        req?.rootUser?.tm_grade !== "HOD"
       ) {
         let prd_tl_approval_status = "Accepted";
 
@@ -7351,7 +7372,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           selected_machine_data.checkSheet_data
             .implemetation_mtd_tl_approval_status[senderApprovalMonth]?.length -
             1
-        ] === "Pending"
+        ] === "Pending" &&
+        req?.rootUser?.tm_grade !== "HOD"
       ) {
         let mtd_tl_approval_status = "Accepted";
 
@@ -7595,7 +7617,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           selected_machine_data.checkSheet_data
             .implemetation_mtd_hos_approval_status[senderApprovalMonth]
             ?.length - 1
-        ] === "Pending"
+        ] === "Pending" &&
+        req?.rootUser?.tm_grade !== "HOD"
       ) {
         // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_approved_by_MTD_HOS": { $exists: true } });
 
@@ -9726,7 +9749,7 @@ router.post(
                 {
                   $push: {
                     [keyOfPMworkedTMNameForPreviosMonthDoneWithDelay]:
-                      loggedUserData.tm_name,
+                      loggedUserData.tm_name?.split(" ")?.[0],
                   },
                 },
                 {
@@ -15134,7 +15157,7 @@ router.post(
                     keyForAbnormality?.abnormalityDetails?.[month]
                       ?.abnormalityStatus !== undefined
                   ) {
-                    console.log("Checking open");
+                    // console.log("Checking open");
                     if (
                       keyForAbnormality?.abnormalityDetails?.[month]
                         ?.abnormalityStatus === "Open"

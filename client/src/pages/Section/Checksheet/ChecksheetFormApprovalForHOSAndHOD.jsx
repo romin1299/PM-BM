@@ -17,6 +17,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 import Footer from "../../../components/Footer/Footer";
 import EastIcon from "@mui/icons-material/East";
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 
 function ChecksheetFormApprovalForHOSAndHOD() {
   const context = useContext(RoutingContext);
@@ -224,7 +226,8 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"
+          key === "inspectionCompletionBy"||
+          key === "remarksCompulsoryOrNot"
         ) {
           continue;
         }
@@ -700,11 +703,27 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                         />
                         <br />
                       </div>
+
                       <div className="col-6 d-flex align-items-center">
                         <button type="submit" className="btn-primary1">
                           Submit
                         </button>
                       </div>
+                      {machineAllData?.checkSheet_data?.dataSheet ? (
+                        <div className="col">
+                          <a
+                            href={`${BASE_URL}/${machineAllData?.checkSheet_data?.dataSheet}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <button className="btn-reset" type="button">
+                              <SimCardDownloadIcon /> Download DATA-SHEET
+                            </button>
+                          </a>
+                        </div>
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </form>
                 ) : (
@@ -791,11 +810,27 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       ) : (
                         ""
                       )}
+
                       <div className="col-6 d-flex align-items-center">
                         <button type="submit" className="btn-primary1">
                           Submit
                         </button>
                       </div>
+                      {machineAllData?.checkSheet_data?.dataSheet ? (
+                        <div className="col">
+                          <a
+                            href={`${BASE_URL}/${machineAllData?.checkSheet_data?.dataSheet}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <button className="btn-reset" type="button">
+                              <SimCardDownloadIcon /> Download DATA-SHEET
+                            </button>
+                          </a>
+                        </div>
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </form>
                 )}
@@ -898,7 +933,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     colSpan={3}
                     rowSpan={5}
                   >
-                    Line:- {machineAllData.line_names.lineName}
+                    Line:- {machineAllData.line_names.line_name}
                     <br />
                     M/c No : {machineAllData.machine_code}
                   </th>

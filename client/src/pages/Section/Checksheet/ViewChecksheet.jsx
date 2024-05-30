@@ -17,8 +17,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 import Footer from "../../../components/Footer/Footer";
 import EastIcon from "@mui/icons-material/East";
+import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 
 import { jsPDF } from "jspdf";
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 function ViewChecksheet() {
   const context = useContext(RoutingContext);
@@ -77,7 +79,7 @@ function ViewChecksheet() {
 
   let machineAllData =
     selectedMachineCheckSheetData.state.selectedRowForViewForm;
-  console.log(machineAllData);
+  // console.log(machineAllData);
 
   let phaseStatus =
     selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
@@ -302,7 +304,8 @@ function ViewChecksheet() {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"
+          key === "inspectionCompletionBy"||
+          key === "remarksCompulsoryOrNot"
         ) {
           continue;
         }
@@ -695,8 +698,8 @@ function ViewChecksheet() {
               <Col lg={6} md={6} sm={6}>
                 {" "}
                 {stateForPdfDownload !== "" ? (
-                  <div>
-                    <div className="col-5 mt-2">
+                  <div className="row mt-2 d-flex">
+                    <div className="col">
                       <button
                         onClick={
                           () => navigate(-1)
@@ -747,11 +750,28 @@ function ViewChecksheet() {
                       >
                         <ArrowBackIcon />
                       </button>
-                      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                    </div>
+                    <div className="col">
                       <button className="btn-reset" onClick={handleDownload}>
                         Download
                       </button>
                     </div>
+                    {selectedMachineCheckSheetData.state.selectedRowForViewForm
+                      ?.checkSheet_data?.dataSheet ? (
+                      <div className="col">
+                        <a
+                          href={`${BASE_URL}/${selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data?.dataSheet}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="btn-reset">
+                            <SimCardDownloadIcon /> Download DATA-SHEET
+                          </button>
+                        </a>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 ) : (
                   ""
