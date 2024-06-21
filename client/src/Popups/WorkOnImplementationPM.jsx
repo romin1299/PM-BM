@@ -157,7 +157,7 @@ function WorkOnImplementationPM({
       // console.log(formData);
 
       axios
-        .post("/postImplementationWorkedData", formData)
+        .post("/postImplementationWorkedData/editDataAsFlowWise", formData)
         .then((res) => {
           if (res.status === 400 || res.status === 422) {
             window.alert("Invalid !");

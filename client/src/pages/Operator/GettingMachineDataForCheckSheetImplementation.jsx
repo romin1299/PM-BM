@@ -30,15 +30,11 @@ const GettingMachineDataForCheckSheetImplementation = ({
   // console.log(show);
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
-      const res = await fetch("/postMachineIdToGetAllDetailsOfMachine", {
+      const res = await fetch(`/postMachineIdToGetAllDetailsOfMachine/?machine_code=${machineData?.machine_code}&&selectedYear=${selectedYear}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          machineID: machineData,
-          selectedYear,
-        }),
       });
       const data = await res.json();
       if (res.status === 400 || res.status === 422 || !data) {

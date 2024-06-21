@@ -77,7 +77,7 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           // refreshPage();
         } else {
           if (
-            NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+            // NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
             data?.userLogin?.tm_department === "MTD" &&
             data?.userLogin?.user_type !== "Operator"
           ) {

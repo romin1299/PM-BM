@@ -23,7 +23,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Footer from "../../components/Footer/Footer";
 import DeleteConfirmation from "../../Popups/DeleteConfirmation";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
-
+import CheckSheetEditAfterApproval from "../../Popups/CheckSheetEditAfterApproval";
 import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
@@ -56,6 +56,9 @@ const CheckSheetDashboard = () => {
   const [selectedStatus, setSelectedStatus] = useState(
     localStorage.getItem("selectedStatus")
   );
+
+  const [checkSheetEditModalOpenClose, setCheckSheetEditModalOpenClose] =
+    useState(false);
 
   const functionToSetRefKey = () => {
     setRefKey((refKey) => refKey + 1);
@@ -320,6 +323,12 @@ const CheckSheetDashboard = () => {
     setShowCheckSheet((showCheckSheet) => !showCheckSheet);
   };
 
+  const handleCheckSheetEditAfterAllApprovalShowAndCloseState = () => {
+    setCheckSheetEditModalOpenClose(
+      (checkSheetEditModalOpenClose) => !checkSheetEditModalOpenClose
+    );
+  };
+
   let actions =
     currentYear === selectedYear
       ? [
@@ -333,7 +342,8 @@ const CheckSheetDashboard = () => {
                   : "",
               icon: () => (
                 <button className="btn-reset1">
-                  {rowData?.checkSheet_data !== null || rowData?.checkSheet_data !== undefined
+                  {rowData?.checkSheet_data !== null ||
+                  rowData?.checkSheet_data !== undefined
                     ? rowData?.checkSheet_data?.checkSheet?.length > 0
                       ? rowData?.checkSheet_data?.checkSheet?.length < 1
                         ? "Preparation"
@@ -445,7 +455,8 @@ const CheckSheetDashboard = () => {
                 rowData?.checkSheet_data != null
                   ? rowData?.checkSheet_data?.checksheet_status ===
                       "Preparation" ||
-                    rowData?.checkSheet_data?.checksheet_status === "Planning" ||
+                    rowData?.checkSheet_data?.checksheet_status ===
+                      "Planning" ||
                     rowData?.checkSheet_data?.checksheet_status === undefined
                   : rowData?.checkSheet_data === undefined ||
                     rowData?.checkSheet_data === null,
@@ -509,114 +520,31 @@ const CheckSheetDashboard = () => {
           },
         ];
 
-        if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
-          actions?.push({
-            icon: () => <button className="btn btn-info"><DriveFileRenameOutlineIcon className="text-primary" /></button>,
-            tooltip: "Edit After All Approval",
-            position: "row",
-            onClick: (event, selectedRow) => {
-              navigate(
-                `/pm/edit/check-sheet/${selectedRow?.machine_code}/${selectedRow?._id}/${selectedYear}`,
-                // {
-                //   state: {
-                //     prevPath: location?.pathname,
-                //     prevPathSearch: location?.search,
-                //     supportingTM:
-                //       reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
-                //   },
-                // }
-              );
-            },
-          });
-        }
+  if (
+    context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes" &&
+    currentYear === selectedYear
+  ) {
+    actions?.push({
+      icon: () => (
+        <button className="btn btn-info">
+          <DriveFileRenameOutlineIcon className="text-primary" />
+        </button>
+      ),
+      tooltip: "Edit After All Approval",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        handleCheckSheetEditAfterAllApprovalShowAndCloseState();
+        setSelectedRow(selectedRow);
+      },
+    });
+  }
 
   useEffect(() => {
     setLoadingAnimationState(<LoadingAnimation />);
-    setTableData([])
-    setTableData1([])
+    setTableData([]);
+    setTableData1([]);
   }, [selectedYear]);
 
-  // console.log(tableData);
-
-  // let preparationDataArray = [],
-  //   underPreparationDataArray = [],
-  //   preparationUnderApprovalDataArray = [];
-
-  // let planningDataArray = [],
-  //   underPlanningDataArray = [],
-  //   planningUnderApprovalDataArray = [];
-
-  // let variableForPlanning;
-
-  // // useEffect(() => {
-  // tableData?.map(
-  //   (rowData) => {
-  //     rowData?.checkSheet_data != null
-  //       ? rowData?.checkSheet_data?.checkSheet.length > 0
-  //         ? rowData?.checkSheet_data?.checkSheet.length < 1
-  //           ? preparationDataArray?.push(rowData)
-  //           : rowData?.checkSheet_data.assign_TL.length !==
-  //               rowData?.checkSheet_data.approved_by_TL.length ||
-  //             rowData?.checkSheet_data.assign_HOS.length !==
-  //               rowData?.checkSheet_data.approved_by_HOS.length
-  //           ? preparationUnderApprovalDataArray?.push(rowData)
-  //           : underPreparationDataArray?.push(rowData)
-  //         : preparationDataArray?.push(rowData)
-  //       : preparationDataArray?.push(rowData);
-
-  //     variableForPlanning =
-  //       rowData?.checkSheet_data != null
-  //         ? rowData?.checkSheet_data?.checkSheet.map((key) => {
-  //             if ("start_month" in key) {
-  //               if (
-  //                 rowData?.checkSheet_data?.approved_by_PRD_TL?.length !=
-  //                 rowData?.checkSheet_data?.assign_PRD_TL?.length
-  //               ) {
-  //                 return "Planning Under Approval";
-  //               } else {
-  //                 return "Under-Planning";
-  //               }
-  //             } else {
-  //               return "Planning";
-  //             }
-  //           })
-  //         : "";
-
-  //     // rowData?.checkSheet_data != null
-  //     //   ? rowData?.checkSheet_data?.checkSheet.map((key) => {
-  //     //       if ("start_month" in key) {
-  //     //         if (
-  //     //           rowData?.checkSheet_data?.approved_by_PRD_TL.length !=
-  //     //           rowData?.checkSheet_data?.assign_PRD_TL.length
-  //     //         ) {
-  //     //           planningUnderApprovalDataArray?.push(rowData);
-  //     //         } else {
-  //     //           underPlanningDataArray?.push(rowData);
-  //     //         }
-  //     //       } else {
-  //     //         planningDataArray?.push(rowData);
-  //     //       }
-  //     //     })
-  //     //   : console.log("");
-  //     console.log("*********8888", variableForPlanning);
-  //   }
-
-  //   // console.log(rowData)
-  // );
-  // // }, [tableData]);
-
-  // console
-  //   .log
-  //   // preparationDataArray,
-  //   // underPreparationDataArray,
-  //   // preparationUnderApprovalDataArray,
-
-  //   //-------------------------------------
-
-  //   // planningDataArray,
-  //   // underPlanningDataArray,
-  //   // planningUnderApprovalDataArray
-  //   ();
   return (
     <>
       <DeleteConfirmation
@@ -625,6 +553,17 @@ const CheckSheetDashboard = () => {
         selectedRow={selectedRow}
         functionToSetRefKey={functionToSetRefKey}
       />
+      {checkSheetEditModalOpenClose && (
+        <CheckSheetEditAfterApproval
+          selectedYear={selectedYear}
+          selectedRow={selectedRow}
+          modelProp={{
+            show: checkSheetEditModalOpenClose,
+            onHide: () =>
+              handleCheckSheetEditAfterAllApprovalShowAndCloseState(),
+          }}
+        />
+      )}
       {/* <ToastContainer style={{ width: "30rem" }} /> */}
       <div className="pageCard">
         <div className="creationDashboard">

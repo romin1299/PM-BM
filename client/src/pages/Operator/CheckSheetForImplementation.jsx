@@ -45,9 +45,6 @@ const CheckSheet = ({
   const [selectedSupportedTM, setSelectedSupportedTM] = useState([]);
 
   const [delayRemarks, setDelayRemarks] = useState(0);
-  const [PMCompleted, setPMCompleted] = useState(0);
-
-  const [refKey, setRefKey] = useState("");
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
   //after completed send for approval
@@ -57,9 +54,6 @@ const CheckSheet = ({
 
   const [dataSheetName, setDataSheetName] = useState([]);
 
-  const navigate = useNavigate();
-
-  const location = useLocation();
   let machineAllData = machineData;
   // console.log(machineAllData);
   let tableData = machineData?.checkSheet_data?.checkSheet;
@@ -84,17 +78,7 @@ const CheckSheet = ({
     monthKeyArray[new Date().getMonth() - 1] === undefined
       ? monthKeyArray.splice(-1)[0]
       : monthKeyArray[new Date().getMonth() - 1];
-  let previousToPreviousMonth =
-    new Date().getMonth() - 2 === -2
-      ? monthKeyArray.splice(-1)[1]
-      : monthKeyArray.splice(-1)[0];
-  let monthInNumber = new Date().getMonth();
 
-  // console.log(selectedSupportedTM);
-
-  let count = 0;
-
-  let previousTextBoxId;
   const validationSchema = yup.object({
     pmTime: yup.string().required("Please enter PM time"),
     delayRemarks: yup.string().when([], {
@@ -111,10 +95,6 @@ const CheckSheet = ({
     mtd_tl_list: yup.string().required("Please select MTD TL"),
     mtd_hos_list: yup.string().required("Please select MTD HOS"),
   });
-
-  const validationSchema2 = yup.object({
-    mtd_hod_list: yup.string().required("Please select MTD HOD"),
-  });
   // get the date and time
   const timeStamp = () => {
     let date = new Date();
@@ -129,8 +109,6 @@ const CheckSheet = ({
 
     return `${day}/${month}/${year} - ${getTime}`;
   };
-
-  // console.log(selectedSupportedTM);
 
   const formik = useFormik({
     initialValues: {
@@ -201,7 +179,6 @@ const CheckSheet = ({
     validationSchema: validationSchema1,
 
     onSubmit: async (values) => {
-      console.log(HOSList[values.mtd_hos_list]);
       const res = await fetch("/sendRequestForApproval", {
         method: "Post",
         headers: { "Content-Type": "application/json" },
@@ -210,7 +187,7 @@ const CheckSheet = ({
           mtd_tl_list: MTDTLlist[values.mtd_tl_list],
           mtd_hos_list: HOSList[values.mtd_hos_list],
           implemetation_completed_date: timeStamp(),
-          selected_machine_data: machineAllData,
+          selected_machine_data: machineAllData, 
           monthForCompareSystemMonth,
           phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
         }),
@@ -225,50 +202,9 @@ const CheckSheet = ({
       } else {
         console.log("PM worked data save sucessfully...");
         closeCheckSheet();
-        // navigate("/");
-        // clearState();
       }
     },
   });
-
-  // const formik2 = useFormik({
-  //   initialValues: {
-  //     mtd_hod_list: "",
-  //   },
-  //   validationSchema: validationSchema2,
-
-  //   onSubmit: async (values) => {
-  //     const res = await fetch("/sendRequestForApproval", {
-  //       method: "Post",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         mtd_hod_list: MTDHODlist[values.mtd_hod_list],
-  //         implemetation_completed_date: timeStamp(),
-  //         selected_machine_data: machineAllData,
-  //         monthForCompareSystemMonth,
-  //         phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
-  //       }),
-  //     });
-  //     const data = res.json();
-  //     // console.log(data);
-  //     if (res.status === 400 || res.status === 422 || !data) {
-  //       window.alert("Invalid credentials !");
-  //     } else if (res.status === 409) {
-  //       console.log("Machine code already exists!");
-  //     } else {
-  //       console.log("PM worked data save sucessfully...");
-  //       closeCheckSheet();
-  //       // navigate("/");
-  //       // clearState();
-  //     }
-  //   },
-  // });
-
-  const clearState = () => {
-    formik.values.pmTime = "";
-    formik.values.supportingOperator = "";
-    formik.values.delayRemarks = "";
-  };
 
   //fetch supported operator list
   const getListForApproval = async () => {
@@ -292,18 +228,6 @@ const CheckSheet = ({
     } catch (error) {
       console.log(error);
     }
-  };
-
-  // console.log(supportingTMList);
-
-  let Data = {};
-
-  const showInputValue = (Values) => {
-    // console.log(Values.target.name);
-
-    Data[Values.target.name] = Values.target.value;
-
-    // console.log(Data);
   };
 
   let columns = [
@@ -664,73 +588,10 @@ const CheckSheet = ({
       "none";
   };
 
-  const PMCarryOnToNextMonth = async (
-    tableRowId,
-    cycleOfPerticularRow,
-    skipCountForStatusUpdate
-  ) => {
-    // console.log(tableRowId);
-    try {
-      const res = await fetch("/PMCarryOnToNextMonth", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          machine_code: machineAllData.machine_code,
-          yearOfCheckSheet: machineAllData?.checkSheet_data?.current_year,
-          monthForCompareSystemMonth,
-          tableRowId,
-          previousMonth: previousMonth ? previousMonth : "",
-          cycleOfPerticularRow,
-          skipCountForStatusUpdate,
-          previousToPreviousMonth,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.status === 400 || !data) {
-        window.alert("Invalid");
-      } else if (res.status === 422) {
-        window.alert("Please fill all the details ");
-        // refreshPage();
-      } else {
-        console.log("Data Added Successful");
-        functionToSetRefKey();
-        // countCounter();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // console.log(tableData);
   useEffect(() => {
     getListForApproval();
     getDataModelled();
-    // for (let i = 0; i < tableData.length; i++) {
-    //   let output = "inspection_child_name" in tableData[i];
-
-    //   console.log(output);
-
-    //   if (output === true) {
-    //     setRefKey(true);
-    //     break;
-    //   }
-    // }
   }, []);
-
-  const ITEM_HEIGHT = 30;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        // width: 250,
-      },
-    },
-  };
 
   //upload tag name XLS and XLSX file
   const uploadDataSheet = async (e) => {
@@ -1181,8 +1042,8 @@ const CheckSheet = ({
                         {newTableData?.map((rData, rIndex) => (
                           <tr
                             className={
-                              rData[10]?.["key"] === "isDeleted" &&
-                              rData[10]?.["value"] === true
+                              rData[11]?.["key"] === "isDeleted" &&
+                              rData[11]?.["value"] === true
                                 ? "ar-table-row table-col-mid-year-delete"
                                 : "ar-table-row"
                             }
@@ -1247,8 +1108,8 @@ const CheckSheet = ({
                                       colData.value.length === 1 &&
                                       colData.key ===
                                         monthForCompareSystemMonth &&
-                                      rData[10]?.["key"] !== "isDeleted" &&
-                                      rData[10]?.["value"] !== true ? (
+                                      rData[11]?.["key"] !== "isDeleted" &&
+                                      rData[11]?.["value"] !== true ? (
                                         <>
                                           {" "}
                                           <button
@@ -1290,9 +1151,8 @@ const CheckSheet = ({
                                                   refKeyForScheduleMonthInLogHistory={
                                                     colData?.value?.[0]
                                                   }
-
-                                                  remarksCompulsoryOrNot ={
-                                                    rData[10].value
+                                                  remarksCompulsoryOrNot={
+                                                    rData[11].value
                                                   }
                                                 />
                                               );
@@ -1612,67 +1472,6 @@ const CheckSheet = ({
                 <Row>
                   <Col>
                     <div className="m-2 p-3 border bg-white rounded">
-                      {/* <div>
-                        <MaterialTable
-                          style={{ boxShadow: "none" }}
-                          localization={
-                            {
-                              // toolbar: {
-                              //   exportCSVName: "Export some Excel format",
-                              //   exportPDFName: "Export as pdf!!"
-                              // }
-                            }
-                          }
-                          icons={tableIcons}
-                          columns={revisedColumns}
-                          data={
-                            machineAllData?.checkSheet_data?.revisionContentData
-                          }
-                          // title="User Management"
-                          // tableRef={this.tableRef.current.onQueryChange()}
-
-                          editable={{}}
-                          options={{
-                            showTitle: false,
-                            paging: false,
-                            sorting: true,
-                            search: true,
-                            filtering: false,
-                            exportButton: true,
-                            exportAllData: true,
-                            draggable: false,
-                            actionsColumnIndex: -1,
-                            pageSize: 10,
-                            pageSizeOptions: false,
-                            paginationType: "stepped",
-                            addRowPosition: "first",
-                            headerStyle: {
-                              position: "sticky",
-                              top: "0",
-                              fontWeight: "bold",
-                            },
-                            maxBodyHeight: "70vh",
-                            rowStyle: {
-                              // fontStyle:'bold'
-
-                              // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-                              // color:"rgba(255,255,255,0.8)",
-                              borderRadius: "5px",
-                              border: "1px solid black",
-                              // WebkitBackdropFilter: "blur( 2px )",
-                              background: "rgba(255,255,255,0.1)",
-                              // backdropFilter: "blur(5px)",
-                            },
-                            cellStyle: {
-                              border: "1px solid black",
-                            },
-                            headerStyle: {
-                              border: "1px solid black",
-                              fontWeight: "bold",
-                            },
-                          }}
-                        />
-                      </div> */}
                       <table style={{ width: "40vw" }}>
                         {revisedColumns?.map((item) => (
                           <th className="td-padding">{item}</th>

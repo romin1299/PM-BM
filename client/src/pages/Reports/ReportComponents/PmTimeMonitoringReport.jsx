@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useReducer } from "react";
 import { Row, Col, Container } from "react-bootstrap";
 
 //file imports
@@ -8,9 +8,21 @@ import TotalTimeTMWise from "./Graph/TotalTimeTMWise";
 
 import RoutingContext from "../../../context/routing/RoutingContext";
 import Footer from "../../../components/Footer/Footer";
+import ReportTitleBar from "../../../BM/Reports/Common/ReportTitleBar";
+import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
+import {
+  reducer,
+  initialState,
+} from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import PmMachineWiseTimeMonitoring from "./Graph/PmTimeMonitoringCharts/PmMachineWiseTimeMonitoring";
+import PMTimeMonitoringLastYearWiseComparison from "./Graph/PmTimeMonitoringCharts/PMTimeMonitoringLastYearWiseComparison";
+import { Box } from "@mui/system";
 
 const PmTimeMonitoringReport = () => {
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
+
   const context = useContext(RoutingContext);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
     useState([]);
@@ -131,6 +143,52 @@ const PmTimeMonitoringReport = () => {
               />
             </Col>
             {/* <Col></Col> */}
+          </Row>
+          <Row>
+            <ReportTitleBar
+              title="PM Time Monitoring"
+              Toolbar={
+                <>
+                  <ChartsToolbar
+                    baseUrlForFiltering={baseUrlForFiltering}
+                    reduceState={reduceState}
+                    reducerDispatch={reducerDispatch}
+                    yearFiltration
+                    monthFiltration
+                    sectionFiltration
+                    subSectionFiltration
+                    cellFiltration
+                    lineFiltration
+                    machineFiltration
+                    resetButtonFiltration
+                  />
+                </>
+              }
+            />
+            <Col sm={12} md={12} lg={8} className=" mt-3">
+              <Box mt={2}>
+                <PmMachineWiseTimeMonitoring
+                  userDetails={context}
+                  filterValues={reduceState}
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                  selectedMonth={reduceState?.selectedMonth}
+                />
+              </Box>
+            </Col>
+            <Col sm={12} md={12} lg={4} className=" mt-3">
+              <Box mt={2}>
+                <PMTimeMonitoringLastYearWiseComparison
+                  userDetails={context}
+                  filterValues={reduceState}
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                  selectedMonth={reduceState?.selectedMonth}
+                />
+              </Box>
+            </Col>
           </Row>
         </Container>
         <br />

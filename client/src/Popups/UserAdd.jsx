@@ -104,17 +104,17 @@ const UserAdd = () => {
     //   context.user_type === "Section-Admin"
     //     ? yup.string().required("Please select user type")
     //     : "",
-    email: yup.string().when(["user_type"], {
-      is: () =>
-        LIST_OF_COMPANY?.[0] === NAME_OF_THE_COMPANY &&
-        (formik.values.user_type === "TL/HOSS" ||
-          context.user_type === "Admin" ||
-          context.user_type === "Plant-Admin"),
-      then: yup
-        .string("Enter your email")
-        .email("Enter a valid email")
-        .required("Email is required"),
-    }),
+    // email: yup.string().when(["user_type"], {
+    //   is: () =>
+    //     LIST_OF_COMPANY?.[0] === NAME_OF_THE_COMPANY &&
+    //     (formik.values.user_type === "TL/HOSS" ||
+    //       context.user_type === "Admin" ||
+    //       context.user_type === "Plant-Admin"),
+    //   then: yup
+    //     .string("Enter your email")
+    //     .email("Enter a valid email")
+    //     .required("Email is required"),
+    // }),
     tm_department: yup.string().when([], {
       is: () => context.user_type === "Section-Admin",
       then: yup
@@ -1223,8 +1223,8 @@ const UserAdd = () => {
                   InputLabelProps={{
                     shrink: true,
                   }}
-                  error={formik.touched.email && Boolean(formik.errors.email)}
-                  helperText={formik.touched.email && formik.errors.email}
+                  // error={formik.touched.email && Boolean(formik.errors.email)}
+                  // helperText={formik.touched.email && formik.errors.email}
                 />
               </div>
             )}

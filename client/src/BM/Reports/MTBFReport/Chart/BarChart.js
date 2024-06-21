@@ -96,9 +96,12 @@ const BarChart = ({
   };
   const datasets = [
     {
-      label: "Top 20",
+      label: "Data",
       data: dataset?.data,
-      backgroundColor: chartColors.barChart,
+      backgroundColor:
+        dataset?.data?.length === 2
+          ? ["#c2c933", "#0BB4CB"]
+          : chartColors.barChart,
       // borderColor: "#243552",
       // borderWidth: 1,
       borderRadius: 4,

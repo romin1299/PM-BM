@@ -310,9 +310,10 @@ const MachineWisePmMonthlyReport = () => {
       return {
         hidden:
           rowData.PMStatus !== "PM Skip" ||
-          context.user_type === "Section-Admin" ||
-          rowData?.completionTargetDate === undefined ||
-          (context.user_type === "TL/HOSS" && context.tm_department === "PRD"),
+          (context.user_type === "Section-Admin" ||
+            rowData?.completionTargetDate === undefined ||
+            (context.user_type === "TL/HOSS" &&
+              context.tm_department === "PRD")),
 
         icon: () => <button className="btn-primary1">PM Edit</button>,
         // tooltip: <h1>I am a tooltip</h1>,
@@ -588,7 +589,7 @@ const MachineWisePmMonthlyReport = () => {
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        // console.log("===================>", data);
+        console.log("===================>", data);
         setTableData1(data);
       }
     } catch (error) {
@@ -1240,13 +1241,13 @@ const MachineWisePmMonthlyReport = () => {
                     title={"Pending Machine"}
                     editable={{
                       isEditHidden: (rowData) =>
-                        rowData?.PMStatus !== "PM Skip" ||
-                        context?.user_type === "Section-Admin" ||
-                        context?.user_type === "Plant-Admin" ||
-                        context?.user_type === "Operator" ||
-                        (context?.user_type === "TL/HOSS" &&
-                          context?.tm_department === "PRD") ||
-                        rowData?.flagForPreviousMonthData === true,
+                        rowData?.PMStatus !== "PM Skip" &&
+                        (context?.user_type === "Section-Admin" ||
+                          context?.user_type === "Plant-Admin" ||
+                          context?.user_type === "Operator" ||
+                          (context?.user_type === "TL/HOSS" &&
+                            context?.tm_department === "PRD") ||
+                          rowData?.flagForPreviousMonthData === true),
                       onRowUpdate: (updatedRow, oldRow) =>
                         new Promise((resolve, reject) => {
                           //call the update user function and pass the user data

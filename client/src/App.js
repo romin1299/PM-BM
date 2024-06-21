@@ -143,7 +143,8 @@ function App() {
   const loggedUser = useContext(RoutingContext);
   let mainRouteForCompanyBased = [];
   if (
-    (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+    (
+      // NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
       loggedUser?.tm_department === "MTD") ||
     loggedUser?.user_type === "Operator"
   ) {
@@ -154,14 +155,15 @@ function App() {
         element: <MainPageComponent />,
       },
     ];
-  } else {
-    mainRouteForCompanyBased = [
-      {
-        path: "/",
-        element: <RequestSheetMainDashboard />,
-      },
-    ];
   }
+  //  else {
+  //   mainRouteForCompanyBased = [
+  //     {
+  //       path: "/",
+  //       element: <RequestSheetMainDashboard />,
+  //     },
+  //   ];
+  // }
 
   let commonRoutes = [
     ...mainRouteForCompanyBased,
@@ -203,7 +205,8 @@ function App() {
 
   let displayKPIDashboard = [];
   if (
-    (NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+    (
+      // NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
       loggedUser?.tm_department === "MTD") ||
     loggedUser?.user_type === "Operator"
   ) {

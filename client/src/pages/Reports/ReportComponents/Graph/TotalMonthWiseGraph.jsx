@@ -21,7 +21,7 @@ const TotalMonthWiseGraph = ({ context, selectedSectionOrSubSection }) => {
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
-  console.log("by default section ---->", selectedSectionOrSubSection);
+  // console.log("by default section ---->", selectedSectionOrSubSection);
   // console.log(context)
   const label = [
     "",
