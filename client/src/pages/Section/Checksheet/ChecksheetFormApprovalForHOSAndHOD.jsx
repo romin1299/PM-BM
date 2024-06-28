@@ -29,14 +29,34 @@ function ChecksheetFormApprovalForHOSAndHOD() {
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
     useState("");
+  const [machineAllData, setMachineAllData] = useState([]);
 
-  let tableData =
-    selectedMachineCheckSheetData.state?.selectedRowForViewForm?.checkSheet_data
-      ?.checkSheet;
-  // console.log(tableData);
+  const postMachineIdToGetAllDetailsOfMachine = async () => {
+    try {
+      const res = await fetch(
+        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${selectedMachineCheckSheetData?.state?.selectedRowForViewForm?.machine_code}&&selectedYear=${selectedMachineCheckSheetData?.state?.selectedYear}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        setMachineAllData(data?.machineLastData);
+        getDataModelled(data?.machineLastData?.checkSheet_data?.checkSheet);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  let machineAllData =
-    selectedMachineCheckSheetData.state?.selectedRowForViewForm;
+  useEffect(() => {
+    postMachineIdToGetAllDetailsOfMachine();
+  }, []);
 
   let senderApprovalMonth =
     selectedMachineCheckSheetData.state?.selectedRowForViewForm
@@ -205,10 +225,10 @@ function ChecksheetFormApprovalForHOSAndHOD() {
   }
 
   // console.log(context);
-  const getDataModelled = () => {
-    let data = tableData?.sort(compareCycle);
+  const getDataModelled = (checkSheetData) => {
+    let data = checkSheetData?.sort(compareCycle);
     let newRowData = [];
-    for (var i = 0; i < data.length; i++) {
+    for (var i = 0; i < data?.length; i++) {
       let obj = data[i];
       // console.log(obj['planningTableAnimationArray2'])
       let newColData = [];
@@ -226,7 +246,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"||
+          key === "inspectionCompletionBy" ||
           key === "remarksCompulsoryOrNot"
         ) {
           continue;
@@ -471,6 +491,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
               implementation_approved_by_MTD_HOD: context.tm_name,
               implementation_approved_MTD_HOD_date: timeStamp(),
               senderApprovalMonth,
+              selectedYear: selectedMachineCheckSheetData?.state?.selectedYear
             }
           : {
               request: formik.values.request,
@@ -484,6 +505,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
               implementation_approved_by_MTD_HOS: context.tm_name,
               implementation_approved_MTD_HOS_date: timeStamp(),
               senderApprovalMonth,
+              selectedYear: selectedMachineCheckSheetData?.state?.selectedYear
             };
 
       // console.log("________");
@@ -498,38 +520,18 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         window.alert("Invalid credentials !");
       } else {
         console.log("User added sucessfully...");
-
-        machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-          ? navigate("/pm/preparationApproval")
-          : machineAllData?.checkSheet_data?.checksheet_status === "Planning"
-          ? navigate("/pm/planningApproval")
-          : selectedMachineCheckSheetData?.state?.dashboardID ===
-            "FromSixMonthApprovalDashboard"
-          ? navigate("/pm/sixMonthApprovalDashboard")
-          : selectedMachineCheckSheetData?.state?.dashboardID ===
-            "FromPlanningApprovalDashboard"
-          ? navigate("/pm/planningApproval")
-          : navigate("/pm/implementationApproval");
-
-        // if (
-        //   selectedMachineCheckSheetData?.state?.dashboardID ===
-        //   "FromSixMonthApprovalDashboard"
-        // ) {
-        //   navigate("/sixMonthApprovalDashboard");
-        // } else if (
-        //   selectedMachineCheckSheetData?.state?.dashboardID ===
-        //   "FromPlanningApprovalDashboard"
-        // ) {
-        //   navigate("/planningApproval");
-        // }
-        //  else {
-        //   navigate("/approvalDashboard");
-        // }
-
-        // refreshPage();
-        // if (values.email) {
-        //   newPasswordLink(values.email);
-        // }
+        navigate(-1);
+        // machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
+        //   ? navigate("/pm/preparationApproval")
+        //   : machineAllData?.checkSheet_data?.checksheet_status === "Planning"
+        //   ? navigate("/pm/planningApproval")
+        //   : selectedMachineCheckSheetData?.state?.dashboardID ===
+        //     "FromSixMonthApprovalDashboard"
+        //   ? navigate("/pm/sixMonthApprovalDashboard")
+        //   : selectedMachineCheckSheetData?.state?.dashboardID ===
+        //     "FromPlanningApprovalDashboard"
+        //   ? navigate("/pm/planningApproval")
+        //   : navigate("/pm/implementationApproval");
       }
     },
   });
@@ -545,7 +547,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
     setStateForOpeningSummeryPopups(
       <SummeryPopups
         close={close}
-        tableData={tableData}
+        tableData={machineAllData?.checkSheet_data?.checkSheet}
         machineData={machineAllData}
       />
     );
@@ -583,13 +585,6 @@ function ChecksheetFormApprovalForHOSAndHOD() {
   //     console.log(error);
   //   }
   // };
-
-  console.log(
-    selectedMachineCheckSheetData.state?.selectedRowForViewForm
-      ?.senderApprovalMonth
-  );
-
-  console.log(context?.user_type, context?.tm_department, context?.tm_grade);
   return (
     <>
       {stateForOpeningSummeryPopups}
@@ -705,7 +700,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       </div>
 
                       <div className="col-6 d-flex align-items-center">
-                        <button type="submit" className="btn-primary1">
+                        <button type="submit" className="btn-primary1 mt-4">
                           Submit
                         </button>
                       </div>
@@ -933,16 +928,16 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     colSpan={3}
                     rowSpan={5}
                   >
-                    Line:- {machineAllData.line_names.line_name}
+                    Line:- {selectedMachineCheckSheetData?.state?.selectedRowForViewForm?.line_name}
                     <br />
-                    M/c No : {machineAllData.machine_code}
+                    M/c No : {machineAllData?.machine_code}
                   </th>
                   <th
                     className="ar-table-thead-header2 headerPD"
                     colSpan={2}
                     rowSpan={5}
                   >
-                    Machine Name: {machineAllData.machine_name}
+                    Machine Name: {machineAllData?.machine_name}
                   </th>
                   <th
                     className="ar-table-thead-header1 headerPD  align-items-center"

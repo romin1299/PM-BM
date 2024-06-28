@@ -4,6 +4,7 @@ const app = express();
 const path = require("path");
 const fs = require("fs");
 const https = require("https");
+const moment = require("moment");
 
 const Line = require("./model/lineSchema");
 
@@ -19,8 +20,10 @@ require(path.join(__dirname, "./model/cellSchema"));
 require(path.join(__dirname, "./model/lineSchema"));
 require(path.join(__dirname, "./model/machineSchema"));
 
-app.use(express.json({limit: "50mb"}));
-app.use(express.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
+app.use(express.json({ limit: "50mb" }));
+app.use(
+  express.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 })
+);
 
 //for when deploying application on AWS
 
@@ -56,7 +59,7 @@ require(path.join(
   "./controller/autoUpdateAndSendMailForSixMonthApproval"
 ));
 require(path.join(__dirname, "./controller/financialYearController"));
-require(path.join(__dirname, './controller/everyDayAutoBackup'));
+require(path.join(__dirname, "./controller/everyDayAutoBackup"));
 
 //for logos and other image
 app.use(express.static(path.join(__dirname, "images")));
@@ -86,6 +89,8 @@ app.get("/*", (req, res) => {
 });
 
 const PORT = process.env.PORT;
+
+console.log(moment().endOf('month'));
 
 //for when deploying application on AWS
 // const server = https.createServer(keys, app);

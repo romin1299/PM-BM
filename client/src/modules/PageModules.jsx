@@ -1,5 +1,5 @@
 // Dashboards
-import { React, useEffect, useState, useContext } from "react";
+import { React, useEffect, useState, useContext, useReducer } from "react";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../components/MatrialTableIcon";
@@ -11,7 +11,6 @@ import SectionContext from "../context/ContextAPI/ContextAPI";
 import { useLocation } from "react-router-dom";
 import useLocalStorage from "react-use-localstorage";
 import UserAdd from "../Popups/UserAdd";
-
 export {
   useEffect,
   useState,
@@ -26,4 +25,5 @@ export {
   Link,
   useContext,
   UserAdd,
+  useReducer
 };

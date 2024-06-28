@@ -3,7 +3,7 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import "./index.css";
 import SortIcon from "@mui/icons-material/Sort";
 // import "./tableColor.scss"
-
+import { Tooltip, Switch } from "@mui/material";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
 import Footer from "../../../components/Footer/Footer";
@@ -17,6 +17,7 @@ function PMSheetApprovalOfImplementationPhase() {
   const context = useContext(RoutingContext);
 
   const [tableData, setTableData] = useState([]);
+  const [displayPendingOrNot, setDisplayPendingOrNot] = useState(false);
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
@@ -252,7 +253,7 @@ function PMSheetApprovalOfImplementationPhase() {
     setStateForAnimationAndNotFound(<LoadingAnimation />);
     try {
       const res = await fetch(
-        `/postSectionToGetPMSheetApprovalData/implementationPhaseApprovalLog/?lineId=${selectedLine}&&machine_code=${selectedMachine}`,
+        `/postSectionToGetPMSheetApprovalData/implementationPhaseApprovalLog/?lineId=${selectedLine}&&machine_code=${selectedMachine}&&pendingFilterValue=${displayPendingOrNot}`,
         {
           method: "POST",
           headers: {
@@ -261,7 +262,7 @@ function PMSheetApprovalOfImplementationPhase() {
           body: JSON.stringify({
             section: sectionData,
             selectedYear,
-            selectedMonth
+            selectedMonth,
           }),
         }
       );
@@ -309,12 +310,15 @@ function PMSheetApprovalOfImplementationPhase() {
     selectedMachine,
     selectedMonth,
     refKey,
+    displayPendingOrNot,
   ]);
 
   const handleDisplayAcceptedAndApproveCount = () =>
     setDisplayAndCloseCountModal(
       (displayAndCloseCountModal) => !displayAndCloseCountModal
     );
+
+  console.log(tableData);
 
   // const postSectionToGetAllDataForMainDashboard12 = async () => {
   //   // setSubSection(undefined);
@@ -395,7 +399,7 @@ function PMSheetApprovalOfImplementationPhase() {
         </Row>
       ) : (
         <Row className="p-2">
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
               <b>Line:</b>
             </span>{" "}
@@ -444,7 +448,7 @@ function PMSheetApprovalOfImplementationPhase() {
             </div> */}
           </Col>
 
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
               <b>Machine:</b>
             </span>{" "}
@@ -496,7 +500,7 @@ function PMSheetApprovalOfImplementationPhase() {
               </p>
             </div> */}
           </Col>
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
               <b>Month:</b>
             </span>
@@ -525,15 +529,37 @@ function PMSheetApprovalOfImplementationPhase() {
             </select>
           </Col>
 
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col
+            sm={12}
+            md={6}
+            lg={2}
+            className="mb-2 d-flex justify-content-center"
+          >
             <button
-              class="btn-primary1 w-25"
+              class="btn-primary1"
               onClick={() => {
                 window.location.reload();
               }}
             >
               Reset
             </button>
+          </Col>
+
+          <Col sm={6} md={6} lg={2} className="mb-2">
+            <span>
+              <b>All/Pending:</b>
+            </span>
+            <Tooltip title="Show pending data">
+              <Switch
+                size="medium"
+                checked={displayPendingOrNot}
+                onClick={() =>
+                  setDisplayPendingOrNot(
+                    (displayPendingOrNot) => !displayPendingOrNot
+                  )
+                }
+              />
+            </Tooltip>
           </Col>
         </Row>
       )}
@@ -653,7 +679,9 @@ function PMSheetApprovalOfImplementationPhase() {
                                 ]?.[idx]
                               }
                               -{" "}
-                              {`Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
+                              {value === "Rejected"
+                                ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
+                                : `Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
                             </p>
                           ))}
                         </td>

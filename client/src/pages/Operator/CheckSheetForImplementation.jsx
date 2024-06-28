@@ -187,7 +187,7 @@ const CheckSheet = ({
           mtd_tl_list: MTDTLlist[values.mtd_tl_list],
           mtd_hos_list: HOSList[values.mtd_hos_list],
           implemetation_completed_date: timeStamp(),
-          selected_machine_data: machineAllData, 
+          selected_machine_data: machineAllData,
           monthForCompareSystemMonth,
           phaseStatus: machineAllData?.checkSheet_data?.checksheet_status,
         }),
@@ -1001,6 +1001,15 @@ const CheckSheet = ({
                               // }
                             >
                               {machineAllData?.checkSheet_data
+                                ?.implemetation_prd_tl_approval_status?.[
+                                tColumn?.header
+                              ]?.[
+                                machineAllData?.checkSheet_data
+                                  ?.implemetation_prd_tl_approval_status?.[
+                                  tColumn?.header
+                                ]?.length - 1
+                              ] === "Rejected" ||
+                              machineAllData?.checkSheet_data
                                 ?.implemetation_mtd_tl_approval_status?.[
                                 tColumn?.header
                               ]?.[
@@ -1838,7 +1847,7 @@ const CheckSheet = ({
                           <Row>
                             <Col>
                               {machineAllData?.checkSheet_data?.PMStatus ? (
-                                machineAllData?.checkSheet_data?.PMStatus[
+                                (machineAllData?.checkSheet_data?.PMStatus[
                                   monthForCompareSystemMonth
                                 ] === "Completed" ||
                                 (machineAllData?.checkSheet_data?.PMStatus[
@@ -1855,7 +1864,7 @@ const CheckSheet = ({
                                       ?.implemetation_mtd_hos_approval_status?.[
                                       monthForCompareSystemMonth
                                     ]?.length - 1
-                                  ] === "Pending") ? (
+                                  ] === "Pending")) ? (
                                   machineAllData?.checkSheet_data
                                     ?.implemetation_mtd_tl_approval_status?.[
                                     monthForCompareSystemMonth
@@ -1865,7 +1874,7 @@ const CheckSheet = ({
                                       monthForCompareSystemMonth
                                     ]?.length - 1
                                   ] !== "Rejected"
-                                ) : machineAllData?.checkSheet_data
+                                ) : (machineAllData?.checkSheet_data
                                     ?.implemetation_mtd_hos_approval_status?.[
                                     monthForCompareSystemMonth
                                   ]?.[
@@ -1873,7 +1882,7 @@ const CheckSheet = ({
                                       ?.implemetation_mtd_hos_approval_status?.[
                                       monthForCompareSystemMonth
                                     ]?.length - 1
-                                  ] !== "Rejected" ? (
+                                  ] !== "Rejected") ? (
                                   <form onSubmit={formik1.handleSubmit}>
                                     <div className="m-2 p-3 border bg-white rounded">
                                       <div className="d-flex">

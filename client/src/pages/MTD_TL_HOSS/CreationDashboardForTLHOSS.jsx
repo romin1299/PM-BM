@@ -12,7 +12,7 @@ import {
 import qr from "qrcode";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { useSearchParams, useNavigate } from "react-router-dom";
-
+import MoveMachineOneLineToAnotherModal from "../../Popups/MoveMachineOneLineToAnotherModal.jsx";
 import {
   newCell,
   deleteCell,
@@ -38,6 +38,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import ViewGeneratedQROfMachine from "../../Popups/ViewGeneratedQROfMachine";
 import DownloadLineWiseCustomizedQRCodeOfMachine from "../../Popups/DownloadLineWiseCustomizedQRCodeOfMachine.jsx";
+import MoveDownIcon from "@mui/icons-material/MoveDown";
 
 const QRCodePopup = ({ onClose, onDownload }) => {
   const [rows, setRows] = useState("");
@@ -148,6 +149,10 @@ const CreationDashboardForTLHOSS = () => {
   const [showQRCode, setShowQRCode] = useState(false);
   const [showModalOfQRCodeForLine, setShowModalOfQRCodeForLine] =
     useState(false);
+  const [
+    machineMoveFromOneLineToAnotherModal,
+    setMachineMoveFromOneLineToAnotherModal,
+  ] = useState(false);
 
   const [selectedRow, setSelectedRow] = useState();
 
@@ -583,6 +588,12 @@ const CreationDashboardForTLHOSS = () => {
       (showModalOfQRCodeForLine) => !showModalOfQRCodeForLine
     );
   };
+
+  const handleMoveMachineModelState = () =>
+    setMachineMoveFromOneLineToAnotherModal(
+      (machineMoveFromOneLineToAnotherModal) =>
+        !machineMoveFromOneLineToAnotherModal
+    );
   const actionsForMachineTable = [
     {
       // icon: () => <button className="addbutton">Add</button>,
@@ -628,7 +639,7 @@ const CreationDashboardForTLHOSS = () => {
     },
     {
       icon: () => (
-        <button className="border-0">
+        <button className="border-0 btn btn-secondary">
           <QrCodeIcon />
         </button>
       ),
@@ -642,7 +653,7 @@ const CreationDashboardForTLHOSS = () => {
     },
     {
       icon: () => (
-        <button className="border-0">
+        <button className="border-0 btn btn-secondary">
           <DescriptionIcon />
         </button>
       ),
@@ -651,13 +662,14 @@ const CreationDashboardForTLHOSS = () => {
       onClick: (event, selectedRow) => {
         event.preventDefault();
         window.open(
-          `/machine-history/machine-document/${selectedRow?.machine_code}/?machineId=${selectedRow?._id}`, "_blank"
+          `/machine-history/machine-document/${selectedRow?.machine_code}/?machineId=${selectedRow?._id}`,
+          "_blank"
         );
       },
     },
     {
       icon: () => (
-        <button className="border-0">
+        <button className="border-0 btn btn-secondary">
           <QrCodeIcon onClick={showPopup} />
         </button>
       ),
@@ -667,37 +679,21 @@ const CreationDashboardForTLHOSS = () => {
         setSelectedRow(selectedRow);
         displayAndHideModalOfLineWiseMachineQR();
       },
-      // onClick: (event, selectedRow) => {
-      //   const showPopup = () => {
-      //     const rows = parseInt(prompt("Enter the number of rows:"));
-      //     const columns = parseInt(prompt("Enter the number of columns:"));
-      //     const cellWidth = parseInt(prompt("Enter the cell width:"));
-      //     const cellHeight = parseInt(prompt("Enter the cell height:"));
-
-      //     if (
-      //       !isNaN(rows) &&
-      //       !isNaN(columns) &&
-      //       !isNaN(cellWidth) &&
-      //       !isNaN(cellHeight)
-      //     ) {
-      //       downloadQRCodeOfMachineData(rows, columns, cellWidth, cellHeight);
-      //     } else {
-      //       alert("Invalid input. Please enter valid numbers.");
-      //     }
-      //   };
-
-      //   showPopup();
-      // },
+    },
+    {
+      icon: () => (
+        <button className="border-0 btn btn-info">
+          <MoveDownIcon onClick={showPopup} />
+        </button>
+      ),
+      tooltip: "Move Machine",
+      isFreeAction: false,
+      onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        handleMoveMachineModelState();
+      },
     },
   ];
-
-  // console.log(
-  //   subSectionList !== ""
-  //     ? subSectionList.sectionInfo.dashboardLevel === "Yes"
-  //       ? `${subSectionList.subSectionArray} _____ subSectionList.subSectionArray`
-  //       : `${context.subSection_data} ______context.subSection_data`
-  //     : ""
-  // );
 
   return (
     <>
@@ -719,6 +715,16 @@ const CreationDashboardForTLHOSS = () => {
         line={line}
       />
 
+      {machineMoveFromOneLineToAnotherModal && (
+        <MoveMachineOneLineToAnotherModal
+          selectedRow={selectedRow}
+          modelProp={{
+            show: machineMoveFromOneLineToAnotherModal,
+            onHide: handleMoveMachineModelState,
+          }}
+          refreshForMachineData={refreshForMachineData}
+        />
+      )}
       <div className="mainPage">
         <MachineAdd line={line} refreshForMachineData={refreshForMachineData} />
         <div className="pageCard">

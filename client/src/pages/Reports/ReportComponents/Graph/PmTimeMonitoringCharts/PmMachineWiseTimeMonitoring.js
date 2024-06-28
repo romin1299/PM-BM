@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import BarChart from "../../../../../BM/Reports/MTBFReport/Chart/BarChart";
 import { Col } from "react-bootstrap";
 import { Box, Button, InputAdornment, TextField } from "@mui/material";
+import { ChartDownloadMenu } from "../../../../../BM/Reports/Common/ChartTitleBar";
+import findFilters from "../../../../../filterNames";
+import downloadFile from "../../../../../util";
+import "jspdf-autotable";
 
 const PmMachineWiseTimeMonitoring = ({
   selectedValue,
@@ -20,6 +24,71 @@ const PmMachineWiseTimeMonitoring = ({
     labels: [],
     data: [],
   });
+
+  let arrayItems;
+  let filterHeaders;
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  const header = ["Machine Names", "Hours"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [[topMachineBd?.labels, topMachineBd?.data]];
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [
+            ["Machine Names"]
+              .concat(topMachineTimeMonitoring?.labels)
+              ?.toString() + "\n",
+          ],
+          [["Hours"].concat(topMachineTimeMonitoring?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [
+            topMachineTimeMonitoring?.labels.join("\n"),
+            topMachineTimeMonitoring?.data.join("\n"),
+          ],
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `Top_Machine_PM_Time_Monitoring_${selectedMonth}_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const topMachinePmTimeMonitoringData = async () => {
     setLoading(true);
@@ -75,7 +144,7 @@ const PmMachineWiseTimeMonitoring = ({
             }}
             size="small"
             onChange={(e) => {
-                setDocumentLimitInTheGraph(e.target.value);
+              setDocumentLimitInTheGraph(e.target.value);
             }}
             value={documentLimitInTheGraph}
           />
@@ -95,6 +164,16 @@ const PmMachineWiseTimeMonitoring = ({
           </Button>
         </Box>
       </Col>
+      <div className="col-auto">
+        <ChartDownloadMenu
+          handleDownloadCSV={() => {
+            handleDownload("csv");
+          }}
+          handleDownloadPDF={() => {
+            handleDownload("pdf");
+          }}
+        />
+      </div>
     </>
   );
 
@@ -111,6 +190,7 @@ const PmMachineWiseTimeMonitoring = ({
         loading={loading}
         dataset={topMachineTimeMonitoring}
         AppendToolComponents={TopDataFilterInput}
+        hoverLabel = "Hours"
       />
     </>
   );

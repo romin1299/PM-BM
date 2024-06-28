@@ -23,6 +23,8 @@ const BarChart = ({
   setValue,
   clearErrors,
   AppendToolComponents,
+  xAxisLabel,
+  hoverLabel
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -63,7 +65,7 @@ const BarChart = ({
         },
         title: {
           display: true,
-          text: "Machines",
+          text: xAxisLabel || "Machines",
         },
       },
       y: {
@@ -96,7 +98,7 @@ const BarChart = ({
   };
   const datasets = [
     {
-      label: "Data",
+      label: hoverLabel || "Data",
       data: dataset?.data,
       backgroundColor:
         dataset?.data?.length === 2

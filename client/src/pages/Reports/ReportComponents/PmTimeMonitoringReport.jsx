@@ -142,9 +142,8 @@ const PmTimeMonitoringReport = () => {
                 }
               />
             </Col>
-            {/* <Col></Col> */}
           </Row>
-          <Row>
+          <Row className="p-2">
             <ReportTitleBar
               title="PM Time Monitoring"
               Toolbar={

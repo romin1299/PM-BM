@@ -11,13 +11,13 @@ cron.schedule("0 0 * * *", async (req, res) => {
     fs.removeSync(
       path.join(
         process.env.BACKUP_DATA_LOCATION,
-        moment(current_date).subtract(1, "months").format("MMM")
+        moment(current_date).subtract(30, "days").format("DD-MM-YYYY")
       )
     );
 
     let folderPath = path.join(
       process.env.BACKUP_DATA_LOCATION,
-      moment(current_date).format("MMM"),
+      // moment(current_date).format("MMM"),
       moment(current_date).format("DD-MM-YYYY")
     );
 

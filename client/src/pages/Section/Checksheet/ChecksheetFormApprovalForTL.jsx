@@ -236,7 +236,7 @@ function ChecksheetFormApprovalForTL() {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"||
+          key === "inspectionCompletionBy" ||
           key === "remarksCompulsoryOrNot"
         ) {
           continue;
@@ -470,6 +470,7 @@ function ChecksheetFormApprovalForTL() {
           implementation_approved_by_MTD_TL: context.tm_name,
           implemetation_quality_remarks: values.qaulity_remarks,
           senderApprovalMonth,
+          selectedYear: selectedMachineCheckSheetData?.state?.selectedYear
         }),
       });
       const data = res.json();
@@ -478,33 +479,11 @@ function ChecksheetFormApprovalForTL() {
         window.alert("Invalid credentials !");
       } else {
         console.log("User added sucessfully...");
-        // machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-        //   ? navigate("/preparationApproval")
-        //   : machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-        //   ? navigate("/planningApproval")
-        //   : navigate("/implementationApproval");
-
-        // selectedMachineCheckSheetData?.state?.dashboardID ===
-        // "FromPlanningApprovalDashboard"
-        //   ? navigate("/planningApproval")
-        //   : navigate("/implementationApproval");
-
         machineAllData?.checkSheet_data?.checksheet_status === "Implementation"
           ? navigate("/pm/implementationApproval")
           : machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
           ? navigate("/pm/preparationApproval")
           : navigate("/pm/planningApproval");
-
-        // if (
-        //   selectedMachineCheckSheetData?.state?.dashboardID ===
-        //   "FromPlanningApprovalDashboard"
-        // ) {
-        //   navigate("/planningApproval");
-        // }
-        // refreshPage();
-        // if (values.email) {
-        //   newPasswordLink(values.email);
-        // }
       }
     },
   });
@@ -611,54 +590,77 @@ function ChecksheetFormApprovalForTL() {
                   <div className="row">
                     {machineAllData?.checkSheet_data?.checksheet_status ===
                       "Implementation" && context.tm_department === "PRD" ? (
-                      <div className="row mb-3 mt-3">
-                        <span>
-                          Machine quality conformation. &nbsp;
-                          <input
-                            type="radio"
-                            name="request"
-                            id="outlined-number"
-                            value="Yes"
-                            onChange={formik.handleChange}
-                          />
-                          <span
-                            style={{
-                              paddingLeft: "0.5rem",
-                              fontWeight: "550",
-                              color: "black",
-                            }}
-                          >
-                            Yes &nbsp;
+                      <>
+                        <div className="row mb-3 mt-3">
+                          <span>
+                            Machine quality conformation. &nbsp;
+                            <input
+                              type="radio"
+                              name="request"
+                              id="outlined-number"
+                              value="Yes"
+                              onChange={formik.handleChange}
+                            />
+                            <span
+                              style={{
+                                paddingLeft: "0.5rem",
+                                fontWeight: "550",
+                                color: "black",
+                              }}
+                            >
+                              Yes &nbsp;
+                            </span>
+                            <input
+                              type="radio"
+                              name="request"
+                              id="outlined-number"
+                              value="No"
+                              onChange={formik.handleChange}
+                            />
+                            <span
+                              style={{
+                                paddingLeft: "0.5rem",
+                                fontWeight: "550",
+                                color: "black",
+                              }}
+                            >
+                              No
+                            </span>
+                            <p
+                              style={{
+                                color: "#F44336",
+                                fontWeight: "normal",
+                                fontSize: "0.80rem",
+                                float: "right",
+                                marginRight: "12rem",
+                                // paddingTop: "0.5rem",
+                              }}
+                            >
+                              {formik.touched.request && formik.errors.request}
+                            </p>
                           </span>
-                          <p
-                            style={{
-                              color: "#F44336",
-                              fontWeight: "normal",
-                              fontSize: "0.80rem",
-                              float: "right",
-                              marginRight: "12rem",
-                              // paddingTop: "0.5rem",
-                            }}
-                          >
-                            {formik.touched.request && formik.errors.request}
-                          </p>
-                        </span>
-                        <div className="col-6">
-                          <span>Remarks: </span>
-                          <TextField
-                            // id="outlined-number"
-                            name="qaulity_remarks"
-                            className="ApproveOrdRejectTextField"
-                            value={formik.values.qaulity_remarks}
-                            onChange={formik.handleChange}
-                            autoComplete="off"
-                            // label="Number"
-                            fullWidth
-                            type="text"
-                          />
-                          <br />
                         </div>
-                      </div>
+                        {formik.values.request === "Yes" ? (
+                          <div className="col-6">
+                            <span>Quality Remarks: </span>
+                            <TextField
+                              // id="outlined-number"
+                              name="qaulity_remarks"
+                              className="ApproveOrdRejectTextField"
+                              value={formik.values.qaulity_remarks}
+                              onChange={formik.handleChange}
+                              autoComplete="off"
+                              // label="Number"
+                              fullWidth
+                              type="text"
+                            />
+                            <br />
+                            <p style={{ paddingTop: "0.5rem" }}></p>
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </>
                     ) : (
                       <div className="row mb-3 mt-3">
                         <span>

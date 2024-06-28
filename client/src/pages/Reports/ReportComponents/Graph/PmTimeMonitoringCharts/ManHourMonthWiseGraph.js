@@ -73,7 +73,7 @@ const ManHourMonthWiseGraph = ({ xValue, yValue }) => {
     labels: xValue,
     datasets: [
       {
-        label: "Minutes",
+        label: "Hours",
         data: yValue,
         backgroundColor: colorArr.map((color) => color),
         // borderColor: "rgba(54, 162, 235, 1)",

@@ -9,7 +9,7 @@ export const LIST_OF_COMPANY = ["DNHA", "DNIN"];
 export const BASE_URL = "http://localhost:7000/";
 
 //for DENSO-INDIA
-// export const BASE_URL = 'https://172.28.31.14:7000/'
+// export const BASE_URL = 'https://10.122.73.1:7000/'
 
 //for DENSO-Haryana
 // export const BASE_URL = 'https://172.28.14.6:7000/'

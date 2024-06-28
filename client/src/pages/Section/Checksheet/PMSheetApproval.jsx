@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import "./index.css";
-
+import { Tooltip, Switch } from "@mui/material";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
 import Footer from "../../../components/Footer/Footer";
@@ -20,6 +20,8 @@ function PMSheetApproval() {
 
   const [sectionOrSubSectionDropdownList, setSectionOrSubSectionDropdownList] =
     useState([]);
+
+  const [displayPendingOrNot, setDisplayPendingOrNot] = useState(false);
 
   const [selectedSectionOrSubSection, setSelectedSectionOrSubSection] =
     useState(0);
@@ -160,7 +162,7 @@ function PMSheetApproval() {
     setStateForAnimationAndNotFound(<LoadingAnimation />);
     try {
       const res = await fetch(
-        `/postSectionToGetPMSheetApprovalData/preparationAndPlanningPhaseApprovalLog/?lineId=${selectedLine}&&machine_code=${selectedMachine}`,
+        `/postSectionToGetPMSheetApprovalData/preparationAndPlanningPhaseApprovalLog/?lineId=${selectedLine}&&machine_code=${selectedMachine}&&pendingFilterValue=${displayPendingOrNot}`,
         {
           method: "POST",
           headers: {
@@ -214,6 +216,7 @@ function PMSheetApproval() {
     selectedYear,
     selectedLine,
     selectedMachine,
+    displayPendingOrNot
   ]);
 
   const handleDisplayAcceptedAndApproveCount = () =>
@@ -273,7 +276,7 @@ function PMSheetApproval() {
         </Row>
       ) : (
         <Row className="p-2">
-          <Col sm={12} md={4} lg={4} className="mb-3">
+          <Col sm={12} md={6} lg={3} className="mb-3">
             <span>
               <b>Line:</b>
             </span>{" "}
@@ -321,7 +324,7 @@ function PMSheetApproval() {
             </div> */}
           </Col>
 
-          <Col sm={12} md={4} lg={4} className="mb-3">
+          <Col sm={12} md={6} lg={3} className="mb-3">
             <span>
               <b>Machine:</b>
             </span>{" "}
@@ -373,15 +376,32 @@ function PMSheetApproval() {
             </div> */}
           </Col>
 
-          <Col sm={6} md={6} lg={4} className="mb-2">
+          <Col sm={6} md={6} lg={3} className="mb-2 d-flex justify-content-center">
             <button
-              class="btn-primary1 w-25"
+              class="btn-primary1"
               onClick={() => {
                 window.location.reload();
               }}
             >
               Reset
             </button>
+          </Col>
+
+          <Col sm={6} md={6} lg={3} className="mb-2">
+            <span>
+              <b>All/Pending:</b>
+            </span>
+            <Tooltip title="Show pending data">
+              <Switch
+                size="medium"
+                checked={displayPendingOrNot}
+                onClick={() =>
+                  setDisplayPendingOrNot(
+                    (displayPendingOrNot) => !displayPendingOrNot
+                  )
+                }
+              />
+            </Tooltip>
           </Col>
         </Row>
       )}

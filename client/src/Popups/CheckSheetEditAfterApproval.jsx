@@ -813,6 +813,9 @@ const CheckSheetEditAfterApproval = ({
                                                       monthForCompareSystemMonth={
                                                         colData.key
                                                       }
+                                                      postMachineIdToGetAllDetailsOfMachine={
+                                                        postMachineIdToGetAllDetailsOfMachine
+                                                      }
                                                     />
                                                   );
                                                 }}
@@ -847,6 +850,9 @@ const CheckSheetEditAfterApproval = ({
                                                   }
                                                   monthForCompareSystemMonth={
                                                     colData.key
+                                                  }
+                                                  postMachineIdToGetAllDetailsOfMachine={
+                                                    postMachineIdToGetAllDetailsOfMachine
                                                   }
                                                 />
                                               );
@@ -904,6 +910,9 @@ const CheckSheetEditAfterApproval = ({
                                                     monthForCompareSystemMonth={
                                                       colData.key
                                                     }
+                                                    postMachineIdToGetAllDetailsOfMachine={
+                                                      postMachineIdToGetAllDetailsOfMachine
+                                                    }
                                                   />
                                                 );
                                               }}
@@ -949,6 +958,9 @@ const CheckSheetEditAfterApproval = ({
                                                   }
                                                   monthForCompareSystemMonth={
                                                     colData.key
+                                                  }
+                                                  postMachineIdToGetAllDetailsOfMachine={
+                                                    postMachineIdToGetAllDetailsOfMachine
                                                   }
                                                 />
                                               );
@@ -1012,6 +1024,9 @@ const CheckSheetEditAfterApproval = ({
                                                   monthForCompareSystemMonth={
                                                     colData.key
                                                   }
+                                                  postMachineIdToGetAllDetailsOfMachine={
+                                                    postMachineIdToGetAllDetailsOfMachine
+                                                  }
                                                 />
                                               );
                                             }}
@@ -1073,6 +1088,9 @@ const CheckSheetEditAfterApproval = ({
                                                   }
                                                   monthForCompareSystemMonth={
                                                     colData.key
+                                                  }
+                                                  postMachineIdToGetAllDetailsOfMachine={
+                                                    postMachineIdToGetAllDetailsOfMachine
                                                   }
                                                 />
                                               );

@@ -13,6 +13,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { ToastContainer } from "react-toastify";
 import { SuccessToast } from "../../BM/Component/ShowTostify";
 import { CSVLink } from "react-csv";
+import { Button } from "@mui/material";
 
 const AllSparePartsUsageHistory = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
@@ -20,6 +21,11 @@ const AllSparePartsUsageHistory = () => {
   const context = useContext(RoutingContext);
 
   const [allSparePartsUsageData, setAllSparePartsUsageData] = useState([]);
+
+  const [fromAndToCost, setFromAndToCost] = useState({
+    fromCost: 0,
+    toCost: 0,
+  });
 
   const styleForDeleteButton = {
     backgroundColor: "transparent",
@@ -104,6 +110,22 @@ const AllSparePartsUsageHistory = () => {
     }
   };
 
+  const setDateFormatCommon = (value) => {
+    if (
+      moment(value, "D/M/YYYY - hh:mm A", true).isValid() ||
+      moment(value, "D/M/YYYY - h:mm a", true).isValid()
+    ) {
+      return moment(value, "D/M/YYYY - hh:mm A").format("DD-MM-YYYY THH:mm");
+    }
+    if (moment(value, "YYYY-MM-DDTHH:mm", true).isValid()) {
+      return value;
+    }
+    if (moment(value, "YYYY-MM-DD", true).isValid()) {
+      return moment(value, "YYYY-MM-DD").format("DD-MM-YYYY [T]HH:mm");
+    }
+    return value;
+  };
+
   let allSpareHistoryTableHeader = [
     {
       title: "Sr. No.",
@@ -116,21 +138,29 @@ const AllSparePartsUsageHistory = () => {
       title: "Date",
       dataIndex: ["totalSpareDataUsageHistory", "date"],
       render: (value) => {
+        return setDateFormatCommon(value);
+      },
+      defaultSortOrder: "descend",
+      sorter: (valueA, valueB) => {
+        const dateA = setDateFormatCommon(
+          valueA?.totalSpareDataUsageHistory?.date
+        );
+        const dateB = setDateFormatCommon(
+          valueB?.totalSpareDataUsageHistory?.date
+        );
+
         if (
-          moment(value, "D/M/YYYY - hh:mm A", true).isValid() ||
-          moment(value, "D/M/YYYY - h:mm a", true).isValid()
-        ) {
-          return moment(value, "D/M/YYYY - hh:mm A").format(
-            "DD-MM-YYYY THH:mm"
-          );
-        }
-        if (moment(value, "YYYY-MM-DDTHH:mm", true).isValid()) {
-          return value;
-        }
-        if (moment(value, "YYYY-MM-DD", true).isValid()) {
-          return moment(value, "YYYY-MM-DD").format("MM-DD-YYYY [T]HH:mm");
-        }
-        return value;
+          moment(dateA, "DD-MM-YYYY THH:mm").unix() <
+          moment(dateB, "DD-MM-YYYY THH:mm").unix()
+        )
+          return -1;
+        else if (
+          moment(dateA, "DD-MM-YYYY THH:mm").unix() >
+          moment(dateB, "DD-MM-YYYY THH:mm").unix()
+        )
+          return 1;
+
+        return 0;
       },
     },
     {
@@ -196,6 +226,19 @@ const AllSparePartsUsageHistory = () => {
     {
       title: "Cost",
       dataIndex: ["totalSpareDataUsageHistory", "cost"],
+      sorter: (a, b) => {
+        const costA = a?.totalSpareDataUsageHistory?.cost;
+        const costB = b?.totalSpareDataUsageHistory?.cost;
+
+        let comparison = 0;
+
+        if (costA < costB) {
+          comparison = -1;
+        } else if (costA > costB) {
+          comparison = 1;
+        }
+        return comparison;
+      },
     },
 
     {
@@ -278,6 +321,29 @@ const AllSparePartsUsageHistory = () => {
     reduceState?.selectedMonth,
   ]);
 
+  const filterOutCostDataBasedOnUserInput = () => {
+    if (fromAndToCost?.fromCost && fromAndToCost?.toCost) {
+      let filteredData = allSparePartsUsageData?.filter((item) => {
+        if (
+          fromAndToCost?.fromCost <= item?.totalSpareDataUsageHistory.cost &&
+          fromAndToCost?.toCost >= item?.totalSpareDataUsageHistory.cost
+        ) {
+          return item;
+        }
+      });
+      setAllSparePartsUsageData(filteredData);
+    } else if (fromAndToCost?.fromCost) {
+      let filteredData = allSparePartsUsageData?.filter((item) => {
+        if (fromAndToCost?.fromCost <= item?.totalSpareDataUsageHistory.cost) {
+          return item;
+        }
+      });
+      setAllSparePartsUsageData(filteredData);
+    } else {
+      getAllSpareUsageHistoryDetails();
+    }
+  };
+
   return (
     <>
       <ToastContainer />
@@ -310,6 +376,58 @@ const AllSparePartsUsageHistory = () => {
                   {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
                   CSV
                 </CSVLink>
+              </div>
+
+              <div className="col-auto m-1">
+                <span>
+                  <b>From Value </b>
+                </span>
+                <input
+                  type="number"
+                  name="fromCost"
+                  id="fromCost"
+                  className="w-25"
+                  onChange={(e) =>
+                    setFromAndToCost({
+                      ...fromAndToCost,
+                      fromCost: e.target.value,
+                    })
+                  }
+                />
+                {/* </div>
+              <div className="col-auto m-1"> */}
+                &nbsp;
+                <span>
+                  <b>To Value </b>
+                </span>
+                <input
+                  type="number"
+                  name="toCost"
+                  id="toCost"
+                  className="w-25"
+                  onChange={(e) =>
+                    setFromAndToCost({
+                      ...fromAndToCost,
+                      toCost: e.target.value,
+                    })
+                  }
+                />
+                <Button
+                  size="small"
+                  disableElevation
+                  className="bg-button"
+                  variant="contained"
+                  type="submit"
+                  sx={{
+                    ml: 1,
+                    minWidth: "30px",
+                    height: "30px",
+                    paddingInline: "10px",
+                  }}
+                  onClick={filterOutCostDataBasedOnUserInput}
+                >
+                  Go
+                </Button>
               </div>
             </>
           }
