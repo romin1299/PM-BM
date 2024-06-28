@@ -32,19 +32,41 @@
 
 }
 
-.right-component-main-dashboard {
-    position: fixed;
-    right: 12px;
-    top: 5rem;
+.grid-view {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
 }
 
-@media screen and (min-width: 200px) and (max-width: 1024px){
-    
+@media screen and (min-width: 400px) and (max-width: 650px),
+screen and (min-width: 1000px) and (max-width: 1055px) {
+    .grid-view {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media screen and (max-width: 399px) {
+    .grid-view {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
 .right-component-main-dashboard {
     position: fixed;
-    right: 12px;
-    top: 0px;
+    /* right: 2.5rem; */
+    right: 15px;
+    top: 7rem;
+    max-height: 85vh;
+    overflow-y: auto;
+    scrollbar-width: none;
 }
+
+@media screen and (min-width: 200px) and (max-width: 1199px) {
+
+    .right-component-main-dashboard {
+        position: relative;
+        right: 12px;
+        top: 0px;
+    }
 }
 
 .summeryPopupsCss {
@@ -336,10 +358,6 @@
 
     }
 
-    .right-component-main-dashboard {
-        position: relative;
-
-    }
 }
 
 
