@@ -365,13 +365,17 @@ const AllSparePartsUsageHistory = () => {
                 machineFiltration
                 resetButtonFiltration
               />
-              <div className="col-auto m-1">
+              <div className="col-auto mt-2">
                 <CSVLink
                   headers={columns}
                   className="downloadCSV text-decoration-none"
                   data={allSparePartsUsageData ? allSparePartsUsageData : []}
                   filename={`All_Spare_Usage_History`}
-                  style={{ textDecoration: "none", color: "white" }}
+                  style={{
+                    textDecoration: "none",
+                    color: "white",
+                    // fontSize: "1rem",
+                  }}
                 >
                   {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
                   CSV

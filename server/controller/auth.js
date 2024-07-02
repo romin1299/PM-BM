@@ -5597,9 +5597,9 @@ router.get(
           },
         },
         {
-          $match:{
-            "senderApprovalMonth":{$ne:undefined}
-          }
+          $match: {
+            senderApprovalMonth: { $ne: undefined },
+          },
         },
         {
           $lookup: {
@@ -6740,8 +6740,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   .length - 1
               ] || undefined,
           machineLastData[0].checkSheet_data.assign_HOS[
-            machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
-              1
+            machineLastData[0].checkSheet_data.checkSheetSendingUser.length - 1
           ],
           tlApproval,
           undefined,
@@ -6846,8 +6845,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             undefined,
             undefined,
             machineLastData[0].checkSheet_data.checkSheetSendingUser[
-              machineLastData[0].checkSheet_data.checkSheetSendingUser
-                .length - 1
+              machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
+                1
             ],
             undefined,
             hosApproval,
@@ -6950,8 +6949,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             undefined,
             undefined,
             machineLastData[0].checkSheet_data.checkSheetSendingUser[
-              machineLastData[0].checkSheet_data.checkSheetSendingUser
-                .length - 1
+              machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
+                1
             ],
             undefined,
             hosApproval,
@@ -6961,8 +6960,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         }
       } else if (
         machineLastData[0].checkSheet_data.prd_tl_approval_status[
-          machineLastData[0].checkSheet_data.prd_tl_approval_status?.length -
-            1
+          machineLastData[0].checkSheet_data.prd_tl_approval_status?.length - 1
         ] === "Pending"
       ) {
         let checkWhetherRevisionContentDeleted = 0;
@@ -6974,14 +6972,10 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           i < machineLastData[0]?.checkSheet_data?.checkSheet?.length;
           i++
         ) {
-          if (
-            machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?.isDeleted
-          ) {
+          if (machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?.isDeleted) {
             checkWhetherRevisionContentDeleted = 1;
           }
-          if (
-            machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?.isAdded
-          ) {
+          if (machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?.isAdded) {
             // console.log("is Added ---- ")
             checkWhetherRevisionContentAdded = 1;
             for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
@@ -6994,16 +6988,14 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                 (monthKeyArray.indexOf(month) >=
                   new Date(
                     mongoose.Types.ObjectId(
-                      machineLastData[0]?.checkSheet_data?.checkSheet?.[i]
-                        ?._id
+                      machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?._id
                     ).getTimestamp()
                   ).getMonth() ||
                   monthKeyArray.indexOf(month) < 3)
               ) {
                 // console.log(month, "----inside if ......", new Date(mongoose.Types.ObjectId(machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?._id).getTimestamp()).getMonth())
                 if (
-                  machineLastData[0]?.checkSheet_data?.PMStatus?.[month] ===
-                  ""
+                  machineLastData[0]?.checkSheet_data?.PMStatus?.[month] === ""
                 ) {
                   // console.log("Current........")
 
@@ -7055,8 +7047,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                 if (
                   machineLastData[0].checkSheet_data.checkSheet[i]
                     ?.planningTableAnimationArray2[month][0] === "1" &&
-                  !machineLastData[0].checkSheet_data.checkSheet[i]
-                    ?.isDeleted
+                  !machineLastData[0].checkSheet_data.checkSheet[i]?.isDeleted
                 ) {
                   plannedPMCount = plannedPMCount + 1;
                 }
@@ -7065,8 +7056,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     ?.planningTableAnimationArray2[month].length >= 2 &&
                   machineLastData[0].checkSheet_data.checkSheet[i]
                     ?.planningTableAnimationArray2[month][0] === "1" &&
-                  !machineLastData[0].checkSheet_data.checkSheet[i]
-                    ?.isDeleted
+                  !machineLastData[0].checkSheet_data.checkSheet[i]?.isDeleted
                 ) {
                   completedPMCount = completedPMCount + 1;
                 }
@@ -7137,8 +7127,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           }
         }
         machineLastData[0].checkSheet_data.prd_tl_approval_status[
-          machineLastData[0].checkSheet_data.prd_tl_approval_status.length -
-            1
+          machineLastData[0].checkSheet_data.prd_tl_approval_status.length - 1
         ] = "Accepted";
         // console.log(machineLastData[0].checkSheet_data.prd_tl_approval_status)
         const PRDTLApprovalStatusUpdate = await Machine.updateOne(
@@ -7252,8 +7241,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           undefined, // machineLastData[0].machine_name,
           undefined, // machineLastData[0].checkSheet_data.checksheet_status,
           machineLastData[0]?.checkSheet_data?.plan_prepared_email[
-            (machineLastData[0]?.checkSheet_data?.plan_prepared_email)
-              .length - 1
+            (machineLastData[0]?.checkSheet_data?.plan_prepared_email).length -
+              1
           ],
           undefined, // machineLastData[0].checkSheet_data.assign_HOS[(machineLastData[0].checkSheet_data.checkSheetSendingUser).length - 1],
           undefined // tlApproval, undefined, undefined
@@ -7262,8 +7251,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         machineLastData?.[0]?.checkSheet_data
           ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.[
           machineLastData?.[0]?.checkSheet_data
-            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.length -
-            1
+            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
         ] === "Pending" &&
         req?.rootUser?.tm_grade !== "HOD"
       ) {
@@ -7390,12 +7379,14 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         // console.log(machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth])
         let ccMail =
-          machineLastData[0]?.checkSheet_data
-            ?.implementation_assign_MTD_HOS?.[senderApprovalMonth];
+          machineLastData[0]?.checkSheet_data?.implementation_assign_MTD_HOS?.[
+            senderApprovalMonth
+          ];
         const findAssignMTDTLNameOfImplementation = await User.findOne({
           email:
-            machineLastData[0]?.checkSheet_data
-              ?.implementation_assign_MTD_TL?.[senderApprovalMonth][
+            machineLastData[0]?.checkSheet_data?.implementation_assign_MTD_TL?.[
+              senderApprovalMonth
+            ][
               machineLastData[0]?.checkSheet_data
                 ?.implementation_assign_MTD_TL?.[senderApprovalMonth]?.length -
                 1
@@ -7456,16 +7447,19 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           machineLastData[0].checkSheet_data.implemetation_completed_tm_name[
             senderApprovalMonth
           ][
-            machineLastData[0].checkSheet_data
-              .implemetation_completed_tm_name[senderApprovalMonth].length - 1
+            machineLastData[0].checkSheet_data.implemetation_completed_tm_name[
+              senderApprovalMonth
+            ].length - 1
           ],
           machineLastData[0].machine_code,
           machineLastData[0].machine_name,
           machineLastData[0].checkSheet_data.checksheet_status,
-          machineLastData[0]?.checkSheet_data
-            ?.implementation_assign_MTD_TL?.[senderApprovalMonth][
-            machineLastData[0]?.checkSheet_data
-              ?.implementation_assign_MTD_TL?.[senderApprovalMonth]?.length - 1
+          machineLastData[0]?.checkSheet_data?.implementation_assign_MTD_TL?.[
+            senderApprovalMonth
+          ][
+            machineLastData[0]?.checkSheet_data?.implementation_assign_MTD_TL?.[
+              senderApprovalMonth
+            ]?.length - 1
           ],
           undefined,
           prd_tl_approval_status,
@@ -7487,14 +7481,14 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         machineLastData?.[0]?.checkSheet_data
           ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.[
           machineLastData?.[0]?.checkSheet_data
-            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.length -
-            1
+            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
         ] === "Accepted" &&
         machineLastData?.[0]?.checkSheet_data
           ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]?.[
           machineLastData?.[0]?.checkSheet_data
-            ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]?.length -
-            1
+            ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
         ] === "Pending" &&
         req?.rootUser?.tm_grade !== "HOD"
       ) {
@@ -7687,8 +7681,9 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           machineLastData[0].checkSheet_data.implemetation_completed_tm_name[
             senderApprovalMonth
           ][
-            machineLastData[0].checkSheet_data
-              .implemetation_completed_tm_name[senderApprovalMonth].length - 1
+            machineLastData[0].checkSheet_data.implemetation_completed_tm_name[
+              senderApprovalMonth
+            ].length - 1
           ],
           machineLastData[0].machine_code,
           machineLastData[0].machine_name,
@@ -7726,14 +7721,14 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         machineLastData?.[0]?.checkSheet_data
           ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.[
           machineLastData?.[0]?.checkSheet_data
-            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.length -
-            1
+            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
         ] === "Accepted" &&
         machineLastData?.[0]?.checkSheet_data
           ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]?.[
           machineLastData?.[0]?.checkSheet_data
-            ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]?.length -
-            1
+            ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
         ] === "Accepted" &&
         machineLastData?.[0]?.checkSheet_data
           ?.implemetation_mtd_hos_approval_status?.[senderApprovalMonth]?.[
@@ -8101,8 +8096,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   .length - 1
               ] || undefined,
           machineLastData[0].checkSheet_data.assign_HOS[
-            machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
-              1
+            machineLastData[0].checkSheet_data.checkSheetSendingUser.length - 1
           ],
           tlApproval,
           undefined,
@@ -8318,8 +8312,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             machineLastData[0].machine_name,
             machineLastData[0].checkSheet_data.checksheet_status,
             machineLastData[0].checkSheet_data.checkSheetSendingUser[
-              machineLastData[0].checkSheet_data.checkSheetSendingUser
-                .length - 1
+              machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
+                1
             ],
             undefined,
             undefined,
@@ -8330,14 +8324,12 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         }
       } else if (
         machineLastData[0].checkSheet_data.prd_tl_approval_status[
-          machineLastData[0].checkSheet_data.prd_tl_approval_status.length -
-            1
+          machineLastData[0].checkSheet_data.prd_tl_approval_status.length - 1
         ] === "Pending"
       ) {
         let prdTlApproval = "Rejected";
         machineLastData[0].checkSheet_data.prd_tl_approval_status[
-          machineLastData[0].checkSheet_data.prd_tl_approval_status.length -
-            1
+          machineLastData[0].checkSheet_data.prd_tl_approval_status.length - 1
         ] = "Rejected";
         const PRDTLApprovalStatusUpdate = await Machine.updateOne(
           { machine_code: machineLastData[0].machine_code },
@@ -8490,14 +8482,16 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             }
           );
       } else if (
-        machineLastData[0].checkSheet_data
-          .implemetation_prd_tl_approval_status[senderApprovalMonth][
+        machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[
+          senderApprovalMonth
+        ][
           machineLastData[0].checkSheet_data
             .implemetation_prd_tl_approval_status[senderApprovalMonth].length -
             1
         ] === "Accepted" &&
-        machineLastData[0].checkSheet_data
-          .implemetation_mtd_tl_approval_status[senderApprovalMonth][
+        machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[
+          senderApprovalMonth
+        ][
           machineLastData[0].checkSheet_data
             .implemetation_mtd_tl_approval_status[senderApprovalMonth].length -
             1
@@ -8625,14 +8619,16 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         //     mtd_tl_approval_status,
         //     undefined, rejected_remarks)
       } else if (
-        machineLastData[0].checkSheet_data
-          .implemetation_prd_tl_approval_status[senderApprovalMonth][
+        machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[
+          senderApprovalMonth
+        ][
           machineLastData[0].checkSheet_data
             .implemetation_prd_tl_approval_status[senderApprovalMonth].length -
             1
         ] === "Accepted" &&
-        machineLastData[0].checkSheet_data
-          .implemetation_mtd_tl_approval_status[senderApprovalMonth][
+        machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[
+          senderApprovalMonth
+        ][
           machineLastData[0].checkSheet_data
             .implemetation_mtd_tl_approval_status[senderApprovalMonth].length -
             1
@@ -11606,7 +11602,7 @@ router.post(
           },
         },
       ]);
-      
+
       machineLastData = await Machine.populate(machineLastData, {
         path: "line_names",
         populate: {
@@ -23257,22 +23253,27 @@ router.post(
 
                 Mar: [],
               });
-
-          if (
-            Object.keys(
-              machineCheckSheetData?.[0]?.checkSheet_data?.[
-                arrayOfKeyForAddingMonthsKey[index]
-              ]
-            )?.length !== 12
-          ) {
+              
+          // if (
+          //   Object.keys(
+          //     machineCheckSheetData?.[0]?.checkSheet_data?.[
+          //       arrayOfKeyForAddingMonthsKey?.[index]
+          //     ]
+          //   )?.length !== 12
+          // ) {
             if (
               machineCheckSheetData?.[0]?.checkSheet_data?.[
-                arrayOfKeyForAddingMonthsKey[index]
-              ] !== undefined
+                arrayOfKeyForAddingMonthsKey?.[index]
+              ] !== undefined &&
+              Object.keys(
+                machineCheckSheetData?.[0]?.checkSheet_data?.[
+                  arrayOfKeyForAddingMonthsKey?.[index]
+                ]
+              )?.length !== 12
             ) {
               Object.keys(
                 machineCheckSheetData?.[0]?.checkSheet_data?.[
-                  arrayOfKeyForAddingMonthsKey[index]
+                  arrayOfKeyForAddingMonthsKey?.[index]
                 ]
               )?.map((key) => {
                 updateFieldWithAllMonthOrSix[key] =
@@ -23300,7 +23301,7 @@ router.post(
                 ],
               }
             );
-          }
+          // }
         }
 
         let commonEditedFields = async () => {
@@ -23670,6 +23671,7 @@ router.get(
         {
           $group: {
             _id: "$machine_code",
+            machine_name: {$push: "$machine_name"},
             totalSumOf_PM: {
               $sum: truncValue({
                 $divide: ["$totalPMTime.v.totalWorkedPMTime", 60],
@@ -23686,7 +23688,7 @@ router.get(
         {
           $group: {
             _id: null,
-            labels: { $push: "$_id" },
+            labels: { $push: "$machine_name" },
             data: { $push: "$totalSumOf_PM" },
           },
         },

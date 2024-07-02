@@ -17,7 +17,8 @@ import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
 import MTTRChart from "../../BM/Reports/DailyBreakdownTrend/MTTRChart";
 import RoutingContext from "../../context/routing/RoutingContext";
 import ManHourTrend from "../../BM/Reports/ManHourReport/ManHourTrend";
-
+import PmMachineWiseTimeMonitoring from "../../pages/Reports/ReportComponents/Graph/PmTimeMonitoringCharts/PmMachineWiseTimeMonitoring";
+import PMTimeMonitoringLastYearWiseComparison from "../../pages/Reports/ReportComponents/Graph/PmTimeMonitoringCharts/PMTimeMonitoringLastYearWiseComparison";
 const MainPageComponent = () => {
   const [filter, setFilter] = useState("hourly");
   const currentTabViewName = "Plant";
@@ -91,6 +92,33 @@ const MainPageComponent = () => {
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}
               selectedYear={reduceState?.selectedYear}
             />
+          </Col>
+        </Row>
+
+        <Row className="p-2">
+          <Col sm={12} md={12} lg={4} className=" mt-3">
+            <Box mt={2}>
+              <PMTimeMonitoringLastYearWiseComparison
+                userDetails={loggedUserDetails}
+                filterValues={reduceState}
+                selectedValue={reduceState?.selectedValue}
+                flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                selectedYear={reduceState?.selectedYear}
+                selectedMonth={reduceState?.selectedMonth}
+              />
+            </Box>
+          </Col>
+          <Col sm={12} md={12} lg={8} className=" mt-3">
+            <Box mt={2}>
+              <PmMachineWiseTimeMonitoring
+                userDetails={loggedUserDetails}
+                filterValues={reduceState}
+                selectedValue={reduceState?.selectedValue}
+                flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                selectedYear={reduceState?.selectedYear}
+                selectedMonth={reduceState?.selectedMonth}
+              />
+            </Box>
           </Col>
         </Row>
       </Container>
