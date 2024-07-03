@@ -52,7 +52,7 @@ import AllSparePartsUsageHistory from "../../pages/MTD_TL_HOSS/AllSparePartsUsag
 import CheckSheetForImplementation from "../../pages/Operator/CheckSheetForImplementation";
 import SkipPMWorkData from "../../pages/Reports/SkipPMWorkData";
 import CheckSheet from "../../pages/Dashboard/CheckSheet";
-
+import CheckApprovalSendOrNotMainDashboard from "../../pages/Dashboard/CheckApprovalSendOrNotMainDashboard";
 //implementation approval flow
 import PMSheetApprovalOfImplementationPhase from "../../pages/Section/Checksheet/PMSheetApprovalOfImplementationPhase";
 
@@ -295,6 +295,9 @@ function App({ commonRoutes }) {
                   )
                 )}
                 <Route path="/pm" element={<OperatorDashboard />} />
+
+                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+
                 <Route
                   path="/pm/creationDashboard"
                   element={<CreationDashboardForSection />}
@@ -432,6 +435,8 @@ function App({ commonRoutes }) {
                   )
                 )}
                 <Route path="/pm" element={<OperatorDashboard />} />
+                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+
                 <Route
                   path="/pm/machineWiseCheckSheetForImplemetation"
                   element={<CheckSheetForImplementation />}
@@ -557,6 +562,8 @@ function App({ commonRoutes }) {
                   )
                 )}
                 <Route path="/pm" element={<OperatorDashboard />} />
+                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+
                 <Route
                   path="/pm/creationDashboard"
                   element={<CreationDashboardForTLHOSS />}

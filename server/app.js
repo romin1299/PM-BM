@@ -59,7 +59,9 @@ require(path.join(
   "./controller/autoUpdateAndSendMailForSixMonthApproval"
 ));
 require(path.join(__dirname, "./controller/financialYearController"));
-require(path.join(__dirname, "./controller/everyDayAutoBackup"));
+
+//When deploying please comment this backup code
+// require(path.join(__dirname, "./controller/everyDayAutoBackup"));
 
 //for logos and other image
 app.use(express.static(path.join(__dirname, "images")));
@@ -90,7 +92,7 @@ app.get("/*", (req, res) => {
 
 const PORT = process.env.PORT;
 
-console.log(moment().endOf('month'));
+// console.log(moment().endOf('month'));
 
 //for when deploying application on AWS
 // const server = https.createServer(keys, app);

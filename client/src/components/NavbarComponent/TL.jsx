@@ -69,6 +69,7 @@ import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
 import ArticleIcon from "@mui/icons-material/Article";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import CancelScheduleSendIcon from "@mui/icons-material/CancelScheduleSend";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -535,6 +536,17 @@ const TL = ({ userData, userDepartment }) => {
           ) : (
             ""
           )}
+
+          <Menuitem
+            className="text-white"
+            icon={<CancelScheduleSendIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="User Manual"
+          >
+            <NavLink to={"/pm/checkApprovalSendOrNotMainDashboard"}></NavLink>
+            Approval Send Or Not
+          </Menuitem>
 
           <Menuitem
             className="text-white"

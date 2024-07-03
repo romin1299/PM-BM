@@ -21,14 +21,17 @@ import FileDownload from "js-file-download";
 import Footer from "../../components/Footer/Footer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { InfoToast } from "../../BM/Component/ShowTostify";
 // import 'reactjs-popup/dist/index.css';
 const CheckSheet = ({
   show,
   handleClose,
   lineName,
-  machineData,
-  functionToSetRefKey,
+  // machineData,
+  // functionToSetRefKey,
   closeCheckSheet,
+  machine_code,
+  selectedYear
 }) => {
   const context = useContext(RoutingContext);
 
@@ -48,15 +51,26 @@ const CheckSheet = ({
   let refArrayForTDMapping = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
   //after completed send for approval
-  const [HOSList, setHOSList] = useState([]);
-  const [PRDTLlist, setPRDTLlist] = useState([]);
-  const [MTDTLlist, setMTDTLlist] = useState([]);
+  // const [HOSList, setHOSList] = useState([]);
+  // const [PRDTLlist, setPRDTLlist] = useState([]);
+  // const [MTDTLlist, setMTDTLlist] = useState([]);
 
   const [dataSheetName, setDataSheetName] = useState([]);
+  const [machineAllData, setMachineAllData] = useState([]);
 
-  let machineAllData = machineData;
+  const [listOfAllApproverAndOtherData, setListOfAllApproverAndOtherData] =
+  useState({
+    HOSList: [],
+    PRDTLlist: [],
+    MTDTLlist: [],
+    supportingTMList: [],
+    MTDHODlistForAfterAdd: [],
+    selectedMonth: "",
+  });
+
+  // let machineAllData = machineData;
   // console.log(machineAllData);
-  let tableData = machineData?.checkSheet_data?.checkSheet;
+  // let tableData = machineData?.checkSheet_data?.checkSheet;
 
   const monthKeyArray = [
     "Jan",
@@ -150,7 +164,9 @@ const CheckSheet = ({
         console.log("Machine code already exists!");
       } else {
         console.log("PM worked data save sucessfully...");
-        closeCheckSheet();
+        postMachineIdToGetAllDetailsOfMachine();
+        InfoToast("Don't forget to send for approval after all points are completed !!!")
+        // closeCheckSheet();
         // navigate("/");
         // clearState();
       }
@@ -183,9 +199,9 @@ const CheckSheet = ({
         method: "Post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prd_tl_list: PRDTLlist[values.prd_tl_list],
-          mtd_tl_list: MTDTLlist[values.mtd_tl_list],
-          mtd_hos_list: HOSList[values.mtd_hos_list],
+          prd_tl_list: listOfAllApproverAndOtherData?.PRDTLlist[values.prd_tl_list],
+          mtd_tl_list: listOfAllApproverAndOtherData?.MTDTLlist[values.mtd_tl_list],
+          mtd_hos_list: listOfAllApproverAndOtherData?.HOSList[values.mtd_hos_list],
           implemetation_completed_date: timeStamp(),
           selected_machine_data: machineAllData,
           monthForCompareSystemMonth,
@@ -207,28 +223,28 @@ const CheckSheet = ({
   });
 
   //fetch supported operator list
-  const getListForApproval = async () => {
-    try {
-      const res = await fetch("/getListForApproval", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+  // const getListForApproval = async () => {
+  //   try {
+  //     const res = await fetch("/getListForApproval", {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //     });
 
-      const data = await res.json();
-      // console.log(data);
-      setPRDTLlist(data.PRDTLlist);
-      setHOSList(data.HOSlist);
-      setMTDTLlist(data.MTDTLlist);
-      setSupportingTMList(data.supportingOperatorList);
-      // setTableData(finalData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     const data = await res.json();
+  //     // console.log(data);
+  //     setPRDTLlist(data.PRDTLlist);
+  //     setHOSList(data.HOSlist);
+  //     setMTDTLlist(data.MTDTLlist);
+  //     setSupportingTMList(data.supportingOperatorList);
+  //     // setTableData(finalData);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   let columns = [
     {
@@ -340,8 +356,8 @@ const CheckSheet = ({
     return comparison;
   }
 
-  const getDataModelled = () => {
-    let data = tableData?.sort(compareCycle);
+  const getDataModelled = (checkSheetData) => {
+    let data = checkSheetData?.sort(compareCycle);
 
     let newRowData = [];
     for (var i = 0; i < data?.length; i++) {
@@ -567,7 +583,7 @@ const CheckSheet = ({
       <SummeryPopups
         close={close}
         // tableData={tableData}
-        machineData={machineData}
+        machineData={machineAllData}
       />
     );
     document.querySelector(".checkSheetForImplementation").style.pointerEvents =
@@ -579,19 +595,20 @@ const CheckSheet = ({
       <EditRemarksAfterRejectPopups
         close={close}
         senderApprovalMonth={senderApprovalMonth}
-        functionToSetRefKey={functionToSetRefKey}
+        // functionToSetRefKey={functionToSetRefKey}
+        postMachineIdToGetAllDetailsOfMachine={postMachineIdToGetAllDetailsOfMachine}
         // tableData={tableData}
-        machineData={machineData}
+        machineData={machineAllData}
       />
     );
     document.querySelector(".checkSheetForImplementation").style.pointerEvents =
       "none";
   };
 
-  useEffect(() => {
-    getListForApproval();
-    getDataModelled();
-  }, []);
+  // useEffect(() => {
+  //   getListForApproval();
+  //   getDataModelled();
+  // }, []);
 
   //upload tag name XLS and XLSX file
   const uploadDataSheet = async (e) => {
@@ -654,6 +671,42 @@ const CheckSheet = ({
       console.log(error);
     }
   };
+
+  const postMachineIdToGetAllDetailsOfMachine = async () => {
+    try {
+      const res = await fetch(
+        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${machine_code}&&selectedYear=${selectedYear}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await res.json();
+      if (res.status === 400 || res.status === 422 || !data) {
+        console.log("Invalid");
+      } else {
+        // console.log(data)
+        setMachineAllData(data?.machineLastData);
+        getDataModelled(data?.machineLastData?.checkSheet_data?.checkSheet);
+        setListOfAllApproverAndOtherData({
+          ...listOfAllApproverAndOtherData,
+          PRDTLlist: data?.prdTL,
+          MTDTLlist: data?.mtdTL,
+          HOSList: data?.mtdHOS,
+          supportingTMList: data?.operatorList,
+          MTDHODlistForAfterAdd: data?.mtdHOD,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    postMachineIdToGetAllDetailsOfMachine();
+  }, []);
 
   return (
     <>
@@ -1139,15 +1192,16 @@ const CheckSheet = ({
                                                     rData[1].value
                                                   }
                                                   yearOfCheckSheet={
-                                                    machineData?.checkSheet_data
+                                                    machineAllData?.checkSheet_data
                                                       .current_year
                                                   }
                                                   monthForCompareSystemMonth={
                                                     monthForCompareSystemMonth
                                                   }
-                                                  functionToSetRefKey={
-                                                    functionToSetRefKey
-                                                  }
+                                                  // functionToSetRefKey={
+                                                  //   functionToSetRefKey
+                                                  // }
+                                                  postMachineIdToGetAllDetailsOfMachine={postMachineIdToGetAllDetailsOfMachine}
                                                   previousMonth={previousMonth}
                                                   //--------------------
 
@@ -1818,7 +1872,7 @@ const CheckSheet = ({
                                   <Multiselect
                                     displayValue="tm_name"
                                     className="col-9 "
-                                    options={supportingTMList} // Options to display in the dropdown
+                                    options={listOfAllApproverAndOtherData?.supportingTMList} // Options to display in the dropdown
                                     // selectedValues={departmentList} // Preselected value to persist in dropdown
                                     onSelect={async (selectedList) => {
                                       await setSelectedSupportedTM(
@@ -1915,7 +1969,7 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {PRDTLlist?.map((index, idx) => {
+                                              {listOfAllApproverAndOtherData?.PRDTLlist?.map((index, idx) => {
                                                 return (
                                                   <option value={idx}>
                                                     {index.tm_name}
@@ -1972,7 +2026,7 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {MTDTLlist?.map((index, idx) => {
+                                              {listOfAllApproverAndOtherData?.MTDTLlist?.map((index, idx) => {
                                                 return (
                                                   <option value={idx}>
                                                     {index.tm_name}
@@ -2030,7 +2084,7 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {HOSList?.map((index, idx) => {
+                                              {listOfAllApproverAndOtherData?.HOSList?.map((index, idx) => {
                                                 return (
                                                   <option value={idx}>
                                                     {index.tm_name}
@@ -2299,7 +2353,7 @@ const CheckSheet = ({
 
                                   <Multiselect
                                     displayValue="tm_name"
-                                    options={supportingTMList} // Options to display in the dropdown
+                                    options={listOfAllApproverAndOtherData?.supportingTMList} // Options to display in the dropdown
                                     className="col-9"
                                     // selectedValues={departmentList} // Preselected value to persist in dropdown
                                     onSelect={async (selectedList) => {
@@ -2365,7 +2419,7 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {PRDTLlist?.map((index, idx) => {
+                                              {listOfAllApproverAndOtherData?.PRDTLlist?.map((index, idx) => {
                                                 return (
                                                   <option value={idx}>
                                                     {index.tm_name}
@@ -2419,7 +2473,7 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {MTDTLlist?.map((index, idx) => {
+                                              {listOfAllApproverAndOtherData?.MTDTLlist?.map((index, idx) => {
                                                 return (
                                                   <option value={idx}>
                                                     {index.tm_name}
@@ -2474,7 +2528,7 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {HOSList?.map((index, idx) => {
+                                              {listOfAllApproverAndOtherData?.HOSList?.map((index, idx) => {
                                                 return (
                                                   <option value={idx}>
                                                     {index.tm_name}

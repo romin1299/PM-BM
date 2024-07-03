@@ -45,7 +45,9 @@ const GettingMachineDataForCheckSheetImplementation = ({
         loggedUserType === "Operator"
           ? setImplementationPhaseCheckSheet(
               <CheckSheetForImplementation
-                machineData={data?.machineLastData}
+                // machineData={data?.machineLastData}
+                machine_code={machineData?.machine_code}
+                selectedYear={selectedYear}
                 lineName={lineName}
                 closeCheckSheet={closeCheckSheet}
                 functionToSetRefKey={functionToSetRefKey}

@@ -39,6 +39,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import styled from "styled-components";
 
 import Logout from "../../Integration/Logout/Logout";
+import CancelScheduleSendIcon from "@mui/icons-material/CancelScheduleSend";
 
 import {
   Menu,
@@ -541,6 +542,17 @@ const Section = ({ userData, userDepartment }) => {
               </MenuItem>
             </SubMenu>
 
+            <Menuitem
+              className="text-white"
+              icon={<CancelScheduleSendIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="User Manual"
+            >
+              <NavLink to={"/pm/checkApprovalSendOrNotMainDashboard"}></NavLink>
+              Approval Send Or Not
+            </Menuitem>
+
             {userDepartment === "MTD" ? (
               <Menuitem
                 className="text-white"
@@ -599,28 +611,28 @@ const Section = ({ userData, userDepartment }) => {
               User Manual
             </Menuitem>
             {/* <Menu iconShape="square"> */}
-            <MenuItem
-              className="text"
-              icon={
-                <LogoutIcon
-                  className="text-white"
-                  style={{ transform: "rotate(180deg)" }}
-                />
-              }
-              data-toggle="tooltip"
-              data-placement="right"
-              title="Logout"
-              onClick={() =>
-                Logout(userData).then((res) => {
-                  if (res) {
-                    loggedOut();
-                  }
-                })
-              }
-            >
-              {" "}
-              Logout{" "}
-            </MenuItem>
+              <MenuItem
+                className="text"
+                icon={
+                  <LogoutIcon
+                    className="text-white"
+                    style={{ transform: "rotate(180deg)" }}
+                  />
+                }
+                data-toggle="tooltip"
+                data-placement="right"
+                title="Logout"
+                onClick={() =>
+                  Logout(userData).then((res) => {
+                    if (res) {
+                      loggedOut();
+                    }
+                  })
+                }
+              >
+                {" "}
+                Logout{" "}
+              </MenuItem>
             {/* </Menu> */}
           </Menu>
         </SidebarContent>

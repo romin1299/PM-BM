@@ -57,6 +57,7 @@ import FactCheckIcon from "@mui/icons-material/FactCheck";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import CancelScheduleSendIcon from "@mui/icons-material/CancelScheduleSend";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -383,6 +384,17 @@ const Operator = ({ userData }) => {
               PM Time Monitoring
             </MenuItem>
           </SubMenu>
+
+          <Menuitem
+            className="text-white"
+            icon={<CancelScheduleSendIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="User Manual"
+          >
+            <NavLink to={"/pm/checkApprovalSendOrNotMainDashboard"}></NavLink>
+            Approval Send Or Not
+          </Menuitem>
 
           <Menuitem
             className="text-white"

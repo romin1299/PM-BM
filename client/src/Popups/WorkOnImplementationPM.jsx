@@ -6,6 +6,7 @@ import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 import { Col, Row } from "react-bootstrap";
+import { SuccessToast } from "../BM/Component/ShowTostify";
 
 function WorkOnImplementationPM({
   close,
@@ -21,6 +22,7 @@ function WorkOnImplementationPM({
   machineAllData,
   refKeyForScheduleMonthInLogHistory,
   remarksCompulsoryOrNot,
+  postMachineIdToGetAllDetailsOfMachine
 }) {
   const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
@@ -166,7 +168,8 @@ function WorkOnImplementationPM({
             postNewLogHistory();
             // disabledButtonAfterPM(tableRowId, true);
             close();
-            functionToSetRefKey();
+            postMachineIdToGetAllDetailsOfMachine();
+            SuccessToast(`Row ${tableRowId} Implementation Data Updated !!!`)
             // window.location.reload();
             // navigate("/machineWiseCheckSheetForImplemetation");
           }

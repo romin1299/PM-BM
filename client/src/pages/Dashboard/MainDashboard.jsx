@@ -708,7 +708,7 @@ const MainDashboard = () => {
     <>
       {machineWiseCheckSheetForImplementation}
 
-      <ToastContainer />
+      {/* <ToastContainer /> */}
 
       {/* <button onClick={funForDummyApi}>dummy</button> */}
       <Container fluid className="operatorDashboard">
@@ -1032,7 +1032,7 @@ const MainDashboard = () => {
                         &nbsp;Not Schedule
                       </div>
 
-                      <div
+                      {/* <div
                         style={{
                           fontSize: "14px",
                         }}
@@ -1045,7 +1045,7 @@ const MainDashboard = () => {
                           }}
                         />{" "}
                         &nbsp;Not Approved
-                      </div>
+                      </div> */}
                     </div>
                   </Col>
                   &nbsp;&nbsp;
@@ -1157,26 +1157,28 @@ const MainDashboard = () => {
                                                                               ] ===
                                                                               "Ongoing"
                                                                             ? "#ffff59"
-                                                                            : (!machine
-                                                                                ?.checkSheet_data
-                                                                                ?.implemetation_prd_tl_approval_status?.[
-                                                                                selectedMonth
-                                                                              ] ||
-                                                                                machine
-                                                                                  ?.checkSheet_data
-                                                                                  ?.implemetation_prd_tl_approval_status?.[
-                                                                                  selectedMonth
-                                                                                ]
-                                                                                  ?.length <
-                                                                                  0) &&
-                                                                              machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                                "Completed"
-                                                                            ? "#A0DEFF"
-                                                                            : machine
+                                                                            : 
+                                                                            // (!machine
+                                                                            //     ?.checkSheet_data
+                                                                            //     ?.implemetation_prd_tl_approval_status?.[
+                                                                            //     selectedMonth
+                                                                            //   ] ||
+                                                                            //     machine
+                                                                            //       ?.checkSheet_data
+                                                                            //       ?.implemetation_prd_tl_approval_status?.[
+                                                                            //       selectedMonth
+                                                                            //     ]
+                                                                            //       ?.length <
+                                                                            //       0) &&
+                                                                            //   machine
+                                                                            //     .checkSheet_data
+                                                                            //     ?.PMStatus[
+                                                                            //     selectedMonth
+                                                                            //   ] ===
+                                                                            //     "Completed"
+                                                                            // ? "#A0DEFF"
+                                                                            // : 
+                                                                            machine
                                                                                 .checkSheet_data
                                                                                 ?.PMStatus[
                                                                                 selectedMonth
@@ -1307,26 +1309,28 @@ const MainDashboard = () => {
                                                                             ] ===
                                                                             "Ongoing"
                                                                           ? "#ffff59"
-                                                                          : (!machine
-                                                                              ?.checkSheet_data
-                                                                              ?.implemetation_prd_tl_approval_status?.[
-                                                                              selectedMonth
-                                                                            ] ||
-                                                                              machine
-                                                                                ?.checkSheet_data
-                                                                                ?.implemetation_prd_tl_approval_status?.[
-                                                                                selectedMonth
-                                                                              ]
-                                                                                ?.length <
-                                                                                0) &&
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "Completed"
-                                                                          ? "#A0DEFF"
-                                                                          : machine
+                                                                          : 
+                                                                        //   (!machine
+                                                                        //       ?.checkSheet_data
+                                                                        //       ?.implemetation_prd_tl_approval_status?.[
+                                                                        //       selectedMonth
+                                                                        //     ] ||
+                                                                        //       machine
+                                                                        //         ?.checkSheet_data
+                                                                        //         ?.implemetation_prd_tl_approval_status?.[
+                                                                        //         selectedMonth
+                                                                        //       ]
+                                                                        //         ?.length <
+                                                                        //         0) &&
+                                                                        //     machine
+                                                                        //       .checkSheet_data
+                                                                        //       ?.PMStatus[
+                                                                        //       selectedMonth
+                                                                        //     ] ===
+                                                                        //       "Completed"
+                                                                        //   ? "#A0DEFF"
+                                                                        //   :
+                                                                           machine
                                                                               .checkSheet_data
                                                                               ?.PMStatus[
                                                                               selectedMonth
@@ -1484,26 +1488,28 @@ const MainDashboard = () => {
                                                                                               ] ===
                                                                                               "Ongoing"
                                                                                             ? "#ffff59"
-                                                                                            : (!machine
-                                                                                                ?.checkSheet_data
-                                                                                                ?.implemetation_prd_tl_approval_status?.[
-                                                                                                selectedMonth
-                                                                                              ] ||
-                                                                                                machine
-                                                                                                  ?.checkSheet_data
-                                                                                                  ?.implemetation_prd_tl_approval_status?.[
-                                                                                                  selectedMonth
-                                                                                                ]
-                                                                                                  ?.length <
-                                                                                                  0) &&
-                                                                                              machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                                "Completed"
-                                                                                            ? "#A0DEFF"
-                                                                                            : machine
+                                                                                            : 
+                                                                                            // (!machine
+                                                                                            //     ?.checkSheet_data
+                                                                                            //     ?.implemetation_prd_tl_approval_status?.[
+                                                                                            //     selectedMonth
+                                                                                            //   ] ||
+                                                                                            //     machine
+                                                                                            //       ?.checkSheet_data
+                                                                                            //       ?.implemetation_prd_tl_approval_status?.[
+                                                                                            //       selectedMonth
+                                                                                            //     ]
+                                                                                            //       ?.length <
+                                                                                            //       0) &&
+                                                                                            //   machine
+                                                                                            //     .checkSheet_data
+                                                                                            //     ?.PMStatus[
+                                                                                            //     selectedMonth
+                                                                                            //   ] ===
+                                                                                            //     "Completed"
+                                                                                            // ? "#A0DEFF"
+                                                                                            // : 
+                                                                                            machine
                                                                                                 .checkSheet_data
                                                                                                 ?.PMStatus[
                                                                                                 selectedMonth
@@ -1656,26 +1662,28 @@ const MainDashboard = () => {
                                                                                             ] ===
                                                                                             "Ongoing"
                                                                                           ? "#ffff59"
-                                                                                          : (!machine
-                                                                                              ?.checkSheet_data
-                                                                                              ?.implemetation_prd_tl_approval_status?.[
-                                                                                              selectedMonth
-                                                                                            ] ||
-                                                                                              machine
-                                                                                                ?.checkSheet_data
-                                                                                                ?.implemetation_prd_tl_approval_status?.[
-                                                                                                selectedMonth
-                                                                                              ]
-                                                                                                ?.length <
-                                                                                                0) &&
-                                                                                            machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                              "Completed"
-                                                                                          ? "#A0DEFF"
-                                                                                          : machine
+                                                                                          : 
+                                                                                        //   (!machine
+                                                                                        //       ?.checkSheet_data
+                                                                                        //       ?.implemetation_prd_tl_approval_status?.[
+                                                                                        //       selectedMonth
+                                                                                        //     ] ||
+                                                                                        //       machine
+                                                                                        //         ?.checkSheet_data
+                                                                                        //         ?.implemetation_prd_tl_approval_status?.[
+                                                                                        //         selectedMonth
+                                                                                        //       ]
+                                                                                        //         ?.length <
+                                                                                        //         0) &&
+                                                                                        //     machine
+                                                                                        //       .checkSheet_data
+                                                                                        //       ?.PMStatus[
+                                                                                        //       selectedMonth
+                                                                                        //     ] ===
+                                                                                        //       "Completed"
+                                                                                        //   ? "#A0DEFF"
+                                                                                        //   : 
+                                                                                          machine
                                                                                               .checkSheet_data
                                                                                               ?.PMStatus[
                                                                                               selectedMonth
@@ -1827,26 +1835,28 @@ const MainDashboard = () => {
                                                                                 ] ===
                                                                                 "Ongoing"
                                                                               ? "#ffff59"
-                                                                              : (!machine
-                                                                                  ?.checkSheet_data
-                                                                                  ?.implemetation_prd_tl_approval_status?.[
-                                                                                  selectedMonth
-                                                                                ] ||
-                                                                                  machine
-                                                                                    ?.checkSheet_data
-                                                                                    ?.implemetation_prd_tl_approval_status?.[
-                                                                                    selectedMonth
-                                                                                  ]
-                                                                                    ?.length <
-                                                                                    0) &&
-                                                                                machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                  "Completed"
-                                                                              ? "#A0DEFF"
-                                                                              : machine
+                                                                              : 
+                                                                            //   (!machine
+                                                                            //       ?.checkSheet_data
+                                                                            //       ?.implemetation_prd_tl_approval_status?.[
+                                                                            //       selectedMonth
+                                                                            //     ] ||
+                                                                            //       machine
+                                                                            //         ?.checkSheet_data
+                                                                            //         ?.implemetation_prd_tl_approval_status?.[
+                                                                            //         selectedMonth
+                                                                            //       ]
+                                                                            //         ?.length <
+                                                                            //         0) &&
+                                                                            //     machine
+                                                                            //       .checkSheet_data
+                                                                            //       ?.PMStatus[
+                                                                            //       selectedMonth
+                                                                            //     ] ===
+                                                                            //       "Completed"
+                                                                            //   ? "#A0DEFF"
+                                                                            //   : 
+                                                                              machine
                                                                                   .checkSheet_data
                                                                                   ?.PMStatus[
                                                                                   selectedMonth
@@ -1980,26 +1990,28 @@ const MainDashboard = () => {
                                                                             ] ===
                                                                             "Ongoing"
                                                                           ? "#ffff59"
-                                                                          : (!machine
-                                                                              ?.checkSheet_data
-                                                                              ?.implemetation_prd_tl_approval_status?.[
-                                                                              selectedMonth
-                                                                            ] ||
-                                                                              machine
-                                                                                ?.checkSheet_data
-                                                                                ?.implemetation_prd_tl_approval_status?.[
-                                                                                selectedMonth
-                                                                              ]
-                                                                                ?.length <
-                                                                                0) &&
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "Completed"
-                                                                          ? "#A0DEFF"
-                                                                          : machine
+                                                                          : 
+                                                                        //   (!machine
+                                                                        //       ?.checkSheet_data
+                                                                        //       ?.implemetation_prd_tl_approval_status?.[
+                                                                        //       selectedMonth
+                                                                        //     ] ||
+                                                                        //       machine
+                                                                        //         ?.checkSheet_data
+                                                                        //         ?.implemetation_prd_tl_approval_status?.[
+                                                                        //         selectedMonth
+                                                                        //       ]
+                                                                        //         ?.length <
+                                                                        //         0) &&
+                                                                        //     machine
+                                                                        //       .checkSheet_data
+                                                                        //       ?.PMStatus[
+                                                                        //       selectedMonth
+                                                                        //     ] ===
+                                                                        //       "Completed"
+                                                                        //   ? "#A0DEFF"
+                                                                        //   : 
+                                                                          machine
                                                                               .checkSheet_data
                                                                               ?.PMStatus[
                                                                               selectedMonth
@@ -2127,26 +2139,28 @@ const MainDashboard = () => {
                                                                             ] ===
                                                                             "Ongoing"
                                                                           ? "#ffff59"
-                                                                          : (!machine
-                                                                              ?.checkSheet_data
-                                                                              ?.implemetation_prd_tl_approval_status?.[
-                                                                              selectedMonth
-                                                                            ] ||
-                                                                              machine
-                                                                                ?.checkSheet_data
-                                                                                ?.implemetation_prd_tl_approval_status?.[
-                                                                                selectedMonth
-                                                                              ]
-                                                                                ?.length <
-                                                                                0) &&
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "Completed"
-                                                                          ? "#A0DEFF"
-                                                                          : machine
+                                                                          : 
+                                                                        //   (!machine
+                                                                        //       ?.checkSheet_data
+                                                                        //       ?.implemetation_prd_tl_approval_status?.[
+                                                                        //       selectedMonth
+                                                                        //     ] ||
+                                                                        //       machine
+                                                                        //         ?.checkSheet_data
+                                                                        //         ?.implemetation_prd_tl_approval_status?.[
+                                                                        //         selectedMonth
+                                                                        //       ]
+                                                                        //         ?.length <
+                                                                        //         0) &&
+                                                                        //     machine
+                                                                        //       .checkSheet_data
+                                                                        //       ?.PMStatus[
+                                                                        //       selectedMonth
+                                                                        //     ] ===
+                                                                        //       "Completed"
+                                                                        //   ? "#A0DEFF"
+                                                                        //   : 
+                                                                          machine
                                                                               .checkSheet_data
                                                                               ?.PMStatus[
                                                                               selectedMonth
@@ -2276,26 +2290,28 @@ const MainDashboard = () => {
                                                                           ] ===
                                                                           "Ongoing"
                                                                         ? "#ffff59"
-                                                                        : (!machine
-                                                                            ?.checkSheet_data
-                                                                            ?.implemetation_prd_tl_approval_status?.[
-                                                                            selectedMonth
-                                                                          ] ||
-                                                                            machine
-                                                                              ?.checkSheet_data
-                                                                              ?.implemetation_prd_tl_approval_status?.[
-                                                                              selectedMonth
-                                                                            ]
-                                                                              ?.length <
-                                                                              0) &&
-                                                                          machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                            "Completed"
-                                                                        ? "#A0DEFF"
-                                                                        : machine
+                                                                        : 
+                                                                        // (!machine
+                                                                        //     ?.checkSheet_data
+                                                                        //     ?.implemetation_prd_tl_approval_status?.[
+                                                                        //     selectedMonth
+                                                                        //   ] ||
+                                                                        //     machine
+                                                                        //       ?.checkSheet_data
+                                                                        //       ?.implemetation_prd_tl_approval_status?.[
+                                                                        //       selectedMonth
+                                                                        //     ]
+                                                                        //       ?.length <
+                                                                        //       0) &&
+                                                                        //   machine
+                                                                        //     .checkSheet_data
+                                                                        //     ?.PMStatus[
+                                                                        //     selectedMonth
+                                                                        //   ] ===
+                                                                        //     "Completed"
+                                                                        // ? "#A0DEFF"
+                                                                        // : 
+                                                                        machine
                                                                             .checkSheet_data
                                                                             ?.PMStatus[
                                                                             selectedMonth
