@@ -24,6 +24,8 @@ const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 const truncValue = require("../utils/truncValue");
 const sendMailForSpareRequest = require("../sendMailForBM/sendMailForSpareRequest");
+const logger = require("../utils/LoggingController/loggers");
+const maintenanceType = require("../utils/maintenanceType");
 
 router.use(cookieParser());
 // router.use(authenticate);
@@ -145,42 +147,46 @@ router.get(
   "/getDataBasedOnScanningRequest/:sheetType/:machineCode",
   authenticate,
   async (req, res, next) => {
-    let sheet;
-    if (req.params?.sheetType === "BM") {
-      sheet = await RequestSheetOfBM.findOne({
-        machineRef: req.params?.machineCode,
-      }).sort({ _id: -1 });
-    } else {
-      let currentYear =
-        new Date().getMonth() < 3
-          ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-          : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+    try {
+      let sheet;
+      if (req.params?.sheetType === "BM") {
+        sheet = await RequestSheetOfBM.findOne({
+          machineRef: req.params?.machineCode,
+        }).sort({ _id: -1 });
+      } else {
+        let currentYear =
+          new Date().getMonth() < 3
+            ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+            : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
-      sheet = await Machine.aggregate([
-        {
-          $match: {
-            _id: mongoose.Types.ObjectId(req.params?.machineCode),
+        sheet = await Machine.aggregate([
+          {
+            $match: {
+              _id: mongoose.Types.ObjectId(req.params?.machineCode),
+            },
           },
-        },
-        {
-          $unwind: "$checkSheet_data",
-        },
-        {
-          $match: {
-            "checkSheet_data.current_year": currentYear,
+          {
+            $unwind: "$checkSheet_data",
           },
-        },
-      ]);
-    }
-    if (!sheet) {
-      return res.status(400).json({
-        message: "No sheet found for the scanned QR",
+          {
+            $match: {
+              "checkSheet_data.current_year": currentYear,
+            },
+          },
+        ]);
+      }
+      if (!sheet) {
+        return res.status(400).json({
+          message: "No sheet found for the scanned QR",
+        });
+      }
+      res.status(201).json({
+        message: "Sheet data get successfully",
+        sheet,
       });
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
     }
-    res.status(201).json({
-      message: "Sheet data get successfully",
-      sheet,
-    });
   }
 );
 
@@ -246,6 +252,7 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
     req.queryObj = queryObj;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -405,7 +412,7 @@ router.post(
               parseInt(requestSheetDataFilledByMTDUser?.spareWaitingTime) || 0,
             "maintenanceReportFilledByMTD.replacementTime":
               parseInt(requestSheetDataFilledByMTDUser?.replacementTime) || 0,
-              "maintenanceReportFilledByMTD.maintenanceTime":
+            "maintenanceReportFilledByMTD.maintenanceTime":
               parseInt(requestSheetDataFilledByMTDUser?.maintenanceTime) || 0,
             "maintenanceReportFilledByMTD.analysisTime":
               parseInt(requestSheetDataFilledByMTDUser?.analysisTime) || 0,
@@ -753,6 +760,7 @@ router.post(
         res.status(404).json({ message: "Request-sheet not generated" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
@@ -995,6 +1003,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
     req.requestSheetData = requestSheetData;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error: new Error(error) });
   }
 };
@@ -1363,6 +1372,7 @@ router.patch(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
@@ -1525,6 +1535,7 @@ router.patch(
       }
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
@@ -1610,6 +1621,7 @@ router.patch(
         message: "Request-sheet updated successfully",
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
@@ -1661,6 +1673,7 @@ const findTLandOperatorList = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -1761,6 +1774,7 @@ const filterMiddleware = async (req, res, next) => {
     req.queryObjForPM = queryObjForPM;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -1770,6 +1784,7 @@ const removeBDZeroValueFiltration = async (req, res, next) => {
     delete req.queryObj?.["maintenanceReportFilledByMTD.breakDownTime"];
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error: new Error(error) });
   }
 };
@@ -1911,6 +1926,7 @@ const targetMiddleware = async (req, res, next) => {
     req.line_ids = target?.[0]?.line_ids || [];
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -1954,6 +1970,7 @@ const getCountBDCountBasedOnLoggedUserMiddleware = async (req, res, next) => {
       queryObjForCountOfBDForRequestSheetDashboard;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -2028,6 +2045,7 @@ router.get(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -2090,6 +2108,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -2164,6 +2183,7 @@ const queryMiddleWareFunction = async (req, res, next) => {
     ];
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -2195,6 +2215,7 @@ const functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO = async (
       allDataBasedOnDashboardLevel: allDataBasedOnDashboardLevel?.[0],
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -2332,6 +2353,7 @@ router.get(
       //   { $project: { cell_name: 1, lines: 1 } },
       // ],
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -2348,6 +2370,7 @@ router.get(
       req.dashboardLevel = req.params?.dashboardLevel;
       return next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -2516,6 +2539,7 @@ const middlewareForGettingAllDropdownList = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -2556,6 +2580,7 @@ const queryObjectMiddlewareFunction = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -3134,6 +3159,7 @@ router.get(
           generatedAndCompletedStatusMonthlyData?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -3192,6 +3218,7 @@ router.get(
         ],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -3280,6 +3307,7 @@ router.get(
         ],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -3487,13 +3515,14 @@ router.get(
           },
         },
       ]);
-      
+
       return res.status(201).json({
         message:
           "Monitoring request-sheet UserWise pending data get successfully",
         UserWisePendingApprovalCount,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -3529,6 +3558,7 @@ router.post(
         });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -3637,6 +3667,7 @@ router.patch("/updateCategory/:catId", authenticate, async (req, res, next) => {
       category,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     console.error(error);
     return res.status(500).json({ message: "Error updating subCategory" });
   }
@@ -3677,6 +3708,7 @@ router.patch(
         subCategory,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.error(error);
       return res.status(500).json({ message: "Error updating subCategory" });
     }
@@ -3732,6 +3764,7 @@ router.post(
         shiftOfBM: addShift.shiftOfBM,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -3767,6 +3800,7 @@ router.patch(
         updateShift,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -3803,6 +3837,7 @@ router.patch(
         deletedShift,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -3886,6 +3921,7 @@ router.get("/getMachineDetails", async (req, res, next) => {
       machine,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error: new Error(error) });
   }
 });
@@ -4627,6 +4663,7 @@ const getRequestSheetData = async (req, res, next) => {
     }
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error: new Error(error) });
   }
 };
@@ -4647,6 +4684,7 @@ router.get(
         TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res
         .status(500)
@@ -5147,6 +5185,7 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
       TLHOSS_and_TM_user_list,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error: new Error(error) });
   }
 });
@@ -5198,6 +5237,7 @@ router.get(
         getNoLossNo: getNoLossNo[0].noLossBdNos,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res
         .status(500)
@@ -5222,6 +5262,7 @@ router.get(
         TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res
         .status(500)
@@ -5265,6 +5306,7 @@ const middlewareForGettingDefaultCell = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -5306,6 +5348,7 @@ router.get(
         cellData,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -5730,6 +5773,7 @@ router.patch(
       }
       //send email of approval to MTD TL (Remaining)
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
@@ -5789,6 +5833,7 @@ const filtrationMiddlewareForKPiFromDBReport = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -5822,6 +5867,7 @@ const functionForFindingBDHourOrCountStatus = async ({
       },
     ]);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     console.log(error);
   }
 };
@@ -5882,6 +5928,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -5944,6 +5991,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -6349,6 +6397,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -6452,6 +6501,7 @@ const requestSheetMiddleware = async (req, res, next) => {
       requestSheetData,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -6469,18 +6519,19 @@ router.get(
         "----",
         nextDate,
         "*****",
-        moment(req.params.date).endOf('day').format()
+        moment(req.params.date).endOf("day").format()
       );
       req.queryObj = {
         ...req.queryObj,
         problemOccurredDateAndTimeOfBM: {
           $gte: new Date(req.params.date),
-          $lt: (moment(req.params.date).endOf('day')).format(),
+          $lt: moment(req.params.date).endOf("day").format(),
         },
       };
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -6519,6 +6570,7 @@ router.get(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -6649,6 +6701,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -6737,6 +6790,7 @@ const yearlyBdHourMiddleware = async (req, res, next) => {
     req.BDHours = BDHours;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -6761,6 +6815,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -7133,6 +7188,7 @@ router.get(
         lineWisePptExportationData,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -7548,6 +7604,7 @@ router.post(
         labels: BDHoursVsCountData?.[0]?.labels?.[0]?.machine_code,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -7573,6 +7630,7 @@ router.get(
         filterInfo,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -7600,6 +7658,7 @@ router.patch(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -7799,6 +7858,7 @@ router.get(
         requestSheetData,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
@@ -7871,6 +7931,7 @@ router.get(
         problemCategoriesPieChart: problemCategoriesPieChart?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: "error?.message, error" });
     }
   }
@@ -7993,6 +8054,7 @@ router.get(
         // pieChartData
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: "error?.message, error" });
     }
   }
@@ -8229,6 +8291,7 @@ const productionHourFiltration = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -8282,6 +8345,7 @@ const altproductionHourFiltration = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -8399,6 +8463,7 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
       },
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -8565,6 +8630,7 @@ const targetMiddlewareForProductionLineWise = async (req, res, next) => {
     req.targetForBdPercentage = targetForBdPercentage?.[0]?.monthlyTarget || [];
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -8635,6 +8701,7 @@ const productionMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -8747,6 +8814,7 @@ const middlewareForFindingMTBFData = async (req, res, next) => {
       },
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -8793,6 +8861,7 @@ router.get(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -8843,6 +8912,7 @@ router.get(
         "BD percentage data in Product/Line Report get successfully";
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: "error?.message, error" });
     }
   },
@@ -8887,6 +8957,7 @@ router.get(
         subSectionsData,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -8925,6 +8996,7 @@ router.get("/getCellsDropdownValue", authenticate, async (req, res, next) => {
       cellData,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 });
@@ -9085,6 +9157,7 @@ const bdHourTrendMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -9175,6 +9248,7 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
       bdTrendDataTarget: req.target,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -9543,6 +9617,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
       averageData: averageData?.[0].data,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -9774,6 +9849,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       averageData: averageData?.[0].data,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10000,6 +10076,7 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       averageData: averageData?.[0].data,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10227,6 +10304,7 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       averageData: averageData?.[0].data,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10331,6 +10409,7 @@ const filterForMonthlyData = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10539,6 +10618,7 @@ const targetMiddlewareForMBD = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10624,6 +10704,7 @@ const yearlyTargetMiddlewareForMBD = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10636,6 +10717,7 @@ const middlewareForMTTRKPIReport = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10645,6 +10727,7 @@ const middlewareForMonthlyBdReport = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10781,6 +10864,7 @@ const filterForYearlyData = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -10893,6 +10977,7 @@ router.get(
         bdTrendDataTarget: [req.previousYearlyTarget, req.currentYearlyTarget],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -11190,6 +11275,7 @@ router.get(
         bdTrendDataTarget: [req.previousYearlyTarget, req.currentYearlyTarget],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -11350,6 +11436,7 @@ router.get(
         bdTrendDataTarget: [req.previousYearlyTarget, req.currentYearlyTarget],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -11372,6 +11459,7 @@ const labelMiddlewareForMajorBDChart = async (req, res, next) => {
     req.labels = labels;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -11683,6 +11771,7 @@ router.get(
         // subSectionQuery,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -11842,6 +11931,7 @@ router.get(
         targetTotal: req.targetForCountTotal,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -11893,6 +11983,7 @@ const middlewareForLineWiseContribution = async (req, res, next) => {
     req.queryObj = queryObj;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -12007,6 +12098,7 @@ router.get(
         lineWiseBDData,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -12513,6 +12605,7 @@ router.get(
         bdTrendDataTarget: req.target,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -12821,9 +12914,11 @@ router.get(
           bdTrendDataTarget: req.target,
         });
       } catch (error) {
+        logger.error(error, { maintenanceType: maintenanceType?.[1] });
         res.status(500).json({ message: error?.message, error });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -12839,6 +12934,7 @@ const filterMiddlewareForTmMTTRSkillReport = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -12908,6 +13004,7 @@ const middlewareForFindingTmMTTRSkillTrendData = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -13050,6 +13147,7 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
       data: tmProgress?.[0],
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -13062,6 +13160,7 @@ const responseMiddlewareForMTTRSkillReport = async (req, res, next) => {
       // alldata: req?.allData?.[0],
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -13087,6 +13186,7 @@ const sectionOrSubSectionFilterMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -13256,6 +13356,7 @@ router.get(
         data: mttrTrend?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13385,6 +13486,7 @@ const filterMiddlewareForTmMTTR = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -13489,6 +13591,7 @@ const altfindTLandOperatorList = async (req, res, next) => {
       TLHOSS_and_TM_user_list,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -13505,6 +13608,7 @@ router.get(
         data: req.TLHOSS_and_TM_user_list,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13530,6 +13634,7 @@ router.delete("/deleteRequestSheet/:id", async (req, res, next) => {
       deletedRequestSheet,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 });
@@ -13552,6 +13657,7 @@ const middlewareForFindingMaxValue = async (req, res, next) => {
     req.maxScore = maxScore?.[0]?.maxValue;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -13571,6 +13677,7 @@ router.get(
         allScore: result?.TmMttrSkillScoresAndLimit,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13588,6 +13695,7 @@ router.post(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -13599,6 +13707,7 @@ router.post(
         maxScore: req.maxScore,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13624,6 +13733,7 @@ router.patch(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -13635,6 +13745,7 @@ router.patch(
         maxScore: req.maxScore,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13658,6 +13769,7 @@ router.delete(
         message: "Score added successfully",
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13683,6 +13795,7 @@ const topFilterMiddleware = async (req, res, next) => {
     req.topQuery = topQuery;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -13700,6 +13813,7 @@ router.get(
         yearGroups: getYearGroup?.yearGroup,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13723,6 +13837,7 @@ router.post(
         yearGroup: machine?.yearGroup,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13756,6 +13871,7 @@ router.patch(
         yearGroup,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13780,6 +13896,7 @@ router.delete(
         yearGroup,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -13825,6 +13942,7 @@ const middlewareForMachineAgeLookup = async (req, res, next) => {
     req.queryObjPipeline = queryObjPipeline;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -14385,6 +14503,7 @@ router.get(
         data: machineData?.[0]?.categories,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -14404,6 +14523,7 @@ router.get(
         data: yearDropdown?.yearGroup,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -14573,6 +14693,7 @@ router.get(
         topMachineBd: topMachineBd?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -14652,6 +14773,7 @@ router.get(
 
       // console.log(getApprovalData);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -14696,6 +14818,7 @@ router.get(
         cellData,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -14806,6 +14929,7 @@ const middlewareForFindingTrendData = async (req, res, next) => {
     req.TrendData = TrendData;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -14910,6 +15034,7 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -14923,6 +15048,7 @@ const middlewareForLimitValidation = async (req, res, next) => {
     }
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -15003,6 +15129,7 @@ const middlewareForFindingMachineWiseTrendData = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -15020,6 +15147,7 @@ const filterMiddlewareForMTTRReport = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -15087,6 +15215,7 @@ const filterMiddlewareForMTBFReport = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -15100,6 +15229,7 @@ const responseMiddlewareForReport = async (req, res, next) => {
       data: req?.TrendData?.[0],
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -15117,6 +15247,7 @@ const responseMiddlewareForDataTrendReport = async (req, res, next) => {
       },
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -15208,6 +15339,7 @@ router.get(
       }
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -15258,6 +15390,7 @@ router.get(
       req.message = "MTBF trend data get successfully";
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -15310,6 +15443,7 @@ router.get(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -15744,6 +15878,7 @@ router.patch(
           });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
@@ -15998,6 +16133,7 @@ router.get(
         mergedApprovalListArray,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res
         .status(500)
@@ -16068,6 +16204,7 @@ const filtrationMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -16233,6 +16370,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -16448,6 +16586,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -16536,6 +16675,7 @@ const queryPipelineMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -16944,6 +17084,7 @@ router.get(
         BMLineTrend: BMLineTrend?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -17383,6 +17524,7 @@ router.get(
         tmLoadData: tmLoadData?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -17411,6 +17553,7 @@ const plantFiltrationMiddleware = async (req, res, next) => {
 
     return next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17427,6 +17570,7 @@ const sectionFiltrationMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17453,6 +17597,7 @@ const subSectionFiltrationMiddleware = async (req, res, next) => {
 
     return next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17531,6 +17676,7 @@ const cellFiltrationMiddleware = async (req, res, next) => {
       lines: [],
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17545,6 +17691,7 @@ const conditionMiddlewareForSectionQuery = async (req, res, next) => {
     };
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17594,6 +17741,7 @@ const conditionMiddlewareForSubSectionQuery = async (req, res, next) => {
     req.subSectionQuery = subSectionQuery;
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17605,6 +17753,7 @@ const sectionQueryMiddlewareForParamsId = async (req, res, next) => {
     };
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17616,6 +17765,7 @@ const subSectionQueryMiddleware = async (req, res, next) => {
     };
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17646,6 +17796,7 @@ const functionForFindingCellBasedOnSelectedSubSection = async (
       machines: [],
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17670,6 +17821,7 @@ const functionForFindingLineBasedOnSelectedCell = async (req, res, next) => {
       machines: [],
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17764,6 +17916,7 @@ router.get(
         machines: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -17858,6 +18011,7 @@ router.get(
       //   machines: [],
       // });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -17896,6 +18050,7 @@ router.get(
         machines,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -17914,6 +18069,7 @@ const cellFilterMiddleware = async (req, res, next) => {
 
     return next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17927,6 +18083,7 @@ const lineFiltrationMiddleware = async (req, res, next) => {
     req.lines = lines;
     return next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17940,6 +18097,7 @@ const machineFiltrationMiddleware = async (req, res, next) => {
     req.machines = machines;
     return next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -17970,6 +18128,7 @@ router.get(
       req.subSectionQuery = subSectionQuery;
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -18048,6 +18207,7 @@ router.get(
         lines: req.lines,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18104,6 +18264,7 @@ router.get(
         machines: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18119,6 +18280,7 @@ router.get(
       };
       return next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -18142,6 +18304,7 @@ router.get(
         machines: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18156,6 +18319,7 @@ router.get(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -18176,6 +18340,7 @@ router.get(
         machines: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18208,6 +18373,7 @@ router.get(
       req.subSectionQuery = subSectionQuery;
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -18295,6 +18461,7 @@ router.get(
         machines: req.machines,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18350,6 +18517,7 @@ router.get(
         machines: req.machines,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18365,6 +18533,7 @@ router.get(
       };
       return next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -18389,6 +18558,7 @@ router.get(
         machines: req.machines,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18403,6 +18573,7 @@ router.get(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -18424,6 +18595,7 @@ router.get(
         machines: req.machines,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18438,6 +18610,7 @@ router.get(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -18456,6 +18629,7 @@ router.get(
         machines: req?.machines,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18494,6 +18668,7 @@ router.get(
         lines: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18548,6 +18723,7 @@ router.get(
         machines: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18586,6 +18762,7 @@ router.get(
         subSections: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18658,6 +18835,7 @@ router.get(
         subSections: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -18691,6 +18869,7 @@ router.get(
         machines: [],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -19114,6 +19293,7 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
       // machineFind,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 });
@@ -19180,6 +19360,7 @@ const filterMiddlewareForTargetData = async (req, res, next) => {
     }
     next();
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -19369,6 +19550,7 @@ router.post(
         }
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
@@ -19386,6 +19568,7 @@ router.get(
         targetData: req?.allTargetData?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -19441,6 +19624,7 @@ router.post(
         attachmentDetails: attachmentDetails?.[req.params?.docVariable],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
@@ -19462,6 +19646,7 @@ router.get(
         attachmentDetails: machine?.[req.params?.docVariable],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
@@ -19483,6 +19668,7 @@ router.get(
           )
         );
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
@@ -19545,6 +19731,7 @@ router.delete(
         attachmentDetails: attachmentDetails?.[req.params?.docVariable],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
@@ -19581,6 +19768,7 @@ router.get(
 
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -19611,6 +19799,7 @@ router.get("/getMachineHistory", authenticate, async (req, res, next) => {
       pmHistory,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 });
@@ -19632,6 +19821,7 @@ router.get(
       req.queryObj = queryObj;
       next();
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   },
@@ -19665,6 +19855,7 @@ router.get(
         },
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -19805,6 +19996,7 @@ router.post(
         });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       console.log(error);
       res
         .status(500)
@@ -19943,6 +20135,7 @@ router.get("/getNoLossBDEntryData", authenticate, async (req, res, next) => {
       noLossBDRequestSheetData: noLossBDRequestSheetData?.[0],
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 });
@@ -19958,6 +20151,7 @@ router.delete("/deleteNoLossRequestSheet/", async (req, res, next) => {
       deletedNoLossRequestSheet,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
     res.status(500).json({ message: error?.message, error });
   }
 });
@@ -20085,6 +20279,7 @@ router.post(
         message: "Email sent successfully",
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
   }

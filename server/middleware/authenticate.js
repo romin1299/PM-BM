@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../../server/model/userSchema");
+const logger = require("../utils/LoggingController/loggers");
+const maintenanceType = require("../utils/maintenanceType");
 
 // authentication functionality to verify the tokens
 // also fetch the data from the database
@@ -32,6 +34,7 @@ const authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(401).send("Unauthorized : NO token provided");
     console.log("Tokes is not provided !!!");
   }

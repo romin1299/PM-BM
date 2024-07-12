@@ -1,0 +1,52 @@
+2024-07-11T09:35:25.411Z | undefined | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\middleware\authenticate.js:20:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-07-11T09:35:25.436Z | undefined | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\middleware\authenticate.js:20:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-07-11T09:35:25.764Z | undefined | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\middleware\authenticate.js:20:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-07-11T09:35:25.769Z | undefined | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\middleware\authenticate.js:20:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-07-11T09:56:24.807Z | undefined | Only .png, .jpg and .jpeg format allowed!
+		Error: Only .png, .jpg and .jpeg format allowed!
+    at fileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\auth.js:72:18)
+    at wrappedFileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\index.js:44:7)
+    at Multipart.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:107:7)
+    at Multipart.emit (node:events:519:28)
+    at HeaderParser.cb (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:358:14)
+    at HeaderParser.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:162:20)
+    at SBMH.ssCb [as _cb] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:394:37)
+    at feed (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:248:10)
+    at SBMH.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:104:16)
+    at Multipart._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:567:19)
+2024-07-11T09:57:34.299Z | PM | Only .png, .jpg and .jpeg format allowed!
+		Error: Only .png, .jpg and .jpeg format allowed!
+    at fileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\auth.js:72:18)
+    at wrappedFileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\index.js:44:7)
+    at Multipart.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:107:7)
+    at Multipart.emit (node:events:519:28)
+    at HeaderParser.cb (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:358:14)
+    at HeaderParser.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:162:20)
+    at SBMH.ssCb [as _cb] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:394:37)
+    at feed (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:219:14)
+    at SBMH.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:104:16)
+    at Multipart._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:567:19)
+2024-07-11T15:31 | PM | Only .png, .jpg and .jpeg format allowed!
+		Error: Only .png, .jpg and .jpeg format allowed!
+    at fileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\auth.js:72:18)
+    at wrappedFileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\index.js:44:7)
+    at Multipart.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:107:7)
+    at Multipart.emit (node:events:519:28)
+    at HeaderParser.cb (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:358:14)
+    at HeaderParser.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:162:20)
+    at SBMH.ssCb [as _cb] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:394:37)
+    at feed (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:219:14)
+    at SBMH.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:104:16)
+    at Multipart._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:567:19)
