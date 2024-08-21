@@ -605,7 +605,7 @@ const Section = ({ userData, userDepartment }) => {
               title="User Manual"
             >
               <NavLink
-                to={`${BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
+                to={`${process.env.REACT_APP_BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
                 target="_blank"
               ></NavLink>
               User Manual

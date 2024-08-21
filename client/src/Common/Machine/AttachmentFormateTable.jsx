@@ -99,7 +99,6 @@ const AttachmentFormateTable = () => {
       (handleShowAddNewAttachmentModal) => !handleShowAddNewAttachmentModal
     );
   };
-
   const handleDownloadDocument = async (_, selectedRow) => {
     const res = await axios({
       url: `/downloadAttachment/${pageDetails?.schemaVar}/${selectedRow?.attached_file}`,
@@ -191,7 +190,7 @@ const AttachmentFormateTable = () => {
           >
             <Link
               target="_blank"
-              href={`${BASE_URL}${pageDetails?.schemaVar}/${attached_file}`}
+              href={`${process.env.REACT_APP_BASE_URL}${pageDetails?.schemaVar}/${attached_file}`}
               underline="hover"
             >
               {/* Render image if it's an image file, otherwise display file type */}

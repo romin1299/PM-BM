@@ -180,7 +180,7 @@ const KPI_Routes = ({ commonRoutes, loggedUser }) => {
     {
       icon: <MenuBookIcon className="text-white" />,
       title: "User Manual",
-      route: `${BASE_URL}/Denso BM User Manual_OSL14May2024.pdf`,
+      route: `${process.env.REACT_APP_BASE_URL}/Denso BM User Manual_OSL14May2024.pdf`,
     },
   ];
 

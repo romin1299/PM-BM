@@ -1526,7 +1526,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                               <Button
                                 target="_blank"
                                 // href={`http://localhost:7000/${watch("attachedDataSheets")}`}
-                                href={`${BASE_URL}${watch(
+                                href={`${process.env.REACT_APP_BASE_URL}${watch(
                                   "attachedDataSheets"
                                 )}`}
                                 disableElevation
@@ -1610,7 +1610,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                                   <a
                                     target="_blank"
                                     // href={`http://localhost:7000/${image}`}
-                                    href={`${BASE_URL}${image}`}
+                                    href={`${process.env.REACT_APP_BASE_URL}${image}`}
                                     style={{
                                       width: "100%",
                                       display: "flex",
@@ -1621,7 +1621,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                                   >
                                     <img
                                       // src={`http://localhost:7000/${image}`}
-                                      src={`${BASE_URL}${image}`}
+                                      src={`${process.env.REACT_APP_BASE_URL}${image}`}
                                       style={{
                                         maxWidth: "100px",
                                         maxHeight: "100px",

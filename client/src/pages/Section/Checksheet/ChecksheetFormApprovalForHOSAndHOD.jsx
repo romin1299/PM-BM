@@ -707,7 +707,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       {machineAllData?.checkSheet_data?.dataSheet ? (
                         <div className="col">
                           <a
-                            href={`${BASE_URL}/${machineAllData?.checkSheet_data?.dataSheet}`}
+                            href={`${process.env.REACT_APP_BASE_URL}/${machineAllData?.checkSheet_data?.dataSheet}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -814,7 +814,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       {machineAllData?.checkSheet_data?.dataSheet ? (
                         <div className="col">
                           <a
-                            href={`${BASE_URL}/${machineAllData?.checkSheet_data?.dataSheet}`}
+                            href={`${process.env.REACT_APP_BASE_URL}/${machineAllData?.checkSheet_data?.dataSheet}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

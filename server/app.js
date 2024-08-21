@@ -27,37 +27,10 @@ app.use(
 
 //for when deploying application on AWS
 
-const keys = {
-  key: fs
-    .readFileSync(
-
-    //for Denso-Harayana plant-1
-    // "C:/Data/02 PM Digitization Software/server/Certificates/cert.key"
-
-    //for Denso-Harayana plant-2
-    // "C:/data/For Plant 2 PM Files/Data/02 PM Digitization Software/server/Certificates/cert.key"
-
-    //for local
-    "D:/Romin/Projects/DENSO BM/certificate/cert.key"
-
-    //for Denso-India
-    // "D:/DNIN-PM-BM/Software/certificate/cert.kry"
-    ),
-  cert: fs
-    .readFileSync(
-    //for Denso-Harayana plant-1
-    // "C:/Data/02 PM Digitization Software/server/Certificates/cert.crt"
-
-    //for Denso-Harayana plant-2
-    // "C:/data/For Plant 2 PM Files/Data/02 PM Digitization Software/server/Certificates/cert.crt"
-
-    //for local
-    "D:/Romin/Projects/DENSO BM/certificate/cert.crt"
-
-    //for Denso-India
-    // "D:/DNIN-PM-BM/Software/certificate/cert.crt"
-    ),
-};
+// const keys = {
+//   key: fs.readFileSync(process.env.CERTIFICATE_KEY),
+//   cert: fs.readFileSync(process.env.CERTIFICATE_CRT),
+// };
 
 // const { dummyCron } = require(path.join(__dirname, "./controller/dummyCron"));
 // dummyCron();

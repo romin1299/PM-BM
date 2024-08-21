@@ -1392,7 +1392,7 @@ function MTDRequestSheetForView({
                         <Button
                           target="_blank"
                           // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                          href={`${BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
+                          href={`${process.env.REACT_APP_BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
                           disableElevation
                           size="small"
                           variant="contained"
@@ -1431,7 +1431,7 @@ function MTDRequestSheetForView({
                             <a
                               target="_blank"
                               // href={`http://localhost:7000/${image}`}
-                              href={`${BASE_URL}${image}`}
+                              href={`${process.env.REACT_APP_BASE_URL}${image}`}
                               style={{
                                 width: "100%",
                                 display: "flex",
@@ -1442,7 +1442,7 @@ function MTDRequestSheetForView({
                             >
                               <img
                                 // src={`http://localhost:7000/${image}`}
-                                src={`${BASE_URL}${image}`}
+                                src={`${process.env.REACT_APP_BASE_URL}${image}`}
                                 style={{
                                   maxWidth: "100px",
                                   maxHeight: "100px",

@@ -743,7 +743,7 @@ function MyTable({
                         <a
                           target="_blank"
                           // href={`http://localhost:7000/${image}`}
-                          href={`${BASE_URL}${imageOrVideo}`}
+                          href={`${process.env.REACT_APP_BASE_URL}${imageOrVideo}`}
                           style={{
                             width: "100%",
                             display: "flex",

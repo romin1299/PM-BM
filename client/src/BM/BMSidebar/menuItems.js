@@ -40,7 +40,7 @@ const allusers = [
   "TL/HOSS",
   "Operator",
 ];
-
+console.log(process.env.REACT_APP_BASE_URL_FOR)
 const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
 
 // let menuItemsForDensoIndia = [];
@@ -195,7 +195,7 @@ export const menuItems = [
   {
     icon: <MenuBookIcon className="text-white" />,
     title: "User Manual",
-    route: `${BASE_URL}/Denso BM User Manual_OSL14May2024.pdf`,
+    route: `${process.env.REACT_APP_BASE_URL}/Denso BM User Manual_OSL14May2024.pdf`,
     allowedRoles: allusers,
   },
   {

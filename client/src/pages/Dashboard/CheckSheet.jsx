@@ -532,7 +532,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                         {machineAllData?.checkSheet_data?.dataSheet ? (
                           <div className="col">
                             <a
-                              href={`${BASE_URL}/${machineData?.checkSheet_data?.dataSheet}`}
+                              href={`${process.env.REACT_APP_BASE_URL}/${machineData?.checkSheet_data?.dataSheet}`}
                               target="_blank"
                               rel="noopener noreferrer"
                             >

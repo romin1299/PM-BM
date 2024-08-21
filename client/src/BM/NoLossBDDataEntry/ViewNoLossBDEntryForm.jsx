@@ -607,7 +607,7 @@ const ViewNoLossBDEntryForm = ({
                         <a
                           target="_blank"
                           // href={`http://localhost:7000/${image}`}
-                          href={`${BASE_URL}${filesOfNoLoss}`}
+                          href={`${process.env.REACT_APP_BASE_URL}${filesOfNoLoss}`}
                           style={{
                             width: "100%",
                             display: "flex",
