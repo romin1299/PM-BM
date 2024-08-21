@@ -41,6 +41,9 @@ const { Console, log } = require("console");
 router.use(cookieParser());
 const truncValue = require("../utils/truncValue");
 const moment = require("moment");
+const logger = require("../utils/LoggingController/loggers");
+const maintenanceType = require("../utils/maintenanceType");
+
 //for profile image upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -67,6 +70,9 @@ const fileFilter = (req, file, cb) => {
   } else {
     // cb(null, false);
     // console.log(new Error())
+    logger.error(new Error("Only .png, .jpg and .jpeg format allowed!"), {
+      maintenanceType: maintenanceType?.[0],
+    });
     return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
   }
 };
@@ -103,6 +109,7 @@ router.post("/updateUserProfile", upload.single("photo"), async (req, res) => {
 
     res.status(200).send("User name updated");
   } catch (err) {
+    logger.error(err, { maintenanceType: maintenanceType?.[0] });
     console.log("err");
     // res.status(400).send("error")
   }
@@ -177,6 +184,7 @@ router.post("/signIn", async (req, res) => {
       res.status(400).json({ error: "Invalid user " });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Credential not valid or received!!!");
     console.log(error);
   }
@@ -203,11 +211,13 @@ router.post("/resetPass", (req, res) => {
           });
           res.status(201).json("Email send successful!!!");
         } catch (error) {
+          logger.error(error, { maintenanceType: maintenanceType?.[0] });
           res.status(554).json("Email not send");
         }
       }
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Reset password token is not valid or received!!!");
   }
 });
@@ -239,6 +249,7 @@ router.post("/newPassword", async (req, res) => {
       }
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Data not received !!!");
   }
 });
@@ -278,6 +289,7 @@ router.post("/updatePassword", authenticate, async (req, res) => {
       res.status(400).json({ error: "Invalid user " });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("New password data not received or bad request !!!");
   }
 });
@@ -294,6 +306,7 @@ router.post("/newUser", async (req, res) => {
 
     res.status(201).json({ message: "Employee register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -314,6 +327,7 @@ router.post("/updateUser", async (req, res) => {
     );
     res.status(201).json({ message: "Employee updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("user already exists!!!");
   }
 });
@@ -335,6 +349,7 @@ router.post("/deleteUser", async (req, res) => {
       return res.status(400).json("Employee not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -350,6 +365,7 @@ router.get("/displayUser", authenticate, async (req, res) => {
     // console.log(usersInfo)
     res.json(usersInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -360,6 +376,7 @@ router.get("/loggedUserDetails", authenticate, async (req, res) => {
     // console.log(req.rootUser);
     res.send(req.rootUser);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -387,6 +404,7 @@ router.post("/addNewPlant", authenticate, async (req, res) => {
 
     res.status(201).json({ message: "Plant register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Data not valid or received !!!");
   }
 });
@@ -405,6 +423,7 @@ router.get("/displayPlant/:plant_data", authenticate, async (req, res) => {
     //req.plantInfo=plantInfo;
     res.json(plantInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Plant data not send or get!!!");
   }
 });
@@ -429,6 +448,7 @@ router.post("/updatePlant", authenticate, async (req, res) => {
       { $set: { plant_data: `${plant_id}-${plant_name}` } }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Plant already exists!!!");
   }
 });
@@ -454,6 +474,7 @@ router.post("/deletePlant", authenticate, async (req, res) => {
       return res.status(400).json("Plant not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -496,6 +517,7 @@ router.post("/addNewSection", authenticate, async (req, res) => {
     await newSection.save();
     res.status(201).json({ message: "Section register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -526,6 +548,7 @@ router.post("/updateSection", authenticate, async (req, res) => {
       { $set: { section_data: `${section_id}-${section_name}` } }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Section already exists!!!");
   }
 });
@@ -553,6 +576,7 @@ router.post("/deleteSection", authenticate, async (req, res) => {
       return res.status(400).json("Section not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -565,6 +589,7 @@ router.get("/displaySection", authenticate, async (req, res) => {
     //req.plantInfo=plantInfo;
     res.json(plantInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Plant data not send or get!!!");
   }
 });
@@ -633,6 +658,7 @@ router.post("/addNewSubSection", authenticate, async (req, res) => {
     await newSubSection.save();
     res.status(201).json({ message: "SubSection register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -689,6 +715,7 @@ router.post("/updateSubSection", authenticate, async (req, res) => {
       { $set: { "subSection_data.$": newSubSectionIdLiteral } }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("SubSection already exists!!!");
     console.log(error);
   }
@@ -736,6 +763,7 @@ router.post("/deleteSubSection", authenticate, async (req, res) => {
       return res.status(400).json("SubSection not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -811,6 +839,7 @@ router.post("/addNewCell", authenticate, async (req, res) => {
     await newCell.save();
     res.status(201).json({ message: "Cell register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -858,6 +887,7 @@ router.post("/updateCell", authenticate, async (req, res) => {
       { $set: { "cell_data.$": newCellIdLiteral } }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Cell already exists!!!");
   }
 });
@@ -901,6 +931,7 @@ router.post("/deleteCell", authenticate, async (req, res) => {
       return res.status(400).json("Cell not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1018,6 +1049,7 @@ router.post("/addNewLine", authenticate, async (req, res) => {
     await newLine.save();
     res.status(201).json({ message: "Line register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1059,6 +1091,7 @@ router.post("/updateLine", authenticate, async (req, res) => {
     );
     res.status(201).json({ message: "Line updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Line already exists!!!");
   }
 });
@@ -1102,6 +1135,7 @@ router.post("/deleteLine", authenticate, async (req, res) => {
       return res.status(400).json("Line not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1123,6 +1157,7 @@ router.post("/clearTokens", async (req, res) => {
       res.status(201).json({ message: "Removed token !!!" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User id not received!!!");
   }
 });
@@ -1134,6 +1169,7 @@ router.get("/logout", (req, res) => {
     res.clearCookie("Token", { path: "/" });
     res.status(200).send("user Logout");
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Cookies or Credential not clear !!!");
   }
 });
@@ -1150,6 +1186,7 @@ router.get("/checking", async (req, res) => {
     // const deleteChild  = await Section.deleteOne({plant_names._id})
     // res.json(WorkOrderNumbers);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Work order number not found");
   }
@@ -1166,6 +1203,7 @@ router.get("/fetchPlantList", authenticate, async (req, res) => {
     // console.log(plantArray)
     res.json({ plantArray, plantLists });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User data not send or get!!!");
   }
@@ -1192,6 +1230,7 @@ router.post("/postPlantToGetSectionList", authenticate, async (req, res) => {
 
     res.json({ sectionArray, sectionsInfo });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -1242,6 +1281,7 @@ router.post(
 
       res.json({ subSectionArray, subSectionsInfo, sectionInfo });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -1273,6 +1313,7 @@ router.post("/postSubSectionToGetCellList", authenticate, async (req, res) => {
 
     res.json({ cellArray, cellInfo });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -1299,6 +1340,7 @@ router.post("/postCellToGetLineList", authenticate, async (req, res) => {
 
     res.json({ lineArray, lineInfo: LineInfo });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -1391,6 +1433,7 @@ router.post("/postLineToGetMachineList", authenticate, async (req, res) => {
 
     res.json({ machineArray, machineInfo, machineInfoWithChecksheet });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -1423,6 +1466,7 @@ router.post(
 
       res.json({ sectionArray: sectionArray });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -1456,6 +1500,7 @@ router.post(
 
       res.json({ subSectionArray: subSectionArray });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -1497,6 +1542,7 @@ router.post(
 
       res.json({ cellArray: cellArray });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -1566,6 +1612,7 @@ router.post("/postUserAssign", async (req, res) => {
     // console.log(result)
     res.status(201).json({ message: "Employee register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1582,6 +1629,7 @@ router.get("/displayAssignUser", authenticate, async (req, res) => {
     //req.usersInfo=usersInfo;
     res.json(usersInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -1748,6 +1796,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
     }
     res.status(201).json({ message: "Employee updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("user already exists!!!");
   }
 });
@@ -1768,6 +1817,7 @@ router.post("/deleteAssignUser", async (req, res) => {
       return res.status(400).json("Employee not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1813,6 +1863,7 @@ router.get("/displaySectionAssignUser", authenticate, async (req, res) => {
     // console.log(usersInfo)
     res.json(usersInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -1847,6 +1898,7 @@ router.get("/displayTLHOSSAssignUser", authenticate, async (req, res) => {
     // console.log(usersInfo)
     res.json(usersInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -1926,6 +1978,7 @@ router.post("/addNewMachine", async (req, res) => {
 
     res.status(201).json({ message: "Machine register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1965,6 +2018,7 @@ router.post("/deleteMachine", authenticate, async (req, res) => {
       return res.status(400).json("Machine not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -2035,6 +2089,7 @@ router.post("/updateMachine", authenticate, async (req, res) => {
     );
     res.status(201).json({ message: "Machine updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Machine already exists!!!");
   }
 });
@@ -2063,6 +2118,7 @@ router.post("/postPlantToGetCellData", authenticate, async (req, res) => {
 
     res.json({ cellData });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -2112,6 +2168,7 @@ router.post(
 
       res.json({ sectionDataArray });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -2139,6 +2196,7 @@ router.post(
 
       res.json({ subSectionsData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -2725,6 +2783,7 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
       machineLastData,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -3228,6 +3287,7 @@ router.post(
         countOfAcceptedAndTotalApprovalOfUsers,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -3826,6 +3886,7 @@ router.post(
         defaultSubSectionArray,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -3948,6 +4009,7 @@ router.post(
         defaultSubSectionArray,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -4288,6 +4350,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
       .status(201)
       .json({ message: "Checksheet row data entered successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User id not received!!!");
     console.log(error);
   }
@@ -4416,6 +4479,7 @@ router.post(
       });
       // }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -4511,6 +4575,7 @@ router.post(
         flagForCycleChange,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(409).json("user already exists!!!");
     }
   }
@@ -4589,6 +4654,7 @@ router.post(
         return res.status(400).json("Checksheet row not deleted!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -4858,6 +4924,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
       HODList,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
     console.log(error);
   }
@@ -5555,6 +5622,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
     // return res.status(201).json("approval request send successfully!!!");
     //  console.log(req.body)
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -5714,6 +5782,7 @@ router.get(
 
       res.json(machineDataWithPopulate);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -5885,6 +5954,7 @@ router.get(
 
       res.json(machineDataWithPopulate);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -5963,6 +6033,7 @@ router.get(
 
       res.json(machineDataWithPopulate);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -6391,6 +6462,7 @@ router.get(
 
       res.json(machineDataWithPopulate);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
 
       console.log("User data not send or get!!!");
@@ -8852,6 +8924,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
     return res.status(201).json("Checksheet approval done!!!");
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -9060,6 +9133,7 @@ router.post(
       }
       // console.log(updateChecksheetRow)
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(409).json("TableRow already exists!!!");
       // console.log(error)
     }
@@ -10028,6 +10102,7 @@ router.post(
         return res.status(400).json("Checksheet worked data not posted!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -10422,6 +10497,7 @@ router.post("/submitLogHistory", authenticate, async (req, res) => {
       return res.status(400).json("Getting error");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -10617,6 +10693,7 @@ router.post(
         return res.status(400).json("Getting error");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -10986,6 +11063,7 @@ router.post(
         return res.status(400).json("Getting error");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -11224,6 +11302,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
       return res.status(400).json("PM worked data not save...!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -11493,6 +11572,7 @@ router.post("/deleteCheckSheet", authenticate, async (req, res) => {
       res.status(201).json({ message: "Removed Checksheet !!!" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -11557,6 +11637,7 @@ router.post("/PMCarryOnToNextMonth", async (req, res) => {
       return res.status(400).json("Checksheet data not carried!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -11713,6 +11794,7 @@ router.post(
         operatorList,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -11957,6 +12039,7 @@ router.post(
         return res.status(400).json("Checksheet data not carried!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -12119,6 +12202,7 @@ router.post(
 
       res.json({ lineInfo });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("============= 5690", error);
       console.log("User id not received!!!");
     }
@@ -12265,6 +12349,7 @@ router.post(
 
       res.json({ machineInfo });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("========== 5751", error);
       console.log("User id not received!!!");
     }
@@ -12729,6 +12814,7 @@ router.post(
 
       res.json({ lineDataWithCounter, lineData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -12748,6 +12834,7 @@ router.post("/postFileName", authenticate, async (req, res) => {
       res.status(201).json({ message: "File name posted" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     // console.log("2032", error)
     console.log("Filename not received");
   }
@@ -12757,6 +12844,7 @@ router.get("/downloadFile", authenticate, async (req, res) => {
     // console.log(downloadFileName)
     res.download(downloadFileName);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("2032", error);
     console.log("Filename not received");
   }
@@ -12820,6 +12908,7 @@ router.post("/updateOpenPMData", authenticate, async (req, res) => {
 
     // res.json({ machineInfo })
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -12860,6 +12949,7 @@ router.post("/updateOpenPMToClose", authenticate, async (req, res) => {
       return res.status(400).json("Checksheet status not updated!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Section already exists!!!");
   }
 });
@@ -13285,6 +13375,7 @@ router.post(
         GetAllPlanAndCompletedHours: GetAllPlanAndCompletedHours?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -13599,6 +13690,7 @@ router.post(
         annual_previous_pending,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -13617,6 +13709,7 @@ router.post("/postSectionToGetSectionInfo", authenticate, async (req, res) => {
       sectionInfo,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -13641,6 +13734,7 @@ router.post(
         subSectionInfo,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -13979,6 +14073,7 @@ router.post(
         sumVariableForTotalPreviousPending,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -14485,6 +14580,7 @@ router.post(
           .json({ error: "Current month is not financial year start month" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -14508,6 +14604,7 @@ router.get("/getFinancialYears", authenticate, async (req, res) => {
       return res.status(400).json("Checksheet not copied!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User data not send or get!!!");
   }
@@ -14529,6 +14626,7 @@ router.get(
         return res.status(400).json("Checksheet not copied!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -14856,6 +14954,7 @@ router.post(
 
       res.json({ onlyOpenAbnormalityWithAllMonths, lineData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -15905,6 +16004,7 @@ router.post(
 
       res.json({ SectionInfo, monthlyChartDataOfSummery });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16601,6 +16701,7 @@ router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
       finalData,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     res.status(500).json({
       message: "Something went wrong...",
@@ -16632,6 +16733,7 @@ router.post(
 
       res.json({ subSectionInfo });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16659,6 +16761,7 @@ router.post(
         res.status(200).json({ msg: "uploaded successfully" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16688,6 +16791,7 @@ router.post(
         res.status(200).json({ msg: "uploaded successfully" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16712,6 +16816,7 @@ router.get(
         console.log("No");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16745,6 +16850,7 @@ router.post(
       // if (subSectionInfo) {
       // }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16768,6 +16874,7 @@ router.get(
         return res.status(400).json("Checksheet not copied!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -16974,6 +17081,7 @@ router.post(
         total_time_month_wise,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -17114,6 +17222,7 @@ router.post(
 
       res.json({ totalTimeMonthWiseForPerticularLine });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -17332,6 +17441,7 @@ router.post(
         totalTimeManHoursMonthWise,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -17479,6 +17589,7 @@ router.post(
 
       res.json({ totalTimeManHoursMonthWiseOfLineWise });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -17697,6 +17808,7 @@ router.post(
       // console.log(actualTotalTimeTakenOfTM)
       res.json({ actualTotalTimeTakenOfTM });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -17800,6 +17912,7 @@ router.post(
         res.status(422).send("Data sheet not uploaded ");
       }
     } catch (err) {
+      logger.error(err, { maintenanceType: maintenanceType?.[0] });
       console.log(err);
       // res.status(400).send("error")
     }
@@ -17829,6 +17942,7 @@ router.post("/deleteBackUpData", authenticate, async (req, res) => {
       return res.status(400).json("Backup data not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -17847,6 +17961,7 @@ router.post("/postDataSheetFileName", authenticate, async (req, res) => {
       res.status(201).json({ message: "File name posted" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     // console.log("2032", error)
     console.log("Filename not received");
   }
@@ -17857,6 +17972,7 @@ router.get("/downloadDataSheetFile", authenticate, async (req, res) => {
     // console.log(downloadDataSheetFileName)
     res.download(downloadDataSheetFileName);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Filename not received");
   }
 });
@@ -17971,6 +18087,7 @@ router.post(
       res.json({ selectedMachineSkipData });
       // }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -18471,6 +18588,7 @@ router.post(
         return res.status(400).json("Checksheet worked data not posted!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -18596,6 +18714,7 @@ router.post(
         res.status(201).json({ message: "Completion date added" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       // console.log("2032", error)
       console.log("Filename not received");
     }
@@ -18768,6 +18887,7 @@ router.post(
 
       res.status(201).json({ message: "Approval send" });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("2032", error);
       console.log("Filename not received");
     }
@@ -18801,6 +18921,7 @@ router.post(
 
       res.json({ getApprovalDataOfSkipPM: getApprovalDataOfSkipPM });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("User data not send or get!!!");
     }
   }
@@ -19091,6 +19212,7 @@ router.post(
         res.status(201).json({ message: "Skip PM approval status updated" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       // console.log("2032", error)
       console.log("Filename not received");
     }
@@ -19300,6 +19422,7 @@ router.post(
         lineIdArray,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("2032", error);
       console.log("Filename not received");
     }
@@ -19530,6 +19653,7 @@ router.post(
         logHistoryAllPendingPMData,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("2032", error);
       console.log("data not received");
     }
@@ -19571,6 +19695,7 @@ router.post("/addRevisionContent", authenticate, async (req, res) => {
       res.status(201).json({ message: "Revision content added" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     // console.log("2032", error)
     console.log("Revision content not added");
   }
@@ -19596,6 +19721,7 @@ router.post("/deleteRevisionContentData", authenticate, async (req, res) => {
       }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(400).json("TableRow not updated!!!");
   }
 });
@@ -20036,6 +20162,7 @@ router.post("/postSectionToGetLineData", authenticate, async (req, res) => {
     // console.log(allSpareDetailsWithCategories)
     res.json({ lineData, allSpareDetailsWithCategories });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -20134,6 +20261,7 @@ router.post("/newOperatorDataEntry", async (req, res) => {
 
     // console.log(updatedMachine)
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -20202,6 +20330,7 @@ router.post("/annualPmScheduleApproval", async (req, res) => {
 
     res.status(200).json({ msg: "uploaded successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -20249,6 +20378,7 @@ router.post("/approveRequestForAnnualPmSchedule", async (req, res) => {
 
     res.status(200).json({ msg: "uploaded successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -20329,6 +20459,7 @@ router.post(
 
       res.status(200).json({ msg: "uploaded successfully" });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -20371,6 +20502,7 @@ router.post(
 
       res.status(200).json({ msg: "uploaded successfully" });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -20720,6 +20852,7 @@ router.post(
         totalMonthlyKaizenSpareConsumption,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -21029,6 +21162,7 @@ router.post(
         totalMonthlyKaizenSpareConsumption,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -21328,6 +21462,7 @@ router.post(
         lineWiseSpareCost,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -21359,6 +21494,7 @@ router.post("/submitRemarksAfterTLOrHosRejection", async (req, res) => {
 
     res.status(201).json({ message: "CheckSheet data updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -21382,6 +21518,7 @@ router.post("/deleteCategoryPoint", async (req, res) => {
 
     res.status(201).json({ message: "Spare entry deleted successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -21742,6 +21879,7 @@ router.post(
         top20MachineSparePartConsumption,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -21882,6 +22020,7 @@ router.post(
 
       res.json({ logHistoryAllData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("2032", error);
       console.log("Filename not received");
     }
@@ -21967,6 +22106,7 @@ router.post(
 
       res.status(201).json({ logHistoryData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -21983,6 +22123,7 @@ router.get(
         path.join(__dirname, `../PMimages/${req?.params?.fileName}`)
       );
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("Filename not received");
     }
   }
@@ -22300,6 +22441,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
       res.status(422).json({ message: "Email configuration not added !!!" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -22313,6 +22455,7 @@ router.get("/fetchEmailConfigurationData", authenticate, async (req, res) => {
     });
     res.json(addEmailConf);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Email data not send or get!!!");
   }
 });
@@ -22366,6 +22509,7 @@ router.post(
       }
       res.send({ supportingOperatorListForReportDashboard });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
     }
   }
@@ -22395,6 +22539,7 @@ router.get(
         machine: machine?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -22869,6 +23014,7 @@ router.post(
         machine: updateAfterAllApprovalOfImplementation,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
@@ -22945,6 +23091,7 @@ router.get(
         topMachineTimeMonitoring: getTopMachinePmTimeMonitoringData?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -23018,6 +23165,7 @@ router.get(
         yearTrendMachineTimeMonitoring: getYearTrendPmTimeMonitoringData?.[0],
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(500).json({ message: error?.message, error });
     }
   }
@@ -23077,6 +23225,7 @@ router.patch(
         });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }

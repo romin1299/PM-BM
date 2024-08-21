@@ -3,6 +3,8 @@ const fs = require("fs-extra");
 const { exec } = require("child_process");
 const moment = require("moment");
 const path = require("path");
+const logger = require("../utils/LoggingController/loggers");
+const maintenanceType = require("../utils/maintenanceType");
 
 cron.schedule("0 0 * * *", async (req, res) => {
   try {
@@ -35,6 +37,7 @@ cron.schedule("0 0 * * *", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
   }
 });
 

@@ -22,9 +22,10 @@ const sendMailForBD = require("../sendMailForBM/sendMailForBDRequestSheet");
 const moment = require("moment-timezone");
 
 const tryCatchHandler = require("../errorHandler/tryCatchHandler");
-const filtrationMiddleware = require("../middleware/filterMiddleware");
 const filterMiddleware = require("../middleware/filterMiddleware");
 const truncValue = require("../utils/truncValue");
+const logger = require("../utils/LoggingController/loggers");
+const maintenanceType = require("../utils/maintenanceType");
 
 const timezone = "Asia/Kolkata";
 
@@ -38,6 +39,7 @@ const successResponse = (res, message, data) => {
       ...data,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[2] });
     res.status(500).json({ message: error?.message, error });
   }
 };
@@ -60,7 +62,7 @@ const machineCommonInitialPipeline = (matchObj, selectedYear) => [
 
 router.get(
   "/masterLog/:filter/:selectedId",
-  filtrationMiddleware,
+  filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
     let queryPipelineForPm = [
       {
@@ -718,7 +720,7 @@ router.get(
 
 router.get(
   "/kpi/getPMStatusData/:filter/:selectedId",
-  filtrationMiddleware,
+  filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
     const financialYearWiseMonthKeyArray = [
       "Apr",

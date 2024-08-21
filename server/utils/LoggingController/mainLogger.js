@@ -1,3 +1,8 @@
+/* *********************************************************************************
+ *      NOT USING, THIS FILE IS FOR TESTING
+ ***********************************************************************************
+ */
+
 require("./loggers");
 const winston = require("winston");
 
@@ -5,9 +10,9 @@ exports.userLogger = userLogger = winston.loggers.get("UserLogger");
 exports.checkSheetLogger = checkSheetLogger =
   winston.loggers.get("CheckSheetLogger");
 
-// userLogger.info("User added successfully!!!");
-// checkSheetLogger.error(new Error("CheckSheet doesn't exist!!!"));
-// checkSheetLogger.info("CheckSheet created successfully!!!");
+userLogger.info("User added successfully!!!");
+checkSheetLogger.error(new Error("CheckSheet doesn't exist!!!"));
+checkSheetLogger.info("CheckSheet created successfully!!!");
 
 let requestLogger = (apiPath) => {
   let logger = userLogger.startTimer();
