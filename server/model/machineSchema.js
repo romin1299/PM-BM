@@ -890,6 +890,31 @@ const machineSchema = mongoose.Schema({
 
         Mar: { type: [String] },
       },
+      implementation_due_date: {
+        Apr: { type: [String] },
+
+        May: { type: [String] },
+
+        June: { type: [String] },
+
+        July: { type: [String] },
+
+        Aug: { type: [String] },
+
+        Sep: { type: [String] },
+
+        Oct: { type: [String] },
+
+        Nov: { type: [String] },
+
+        Dec: { type: [String] },
+
+        Jan: { type: [String] },
+
+        Feb: { type: [String] },
+
+        Mar: { type: [String] },
+      },
       implemetation_completed_tm_no: {
         Apr: { type: [String] },
 

@@ -10,8 +10,11 @@ const DropdownElem = ({
   register,
   required,
   errors,
-  displayOrNot
+  displayOrNot,
+  maintenanceType,
 }) => {
+  console.log("----0",
+    maintenanceType,"****0", name)
   return (
     <div>
       <select
@@ -19,17 +22,19 @@ const DropdownElem = ({
         className={
           className ||
           "" ||
-          (displayOrNot && selectedMinor === "Yes" &&
+          (displayOrNot &&
+            selectedMinor === "Yes" &&
             approvalList?.minorApprovalList?.includes(name.replace("_", " ")))
             ? "d-inline"
-            : displayOrNot && selectedMajor === "Yes" &&
+            : displayOrNot &&
+              selectedMajor === "Yes" &&
+              (maintenanceType === "BM" ||
+                (name !== "MTD_HOD" && name !== "PRD_HOD")) &&
               approvalList?.majorApprovalList?.includes(name.replace("_", " "))
             ? "d-inline"
             : "d-none"
         }
-        {...register(name, 
-          (required = { required })
-          )}
+        {...register(name)}
       >
         <option selected disabled value="">
           Please select

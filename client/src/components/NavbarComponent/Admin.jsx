@@ -140,19 +140,7 @@ const Admin = ({ userData }) => {
             Admin Dashboard
           </Menuitem>
         </Menu>
-        <Menuitem
-          className="text-white"
-          icon={<MenuBookIcon className="text-white" />}
-          data-toggle="tooltip"
-          data-placement="right"
-          title="User Manual"
-        >
-          <NavLink
-            to={`${BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
-            target="_blank"
-          ></NavLink>
-          User Manual
-        </Menuitem>
+
         <Menu iconShape="square">
           <MenuItem
             className="text"

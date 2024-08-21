@@ -104,7 +104,7 @@ const PmTimeMonitoringReport = () => {
                 </Col>
                 <Col sm={12} lg={3}>
                   <button
-                    class="btn-primary1 w-50"
+                    class="btn-primary1"
                     onClick={() => window.location.reload()}
                   >
                     Reset
@@ -143,7 +143,7 @@ const PmTimeMonitoringReport = () => {
               />
             </Col>
           </Row>
-          <Row className="p-2">
+          {/* <Row className="p-2">
             <ReportTitleBar
               title="PM Time Monitoring"
               Toolbar={
@@ -188,7 +188,7 @@ const PmTimeMonitoringReport = () => {
                 />
               </Box>
             </Col>
-          </Row>
+          </Row> */}
         </Container>
         <br />
         <br />

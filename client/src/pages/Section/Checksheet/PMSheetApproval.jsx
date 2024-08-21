@@ -201,7 +201,7 @@ function PMSheetApproval() {
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     }
-  }, [selectedYear]);
+  }, [selectedYear, displayPendingOrNot]);
 
   useEffect(() => {
     if (context?.user_type === "Plant-Admin" && selectedSectionOrSubSection) {
@@ -216,7 +216,7 @@ function PMSheetApproval() {
     selectedYear,
     selectedLine,
     selectedMachine,
-    displayPendingOrNot
+    displayPendingOrNot,
   ]);
 
   const handleDisplayAcceptedAndApproveCount = () =>
@@ -226,17 +226,23 @@ function PMSheetApproval() {
 
   return (
     <>
-      <Row className="p-2 mt-3">
+      {/* <Row className="p-2 mt-3">
         <Col sm={12} md={6} lg={3}>
           <YearDropDown
             selectedYear={selectedYear}
             setSelectedYear={setSelectedYear}
           />
         </Col>
-      </Row>
+      </Row> */}
 
       {context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD" ? (
         <Row className="p-2">
+          <Col sm={12} md={6} lg={2}>
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
+          </Col>
           <Col sm={12} md={6} lg={3}>
             <span>
               <b>Section:&nbsp; &nbsp;</b>
@@ -265,9 +271,25 @@ function PMSheetApproval() {
               })}
             </select>
           </Col>
+          <Col sm={6} md={6} lg={2} className="mb-3">
+            <span>
+              <b>All/Pending:</b>
+            </span>
+            <Tooltip title="Show pending data">
+              <Switch
+                size="medium"
+                checked={displayPendingOrNot}
+                onClick={() =>
+                  setDisplayPendingOrNot(
+                    (displayPendingOrNot) => !displayPendingOrNot
+                  )
+                }
+              />
+            </Tooltip>
+          </Col>
           <Col sm={6} md={3} lg={3}>
             <button
-              class="btn-primary1 w-50"
+              class="btn-primary1"
               onClick={() => window.location.reload()}
             >
               Reset
@@ -275,7 +297,13 @@ function PMSheetApproval() {
           </Col>
         </Row>
       ) : (
-        <Row className="p-2">
+        <Row className="p-2 d-flex justify-content-center align-items-center">
+          <Col sm={12} md={6} lg={2} className="mb-3">
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
+          </Col>
           <Col sm={12} md={6} lg={3} className="mb-3">
             <span>
               <b>Line:</b>
@@ -375,19 +403,7 @@ function PMSheetApproval() {
               </p>
             </div> */}
           </Col>
-
-          <Col sm={6} md={6} lg={3} className="mb-2 d-flex justify-content-center">
-            <button
-              class="btn-primary1"
-              onClick={() => {
-                window.location.reload();
-              }}
-            >
-              Reset
-            </button>
-          </Col>
-
-          <Col sm={6} md={6} lg={3} className="mb-2">
+          <Col sm={6} md={6} lg={2} className="mb-3">
             <span>
               <b>All/Pending:</b>
             </span>
@@ -402,6 +418,16 @@ function PMSheetApproval() {
                 }
               />
             </Tooltip>
+          </Col>
+          <Col sm={6} md={6} lg={2} className="mb-3 d-flex">
+            <button
+              class="btn-primary1"
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              Reset
+            </button>
           </Col>
         </Row>
       )}

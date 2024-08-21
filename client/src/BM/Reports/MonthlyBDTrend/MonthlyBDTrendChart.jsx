@@ -207,7 +207,7 @@ const MonthlyBDTrendChart = ({
         });
       }
     } catch (error) {
-      console.log("error:", error);
+      // console.log("error:", error);
       setChartData({
         labels: [],
         datasets: [],
@@ -254,7 +254,7 @@ const MonthlyBDTrendChart = ({
     }
   };
 
-  console.log("chartData:", chartData);
+  // console.log("chartData:", chartData);
 
   useEffect(() => {
     if (flagForTogglingFilter && selectedValue && selectedYear && filter)

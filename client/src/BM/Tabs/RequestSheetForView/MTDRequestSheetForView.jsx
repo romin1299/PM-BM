@@ -52,7 +52,7 @@ function MTDRequestSheetForView({
         "Asia/Kolkata"
       ),
       "minutes"
-    );
+    ) - (requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime);
 
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {

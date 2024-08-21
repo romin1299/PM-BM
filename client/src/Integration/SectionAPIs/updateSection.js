@@ -9,6 +9,7 @@ const updateSection = async (updateRow, oldRow) => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
+                updateRow,
                 section_name,
                 section_id,
                 oldRow

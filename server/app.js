@@ -27,14 +27,37 @@ app.use(
 
 //for when deploying application on AWS
 
-// const keys = {
-//   key: fs.readFileSync(
-//     "C:/Data/02 PM Digitization Software/server/Certificates/cert.key"
-//   ),
-//   cert: fs.readFileSync(
-//     "C:/Data/02 PM Digitization Software/server/Certificates/cert.crt"
-//   ),
-// };
+const keys = {
+  key: fs
+    .readFileSync(
+
+    //for Denso-Harayana plant-1
+    // "C:/Data/02 PM Digitization Software/server/Certificates/cert.key"
+
+    //for Denso-Harayana plant-2
+    // "C:/data/For Plant 2 PM Files/Data/02 PM Digitization Software/server/Certificates/cert.key"
+
+    //for local
+    "D:/Romin/Projects/DENSO BM/certificate/cert.key"
+
+    //for Denso-India
+    // "D:/DNIN-PM-BM/Software/certificate/cert.kry"
+    ),
+  cert: fs
+    .readFileSync(
+    //for Denso-Harayana plant-1
+    // "C:/Data/02 PM Digitization Software/server/Certificates/cert.crt"
+
+    //for Denso-Harayana plant-2
+    // "C:/data/For Plant 2 PM Files/Data/02 PM Digitization Software/server/Certificates/cert.crt"
+
+    //for local
+    "D:/Romin/Projects/DENSO BM/certificate/cert.crt"
+
+    //for Denso-India
+    // "D:/DNIN-PM-BM/Software/certificate/cert.crt"
+    ),
+};
 
 // const { dummyCron } = require(path.join(__dirname, "./controller/dummyCron"));
 // dummyCron();
@@ -61,7 +84,7 @@ require(path.join(
 require(path.join(__dirname, "./controller/financialYearController"));
 
 //When deploying please comment this backup code
-// require(path.join(__dirname, "./controller/everyDayAutoBackup"));
+require(path.join(__dirname, "./controller/everyDayAutoBackup"));
 
 //for logos and other image
 app.use(express.static(path.join(__dirname, "images")));
@@ -91,8 +114,6 @@ app.get("/*", (req, res) => {
 });
 
 const PORT = process.env.PORT;
-
-// console.log(moment().endOf('month'));
 
 //for when deploying application on AWS
 // const server = https.createServer(keys, app);

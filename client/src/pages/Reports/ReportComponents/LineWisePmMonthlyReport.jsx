@@ -462,13 +462,13 @@ const LineWisePmMonthlyReport = () => {
         <div className="lineWisePmMonthlyReport">
           <Container fluid>
             <Row className="p-2 mt-3">
-              <Col sm={12} lg={4} md={6} className="mb-2">
+              <Col sm={12} lg={2} md={6} className="mb-2">
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
-              <Col sm={12} lg={4} md={6} className="mb-2">
+              <Col sm={12} lg={2} md={6} className="mb-2">
                 <MonthDropDown
                   selectedMonth={selectedMonth}
                   setSelectedMonth={setSelectedMonth}
@@ -476,7 +476,7 @@ const LineWisePmMonthlyReport = () => {
               </Col>
               {context?.user_type === "Plant-Admin" &&
               context?.tm_grade === "HOD" ? (
-                <Col sm={12} lg={4} md={6} className="mb-2">
+                <Col sm={12} lg={3} md={6} className="mb-2">
                   <span>
                     <b>Section:&nbsp; &nbsp;</b>
                   </span>
@@ -521,7 +521,7 @@ const LineWisePmMonthlyReport = () => {
               ) : (
                 ""
               )}
-              <Col sm={12} lg={4} md={6} className="mb-2">
+              <Col sm={12} lg={3} md={6} className="mb-2">
                 <span>
                   <b>Line:&nbsp;&nbsp;</b>
                 </span>
@@ -565,7 +565,7 @@ const LineWisePmMonthlyReport = () => {
                   })}
                 </select>
               </Col>
-              <Col sm={12} lg={4} md={6}>
+              <Col sm={12} lg={2} md={6}>
                 <button
                   class="btn-primary1"
                   onClick={() => window.location.reload()}

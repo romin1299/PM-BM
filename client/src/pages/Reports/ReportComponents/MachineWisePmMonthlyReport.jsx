@@ -29,9 +29,10 @@ import WorkOnSkipPM from "../../../Popups/WorkOnSkipPM";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as yup from "yup";
-
+import moment from "moment";
 import MachineWisePmMonthlyGraph from "./Graph/MachineWIsePmMonthlyGraph";
 import Footer from "../../../components/Footer/Footer";
+import { ButtonGroup } from "@mui/material";
 
 require("jspdf-autotable");
 
@@ -75,6 +76,7 @@ const MachineWisePmMonthlyReport = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [refKey, setRefKey] = useState(0);
   const [refKey2, setRefKey2] = useState(0);
+  const [filter, setFilter] = useState("Counts");
 
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
@@ -111,7 +113,7 @@ const MachineWisePmMonthlyReport = () => {
       title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
-      width: "6%",
+      width: "5%",
     },
     {
       title: "Cell",
@@ -119,7 +121,7 @@ const MachineWisePmMonthlyReport = () => {
       // field: "line_names.line_name",
       editable: "false",
       align: "center",
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Line",
@@ -127,19 +129,19 @@ const MachineWisePmMonthlyReport = () => {
       render: (rowData) => rowData?.line_names.line_name,
       editable: "false",
       align: "center",
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Machine",
       field: "machine_name",
       align: "center",
-      width: "20%",
+      width: "15%",
     },
     {
       title: "Machine No.",
       field: "machine_code",
       align: "center",
-      width: "20%",
+      width: "15%",
     },
 
     {
@@ -161,6 +163,31 @@ const MachineWisePmMonthlyReport = () => {
           <CloseIcon />
         ),
       // console.log(rowData?.checkSheet_data?.PMStatus),
+    },
+    {
+      title: "Completed Date",
+      align: "center",
+      render: (rowData) =>
+        rowData?.checkSheet_data?.implemetation_completed_date?.[selectedMonth]
+          ?.length > 0 &&
+        moment(
+          rowData?.checkSheet_data?.implemetation_completed_date?.[
+            selectedMonth
+          ],
+          "D/M/YYYY - hh:mm A"
+        ).format("DD-MM-YYYY THH:mm"),
+    },
+    {
+      title: "Due Date",
+      align: "center",
+      width: "15%",
+      render: (rowData) =>
+        rowData?.checkSheet_data?.implementation_due_date?.[selectedMonth]
+          ?.length > 0 &&
+        moment(
+          rowData?.checkSheet_data?.implementation_due_date?.[selectedMonth],
+          "D/M/YYYY - hh:mm A"
+        ).format("DD-MM-YYYY THH:mm"),
     },
   ];
 
@@ -310,10 +337,9 @@ const MachineWisePmMonthlyReport = () => {
       return {
         hidden:
           rowData.PMStatus !== "PM Skip" ||
-          (context.user_type === "Section-Admin" ||
-            rowData?.completionTargetDate === undefined ||
-            (context.user_type === "TL/HOSS" &&
-              context.tm_department === "PRD")),
+          context.user_type === "Section-Admin" ||
+          rowData?.completionTargetDate === undefined ||
+          (context.user_type === "TL/HOSS" && context.tm_department === "PRD"),
 
         icon: () => <button className="btn-primary1">PM Edit</button>,
         // tooltip: <h1>I am a tooltip</h1>,
@@ -572,18 +598,21 @@ const MachineWisePmMonthlyReport = () => {
 
     // console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
     try {
-      const res = await fetch("/postSectionAndMonthToGetAllDataForReport", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          section: sectionData,
-          currentMonth: selectedMonth,
-          previousMonth: previousMonth,
-          selectedYear,
-        }),
-      });
+      const res = await fetch(
+        `/postSectionAndMonthToGetAllDataForReport/?filter=${filter}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section: sectionData,
+            currentMonth: selectedMonth,
+            previousMonth: previousMonth,
+            selectedYear,
+          }),
+        }
+      );
       const data = await res.json();
 
       if (res.status === 400 || res.status === 422 || !data) {
@@ -869,13 +898,12 @@ const MachineWisePmMonthlyReport = () => {
   useEffect(() => {
     if (context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
+    } else if (
+      context?.user_type === "Section-Admin" &&
+      context?.tm_grade === "HOS"
+    ) {
+      postAssignSubSectionToGetAllDataOfSubSection();
     }
-    // else if (
-    //   context?.user_type === "Section-Admin" &&
-    //   context?.tm_grade === "HOS"
-    // ) {
-    //   postAssignSubSectionToGetAllDataOfSubSection();
-    // }
   }, []);
 
   useEffect(() => {
@@ -883,7 +911,13 @@ const MachineWisePmMonthlyReport = () => {
       sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection] ||
         context.section_data
     );
-  }, [selectedSectionOrSubSection, selectedYear, selectedMonth, refKey]);
+  }, [
+    selectedSectionOrSubSection,
+    selectedYear,
+    selectedMonth,
+    refKey,
+    filter,
+  ]);
 
   useEffect(() => {
     getListForApproval();
@@ -1155,7 +1189,7 @@ const MachineWisePmMonthlyReport = () => {
                       top: "0",
                       fontWeight: "bold",
                     },
-                    maxBodyHeight: "40vh",
+                    maxBodyHeight: "45vh",
                     rowStyle: {
                       // fontStyle:'bold'
 
@@ -1196,9 +1230,40 @@ const MachineWisePmMonthlyReport = () => {
                   className="mt-2 cell"
                   style={{ marginRight: "0.2rem", marginLeft: "0.2rem" }}
                 >
+                  <Col className="d-flex p-1">
+                    <div>
+                      <b>Plan vs Actual</b>
+                    </div>
+                    <Col className="d-flex justify-content-end">
+                      <ButtonGroup
+                        size="small"
+                        disableElevation
+                        variant="outlined"
+                        aria-label="outlined button group"
+                      >
+                        {["Counts", "Hours"]?.map((item, index) => (
+                          <Button
+                            key={index}
+                            variant={filter === item ? "contained" : "outlined"}
+                            value={item}
+                            onClick={(event) => {
+                              setFilter(event.target.value);
+                            }}
+                          >
+                            {item}
+                          </Button>
+                        ))}
+                      </ButtonGroup>
+                    </Col>
+                  </Col>
                   <MachineWisePmMonthlyGraph
-                    statusCounter={statusCounter}
+                    statusCounter={
+                      filter === "Hours"
+                        ? tableData1?.GetAllPlanAndCompletedHours
+                        : statusCounter
+                    }
                     selectedMonth={selectedMonth}
+                    filter={filter}
                   />
                 </Row>
 

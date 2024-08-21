@@ -177,65 +177,67 @@ const AnnualPmStatus = () => {
         <Container fluid>
           <Container fluid>
             <Row>
-              <Col sm={12} lg={4} md={6} className="mb-2">
+              <Col sm={12} lg={2} md={6} className="mb-2">
                 <YearDropDown
                   selectedYear={selectedYear}
                   setSelectedYear={setSelectedYear}
                 />
               </Col>
               {context?.user_type === "Plant-Admin" &&
-              context?.tm_grade === "HOD" ? (
-                <Col sm={12} lg={4} md={6} className="d-flex">
-                  <div>
-                    <span>
-                      <b>Section:&nbsp; &nbsp;</b>
-                    </span>
-                    <select
-                      class="form-select form-select-sm"
-                      aria-label=".form-select-sm example"
-                      // style={{ width: "63%" }}
-                      id="standard-select-currency"
-                      name="selectedSectionOrSubSection"
-                      className="textField w-50"
-                      value={selectedSectionOrSubSection}
-                      onChange={(e) => {
-                        setSelectedSectionOrSubSection(e.target.value);
-                        postSectionToGetAllDataForAnnualStatusReport(
-                          sectionOrSubSectionDropdownList?.[e.target.value]
-                        );
-                        setStateForAnimationAndNotFound(<LoadingAnimation />);
-                      }}
-                      // fullWidth
-                      select // label="Select"
-                      autoComplete="off"
-                      variant="standard"
-                    >
-                      <option selected disabled value="">
-                        Please select
-                      </option>
-                      {sectionOrSubSectionDropdownList?.map((option, index) => {
-                        return (
-                          <option value={index}>{option?.section_name}</option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                  <div>
-                    <button
-                      class="btn-primary1"
-                      onClick={() => window.location.reload()}
-                    >
-                      Reset
-                    </button>
-                  </div>
-                </Col>
-              ) : (
-                ""
-              )}
+                context?.tm_grade === "HOD" && (
+                  <>
+                    <Col sm={12} lg={2} md={6} >
+                      <span>
+                        <b>Section:&nbsp; &nbsp;</b>
+                      </span>
+                      <select
+                        class="form-select form-select-sm"
+                        aria-label=".form-select-sm example"
+                        // style={{ width: "63%" }}
+                        id="standard-select-currency"
+                        name="selectedSectionOrSubSection"
+                        className="textField w-50"
+                        value={selectedSectionOrSubSection}
+                        onChange={(e) => {
+                          setSelectedSectionOrSubSection(e.target.value);
+                          postSectionToGetAllDataForAnnualStatusReport(
+                            sectionOrSubSectionDropdownList?.[e.target.value]
+                          );
+                          setStateForAnimationAndNotFound(<LoadingAnimation />);
+                        }}
+                        // fullWidth
+                        select // label="Select"
+                        autoComplete="off"
+                        variant="standard"
+                      >
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+                        {sectionOrSubSectionDropdownList?.map(
+                          (option, index) => {
+                            return (
+                              <option value={index}>
+                                {option?.section_name}
+                              </option>
+                            );
+                          }
+                        )}
+                      </select>
+                    </Col>
+                    <Col>
+                      <button
+                        class="btn-primary1"
+                        onClick={() => window.location.reload()}
+                      >
+                        Reset
+                      </button>
+                    </Col>
+                  </>
+                )}
 
               <Col
                 sm={12}
-                lg={4}
+                lg={2}
                 md={6}
                 className="d-flex mt-1 justify-content-end"
               >

@@ -133,6 +133,8 @@ const RequestSheetMainDashboard = () => {
     "Completed",
   ];
 
+  const maintenanceTypeArrayForFilter = ["PM", "BM", "CM", "TPM"];
+
   const initialStateForRequestSheetData = {
     requestSheetData: [],
     counters: {
@@ -197,9 +199,11 @@ const RequestSheetMainDashboard = () => {
           reduceState?.selectedValue
         }/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${
           reduceState?.selectedMonth
-        }&&selectedRSStatus=${reduceState?.selectedRSStatus}&&greaterValue=${
-          greaterValue || 0
-        }`,
+        }&&selectedRSStatus=${
+          reduceState?.selectedRSStatus
+        }&&selectedMaintenanceType=${
+          reduceState?.selectedMaintenanceType
+        }&&greaterValue=${greaterValue || 0}`,
         {
           method: "GET",
           headers: {
@@ -329,6 +333,7 @@ const RequestSheetMainDashboard = () => {
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
+    reduceState?.selectedMaintenanceType,
   ]);
 
   const handleGenerateBMNavigation = async () => {
@@ -546,13 +551,22 @@ const RequestSheetMainDashboard = () => {
       title: "Problem",
       field: "problem",
       editable: false,
-      width: "20%",
+      width: "25%",
     },
     {
       title: "Date-time",
       field: "problemOccurredDateAndTimeOfBM",
       editable: false,
-      width: "10%",
+      width: "15%",
+    },
+    {
+      title: "Maintenance Type",
+      field: "maintenanceType",
+      editable: false,
+      width: "5%",
+      cellStyle: {
+        textAlign: "center",
+      },
     },
     {
       title: "R.S Status",
@@ -771,6 +785,8 @@ const RequestSheetMainDashboard = () => {
           machineFiltration
           RSStatusArray={RSStatusArray}
           RSStatusFiltration
+          maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          maintenanceTypeFiltration
           resetButtonFiltration
           isWithLocalStorageForFiltration="Yes"
         />

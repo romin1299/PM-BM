@@ -1,63 +1,65 @@
 export const initialState = (isWithLocalStorageForFiltration) => {
   if (isWithLocalStorageForFiltration === "Yes")
-    return {
-      selectedValue: localStorage.getItem("selectedValue") || "",
-      flagForTogglingFilter:
-        localStorage.getItem("flagForTogglingFilter") || "",
+  return {
+    selectedValue: localStorage.getItem("selectedValue") || "",
+    flagForTogglingFilter: localStorage.getItem("flagForTogglingFilter") || "",
 
-      selectedValueForLineAnTMLoadGraph:
-        localStorage.getItem("selectedValueForLineAnTMLoadGraph") || "",
-      togglingFilterFlagForLineAnTMLoadGraph:
-        localStorage.getItem("togglingFilterFlagForLineAnTMLoadGraph") || "",
+    selectedValueForLineAnTMLoadGraph:
+      localStorage.getItem("selectedValueForLineAnTMLoadGraph") || "",
+    togglingFilterFlagForLineAnTMLoadGraph:
+      localStorage.getItem("togglingFilterFlagForLineAnTMLoadGraph") || "",
 
-      selectedSection: localStorage.getItem("selectedSection") || "",
-      sections:
-        (localStorage.getItem("sections") &&
-          typeof JSON.parse(localStorage.getItem("sections")) === "object" &&
-          JSON.parse(localStorage.getItem("sections"))) ||
-        [],
+    selectedSection: localStorage.getItem("selectedSection") || "",
+    sections:
+      (localStorage.getItem("sections") &&
+        typeof JSON.parse(localStorage.getItem("sections")) === "object" &&
+        JSON.parse(localStorage.getItem("sections"))) ||
+      [],
 
-      selectedSubSection: localStorage.getItem("selectedSubSection") || "",
-      subSections:
-        (localStorage.getItem("subSections") &&
-          typeof JSON.parse(localStorage.getItem("subSections")) === "object" &&
-          JSON.parse(localStorage.getItem("subSections"))) ||
-        [],
+    selectedSubSection: localStorage.getItem("selectedSubSection") || "",
+    subSections:
+      (localStorage.getItem("subSections") &&
+        typeof JSON.parse(localStorage.getItem("subSections")) === "object" &&
+        JSON.parse(localStorage.getItem("subSections"))) ||
+      [],
 
-      selectedCell: localStorage.getItem("selectedCell") || "",
-      cells:
-        (localStorage.getItem("cells") &&
-          typeof JSON.parse(localStorage.getItem("cells")) === "object" &&
-          JSON.parse(localStorage.getItem("cells"))) ||
-        [],
+    selectedCell: localStorage.getItem("selectedCell") || "",
+    cells:
+      (localStorage.getItem("cells") &&
+        typeof JSON.parse(localStorage.getItem("cells")) === "object" &&
+        JSON.parse(localStorage.getItem("cells"))) ||
+      [],
 
-      selectedLine: localStorage.getItem("selectedLine") || "",
-      lines:
-        (localStorage.getItem("lines") &&
-          typeof JSON.parse(localStorage.getItem("lines")) === "object" &&
-          JSON.parse(localStorage.getItem("lines"))) ||
-        [],
+    selectedLine: localStorage.getItem("selectedLine") || "",
+    lines:
+      (localStorage.getItem("lines") &&
+        typeof JSON.parse(localStorage.getItem("lines")) === "object" &&
+        JSON.parse(localStorage.getItem("lines"))) ||
+      [],
 
-      selectedMachine: localStorage.getItem("selectedMachine") || "",
-      machines:
-        (localStorage.getItem("machines") &&
-          typeof JSON.parse(localStorage.getItem("machines")) === "object" &&
-          JSON.parse(localStorage.getItem("machines"))) ||
-        [],
+    selectedMachine: localStorage.getItem("selectedMachine") || "",
+    machines:
+      (localStorage.getItem("machines") &&
+        typeof JSON.parse(localStorage.getItem("machines")) === "object" &&
+        JSON.parse(localStorage.getItem("machines"))) ||
+      [],
 
-      selectedRSStatus: localStorage.getItem("selectedRSStatus") || "",
+    selectedRSStatus: localStorage.getItem("selectedRSStatus") || "",
 
-      selectedMonth: localStorage.getItem("selectedMonth") || "",
-      selectedYear:
-        localStorage.getItem("selectedYear") ||
-        (new Date().getMonth() < 3
-          ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-          : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`),
+    selectedMaintenanceType:
+      localStorage.getItem("selectedMaintenanceType") || "",
 
-      message: "",
-      isLoading: true,
-      isError: false,
-    };
+    selectedMonth: localStorage.getItem("selectedMonth") || "",
+    selectedYear:
+      localStorage.getItem("selectedYear") ||
+      (new Date().getMonth() < 3
+        ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+        : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`),
+
+    message: "",
+    isLoading: true,
+    isError: false,
+  };
   return {
     selectedValue: "",
     flagForTogglingFilter: "",
@@ -81,6 +83,8 @@ export const initialState = (isWithLocalStorageForFiltration) => {
     machines: [],
 
     selectedRSStatus: "",
+
+    selectedMaintenanceType: "",
 
     selectedMonth: "",
     selectedYear:
@@ -510,6 +514,7 @@ export const reducer = (state, action) => {
         localStorage.setItem("selectedYear", action?.selectedYear);
         localStorage.removeItem("selectedMonth");
         localStorage.removeItem("selectedRSStatus");
+        localStorage.removeItem("selectedMaintenanceType");
       }
 
       return {
@@ -517,6 +522,7 @@ export const reducer = (state, action) => {
         selectedYear: action?.selectedYear,
         selectedMonth: "",
         selectedRSStatus: "",
+        selectedMaintenanceType: "",
       };
 
     case ACTION?.HANDLE_SELECT_MONTH:
@@ -537,6 +543,19 @@ export const reducer = (state, action) => {
       return {
         ...state,
         selectedRSStatus: action?.selectedRSStatus,
+      };
+
+    case ACTION?.HANDLE_SELECT_MAINTENANCE_TYPE:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem(
+          "selectedMaintenanceType",
+          action?.selectedMaintenanceType
+        );
+      }
+
+      return {
+        ...state,
+        selectedMaintenanceType: action?.selectedMaintenanceType,
       };
 
     default:

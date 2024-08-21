@@ -63,8 +63,12 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
-  console.log(statusCounter);
+const MachineWIsePmMonthlyGraph = ({
+  statusCounter,
+  selectedMonth,
+  filter,
+}) => {
+  // console.log(statusCounter);
   ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -114,17 +118,18 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
   // };
 
   const options = {
-    plugins: {
-      title: {
-        display: true,
-        text: "Plan vs Actual",
-      },
-    },
+    // plugins: {
+    //   title: {
+    //     display: true,
+    //     text: "Plan vs Actual",
+    //   },
+    // },
     responsive: true,
     interaction: {
       mode: "index",
       intersect: false,
     },
+    maintainAspectRatio: false,
     scales: {
       x: {
         stacked: true,
@@ -229,8 +234,8 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
 
     datasets: [
       {
-        label: "Pm-schedule",
-        data: [statusCounter.schedulePm],
+        label: filter === "Hours" ? "PM-Schedule Hours" : "PM-schedule",
+        data: [statusCounter?.schedulePm],
         backgroundColor: "#CFE1FD",
         borderColor: "rgba(54, 162, 235, 1)",
         stack: "Stack 0",
@@ -239,7 +244,7 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
         categoryPercentage: 0.4,
       },
       {
-        label: "Completed",
+        label: filter === "Hours" ? "Completed Hours" : "Completed",
         data: [statusCounter?.completed],
         backgroundColor: "#bde28f",
         borderColor: "#adec71",
@@ -293,13 +298,15 @@ const MachineWIsePmMonthlyGraph = ({ statusCounter, selectedMonth }) => {
   // );
 
   return (
-    <Bar
-      options={options}
-      height={50}
-      width={50}
-      datasetIdKey="id"
-      data={data}
-    />
+    <div style={{ height: "50vh" }}>
+      <Bar
+        options={options}
+        height={40}
+        width={50}
+        datasetIdKey="id"
+        data={data}
+      />
+    </div>
   );
 };
 

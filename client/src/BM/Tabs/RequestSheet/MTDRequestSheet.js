@@ -66,14 +66,15 @@ function MyTable({
   var curr = new Date();
   var currentDate = curr.toISOString().substring(0, 10);
 
-  let timeDifferenceMinutes = moment(watch("workEndedDateOfBM"))
-    .tz("Asia/Kolkata")
-    .diff(
-      moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM).tz(
-        "Asia/Kolkata"
-      ),
-      "minutes"
-    );
+  let timeDifferenceMinutes =
+    moment(watch("workEndedDateOfBM"))
+      .tz("Asia/Kolkata")
+      .diff(
+        moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM).tz(
+          "Asia/Kolkata"
+        ),
+        "minutes"
+      ) - (watch("maintenanceTime") || 0);
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     try {
@@ -296,7 +297,7 @@ function MyTable({
         parseInt(watch("analysisTime")) +
           parseInt(watch("spareWaitingTime")) +
           parseInt(watch("replacementTime")) +
-          parseInt(watch("maintenanceTime")) +
+          // parseInt(watch("maintenanceTime")) +
           parseInt(watch("adjustmentTime")) +
           parseInt(watch("qualityCheckTime")) +
           parseInt(watch("breakTime")) !==
@@ -842,6 +843,7 @@ function MyTable({
                       name={"MTD_TL"}
                       selectedMinor={selectedMinor}
                       selectedMajor={selectedMajor}
+                      maintenanceType = {requestSheetDataOfBM?.maintenanceType}
                       approvalList={
                         selectedMachineDetails?.line_names?.cell_names
                           ?.subSection_names?.section_names?.plant_names
@@ -1072,6 +1074,7 @@ function MyTable({
                           name={"MTD_HOSS"}
                           selectedMinor={selectedMinor}
                           selectedMajor={selectedMajor}
+                          maintenanceType = {requestSheetDataOfBM?.maintenanceType}
                           approvalList={
                             selectedMachineDetails?.line_names?.cell_names
                               ?.subSection_names?.section_names?.plant_names
@@ -1104,7 +1107,7 @@ function MyTable({
                       {selectedMajor === "Yes" &&
                         selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
                           "MTD_HOS"?.replace("_", " ")
-                        ) && <small>MTD HOS</small>}
+                        ) && <b>MTD HOS</b>}
                       {requestSheetDataOfBM?.approvalOfMTD_HOS &&
                       requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
                         "Accepted" &&
@@ -1116,6 +1119,7 @@ function MyTable({
                           name={"MTD_HOS"}
                           selectedMinor={selectedMinor}
                           selectedMajor={selectedMajor}
+                          maintenanceType = {requestSheetDataOfBM?.maintenanceType}
                           approvalList={
                             selectedMachineDetails?.line_names?.cell_names
                               ?.subSection_names?.section_names?.plant_names
@@ -1364,7 +1368,14 @@ function MyTable({
                   <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAKDOWN</b>
                   </small>
-                  <p>{timeDifferenceMinutes || null}</p>
+                  <p>
+                    {
+                      // watch("maintenanceTime")
+                      //   ? timeDifferenceMinutes - watch("maintenanceTime") || null
+                      //   :
+                      timeDifferenceMinutes
+                    }
+                  </p>
                 </Col>
                 <Col
                   lg={3}
@@ -2695,6 +2706,7 @@ function MyTable({
                             name={"MTD_HOD"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
+                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2742,6 +2754,7 @@ function MyTable({
                             name={"PRD_HOD"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
+                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2836,6 +2849,7 @@ function MyTable({
                             name={"PRD_TL"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
+                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names

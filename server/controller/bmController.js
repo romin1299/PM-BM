@@ -305,7 +305,6 @@ router.post(
           const getRequestSheetData = await RequestSheetOfBM.findOne({
             _id: mongoose.Types.ObjectId(req.query?.reqId),
           });
-
           const requestSheetDataFilledByMTDUser = JSON.parse(
             req.body.otherData
           );
@@ -405,7 +404,7 @@ router.post(
               parseInt(requestSheetDataFilledByMTDUser?.spareWaitingTime) || 0,
             "maintenanceReportFilledByMTD.replacementTime":
               parseInt(requestSheetDataFilledByMTDUser?.replacementTime) || 0,
-              "maintenanceReportFilledByMTD.maintenanceTime":
+            "maintenanceReportFilledByMTD.maintenanceTime":
               parseInt(requestSheetDataFilledByMTDUser?.maintenanceTime) || 0,
             "maintenanceReportFilledByMTD.analysisTime":
               parseInt(requestSheetDataFilledByMTDUser?.analysisTime) || 0,
@@ -917,6 +916,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
       {
         $project: {
           machines: 1,
+          maintenanceType: 1,
           requestSheetCreatedBy: 1,
           requestSheetNoOfBM: 1,
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
@@ -1698,6 +1698,13 @@ const filterMiddleware = async (req, res, next) => {
       };
     }
 
+    if (req.query?.selectedMaintenanceType) {
+      queryObj = {
+        ...queryObj,
+        maintenanceType: req.query?.selectedMaintenanceType,
+      };
+    }
+
     if (req.params?.filter === "based-on-plant") {
       queryObj = {
         ...queryObj,
@@ -1965,6 +1972,7 @@ router.get(
   removeBDZeroValueFiltration,
   async (req, res, next) => {
     try {
+      delete req.queryObj.maintenanceType;
       // For fetching all data
       let queryPipeline = [
         {
@@ -1980,7 +1988,7 @@ router.get(
           "maintenanceReportFilledByMTD.breakDownTime": {
             $gte: req.query?.greaterValue * 1,
           },
-          maintenanceType: "BM",
+          // maintenanceType: "BM",
         };
         queryPipeline = [
           {
@@ -2023,7 +2031,6 @@ router.get(
           },
         ];
       }
-
       req.queryPipeline = queryPipeline;
 
       next();
@@ -3487,7 +3494,7 @@ router.get(
           },
         },
       ]);
-      
+
       return res.status(201).json({
         message:
           "Monitoring request-sheet UserWise pending data get successfully",
@@ -3973,6 +3980,7 @@ router.get(
 const getRequestSheetData = async (req, res, next) => {
   try {
     let queryObjForGetRequestSheetData = {};
+    delete req?.queryObj?.maintenanceType;
 
     if (req.query?._id) {
       queryObjForGetRequestSheetData = {
@@ -4617,7 +4625,6 @@ const getRequestSheetData = async (req, res, next) => {
         },
       },
     ]);
-
     req.requestSheetData = requestSheetData;
 
     if (requestSheetData?.length === 0) {
@@ -4627,6 +4634,7 @@ const getRequestSheetData = async (req, res, next) => {
     }
     next();
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error?.message, error: new Error(error) });
   }
 };
@@ -5450,7 +5458,7 @@ router.patch(
       Object.keys(assignApprovalList?.[formattedKey])?.length === 0 &&
         delete assignApprovalList?.[formattedKey];
       // });
-
+      console.log(assignApprovalList);
       //Handling validation for approval list which is not selected by user from client-side
       if (approvalOfRequestSheet === "Yes") {
         for (
@@ -5468,7 +5476,12 @@ router.patch(
             if (
               Object.keys(
                 assignApprovalList?.[Object.keys(assignApprovalList)?.[index]]
-              )?.length === 0
+              )?.length === 0 &&
+              requestSheetDataOfBM?.maintenanceType === "BM" &&
+              assignApprovalList?.[Object.keys(assignApprovalList)?.[index]] !==
+                "MTD_HOD" &&
+              assignApprovalList?.[Object.keys(assignApprovalList)?.[index]] !==
+                "PRD_HOD"
             ) {
               return res.status(400).json({
                 message: `Please select required approval list ${requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
@@ -6138,20 +6151,20 @@ router.get(
       ]);
 
       const lessThanOrEqualToOneHourData = await queryFunction({
-        conditionObj: { $lte: 1 },
+        conditionObj: { $lt: 1 },
       });
 
       const greaterThenOneAndLessThanOrEqualToTwoHourData = await queryFunction(
         {
           conditionObj: {
-            $gt: 1,
-            $lte: 2,
+            $gte: 1,
+            $lt: 2,
           },
         }
       );
 
       const greaterThenTwoHourData = await queryFunction({
-        conditionObj: { $gt: 2 },
+        conditionObj: { $gte: 2 },
       });
 
       // const data = await RequestSheetOfBM.aggregate([
@@ -6462,20 +6475,11 @@ router.get(
   filterMiddleware,
   async (req, res, next) => {
     try {
-      let nextDate = new Date(req.params.date);
-      nextDate.setDate(nextDate.getDate() + 1);
-      console.log(
-        new Date(req.params.date),
-        "----",
-        nextDate,
-        "*****",
-        moment(req.params.date).endOf('day').format()
-      );
       req.queryObj = {
         ...req.queryObj,
         problemOccurredDateAndTimeOfBM: {
-          $gte: new Date(req.params.date),
-          $lt: (moment(req.params.date).endOf('day')).format(),
+          $gte: moment(req.params.date).startOf("day").toDate(),
+          $lt: moment(req.params.date).endOf("day").toDate(),
         },
       };
 
@@ -9340,6 +9344,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
           pipeline: [
             {
               $match: {
+                maintenanceType: "BM",
                 $expr: {
                   $eq: ["$$section", "$sectionRef"],
                 },
@@ -9568,6 +9573,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
           pipeline: [
             {
               $match: {
+                maintenanceType: "BM",
                 $expr: {
                   $eq: ["$$cell", "$cellRef"],
                 },
@@ -9800,6 +9806,7 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
           pipeline: [
             {
               $match: {
+                maintenanceType: "BM",
                 $expr: {
                   $eq: ["$$line", "$lineRef"],
                 },
@@ -10364,7 +10371,6 @@ const targetMiddlewareForMBD = async (req, res, next) => {
     let queryObj = {},
       pipeline = [],
       pipelineCount = [];
-
     if (req.params?.filter === "based-on-line") {
       queryObj = {
         _id: mongoose.Types.ObjectId(req.params.selectedId),
@@ -11237,6 +11243,7 @@ router.get(
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                     req.query.selectedYear,
+                  maintenanceType: "BM",
                 },
               },
 
@@ -11562,6 +11569,7 @@ router.get(
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                     req.query?.selectedYear,
+                  maintenanceType: "BM",
                 },
               },
 
@@ -12966,7 +12974,20 @@ const middlewareForFindingTmProgressData = async (req, res, next) => {
                   ],
                 },
                 {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
+                  $divide: [
+                    {
+                      $add: [
+                        "$maintenanceReportFilledByMTD.breakDownTime",
+                        {
+                          $ifNull: [
+                            "$maintenanceReportFilledByMTD.maintenanceTime",
+                            0,
+                          ],
+                        },
+                      ],
+                    },
+                    60,
+                  ],
                 },
                 0,
               ],
@@ -13128,7 +13149,17 @@ router.get(
         {
           $addFields: {
             allUserVarForGrouping: {
-              $setUnion: [["$assignUser"], ["$handOverUser"], "$supportingTM"],
+              $setUnion: [
+                ["$assignUser"],
+                {
+                  $cond: [
+                    { $gt: ["$handOverUser", null] },
+                    ["$handOverUser"],
+                    [],
+                  ],
+                },
+                "$supportingTM",
+              ],
             },
           },
         },
@@ -13175,7 +13206,17 @@ router.get(
                   },
                   {
                     $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      {
+                        $add: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          {
+                            $ifNull: [
+                              "$maintenanceReportFilledByMTD.maintenanceTime",
+                              0,
+                            ],
+                          },
+                        ],
+                      },
                       60,
                     ],
                   },
@@ -15420,6 +15461,19 @@ router.patch(
         //For under Major Request-sheet
         else {
           getNextApproverDepartmentAndGradeOfUser =
+            (getRequestSheetData?.maintenanceType === "BM" ||
+              (majorListForTheApprovalOfPlant[
+                majorListForTheApprovalOfPlant.indexOf(
+                  requestSheetDataOfBM?.getDataForApprovalDashboard
+                    ?.departmentAndGradeOfUser
+                ) + 1
+              ] !== "MTD HOD" &&
+                majorListForTheApprovalOfPlant[
+                  majorListForTheApprovalOfPlant.indexOf(
+                    requestSheetDataOfBM?.getDataForApprovalDashboard
+                      ?.departmentAndGradeOfUser
+                  ) + 1
+                ] !== "PRD HOD")) &&
             majorListForTheApprovalOfPlant[
               majorListForTheApprovalOfPlant.indexOf(
                 requestSheetDataOfBM?.getDataForApprovalDashboard
@@ -15444,7 +15498,6 @@ router.patch(
         getRequestSheetData[
           keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition
         ][lengthOfTheApprovalStatus - 1] = "Accepted";
-
         if (getNextApproverDepartmentAndGradeOfUser) {
           //Further approval is required
 
@@ -15757,6 +15810,8 @@ router.get(
   filterMiddleware,
   async (req, res, next) => {
     try {
+      delete req?.queryObj?.maintenanceType;
+
       const findLoggedUserPlantData = await Plant.findOne({
         plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
       });
@@ -15784,7 +15839,6 @@ router.get(
             ?.priority || 0;
         return priorityA - priorityB;
       });
-
       const getDataOfRequestSheetApprovalLogs =
         await RequestSheetOfBM?.aggregate([
           {
@@ -16102,7 +16156,17 @@ router.get(
                   },
                   truncValue({
                     $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      {
+                        $add: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          {
+                            $ifNull: [
+                              "$maintenanceReportFilledByMTD.maintenanceTime",
+                              0,
+                            ],
+                          },
+                        ],
+                      },
                       60,
                     ],
                   }),
@@ -16262,7 +16326,17 @@ router.get(
                 $multiply: [
                   {
                     $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      {
+                        $add: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          {
+                            $ifNull: [
+                              "$maintenanceReportFilledByMTD.maintenanceTime",
+                              0,
+                            ],
+                          },
+                        ],
+                      },
                       60,
                     ],
                   },
@@ -16722,7 +16796,17 @@ router.get(
                   },
                   {
                     $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      {
+                        $add: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          {
+                            $ifNull: [
+                              "$maintenanceReportFilledByMTD.maintenanceTime",
+                              0,
+                            ],
+                          },
+                        ],
+                      },
                       60,
                     ],
                   },
@@ -16800,7 +16884,17 @@ router.get(
                         },
                         {
                           $divide: [
-                            "$maintenanceReportFilledByMTD.breakDownTime",
+                            {
+                              $add: [
+                                "$maintenanceReportFilledByMTD.breakDownTime",
+                                {
+                                  $ifNull: [
+                                    "$maintenanceReportFilledByMTD.maintenanceTime",
+                                    0,
+                                  ],
+                                },
+                              ],
+                            },
                             60,
                           ],
                         },
@@ -17171,7 +17265,17 @@ router.get(
         {
           $addFields: {
             allUserVarForGrouping: {
-              $setUnion: [["$assignUser"], ["$handOverUser"], "$supportingTM"],
+              $setUnion: [
+                ["$assignUser"],
+                {
+                  $cond: [
+                    { $gt: ["$handOverUser", null] },
+                    ["$handOverUser"],
+                    [],
+                  ],
+                },
+                "$supportingTM",
+              ],
             },
           },
         },
@@ -17190,7 +17294,17 @@ router.get(
                   },
                   {
                     $divide: [
-                      "$maintenanceReportFilledByMTD.breakDownTime",
+                      {
+                        $add: [
+                          "$maintenanceReportFilledByMTD.breakDownTime",
+                          {
+                            $ifNull: [
+                              "$maintenanceReportFilledByMTD.maintenanceTime",
+                              0,
+                            ],
+                          },
+                        ],
+                      },
                       60,
                     ],
                   },
@@ -17243,7 +17357,13 @@ router.get(
                   allUserVarForGrouping: {
                     $setUnion: [
                       ["$assignUser"],
-                      ["$handOverUser"],
+                      {
+                        $cond: [
+                          { $gt: ["$handOverUser", null] },
+                          ["$handOverUser"],
+                          [],
+                        ],
+                      },
                       "$supportingTM",
                     ],
                   },
@@ -17272,7 +17392,17 @@ router.get(
                         },
                         {
                           $divide: [
-                            "$maintenanceReportFilledByMTD.breakDownTime",
+                            {
+                              $add: [
+                                "$maintenanceReportFilledByMTD.breakDownTime",
+                                {
+                                  $ifNull: [
+                                    "$maintenanceReportFilledByMTD.maintenanceTime",
+                                    0,
+                                  ],
+                                },
+                              ],
+                            },
                             60,
                           ],
                         },
@@ -17569,6 +17699,8 @@ const conditionMiddlewareForSubSectionQuery = async (req, res, next) => {
           cells: [],
           selectedLine: "",
           lines: [],
+          selectedMachine: "",
+          machines: [],
         });
       }
 

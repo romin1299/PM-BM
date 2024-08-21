@@ -113,6 +113,13 @@ function App() {
     // Extract the part of the path you want as the active key
     const pathParts = location.pathname.split("/");
 
+    if (!pathParts[1]) {
+      localStorage.setItem("activeKey", tabs?.[0]?.keyUrl);
+      navigate(tabs?.[0]?.keyUrl);
+      setActiveKey(tabs?.[0]?.keyUrl);
+      return;
+    }
+
     //if user directly search the page using url
     if (
       // pathParts?.includes(tabs?.[0]?.keyUrl) ||
@@ -143,15 +150,14 @@ function App() {
   const loggedUser = useContext(RoutingContext);
   let mainRouteForCompanyBased = [];
   if (
-    (
-      // NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
-      loggedUser?.tm_department === "MTD") ||
+    // NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+    loggedUser?.tm_department === "MTD" ||
     loggedUser?.user_type === "Operator"
   ) {
     // For DENSO-HARYANA
     mainRouteForCompanyBased = [
       {
-        path: "/",
+        path: "/kpi",
         element: <MainPageComponent />,
       },
     ];
@@ -205,9 +211,8 @@ function App() {
 
   let displayKPIDashboard = [];
   if (
-    (
-      // NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
-      loggedUser?.tm_department === "MTD") ||
+    // NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+    loggedUser?.tm_department === "MTD" ||
     loggedUser?.user_type === "Operator"
   ) {
     displayKPIDashboard = [

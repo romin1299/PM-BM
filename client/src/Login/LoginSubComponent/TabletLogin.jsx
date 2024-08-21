@@ -4,7 +4,7 @@ import QrReader from "react-qr-reader";
 import { useNavigate } from "react-router-dom";
 import { denso_logo } from "../../modules/LoginModules";
 import LoginCard from "./LoginCard";
-
+import QRReaderByQrScanner from "../../BM/QR_codeReader/QR_ReaderByQrScanner";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -35,9 +35,9 @@ const TabletLogin = () => {
   };
 
   const handleScan = async (scannedMachineCode) => {
-    if (scannedMachineCode) {
+    if (scannedMachineCode?.data) {
       setScanData(false);
-      navigate(`/loginAfterScanned/${scannedMachineCode}`);
+      navigate(`/loginAfterScanned/${scannedMachineCode?.data}`);
     }
   };
   const handleError = (err) => {
@@ -115,13 +115,15 @@ const TabletLogin = () => {
           </h2>
         </div>
         {scanData && (
-          <QrReader
-            facingMode="environment"
-            delay={1000}
-            onScan={handleScan}
-            onError={handleError}
-            style={{ width: "100", height: "150" }}
-          />
+          <QRReaderByQrScanner handleScan={handleScan} />
+
+          // <QrReader
+          //   facingMode="environment"
+          //   delay={1000}
+          //   onScan={handleScan}
+          //   onError={handleError}
+          //   style={{ width: "100", height: "150" }}
+          // />
         )}
       </TabPanel>
       <TabPanel value={value} index={1}>

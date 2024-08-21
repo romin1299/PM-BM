@@ -458,7 +458,7 @@ const PendingPMLogHistory = () => {
         </Row>
 
         <Row className="mt-3">
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
               <b>Machine:</b>
             </span>
@@ -469,7 +469,7 @@ const PendingPMLogHistory = () => {
               id="standard-select-currency"
               name="selectedMachine"
               value={selectedMachine ? selectedMachine : ""}
-              className="textField"
+              className="textField w-50"
               onChange={(e) => {
                 setSelectedMachine(e.target.value);
               }}
@@ -503,7 +503,7 @@ const PendingPMLogHistory = () => {
               id="standard-select-currency"
               name="abnormalityYesOrNo"
               value={abnormalityYesOrNo ? abnormalityYesOrNo : ""}
-              className="textField"
+              className="textField w-50"
               onChange={(e) => {
                 setAbnormalityYesOrNo(e.target.value);
               }}
@@ -532,7 +532,7 @@ const PendingPMLogHistory = () => {
               id="standard-select-currency"
               name="spareYesOrNo"
               value={spareYesOrNo ? spareYesOrNo : ""}
-              className="textField"
+              className="textField w-50"
               onChange={(e) => {
                 setSpareYesOrNo(e.target.value);
               }}
@@ -550,7 +550,7 @@ const PendingPMLogHistory = () => {
             </select>
           </Col>
 
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={4} className="mb-2">
             <span>
               <b>Abnormality(Open/Closed):</b>
             </span>
@@ -561,7 +561,7 @@ const PendingPMLogHistory = () => {
               id="standard-select-currency"
               name="selectedAbnormalityStatus"
               value={selectedAbnormalityStatus ? selectedAbnormalityStatus : ""}
-              className="textField"
+              className="textField w-50"
               onChange={(e) => {
                 setSelectedAbnormalityStatus(e.target.value);
               }}

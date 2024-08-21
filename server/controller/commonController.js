@@ -1039,7 +1039,7 @@ router.get(
                   date: {
                     $dateFromString: {
                       dateString: `$checkSheet_data.checkSheet.completionDateOfInspection.${req.query.selectedMonth}`,
-                      format: "%d/%m/%Y - %z"
+                      format: "%d/%m/%Y - %z",
                     },
                   },
                 },

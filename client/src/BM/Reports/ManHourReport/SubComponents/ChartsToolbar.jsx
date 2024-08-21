@@ -22,6 +22,8 @@ const ChartsToolbar = ({
   machineFiltration,
   RSStatusArray,
   RSStatusFiltration,
+  maintenanceTypeArrayForFilter,
+  maintenanceTypeFiltration,
   resetButtonFiltration,
   isWithLocalStorageForFiltration
 }) => {
@@ -110,6 +112,8 @@ const ChartsToolbar = ({
           lineFiltration={lineFiltration}
           RSStatusArray={RSStatusArray}
           RSStatusFiltration={RSStatusFiltration}
+          maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          maintenanceTypeFiltration={maintenanceTypeFiltration}
           resetButtonFiltration={resetButtonFiltration}
           isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
         />

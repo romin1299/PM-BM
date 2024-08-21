@@ -30,7 +30,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
     useState("");
   const [machineAllData, setMachineAllData] = useState([]);
-
+  console.log(selectedMachineCheckSheetData)
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch(
@@ -520,18 +520,18 @@ function ChecksheetFormApprovalForHOSAndHOD() {
         window.alert("Invalid credentials !");
       } else {
         console.log("User added sucessfully...");
-        navigate(-1);
-        // machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
-        //   ? navigate("/pm/preparationApproval")
-        //   : machineAllData?.checkSheet_data?.checksheet_status === "Planning"
-        //   ? navigate("/pm/planningApproval")
-        //   : selectedMachineCheckSheetData?.state?.dashboardID ===
-        //     "FromSixMonthApprovalDashboard"
-        //   ? navigate("/pm/sixMonthApprovalDashboard")
-        //   : selectedMachineCheckSheetData?.state?.dashboardID ===
-        //     "FromPlanningApprovalDashboard"
-        //   ? navigate("/pm/planningApproval")
-        //   : navigate("/pm/implementationApproval");
+        // navigate(-1);
+        machineAllData?.checkSheet_data?.checksheet_status === "Preparation"
+          ? navigate("/pm/preparationApproval")
+          : machineAllData?.checkSheet_data?.checksheet_status === "Planning"
+          ? navigate("/pm/planningApproval")
+          : selectedMachineCheckSheetData?.state?.dashboardID ===
+            "FromSixMonthApprovalDashboard"
+          ? navigate("/pm/sixMonthApprovalDashboard")
+          : selectedMachineCheckSheetData?.state?.dashboardID ===
+            "FromPlanningApprovalDashboard"
+          ? navigate("/pm/planningApproval")
+          : navigate("/pm/implementationApproval");
       }
     },
   });

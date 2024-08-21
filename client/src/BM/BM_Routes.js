@@ -419,8 +419,8 @@ function BM_Routes({ commonRoutes }) {
   // Inside the BMSidebar component, after defining the menuItems array
   const filteredItems = filteredMenuItems(
     menuItems,
-    context.user_type,
-    context.tm_department
+    context?.user_type,
+    context?.tm_department
   );
 
   return (

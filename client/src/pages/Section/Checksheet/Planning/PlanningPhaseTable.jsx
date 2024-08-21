@@ -60,6 +60,7 @@ function PlanningPhaseTable() {
             state: {
               selectedRowForViewForm: machineData[0],
               planningApprovalShow: planningApprovalShow,
+              selectedYear: machineData[0]?.checkSheet_data?.current_year,
             },
           });
         } else if (
@@ -76,6 +77,7 @@ function PlanningPhaseTable() {
           state: {
             selectedRowForViewForm: machineData[0],
             planningApprovalShow: planningApprovalShow,
+            selectedYear: machineData[0]?.checkSheet_data?.current_year,
           },
         });
       }
@@ -84,6 +86,7 @@ function PlanningPhaseTable() {
         state: {
           selectedRowForViewForm: machineData[0],
           planningApprovalShow: planningApprovalShow,
+          selectedYear: machineData[0]?.checkSheet_data?.current_year,
         },
       });
     }

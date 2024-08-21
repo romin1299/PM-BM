@@ -15,20 +15,20 @@ const CommonRoutesContainer = ({ routes, sideBarProp }) => {
           <Routes>
             {routes?.map((route) =>
               route?.children ? (
-                <Route key={route.path} path={route.path}>
+                <Route key={route?.path} path={route?.path}>
                   {route?.children?.map((subRoute) => (
                     <Route
-                      key={subRoute.path}
-                      path={subRoute.path}
-                      element={subRoute.element}
+                      key={subRoute?.path}
+                      path={subRoute?.path}
+                      element={subRoute?.element}
                     />
                   ))}
                 </Route>
               ) : (
                 <Route
-                  key={route.path}
-                  path={route.path}
-                  element={route.element}
+                  key={route?.path}
+                  path={route?.path}
+                  element={route?.element}
                 />
               )
             )}

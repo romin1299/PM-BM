@@ -50,7 +50,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
                 selectedYear={selectedYear}
                 lineName={lineName}
                 closeCheckSheet={closeCheckSheet}
-                functionToSetRefKey={functionToSetRefKey}
+                // functionToSetRefKey={functionToSetRefKey}
                 handleClose={handleClose}
                 show={showCheckSheet}
               />
