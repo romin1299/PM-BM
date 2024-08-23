@@ -304,6 +304,17 @@ const TMLoad = ({
       {
         type: "bar",
         stack: "bar-stacked",
+        label: "Loss Data",
+        data: tmLoadData?.totalLoss,
+        backgroundColor: chartColors.bmpm[2],
+        borderRadius: 4,
+        yAxisID: "y2",
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
+      },
+      {
+        type: "bar",
+        stack: "bar-stacked",
         label: "PM",
         data: tmLoadData?.totalSumOf_PM,
         backgroundColor: chartColors.bmpm[1],

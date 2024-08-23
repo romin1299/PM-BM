@@ -16961,7 +16961,7 @@ router.get(
         (PM_TotalSum?.[0]?.totalSumOf_PM || 0) +
           (BM_TotalSum?.[0]?.totalSumOf_BM || 0) || 1;
 
-      const BMLineTrend = await Line.aggregate([
+      const mainPipeLine = [
         ...req.queryPipeline,
         {
           $lookup: {
@@ -17048,8 +17048,39 @@ router.get(
           },
         },
         {
+          $lookup: {
+            from: "nolossbddatas",
+            localField: "_id",
+            foreignField: "lineRef",
+            pipeline: [
+              {
+                $project: {
+                  breakDownTime: 1,
+                },
+              },
+            ],
+            as: "noLossData",
+          },
+        },
+        {
           $project: {
             line_name: 1,
+            lossData: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $arrayElemAt: ["$noLossData.breakDownTime", 0],
+                    },
+                    null,
+                  ],
+                },
+                {
+                  $arrayElemAt: ["$noLossData.breakDownTime", 0],
+                },
+                0,
+              ],
+            },
             sumOfBM: {
               $cond: [
                 {
@@ -17144,6 +17175,236 @@ router.get(
             totalSumOf_BM: {
               $push: truncValue("$sumOfBM"),
             },
+            lossData: {
+              $push: {
+                $trunc: ["$lossData", 1],
+              },
+            },
+            percentage: {
+              $push: truncValue("$percentage"),
+            },
+          },
+        },
+      ];
+      const BMLineTrend = await Line.aggregate([
+        ...req.queryPipeline,
+        {
+          $lookup: {
+            from: "machinesalldatas",
+            localField: "_id",
+            foreignField: "line_names",
+            pipeline: [
+              {
+                $unwind: "$checkSheet_data",
+              },
+              {
+                $match: {
+                  "checkSheet_data.current_year": req.query?.selectedYear,
+                },
+              },
+              ...monthFilterQueryPipeline,
+              // {
+              //   $addFields: {
+              //     totalPMTime: {
+              //       $objectToArray: "$checkSheet_data.totalPMTime",
+              //     },
+              //   },
+              // },
+              // {
+              //   $unwind: "$totalPMTime",
+              // },
+              // {
+              //   $group: {
+              //     _id: null,
+              //     totalSumOf_PM: {
+              //       $sum: "$totalPMTime.v.totalWorkedPMTime",
+              //     },
+              //   },
+              // },
+            ],
+            as: "machine",
+          },
+        },
+        {
+          $lookup: {
+            from: "requestsheetofbms",
+            localField: "_id",
+            foreignField: "lineRef",
+            pipeline: [
+              {
+                $match: matchQuery_BM,
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalSumOf_BM: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gt: [
+                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                            null,
+                          ],
+                        },
+                        {
+                          $divide: [
+                            {
+                              $add: [
+                                "$maintenanceReportFilledByMTD.breakDownTime",
+                                {
+                                  $ifNull: [
+                                    "$maintenanceReportFilledByMTD.maintenanceTime",
+                                    0,
+                                  ],
+                                },
+                              ],
+                            },
+                            60,
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+            as: "requestSheet",
+          },
+        },
+        {
+          $lookup: {
+            from: "nolossbddatas",
+            localField: "_id",
+            foreignField: "lineRef",
+            pipeline: [
+              {
+                $project: {
+                  breakDownTime: 1,
+                },
+              },
+            ],
+            as: "noLossData",
+          },
+        },
+        {
+          $project: {
+            line_name: 1,
+            lossData: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $arrayElemAt: ["$noLossData.breakDownTime", 0],
+                    },
+                    null,
+                  ],
+                },
+                {
+                  $arrayElemAt: ["$noLossData.breakDownTime", 0],
+                },
+                0,
+              ],
+            },
+            sumOfBM: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $arrayElemAt: ["$requestSheet.totalSumOf_BM", 0],
+                    },
+                    null,
+                  ],
+                },
+                { $arrayElemAt: ["$requestSheet.totalSumOf_BM", 0] },
+                0,
+              ],
+            },
+            sumOfPM: {
+              $cond: [
+                {
+                  $gt: [{ $arrayElemAt: ["$machine.totalSumOf_PM", 0] }, null],
+                },
+                { $arrayElemAt: ["$machine.totalSumOf_PM", 0] },
+                0,
+              ],
+            },
+            percentage: {
+              $divide: [
+                {
+                  $multiply: [
+                    {
+                      $add: [
+                        {
+                          $cond: [
+                            {
+                              $gt: [
+                                {
+                                  $arrayElemAt: ["$machine.totalSumOf_PM", 0],
+                                },
+                                null,
+                              ],
+                            },
+                            { $arrayElemAt: ["$machine.totalSumOf_PM", 0] },
+                            0,
+                          ],
+                        },
+                        {
+                          $cond: [
+                            {
+                              $gt: [
+                                {
+                                  $arrayElemAt: [
+                                    "$requestSheet.totalSumOf_BM",
+                                    0,
+                                  ],
+                                },
+                                null,
+                              ],
+                            },
+                            {
+                              $arrayElemAt: ["$requestSheet.totalSumOf_BM", 0],
+                            },
+                            0,
+                          ],
+                        },
+                      ],
+                    },
+                    100,
+                  ],
+                },
+                totalSum,
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            percentage: -1,
+          },
+        },
+        {
+          $match: {
+            percentage: {
+              $gt: 0,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            lines: { $push: "$line_name" },
+            totalSumOf_PM: {
+              $push: truncValue("$sumOfPM"),
+            },
+            totalSumOf_BM: {
+              $push: truncValue("$sumOfBM"),
+            },
+            lossData: {
+              $push: {
+                $trunc: ["$lossData", 1],
+              },
+            },
             percentage: {
               $push: truncValue("$percentage"),
             },
@@ -17175,6 +17436,7 @@ router.get(
       return res.status(201).json({
         message: "LineTrend data get successfully",
         BMLineTrend: BMLineTrend?.[0],
+        // pipeLine: mainPipeLine,
       });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -17202,10 +17464,19 @@ router.get(
           },
           maintenanceType: "BM",
         };
-
+      let matchQueryLossData = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
       if (req.query?.selectedMonth) {
         matchQuery_BM = {
           ...matchQuery_BM,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+            req.query?.selectedMonth,
+        };
+        matchQueryLossData = {
+          ...matchQueryLossData,
           "preAggregationTimeStampOfRequestSheet.requestSheet_month":
             req.query?.selectedMonth,
         };
@@ -17483,7 +17754,43 @@ router.get(
             as: "machine",
           },
         },
+        {
+          $lookup: {
+            from: "nolossbddatas",
+            let: {
+              userNo: "$_id",
+              userName: "$tm_name",
+            },
+            pipeline: [
+              {
+                $match: matchQueryLossData,
+              },
+              {
+                $unwind: "$supportingTM",
+              },
 
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$userNo", "$supportingTM"],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: "$supportingTM",
+                  userName: { $first: "$$userName" },
+                  totalHours: {
+                    $sum: {
+                      $divide: ["$breakDownTime", 60],
+                    },
+                  },
+                },
+              },
+            ],
+            as: "noLossData",
+          },
+        },
         {
           $lookup: {
             from: "requestsheetofbms",
@@ -17559,6 +17866,22 @@ router.get(
         {
           $project: {
             tm_name: 1,
+            noLossData: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $arrayElemAt: ["$noLossData.totalHours", 0],
+                    },
+                    null,
+                  ],
+                },
+                {
+                  $arrayElemAt: ["$noLossData.totalHours", 0],
+                },
+                0,
+              ],
+            },
             sumOfPM: {
               $cond: [
                 { $gt: [{ $arrayElemAt: ["$machine.sumOfPM", 0] }, null] },
@@ -17624,9 +17947,18 @@ router.get(
         },
         {
           $match: {
-            percentage: {
-              $gt: 0,
-            },
+            $or: [
+              {
+                noLossData: {
+                  $gt: 0,
+                },
+              },
+              {
+                percentage: {
+                  $gt: 0,
+                },
+              },
+            ],
           },
         },
         {
@@ -17634,6 +17966,9 @@ router.get(
             _id: null,
             tm_names: {
               $push: "$tm_name",
+            },
+            totalLoss: {
+              $push: truncValue("$noLossData"),
             },
             totalSumOf_PM: {
               $push: truncValue("$sumOfPM"),
@@ -17647,10 +17982,266 @@ router.get(
           },
         },
       ]);
+      const mainPipeLine = [
+        ...queryPipelineForUser,
+        {
+          $lookup: {
+            from: "machinesalldatas",
+            let: { userNo: "$tm_no" },
+            pipeline: [
+              {
+                $match: matchQuery_PM,
+              },
+              {
+                $unwind: "$checkSheet_data",
+              },
+              {
+                $match: {
+                  "checkSheet_data.current_year": req.query?.selectedYear,
+                },
+              },
+              ...monthFilterQueryPipelineForMatchingAndGrouping,
+            ],
+            as: "machine",
+          },
+        },
+        {
+          $lookup: {
+            from: "nolossbddatas",
+            let: {
+              userNo: "$_id",
+              userName: "$tm_name",
+            },
+            pipeline: [
+              {
+                $match: {
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                    req.query?.selectedYear,
+                  sectionRef: req.params?.selectedId,
+                },
+              },
+              {
+                $unwind: "$supportingTM",
+              },
+
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$userNo", "$supportingTM"],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: "$supportingTM",
+                  userName: { $first: "$$userName" },
+                  totalHours: {
+                    $sum: {
+                      $divide: ["$breakDownTime", 60],
+                    },
+                  },
+                },
+              },
+            ],
+            as: "noLossData",
+          },
+        },
+        {
+          $lookup: {
+            from: "requestsheetofbms",
+            let: { userNo: "$_id" },
+            pipeline: [
+              {
+                $match: matchQuery_BM,
+              },
+              {
+                $addFields: {
+                  allUserVarForGrouping: {
+                    $setUnion: [
+                      ["$assignUser"],
+                      {
+                        $cond: [
+                          { $gt: ["$handOverUser", null] },
+                          ["$handOverUser"],
+                          [],
+                        ],
+                      },
+                      "$supportingTM",
+                    ],
+                  },
+                },
+              },
+              { $unwind: "$allUserVarForGrouping" },
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$userNo", "$allUserVarForGrouping"],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  // machines: { $push: "$machineRef" },
+                  sumOfBM: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $gt: [
+                            "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                            null,
+                          ],
+                        },
+                        {
+                          $divide: [
+                            {
+                              $add: [
+                                "$maintenanceReportFilledByMTD.breakDownTime",
+                                {
+                                  $ifNull: [
+                                    "$maintenanceReportFilledByMTD.maintenanceTime",
+                                    0,
+                                  ],
+                                },
+                              ],
+                            },
+                            60,
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+            as: "requestSheet",
+          },
+        },
+        {
+          $project: {
+            tm_name: 1,
+            noLossData: {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $arrayElemAt: ["$noLossData.totalHours", 0],
+                    },
+                    null,
+                  ],
+                },
+                {
+                  $arrayElemAt: ["$noLossData.totalHours", 0],
+                },
+                0,
+              ],
+            },
+            sumOfPM: {
+              $cond: [
+                { $gt: [{ $arrayElemAt: ["$machine.sumOfPM", 0] }, null] },
+                { $arrayElemAt: ["$machine.sumOfPM", 0] },
+                0,
+              ],
+            },
+            sumOfBM: {
+              $cond: [
+                {
+                  $gt: [{ $arrayElemAt: ["$requestSheet.sumOfBM", 0] }, null],
+                },
+                { $arrayElemAt: ["$requestSheet.sumOfBM", 0] },
+                0,
+              ],
+            },
+            percentage: {
+              $divide: [
+                {
+                  $multiply: [
+                    {
+                      $add: [
+                        {
+                          $cond: [
+                            {
+                              $gt: [
+                                { $arrayElemAt: ["$machine.sumOfPM", 0] },
+                                null,
+                              ],
+                            },
+                            { $arrayElemAt: ["$machine.sumOfPM", 0] },
+                            0,
+                          ],
+                        },
+                        {
+                          $cond: [
+                            {
+                              $gt: [
+                                {
+                                  $arrayElemAt: ["$requestSheet.sumOfBM", 0],
+                                },
+                                null,
+                              ],
+                            },
+                            { $arrayElemAt: ["$requestSheet.sumOfBM", 0] },
+                            0,
+                          ],
+                        },
+                      ],
+                    },
+                    100,
+                  ],
+                },
+                totalSum,
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            percentage: -1,
+          },
+        },
+        {
+          $match: {
+            $or: [
+              {
+                noLossData: {
+                  $gt: 0,
+                },
+              },
+              {
+                percentage: {
+                  $gt: 0,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            tm_names: {
+              $push: "$tm_name",
+            },
+            totalLoss: {
+              $push: truncValue("$noLossData"),
+            },
+            totalSumOf_PM: {
+              $push: truncValue("$sumOfPM"),
+            },
+            totalSumOf_BM: {
+              $push: truncValue("$sumOfBM"),
+            },
+            percentage: {
+              $push: truncValue("$percentage"),
+            },
+          },
+        },
+      ];
 
       return res.status(201).json({
         message: "TM load data get successfully",
         tmLoadData: tmLoadData?.[0],
+        mainPipeLine,
       });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });

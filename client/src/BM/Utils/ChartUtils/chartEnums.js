@@ -83,7 +83,7 @@ export const chartColors = {
     "#65cc97",
   ],
 
-  bmpm: ["#c2c933", "#40aeb6"],
+  bmpm: ["#c2c933", "#40aeb6", "#FF5A8B", "#D9177F"],
 
   tmSkillPie: ["#354657", "#e8effa"],
   tmSkillborder: "#44586d",
