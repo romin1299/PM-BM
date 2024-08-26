@@ -16261,7 +16261,95 @@ const filtrationMiddleware = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
-
+const monthsPipeLine = [
+  {
+    $group: {
+      _id: null,
+      noLossData: {
+        $push: "$$ROOT",
+      },
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+      noLossData: {
+        $map: {
+          input: [
+            {
+              monthName: "Apr",
+              monthInDecimal: "04",
+            },
+            {
+              monthName: "May",
+              monthInDecimal: "05",
+            },
+            {
+              monthName: "June",
+              monthInDecimal: "06",
+            },
+            {
+              monthName: "July",
+              monthInDecimal: "07",
+            },
+            {
+              monthName: "Aug",
+              monthInDecimal: "08",
+            },
+            {
+              monthName: "Sep",
+              monthInDecimal: "09",
+            },
+            {
+              monthName: "Oct",
+              monthInDecimal: "10",
+            },
+            {
+              monthName: "Nov",
+              monthInDecimal: "11",
+            },
+            {
+              monthName: "Dec",
+              monthInDecimal: "12",
+            },
+            {
+              monthName: "Jan",
+              monthInDecimal: "01",
+            },
+            {
+              monthName: "Feb",
+              monthInDecimal: "02",
+            },
+            {
+              monthName: "Mar",
+              monthInDecimal: "03",
+            },
+          ],
+          as: "month",
+          in: {
+            $cond: [
+              {
+                $in: ["$$month.monthName", "$noLossData._id"],
+              },
+              {
+                $arrayElemAt: [
+                  "$noLossData.hours",
+                  {
+                    $indexOfArray: [
+                      "$noLossData._id",
+                      "$$month.monthInDecimal",
+                    ],
+                  },
+                ],
+              },
+              0,
+            ],
+          },
+        },
+      },
+    },
+  },
+];
 router.get(
   "/manHourReport/hourTrend/:filter/:selectedId",
   authenticate,
@@ -16425,11 +16513,133 @@ router.get(
         },
       ]);
 
+      
+
+      const noLossTrend = await NoLossBD.aggregate([
+        {
+          $match: {
+            "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+              req.query.selectedYear,
+            sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+          },
+        },
+        {
+          $group: {
+            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            hours: {
+              $sum: {
+                $trunc: [
+                  {
+                    $divide: [
+                      {
+                        $add: ["$breakDownTime"],
+                      },
+                      60,
+                    ],
+                  },
+                  1,
+                ],
+              },
+            },
+          },
+        },
+        ...monthsPipeLine
+        // {
+        //   $group: {
+        //     _id: null,
+        //     noLossData: {
+        //       $push: "$$ROOT",
+        //     },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     noLossData: {
+        //       $map: {
+        //         input: [
+        //           {
+        //             monthName: "Apr",
+        //             monthInDecimal: "04",
+        //           },
+        //           {
+        //             monthName: "May",
+        //             monthInDecimal: "05",
+        //           },
+        //           {
+        //             monthName: "June",
+        //             monthInDecimal: "06",
+        //           },
+        //           {
+        //             monthName: "July",
+        //             monthInDecimal: "07",
+        //           },
+        //           {
+        //             monthName: "Aug",
+        //             monthInDecimal: "08",
+        //           },
+        //           {
+        //             monthName: "Sep",
+        //             monthInDecimal: "09",
+        //           },
+        //           {
+        //             monthName: "Oct",
+        //             monthInDecimal: "10",
+        //           },
+        //           {
+        //             monthName: "Nov",
+        //             monthInDecimal: "11",
+        //           },
+        //           {
+        //             monthName: "Dec",
+        //             monthInDecimal: "12",
+        //           },
+        //           {
+        //             monthName: "Jan",
+        //             monthInDecimal: "01",
+        //           },
+        //           {
+        //             monthName: "Feb",
+        //             monthInDecimal: "02",
+        //           },
+        //           {
+        //             monthName: "Mar",
+        //             monthInDecimal: "03",
+        //           },
+        //         ],
+        //         as: "month",
+        //         in: {
+        //           $cond: [
+        //             {
+        //               $in: ["$$month.monthName", "$noLossData._id"],
+        //             },
+        //             {
+        //               $arrayElemAt: [
+        //                 "$noLossData.hours",
+        //                 {
+        //                   $indexOfArray: [
+        //                     "$noLossData._id",
+        //                     "$$month.monthInDecimal",
+        //                   ],
+        //                 },
+        //               ],
+        //             },
+        //             0,
+        //           ],
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+      ]);
+      // console.log(noLossTrend);
+
       return res.status(201).json({
         message: "HourTrend data get successfully",
         hourTrendData: {
           BMHourTrend: BMHourTrend?.[0]?.array,
           PMHourTrend: PMHourTrend?.[0]?.data,
+          noLossTrend: noLossTrend?.[0]?.noLossData,
         },
       });
     } catch (error) {
@@ -16651,11 +16861,50 @@ router.get(
         },
       ]);
 
+      const NoLossDataTrend = await NoLossBD.aggregate([
+        {
+          $match: {
+            "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+              req.query.selectedYear,
+            sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+          },
+        },
+        {
+          $group: {
+            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            hours: {
+              $sum: {
+                $trunc: [
+                  {
+                    $multiply: [
+                      {
+                        $divide: [
+                          {
+                            $add: ["$breakDownTime"]
+                          },
+                          60
+                        ]
+                      },
+                      {
+                        $size: "$supportingTM"
+                      }
+                    ]
+                  },
+                  1
+                ]
+              }
+            }
+          }
+        },
+        ...monthsPipeLine,
+      ]);
+
       return res.status(201).json({
         message: "HourTrend data get successfully",
         manHourTrendData: {
           BMManHourTrend: BMManHourTrend?.[0]?.array,
           PMManHourTrend: PMManHourTrend?.[0]?.data,
+          NoLossDataTrend: NoLossDataTrend?.[0]?.noLossData,
         },
       });
     } catch (error) {
@@ -17185,6 +17434,27 @@ router.get(
             },
           },
         },
+        // {
+        //   $group: {
+        //     _id: null,
+        //     lines: { $push: "$line_name" },
+        //     totalSumOf_PM: {
+        //       $push: { $arrayElemAt: ["$machine.totalSumOf_PM", 0] },
+        //     },
+        //     totalSumOf_BM: {
+        //       $push: { $arrayElemAt: ["$requestSheet.totalSumOf_BM", 0] },
+        //     },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     line_name: 1,
+        //     // requestSheet:1,
+        //     // machine:1,
+        //     requestSheet: { $arrayElemAt: ["$requestSheet", 0] },
+        //     machine: { $arrayElemAt: ["$machine", 0] },
+        //   },
+        // },
       ];
       const BMLineTrend = await Line.aggregate([
         ...req.queryPipeline,
@@ -17301,7 +17571,12 @@ router.get(
                   ],
                 },
                 {
-                  $arrayElemAt: ["$noLossData.breakDownTime", 0],
+                  $divide: [
+                    {
+                      $arrayElemAt: ["$noLossData.breakDownTime", 0],
+                    },
+                    60,
+                  ],
                 },
                 0,
               ],
@@ -17436,7 +17711,7 @@ router.get(
       return res.status(201).json({
         message: "LineTrend data get successfully",
         BMLineTrend: BMLineTrend?.[0],
-        // pipeLine: mainPipeLine,
+        pipeLine: mainPipeLine,
       });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });

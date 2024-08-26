@@ -216,6 +216,14 @@ const ManHourTrend = ({
         //borderColor: "#312A7D",
         //borderWidth: 2,
       },
+      {
+        label: "No Loss Data",
+        data: manHourTrendData?.NoLossDataTrend,
+        backgroundColor: chartColors.bmpm[2],
+        borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
+      },
     ],
   };
 

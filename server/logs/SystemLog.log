@@ -70,3 +70,13 @@
 		ReferenceError: ObjectId is not defined
     at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:17758:31
     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-26T12:37 | BM | Aggregate has empty pipeline
+		Error: Aggregate has empty pipeline
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:1041:19
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\kareem\index.js:51:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+2024-08-26T12:37 | BM | Aggregate has empty pipeline
+		Error: Aggregate has empty pipeline
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:1041:19
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\kareem\index.js:51:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)

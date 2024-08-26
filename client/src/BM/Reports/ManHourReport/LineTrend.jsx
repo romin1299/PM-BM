@@ -277,7 +277,7 @@ const LineTrend = ({
       {
         type: "bar",
         stack: "bar-stacked",
-        label: "loss data",
+        label: "No Loss Data",
         data: lineTrendData?.lossData,
         backgroundColor: chartColors.bmpm[2],
         borderRadius: 4,

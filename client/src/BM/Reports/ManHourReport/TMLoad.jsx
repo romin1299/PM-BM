@@ -304,7 +304,7 @@ const TMLoad = ({
       {
         type: "bar",
         stack: "bar-stacked",
-        label: "Loss Data",
+        label: "No Loss Data",
         data: tmLoadData?.totalLoss,
         backgroundColor: chartColors.bmpm[2],
         borderRadius: 4,
