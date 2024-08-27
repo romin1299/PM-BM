@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const plantSchema = new mongoose.Schema({
   plant_id: {
@@ -41,6 +41,5 @@ const plantSchema = new mongoose.Schema({
   },
 });
 
-const Plant = new mongoose.model('Plants', plantSchema);
+const Plant = new mongoose.model("Plants", plantSchema);
 module.exports = Plant;
-

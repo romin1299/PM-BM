@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export const initialState = (isWithLocalStorageForFiltration) => {
   if (isWithLocalStorageForFiltration === "Yes")
   return {
@@ -97,6 +99,15 @@ export const initialState = (isWithLocalStorageForFiltration) => {
     isError: false,
   };
 };
+
+export const getMajorBDTime = async({section, subSection})=>{
+  try {
+    const response = await axios.get(`/getMajorBDTime?section=${section}&subSection=${subSection}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export const ACTION = {
   GET_DATA: "get-data",

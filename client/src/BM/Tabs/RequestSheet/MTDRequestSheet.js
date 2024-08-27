@@ -18,6 +18,7 @@ import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
 import { Button, Typography } from "@mui/material";
 import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import axios from "axios";
 
 const list = [
   { key: "A", value: "A" },
@@ -32,9 +33,32 @@ function MyTable({
   requestSheetDataOfBM,
   supportingTMList,
 }) {
+  console.log("this ius mb dnalj", requestSheetDataOfBM);
+  const [majorBDTime, setMajorBDTime] = useState(120);
   const loggedUserDetails = useContext(RoutingContext);
 
   const navigate = useNavigate();
+  const getMajorBDTime = async () => {
+    try {
+      const url = `/getMajorBDTime?section=${requestSheetDataOfBM?.sectionRef?._id}`;
+      if (requestSheetDataOfBM?.subSectionref?._id) {
+        url += `&subSection=${requestSheetDataOfBM?.subSectionref?._id}`;
+      }
+      console.log(
+        requestSheetDataOfBM?.sectionRef?._id,
+        requestSheetDataOfBM?.subSectionref?._id
+      );
+      console.log(url)
+      const response = await axios.get(url);
+      setMajorBDTime(response?.data?.majorBDTime ? response?.data?.majorBDTime : 120);
+      console.log("this is majortimer res", response.data.majorBDTime);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getMajorBDTime();
+  }, []);
 
   const { machine_code, requestSheetID, generateType } = useParams();
 
@@ -81,8 +105,8 @@ function MyTable({
       requestSheetData.problemsOfBM = problems;
       requestSheetData.actionAndCounterMeasureStep = actions;
       requestSheetData.breakDownTime = timeDifferenceMinutes;
-      requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
-      requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
+      requestSheetData.minorBD = timeDifferenceMinutes <= majorBDTime ? "Yes" : "No";
+      requestSheetData.majorBD = timeDifferenceMinutes > majorBDTime ? "Yes" : "No";
       // requestSheetData.changedParts = parts?.map(({ _id, ...rest }) => ({
       //   ...rest,
       // }));
@@ -101,7 +125,7 @@ function MyTable({
           requestSheetData?.partQualityCheckedByMTD
         ]?._id;
       requestSheetData.dataSheetOfRequestSheet =
-        timeDifferenceMinutes > 120
+        timeDifferenceMinutes > majorBDTime
           ? "Yes"
           : requestSheetData.dataSheetOfRequestSheet;
 
@@ -200,7 +224,7 @@ function MyTable({
         !watch("feedbackMTD_HOS") &&
         loggedUserDetails?.tm_department === "MTD" &&
         loggedUserDetails?.tm_grade === "HOS" &&
-        timeDifferenceMinutes > 120
+        timeDifferenceMinutes > majorBDTime
       ) {
         setError(
           "feedbackMTD_HOS",
@@ -352,7 +376,7 @@ function MyTable({
 
       if (
         !watch("preventive_corrective_maintenance") &&
-        timeDifferenceMinutes > 120
+        timeDifferenceMinutes > majorBDTime
       ) {
         setError(
           "preventive_corrective_maintenance",
@@ -365,7 +389,7 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (!watch("yokotenkai") && timeDifferenceMinutes > 120) {
+      if (!watch("yokotenkai") && timeDifferenceMinutes > majorBDTime) {
         setError(
           "yokotenkai",
           {
@@ -405,7 +429,7 @@ function MyTable({
         !watch("dataSheetOfRequestSheet") &&
         !requestSheetDataOfBM?.dataSheetOfRequestSheet
         //    ||
-        // (timeDifferenceMinutes > 120 &&
+        // (timeDifferenceMinutes > majorBDTime &&
         //   requestSheetDataOfBM?.dataSheetOfRequestSheet === "Yes")
       ) {
         setError("dataSheetOfRequestSheet", {
@@ -428,7 +452,7 @@ function MyTable({
       }
 
       if (
-        (timeDifferenceMinutes > 120 ||
+        (timeDifferenceMinutes > majorBDTime ||
           watch("dataSheetOfRequestSheet") === "Yes") &&
         !requestSheetDataOfBM?.attachedDataSheets &&
         !watch("attachedDataSheets")
@@ -790,7 +814,7 @@ function MyTable({
   }, [requestSheetDataOfBM]);
 
   useEffect(() => {
-    if (timeDifferenceMinutes > 120) {
+    if (timeDifferenceMinutes > majorBDTime) {
       setSelectedMajor("Yes");
       setSelectedMinor("No");
     } else {
@@ -843,7 +867,7 @@ function MyTable({
                       name={"MTD_TL"}
                       selectedMinor={selectedMinor}
                       selectedMajor={selectedMajor}
-                      maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                      maintenanceType={requestSheetDataOfBM?.maintenanceType}
                       approvalList={
                         selectedMachineDetails?.line_names?.cell_names
                           ?.subSection_names?.section_names?.plant_names
@@ -1074,7 +1098,9 @@ function MyTable({
                           name={"MTD_HOSS"}
                           selectedMinor={selectedMinor}
                           selectedMajor={selectedMajor}
-                          maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                          maintenanceType={
+                            requestSheetDataOfBM?.maintenanceType
+                          }
                           approvalList={
                             selectedMachineDetails?.line_names?.cell_names
                               ?.subSection_names?.section_names?.plant_names
@@ -1119,7 +1145,9 @@ function MyTable({
                           name={"MTD_HOS"}
                           selectedMinor={selectedMinor}
                           selectedMajor={selectedMajor}
-                          maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                          maintenanceType={
+                            requestSheetDataOfBM?.maintenanceType
+                          }
                           approvalList={
                             selectedMachineDetails?.line_names?.cell_names
                               ?.subSection_names?.section_names?.plant_names
@@ -1160,7 +1188,7 @@ function MyTable({
                 >
                   {loggedUserDetails?.tm_department === "MTD" &&
                   loggedUserDetails?.tm_grade === "HOS" &&
-                  timeDifferenceMinutes > 120 ? (
+                  timeDifferenceMinutes > majorBDTime ? (
                     <>
                       <small className="mb-0">
                         <b>FEEDBACK</b>
@@ -1294,7 +1322,7 @@ function MyTable({
                   </Col>
                   {loggedUserDetails?.tm_department === "MTD" &&
                   loggedUserDetails?.tm_grade === "HOS" &&
-                  timeDifferenceMinutes > 120 ? (
+                  timeDifferenceMinutes > majorBDTime ? (
                     <Col lg={6} md={6} sm={12} className="border">
                       <p className="fs-6 mb-0">
                         <b>FEEDBACK</b>
@@ -1643,7 +1671,7 @@ function MyTable({
                             value="Yes"
                             id="majorBD"
                             disabled
-                            checked={timeDifferenceMinutes > 120 ? true : false}
+                            checked={timeDifferenceMinutes > majorBDTime ? true : false}
                           />
                           &nbsp;&nbsp;
                           <Form.Check
@@ -1654,7 +1682,7 @@ function MyTable({
                             value="No"
                             id="majorBD"
                             disabled
-                            checked={timeDifferenceMinutes > 120 ? false : true}
+                            checked={timeDifferenceMinutes > majorBDTime ? false : true}
                           />
                         </div>
                       </Form>
@@ -1733,7 +1761,7 @@ function MyTable({
                             value="Yes"
                             id="minorBD"
                             checked={
-                              timeDifferenceMinutes <= 120 ? true : false
+                              timeDifferenceMinutes <= majorBDTime ? true : false
                             }
                           />
                           &nbsp;&nbsp;
@@ -1747,7 +1775,7 @@ function MyTable({
                             value="No"
                             id="minorBD"
                             checked={
-                              timeDifferenceMinutes <= 120 ? false : true
+                              timeDifferenceMinutes <= majorBDTime ? false : true
                             }
                           />
                         </div>
@@ -1865,7 +1893,7 @@ function MyTable({
                             value="Yes"
                             id="minorBD"
                             checked={
-                              timeDifferenceMinutes <= 120 ? true : false
+                              timeDifferenceMinutes <= majorBDTime ? true : false
                             }
                           />
                           {/* {console.log(selectedMinor === "Yes")}
@@ -1878,7 +1906,7 @@ function MyTable({
                             value="No"
                             id="minorBD"
                             checked={
-                              timeDifferenceMinutes <= 120 ? false : true
+                              timeDifferenceMinutes <= majorBDTime ? false : true
                             }
                           />
                         </div>
@@ -2152,7 +2180,7 @@ function MyTable({
                         value="Yes"
                         id="dataSheetOfRequestSheet"
                         checked={
-                          timeDifferenceMinutes > 120
+                          timeDifferenceMinutes > majorBDTime
                             ? true
                             : watch("dataSheetOfRequestSheet") === "Yes"
                             ? true
@@ -2174,7 +2202,7 @@ function MyTable({
                         type="radio"
                         value="No"
                         id="dataSheetOfRequestSheet"
-                        disabled={timeDifferenceMinutes > 120 && true}
+                        disabled={timeDifferenceMinutes > majorBDTime && true}
                         {...register("dataSheetOfRequestSheet")}
                         onChange={(e) => {
                           setValue("dataSheetOfRequestSheet", e.target.value, {
@@ -2208,21 +2236,21 @@ function MyTable({
                           Download
                         </Button>
                       </>
-                    ) : timeDifferenceMinutes > 120 ||
+                    ) : timeDifferenceMinutes > majorBDTime ||
                       watch("dataSheetOfRequestSheet") === "Yes" ? (
                       <Form.Group controlId="formFileMultiple" className="mb-3">
                         <Form.Control
                           type="file"
                           // {...register("attachedDataSheets", {
                           //   // required:
-                          //   //   timeDifferenceMinutes > 120 ||
+                          //   //   timeDifferenceMinutes > majorBDTime ||
                           //   //   watch("dataSheetOfRequestSheet") === "Yes"
                           //   //     ? true
                           //   //     : false,
                           // })}
                           // {...register("attachedDataSheets", {
                           //   // required:
-                          //   //   timeDifferenceMinutes > 120 ||
+                          //   //   timeDifferenceMinutes > majorBDTime ||
                           //   //   watch("dataSheetOfRequestSheet") === "Yes"
                           //   //     ? true
                           //   //     : false,
@@ -2706,7 +2734,9 @@ function MyTable({
                             name={"MTD_HOD"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
-                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2754,7 +2784,9 @@ function MyTable({
                             name={"PRD_HOD"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
-                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2849,7 +2881,9 @@ function MyTable({
                             name={"PRD_TL"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
-                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names

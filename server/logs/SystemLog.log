@@ -80,3 +80,340 @@
     at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:1041:19
     at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\kareem\index.js:51:7
     at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+2024-08-27T10:46 | undefined | Cast to ObjectId failed for value ""6322e5b1fdb4a3119153b9d9"" (type string) at path "majorBDTime.subSectionRef" because of "BSONTypeError"
+		CastError: Cast to ObjectId failed for value ""6322e5b1fdb4a3119153b9d9"" (type string) at path "majorBDTime.subSectionRef" because of "BSONTypeError"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T11:38 | undefined | Cast to ObjectId failed for value "" (type string) at path "majorBDTime.subSectionRef" because of "BSONTypeError"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "majorBDTime.subSectionRef" because of "BSONTypeError"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T11:48 | undefined | Cast to ObjectId failed for value "" (type string) at path "majorBDTime.subSectionRef" because of "BSONTypeError"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "majorBDTime.subSectionRef" because of "BSONTypeError"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T11:50 | undefined | Cast to ObjectId failed for value "" (type string) at path "majorBDTime.subSectionRef" because of "BSONTypeError"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "majorBDTime.subSectionRef" because of "BSONTypeError"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T12:42 | undefined | FieldPath field names may not start with '$'. Consider using $getField or $setField.
+		MongoServerError: FieldPath field names may not start with '$'. Consider using $getField or $setField.
+    at Connection.onMessage (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-08-27T13:13 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T13:14 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T13:14 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T13:14 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T13:15 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T13:15 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T14:20 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T14:22 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T14:23 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:449:9)
+2024-08-27T14:24 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:449:9)
+2024-08-27T14:25 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:449:9)
+2024-08-27T14:26 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:449:9)
+2024-08-27T15:19 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:449:9)
+2024-08-27T15:20 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:22 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:30 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:30 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:30 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:31 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:31 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:33 | undefined | Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:34 | undefined | Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:34 | undefined | Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:34 | undefined | Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:35 | undefined | Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:35 | undefined | Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:35 | undefined | Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:35 | undefined | Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "null" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:36 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:37 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:37 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:37 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:51 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:449:9)
+2024-08-27T15:55 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:55 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:56 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:449:9)
+2024-08-27T15:56 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:56 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:56 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runNextTicks (node:internal/process/task_queues:64:3)
+    at process.processImmediate (node:internal/timers:449:9)
+2024-08-27T15:56 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:56 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:57 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T15:57 | undefined | Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "undefined" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:03 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at cellMonthlyBdTrendForSectionMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:9905:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:19 | BM | Cannot read properties of undefined (reading 'toString')
+		TypeError: Cannot read properties of undefined (reading 'toString')
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:11057:35
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterForMonthlyData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10467:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at yearlyTargetMiddlewareForMBD (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10761:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:19 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:9672:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:23 | BM | Cannot read properties of undefined (reading 'toString')
+		TypeError: Cannot read properties of undefined (reading 'toString')
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:11057:35
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterForMonthlyData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10467:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at yearlyTargetMiddlewareForMBD (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10761:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:23 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:9672:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:28 | BM | Cannot read properties of undefined (reading 'toString')
+		TypeError: Cannot read properties of undefined (reading 'toString')
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:11057:35
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterForMonthlyData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10467:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at yearlyTargetMiddlewareForMBD (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10761:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:28 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:9672:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:32 | BM | Cannot read properties of undefined (reading 'toString')
+		TypeError: Cannot read properties of undefined (reading 'toString')
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:11057:35
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterForMonthlyData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10467:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at yearlyTargetMiddlewareForMBD (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10761:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:32 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:9672:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:32 | BM | Cannot read properties of undefined (reading 'toString')
+		TypeError: Cannot read properties of undefined (reading 'toString')
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:11057:35
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterForMonthlyData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10467:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at yearlyTargetMiddlewareForMBD (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:10761:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-27T16:32 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:9672:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)

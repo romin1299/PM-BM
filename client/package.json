@@ -40,6 +40,7 @@
     "jspdf-autotable": "^3.8.1",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
+    "mongoose": "^8.5.4",
     "multiselect-react-dropdown": "^2.0.25",
     "papaparse": "^5.4.1",
     "plotly.js": "^2.18.1",

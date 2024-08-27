@@ -19,6 +19,9 @@ const sectionSchema = new mongoose.Schema({
   remarksOnMainDashboard: {
     type: String,
   },
+  majorBDTime:{
+    type: Number,
+  },
 
   TmMttrSkillScoresAndLimit,
 

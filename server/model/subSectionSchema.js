@@ -18,6 +18,9 @@ const subSectionSchema = new mongoose.Schema({
   remarksOnMainDashboard: {
     type: String,
   },
+  majorBDTime: {
+    type: Number,
+  },
 
   allTargetData,
 
@@ -27,7 +30,7 @@ const subSectionSchema = new mongoose.Schema({
     {
       group: { type: String },
       from: { type: Number },
-      to: { type: Number, default: null},
+      to: { type: Number, default: null },
     },
   ],
 });

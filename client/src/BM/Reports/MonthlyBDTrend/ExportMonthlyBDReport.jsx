@@ -106,6 +106,7 @@ const PptxMonthlyBDReport = ({
     const params = { selectedYear };
 
     try {
+      console.log("this is url",url)
       const res = await axios.get(url, {
         params,
         withCredentials: true,

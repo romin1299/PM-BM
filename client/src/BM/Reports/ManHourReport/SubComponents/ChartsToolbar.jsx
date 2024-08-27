@@ -9,7 +9,7 @@ import DownloadMenu from "./DownloadMenu";
 import LineSelectionDropdown from "./LineSelectionDropdown";
 
 const ChartsToolbar = ({
-  baseUrlForFiltering,
+  baseUrlForFiltering, 
   reduceState,
   reducerDispatch,
   ACTION,

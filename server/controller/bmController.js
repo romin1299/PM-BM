@@ -3721,6 +3721,57 @@ router.patch(
     }
   }
 );
+
+// Add Major BD time only for HOD or HOSS
+router.post("/add-major-BD", authenticate, async (req, res, next) => {
+  try {
+    const { section, subSection } = req.query;
+    let addMajorDBTime;
+    if (!subSection) {
+      addMajorDBTime = await Section.findByIdAndUpdate(
+        { _id: section },
+        {
+          majorBDTime: req.body.majorBD,
+        }
+      );
+    } else {
+      addMajorDBTime = await SubSection.findByIdAndUpdate(
+        { _id: subSection },
+        {
+          majorBDTime: req.body.majorBD,
+        }
+      );
+    }
+    res
+      .status(201)
+      .json({ message: "Major BD Time Updated Successfully", addMajorDBTime });
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ message: error?.message, error });
+  }
+});
+
+router.get("/getMajorBDTime", authenticate, async (req, res, next) => {
+  try {
+    const { section, subSection } = req.query;
+    let getMajorBDTime;
+    if (!subSection) {
+      getMajorBDTime = await Section.findById(section, { majorBDTime: 1 });
+    } else {
+      getMajorBDTime = await SubSection.findById(subSection, {
+        majorBDTime: 1,
+      });
+    }
+    res.status(201).json({
+      message: "Major BD Time Get Successfully",
+      majorBDTime: getMajorBDTime.majorBDTime,
+    });
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ message: error?.message, error });
+  }
+});
+
 router.get(
   "/getAllShifts",
   authenticate,
@@ -11517,7 +11568,7 @@ router.get(
         {
           $lookup: {
             from: "requestsheetofbms",
-            let: { subsection: "$_id" },
+            let: { subsection: "$_id",majorBDTime: "$majorBDTime" },
             pipeline: [
               {
                 $match: {
@@ -11548,7 +11599,7 @@ router.get(
                             {
                               $gt: [
                                 "$maintenanceReportFilledByMTD.breakDownTime",
-                                120,
+                                "$$majorBDTime",
                               ],
                             },
                           ],
@@ -11765,7 +11816,138 @@ router.get(
           },
         },
       ]);
+      const pipeLine = [
+        {
+          $match: { _id: mongoose.Types.ObjectId(...sectionIdsYes) },
+        },
 
+        // {
+        //   $group : {
+        //     _id : "$section_name"
+        //   }
+        // },
+
+        {
+          $lookup: {
+            from: "requestsheetofbms",
+            let: { section: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$section", "$sectionRef"],
+                  },
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                    req.query?.selectedYear,
+                  maintenanceType: "BM",
+                },
+              },
+
+              {
+                $group: {
+                  _id: {
+                    date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+                  },
+
+                  count: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $and: [
+                            {
+                              $gt: [
+                                "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                                null,
+                              ],
+                            },
+                            {
+                              $gt: [
+                                "$maintenanceReportFilledByMTD.breakDownTime",
+                                120,
+                              ],
+                            },
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: "$section_name",
+                  label: { $first: "$section_name" },
+                  sectionWiseTotal: {
+                    $push: {
+                      month: "$_id.date",
+
+                      count: "$count",
+                    },
+                  },
+                },
+              },
+
+              {
+                $project: {
+                  _id: 0,
+                  // label: 1,
+                  data: {
+                    $map: {
+                      input: allMonths,
+                      as: "month",
+                      in: {
+                        $cond: [
+                          {
+                            $in: [
+                              "$$month.monthName",
+                              "$sectionWiseTotal.month",
+                            ],
+                          },
+                          {
+                            $arrayElemAt: [
+                              "$sectionWiseTotal.count",
+                              {
+                                $indexOfArray: [
+                                  "$sectionWiseTotal.month",
+                                  "$$month.monthName",
+                                ],
+                              },
+                            ],
+                          },
+                          0,
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+
+              {
+                $unwind: "$data",
+              },
+            ],
+            as: "section_data",
+          },
+        },
+
+        // {
+        //   $unwind: "$section_data",
+        // },
+
+        {
+          $sort: { section_name: 1 },
+        },
+        {
+          $project: {
+            _id: 0,
+            label: "$section_name",
+            data: "$section_data.data",
+          },
+        },
+      ]
       const bdTrendData = [...subSectionQuery, ...sectionQuery];
       return res.status(200).json({
         message: "Mbd Count data get successfully",
@@ -11774,6 +11956,7 @@ router.get(
         bdTrendData,
         bdTrendDataTarget: req.targetForCount,
         targetTotal: req.targetForCountTotal,
+        pipeLine
         // sectionQuery,
         // subSectionQuery,
       });
@@ -11929,10 +12112,148 @@ router.get(
           },
         },
       ]);
+      const pipeLine = [
+        {
+          $match: {
+            $or: [
+              {
+                subSection_names: mongoose.Types.ObjectId(
+                  req.params.selectedId
+                ),
+              },
+              { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
+            ],
+          },
+        },
+
+        // {
+        //   $group : {
+        //     _id : "$section_name"
+        //   }
+        // },
+
+        {
+          $lookup: {
+            from: "requestsheetofbms",
+            let: { cell: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$$cell", "$cellRef"],
+                  },
+                  "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                    req.query?.selectedYear,
+                },
+              },
+
+              {
+                $group: {
+                  _id: {
+                    date: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+                  },
+
+                  count: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $and: [
+                            {
+                              $gt: [
+                                "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+                                null,
+                              ],
+                            },
+                            {
+                              $gt: [
+                                "$maintenanceReportFilledByMTD.breakDownTime",
+                                120,
+                              ],
+                            },
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+
+              {
+                $group: {
+                  _id: "$section_name",
+                  label: { $first: "$section_name" },
+                  cellWiseTotal: {
+                    $push: {
+                      month: "$_id.date",
+
+                      count: "$count",
+                    },
+                  },
+                },
+              },
+
+              {
+                $project: {
+                  _id: 0,
+                  // label: 1,
+                  data: {
+                    $map: {
+                      input: allMonths,
+                      as: "month",
+                      in: {
+                        $cond: [
+                          {
+                            $in: ["$$month.monthName", "$cellWiseTotal.month"],
+                          },
+                          {
+                            $arrayElemAt: [
+                              "$cellWiseTotal.count",
+                              {
+                                $indexOfArray: [
+                                  "$cellWiseTotal.month",
+                                  "$$month.monthName",
+                                ],
+                              },
+                            ],
+                          },
+                          0,
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+
+              {
+                $unwind: "$data",
+              },
+            ],
+            as: "cell_data",
+          },
+        },
+        // {
+        //   $unwind: "$cell_data",
+        // },
+
+        {
+          $sort: { cell_name: 1 },
+        },
+
+        {
+          $project: {
+            _id: 0,
+            label: "$cell_name",
+            data: "$cell_data.data",
+          },
+        },
+      ]
 
       return res.status(200).json({
         message: "Mbd Count data get successfully",
         bdTrendData,
+        pipeLine,
         labels: req.labels,
         bdTrendDataTarget: req.targetForCount,
         targetTotal: req.targetForCountTotal,
@@ -16513,8 +16834,6 @@ router.get(
         },
       ]);
 
-      
-
       const noLossTrend = await NoLossBD.aggregate([
         {
           $match: {
@@ -16543,7 +16862,7 @@ router.get(
             },
           },
         },
-        ...monthsPipeLine
+        ...monthsPipeLine,
         // {
         //   $group: {
         //     _id: null,
@@ -16880,21 +17199,21 @@ router.get(
                       {
                         $divide: [
                           {
-                            $add: ["$breakDownTime"]
+                            $add: ["$breakDownTime"],
                           },
-                          60
-                        ]
+                          60,
+                        ],
                       },
                       {
-                        $size: "$supportingTM"
-                      }
-                    ]
+                        $size: "$supportingTM",
+                      },
+                    ],
                   },
-                  1
-                ]
-              }
-            }
-          }
+                  1,
+                ],
+              },
+            },
+          },
         },
         ...monthsPipeLine,
       ]);

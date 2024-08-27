@@ -8,8 +8,10 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { Box } from "@mui/system";
 import { Divider, Typography } from "@mui/material";
 import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
+// import { MonthDropdown } from "../..//ManHourReport/SubComponents/LineSelectionDropdown";
+// import { CommonDropdown } from "../../Reports/ManHourReport/SubComponents/LineSelectionDropdown";
 
-const RequestSheetCustomizedApproval = () => {
+const RequestSheetCustomizedApproval = ({ majorBDTime }) => {
   const {
     register,
     handleSubmit,
@@ -86,7 +88,10 @@ const RequestSheetCustomizedApproval = () => {
             <Col className="cell m-2 p-2">
               <h6 style={{ marginLeft: "0px" }}>
                 Minor BD Approval Selection (
-                <span className="text-success">{"<"} 2 Hrs.</span>)
+                <span className="text-success">
+                  {"<"} {(majorBDTime/60).toFixed(1)} Hrs.
+                </span>
+                )
               </h6>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (
@@ -114,7 +119,10 @@ const RequestSheetCustomizedApproval = () => {
             <Col className="cell m-2 p-2">
               <h6 style={{ marginLeft: "0px" }}>
                 Major BD Approval Selection (
-                <span className="text-danger">{">"} 2 Hrs.</span>)
+                <span className="text-danger">
+                  {">"} {(majorBDTime/60).toFixed(1)} Hrs.
+                </span>
+                )
               </h6>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (
