@@ -33,6 +33,7 @@ router.use(cookieParser());
 const {
   APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM,
 } = require("../GlobalData/RequestSheetApprovalStatus");
+const SafetyForm = require("../model/safetyFormSchema");
 
 const statusArray = [
   "Generated",
@@ -1517,6 +1518,102 @@ router.patch(
       message: `Request-sheet updated successfully ${req.requestSheetData?.[0]?.requestSheetNoOfBM}`,
       requestSheet: req.requestSheetData?.[0],
     });
+  }
+);
+// this api will only update the datasheets of Req Sheet
+// const abc = require("../DataSheetOfBD")
+router.patch(
+  "/updateDataSheetsOfReqSheet/:reqSheetId",
+  authenticate,
+  uploadDataSheetsOfBD.fields([{ name: "attachedDataSheets", maxCount: 1 }]),
+  async (req, res, next) => {
+    const reqSheetId = req.params.reqSheetId;
+    console.log(req.files?.attachedDataSheets);
+    console.log("ths is ", req?.query?.prevDataSheet);
+    // console.log(`../DataSheetOfBD/${(req?.query?.prevDataSheet).trim()}`);
+    const reqSheet = await RequestSheetOfBM.findById(reqSheetId);
+
+    fs.unlink(
+      path.join(
+        __dirname,
+        `../DataSheetOfBD/${(reqSheet?.attachedDataSheets).trim()}`
+      ),
+      function (err) {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log("Data-sheet file Removed Successfully");
+        }
+      }
+    );
+    const requestSheet = await RequestSheetOfBM.findByIdAndUpdate(
+      reqSheetId,
+      {
+        $set: {
+          attachedDataSheets: req.files?.attachedDataSheets?.[0].filename,
+        },
+      },
+      { new: true }
+    );
+    // console.log(requestSheet);
+
+    res.status(201).json({
+      message: "Data-sheets updated successfully",
+      requestSheet,
+    });
+
+    // if (requestSheet) {
+    //   requestSheet.attachedDataSheets =
+    //     req.files?.attachedDataSheets?.[0]?.filename;
+    //   await requestSheet.save();
+    //   res.status(201).json({
+    //     message: "Data-sheets updated successfully",
+    //   });
+    // }
+  }
+);
+router.patch(
+  "/updateDrawingsOfReqSheet/:reqSheetId",
+  authenticate,
+  uploadDataSheetsOfBD.fields([{ name: "attachedDrawings", maxCount: 10 }]),
+  async (req, res, next) => {
+    try {
+      const reqSheetId = req.params.reqSheetId;
+      const reqSheet = await RequestSheetOfBM.findById(reqSheetId);
+      reqSheet?.attachedDrawings?.map((drawingFileName) => {
+        fs.unlink(
+          path.join(__dirname, `../DrawingsOfBD/${drawingFileName}`),
+          function (err) {
+            if (err) {
+              console.error(err);
+            } else {
+              console.log("Drawing files Removed Successfully");
+            }
+          }
+        );
+        console.log("previous ", drawingFileName);
+      });
+      console.log("new files", req.files?.attachedDrawings);
+      const updatedReqSheet = await RequestSheetOfBM.findByIdAndUpdate(
+        reqSheetId,
+        {
+          $set: {
+            attachedDrawings: req.files?.attachedDrawings?.map(
+              (drawing) => drawing.filename
+            ),
+          },
+        },
+        {
+          new: true,
+        }
+      );
+      res.status(201).json({
+        message: "Drawings updated successfully",
+        updatedReqSheet,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 );
 
@@ -11568,7 +11665,7 @@ router.get(
         {
           $lookup: {
             from: "requestsheetofbms",
-            let: { subsection: "$_id",majorBDTime: "$majorBDTime" },
+            let: { subsection: "$_id", majorBDTime: "$majorBDTime" },
             pipeline: [
               {
                 $match: {
@@ -11947,7 +12044,7 @@ router.get(
             data: "$section_data.data",
           },
         },
-      ]
+      ];
       const bdTrendData = [...subSectionQuery, ...sectionQuery];
       return res.status(200).json({
         message: "Mbd Count data get successfully",
@@ -11956,7 +12053,7 @@ router.get(
         bdTrendData,
         bdTrendDataTarget: req.targetForCount,
         targetTotal: req.targetForCountTotal,
-        pipeLine
+        pipeLine,
         // sectionQuery,
         // subSectionQuery,
       });
@@ -11988,7 +12085,22 @@ router.get(
             ],
           },
         },
-
+        {
+          $lookup: {
+            from: "sections",
+            localField: "section_names",
+            foreignField: "_id",
+            as: "section",
+          },
+        },
+        {
+          $lookup: {
+            from: "subsections",
+            localField: "subSection_names",
+            foreignField: "_id",
+            as: "subSection",
+          },
+        },
         // {
         //   $group : {
         //     _id : "$section_name"
@@ -11998,7 +12110,18 @@ router.get(
         {
           $lookup: {
             from: "requestsheetofbms",
-            let: { cell: "$_id" },
+            let: {
+              cell: "$_id",
+              dashboardLvl: {
+                $arrayElemAt: ["$section.dashboardLevel", 0],
+              },
+              majorBDTimeSection: {
+                $arrayElemAt: ["$section.majorBDTime", 0],
+              },
+              majorBDTimeSubSection: {
+                $arrayElemAt: ["$subSection.majorBDTime", 0],
+              },
+            },
             pipeline: [
               {
                 $match: {
@@ -12030,7 +12153,15 @@ router.get(
                             {
                               $gt: [
                                 "$maintenanceReportFilledByMTD.breakDownTime",
-                                120,
+                                {
+                                  $cond: [
+                                    {
+                                      $eq: ["$$dashboardLvl", "No"],
+                                    },
+                                    "$$majorBDTimeSubSection",
+                                    "$$majorBDTimeSection",
+                                  ],
+                                },
                               ],
                             },
                           ],
@@ -12248,7 +12379,7 @@ router.get(
             data: "$cell_data.data",
           },
         },
-      ]
+      ];
 
       return res.status(200).json({
         message: "Mbd Count data get successfully",
@@ -21600,5 +21731,48 @@ router.post(
     }
   }
 );
+
+// safety form CRUD Operations
+
+router.post(
+  "/addSafetyForm/:requestSheetRef",
+  authenticate,
+  async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.create({
+        requestSheetRef: req.params?.requestSheetRef,
+        ...req.body,
+      });
+      if (!safetyForm) {
+        return res
+          .status(400)
+          .json({ message: "Error in creating safety form" });
+      }
+      res
+        .status(201)
+        .json({ message: "Safety form created successfully", safetyForm });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get("/getSafetyForm", authenticate, async (req, res) => {
+  try {
+    const safetyForm = await SafetyForm.findById({
+      requestSheetRef: req.params?.requestSheetRef,
+    });
+    if (!safetyForm) {
+      return res.status(400).json({ message: "Not Found!!!" });
+    }
+    res.status(200).json({
+      message: "Safety form fetched successfully",
+      safetyForm,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 module.exports = router;
