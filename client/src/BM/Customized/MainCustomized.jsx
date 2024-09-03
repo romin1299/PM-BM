@@ -17,7 +17,7 @@ import axios from "axios";
 const MainCustomized = () => {
   const userData = useContext(RoutingContext);
   // console.log("userData", userData);
-  const [majorBDTime, setMajorBDTime] = useState(2);
+  const [majorBDTime, setMajorBDTime] = useState(120);
   const [selectedSection, setSelectedSection] = useState(
     "6322e549fdb4a3119153b9b2"
   );
@@ -27,13 +27,13 @@ const MainCustomized = () => {
 
   const getMajorBDTime = async () => {
     try {
-      console.log(selectedSection, selectedSubSection);
+      // console.log(selectedSection, selectedSubSection);
       const response = await axios.get(
         `/getMajorBDTime?section=${selectedSection}&subSection=${selectedSubSection}`
       );
       console.log(response.data.majorBDTime);
       setMajorBDTime(
-        response?.data?.majorBDTime ? response?.data?.majorBDTime : 2
+        response?.data?.majorBDTime ? response?.data?.majorBDTime : 120
       );
       console.log(majorBDTime);
     } catch (error) {
@@ -60,7 +60,7 @@ const MainCustomized = () => {
           <ManageCategories />
         </Col>
         <Col md={12} lg={6} className="mt-2">
-          <RequestSheetCustomizedApproval majorBDTime={majorBDTime} />
+          <RequestSheetCustomizedApproval majorBDTime={majorBDTime ? majorBDTime : 120} />
         </Col>
 
         {/* <Col md={12} lg={6} className="mt-2">

@@ -46,7 +46,7 @@ const CustomizedMajorBD = ({
       const response = await axios.post(
         `/add-major-BD?section=${reduceState?.selectedSection}&subSection=${reduceState?.selectedSubSection}`,
         {
-          majorBD: (data.majorBD / 60).toFixed(1), // For storing minutes to hours
+          majorBD: data.majorBD
         },
         config
       );
@@ -59,6 +59,7 @@ const CustomizedMajorBD = ({
       console.log(error);
     }
   };
+  console.log(majorBDTime)
   return (
     <div className="cell p-3">
       <div>

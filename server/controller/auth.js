@@ -13147,14 +13147,15 @@ router.post(
 
       const scheduleOrCompletedHoursCount = `checkSheet_data`;
       let GetAllPlanAndCompletedHours;
+      let pipeLine;
       if (req?.query?.filter === "Hours") {
         const compltedHoursOfPM = `$checkSheet_data.totalPMTime.${currentMonth}.totalWorkedPMTime`;
-
         GetAllPlanAndCompletedHours = await Machine.aggregate([
           {
             $match: {
               line_names: { $in: lineIdArray },
               checkSheet_data: { $ne: [] },
+              // machine_code: "EETP-041",
             },
           },
           {
@@ -13181,21 +13182,127 @@ router.post(
             $group: {
               _id: null,
               schedulePm: {
-                $sum: truncValue({
-                  $divide: [
-                    { $toDouble: "$checkSheet_data.checkSheet.PM_time" },
-                    60,
-                  ],
-                }),
+                $sum: {
+                  $cond: {
+                    if: {
+                      $eq: [
+                        {
+                          $arrayElemAt: [
+                            `$checkSheet_data.checkSheet.planningTableAnimationArray2.${currentMonth}`,
+                            0,
+                          ],
+                        },
+                        "1",
+                      ],
+                    },
+                    then: {
+                      $trunc: {
+                        $divide: [
+                          { $toDouble: "$checkSheet_data.checkSheet.PM_time" },
+                          60,                                                                                                                                                                                                                                                                 
+                        ],
+                      },
+                    },
+                    else: 0,
+                  },
+                },
               },
-              completed: {
-                $sum: truncValue({
-                  $divide: [compltedHoursOfPM, 60],
-                }),
-              },
+              
             },
           },
+          {
+            $project: {
+              schedulePm: 1,
+              completed: {
+                $sum: {
+                  $trunc: {
+                    $divide: [
+                      { $toDouble: `$checkSheet_data.totalPMTime.${currentMonth}.totalWorkedPMTime` },
+                      60
+                    ]
+                  }
+                }
+              },
+            }
+          }
         ]);
+        pipeLine = [
+          {
+            $match: {
+              line_names: { $in: lineIdArray },
+              checkSheet_data: { $ne: [] },
+              // machine_code: "EETP-041",
+            },
+          },
+          {
+            $unwind: "$checkSheet_data",
+          },
+          {
+            $match: {
+              "checkSheet_data.current_year": selectedYear,
+              $and: [
+                {
+                  [keyForCurrentMonthPMStatus]: { $ne: "" },
+                },
+                {
+                  [keyForCurrentMonthScheduleOrNotStatus]: { $ne: "" },
+                },
+              ],
+              "checkSheet_data.PMStatus": { $ne: undefined },
+            },
+          },
+          {
+            $unwind: "$checkSheet_data.checkSheet",
+          },
+          {
+            $group: {
+              _id: null,
+              schedulePm: {
+                $sum: {
+                  $cond: {
+                    if: {
+                      $eq: [
+                        {
+                          $arrayElemAt: [
+                            `$checkSheet_data.checkSheet.planningTableAnimationArray2.${currentMonth}`,
+                            0,
+                          ],
+                        },
+                        "1",
+                      ],
+                    },
+                    then: {
+                      $trunc: {
+                        $divide: [
+                          { $toDouble: "$checkSheet_data.checkSheet.PM_time" },
+                          60,                                                                                                                                                                                                                                                                 
+                        ],
+                      },
+                    },
+                    else: 0,
+                  },
+                },
+              },
+              
+            },
+          },
+          {
+            $project: {
+              schedulePm: 1,
+              completed: {
+                $sum: {
+                  $trunc: {
+                    $divide: [
+                      { $toDouble: `$checkSheet_data.totalPMTime.${currentMonth}.totalWorkedPMTime` },
+                      60
+                    ]
+                  }
+                }
+              },
+            }
+          }
+        ];
+        console.log(GetAllPlanAndCompletedHours);
       }
 
       machineDataForPreviousMonth = await Machine.aggregate([
@@ -13367,11 +13474,12 @@ router.post(
       );
 
       res.json({
-        skipMachineDataWithEveryMonth,
-        machineDataForCurrentMonth,
-        machineDataForPreviousMonth,
-        cellData,
-        lineData,
+        // skipMachineDataWithEveryMonth,
+        // machineDataForCurrentMonth,
+        // machineDataForPreviousMonth,
+        // cellData,
+        // lineData,
+        pipeLine,
         GetAllPlanAndCompletedHours: GetAllPlanAndCompletedHours?.[0],
       });
     } catch (error) {

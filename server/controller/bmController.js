@@ -16789,7 +16789,7 @@ const monthsPipeLine = [
                   {
                     $indexOfArray: [
                       "$noLossData._id",
-                      "$$month.monthInDecimal",
+                      "$$month.monthName",
                     ],
                   },
                 ],
@@ -16994,93 +16994,7 @@ router.get(
           },
         },
         ...monthsPipeLine,
-        // {
-        //   $group: {
-        //     _id: null,
-        //     noLossData: {
-        //       $push: "$$ROOT",
-        //     },
-        //   },
-        // },
-        // {
-        //   $project: {
-        //     _id: 0,
-        //     noLossData: {
-        //       $map: {
-        //         input: [
-        //           {
-        //             monthName: "Apr",
-        //             monthInDecimal: "04",
-        //           },
-        //           {
-        //             monthName: "May",
-        //             monthInDecimal: "05",
-        //           },
-        //           {
-        //             monthName: "June",
-        //             monthInDecimal: "06",
-        //           },
-        //           {
-        //             monthName: "July",
-        //             monthInDecimal: "07",
-        //           },
-        //           {
-        //             monthName: "Aug",
-        //             monthInDecimal: "08",
-        //           },
-        //           {
-        //             monthName: "Sep",
-        //             monthInDecimal: "09",
-        //           },
-        //           {
-        //             monthName: "Oct",
-        //             monthInDecimal: "10",
-        //           },
-        //           {
-        //             monthName: "Nov",
-        //             monthInDecimal: "11",
-        //           },
-        //           {
-        //             monthName: "Dec",
-        //             monthInDecimal: "12",
-        //           },
-        //           {
-        //             monthName: "Jan",
-        //             monthInDecimal: "01",
-        //           },
-        //           {
-        //             monthName: "Feb",
-        //             monthInDecimal: "02",
-        //           },
-        //           {
-        //             monthName: "Mar",
-        //             monthInDecimal: "03",
-        //           },
-        //         ],
-        //         as: "month",
-        //         in: {
-        //           $cond: [
-        //             {
-        //               $in: ["$$month.monthName", "$noLossData._id"],
-        //             },
-        //             {
-        //               $arrayElemAt: [
-        //                 "$noLossData.hours",
-        //                 {
-        //                   $indexOfArray: [
-        //                     "$noLossData._id",
-        //                     "$$month.monthInDecimal",
-        //                   ],
-        //                 },
-        //               ],
-        //             },
-        //             0,
-        //           ],
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
+        
       ]);
       // console.log(noLossTrend);
 
@@ -17348,6 +17262,8 @@ router.get(
         },
         ...monthsPipeLine,
       ]);
+
+
 
       return res.status(201).json({
         message: "HourTrend data get successfully",
