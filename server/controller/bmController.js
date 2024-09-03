@@ -1711,13 +1711,6 @@ const filterMiddleware = async (req, res, next) => {
       };
     }
 
-    if (req.query?.selectedMaintenanceType) {
-      queryObj = {
-        ...queryObj,
-        maintenanceType: req.query?.selectedMaintenanceType,
-      };
-    }
-
     if (req.params?.filter === "based-on-plant") {
       queryObj = {
         ...queryObj,
@@ -1990,6 +1983,13 @@ router.get(
   async (req, res, next) => {
     try {
       delete req.queryObj.maintenanceType;
+
+      if (req.query?.selectedMaintenanceType) {
+        req.queryObj = {
+          ...req?.queryObj,
+          maintenanceType: req?.query?.selectedMaintenanceType,
+        };
+      }
       // For fetching all data
       let queryPipeline = [
         {

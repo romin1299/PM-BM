@@ -296,7 +296,9 @@ const CheckSheetEditAfterApproval = ({
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch(
-        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${selectedRow?.machine_code}&&selectedYear=${selectedYear}`,
+        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${
+          selectedRow?.machine_code
+        }&&selectedYear=${selectedYear}&&getAllUser=${true}`,
         {
           method: "POST",
           headers: {
@@ -517,14 +519,29 @@ const CheckSheetEditAfterApproval = ({
                         </th>
                         {machineAllData?.checkSheet_data
                           ?.implementation_approved_by_MTD_TL
-                          ? Object?.values(
+                          ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implementation_approved_by_MTD_TL
-                            )?.map((index) => (
-                              <td className="ar-table-col1">
-                                {index[index?.length - 1]}
-                              </td>
-                            ))
+                                ?.implemetation_mtd_tl_approval_status
+                            ).map(([month, statusArray]) =>
+                              statusArray[statusArray.length - 1] ===
+                              "Accepted" ? (
+                                <td className="ar-table-col1">
+                                  {
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_MTD_TL_name[
+                                      month
+                                    ][
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_MTD_TL_name[
+                                        month
+                                      ].length - 1
+                                    ]
+                                  }
+                                </td>
+                              ) : (
+                                <td className="ar-table-col1"></td>
+                              )
+                            )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>
                             ))}
@@ -574,14 +591,29 @@ const CheckSheetEditAfterApproval = ({
                         </th>
                         {machineAllData?.checkSheet_data
                           ?.implementation_approved_by_MTD_HOS
-                          ? Object?.values(
+                          ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implementation_approved_by_MTD_HOS
-                            )?.map((index) => (
-                              <td className="ar-table-col1">
-                                {index[index?.length - 1]}
-                              </td>
-                            ))
+                                ?.implemetation_mtd_hos_approval_status
+                            ).map(([month, statusArray]) =>
+                              statusArray[statusArray.length - 1] ===
+                              "Accepted" ? (
+                                <td className="ar-table-col1">
+                                  {
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_MTD_HOS_name[
+                                      month
+                                    ][
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_MTD_HOS_name[
+                                        month
+                                      ].length - 1
+                                    ]
+                                  }
+                                </td>
+                              ) : (
+                                <td className="ar-table-col1"></td>
+                              )
+                            )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>
                             ))}
@@ -1150,13 +1182,29 @@ const CheckSheetEditAfterApproval = ({
                           (MTD TM's)
                         </th>
                         {machineAllData?.checkSheet_data?.PMworkedTMName
-                          ? Object?.values(
-                              machineAllData?.checkSheet_data?.PMworkedTMName
-                            )?.map((index) => (
-                              <td className="ar-table-col1">
-                                {index.join(" ,")}
-                              </td>
-                            ))
+                          ? Object.keys({
+                              ...machineAllData?.checkSheet_data
+                                ?.implemetation_completed_tm_name,
+                              ...machineAllData?.checkSheet_data
+                                ?.PMworkedTMName,
+                            }).map((month) => {
+                              const uniqueNames = [
+                                ...new Set([
+                                  ...(machineAllData?.checkSheet_data
+                                    ?.implemetation_completed_tm_name[month] ||
+                                    []),
+                                  ...(machineAllData?.checkSheet_data
+                                    ?.PMworkedTMName?.[month] || []),
+                                ]),
+                              ];
+                              return (
+                                <td key={month} className="ar-table-col1">
+                                  {uniqueNames.length > 0
+                                    ? uniqueNames.join(" ,")
+                                    : "-"}
+                                </td>
+                              );
+                            })
                           : refArrayForTDMapping.map((index) => (
                               <td className="ar-table-col1"></td>
                             ))}
@@ -1170,14 +1218,29 @@ const CheckSheetEditAfterApproval = ({
                         </th>
                         {machineAllData?.checkSheet_data
                           ?.implementation_approved_by_PRD_TL
-                          ? Object.values(
+                          ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implementation_approved_by_PRD_TL
-                            )?.map((index) => (
-                              <td className="ar-table-col1">
-                                {index[index?.length - 1]}
-                              </td>
-                            ))
+                                ?.implemetation_prd_tl_approval_status
+                            ).map(([month, statusArray]) =>
+                              statusArray[statusArray.length - 1] ===
+                              "Accepted" ? (
+                                <td className="ar-table-col1">
+                                  {
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_PRD_TL_name[
+                                      month
+                                    ][
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_PRD_TL_name[
+                                        month
+                                      ].length - 1
+                                    ]
+                                  }
+                                </td>
+                              ) : (
+                                <td className="ar-table-col1"></td>
+                              )
+                            )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>
                             ))}

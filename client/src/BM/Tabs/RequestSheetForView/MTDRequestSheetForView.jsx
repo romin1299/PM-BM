@@ -77,35 +77,35 @@ function MTDRequestSheetForView({
 
       setValue(
         "breakDownTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.breakDownTime
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.breakDownTime || 0
       );
       setValue(
         "analysisTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.analysisTime
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.analysisTime || 0
       );
       setValue(
         "spareWaitingTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.spareWaitingTime
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.spareWaitingTime || 0
       );
       setValue(
         "maintenanceTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime || 0
       );
       setValue(
         "replacementTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.replacementTime
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.replacementTime || 0
       );
       setValue(
         "adjustmentTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.adjustmentTime
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.adjustmentTime || 0
       );
       setValue(
         "qualityCheckTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.qualityCheckTime
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.qualityCheckTime || 0
       );
       setValue(
         "breakTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.breakTime
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.breakTime || 0
       );
       setValue(
         "minorBD",
@@ -748,7 +748,25 @@ function MTDRequestSheetForView({
                   <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAKDOWN</b>
                   </small>
-                  <p>{timeDifferenceMinutes || null}</p>
+                  {/* <p>{timeDifferenceMinutes || null}</p> */}
+                  <input
+                    disabled
+                    type="number"
+                    style={{ width: "100%" }}
+                    id="breakDownTime"
+                    name="breakDownTime"
+                    {...register("breakDownTime", {
+                      // required: "This field is required",
+                    })}
+                    onChange={(e) => {
+                      setValue("breakDownTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("breakDownTime");
+                      clearErrors("totalTimeValidation");
+                    }}
+                    // onChange={handlebreakDownTime}
+                  />
                 </Col>
                 <Col
                   lg={3}

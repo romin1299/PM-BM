@@ -239,6 +239,7 @@ const PlanningApprovalDashboard = () => {
           state: {
             selectedRowForViewForm: selectedRow,
             dashboardID: "FromPlanningApprovalDashboard",
+            selectedYear: selectedRow?.checkSheet_data?.current_year,
           },
         });
         // }

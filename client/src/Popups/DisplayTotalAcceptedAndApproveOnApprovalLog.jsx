@@ -5,6 +5,7 @@ const DisplayTotalAcceptedAndApproveOnApprovalLog = ({
   acceptedAndApproveTotalCount,
   modelProp,
 }) => {
+  console.log(acceptedAndApproveTotalCount);
   return (
     <Modal
       {...modelProp}
@@ -30,16 +31,17 @@ const DisplayTotalAcceptedAndApproveOnApprovalLog = ({
             {acceptedAndApproveTotalCount?.map((item, index) => (
               <React.Fragment key={index}>
                 <tr>
-                  <td rowSpan={item?.data?.length + 1}>{item?._id}</td>
+                  <td rowSpan={item?.data?.length + 1}>{item?.userType}</td>
                 </tr>
 
                 {item?.data?.map((item1, index) => (
                   <tr key={index}>
-                    <td>{item1?.userName}</td>
-
-                    <td key={index} style={{ textAlign: "center" }}>
-                      {item1?.countOfAccepted} / {item1?.totalApproval}
-                    </td>
+                    <>
+                      <td>{item1?.userName}</td>
+                      <td key={index} style={{ textAlign: "center" }}>
+                        {item1?.countOfAccepted} / {item1?.countOfPending}
+                      </td>
+                    </>
                   </tr>
                 ))}
               </React.Fragment>

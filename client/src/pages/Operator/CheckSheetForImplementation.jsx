@@ -31,7 +31,7 @@ const CheckSheet = ({
   // functionToSetRefKey,
   closeCheckSheet,
   machine_code,
-  selectedYear
+  selectedYear,
 }) => {
   const context = useContext(RoutingContext);
 
@@ -59,14 +59,14 @@ const CheckSheet = ({
   const [machineAllData, setMachineAllData] = useState([]);
 
   const [listOfAllApproverAndOtherData, setListOfAllApproverAndOtherData] =
-  useState({
-    HOSList: [],
-    PRDTLlist: [],
-    MTDTLlist: [],
-    supportingTMList: [],
-    MTDHODlistForAfterAdd: [],
-    selectedMonth: "",
-  });
+    useState({
+      HOSList: [],
+      PRDTLlist: [],
+      MTDTLlist: [],
+      supportingTMList: [],
+      MTDHODlistForAfterAdd: [],
+      selectedMonth: "",
+    });
 
   // let machineAllData = machineData;
   // console.log(machineAllData);
@@ -165,7 +165,9 @@ const CheckSheet = ({
       } else {
         console.log("PM worked data save sucessfully...");
         postMachineIdToGetAllDetailsOfMachine();
-        InfoToast("Don't forget to send for approval after all points are completed !!!")
+        InfoToast(
+          "Don't forget to send for approval after all points are completed !!!"
+        );
         // closeCheckSheet();
         // navigate("/");
         // clearState();
@@ -199,9 +201,12 @@ const CheckSheet = ({
         method: "Post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prd_tl_list: listOfAllApproverAndOtherData?.PRDTLlist[values.prd_tl_list],
-          mtd_tl_list: listOfAllApproverAndOtherData?.MTDTLlist[values.mtd_tl_list],
-          mtd_hos_list: listOfAllApproverAndOtherData?.HOSList[values.mtd_hos_list],
+          prd_tl_list:
+            listOfAllApproverAndOtherData?.PRDTLlist[values.prd_tl_list],
+          mtd_tl_list:
+            listOfAllApproverAndOtherData?.MTDTLlist[values.mtd_tl_list],
+          mtd_hos_list:
+            listOfAllApproverAndOtherData?.HOSList[values.mtd_hos_list],
           implemetation_completed_date: timeStamp(),
           selected_machine_data: machineAllData,
           monthForCompareSystemMonth,
@@ -596,7 +601,9 @@ const CheckSheet = ({
         close={close}
         senderApprovalMonth={senderApprovalMonth}
         // functionToSetRefKey={functionToSetRefKey}
-        postMachineIdToGetAllDetailsOfMachine={postMachineIdToGetAllDetailsOfMachine}
+        postMachineIdToGetAllDetailsOfMachine={
+          postMachineIdToGetAllDetailsOfMachine
+        }
         // tableData={tableData}
         machineData={machineAllData}
       />
@@ -922,14 +929,29 @@ const CheckSheet = ({
                           </th>
                           {machineAllData?.checkSheet_data
                             ?.implementation_approved_by_MTD_TL
-                            ? Object?.values(
+                            ? Object.entries(
                                 machineAllData?.checkSheet_data
-                                  ?.implementation_approved_by_MTD_TL
-                              )?.map((index) => (
-                                <td className="ar-table-col1">
-                                  {index[index?.length - 1]}
-                                </td>
-                              ))
+                                  ?.implemetation_mtd_tl_approval_status
+                              ).map(([month, statusArray]) =>
+                                statusArray[statusArray.length - 1] ===
+                                "Accepted" ? (
+                                  <td className="ar-table-col1">
+                                    {
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_MTD_TL_name[
+                                        month
+                                      ][
+                                        machineAllData?.checkSheet_data
+                                          ?.implementation_assign_MTD_TL_name[
+                                          month
+                                        ].length - 1
+                                      ]
+                                    }
+                                  </td>
+                                ) : (
+                                  <td className="ar-table-col1"></td>
+                                )
+                              )
                             : refArrayForTDMapping?.map((index) => (
                                 <td className="ar-table-col1"></td>
                               ))}
@@ -980,14 +1002,29 @@ const CheckSheet = ({
                           </th>
                           {machineAllData?.checkSheet_data
                             ?.implementation_approved_by_MTD_HOS
-                            ? Object?.values(
+                            ? Object.entries(
                                 machineAllData?.checkSheet_data
-                                  ?.implementation_approved_by_MTD_HOS
-                              )?.map((index) => (
-                                <td className="ar-table-col1">
-                                  {index[index?.length - 1]}
-                                </td>
-                              ))
+                                  ?.implemetation_mtd_hos_approval_status
+                              ).map(([month, statusArray]) =>
+                                statusArray[statusArray.length - 1] ===
+                                "Accepted" ? (
+                                  <td className="ar-table-col1">
+                                    {
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_MTD_HOS_name[
+                                        month
+                                      ][
+                                        machineAllData?.checkSheet_data
+                                          ?.implementation_assign_MTD_HOS_name[
+                                          month
+                                        ].length - 1
+                                      ]
+                                    }
+                                  </td>
+                                ) : (
+                                  <td className="ar-table-col1"></td>
+                                )
+                              )
                             : refArrayForTDMapping?.map((index) => (
                                 <td className="ar-table-col1"></td>
                               ))}
@@ -1192,7 +1229,8 @@ const CheckSheet = ({
                                                     rData[1].value
                                                   }
                                                   yearOfCheckSheet={
-                                                    machineAllData?.checkSheet_data
+                                                    machineAllData
+                                                      ?.checkSheet_data
                                                       .current_year
                                                   }
                                                   monthForCompareSystemMonth={
@@ -1201,7 +1239,9 @@ const CheckSheet = ({
                                                   // functionToSetRefKey={
                                                   //   functionToSetRefKey
                                                   // }
-                                                  postMachineIdToGetAllDetailsOfMachine={postMachineIdToGetAllDetailsOfMachine}
+                                                  postMachineIdToGetAllDetailsOfMachine={
+                                                    postMachineIdToGetAllDetailsOfMachine
+                                                  }
                                                   previousMonth={previousMonth}
                                                   //--------------------
 
@@ -1378,13 +1418,30 @@ const CheckSheet = ({
                             (MTD TM's)
                           </th>
                           {machineAllData?.checkSheet_data?.PMworkedTMName
-                            ? Object?.values(
-                                machineAllData?.checkSheet_data?.PMworkedTMName
-                              )?.map((index) => (
-                                <td className="ar-table-col1">
-                                  {index.join(" ,")}
-                                </td>
-                              ))
+                            ? Object.keys({
+                                ...machineAllData?.checkSheet_data
+                                  ?.implemetation_completed_tm_name,
+                                ...machineAllData?.checkSheet_data
+                                  ?.PMworkedTMName,
+                              }).map((month) => {
+                                const uniqueNames = [
+                                  ...new Set([
+                                    ...(machineAllData?.checkSheet_data
+                                      ?.implemetation_completed_tm_name[
+                                      month
+                                    ] || []),
+                                    ...(machineAllData?.checkSheet_data
+                                      ?.PMworkedTMName?.[month] || []),
+                                  ]),
+                                ];
+                                return (
+                                  <td key={month} className="ar-table-col1">
+                                    {uniqueNames.length > 0
+                                      ? uniqueNames.join(" ,")
+                                      : "-"}
+                                  </td>
+                                );
+                              })
                             : refArrayForTDMapping.map((index) => (
                                 <td className="ar-table-col1"></td>
                               ))}
@@ -1398,14 +1455,29 @@ const CheckSheet = ({
                           </th>
                           {machineAllData?.checkSheet_data
                             ?.implementation_approved_by_PRD_TL
-                            ? Object.values(
+                            ? Object.entries(
                                 machineAllData?.checkSheet_data
-                                  ?.implementation_approved_by_PRD_TL
-                              )?.map((index) => (
-                                <td className="ar-table-col1">
-                                  {index[index?.length - 1]}
-                                </td>
-                              ))
+                                  ?.implemetation_prd_tl_approval_status
+                              ).map(([month, statusArray]) =>
+                                statusArray[statusArray.length - 1] ===
+                                "Accepted" ? (
+                                  <td className="ar-table-col1">
+                                    {
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_PRD_TL_name[
+                                        month
+                                      ][
+                                        machineAllData?.checkSheet_data
+                                          ?.implementation_assign_PRD_TL_name[
+                                          month
+                                        ].length - 1
+                                      ]
+                                    }
+                                  </td>
+                                ) : (
+                                  <td className="ar-table-col1"></td>
+                                )
+                              )
                             : refArrayForTDMapping?.map((index) => (
                                 <td className="ar-table-col1"></td>
                               ))}
@@ -1872,7 +1944,9 @@ const CheckSheet = ({
                                   <Multiselect
                                     displayValue="tm_name"
                                     className="col-9 "
-                                    options={listOfAllApproverAndOtherData?.supportingTMList} // Options to display in the dropdown
+                                    options={
+                                      listOfAllApproverAndOtherData?.supportingTMList
+                                    } // Options to display in the dropdown
                                     // selectedValues={departmentList} // Preselected value to persist in dropdown
                                     onSelect={async (selectedList) => {
                                       await setSelectedSupportedTM(
@@ -1901,7 +1975,7 @@ const CheckSheet = ({
                           <Row>
                             <Col>
                               {machineAllData?.checkSheet_data?.PMStatus ? (
-                                (machineAllData?.checkSheet_data?.PMStatus[
+                                machineAllData?.checkSheet_data?.PMStatus[
                                   monthForCompareSystemMonth
                                 ] === "Completed" ||
                                 (machineAllData?.checkSheet_data?.PMStatus[
@@ -1918,7 +1992,7 @@ const CheckSheet = ({
                                       ?.implemetation_mtd_hos_approval_status?.[
                                       monthForCompareSystemMonth
                                     ]?.length - 1
-                                  ] === "Pending")) ? (
+                                  ] === "Pending") ? (
                                   machineAllData?.checkSheet_data
                                     ?.implemetation_mtd_tl_approval_status?.[
                                     monthForCompareSystemMonth
@@ -1928,7 +2002,7 @@ const CheckSheet = ({
                                       monthForCompareSystemMonth
                                     ]?.length - 1
                                   ] !== "Rejected"
-                                ) : (machineAllData?.checkSheet_data
+                                ) : machineAllData?.checkSheet_data
                                     ?.implemetation_mtd_hos_approval_status?.[
                                     monthForCompareSystemMonth
                                   ]?.[
@@ -1936,7 +2010,7 @@ const CheckSheet = ({
                                       ?.implemetation_mtd_hos_approval_status?.[
                                       monthForCompareSystemMonth
                                     ]?.length - 1
-                                  ] !== "Rejected") ? (
+                                  ] !== "Rejected" ? (
                                   <form onSubmit={formik1.handleSubmit}>
                                     <div className="m-2 p-3 border bg-white rounded">
                                       <div className="d-flex">
@@ -1969,13 +2043,15 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {listOfAllApproverAndOtherData?.PRDTLlist?.map((index, idx) => {
-                                                return (
-                                                  <option value={idx}>
-                                                    {index.tm_name}
-                                                  </option>
-                                                );
-                                              })}
+                                              {listOfAllApproverAndOtherData?.PRDTLlist?.map(
+                                                (index, idx) => {
+                                                  return (
+                                                    <option value={idx}>
+                                                      {index.tm_name}
+                                                    </option>
+                                                  );
+                                                }
+                                              )}
                                             </select>
                                             <div>
                                               <p
@@ -2026,13 +2102,15 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {listOfAllApproverAndOtherData?.MTDTLlist?.map((index, idx) => {
-                                                return (
-                                                  <option value={idx}>
-                                                    {index.tm_name}
-                                                  </option>
-                                                );
-                                              })}
+                                              {listOfAllApproverAndOtherData?.MTDTLlist?.map(
+                                                (index, idx) => {
+                                                  return (
+                                                    <option value={idx}>
+                                                      {index.tm_name}
+                                                    </option>
+                                                  );
+                                                }
+                                              )}
                                             </select>
                                             <div>
                                               <p
@@ -2084,13 +2162,15 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {listOfAllApproverAndOtherData?.HOSList?.map((index, idx) => {
-                                                return (
-                                                  <option value={idx}>
-                                                    {index.tm_name}
-                                                  </option>
-                                                );
-                                              })}
+                                              {listOfAllApproverAndOtherData?.HOSList?.map(
+                                                (index, idx) => {
+                                                  return (
+                                                    <option value={idx}>
+                                                      {index.tm_name}
+                                                    </option>
+                                                  );
+                                                }
+                                              )}
                                             </select>
                                             <div>
                                               <p
@@ -2353,7 +2433,9 @@ const CheckSheet = ({
 
                                   <Multiselect
                                     displayValue="tm_name"
-                                    options={listOfAllApproverAndOtherData?.supportingTMList} // Options to display in the dropdown
+                                    options={
+                                      listOfAllApproverAndOtherData?.supportingTMList
+                                    } // Options to display in the dropdown
                                     className="col-9"
                                     // selectedValues={departmentList} // Preselected value to persist in dropdown
                                     onSelect={async (selectedList) => {
@@ -2419,13 +2501,15 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {listOfAllApproverAndOtherData?.PRDTLlist?.map((index, idx) => {
-                                                return (
-                                                  <option value={idx}>
-                                                    {index.tm_name}
-                                                  </option>
-                                                );
-                                              })}
+                                              {listOfAllApproverAndOtherData?.PRDTLlist?.map(
+                                                (index, idx) => {
+                                                  return (
+                                                    <option value={idx}>
+                                                      {index.tm_name}
+                                                    </option>
+                                                  );
+                                                }
+                                              )}
                                             </select>
                                             <div>
                                               <p
@@ -2473,13 +2557,15 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {listOfAllApproverAndOtherData?.MTDTLlist?.map((index, idx) => {
-                                                return (
-                                                  <option value={idx}>
-                                                    {index.tm_name}
-                                                  </option>
-                                                );
-                                              })}
+                                              {listOfAllApproverAndOtherData?.MTDTLlist?.map(
+                                                (index, idx) => {
+                                                  return (
+                                                    <option value={idx}>
+                                                      {index.tm_name}
+                                                    </option>
+                                                  );
+                                                }
+                                              )}
                                             </select>
                                             <div>
                                               <p
@@ -2528,13 +2614,15 @@ const CheckSheet = ({
                                               >
                                                 Please select
                                               </option>
-                                              {listOfAllApproverAndOtherData?.HOSList?.map((index, idx) => {
-                                                return (
-                                                  <option value={idx}>
-                                                    {index.tm_name}
-                                                  </option>
-                                                );
-                                              })}
+                                              {listOfAllApproverAndOtherData?.HOSList?.map(
+                                                (index, idx) => {
+                                                  return (
+                                                    <option value={idx}>
+                                                      {index.tm_name}
+                                                    </option>
+                                                  );
+                                                }
+                                              )}
                                             </select>
                                             <div>
                                               <p

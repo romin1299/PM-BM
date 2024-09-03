@@ -1167,7 +1167,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
                                                                                   ?.implemetation_prd_tl_approval_status?.[
                                                                                   selectedMonth
                                                                                 ]
-                                                                                  ?.length <
+                                                                                  ?.length <=
                                                                                   0) &&
                                                                               machine
                                                                                 .checkSheet_data
@@ -1317,7 +1317,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
                                                                                 ?.implemetation_prd_tl_approval_status?.[
                                                                                 selectedMonth
                                                                               ]
-                                                                                ?.length <
+                                                                                ?.length <=
                                                                                 0) &&
                                                                             machine
                                                                               .checkSheet_data
@@ -1494,7 +1494,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
                                                                                                   ?.implemetation_prd_tl_approval_status?.[
                                                                                                   selectedMonth
                                                                                                 ]
-                                                                                                  ?.length <
+                                                                                                  ?.length <=
                                                                                                   0) &&
                                                                                               machine
                                                                                                 .checkSheet_data
@@ -1666,7 +1666,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
                                                                                                 ?.implemetation_prd_tl_approval_status?.[
                                                                                                 selectedMonth
                                                                                               ]
-                                                                                                ?.length <
+                                                                                                ?.length <=
                                                                                                 0) &&
                                                                                             machine
                                                                                               .checkSheet_data
@@ -1837,7 +1837,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
                                                                                     ?.implemetation_prd_tl_approval_status?.[
                                                                                     selectedMonth
                                                                                   ]
-                                                                                    ?.length <
+                                                                                    ?.length <=
                                                                                     0) &&
                                                                                 machine
                                                                                   .checkSheet_data
@@ -1990,7 +1990,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
                                                                                 ?.implemetation_prd_tl_approval_status?.[
                                                                                 selectedMonth
                                                                               ]
-                                                                                ?.length <
+                                                                                ?.length <=
                                                                                 0) &&
                                                                             machine
                                                                               .checkSheet_data
@@ -2137,7 +2137,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
                                                                                 ?.implemetation_prd_tl_approval_status?.[
                                                                                 selectedMonth
                                                                               ]
-                                                                                ?.length <
+                                                                                ?.length <=
                                                                                 0) &&
                                                                             machine
                                                                               .checkSheet_data
@@ -2286,7 +2286,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
                                                                               ?.implemetation_prd_tl_approval_status?.[
                                                                               selectedMonth
                                                                             ]
-                                                                              ?.length <
+                                                                              ?.length <=
                                                                               0) &&
                                                                           machine
                                                                             .checkSheet_data

@@ -17,7 +17,7 @@ function MoveMachineOneLineToAnotherModal({
     formState: { errors },
   } = useForm({});
   const context = useContext(RoutingContext);
-  console.log(selectedRow)
+  console.log(selectedRow);
   const [lineInfoForDropdown, setLineInfoForDropdown] = useState([]);
 
   const handleSubmitDataOfMoveMachineFromOneLineToAnother = async (

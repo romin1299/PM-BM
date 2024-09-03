@@ -644,182 +644,195 @@ function PMSheetApprovalOfImplementationPhase() {
             </thead>
             <tbody>
               {financialYearWiseMonthKeyArray?.map((monthKey) =>
-                tableData?.map((index) =>
-                  index?.checkSheet_data?.implementation_assign_PRD_TL?.[
-                    monthKey
-                  ].length > 0 ||
-                  index?.checkSheet_data
-                    ?.implemetation_mtd_hod_approval_status?.[monthKey]
-                    ?.length > 0 ? (
-                    (selectedMonth ? monthKey === selectedMonth : true) ? (
-                      <tr className="ar-table-thead-header4 tableRowColor">
-                        <td className="td-padding">
-                          {index.line_names.line_name}
-                        </td>
-                        <td className="td-padding">{index.machine_code}</td>
-                        <td className="td-padding">{index.machine_name}</td>
-                        <td className="td-padding">{monthKey}</td>
+                tableData?.map((index) => {
+                  const hasData =
+                    index?.checkSheet_data?.implementation_assign_PRD_TL?.[
+                      monthKey
+                    ]?.length > 0 ||
+                    index?.checkSheet_data
+                      ?.implemetation_mtd_hod_approval_status?.[monthKey]
+                      ?.length > 0;
 
-                        <td className="td-padding">
-                          {/* {index.sender_tm_name[idx]}
-                    <br />
-                    {index.preparation_TL_date[idx]
-                      } */}
-                          {index?.checkSheet_data?.implemetation_completed_tm_name?.[
-                            monthKey
-                          ]?.map((value, idx) => (
-                            <p>
-                              {value}-
-                              {
-                                index?.checkSheet_data
-                                  ?.implemetation_completed_date?.[monthKey]?.[
-                                  idx
-                                ]
-                              }
-                            </p>
-                          ))}
-                        </td>
-                        {/* PRD Approval */}
-                        <td className="td-padding">
-                          {index?.checkSheet_data?.implemetation_prd_tl_approval_status?.[
-                            monthKey
-                          ]?.map((value, idx) => (
-                            <p>
-                              <b>{value}</b>-
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_assign_PRD_TL_name?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_approved_PRD_TL_date?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -{" "}
-                              {value === "Rejected"
-                                ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
-                                : `Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
-                            </p>
-                          ))}
-                        </td>
-                        {/* MTD TL approval */}
-                        <td className="td-padding">
-                          {index?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
-                            monthKey
-                          ]?.map((value, idx) => (
-                            <p>
-                              <b>{value}</b>-
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_assign_MTD_TL_name?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_approved_MTD_TL_date?.[
-                                  monthKey
-                                ]?.[idx]
-                              }{" "}
-                              -{" "}
-                              {value === "Rejected"
-                                ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
-                                : ""}
-                            </p>
-                          ))}
-                        </td>
-                        {/* MTD HOS approval */}
-                        <td className="td-padding">
-                          {index?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
-                            monthKey
-                          ]?.map((value, idx) => (
-                            <p>
-                              <b>{value}</b>-
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_assign_MTD_HOS_name?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_approved_MTD_HOS_date?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -{" "}
-                              {value === "Rejected"
-                                ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
-                                : ""}
-                            </p>
-                          ))}
-                        </td>
-                        {/* {console.log(index?.checkSheet_data)}
-                      
-                      */}
+                  if (!hasData) return null;
 
-                        {index?.checkSheet_data
-                          ?.implemetation_mtd_hod_approval_status?.[monthKey]
-                          ?.length > 0 ? (
-                          <td className="td-padding">
-                            {" "}
-                            <p>
-                              <b>
-                                {
+                  const hasPendingPRD =
+                    index?.checkSheet_data?.implemetation_prd_tl_approval_status?.[
+                      monthKey
+                    ]?.includes("Pending");
+                  const hasPendingMTD =
+                    index?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
+                      monthKey
+                    ]?.includes("Pending");
+                  const hasPendingHOS =
+                    index?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+                      monthKey
+                    ]?.includes("Pending");
+
+                  const shouldDisplayRow = displayPendingOrNot
+                    ? hasPendingPRD || hasPendingMTD || hasPendingHOS
+                    : true;
+
+                  if (!shouldDisplayRow) return null;
+
+                  return (selectedMonth ? monthKey === selectedMonth : true) ? (
+                    <tr className="ar-table-thead-header4 tableRowColor">
+                      <td className="td-padding">
+                        {index.line_names.line_name}
+                      </td>
+                      <td className="td-padding">{index.machine_code}</td>
+                      <td className="td-padding">{index.machine_name}</td>
+                      <td className="td-padding">{monthKey}</td>
+
+                      <td className="td-padding">
+                        {index?.checkSheet_data?.implemetation_completed_tm_name?.[
+                          monthKey
+                        ]?.map((value, idx) => (
+                          <p key={idx}>
+                            {value}-
+                            {
+                              index?.checkSheet_data
+                                ?.implemetation_completed_date?.[monthKey]?.[
+                                idx
+                              ]
+                            }
+                          </p>
+                        ))}
+                      </td>
+
+                      {/* PRD Approval */}
+                      <td className="td-padding">
+                        {index?.checkSheet_data?.implemetation_prd_tl_approval_status?.[
+                          monthKey
+                        ]?.map((value, idx) => (
+                          <p key={idx}>
+                            <b>{value}</b>-
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_assign_PRD_TL_name?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_PRD_TL_date?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
+                              : `Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
+                          </p>
+                        ))}
+                      </td>
+
+                      {/* MTD TL Approval */}
+                      <td className="td-padding">
+                        {index?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
+                          monthKey
+                        ]?.map((value, idx) => (
+                          <p key={idx}>
+                            <b>{value}</b>-
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_assign_MTD_TL_name?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_MTD_TL_date?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
+                              : ""}
+                          </p>
+                        ))}
+                      </td>
+
+                      {/* MTD HOS Approval */}
+                      <td className="td-padding">
+                        {index?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+                          monthKey
+                        ]?.map((value, idx) => (
+                          <p key={idx}>
+                            <b>{value}</b>-
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_assign_MTD_HOS_name?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_MTD_HOS_date?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
+                              : ""}
+                          </p>
+                        ))}
+                      </td>
+
+                      {index?.checkSheet_data
+                        ?.implemetation_mtd_hod_approval_status?.[monthKey]
+                        ?.length > 0 ? (
+                        <td className="td-padding">
+                          <p>
+                            <b>
+                              {
+                                index?.checkSheet_data
+                                  ?.implemetation_mtd_hod_approval_status?.[
+                                  monthKey
+                                ]?.[
                                   index?.checkSheet_data
                                     ?.implemetation_mtd_hod_approval_status?.[
                                     monthKey
-                                  ]?.[
-                                    index?.checkSheet_data
-                                      ?.implemetation_mtd_hod_approval_status?.[
-                                      monthKey
-                                    ] - 1
-                                  ]
-                                }
-                              </b>
-                              -
-                              {
+                                  ].length - 1
+                                ]
+                              }
+                            </b>
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_MTD_HOD_date?.[
+                                monthKey
+                              ]?.[
                                 index?.checkSheet_data
                                   ?.implementation_approved_MTD_HOD_date?.[
                                   monthKey
-                                ]?.[
-                                  index?.checkSheet_data
-                                    ?.implementation_approved_MTD_HOD_date?.[
-                                    monthKey
-                                  ] - 1
-                                ]
-                              }
-                              -
-                              {
+                                ].length - 1
+                              ]
+                            }
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_by_MTD_HOD?.[
+                                monthKey
+                              ]?.[
                                 index?.checkSheet_data
                                   ?.implementation_approved_by_MTD_HOD?.[
                                   monthKey
-                                ]?.[
-                                  index?.checkSheet_data
-                                    ?.implementation_approved_by_MTD_HOD?.[
-                                    monthKey
-                                  ] - 1
-                                ]
-                              }
-                            </p>
-                          </td>
-                        ) : (
-                          <td className="td-padding"></td>
-                        )}
-                      </tr>
-                    ) : (
-                      ""
-                    )
-                  ) : (
-                    ""
-                  )
-                )
+                                ].length - 1
+                              ]
+                            }
+                          </p>
+                        </td>
+                      ) : (
+                        <td className="td-padding"></td>
+                      )}
+                    </tr>
+                  ) : null;
+                })
               )}
             </tbody>
           </table>

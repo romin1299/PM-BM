@@ -22,6 +22,10 @@ import Footer from "../../components/Footer/Footer";
 const LogHistory = () => {
   let columns = [
     {
+      label: "S.N.",
+      key: "",
+    },
+    {
       label: "Schedule Month",
       key: "schedule_month",
     },
@@ -55,15 +59,15 @@ const LogHistory = () => {
     },
     {
       label: "Abnormality",
-      key: "",
-    },
-    {
-      label: "Abnormality Remarks",
-      key: "abnormality_remarks",
+      key: "abnormality",
     },
     {
       label: "Abnormality Status",
       key: "abnormality_status",
+    },
+    {
+      label: "Abnormality Remarks",
+      key: "abnormality_remarks",
     },
     {
       label: "Action Details",
@@ -653,7 +657,8 @@ const LogHistory = () => {
                       <td className="td-padding">{item?.date}</td>
                       <td className="td-padding">{item?.remarks}</td>
                       <td className="td-padding">
-                        {item?.abnormality_remarks ? "Yes" : "No"}
+                        {/* {item?.abnormality_remarks ? "Yes" : "No"} */}
+                        {item?.abnormality}
                       </td>
                       <td className="td-padding">
                         {item?.abnormality_remarks}

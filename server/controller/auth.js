@@ -2951,7 +2951,7 @@ router.post(
                       as: "prdStatusArray",
                       in: {
                         userType: "PRD TL/HOSS",
-
+                        machine_code: "$machine_code",
                         userName: {
                           $arrayElemAt: [
                             {
@@ -2998,7 +2998,7 @@ router.post(
                       as: "mtdTlStatusArray",
                       in: {
                         userType: "MTD TL/HOSS",
-
+                        machine_code: "$machine_code",
                         userName: {
                           $arrayElemAt: [
                             {
@@ -3045,6 +3045,7 @@ router.post(
                       as: "mtdHosStatusArray",
                       in: {
                         userType: "MTD HOS",
+                        machine_code: "$machine_code",
                         userName: {
                           $arrayElemAt: [
                             {
@@ -3152,40 +3153,43 @@ router.post(
         }
       }
       let pendingFilterApplyOrNot = [];
-      if (req?.query?.pendingFilterValue === "true") {
-        pendingFilterApplyOrNot = [
-          ...acceptedAndTotalApprovalCount,
-          {
-            $unwind: "$userWithStatusInfo",
-          },
-          {
-            $match: {
-              "userWithStatusInfo.userName": { $nin: [undefined, null, ""] },
-              "userWithStatusInfo.status": "Pending",
-            },
-          },
-          {
-            $group: {
-              _id: {
-                ...queryObjForPendingGroup,
-                machine_code: "$machine_code",
-              },
-              machine_code: {
-                $first: "$machine_code",
-              },
-              machine_name: {
-                $first: "$machine_name",
-              },
-              line_names: {
-                $first: "$line_names",
-              },
-              checkSheet_data: {
-                $first: "$checkSheet_data",
-              },
-            },
-          },
-        ];
-      }
+      // if (req?.query?.pendingFilterValue === "true") {
+      //   pendingFilterApplyOrNot = [
+      //     ...acceptedAndTotalApprovalCount,
+      //     {
+      //       $unwind: "$userWithStatusInfo",
+      //     },
+      //     {
+      //       $match: {
+      //         "userWithStatusInfo.userName": { $nin: [undefined, null, ""] },
+      //         "userWithStatusInfo.status": "Pending",
+      //       },
+      //     },
+      //     {
+      //       $group: {
+      //         _id: {
+      //           ...queryObjForPendingGroup,
+      //           machine_code: "$machine_code",
+      //         },
+      //         machine_code: {
+      //           $first: "$machine_code",
+      //         },
+      //         machine_name: {
+      //           $first: "$machine_name",
+      //         },
+      //         line_names: {
+      //           $first: "$line_names",
+      //         },
+      //         checkSheet_data: {
+      //           $first: "$checkSheet_data",
+      //         },
+      //         userWithStatusInfo: {
+      //           $first: "$userWithStatusInfo"
+      //         }
+      //       },
+      //     },
+      //   ];
+      // }
 
       approvalLogOfPM = await Machine.aggregate([
         {
@@ -3202,13 +3206,14 @@ router.post(
           },
         },
         ...approvalLogMiddleware,
-        ...pendingFilterApplyOrNot,
+        // ...pendingFilterApplyOrNot,
         {
           $project: {
             machine_code: 1,
             machine_name: 1,
             line_names: 1,
             checkSheet_data: 1,
+            userWithStatusInfo: 1,
           },
         },
       ]);
@@ -3222,6 +3227,7 @@ router.post(
         {
           $match: {
             ...queryObj,
+            // machine_code: "EETP-002",
           },
         },
         {
@@ -3238,28 +3244,124 @@ router.post(
         },
         {
           $match: {
-            "userWithStatusInfo.userName": { $nin: [undefined, null, ""] },
+            "userWithStatusInfo.userName": {
+              $nin: [undefined, null, ""],
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: {
+              month: "$userWithStatusInfo.month",
+              machine_code: "$userWithStatusInfo.machine_code",
+            },
+            data: {
+              $push: {
+                userName: "$userWithStatusInfo.userName",
+                status: "$userWithStatusInfo.status",
+                userType: "$userWithStatusInfo.userType",
+              },
+            },
           },
         },
         {
           $group: {
             _id: {
-              userName: "$userWithStatusInfo.userName",
-              userType: "$userWithStatusInfo.userType",
+              month: "$_id.month",
+              machine_code: "$_id.machine_code",
             },
-            countOfAccepted: {
-              $sum: {
-                $cond: [
+            pendingUsersList: {
+              $first: {
+                $arrayElemAt: [
                   {
-                    $eq: ["$userWithStatusInfo.status", "Accepted"],
+                    $filter: {
+                      input: "$data",
+                      as: "approvalData",
+                      cond: {
+                        $eq: ["$$approvalData.status", "Pending"],
+                      },
+                    },
                   },
-                  1,
                   0,
                 ],
               },
             },
-            totalApproval: {
-              $sum: 1,
+            acceptedUserList: {
+              $push: {
+                $filter: {
+                  input: "$data",
+                  as: "approvalData",
+                  cond: {
+                    $eq: ["$$approvalData.status", "Accepted"],
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            $or: [
+              {
+                pendingUsersList: { $ne: null },
+              },
+              {
+                acceptedUserList: { $ne: [] },
+              },
+            ],
+          },
+        },
+        {
+          $facet: {
+            pendingCounts: [
+              { $unwind: "$pendingUsersList" },
+              {
+                $group: {
+                  _id: {
+                    userName: "$pendingUsersList.userName",
+                    userType: "$pendingUsersList.userType",
+                  },
+                  countOfPending: { $sum: 1 },
+                },
+              },
+            ],
+            acceptedCounts: [
+              { $unwind: "$acceptedUserList" },
+              {
+                $unwind: "$acceptedUserList", // Unwind second level of nested array within the acceptedUserList
+              },
+              {
+                $group: {
+                  _id: {
+                    userName: "$acceptedUserList.userName",
+                    userType: "$acceptedUserList.userType",
+                  },
+                  countOfAccepted: { $sum: 1 },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $project: {
+            combined: { $concatArrays: ["$pendingCounts", "$acceptedCounts"] },
+          },
+        },
+        {
+          $unwind: "$combined",
+        },
+        {
+          $group: {
+            _id: {
+              userName: "$combined._id.userName",
+              userType: "$combined._id.userType",
+            },
+            countOfPending: {
+              $sum: { $ifNull: ["$combined.countOfPending", 0] },
+            },
+            countOfAccepted: {
+              $sum: { $ifNull: ["$combined.countOfAccepted", 0] },
             },
           },
         },
@@ -3269,13 +3371,26 @@ router.post(
             data: {
               $push: {
                 userName: "$_id.userName",
+                countOfPending: "$countOfPending",
                 countOfAccepted: "$countOfAccepted",
-                totalApproval: "$totalApproval",
               },
             },
           },
         },
+        {
+          $project: {
+            userType: "$_id",
+            data: 1,
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            userType: -1,
+          },
+        },
       ]);
+
       res.json({
         subSectionsData,
         subSectionIdArray,
@@ -6714,8 +6829,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
     if (request === "Yes") {
       if (
-        machineLastData[0].checkSheet_data.tl_approval_status[
-          machineLastData[0].checkSheet_data.tl_approval_status?.length - 1
+        machineLastData?.[0]?.checkSheet_data?.tl_approval_status?.[
+          machineLastData?.[0].checkSheet_data?.tl_approval_status?.length - 1
         ] === "Pending"
       ) {
         let tlApproval = "Accepted";
@@ -6841,11 +6956,11 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           undefined
         );
       } else if (
-        machineLastData[0].checkSheet_data.tl_approval_status[
-          machineLastData[0].checkSheet_data.tl_approval_status?.length - 1
+        machineLastData[0]?.checkSheet_data?.tl_approval_status?.[
+          machineLastData[0]?.checkSheet_data?.tl_approval_status?.length - 1
         ] === "Accepted" &&
-        machineLastData[0].checkSheet_data.hos_approval_status[
-          machineLastData[0].checkSheet_data.hos_approval_status.length - 1
+        machineLastData[0]?.checkSheet_data?.hos_approval_status?.[
+          machineLastData[0]?.checkSheet_data?.hos_approval_status?.length - 1
         ] === "Pending"
       ) {
         let hosApproval = "Accepted";
@@ -6949,8 +7064,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         }
       } else if (
-        machineLastData[0].checkSheet_data.hos_approval_status[
-          machineLastData[0].checkSheet_data.hos_approval_status?.length - 1
+        machineLastData[0]?.checkSheet_data?.hos_approval_status?.[
+          machineLastData[0]?.checkSheet_data?.hos_approval_status?.length - 1
         ] === "Pending"
       ) {
         let hosApproval = "Accepted";
@@ -7053,8 +7168,9 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         }
       } else if (
-        machineLastData[0].checkSheet_data.prd_tl_approval_status[
-          machineLastData[0].checkSheet_data.prd_tl_approval_status?.length - 1
+        machineLastData[0]?.checkSheet_data?.prd_tl_approval_status?.[
+          machineLastData[0]?.checkSheet_data?.prd_tl_approval_status?.length -
+            1
         ] === "Pending"
       ) {
         let checkWhetherRevisionContentDeleted = 0;
@@ -11726,6 +11842,10 @@ router.post(
         _id: { $ne: req?.rootUser?._id },
       };
 
+      if (req?.query?.getAllUser) {
+        delete queryObj?._id;
+      }
+
       if (req?.rootUser?.tm_grade !== "HOD") {
         if (section.dashboardLevel === "Yes") {
           queryObj = {
@@ -13145,12 +13265,9 @@ router.post(
         },
       ]);
 
-      const scheduleOrCompletedHoursCount = `checkSheet_data`;
       let GetAllPlanAndCompletedHours;
       if (req?.query?.filter === "Hours") {
-        const compltedHoursOfPM = `$checkSheet_data.totalPMTime.${currentMonth}.totalWorkedPMTime`;
-
-        GetAllPlanAndCompletedHours = await Machine.aggregate([
+        const commonMiddleware = [
           {
             $match: {
               line_names: { $in: lineIdArray },
@@ -13174,6 +13291,10 @@ router.post(
               "checkSheet_data.PMStatus": { $ne: undefined },
             },
           },
+        ];
+
+        let GetAllPlanHours = await Machine.aggregate([
+          ...commonMiddleware,
           {
             $unwind: "$checkSheet_data.checkSheet",
           },
@@ -13181,21 +13302,68 @@ router.post(
             $group: {
               _id: null,
               schedulePm: {
-                $sum: truncValue({
-                  $divide: [
-                    { $toDouble: "$checkSheet_data.checkSheet.PM_time" },
-                    60,
-                  ],
-                }),
-              },
-              completed: {
-                $sum: truncValue({
-                  $divide: [compltedHoursOfPM, 60],
-                }),
+                $sum: {
+                  $cond: {
+                    if: {
+                      $eq: [
+                        {
+                          $arrayElemAt: [
+                            `$checkSheet_data.checkSheet.planningTableAnimationArray2.${currentMonth}`,
+                            0,
+                          ],
+                        },
+                        "1",
+                      ],
+                    },
+                    then: {
+                      $round: [
+                        {
+                          $divide: [
+                            {
+                              $toDouble: "$checkSheet_data.checkSheet.PM_time",
+                            },
+                            60,
+                          ],
+                        },
+                        1,
+                      ],
+                    },
+                    else: 0,
+                  },
+                },
               },
             },
           },
         ]);
+
+        const GetAllCompletedHours = await Machine.aggregate([
+          ...commonMiddleware,
+          {
+            $group: {
+              _id: null,
+              completed: {
+                $sum: {
+                  $round: [
+                    {
+                      $divide: [
+                        {
+                          $toDouble: `$checkSheet_data.totalPMTime.${currentMonth}.totalWorkedPMTime`,
+                        },
+                        60,
+                      ],
+                    },
+                    1,
+                  ],
+                },
+              },
+            },
+          },
+        ]);
+
+        GetAllPlanAndCompletedHours = {
+          ...GetAllPlanHours?.[0],
+          ...GetAllCompletedHours?.[0],
+        };
       }
 
       machineDataForPreviousMonth = await Machine.aggregate([
@@ -13372,7 +13540,7 @@ router.post(
         machineDataForPreviousMonth,
         cellData,
         lineData,
-        GetAllPlanAndCompletedHours: GetAllPlanAndCompletedHours?.[0],
+        GetAllPlanAndCompletedHours,
       });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -16544,10 +16712,10 @@ router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
         plant_name: item?.plant?.plant_name,
         details: item?.details?.map((item1) => {
           let monthDataForSelectedSection = monthData?.find(
-            (item2) => item2?._id.toString() === item1?._id.toString()
+            (item2) => item2?._id?.toString() === item1?._id?.toString()
           );
           let annualDataForSelectedSection = annualData?.find(
-            (item2) => item2?._id.toString() === item1?._id.toString()
+            (item2) => item2?._id?.toString() === item1?._id?.toString()
           );
 
           return {
@@ -16677,10 +16845,10 @@ router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
             // console.log(item2);
 
             let monthDataForSelectedSection = monthData?.find(
-              (item3) => item3?._id.toString() === item2?._id.toString()
+              (item3) => item3?._id?.toString() === item2?._id?.toString()
             );
             let annualDataForSelectedSection = annualData?.find(
-              (item3) => item3?._id.toString() === item2?._id.toString()
+              (item3) => item3?._id?.toString() === item2?._id?.toString()
             );
 
             return {
@@ -22035,69 +22203,95 @@ router.post(
       const { section, selectedYear } = req.body;
 
       let logHistoryData, conditionVarForLogHistory;
+      let commonFilterForSectionLevel = {
+        reason_for_delay: conditionVarForLogHistory,
+        current_year: selectedYear,
+      };
+      conditionVarForLogHistory =
+        req.params.id === "simpleLogHistory" ? undefined : { $ne: undefined };
+
       if (typeof section !== "object") {
         const sectionInfo = await Section.findOne({
           section_id: section?.split("-")?.[0],
         }).populate({ path: "plant_names" });
 
-        conditionVarForLogHistory =
-          req.params.id === "simpleLogHistory" ? undefined : { $ne: undefined };
 
         if (sectionInfo?.dashboardLevel === "Yes") {
-          logHistoryData = await LogHistory.find({
-            reason_for_delay: conditionVarForLogHistory,
-            current_year: selectedYear,
+          commonFilterForSectionLevel = {
+            ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id":
               sectionInfo?.section_id,
-          });
+          };
         } else {
-          // req?.rootUser?.subSection_data
-
-          // console.log(
-          //     req?.rootUser?.subSection_data?.map((item, index) => item?.split("-")[0])
-          // )
-
-          logHistoryData = await LogHistory.find({
-            reason_for_delay: conditionVarForLogHistory,
-            current_year: selectedYear,
+          commonFilterForSectionLevel = {
+            ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id": {
               $in: req?.rootUser?.subSection_data?.map(
                 (item, index) => item?.split("-")?.[0]
               ),
             },
-          });
+          };
         }
+
+        logHistoryData = await LogHistory.aggregate([
+          {
+            $match: {
+              ...commonFilterForSectionLevel,
+            },
+          },
+          {
+            $addFields: {
+              abnormality: {
+                $cond: {
+                  if: { $gt: [{ $type: "$abnormality_remarks" }, "missing"] },
+                  then: "Yes",
+                  else: "No",
+                },
+              },
+            },
+          },
+        ]);
       } else {
-        conditionVarForLogHistory =
-          req.params.id === "simpleLogHistory" ? undefined : { $ne: undefined };
 
         if (section?.dashboardLevel === "Yes") {
           const sectionInfo = await Section.findOne({
             _id: section?._id,
           }).populate({ path: "plant_names" });
 
-          logHistoryData = await LogHistory.find({
-            reason_for_delay: conditionVarForLogHistory,
-            current_year: selectedYear,
+          commonFilterForSectionLevel = {
+            ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id":
               sectionInfo?.section_id,
-          });
+          };
         } else {
           let subSectionInfo = await SubSection.findOne({
             _id: section?._id,
           });
-          logHistoryData = await LogHistory.find({
-            reason_for_delay: conditionVarForLogHistory,
-            current_year: selectedYear,
+          commonFilterForSectionLevel = {
+            ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id":
-              subSectionInfo?.subSection_id,
-            // {
-            //     $in: req?.rootUser?.subSection_data?.map((item, index) => item?.split("-")?.[0])
-            // }
-          });
+            subSectionInfo?.subSection_id,
+          };
         }
+        logHistoryData = await LogHistory.aggregate([
+          {
+            $match: {
+              ...commonFilterForSectionLevel,
+            },
+          },
+          {
+            $addFields: {
+              abnormality: {
+                $cond: {
+                  if: { $gt: [{ $type: "$abnormality_remarks" }, "missing"] },
+                  then: "Yes",
+                  else: "No",
+                },
+              },
+            },
+          },
+        ]);
       }
-
       // console.log(
       //     logHistoryData
       // )
@@ -23063,7 +23257,7 @@ router.get(
         {
           $group: {
             _id: "$machine_code",
-            machine_name: { $push: "$machine_name" },
+            machine_name: { $first: "$machine_name" },
             totalSumOf_PM: {
               $sum: truncValue({
                 $divide: ["$totalPMTime.v.totalWorkedPMTime", 60],
