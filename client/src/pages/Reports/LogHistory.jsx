@@ -62,12 +62,12 @@ const LogHistory = () => {
       key: "abnormality",
     },
     {
-      label: "Abnormality Status",
-      key: "abnormality_status",
-    },
-    {
       label: "Abnormality Remarks",
       key: "abnormality_remarks",
+    },
+    {
+      label: "Abnormality Status",
+      key: "abnormality_status",
     },
     {
       label: "Action Details",

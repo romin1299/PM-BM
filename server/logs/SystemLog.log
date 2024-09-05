@@ -623,3 +623,7 @@
 		ReferenceError: cosnole is not defined
     at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22239:9
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-05T10:58 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at cellMonthlyBdTrendForSectionMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9854:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)

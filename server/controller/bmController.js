@@ -9851,7 +9851,7 @@ const cellMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       message: "Cell Wise Monthly BD trend data for Section get successfully",
       bdTrendData,
       bdTrendDataTarget: req.target,
-      averageData: averageData?.[0].data,
+      averageData: averageData?.[0]?.data,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });

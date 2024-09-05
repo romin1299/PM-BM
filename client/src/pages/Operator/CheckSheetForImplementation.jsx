@@ -682,12 +682,15 @@ const CheckSheet = ({
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch(
-        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${machine_code}&&selectedYear=${selectedYear}`,
+        `/postMachineIdToGetAllDetailsOfMachine/?selectedYear=${selectedYear}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            machine_code,
+          }),
         }
       );
       const data = await res.json();

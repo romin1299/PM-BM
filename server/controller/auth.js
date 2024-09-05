@@ -11764,7 +11764,7 @@ router.post(
   authenticate,
   async (req, res) => {
     try {
-      let { machineID, selectedYear } = req.body;
+      let { machine_code, selectedYear } = req.body;
       // console.log(machineID)
 
       let currentYear =
@@ -11788,12 +11788,11 @@ router.post(
             ];
 
       // const machineData = await Machine.findOne({ _id: machineID })
-
       let machineLastData;
       machineLastData = await Machine.aggregate([
         {
           $match: {
-            machine_code: req?.query?.machine_code,
+            machine_code,
             $or: selectedYearOfCheckSheet,
           },
         },
@@ -22215,7 +22214,6 @@ router.post(
           section_id: section?.split("-")?.[0],
         }).populate({ path: "plant_names" });
 
-
         if (sectionInfo?.dashboardLevel === "Yes") {
           commonFilterForSectionLevel = {
             ...commonFilterForSectionLevel,
@@ -22252,7 +22250,6 @@ router.post(
           },
         ]);
       } else {
-
         if (section?.dashboardLevel === "Yes") {
           const sectionInfo = await Section.findOne({
             _id: section?._id,
@@ -22270,7 +22267,7 @@ router.post(
           commonFilterForSectionLevel = {
             ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id":
-            subSectionInfo?.subSection_id,
+              subSectionInfo?.subSection_id,
           };
         }
         logHistoryData = await LogHistory.aggregate([

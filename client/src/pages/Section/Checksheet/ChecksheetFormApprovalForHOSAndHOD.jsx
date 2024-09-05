@@ -34,12 +34,15 @@ function ChecksheetFormApprovalForHOSAndHOD() {
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch(
-        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${selectedMachineCheckSheetData?.state?.selectedRowForViewForm?.machine_code}&&selectedYear=${selectedMachineCheckSheetData?.state?.selectedYear}`,
+        `/postMachineIdToGetAllDetailsOfMachine/?selectedYear=${selectedMachineCheckSheetData?.state?.selectedYear}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            machine_code: selectedMachineCheckSheetData?.state?.selectedRowForViewForm?.machine_code,
+          }),
         }
       );
       const data = await res.json();

@@ -296,14 +296,15 @@ const CheckSheetEditAfterApproval = ({
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch(
-        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${
-          selectedRow?.machine_code
-        }&&selectedYear=${selectedYear}&&getAllUser=${true}`,
+        `/postMachineIdToGetAllDetailsOfMachine/?selectedYear=${selectedYear}&&getAllUser=${true}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            machine_code:  selectedRow?.machine_code,
+          }),
         }
       );
       const data = await res.json();
