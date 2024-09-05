@@ -843,7 +843,7 @@ function MyTable({
                       name={"MTD_TL"}
                       selectedMinor={selectedMinor}
                       selectedMajor={selectedMajor}
-                      maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                      maintenanceType={requestSheetDataOfBM?.maintenanceType}
                       approvalList={
                         selectedMachineDetails?.line_names?.cell_names
                           ?.subSection_names?.section_names?.plant_names
@@ -1074,7 +1074,9 @@ function MyTable({
                           name={"MTD_HOSS"}
                           selectedMinor={selectedMinor}
                           selectedMajor={selectedMajor}
-                          maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                          maintenanceType={
+                            requestSheetDataOfBM?.maintenanceType
+                          }
                           approvalList={
                             selectedMachineDetails?.line_names?.cell_names
                               ?.subSection_names?.section_names?.plant_names
@@ -1119,7 +1121,9 @@ function MyTable({
                           name={"MTD_HOS"}
                           selectedMinor={selectedMinor}
                           selectedMajor={selectedMajor}
-                          maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                          maintenanceType={
+                            requestSheetDataOfBM?.maintenanceType
+                          }
                           approvalList={
                             selectedMachineDetails?.line_names?.cell_names
                               ?.subSection_names?.section_names?.plant_names
@@ -1484,7 +1488,7 @@ function MyTable({
                   className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>MAINTENANCE</b>
+                    <b>MAINTENANCE</b> <br /> <b>(No Loss)</b>
                   </small>
                   <input
                     type="number"
@@ -2706,7 +2710,9 @@ function MyTable({
                             name={"MTD_HOD"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
-                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2754,7 +2760,9 @@ function MyTable({
                             name={"PRD_HOD"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
-                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2849,7 +2857,9 @@ function MyTable({
                             name={"PRD_TL"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
-                            maintenanceType = {requestSheetDataOfBM?.maintenanceType}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names

@@ -1071,7 +1071,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                     className="border text-center pb-2 pt-2"
                   >
                     <small className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>MAINTENANCE</b>
+                    <b>MAINTENANCE</b> <br /> <b>(No Loss)</b>
                     </small>
                     <input
                       type="number"

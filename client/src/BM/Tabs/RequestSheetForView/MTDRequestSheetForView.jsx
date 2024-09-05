@@ -45,14 +45,15 @@ function MTDRequestSheetForView({
   var curr = new Date();
   var currentDate = curr.toISOString().substring(0, 10);
 
-  let timeDifferenceMinutes = moment(watch("workEndedDateOfBM"))
-    .tz("Asia/Kolkata")
-    .diff(
-      moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM).tz(
-        "Asia/Kolkata"
-      ),
-      "minutes"
-    ) - (requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime);
+  let timeDifferenceMinutes =
+    moment(watch("workEndedDateOfBM"))
+      .tz("Asia/Kolkata")
+      .diff(
+        moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM).tz(
+          "Asia/Kolkata"
+        ),
+        "minutes"
+      ) - requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime;
 
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {
@@ -85,7 +86,8 @@ function MTDRequestSheetForView({
       );
       setValue(
         "spareWaitingTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.spareWaitingTime || 0
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.spareWaitingTime ||
+          0
       );
       setValue(
         "maintenanceTime",
@@ -101,7 +103,8 @@ function MTDRequestSheetForView({
       );
       setValue(
         "qualityCheckTime",
-        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.qualityCheckTime || 0
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.qualityCheckTime ||
+          0
       );
       setValue(
         "breakTime",
@@ -878,7 +881,7 @@ function MTDRequestSheetForView({
                   className="border text-center pb-2 pt-2"
                 >
                   <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>MAINTENANCE</b>
+                    <b>MAINTENANCE</b> <br /> <b>(No Loss)</b>
                   </small>
                   <input
                     type="number"

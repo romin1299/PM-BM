@@ -832,7 +832,7 @@ const RequestSheetMainDashboard = () => {
           variant="outlined"
           sx={{
             // width: "12ch",
-            width: "6rem",
+            width: "5rem",
             pl: 0,
             "& .MuiOutlinedInput-root": { pl: 0 },
             "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
@@ -858,7 +858,7 @@ const RequestSheetMainDashboard = () => {
           variant="outlined"
           sx={{
             // width: "12ch",
-            width: "6rem",
+            width: "5rem",
             pl: 0,
             "& .MuiOutlinedInput-root": { pl: 0 },
             "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
