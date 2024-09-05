@@ -627,3 +627,43 @@
 		TypeError: Cannot read properties of undefined (reading 'data')
     at cellMonthlyBdTrendForSectionMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9854:36)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-04T15:14 | PM | RequestSheetOfBM.findManyAndUpdate is not a function
+		TypeError: RequestSheetOfBM.findManyAndUpdate is not a function
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\auth.js:23405:60
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-04T18:00 | BM | Cannot access 'condForLesserValue' before initialization
+		ReferenceError: Cannot access 'condForLesserValue' before initialization
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:2020:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1785:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1775:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+2024-09-04T18:00 | BM | Cannot access 'condForLesserValue' before initialization
+		ReferenceError: Cannot access 'condForLesserValue' before initialization
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:2020:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1785:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1775:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+2024-09-04T18:01 | BM | Cannot access 'condForLesserValue' before initialization
+		ReferenceError: Cannot access 'condForLesserValue' before initialization
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:2020:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1785:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1775:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)

@@ -152,9 +152,6 @@ const MasterLogTable = ({
             problem: masterLogData[i]?.problem?.map((data) => data?.problem),
             action: masterLogData[i]?.action?.map((data) => data?.action),
             doneBy: masterLogData[i]?.doneBy?.map((data) => data?.tm_name),
-            category: masterLogData[i]?.category?.map(
-              (data) => `${data?.category}- ${data?.subCategory}`
-            ),
           });
         }
 

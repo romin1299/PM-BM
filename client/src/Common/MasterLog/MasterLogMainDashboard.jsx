@@ -94,8 +94,12 @@ const MasterLogInnerComponent = () => {
       key: "counterMeasure",
     },
     {
-      label: "Category",
-      key: "category",
+      label: "Problem Category",
+      key: "category[0].subCategory",
+    },
+    {
+      label: "Breakdown Category",
+      key: "category[1].subCategory",
     },
     {
       label: "Is Action Temporary?",
@@ -110,6 +114,7 @@ const MasterLogInnerComponent = () => {
       key: "status",
     },
   ];
+  console.log("this is csvDataOfMasterLog", csvDataOfMasterLog);
   return (
     <Container fluid>
       <Box>
