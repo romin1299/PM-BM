@@ -75,7 +75,10 @@ const RequestSheetMainDashboard = () => {
   const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
   const [sparePartsRequestModal, setSparePartsRequestModal] = useState(false);
   const [greaterValue, setGreaterValue] = useState(
-    localStorage.getItem("greaterValue")
+    localStorage.getItem("greaterValue") 
+  );
+  const [lesserValue, setLesserValue] = useState(
+    localStorage.getItem("lesserValue")
   );
 
   const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
@@ -203,7 +206,10 @@ const RequestSheetMainDashboard = () => {
           reduceState?.selectedRSStatus
         }&&selectedMaintenanceType=${
           reduceState?.selectedMaintenanceType
-        }&&greaterValue=${greaterValue || 0}`,
+        }&&greaterValue=${greaterValue || 1000}&&lesserValue=${
+          lesserValue || 0
+        }`,
+
         {
           method: "GET",
           headers: {
@@ -243,6 +249,10 @@ const RequestSheetMainDashboard = () => {
 
     setLoading(false);
   };
+  useEffect(()=>{
+    localStorage.setItem("greaterValue", "")
+    localStorage.setItem("lesserValue", "")
+  },[])
 
   const updateRequestSheet = async (updatedRow) => {
     try {
@@ -813,10 +823,12 @@ const RequestSheetMainDashboard = () => {
         }}
       >
         {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
+
         <TextField
           type="number"
           id="outlined-basic"
           // sx={{ width: "80px" }}
+          placeholder="From"
           variant="outlined"
           sx={{
             // width: "12ch",
@@ -829,6 +841,32 @@ const RequestSheetMainDashboard = () => {
             sx: { fontSize: 14 },
             startAdornment: (
               <InputAdornment position="start">&gt; &#61;</InputAdornment>
+            ),
+          }}
+          size="small"
+          onChange={(e) => {
+            setLesserValue(e.target.value);
+            localStorage.setItem("lesserValue", e.target.value);
+          }}
+          value={lesserValue}
+        />
+        <TextField
+          type="number"
+          id="outlined-basic"
+          // sx={{ width: "80px" }}
+          placeholder="To"
+          variant="outlined"
+          sx={{
+            // width: "12ch",
+            width: "6rem",
+            pl: 0,
+            "& .MuiOutlinedInput-root": { pl: 0 },
+            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
+          }}
+          InputProps={{
+            sx: { fontSize: 14 },
+            startAdornment: (
+              <InputAdornment position="start">&lt; &#61;</InputAdornment>
             ),
           }}
           size="small"

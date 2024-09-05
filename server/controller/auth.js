@@ -43,6 +43,7 @@ const truncValue = require("../utils/truncValue");
 const moment = require("moment");
 const logger = require("../utils/LoggingController/loggers");
 const maintenanceType = require("../utils/maintenanceType");
+const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 
 //for profile image upload
 const storage = multer.diskStorage({
@@ -23401,6 +23402,12 @@ router.patch(
         },
         { $inc: { machine_sequence: -1 } }
       );
+      const updateReqestSheetData = await RequestSheetOfBM.updateMany({machineRef: req?.query?._id},{
+        $set:{
+          lineRef: submittedData?.line_id,
+          cellRef: submittedData?.cell_id
+        }
+      },{new : true})
 
       const updateMachineLineAndCellId = await Machine.findOneAndUpdate(
         { _id: req?.query?._id },

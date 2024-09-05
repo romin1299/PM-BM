@@ -2000,10 +2000,11 @@ router.get(
       ];
 
       let condForGraterValue = {};
-      if (req.query?.greaterValue !== "0") {
+      if (req.query?.greaterValue !== "1000" || req.query?.lesserValue !== "0") {
         condForGraterValue = {
           "maintenanceReportFilledByMTD.breakDownTime": {
-            $gte: req.query?.greaterValue * 1,
+            $lte: req.query?.greaterValue * 1,
+            $gte: req.query?.lesserValue * 1,
           },
           // maintenanceType: "BM",
         };
@@ -2016,7 +2017,7 @@ router.get(
           },
         ];
       }
-
+      
       //For fetching data while updating
       if (req.query?._id) {
         queryPipeline = [
