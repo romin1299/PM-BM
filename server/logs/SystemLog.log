@@ -739,3 +739,43 @@
     at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
     at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
     at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-06T13:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:59 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:59 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T14:00 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T14:00 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T14:00 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T14:00 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
