@@ -87,7 +87,9 @@ import RoutingContext from "./context/routing/RoutingContext";
 import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
 import PM from "./static/Icons/PM_history_4.png";
 import BM from "./static/Icons/BM_History_1.png";
+import CM from "./static/Icons/CM.png";
 import MTD_KPI from "./static/Icons/MTD_KPI.png";
+import CM_Routes from "./CM/CM_Routes";
 
 function App() {
   //DENSO-HARYANA
@@ -239,6 +241,12 @@ function App() {
       keyUrl: "bm",
       icon: BM,
       dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
+    },
+    {
+      name: "CM",
+      keyUrl: "cm",
+      icon: CM,
+      dashboardAndRoutes: <CM_Routes commonRoutes={commonRoutes} />,
     },
     ...displayKPIDashboard,
     // {

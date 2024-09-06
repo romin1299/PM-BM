@@ -422,7 +422,7 @@ function BM_Routes({ commonRoutes }) {
     context?.user_type,
     context?.tm_department
   );
-
+  console.log("this is rfgr",filteredRoutes)
   return (
     <CommonRoutesContainer
       routes={filteredRoutes?.routes}
