@@ -6,8 +6,13 @@ import MainCustomized from "../BM/Customized/MainCustomized";
 import { menuItems } from "./CMSidebar/menuItems";
 import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
-import BMTitlebar from "../BM/Component/BMTitlebar";
+// import BMTitlebar from "../BM/Component/BMTitlebar";
 import Profile from "../pages/Profile";
+
+import ActivityStatusDashboardOfCM from "./Pages/ActivityStatusDashboadOfCM/ActivityStatusDashboardOfCM";
+import AllRequestSheetReportDataOfCM from "./Pages/AllRequestSheetReportDataOfCM/AllRequestSheetReportDataOfCM";
+import ApprovalDashboard from "./Pages/ApprovalDashboardOfCM/ApprovalDashboard";
+import RequestSheetStatusMonitoringOfCM from "./Pages/RequestSheetStatusMonitoringOfCM/RequestSheetStatusMonitoringOfCM";
 
 const CM_Routes = ({ commonRoutes }) => {
   let reportRoutes = [];
@@ -58,11 +63,11 @@ const CM_Routes = ({ commonRoutes }) => {
       routes: [
         {
           path: "/cm",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Plant Dashboard" />
-            </div>
-          ),
+          element: <ActivityStatusDashboardOfCM/>,
+        },
+        {
+          path: "/cm/allRequestSheetReportDataOfCM",
+          element: <AllRequestSheetReportDataOfCM />,
         },
       ],
     },
@@ -75,15 +80,14 @@ const CM_Routes = ({ commonRoutes }) => {
     {
       user_type: "TL/HOSS",
       routes: [
-        // {
-        //   path: "/cm",
-        //   element: (
-        //     <div className="container-fluid">
-        //       {/* <BMTabDashboard /> */}
-        //       <BMTitlebar title="Plant Dashboard" />
-        //     </div>
-        //   ),
-        // },
+        {
+          path: "/cm",
+          element: <ActivityStatusDashboardOfCM/>,
+        },
+        {
+          path: "/cm/allRequestSheetReportDataOfCM",
+          element: <AllRequestSheetReportDataOfCM />,
+        },
         ...reportRoutes,
       ],
     },
@@ -94,7 +98,7 @@ const CM_Routes = ({ commonRoutes }) => {
     //   ],
     // },
   ];
-  console.log("this is user",context?.user_type)
+  // console.log("this is user",context?.user_type)
   const filteredRoutes = userRoutes?.find(
     (userRoute) => userRoute?.user_type === context?.user_type
   );
@@ -103,7 +107,7 @@ const CM_Routes = ({ commonRoutes }) => {
     context?.user_type,
     context?.tm_department
   );
-  console.log("this is cmrfgr",filteredRoutes)
+  // console.log("this is cmrfgr",filteredRoutes)
   return (
     <CommonRoutesContainer
       routes={filteredRoutes?.routes}

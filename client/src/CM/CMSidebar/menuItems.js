@@ -1,4 +1,9 @@
-import { AccountCircleIcon, DashboardIcon } from "../../components/NavbarComponent/ImportModules";
+import {
+  AccountCircleIcon,
+  DashboardIcon,
+  PiListBulletsFill,
+  MdFormatListBulletedAdd,
+} from "../../components/NavbarComponent/ImportModules";
 
 const allusers = [
   "Admin",
@@ -13,9 +18,19 @@ const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
 export const menuItems = [
   {
     title: "Dashboard",
-    icon: <DashboardIcon className="text-white" />,
+    icon: (
+      <MdFormatListBulletedAdd className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
     route: "/cm",
-    allowedRoles: allusers
+    allowedRoles: allusers,
+  },
+  {
+    title: "CM Report",
+    icon: (
+      <PiListBulletsFill className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/cm/allRequestSheetReportDataOfCM",
+    allowedRoles: allusers,
   },
   {
     icon: <AccountCircleIcon className="text-white" />,

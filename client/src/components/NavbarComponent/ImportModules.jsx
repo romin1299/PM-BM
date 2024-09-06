@@ -27,6 +27,11 @@ import RoutingContext from "../../context/routing/RoutingContext";
 import AddTaskIcon from "@mui/icons-material/AddTask";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 
+
+import { FaListCheck } from "react-icons/fa6";
+import { PiListBulletsFill } from "react-icons/pi";
+import { MdFormatListBulletedAdd } from "react-icons/md";
+
 export {
   React,
   styles,
@@ -44,5 +49,7 @@ export {
   RoutingContext,
   AddTaskIcon,
   FactCheckIcon,
-  halflogo
+  halflogo,
+  PiListBulletsFill,
+  MdFormatListBulletedAdd
 };
