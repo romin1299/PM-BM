@@ -27,10 +27,10 @@ app.use(
 
 //for when deploying application on AWS
 
-const keys = {
-  key: fs.readFileSync(process.env.CERTIFICATE_KEY),
-  cert: fs.readFileSync(process.env.CERTIFICATE_CRT),
-};
+// const keys = {
+//   key: fs.readFileSync(process.env.CERTIFICATE_KEY),
+//   cert: fs.readFileSync(process.env.CERTIFICATE_CRT),
+// };
 
 // const { dummyCron } = require(path.join(__dirname, "./controller/dummyCron"));
 // dummyCron();
@@ -89,8 +89,8 @@ app.get("/*", (req, res) => {
 const PORT = process.env.PORT;
 
 //for when deploying application on AWS
-const server = https.createServer(keys, app);
+// const server = https.createServer(keys, app);
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`server is running in port ${PORT} `);
 });
