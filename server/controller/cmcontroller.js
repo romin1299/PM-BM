@@ -26,22 +26,24 @@ const logger = require("../utils/LoggingController/loggers");
 router.use(cookieParser());
 
 const monthKeyArray = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "June",
-    "July",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  
-  let currentMonth = monthKeyArray[new Date().getMonth()];
-  let currentYear =
-    new Date().getMonth() < 3
-      ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-      : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "June",
+  "July",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+let currentMonth = monthKeyArray[new Date().getMonth()];
+let currentYear =
+  new Date().getMonth() < 3
+    ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+    : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+module.exports = router;
