@@ -21,4 +21,16 @@ export const cmRoutes = [
     ),
     allowedRoles: allusers
   },
+  {
+    title: "Plant Dashboard",
+    path: "/cm/allRequestSheetReportDataOfCM", //all users
+    element: (
+      <div className="container-fluid">
+        {/* <BMTabDashboard /> */}
+        <BMTitlebar title="Plant Dashboard" />
+        This is CM 
+      </div>
+    ),
+    allowedRoles: allusers
+  },
 ];
