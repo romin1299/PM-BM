@@ -8,12 +8,13 @@ import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
 // import BMTitlebar from "../BM/Component/BMTitlebar";
 import Profile from "../pages/Profile";
+import GenerateRequestSheetMainDashboard from "../BM/RequestSheet/GenerateRequestSheetMainDashboard";
 
 import ActivityStatusDashboardOfCM from "./Pages/ActivityStatusDashboadOfCM/ActivityStatusDashboardOfCM";
 import AllRequestSheetReportDataOfCM from "./Pages/AllRequestSheetReportDataOfCM/AllRequestSheetReportDataOfCM";
 import ApprovalDashboard from "./Pages/ApprovalDashboardOfCM/ApprovalDashboard";
 import RequestSheetStatusMonitoringOfCM from "./Pages/RequestSheetStatusMonitoringOfCM/RequestSheetStatusMonitoringOfCM";
-
+import ExistingMachineRequestSheet from "./Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineRequestSheet";
 const CM_Routes = ({ commonRoutes }) => {
   let reportRoutes = [];
   reportRoutes = commonRoutes;
@@ -87,6 +88,14 @@ const CM_Routes = ({ commonRoutes }) => {
         {
           path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
+        },
+        {
+          path: "/cm/generateCMRequestSheetMainDashboard",
+          element: <GenerateRequestSheetMainDashboard />,
+        },
+        {
+          path: "/cm/request-sheet/:machine_code/:selectedYear",
+          element: <ExistingMachineRequestSheet/>
         },
         ...reportRoutes,
       ],

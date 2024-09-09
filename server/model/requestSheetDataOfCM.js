@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const requestSheetOfCMSchema = new mongoose.Schema({
-  cmRequestSheetNo: {
+  requestSheetNoOfCM: {
     type: String,
   },
 
@@ -22,25 +22,26 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     },
   },
 
-  problemOccurredDateAndTimeOfBM: {
+  problemOccurredDateAndTimeOfCM: {
     type: Date,
   },
-  sheetIssuedDateAndTimeOfBM: {
+  sheetIssuedDateAndTimeOfCM: {
     type: Date,
   },
 
-  attachedImagesOrVideoByUserWhileCreation: { type: [String] },
+  attachedFilesByMTDUser: { type: [String] },
 
   cmBasicDataFilledByMTD_TL: {
     activityOfCM: { type: String },
-    frequencyOfCM: {
-      frequencyType: { type: String },
-      frequencyValue: { type: String },
-    },
+    // frequencyOfCM: {
+    frequencyType: { type: String },
+    frequencyValue: { type: String },
+    // },
 
-    categories:{
-      type: String
-    }
+    categories: {
+      type: String,
+    },
+    targetDateOfCM: {type: Date}
   },
 
   shiftOfBM: {
@@ -61,8 +62,8 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     ref: "Users",
   },
 
-  assignUser: {
-    type: mongoose.Schema.Types.ObjectId,
+  assignUserForCM: {
+    type: [mongoose.Schema.Types.ObjectId],
     ref: "Users",
   },
 
@@ -183,7 +184,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   rejectedRemarksOfRequestSheet: {
     type: [String],
   },
-
 
   dataSheetOfRequestSheet: {
     type: String,
@@ -311,7 +311,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     ref: "Plants",
   },
 
-  requestSheetStatus: {
+  requestSheetStatusOfCM: {
     type: String,
     default: "Generated",
   },
@@ -335,5 +335,8 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   },
 });
 
-const RequestSheetOfCM = new mongoose.model("CM_RequestSheetData", requestSheetOfCMSchema);
+const RequestSheetOfCM = new mongoose.model(
+  "CM_RequestSheetData",
+  requestSheetOfCMSchema
+);
 module.exports = RequestSheetOfCM;

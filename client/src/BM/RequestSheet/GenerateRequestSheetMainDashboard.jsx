@@ -155,11 +155,19 @@ const GenerateRequestSheetMainDashboard = () => {
   }, [reduceState?.selectedSubSection]);
 
   const handleBack = () => {
-    navigate("/bm");
+    localStorage.getItem("activeKey") === "bm"
+      ? navigate("/bm")
+      : navigate("/cm");
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
-    navigate(`/bm/request-sheet/manual/${machine_code}/${currentYear}`);
+    const urlForSelectMachineForOpenRequestSheet =
+      localStorage.getItem("activeKey") === "bm"
+        ? "/bm/request-sheet/manual"
+        : "/cm/request-sheet";
+    navigate(
+      `${urlForSelectMachineForOpenRequestSheet}/${machine_code}/${currentYear}`
+    );
   };
 
   if (reduceState?.dashboardLevel === "Yes") {

@@ -106,7 +106,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
         </Col>
         <Col lg={2} md={2} sm={2} className="border">
           <small style={{ fontSize: "12px" }}>
-            <b>Cost</b>
+            <b>COST</b>
           </small>
         </Col>
         <Col

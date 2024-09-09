@@ -13,8 +13,8 @@ const DropdownElem = ({
   displayOrNot,
   maintenanceType,
 }) => {
-  console.log("----0",
-    maintenanceType,"****0", name)
+  // console.log("----0",
+  //   maintenanceType,"****0", name)
   return (
     <div>
       <select
