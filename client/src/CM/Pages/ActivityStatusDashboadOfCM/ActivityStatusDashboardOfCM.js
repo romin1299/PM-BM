@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import MaterialTable, { MTableToolbar } from "@material-table/core";
-import React, { useReducer, useState, useNavigate } from "react";
+import React, { useReducer, useState } from "react";
 import tableIcons from "../../../components/MatrialTableIcon";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
@@ -25,6 +25,7 @@ import {
   initialState,
   reducer,
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import { useNavigate } from "react-router-dom";
 
 const ActivityStatusDashboardOfCM = () => {
   // const [loading, setLoading] = useState(true);
