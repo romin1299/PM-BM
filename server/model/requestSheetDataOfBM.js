@@ -33,7 +33,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     default: new Date(),
   },
 
-  attachedImagesOrVideoByPRDUser: {type: [String]},
+  attachedImagesOrVideoByPRDUser: { type: [String] },
 
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },
@@ -459,6 +459,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   yokotenkai: {
     type: String,
+  },
+
+  CM_requestSheetRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "CM_RequestSheetData",
   },
 });
 
