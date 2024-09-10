@@ -66,7 +66,7 @@ function MyTable({
       "cmBasicDataFilledByMTD_TL.targetDateOfCM": moment(new Date()).format(
         "YYYY-MM-DDTHH:mm"
       ),
-      "cmBasicDataFilledByMTD_TL.categories": "BM Reflection"
+      "cmBasicDataFilledByMTD_TL.categories": "BM Reflection",
     },
   });
 
@@ -119,7 +119,7 @@ function MyTable({
         "attachedDataSheets",
         requestSheetData?.attachedDataSheets?.[0]
       );
-
+      console.log(requestSheetData);
       for (let i = 0; i < requestSheetData?.attachedDrawings?.length; i++) {
         formData.append(
           "attachedDrawings",

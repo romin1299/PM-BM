@@ -33,6 +33,8 @@ router.use(cookieParser());
 const {
   APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM,
 } = require("../GlobalData/RequestSheetApprovalStatus");
+const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
+const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
 
 const statusArray = [
   "Generated",
@@ -315,6 +317,48 @@ router.post(
           const requestSheetDataFilledByMTDUser = JSON.parse(
             req.body.otherData
           );
+          let objForNewCM = {};
+          if (requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.activityOfCM) {
+            objForNewCM = {
+              ...objForNewCM,
+              "cmBasicDataFilledByMTD_TL.activityOfCM":
+                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.activityOfCM,
+            };
+          }
+          if(requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.categories){
+            objForNewCM = {
+              ...objForNewCM,
+              "cmBasicDataFilledByMTD_TL.categories":
+                  requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.categories,
+            };
+          }
+          if(requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.frequencyType){
+            objForNewCM = {
+              ...objForNewCM,
+              "cmBasicDataFilledByMTD_TL.frequencyType":
+                  requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.frequencyType,
+            };
+          }
+          if(requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.targetDateOfCM){
+            objForNewCM = {
+              ...objForNewCM,
+              "cmBasicDataFilledByMTD_TL.targetDateOfCM":
+                  requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.targetDateOfCM,
+            };
+          }
+          const newRequestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
+            { requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId) },
+            {
+              $set: {
+                requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
+                ...objForNewCM
+              },
+            },
+            {
+              upsert: true,
+            }
+          );
+          
           const prdDataUpdatedByOtherUser = JSON.parse(
             req?.body?.prdDataUpdatedByOtherUser
           );
@@ -548,30 +592,35 @@ router.post(
           const requestSheetDataFilledByPRDUser = JSON.parse(
             req.body.otherData
           );
+          // ==================== Previous code for req sheet No ==============================================
+          // let requestSheetNos = machine.line_names.requestSheetNos + 1 || 1;
 
-          let requestSheetNos = machine.line_names.requestSheetNos + 1 || 1;
+          // let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
+          //   { _id: machine.line_names._id },
+          //   { $set: { requestSheetNos } },
+          //   { new: true }
+          // );
 
-          let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
-            { _id: machine.line_names._id },
-            { $set: { requestSheetNos } },
-            { new: true }
+          // const requestSheetNoOfBM =
+          //   machine?.line_names?.cell_names?.subSection_names?.section_names
+          //     ?.dashboardLevel === "Yes"
+          //     ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+          //         .trim()
+          //         .substring(0, 2)
+          //         .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
+          //         moment().tz("Asia/Kolkata").month() + 1
+          //       }-${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
+          //     : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
+          //         .trim()
+          //         .substring(0, 2)
+          //         .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
+          //         moment().tz("Asia/Kolkata").month() + 1
+          //       }-${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
+          // =========================================================================================================
+          const requestSheetNoOfBM = await globalReqSheetNo(
+            _idObject?.machineRef,
+            "BM"
           );
-
-          const requestSheetNoOfBM =
-            machine?.line_names?.cell_names?.subSection_names?.section_names
-              ?.dashboardLevel === "Yes"
-              ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
-                  .trim()
-                  .substring(0, 2)
-                  .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
-                  moment().tz("Asia/Kolkata").month() + 1
-                }-${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim()
-              : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
-                  .trim()
-                  .substring(0, 2)
-                  .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
-                  moment().tz("Asia/Kolkata").month() + 1
-                }-${increaseCountOfRequestSheetInLine?.requestSheetNos}`.trim();
 
           await Machine.findOneAndUpdate(
             { machine_code: machine.machine_code },
@@ -1977,7 +2026,10 @@ router.get(
       ];
 
       let condForGraterValue = {};
-      if (req.query?.greaterValue !== "1000" || req.query?.lesserValue !== "0") {
+      if (
+        req.query?.greaterValue !== "1000" ||
+        req.query?.lesserValue !== "0"
+      ) {
         condForGraterValue = {
           "maintenanceReportFilledByMTD.breakDownTime": {
             $lte: req.query?.greaterValue * 1,
@@ -1994,7 +2046,7 @@ router.get(
           },
         ];
       }
-      
+
       //For fetching data while updating
       if (req.query?._id) {
         queryPipeline = [

@@ -4,6 +4,10 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   requestSheetNoOfCM: {
     type: String,
   },
+  requestSheetOfBMRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "RequestSheetOfBM",
+  },
 
   //If require else byDefault is BM
   maintenanceType: {
