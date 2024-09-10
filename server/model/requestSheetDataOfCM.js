@@ -33,6 +33,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
 
   cmBasicDataFilledByMTD_TL: {
     activityOfCM: { type: String },
+    problemBackgroundOfCM: { type: String },
     // frequencyOfCM: {
     frequencyType: { type: String },
     frequencyValue: { type: String },
@@ -41,7 +42,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     categories: {
       type: String,
     },
-    targetDateOfCM: {type: Date}
+    targetDateOfCM: { type: Date },
   },
 
   shiftOfBM: {

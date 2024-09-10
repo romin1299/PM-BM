@@ -192,8 +192,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     navigate("/cm", { replace: true });
   };
 
-  console.log(watch("cmBasicDataFilledByMTD_TL.frequencyType"));
-
   return (
     <>
       <form onSubmit={handleSubmit(newRequestSheetRegistrationOfCM)}>
