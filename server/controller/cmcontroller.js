@@ -26,6 +26,7 @@ const logger = require("../utils/LoggingController/loggers");
 
 const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 const maintenanceType = require("../utils/maintenanceType");
+const filterMiddleware = require("../middleware/filterMiddleware");
 
 router.use(cookieParser());
 
@@ -289,6 +290,30 @@ router.post(
       });
     }
   }
+);
+
+router.get(
+  "/getAllCmReqSheet/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    try {
+      let queryPipeline = [
+        {
+          $match: {
+            ...req.queryObj,
+          },
+        },
+      ];
+      const reqSheetCM = await RequestSheetOfCM.aggregate(queryPipeline);
+      res.json({
+        reqSheetCM,
+        message: "Request-sheet fetched successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  })
 );
 
 module.exports = router;
