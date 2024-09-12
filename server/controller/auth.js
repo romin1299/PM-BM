@@ -29,6 +29,7 @@ const sendApprovalOfSkippedPM = require("../sendMail/sendApprovalOfSkippedPM");
 const sendMailForAnnualPmScheduleReport = require("../sendMail/sendMailForAnnualPmScheduleReport");
 const filterMiddleware = require("../middleware/filterMiddleware");
 const FinancialYear1 = require("../model/financialYearSchema");
+const CM_RequestSheetData= require ('../model/requestSheetDataOfCM')
 
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
@@ -44,6 +45,7 @@ const moment = require("moment");
 const logger = require("../utils/LoggingController/loggers");
 const maintenanceType = require("../utils/maintenanceType");
 const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
+const noLossBDData = require("../model/noLossBDSheetData");
 
 //for profile image upload
 const storage = multer.diskStorage({
@@ -23400,6 +23402,20 @@ router.patch(
         { $inc: { machine_sequence: -1 } }
       );
       const updateReqestSheetData = await RequestSheetOfBM.updateMany({machineRef: req?.query?._id},{
+        $set:{
+          lineRef: submittedData?.line_id,
+          cellRef: submittedData?.cell_id
+        }
+      },{new : true})
+
+      const updateNoLossReqestSheetData = await noLossBDData.updateMany({machineRef: req?.query?._id},{
+        $set:{
+          lineRef: submittedData?.line_id,
+          cellRef: submittedData?.cell_id
+        }
+      },{new : true})
+
+      const updateReqestSheetDataOfCM = await CM_RequestSheetData.updateMany({machineRef: req?.query?._id},{
         $set:{
           lineRef: submittedData?.line_id,
           cellRef: submittedData?.cell_id

@@ -261,7 +261,7 @@ router.post(
               .substring(0, 2)
               .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
               moment().tz("Asia/Kolkata").month() + 1
-            }-${increaseCountOfRequestSheetInLine?.requestSheetNoOfCM}`.trim()
+            }-CM-${increaseCountOfRequestSheetInLine?.requestSheetNoOfCM}`.trim()
           : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
               .trim()
               .substring(0, 2)
