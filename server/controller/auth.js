@@ -22888,42 +22888,6 @@ router.post(
         }
 
         let commonEditedFields = async () => {
-          // if (
-          //   machineCheckSheetData[0].checkSheet_data[
-          //     `implementation_approved_by_${userDepAndType}`
-          //   ] === undefined
-          // ) {
-          //   const updateImplementationData = await Machine.updateOne(
-          //     { ...req?.query },
-          //     {
-          //       $set: {
-          //         [keyForAddEmptyArrayOfMonthsOfApprovedBy]:
-          //           updateFieldWithAllMonthOrSix,
-          //         [keyForAddEmptyArrayOfMonthsOfApproveDate]:
-          //           updateFieldWithAllMonthOrSix,
-          //       },
-          //     },
-          //     {
-          //       arrayFilters: [
-          //         {
-          //           "outer.current_year": req?.params?.selectedYear,
-          //         },
-          //       ],
-          //     }
-          //   );
-          //   queryObjForUpdateFields = {
-          //     ...queryObjForUpdateFields,
-
-          //     [keyOfImplementationApprovedByUserName]:
-          //       editedApprovalData[`${userDepAndType.toLowerCase()}_list`]
-          //         ?.tm_name,
-
-          //     [keyOfImplementationApprovedDate]:
-          //       editedApprovalData[
-          //         `implementation_approved_${userDepAndType}_date`
-          //       ],
-          //   };
-          // }
 
           machineCheckSheetData[0].checkSheet_data[
             `implemetation_${userDepAndType.toLowerCase()}_approval_status`
@@ -23400,6 +23364,13 @@ router.patch(
         { $inc: { machine_sequence: -1 } }
       );
       const updateReqestSheetData = await RequestSheetOfBM.updateMany({machineRef: req?.query?._id},{
+        $set:{
+          lineRef: submittedData?.line_id,
+          cellRef: submittedData?.cell_id
+        }
+      },{new : true})
+
+      const updateNoLossReqestSheetData = await noLossBDData.updateMany({machineRef: req?.query?._id},{
         $set:{
           lineRef: submittedData?.line_id,
           cellRef: submittedData?.cell_id
