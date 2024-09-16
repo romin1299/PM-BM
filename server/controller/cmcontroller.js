@@ -166,7 +166,6 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
   }
 };
 
-
 router.get(
   "/getMachineDetailsForRequestSheetOfCM",
   authenticate,
@@ -255,7 +254,7 @@ router.post(
         { $set: { requestSheetNoOfCM: generateRequestSheetNoOfCM } },
         { new: true }
       );
-// ==================== Previous code for req sheet No ==============================================
+      // ==================== Previous code for req sheet No ==============================================
       // const requestSheetNoOfCM =
       //   machine?.line_names?.cell_names?.subSection_names?.section_names
       //     ?.dashboardLevel === "Yes"
@@ -263,7 +262,7 @@ router.post(
       //         .trim()
       //         .substring(0, 2)
       //         .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
-      //         moment().tz("Asia/Kolkata").month() 
+      //         moment().tz("Asia/Kolkata").month()
       //       }-CM-${increaseCountOfRequestSheetInLine?.requestSheetNoOfCM}`.trim()
       //     : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
       //         .trim()
@@ -273,9 +272,12 @@ router.post(
       //       }-CM-${
       //         increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
       //       }`.trim();
-// =========================================================================================================
-      const requestSheetNoOfCM = await globalReqSheetNo(req.query?.machineRef, "CM");
-      console.log(requestSheetNoOfCM)
+      // =========================================================================================================
+      const requestSheetNoOfCM = await globalReqSheetNo(
+        req.query?.machineRef,
+        "CM"
+      );
+      console.log(requestSheetNoOfCM);
 
       let requestSheetOfCM = new RequestSheetOfCM({
         requestSheetNoOfCM,
@@ -310,9 +312,53 @@ router.get(
           },
         },
       ];
-      const reqSheetCM = await RequestSheetOfCM.aggregate(queryPipeline);
+      const reqSheetCM = await RequestSheetOfCM.aggregate([
+        ...queryPipeline,
+        {
+          $lookup: {
+            from: "lines",
+            localField: "lineRef",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  line_name: 1,
+                },
+              },
+            ],
+            as: "lines",
+          },
+        },
+        {
+          $lookup: {
+            from: "machinesalldatas",
+            localField: "machineRef",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  machine_name: 1,
+                  machine_code: 1,
+                },
+              },
+            ],
+            as: "machine",
+          },
+        },
+        {
+          $unwind: {
+            path: "$lines",
+          },
+        },
+        {
+          $unwind: {
+            path: "$machine",
+          },
+        },
+      ]);
       res.json({
         reqSheetCM,
+        queryPipeline,
         message: "Request-sheet fetched successfully",
       });
     } catch (error) {

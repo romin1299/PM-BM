@@ -64,7 +64,7 @@ const CM_Routes = ({ commonRoutes }) => {
       routes: [
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM/>,
+          element: <ActivityStatusDashboardOfCM />,
         },
         {
           path: "/cm/allRequestSheetReportDataOfCM",
@@ -75,7 +75,7 @@ const CM_Routes = ({ commonRoutes }) => {
     // {
     //   user_type: "Section-Admin",
     //   routes: [
-    
+
     //   ],
     // },
     {
@@ -83,7 +83,7 @@ const CM_Routes = ({ commonRoutes }) => {
       routes: [
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM/>,
+          element: <ActivityStatusDashboardOfCM />,
         },
         {
           path: "/cm/allRequestSheetReportDataOfCM",
@@ -95,17 +95,24 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/request-sheet/:machine_code/:selectedYear",
-          element: <ExistingMachineRequestSheet/>
+          element: <ExistingMachineRequestSheet />,
         },
         ...reportRoutes,
       ],
     },
-    // {
-    //   user_type: "Operator",
-    //   routes: [
-    //
-    //   ],
-    // },
+    {
+      user_type: "Operator",
+      routes: [
+        {
+          path: "/cm",
+          element: <ActivityStatusDashboardOfCM />,
+        },
+        {
+          path: "/cm/allRequestSheetReportDataOfCM",
+          element: <AllRequestSheetReportDataOfCM />,
+        },
+      ],
+    },
   ];
   // console.log("this is user",context?.user_type)
   const filteredRoutes = userRoutes?.find(

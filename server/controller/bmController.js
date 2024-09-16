@@ -318,47 +318,105 @@ router.post(
             req.body.otherData
           );
           let objForNewCM = {};
-          if (requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.activityOfCM) {
+          if (
+            requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
+              ?.activityOfCM
+          ) {
             objForNewCM = {
               ...objForNewCM,
               "cmBasicDataFilledByMTD_TL.activityOfCM":
-                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.activityOfCM,
+                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
+                  ?.activityOfCM,
             };
           }
-          if(requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.categories){
+          if (
+            requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
+              ?.categories
+          ) {
             objForNewCM = {
               ...objForNewCM,
               "cmBasicDataFilledByMTD_TL.categories":
-                  requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.categories,
+                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
+                  ?.categories,
             };
           }
-          if(requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.frequencyType){
+          if (
+            requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
+              ?.frequencyType
+          ) {
             objForNewCM = {
               ...objForNewCM,
               "cmBasicDataFilledByMTD_TL.frequencyType":
-                  requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.frequencyType,
+                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
+                  ?.frequencyType,
             };
           }
-          if(requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.targetDateOfCM){
+          if (
+            requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
+              ?.targetDateOfCM
+          ) {
             objForNewCM = {
               ...objForNewCM,
               "cmBasicDataFilledByMTD_TL.targetDateOfCM":
-                  requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL?.targetDateOfCM,
+                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
+                  ?.targetDateOfCM,
             };
           }
-          const newRequestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
-            { requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId) },
-            {
-              $set: {
-                requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
-                ...objForNewCM
-              },
-            },
-            {
-              upsert: true,
-            }
+          let commonObjForNewOrUpdateCM = {
+            ..._idObject,
+            requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
+            problemOccurredDateAndTimeOfCM:
+              getRequestSheetData?.problemOccurredDateAndTimeOfBM,
+            preAggregationTimeStampOfRequestSheet:
+              getRequestSheetData?.preAggregationTimeStampOfRequestSheet,
+            ...objForNewCM,
+          };
+          const requestSheetNoOfCM = await globalReqSheetNo(
+            _idObject.machineRef,
+            "CM"
           );
-          
+          const isExistCmReqSheet = await RequestSheetOfCM.findOne({
+            requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
+          });
+          let newRequestSheetOfCM;
+
+          if (isExistCmReqSheet) {
+            newRequestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
+              {
+                requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
+              },
+              {
+                $set: commonObjForNewOrUpdateCM,
+              },
+              {
+                new: true,
+              }
+            );
+          } else {
+            newRequestSheetOfCM = await RequestSheetOfCM.create({
+              ...commonObjForNewOrUpdateCM,
+              requestSheetNoOfCM: requestSheetNoOfCM,
+            });
+          }
+
+          // const newRequestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
+          //   { requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId) },
+          //   {
+          //     $set: {
+          //       ..._idObject,
+          //       requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
+          //       problemOccurredDateAndTimeOfCM:
+          //         getRequestSheetData?.problemOccurredDateAndTimeOfBM,
+          //       preAggregationTimeStampOfRequestSheet:
+          //         getRequestSheetData?.preAggregationTimeStampOfRequestSheet,
+          //       ...objForNewCM,
+          //     },
+          //   },
+          //   {
+          //     upsert: true,
+          //   }
+          // );
+
           const prdDataUpdatedByOtherUser = JSON.parse(
             req?.body?.prdDataUpdatedByOtherUser
           );

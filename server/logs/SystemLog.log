@@ -967,3 +967,243 @@
 		TypeError: Cannot read properties of undefined (reading 'replace')
     at router.patch.bodyContent.key.key (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1359:49)
     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at param (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:365:14)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at param (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:365:14)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-11T15:06 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-11T15:06 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-11T15:06 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-11T15:06 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-16T17:31 | BM | CM_RequestSheetData validation failed: requestSheetNoOfCM: Cast to string failed for value "Promise { <pending> }" (type Promise) at path "requestSheetNoOfCM"
+		ValidationError: CM_RequestSheetData validation failed: requestSheetNoOfCM: Cast to string failed for value "Promise { <pending> }" (type Promise) at path "requestSheetNoOfCM"
+    at Document.invalidate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1463:12)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1146:16)
+    at model.Document (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:166:12)
+    at model.Model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:121:12)
+    at new model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:5048:15)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3196:22
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3231:7
+    at Array.forEach (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3230:15
+2024-09-16T17:31 | BM | CM_RequestSheetData validation failed: requestSheetNoOfCM: Cast to string failed for value "Promise { <pending> }" (type Promise) at path "requestSheetNoOfCM"
+		ValidationError: CM_RequestSheetData validation failed: requestSheetNoOfCM: Cast to string failed for value "Promise { <pending> }" (type Promise) at path "requestSheetNoOfCM"
+    at Document.invalidate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1463:12)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1146:16)
+    at model.Document (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:166:12)
+    at model.Model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:121:12)
+    at new model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:5048:15)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3196:22
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3231:7
+    at Array.forEach (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3230:15
