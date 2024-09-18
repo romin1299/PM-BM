@@ -364,9 +364,13 @@ router.post(
           }
           let commonObjForNewOrUpdateCM = {
             ..._idObject,
+            shiftOfCM: getRequestSheetData?.shiftOfBM,
+            sheetIssuedDateAndTimeOfCM:
+              getRequestSheetData?.sheetIssuedDateAndTimeOfBM,
             requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
             problemOccurredDateAndTimeOfCM:
               getRequestSheetData?.problemOccurredDateAndTimeOfBM,
+            maintenanceType: "CM",
             preAggregationTimeStampOfRequestSheet:
               getRequestSheetData?.preAggregationTimeStampOfRequestSheet,
             ...objForNewCM,

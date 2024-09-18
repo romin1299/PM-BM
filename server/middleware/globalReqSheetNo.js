@@ -32,18 +32,24 @@ exports.globalReqSheetNo = tryCatchHandler(
           },
         })
         .exec();
-
       let generateRequestSheetNo;
+      console.log(machine.line_names.requestSheetNoOfCM)
       if (maintenanceType === "CM") {
         generateRequestSheetNo = {
-          requestSheetNoOfCM: machine.line_names.requestSheetNoOfCM + 1 || 1,
+          requestSheetNoOfCM:
+            machine.line_names.requestSheetNoOfCM
+              ? machine.line_names.requestSheetNoOfCM
+              : 1,
         };
       } else {
         generateRequestSheetNo = {
-          requestSheetNos: machine.line_names.requestSheetNos + 1 || 1,
+          requestSheetNos:
+            machine.line_names.requestSheetNos
+              ? machine.line_names.requestSheetNos + 1
+              : 1,
         };
       }
-
+      console.log("this is nbumber",generateRequestSheetNo)
       let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
         { _id: machine.line_names._id },
         { $set: generateRequestSheetNo },

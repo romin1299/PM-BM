@@ -1,8 +1,8 @@
 import {
   AppBar,
   Box,
-  Button,
   Dialog,
+  Button,
   Grid,
   IconButton,
   InputAdornment,
@@ -18,7 +18,7 @@ import React, { useEffect, useReducer, useState } from "react";
 import { FaEye } from "react-icons/fa";
 import tableIcons from "../../../components/MatrialTableIcon";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import {
   MaterialTableOptions,
@@ -26,7 +26,7 @@ import {
   MaterialTableSX,
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import moment from "moment";
-import { Container } from "react-bootstrap";
+import { Container, Modal } from "react-bootstrap";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
@@ -35,6 +35,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { set } from "mongoose";
+import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 
 const ActivityStatusDashboardOfCM = () => {
   // const [loading, setLoading] = useState(true);
@@ -115,6 +116,12 @@ const ActivityStatusDashboardOfCM = () => {
       editable: false,
     },
     {
+      title: "Target Date",
+      field: "cmBasicDataFilledByMTD_TL.targetDateOfCM",
+      type: "date",
+      editable: false,
+    },
+    {
       title: "Problem Occured",
       field: "problemOccurredDateAndTimeOfCM",
       type: "date",
@@ -157,8 +164,6 @@ const ActivityStatusDashboardOfCM = () => {
       },
     }),
   ];
-
-
 
   // ============== This might change in CM =================
   const RSStatusArray = [
@@ -280,11 +285,11 @@ const ActivityStatusDashboardOfCM = () => {
         <Button
           // size="small"
           disableElevation
-          className="bg-button"
+          className="bg-button text-center"
           variant="contained"
-          sx={{
-            minWidth: "30px",
-            height: "32px",
+          style={{
+            minWidth: "25px",
+            height: "33px",
             paddingInline: "10px",
           }}
           // onClick={getAllRequestSheetData} //This will be used when we will use the api
@@ -401,30 +406,63 @@ const ActivityStatusDashboardOfCM = () => {
       </Container>
 
       {CmReqSheetView && (
-        <Dialog
-          fullScreen
-          open={CmReqSheetView}
-          TransitionComponent={Transition}
-        >
-          <AppBar sx={{ position: "relative" }}>
-            <Toolbar>
-              <IconButton
-                edge="start"
-                color="inherit"
+        // <Dialog
+        //   fullScreen
+        //   open={CmReqSheetView}
+        //   TransitionComponent={Transition}
+        // >
+        //   <AppBar sx={{ position: "relative" }}>
+        //     <Toolbar>
+        //       <IconButton
+        //         edge="start"
+        //         color="inherit"
+        //         onClick={() => setCmReqSheetView(false)}
+        //         aria-label="close"
+        //       >
+        //         <CloseIcon />
+        //       </IconButton>
+        //       {/* <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+        //         Sound
+        //       </Typography>
+        //       <Button autoFocus color="inherit" onClick={handleClose}>
+        //         save
+        //       </Button> */}
+        //     </Toolbar>
+        //   </AppBar>
+        // </Dialog>
+        <>
+          <Modal
+            show={CmReqSheetView}
+            fullscreen
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+          >
+            <Modal.Header>
+              <Modal.Title id="contained-modal-title-vcenter">
+                CM Request-Sheet
+              </Modal.Title>
+              <Button
+                variant="secondary"
                 onClick={() => setCmReqSheetView(false)}
-                aria-label="close"
+                sx={{
+                  backgroundColor: "#B02A37",
+                  color: "#F2F2F2",
+                  "&:hover": {
+                    backgroundColor: "#B02A37",
+                    cursor: "pointer",
+                  },
+                }}
               >
-                <CloseIcon />
-              </IconButton>
-              {/* <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                Sound
-              </Typography>
-              <Button autoFocus color="inherit" onClick={handleClose}>
-                save
-              </Button> */}
-            </Toolbar>
-          </AppBar>
-        </Dialog>
+                Close
+              </Button>
+            </Modal.Header>
+            <Modal.Body>
+              <div>
+                <ExistingMachineReqSheetView cmSelectedSheetForView={cmSelectedSheetForView}/>
+              </div>
+            </Modal.Body>
+          </Modal>
+        </>
       )}
     </>
   );
