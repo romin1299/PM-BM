@@ -530,7 +530,6 @@ const CheckSheet = ({
 
       newRowData.push(newColData);
     }
-    console.log(newRowData);
     getDataWithSpanCount(newRowData);
   };
   const getDataWithSpanCount = (myProps) => {

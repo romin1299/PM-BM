@@ -31,7 +31,8 @@ import FactCheckIcon from "@mui/icons-material/FactCheck";
 import { FaListCheck } from "react-icons/fa6";
 import { PiListBulletsFill } from "react-icons/pi";
 import { MdFormatListBulletedAdd } from "react-icons/md";
-
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 export {
   React,
   styles,
@@ -51,5 +52,7 @@ export {
   FactCheckIcon,
   halflogo,
   PiListBulletsFill,
-  MdFormatListBulletedAdd
+  MdFormatListBulletedAdd,
+  CalendarMonthIcon,
+  EventNoteIcon
 };

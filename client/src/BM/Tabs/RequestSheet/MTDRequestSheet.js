@@ -66,7 +66,7 @@ function MyTable({
       "cmBasicDataFilledByMTD_TL.targetDateOfCM": moment(new Date()).format(
         "YYYY-MM-DDTHH:mm"
       ),
-      "cmBasicDataFilledByMTD_TL.categories": "BM Reflection"
+      "cmBasicDataFilledByMTD_TL.categories": "BM Reflection",
     },
   });
 
@@ -119,7 +119,7 @@ function MyTable({
         "attachedDataSheets",
         requestSheetData?.attachedDataSheets?.[0]
       );
-
+      console.log(requestSheetData);
       for (let i = 0; i < requestSheetData?.attachedDrawings?.length; i++) {
         formData.append(
           "attachedDrawings",
@@ -223,7 +223,7 @@ function MyTable({
       if (watch("analysisTime") === undefined) {
         setError(
           "analysisTime",
-          
+
           {
             message: "This field is required !",
           },
@@ -2477,8 +2477,18 @@ function MyTable({
                       className="m-1 mb-2"
                       style={{ width: "350px" }}
                       {...register("cmBasicDataFilledByMTD_TL.activityOfCM", {
-                        required: "Please enter activity",
+                        // required: "Please enter activity",
                       })}
+                      onChange={(e) => {
+                        setValue(
+                          "cmBasicDataFilledByMTD_TL.activityOfCM",
+                          e.target.value,
+                          {
+                            shouldDirty: true,
+                          }
+                        );
+                        clearErrors("cmBasicDataFilledByMTD_TL.activityOfCM");
+                      }}
                     />
                   </div>
                   {errors?.cmBasicDataFilledByMTD_TL?.activityOfCM && (
@@ -2508,9 +2518,21 @@ function MyTable({
                           {...register(
                             "cmBasicDataFilledByMTD_TL.frequencyType",
                             {
-                              required: "Please select frequency type",
+                              // required: "Please select frequency type",
                             }
                           )}
+                          onChange={(e) => {
+                            setValue(
+                              "cmBasicDataFilledByMTD_TL.frequencyType",
+                              e.target.value,
+                              {
+                                shouldDirty: true,
+                              }
+                            );
+                            clearErrors(
+                              "cmBasicDataFilledByMTD_TL.frequencyType"
+                            );
+                          }}
                         />
                         <label htmlFor={`frequencyType_${idx}`}>
                           {value?.frequencyType}
@@ -2597,8 +2619,18 @@ function MyTable({
                           value={value}
                           // style={{ width: "350px" }}
                           {...register("cmBasicDataFilledByMTD_TL.categories", {
-                            required: "Please select category",
+                            // required: "Please select category",
                           })}
+                          onChange={(e) => {
+                            setValue(
+                              "cmBasicDataFilledByMTD_TL.categories",
+                              e.target.value,
+                              {
+                                shouldDirty: true,
+                              }
+                            );
+                            clearErrors("cmBasicDataFilledByMTD_TL.categories");
+                          }}
                         />
                         <label>{value}</label>
                       </Col>
@@ -2629,9 +2661,15 @@ function MyTable({
                       name="cmBasicDataFilledByMTD_TL.targetDateOfCM"
                       // style={{ width: "350px" }}
                       {...register("cmBasicDataFilledByMTD_TL.targetDateOfCM", {
-                        required: "Please select target date",
+                        // required: "Please select target date",
                       })}
-                      onInput={() => {
+                      // onInput={() => {
+                      //   clearErrors("cmBasicDataFilledByMTD_TL.targetDateOfCM");
+                      // }}
+                      onChange={(e) => {
+                        setValue("cmBasicDataFilledByMTD_TL.targetDateOfCM", e.target.value, {
+                          shouldDirty: true,
+                        });
                         clearErrors("cmBasicDataFilledByMTD_TL.targetDateOfCM");
                       }}
                     />

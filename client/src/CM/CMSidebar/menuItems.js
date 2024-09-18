@@ -3,6 +3,8 @@ import {
   DashboardIcon,
   PiListBulletsFill,
   MdFormatListBulletedAdd,
+  CalendarMonthIcon,
+  EventNoteIcon
 } from "../../components/NavbarComponent/ImportModules";
 
 const allusers = [
@@ -30,6 +32,12 @@ export const menuItems = [
       <PiListBulletsFill className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/cm/allRequestSheetReportDataOfCM",
+    allowedRoles: allusers,
+  },
+  {
+    icon: <EventNoteIcon className="text-white" />,
+    title: "LTPM Sheet",
+    route: "/cm/request-sheet/ltpm",
     allowedRoles: allusers,
   },
   {

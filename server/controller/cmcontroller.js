@@ -26,6 +26,8 @@ const logger = require("../utils/LoggingController/loggers");
 
 const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 const maintenanceType = require("../utils/maintenanceType");
+const filterMiddleware = require("../middleware/filterMiddleware");
+const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
 
 router.use(cookieParser());
 
@@ -164,6 +166,7 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
   }
 };
 
+
 router.get(
   "/getMachineDetailsForRequestSheetOfCM",
   authenticate,
@@ -252,24 +255,26 @@ router.post(
         { $set: { requestSheetNoOfCM: generateRequestSheetNoOfCM } },
         { new: true }
       );
-
-      const requestSheetNoOfCM =
-        machine?.line_names?.cell_names?.subSection_names?.section_names
-          ?.dashboardLevel === "Yes"
-          ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
-              .trim()
-              .substring(0, 2)
-              .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
-              moment().tz("Asia/Kolkata").month() + 1
-            }-CM-${increaseCountOfRequestSheetInLine?.requestSheetNoOfCM}`.trim()
-          : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
-              .trim()
-              .substring(0, 2)
-              .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
-              moment().tz("Asia/Kolkata").month() + 1
-            }-CM-${
-              increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
-            }`.trim();
+// ==================== Previous code for req sheet No ==============================================
+      // const requestSheetNoOfCM =
+      //   machine?.line_names?.cell_names?.subSection_names?.section_names
+      //     ?.dashboardLevel === "Yes"
+      //     ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
+      //         .trim()
+      //         .substring(0, 2)
+      //         .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
+      //         moment().tz("Asia/Kolkata").month() 
+      //       }-CM-${increaseCountOfRequestSheetInLine?.requestSheetNoOfCM}`.trim()
+      //     : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
+      //         .trim()
+      //         .substring(0, 2)
+      //         .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
+      //         moment().tz("Asia/Kolkata").month() + 1
+      //       }-CM-${
+      //         increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
+      //       }`.trim();
+// =========================================================================================================
+      const requestSheetNoOfCM = await globalReqSheetNo(req.query?.machineRef, "CM");
 
       let requestSheetOfCM = new RequestSheetOfCM({
         requestSheetNoOfCM,
@@ -289,6 +294,30 @@ router.post(
       });
     }
   }
+);
+
+router.get(
+  "/getAllCmReqSheet/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    try {
+      let queryPipeline = [
+        {
+          $match: {
+            ...req.queryObj,
+          },
+        },
+      ];
+      const reqSheetCM = await RequestSheetOfCM.aggregate(queryPipeline);
+      res.json({
+        reqSheetCM,
+        message: "Request-sheet fetched successfully",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  })
 );
 
 module.exports = router;
