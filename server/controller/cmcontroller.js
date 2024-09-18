@@ -236,7 +236,6 @@ router.post(
       .exec();
 
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
-    console.log(requestSheetDataFilledByMTDUserForCM);
 
     if (machine) {
       const _idObject = {

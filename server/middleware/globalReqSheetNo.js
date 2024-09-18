@@ -32,7 +32,6 @@ exports.globalReqSheetNo = tryCatchHandler(
         })
         .exec();
       let generateRequestSheetNo;
-      console.log(machine.line_names.requestSheetNoOfCM)
       if (maintenanceType === "CM") {
         generateRequestSheetNo = {
           requestSheetNoOfCM:
@@ -48,7 +47,6 @@ exports.globalReqSheetNo = tryCatchHandler(
               : 1,
         };
       }
-      console.log("this is nbumber",generateRequestSheetNo)
       let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
         { _id: machine.line_names._id },
         { $set: generateRequestSheetNo },
