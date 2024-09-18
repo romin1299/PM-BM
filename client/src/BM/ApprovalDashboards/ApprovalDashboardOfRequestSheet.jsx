@@ -38,7 +38,6 @@ const ApprovalDashboardOfRequestSheet = () => {
     initialState("Yes")
   );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-
   const approvalDashboardHeader = [
     {
       title: "Sr. No.",

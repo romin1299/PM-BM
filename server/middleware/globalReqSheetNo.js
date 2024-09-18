@@ -31,16 +31,31 @@ exports.globalReqSheetNo = tryCatchHandler(
           },
         })
         .exec();
-      let generateRequestSheetNoOfCM =
-        machine.line_names.requestSheetNoOfCM + 1 || 1;
-
+      let generateRequestSheetNo;
+      console.log(machine.line_names.requestSheetNoOfCM)
+      if (maintenanceType === "CM") {
+        generateRequestSheetNo = {
+          requestSheetNoOfCM:
+            machine.line_names.requestSheetNoOfCM
+              ? machine.line_names.requestSheetNoOfCM
+              : 1,
+        };
+      } else {
+        generateRequestSheetNo = {
+          requestSheetNos:
+            machine.line_names.requestSheetNos
+              ? machine.line_names.requestSheetNos + 1
+              : 1,
+        };
+      }
+      console.log("this is nbumber",generateRequestSheetNo)
       let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
         { _id: machine.line_names._id },
-        { $set: { requestSheetNoOfCM: generateRequestSheetNoOfCM } },
+        { $set: generateRequestSheetNo },
         { new: true }
       );
 
-      const requestSheetNoOfCM =
+      const requestSheetNo =
         machine?.line_names?.cell_names?.subSection_names?.section_names
           ?.dashboardLevel === "Yes"
           ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
@@ -60,7 +75,7 @@ exports.globalReqSheetNo = tryCatchHandler(
               increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
             }`.trim();
 
-      return requestSheetNoOfCM;
+      return requestSheetNo;
     } catch (error) {
       console.log(error);
     }

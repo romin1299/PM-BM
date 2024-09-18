@@ -57,7 +57,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 
   const [plantShiftsData, setPlantShiftsData] = useState([]);
 
-  // const [selectedShift, setSelectedShift] = useState("");
+  const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   // const [selectedQuality, setSelectedQuality] = useState("");
@@ -166,6 +166,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     };
 
     setValue("shiftOfBM", getCurrentShiftName());
+    setSelectedShift(getCurrentShiftName());
   }, [problemOccurredDateAndTimeOfCM, plantShiftsData]);
 
   React.useEffect(() => {

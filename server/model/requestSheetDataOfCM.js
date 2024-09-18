@@ -12,6 +12,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   //If require else byDefault is BM
   maintenanceType: {
     type: String,
+    default: "BM",
   },
   priorityCode: {
     type: String,
@@ -49,7 +50,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     targetDateOfCM: { type: Date },
   },
 
-  shiftOfBM: {
+  shiftOfCM: {
     type: String,
   },
   qualityRelated: {

@@ -28,6 +28,10 @@ const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 const maintenanceType = require("../utils/maintenanceType");
 const filterMiddleware = require("../middleware/filterMiddleware");
 const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
+const { gettingFYYear } = require("../middleware/gettingFYYear");
+const {
+  gettingMonthForSelectedDate,
+} = require("../middleware/gettingFYMonthForPreAgg");
 
 router.use(cookieParser());
 
@@ -166,7 +170,6 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
   }
 };
 
-
 router.get(
   "/getMachineDetailsForRequestSheetOfCM",
   authenticate,
@@ -233,6 +236,7 @@ router.post(
       .exec();
 
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
+    console.log(requestSheetDataFilledByMTDUserForCM);
 
     if (machine) {
       const _idObject = {
@@ -247,15 +251,15 @@ router.post(
             .plant_names._id,
       };
 
-      let generateRequestSheetNoOfCM =
-        machine.line_names.requestSheetNoOfCM + 1 || 1;
+      // let generateRequestSheetNoOfCM =
+      //   machine.line_names.requestSheetNoOfCM + 1 || 1;
 
-      let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
-        { _id: machine.line_names._id },
-        { $set: { requestSheetNoOfCM: generateRequestSheetNoOfCM } },
-        { new: true }
-      );
-// ==================== Previous code for req sheet No ==============================================
+      // let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
+      //   { _id: machine.line_names._id },
+      //   { $set: { requestSheetNoOfCM: generateRequestSheetNoOfCM } },
+      //   { new: true }
+      // );
+      // ==================== Previous code for req sheet No ==============================================
       // const requestSheetNoOfCM =
       //   machine?.line_names?.cell_names?.subSection_names?.section_names
       //     ?.dashboardLevel === "Yes"
@@ -263,7 +267,7 @@ router.post(
       //         .trim()
       //         .substring(0, 2)
       //         .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
-      //         moment().tz("Asia/Kolkata").month() 
+      //         moment().tz("Asia/Kolkata").month()
       //       }-CM-${increaseCountOfRequestSheetInLine?.requestSheetNoOfCM}`.trim()
       //     : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
       //         .trim()
@@ -273,14 +277,26 @@ router.post(
       //       }-CM-${
       //         increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
       //       }`.trim();
-// =========================================================================================================
-      const requestSheetNoOfCM = await globalReqSheetNo(req.query?.machineRef, "CM");
+      // =========================================================================================================
+      const requestSheetNoOfCM = await globalReqSheetNo(
+        req.query?.machineRef,
+        "CM"
+      );
 
       let requestSheetOfCM = new RequestSheetOfCM({
         requestSheetNoOfCM,
         ...req.query,
         ..._idObject,
+        shiftOfCM: requestSheetDataFilledByMTDUserForCM?.shiftOfBM,
         ...requestSheetDataFilledByMTDUserForCM,
+        preAggregationTimeStampOfRequestSheet: {
+          requestSheet_year: gettingFYYear(
+            requestSheetDataFilledByMTDUserForCM?.problemOccurredDateAndTimeOfCM
+          ),
+          requestSheet_month: gettingMonthForSelectedDate(
+            requestSheetDataFilledByMTDUserForCM?.problemOccurredDateAndTimeOfCM
+          ),
+        },
         sparePartUsedOrNot:
           requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
             ? "Yes"
@@ -309,7 +325,95 @@ router.get(
           },
         },
       ];
-      const reqSheetCM = await RequestSheetOfCM.aggregate(queryPipeline);
+      const reqSheetCM = await RequestSheetOfCM.aggregate([
+        ...queryPipeline,
+        {
+          $lookup: {
+            from: "lines",
+            localField: "lineRef",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  line_name: 1,
+                },
+              },
+            ],
+            as: "lines",
+          },
+        },
+        {
+          $lookup: {
+            from: "machinesalldatas",
+            localField: "machineRef",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  machine_name: 1,
+                  machine_code: 1,
+                },
+              },
+            ],
+            as: "machine",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignUserForCM",
+            foreignField: "_id",
+            pipeline:[
+              {
+                $project:{
+                  tm_name:1
+                }
+              }
+            ],
+            as: "assigned_users"
+          }  
+        },
+        {
+          $lookup: {
+            from: "cells",
+            localField: "cellRef",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  cell_name: 1,
+                },
+              },
+            ],
+            as: "cell",
+          },
+        },
+        {
+          $unwind: {
+            path: "$lines",
+          },
+        },
+        {
+          $unwind: {
+            path: "$cell",
+          },
+        },
+        // {
+        //   $unwind: {
+        //     path: "$assigned_users",
+        //   },
+        // },
+        {
+          $unwind: {
+            path: "$machine",
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+      ]);
       res.json({
         reqSheetCM,
         message: "Request-sheet fetched successfully",
