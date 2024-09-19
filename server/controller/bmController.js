@@ -368,7 +368,7 @@ router.post(
             sheetIssuedDateAndTimeOfCM:
               getRequestSheetData?.sheetIssuedDateAndTimeOfBM,
             requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
-            problemOccurredDateAndTimeOfCM:
+            plannedDateAndTimeOfCM:
               getRequestSheetData?.problemOccurredDateAndTimeOfBM,
             maintenanceType: "CM",
             preAggregationTimeStampOfRequestSheet:

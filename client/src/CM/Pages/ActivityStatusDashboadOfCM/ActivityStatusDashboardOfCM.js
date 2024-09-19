@@ -35,7 +35,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { set } from "mongoose";
-import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 
 const ActivityStatusDashboardOfCM = () => {
   // const [loading, setLoading] = useState(true);
@@ -122,8 +122,8 @@ const ActivityStatusDashboardOfCM = () => {
       editable: false,
     },
     {
-      title: "Problem Occured",
-      field: "problemOccurredDateAndTimeOfCM",
+      title: "Planned Date",
+      field: "plannedDateAndTimeOfCM",
       type: "date",
       editable: false,
     },
@@ -148,7 +148,7 @@ const ActivityStatusDashboardOfCM = () => {
     //   },
     // },
     (row) => ({
-      icon: () => <FaEye className="text-warning" />,
+      icon: () => <FaEye className="text-primary" />,
       tooltip: "View",
       position: "row",
       // disabled:
@@ -158,11 +158,12 @@ const ActivityStatusDashboardOfCM = () => {
       //     ? false
       //     : true,
       onClick: (event, selectedRow) => {
-        console.log(event, selectedRow);
+        console.log(selectedRow);
         setCmReqSheetView(true);
         setCmSelectedSheetForView(selectedRow);
       },
     }),
+    
   ];
 
   // ============== This might change in CM =================
@@ -406,30 +407,6 @@ const ActivityStatusDashboardOfCM = () => {
       </Container>
 
       {CmReqSheetView && (
-        // <Dialog
-        //   fullScreen
-        //   open={CmReqSheetView}
-        //   TransitionComponent={Transition}
-        // >
-        //   <AppBar sx={{ position: "relative" }}>
-        //     <Toolbar>
-        //       <IconButton
-        //         edge="start"
-        //         color="inherit"
-        //         onClick={() => setCmReqSheetView(false)}
-        //         aria-label="close"
-        //       >
-        //         <CloseIcon />
-        //       </IconButton>
-        //       {/* <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-        //         Sound
-        //       </Typography>
-        //       <Button autoFocus color="inherit" onClick={handleClose}>
-        //         save
-        //       </Button> */}
-        //     </Toolbar>
-        //   </AppBar>
-        // </Dialog>
         <>
           <Modal
             show={CmReqSheetView}
@@ -458,7 +435,7 @@ const ActivityStatusDashboardOfCM = () => {
             </Modal.Header>
             <Modal.Body>
               <div>
-                <ExistingMachineReqSheetView cmSelectedSheetForView={cmSelectedSheetForView}/>
+                <ExistingMachineReqSheetWithData cmSelectedSheetForView={cmSelectedSheetForView}/>
               </div>
             </Modal.Body>
           </Modal>

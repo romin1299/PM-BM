@@ -27,7 +27,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     },
   },
 
-  problemOccurredDateAndTimeOfCM: {
+  plannedDateAndTimeOfCM: {
     type: Date,
   },
   sheetIssuedDateAndTimeOfCM: {

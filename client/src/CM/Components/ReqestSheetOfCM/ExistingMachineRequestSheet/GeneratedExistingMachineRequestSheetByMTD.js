@@ -44,7 +44,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     clearErrors,
   } = useForm({
     defaultValues: {
-      problemOccurredDateAndTimeOfCM: moment(new Date()).format(
+      plannedDateAndTimeOfCM: moment(new Date()).format(
         "YYYY-MM-DDTHH:mm"
       ),
       sheetIssuedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
@@ -131,10 +131,10 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
   const timezone = "Asia/Kolkata";
   const startedDate = moment().tz(timezone).month() + 1;
 
-  const problemOccurredDateAndTimeOfCM = watch(
-    "problemOccurredDateAndTimeOfCM"
+  const plannedDateAndTimeOfCM = watch(
+    "plannedDateAndTimeOfCM"
   );
-  const [date, time] = problemOccurredDateAndTimeOfCM.split("T");
+  const [date, time] = plannedDateAndTimeOfCM.split("T");
   const momentTime = moment(time, "HH:mm");
 
   useEffect(() => {
@@ -167,7 +167,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 
     setValue("shiftOfBM", getCurrentShiftName());
     setSelectedShift(getCurrentShiftName());
-  }, [problemOccurredDateAndTimeOfCM, plantShiftsData]);
+  }, [plannedDateAndTimeOfCM, plantShiftsData]);
 
   React.useEffect(() => {
     const fetchShiftData = async () => {
@@ -453,7 +453,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                     <Col className="border">
                       <Row>
                         <small className="border-right-0 text-center m-0">
-                          <b>PROBLEM OCCURRED</b>
+                          <b>PLANNED DATE</b>
                         </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
@@ -465,19 +465,19 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                                 // min={moment(new Date() - 1)
                                 //   .subtract(1, "days")
                                 //   .format("YYYY-MM-DDTHH:mm")}
-                                {...register("problemOccurredDateAndTimeOfCM", {
+                                {...register("plannedDateAndTimeOfCM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>
                                     setValue(
-                                      "problemOccurredDateAndTimeOfCM",
+                                      "plannedDateAndTimeOfCM",
                                       event.target.value
                                     ),
                                 })}
                               />
-                              {errors?.["problemOccurredDateAndTimeOfCM"] && (
+                              {errors?.["plannedDateAndTimeOfCM"] && (
                                 <p className="text-error">
                                   {
-                                    errors?.["problemOccurredDateAndTimeOfCM"]
+                                    errors?.["plannedDateAndTimeOfCM"]
                                       ?.message
                                   }
                                 </p>

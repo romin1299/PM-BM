@@ -290,10 +290,10 @@ router.post(
         ...requestSheetDataFilledByMTDUserForCM,
         preAggregationTimeStampOfRequestSheet: {
           requestSheet_year: gettingFYYear(
-            requestSheetDataFilledByMTDUserForCM?.problemOccurredDateAndTimeOfCM
+            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
           ),
           requestSheet_month: gettingMonthForSelectedDate(
-            requestSheetDataFilledByMTDUserForCM?.problemOccurredDateAndTimeOfCM
+            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
           ),
         },
         sparePartUsedOrNot:
@@ -309,6 +309,28 @@ router.post(
       });
     }
   }
+);
+
+router.patch(
+  "/updateCmReqSheet/:id",
+  authenticate,
+  uploadDataSheetsOfBD.fields([
+    { name: "attachedFilesByMTDUser", maxCount: 10 },
+  ]),
+  tryCatchHandler(async (req, res, next) => {
+    const id = req.params.id;
+
+    const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
+    const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
+      { _id: id },
+      { ...requestSheetDataFilledByMTDUserForCM },
+      { new: true }
+    );
+    res.status(200).json({
+      message: "CM Request-sheet updated successfully",
+      data: updatedRequestSheetOfCM,
+    });
+  })
 );
 
 router.get(
@@ -362,15 +384,15 @@ router.get(
             from: "users",
             localField: "assignUserForCM",
             foreignField: "_id",
-            pipeline:[
+            pipeline: [
               {
-                $project:{
-                  tm_name:1
-                }
-              }
+                $project: {
+                  tm_name: 1,
+                },
+              },
             ],
-            as: "assigned_users"
-          }  
+            as: "assigned_users",
+          },
         },
         {
           $lookup: {

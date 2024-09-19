@@ -1299,3 +1299,57 @@
 		Error: user not found
     at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:49 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:319:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:50 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:319:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:51 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:320:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:52 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:320:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:57 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:320:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T11:36 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:320:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
