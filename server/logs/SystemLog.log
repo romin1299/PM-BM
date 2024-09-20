@@ -667,3 +667,32 @@
     at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
     at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
     at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+2024-09-18T12:25 | BM | PlanExecutor error during aggregation :: caused by :: $arrayElemAt's first argument must be an array, but is objectId
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $arrayElemAt's first argument must be an array, but is objectId
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-18T12:25 | BM | PlanExecutor error during aggregation :: caused by :: $arrayElemAt's first argument must be an array, but is objectId
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $arrayElemAt's first argument must be an array, but is objectId
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-20T09:24 | BM | Cannot read properties of undefined (reading 'categories')
+		TypeError: Cannot read properties of undefined (reading 'categories')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8072:50
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)

@@ -1369,17 +1369,21 @@ function MyTable({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>BREAKDOWN</b>
-                  </small>
-                  <p>
-                    {
-                      // watch("maintenanceTime")
-                      //   ? timeDifferenceMinutes - watch("maintenanceTime") || null
-                      //   :
-                      timeDifferenceMinutes
-                    }
-                  </p>
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>BREAKDOWN</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <p>
+                      {
+                        // watch("maintenanceTime")
+                        //   ? timeDifferenceMinutes - watch("maintenanceTime") || null
+                        //   :
+                        timeDifferenceMinutes
+                      }
+                    </p>
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -1387,31 +1391,35 @@ function MyTable({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>ANALYSIS</b>
-                  </small>
-                  <input
-                    type="number"
-                    style={{ width: "100%" }}
-                    id="analysisTime"
-                    name="analysisTime"
-                    {...register("analysisTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("analysisTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("analysisTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handleanalysisTime}
-                  />
-                  {errors?.["analysisTime"] && (
-                    <p className="text-error">
-                      {errors?.["analysisTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>ANALYSIS</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      type="number"
+                      style={{ width: "100%" }}
+                      id="analysisTime"
+                      name="analysisTime"
+                      {...register("analysisTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("analysisTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("analysisTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handleanalysisTime}
+                    />
+                    {errors?.["analysisTime"] && (
+                      <p className="text-error">
+                        {errors?.["analysisTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -1419,32 +1427,36 @@ function MyTable({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <p className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>SPARE WAITING</b>
-                  </p>
-                  <input
-                    type="number"
-                    className="mb-2"
-                    style={{ width: "100%" }}
-                    id="spareWaitingTime"
-                    name="spareWaitingTime"
-                    {...register("spareWaitingTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("spareWaitingTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("spareWaitingTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handlespareWaitingTime}
-                  />
-                  {errors?.["spareWaitingTime"] && (
-                    <p className="text-error">
-                      {errors?.["spareWaitingTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>SPARE WAITING</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="spareWaitingTime"
+                      name="spareWaitingTime"
+                      {...register("spareWaitingTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("spareWaitingTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("spareWaitingTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handlespareWaitingTime}
+                    />
+                    {errors?.["spareWaitingTime"] && (
+                      <p className="text-error">
+                        {errors?.["spareWaitingTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -1452,32 +1464,36 @@ function MyTable({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>REPLACEMENT</b>
-                  </small>
-                  <input
-                    type="number"
-                    className="mb-2"
-                    style={{ width: "100%" }}
-                    id="replacementTime"
-                    name="replacementTime"
-                    {...register("replacementTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("replacementTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("replacementTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handlereplacementTime}
-                  />
-                  {errors?.["replacementTime"] && (
-                    <p className="text-error">
-                      {errors?.["replacementTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>REPLACEMENT</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="replacementTime"
+                      name="replacementTime"
+                      {...register("replacementTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("replacementTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("replacementTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handlereplacementTime}
+                    />
+                    {errors?.["replacementTime"] && (
+                      <p className="text-error">
+                        {errors?.["replacementTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
               </Row>
               <Row className="m-0">
@@ -1487,31 +1503,38 @@ function MyTable({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>MAINTENANCE</b> <br /> <b>(No Loss)</b>
-                  </small>
-                  <input
-                    type="number"
-                    style={{ width: "100%" }}
-                    id="maintenance"
-                    name="maintenance"
-                    {...register("maintenanceTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("maintenanceTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("maintenanceTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handlemaintenanceTime}
-                  />
-                  {errors?.["maintenanceTime"] && (
-                    <p className="text-error">
-                      {errors?.["maintenanceTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>MAINTENANCE</b> <br />{" "}
+                      <p>
+                        <b>(No Loss)</b>
+                      </p>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      type="number"
+                      style={{ width: "100%" }}
+                      id="maintenance"
+                      name="maintenance"
+                      {...register("maintenanceTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("maintenanceTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("maintenanceTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handlemaintenanceTime}
+                    />
+                    {errors?.["maintenanceTime"] && (
+                      <p className="text-error">
+                        {errors?.["maintenanceTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -1519,31 +1542,35 @@ function MyTable({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>ADJUSTMENT</b>
-                  </small>
-                  <input
-                    type="number"
-                    style={{ width: "100%" }}
-                    id="mainTime"
-                    name="mainTime"
-                    {...register("adjustmentTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("adjustmentTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("adjustmentTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handleadjustmentTime}
-                  />
-                  {errors?.["adjustmentTime"] && (
-                    <p className="text-error">
-                      {errors?.["adjustmentTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>ADJUSTMENT</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      type="number"
+                      style={{ width: "100%" }}
+                      id="mainTime"
+                      name="mainTime"
+                      {...register("adjustmentTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("adjustmentTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("adjustmentTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handleadjustmentTime}
+                    />
+                    {errors?.["adjustmentTime"] && (
+                      <p className="text-error">
+                        {errors?.["adjustmentTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -1551,32 +1578,36 @@ function MyTable({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <p className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>QUALITY CHECK</b>
-                  </p>
-                  <input
-                    type="number"
-                    className="mb-2"
-                    style={{ width: "100%" }}
-                    id="qualityTime"
-                    name="qualityTime"
-                    {...register("qualityCheckTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("qualityCheckTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("qualityCheckTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handleQualityCheckTime}
-                  />
-                  {errors?.["qualityCheckTime"] && (
-                    <p className="text-error">
-                      {errors?.["qualityCheckTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>QUALITY CHECK</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="qualityTime"
+                      name="qualityTime"
+                      {...register("qualityCheckTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("qualityCheckTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("qualityCheckTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handleQualityCheckTime}
+                    />
+                    {errors?.["qualityCheckTime"] && (
+                      <p className="text-error">
+                        {errors?.["qualityCheckTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -1584,32 +1615,36 @@ function MyTable({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>BREAK</b>
-                  </small>
-                  <input
-                    type="number"
-                    className="mb-2"
-                    style={{ width: "100%" }}
-                    id="breakTime"
-                    name="breakTime"
-                    {...register("breakTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("breakTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("breakTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handleBreakTime}
-                  />
-                  {errors?.["breakTime"] && (
-                    <p className="text-error">
-                      {errors?.["breakTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>BREAK</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="breakTime"
+                      name="breakTime"
+                      {...register("breakTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("breakTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("breakTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handleBreakTime}
+                    />
+                    {errors?.["breakTime"] && (
+                      <p className="text-error">
+                        {errors?.["breakTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
               </Row>
 
@@ -2202,7 +2237,7 @@ function MyTable({
                         <Button
                           target="_blank"
                           // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                          href={`${process.env.REACT_APP_BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
+                          href={`${process.env.REACT_APP_BASE_URL}/${requestSheetDataOfBM?.attachedDataSheets}`}
                           disableElevation
                           size="small"
                           variant="contained"
@@ -2298,7 +2333,7 @@ function MyTable({
                             <a
                               target="_blank"
                               // href={`http://localhost:7000/${image}`}
-                              href={`${process.env.REACT_APP_BASE_URL}${image}`}
+                              href={`${process.env.REACT_APP_BASE_URL}/${image}`}
                               style={{
                                 width: "100%",
                                 display: "flex",

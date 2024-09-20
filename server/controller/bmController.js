@@ -768,6 +768,15 @@ router.post(
 
 const findRequestSheetMiddleware = async (req, res, next) => {
   try {
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const pageSize = parseInt(req.query.pageSize) || 10; // Default to 10 records per page
+
+    // Calculate the number of documents to skip
+    const skip = (page - 1) * pageSize;
+
+    // Get the total number of documents (for pagination)
+    const total = await RequestSheetOfBM.countDocuments();
+
     const requestSheetData = await RequestSheetOfBM.aggregate([
       ...req.queryPipeline,
       {
@@ -921,6 +930,9 @@ const findRequestSheetMiddleware = async (req, res, next) => {
       {
         $sort: { _id: -1 },
       },
+
+      { $skip: skip },
+      { $limit: pageSize },
       {
         $project: {
           machines: 1,
@@ -2000,7 +2012,10 @@ router.get(
       ];
 
       let condForGraterValue = {};
-      if (req.query?.greaterValue !== "1000" || req.query?.lesserValue !== "0") {
+      if (
+        req.query?.greaterValue !== "1000" ||
+        req.query?.lesserValue !== "0"
+      ) {
         condForGraterValue = {
           "maintenanceReportFilledByMTD.breakDownTime": {
             $lte: req.query?.greaterValue * 1,
@@ -2017,7 +2032,7 @@ router.get(
           },
         ];
       }
-      
+
       //For fetching data while updating
       if (req.query?._id) {
         queryPipeline = [

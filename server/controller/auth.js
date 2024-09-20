@@ -16794,6 +16794,7 @@ router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
             _id: "$_id.plant_names",
             details: {
               $push: {
+                _id: "$_id.sectionOrSubSection",
                 sectionOrSubSection: "$_id.sectionOrSubSection",
                 nameSectionOrSubSection: "$_id.nameSectionOrSubSection",
                 cells: "$cells",

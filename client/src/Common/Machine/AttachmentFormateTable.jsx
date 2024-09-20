@@ -190,7 +190,7 @@ const AttachmentFormateTable = () => {
           >
             <Link
               target="_blank"
-              href={`${process.env.REACT_APP_BASE_URL}${pageDetails?.schemaVar}/${attached_file}`}
+              href={`${process.env.REACT_APP_BASE_URL}/${pageDetails?.schemaVar}/${attached_file}`}
               underline="hover"
             >
               {/* Render image if it's an image file, otherwise display file type */}
