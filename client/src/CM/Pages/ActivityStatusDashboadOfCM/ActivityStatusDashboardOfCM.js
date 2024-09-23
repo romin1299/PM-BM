@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import MaterialTable, { MTableToolbar } from "@material-table/core";
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import { FaEye } from "react-icons/fa";
 import tableIcons from "../../../components/MatrialTableIcon";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -36,6 +36,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { set } from "mongoose";
 import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import RoutingContext from "../../../context/routing/RoutingContext";
 
 const ActivityStatusDashboardOfCM = () => {
   // const [loading, setLoading] = useState(true);
@@ -52,6 +53,7 @@ const ActivityStatusDashboardOfCM = () => {
     reducer,
     initialState("Yes")
   );
+  const [CmReqSheetView, setCmReqSheetView] = useState(false);
 
   const getAllCMSheetData = async () => {
     try {
@@ -135,7 +137,6 @@ const ActivityStatusDashboardOfCM = () => {
   const [lesserValue, setLesserValue] = useState(
     localStorage.getItem("lesserValue")
   );
-  const [CmReqSheetView, setCmReqSheetView] = useState(false);
   const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const requestSheetApprovalAction = [
@@ -163,8 +164,8 @@ const ActivityStatusDashboardOfCM = () => {
         setCmSelectedSheetForView(selectedRow);
       },
     }),
-    
   ];
+  const context = useContext(RoutingContext);
 
   // ============== This might change in CM =================
   const RSStatusArray = [
@@ -327,7 +328,7 @@ const ActivityStatusDashboardOfCM = () => {
                 variant="contained"
                 disableElevation
                 onClick={handleGenerateBMNavigation}
-                // disabled={context?.tm_department !== "PRD"}
+                disabled={context?.tm_department !== "MTD"}
                 sx={{
                   fontWeight: 400,
                   bgcolor: "#004b5b",
@@ -435,7 +436,9 @@ const ActivityStatusDashboardOfCM = () => {
             </Modal.Header>
             <Modal.Body>
               <div>
-                <ExistingMachineReqSheetWithData cmSelectedSheetForView={cmSelectedSheetForView}/>
+                <ExistingMachineReqSheetWithData
+                  cmSelectedSheetForView={cmSelectedSheetForView}
+                />
               </div>
             </Modal.Body>
           </Modal>

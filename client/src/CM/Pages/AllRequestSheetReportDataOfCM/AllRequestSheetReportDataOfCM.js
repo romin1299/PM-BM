@@ -51,6 +51,8 @@ const AllRequestSheetReportDataOfCM = () => {
     reducer,
     initialState("Yes")
   );
+  const [CmReqSheetView, setCmReqSheetView] = useState(false);
+
 
   const getAllCMSheetData = async () => {
     try {
@@ -71,6 +73,7 @@ const AllRequestSheetReportDataOfCM = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
+    CmReqSheetView,
   ]);
   const cmApprovalHeaders = [
     {
@@ -136,7 +139,6 @@ const AllRequestSheetReportDataOfCM = () => {
   const [lesserValue, setLesserValue] = useState(
     localStorage.getItem("lesserValue")
   );
-  const [CmReqSheetView, setCmReqSheetView] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
@@ -464,6 +466,7 @@ const AllRequestSheetReportDataOfCM = () => {
                 <ExistingMachineReqSheetWithData
                   cmSelectedSheetForView={cmSelectedSheetForView}
                   isEditable={isEditable}
+                  setCmReqSheetView={setCmReqSheetView}
                 />
               </div>
             </Modal.Body>

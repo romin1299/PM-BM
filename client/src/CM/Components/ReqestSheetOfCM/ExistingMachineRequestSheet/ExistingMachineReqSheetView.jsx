@@ -17,9 +17,11 @@ import {
   FREQUENCY_OF_CM,
 } from "../../../GlobalDataAccess/GlobalData";
 import axios from "axios";
+import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
 
 const ExistingMachineReqSheetWithData = ({
   cmSelectedSheetForView,
+  setCmReqSheetView,
   isEditable = false,
 }) => {
   const navigate = useNavigate();
@@ -117,7 +119,7 @@ const ExistingMachineReqSheetWithData = ({
     }
     clearErrors("cmBasicDataFilledByMTD_TL.categories");
   };
-  const selectedCategory = watch('cmBasicDataFilledByMTD_TL.categories');
+  const selectedCategory = watch("cmBasicDataFilledByMTD_TL.categories");
 
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
@@ -150,6 +152,9 @@ const ExistingMachineReqSheetWithData = ({
         config
       );
       console.log(response);
+      if (response.status === 200) {
+        setCmReqSheetView(false);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -893,6 +898,7 @@ const ExistingMachineReqSheetWithData = ({
           </tbody>
         </Table>
       </form>
+      {isEditable && <ExistinngMachineReqSheetForOperator cmSelectedSheetForView={cmSelectedSheetForView} />}
     </div>
   );
 };

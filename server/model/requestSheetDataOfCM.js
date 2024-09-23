@@ -36,6 +36,8 @@ const requestSheetOfCMSchema = new mongoose.Schema({
 
   attachedFilesByMTDUser: { type: [String] },
 
+  attchedFileByAssignedUser: { type: [String] },
+
   cmBasicDataFilledByMTD_TL: {
     activityOfCM: { type: String },
     problemBackgroundOfCM: { type: String },

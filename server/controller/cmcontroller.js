@@ -70,8 +70,8 @@ const successResponse = (res, message, data) => {
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
     // console.log(file.fieldname);
-    if (file.fieldname === "attachedFilesByMTDUser") {
-      cb(null, "./AttachedFileForCMByMTD/");
+    if (file.fieldname === "attachedFilesByAssignedUser") {
+      cb(null, "./AttachedFilesByAssignedUser/");
     }
   },
   filename: function (req, file, cb) {
@@ -315,12 +315,18 @@ router.patch(
   "/updateCmReqSheet/:id",
   authenticate,
   uploadDataSheetsOfBD.fields([
-    { name: "attachedFilesByMTDUser", maxCount: 10 },
+    { name: "attachedFilesByAssignedUser", maxCount: 10 },
   ]),
   tryCatchHandler(async (req, res, next) => {
     const id = req.params.id;
-
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
+    if (
+      req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
+      req.files?.attachedFilesByAssignedUser
+    ) {
+      requestSheetDataFilledByMTDUserForCM["attchedFileByAssignedUser"] =
+        req.files?.attachedFilesByAssignedUser?.[0]?.filename;
+    }
     const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
       { _id: id },
       { ...requestSheetDataFilledByMTDUserForCM },
@@ -346,6 +352,17 @@ router.get(
           },
         },
       ];
+      if (req.rootUser?.user_type === "Operator") {
+        queryPipeline = [
+          {
+            $match: {
+              assignUserForCM: {
+                $in: [mongoose.Types.ObjectId(req.rootUser._id)],
+              },
+            },
+          },
+        ];
+      }
       const reqSheetCM = await RequestSheetOfCM.aggregate([
         ...queryPipeline,
         {
