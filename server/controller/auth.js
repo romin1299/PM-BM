@@ -22799,94 +22799,86 @@ router.post(
           `implementation_assign_${userDepAndType}_tm_no`,
         ];
 
-        for (
-          let index = 0;
-          index < arrayOfKeyForAddingMonthsKey?.length;
-          index++
-        ) {
-          let updateFieldWithAllMonthOrSix = {};
+        // for (
+        //   let index = 0;
+        //   index < arrayOfKeyForAddingMonthsKey?.length;
+        //   index++
+        // ) {
+        //   let updateFieldWithAllMonthOrSix = {};
 
-          userDepAndType !== "MTD_HOD"
-            ? (updateFieldWithAllMonthOrSix = {
-                Apr: [],
+        //   userDepAndType !== "MTD_HOD"
+        //     ? (updateFieldWithAllMonthOrSix = {
+        //         Apr: [],
 
-                May: [],
+        //         May: [],
 
-                June: [],
+        //         June: [],
 
-                July: [],
+        //         July: [],
 
-                Aug: [],
+        //         Aug: [],
 
-                Sep: [],
+        //         Sep: [],
 
-                Oct: [],
+        //         Oct: [],
 
-                Nov: [],
+        //         Nov: [],
 
-                Dec: [],
+        //         Dec: [],
 
-                Jan: [],
+        //         Jan: [],
 
-                Feb: [],
+        //         Feb: [],
 
-                Mar: [],
-              })
-            : (updateFieldWithAllMonthOrSix = {
-                Sep: [],
+        //         Mar: [],
+        //       })
+        //     : (updateFieldWithAllMonthOrSix = {
+        //         Sep: [],
 
-                Mar: [],
-              });
+        //         Mar: [],
+        //       });
+        //   if (
+        //     machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //       arrayOfKeyForAddingMonthsKey?.[index]
+        //     ] !== undefined &&
+        //     Object.keys(
+        //       machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //         arrayOfKeyForAddingMonthsKey?.[index]
+        //       ]
+        //     )?.length !== 12
+        //   ) {
+        //     Object.keys(
+        //       machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //         arrayOfKeyForAddingMonthsKey?.[index]
+        //       ]
+        //     )?.map((key) => {
+        //       updateFieldWithAllMonthOrSix[key] =
+        //         machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //           arrayOfKeyForAddingMonthsKey[index]
+        //         ]?.[key];
+        //     });
+        //   }
+        //   let keyForAddEmptyArrayofMonthsOfImplementationApprovalFields = `checkSheet_data.$[outer].${[
+        //     arrayOfKeyForAddingMonthsKey[index],
+        //   ]}`;
 
-          // if (
-          //   Object.keys(
-          //     machineCheckSheetData?.[0]?.checkSheet_data?.[
-          //       arrayOfKeyForAddingMonthsKey?.[index]
-          //     ]
-          //   )?.length !== 12
-          // ) {
-          if (
-            machineCheckSheetData?.[0]?.checkSheet_data?.[
-              arrayOfKeyForAddingMonthsKey?.[index]
-            ] !== undefined &&
-            Object.keys(
-              machineCheckSheetData?.[0]?.checkSheet_data?.[
-                arrayOfKeyForAddingMonthsKey?.[index]
-              ]
-            )?.length !== 12
-          ) {
-            Object.keys(
-              machineCheckSheetData?.[0]?.checkSheet_data?.[
-                arrayOfKeyForAddingMonthsKey?.[index]
-              ]
-            )?.map((key) => {
-              updateFieldWithAllMonthOrSix[key] =
-                machineCheckSheetData?.[0]?.checkSheet_data?.[
-                  arrayOfKeyForAddingMonthsKey[index]
-                ]?.[key];
-            });
-          }
-          let keyForAddEmptyArrayofMonthsOfImplementationApprovalFields = `checkSheet_data.$[outer].${[
-            arrayOfKeyForAddingMonthsKey[index],
-          ]}`;
-          const updateFieldsWithAllMonthsData = await Machine.updateOne(
-            { ...req?.query },
-            {
-              $set: {
-                [keyForAddEmptyArrayofMonthsOfImplementationApprovalFields]:
-                  updateFieldWithAllMonthOrSix,
-              },
-            },
-            {
-              arrayFilters: [
-                {
-                  "outer.current_year": req?.params?.selectedYear,
-                },
-              ],
-            }
-          );
-          // }
-        }
+        //   const updateFieldsWithAllMonthsData = await Machine.updateOne(
+        //     { ...req?.query },
+        //     {
+        //       $set: {
+        //         [keyForAddEmptyArrayofMonthsOfImplementationApprovalFields]:
+        //           updateFieldWithAllMonthOrSix,
+        //       },
+        //     },
+        //     {
+        //       arrayFilters: [
+        //         {
+        //           "outer.current_year": req?.params?.selectedYear,
+        //         },
+        //       ],
+        //     }
+        //   );
+        // }
 
         let commonEditedFields = async () => {
 
@@ -22895,7 +22887,7 @@ router.post(
           ][`${editedApprovalData?.selectedMonth}`][
             machineCheckSheetData[0].checkSheet_data[
               `implemetation_${userDepAndType.toLowerCase()}_approval_status`
-            ][`${editedApprovalData?.selectedMonth}`].length - 1
+            ][`${editedApprovalData?.selectedMonth}`].length - 1 || 0
           ] = "Accepted";
 
           machineCheckSheetData[0].checkSheet_data[
@@ -22903,7 +22895,7 @@ router.post(
           ][`${editedApprovalData?.selectedMonth}`][
             machineCheckSheetData[0].checkSheet_data[
               `implementation_assign_${userDepAndType}`
-            ][`${editedApprovalData?.selectedMonth}`].length - 1
+            ][`${editedApprovalData?.selectedMonth}`].length - 1 || 0
           ] = editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.email;
 
           machineCheckSheetData[0].checkSheet_data[
@@ -22911,7 +22903,7 @@ router.post(
           ][`${editedApprovalData?.selectedMonth}`][
             machineCheckSheetData[0].checkSheet_data[
               `implementation_assign_${userDepAndType}_name`
-            ][`${editedApprovalData?.selectedMonth}`].length - 1
+            ][`${editedApprovalData?.selectedMonth}`].length - 1 || 0
           ] =
             editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.tm_name;
 
@@ -22920,7 +22912,7 @@ router.post(
           ][`${editedApprovalData?.selectedMonth}`][
             machineCheckSheetData[0].checkSheet_data[
               `implementation_assign_${userDepAndType}_tm_no`
-            ][`${editedApprovalData?.selectedMonth}`].length - 1
+            ][`${editedApprovalData?.selectedMonth}`].length - 1 || 0
           ] = editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.tm_no;
 
           //for adding in query
@@ -22949,10 +22941,10 @@ router.post(
           queryObjForPushData = {
             ...queryObjForPushData,
             [keyOfImplementationApprovedByUserName]:
-              editedApprovalData[`${userDepAndType.toLowerCase()}_list`]
+              editedApprovalData?.[`${userDepAndType.toLowerCase()}_list`]
                 ?.tm_name,
             [keyOfImplementationApprovedDate]:
-              editedApprovalData[
+              editedApprovalData?.[
                 `implementation_approved_${userDepAndType}_date`
               ],
           };
@@ -22960,14 +22952,16 @@ router.post(
 
         //if Accepted any approval
         if (
-          machineCheckSheetData[0].checkSheet_data[
+          machineCheckSheetData?.[0].checkSheet_data[
             `implemetation_${userDepAndType.toLowerCase()}_approval_status`
           ]?.[`${editedApprovalData?.selectedMonth}`]?.[
-            machineCheckSheetData[0].checkSheet_data?.[
+            machineCheckSheetData?.[0].checkSheet_data?.[
               `implemetation_${userDepAndType.toLowerCase()}_approval_status`
-            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1
+            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1 || 0
           ] === "Accepted"
         ) {
+
+          // console.log("------Accepted called----------------");
           machineCheckSheetData[0].checkSheet_data[
             `implementation_approved_by_${userDepAndType}`
           ][`${editedApprovalData?.selectedMonth}`][
@@ -22982,7 +22976,7 @@ router.post(
           ][`${editedApprovalData?.selectedMonth}`][
             machineCheckSheetData[0].checkSheet_data[
               `implementation_approved_${userDepAndType}_date`
-            ][`${editedApprovalData?.selectedMonth}`].length - 1
+            ][`${editedApprovalData?.selectedMonth}`].length - 1 || 0
           ] =
             editedApprovalData[
               `implementation_approved_${userDepAndType}_date`
@@ -23010,19 +23004,24 @@ router.post(
           ]?.[`${editedApprovalData?.selectedMonth}`]?.[
             machineCheckSheetData[0]?.checkSheet_data?.[
               `implemetation_${userDepAndType.toLowerCase()}_approval_status`
-            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1
+            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1 || 0
           ] === "Pending" ||
           machineCheckSheetData[0]?.checkSheet_data?.[
             `implemetation_${userDepAndType.toLowerCase()}_approval_status`
           ]?.[`${editedApprovalData?.selectedMonth}`]?.[
             machineCheckSheetData[0]?.checkSheet_data?.[
               `implemetation_${userDepAndType.toLowerCase()}_approval_status`
-            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1
-          ] === "Rejected"
+            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1 || 0
+          ] === "Rejected" 
         ) {
+
+          // console.log("------Pending/ Rejected called----------------");
+
           await commonEditedFields();
           await commonPushFields();
         } else {
+          // console.log("------Other called----------------");
+
           await commonPushFields();
           queryObjForPushData = {
             ...queryObjForPushData,

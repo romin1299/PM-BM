@@ -696,3 +696,55 @@
     at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8072:50
     at runMicrotasks (<anonymous>)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T12:42 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23180:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T12:45 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23180:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T12:51 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23184:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T13:01 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23184:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T13:14 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23186:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T13:50 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23186:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T14:17 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23185:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T14:23 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23185:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T14:30 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23191:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T14:34 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23194:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T14:39 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23194:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T14:54 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23184:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-23T15:26 | PM | updateAfterAllApprovalOfImplementation is not defined
+		ReferenceError: updateAfterAllApprovalOfImplementation is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23176:18
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
