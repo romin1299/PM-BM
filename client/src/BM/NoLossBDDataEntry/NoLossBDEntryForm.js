@@ -25,6 +25,8 @@ const NoLossBDEntryForm = () => {
     formState: { errors },
     watch,
     reset,
+    clearErrors,
+    setError,
     control,
     setValue,
   } = useForm({
@@ -125,6 +127,20 @@ const NoLossBDEntryForm = () => {
 
   const postNoLossBDFormData = async (noLossData) => {
     try {
+      if (
+        !reduceState?.selectedCell ||
+        !reduceState?.selectedLine ||
+        !reduceState?.selectedMachine
+      ) {
+        return setError(
+          "selectedValue",
+          {
+            message: "Cell / Line/ Machine selection is required !",
+          },
+          { shouldFocus: true }
+        );
+      }
+
       const formData = new FormData();
       noLossData.problemsOfBM = problems;
       noLossData.actionAndCounterMeasureStep = actions;
@@ -148,7 +164,7 @@ const NoLossBDEntryForm = () => {
         );
       }
 
-      formData.append("otherData", JSON.stringify({...noLossData}));
+      formData.append("otherData", JSON.stringify({ ...noLossData }));
 
       const res = await fetch(`/postNewNoLossBDData`, {
         method: "POST",
@@ -175,6 +191,12 @@ const NoLossBDEntryForm = () => {
     }
   };
 
+  useEffect(() => {
+    if (reduceState?.selectedMachine !== "") {
+      clearErrors("selectedValue");
+    }
+  }, [reduceState?.selectedMachine]);
+
   return (
     <Container fluid>
       <ReportTitleBar title="Other Loss BD Entry Form" />
@@ -199,6 +221,9 @@ const NoLossBDEntryForm = () => {
               machineFiltration
             />
           </Col>
+          {errors?.selectedValue && (
+            <p className="text-error">{errors?.selectedValue?.message}</p>
+          )}
         </Row>
 
         <Row className="gx-0">
