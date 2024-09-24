@@ -1358,3 +1358,86 @@
     at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
     at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-24T00:00 | PM | The "path" argument must be of type string. Received undefined
+		TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+    at Object.join (node:path:433:7)
+    at Task._execution (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\everyDayAutoBackup.js:14:12)
+    at Task.execute (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\task.js:17:25)
+    at ScheduledTask.now (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:38:33)
+    at Scheduler.<anonymous> (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:25:18)
+    at Scheduler.emit (node:events:519:28)
+    at Timeout.matchTime [as _onTimeout] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduler.js:30:26)
+    at listOnTimeout (node:internal/timers:573:17)
+    at process.processTimers (node:internal/timers:514:7)

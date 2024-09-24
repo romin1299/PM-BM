@@ -16,6 +16,7 @@ import ApprovalDashboard from "./Pages/ApprovalDashboardOfCM/ApprovalDashboard";
 import RequestSheetStatusMonitoringOfCM from "./Pages/RequestSheetStatusMonitoringOfCM/RequestSheetStatusMonitoringOfCM";
 import ExistingMachineRequestSheet from "./Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineRequestSheet";
 import RequestSheetOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/RequestSheetOfLTPM";
+import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
 
 const CM_Routes = ({ commonRoutes }) => {
   let reportRoutes = [];
@@ -98,6 +99,10 @@ const CM_Routes = ({ commonRoutes }) => {
         {
           path: "/cm/request-sheet/:machine_code/:selectedYear",
           element: <ExistingMachineRequestSheet />,
+        },
+        {
+          path: "/cm/approval",
+          element: <CMApprovalDashboardOfRequestSheet />,
         },
         {
           path: "/cm/request-sheet/ltpm",

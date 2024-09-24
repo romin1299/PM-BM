@@ -898,7 +898,11 @@ const ExistingMachineReqSheetWithData = ({
           </tbody>
         </Table>
       </form>
-      {isEditable && <ExistinngMachineReqSheetForOperator cmSelectedSheetForView={cmSelectedSheetForView} />}
+      {isEditable && (
+        <ExistinngMachineReqSheetForOperator
+          cmSelectedSheetForView={cmSelectedSheetForView}
+        />
+      )}
     </div>
   );
 };

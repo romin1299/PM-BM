@@ -59,7 +59,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     type: String, //if string required then change value: Yes/No
   },
 
-  //this field for requestSheet created by PRD TL user
+  //this field for requestSheet created by MTD TL user
   requestSheetCreatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",

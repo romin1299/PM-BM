@@ -4,7 +4,8 @@ import {
   PiListBulletsFill,
   MdFormatListBulletedAdd,
   CalendarMonthIcon,
-  EventNoteIcon
+  EventNoteIcon,
+  FactCheckIcon
 } from "../../components/NavbarComponent/ImportModules";
 
 const allusers = [
@@ -33,6 +34,12 @@ export const menuItems = [
     ),
     route: "/cm/allRequestSheetReportDataOfCM",
     allowedRoles: allusers,
+  },
+  {
+    title: "Approval Dashboard",
+    icon: <FactCheckIcon className="text-white" />,
+    route: "/cm/approval",
+    allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
   },
   {
     icon: <EventNoteIcon className="text-white" />,
