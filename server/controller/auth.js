@@ -22800,94 +22800,85 @@ router.post(
           `implementation_assign_${userDepAndType}_tm_no`,
         ];
 
-        for (
-          let index = 0;
-          index < arrayOfKeyForAddingMonthsKey?.length;
-          index++
-        ) {
-          let updateFieldWithAllMonthOrSix = {};
+        // for (
+        //   let index = 0;
+        //   index < arrayOfKeyForAddingMonthsKey?.length;
+        //   index++
+        // ) {
+        //   let updateFieldWithAllMonthOrSix = {};
 
-          userDepAndType !== "MTD_HOD"
-            ? (updateFieldWithAllMonthOrSix = {
-                Apr: [],
+        //   userDepAndType !== "MTD_HOD"
+        //     ? (updateFieldWithAllMonthOrSix = {
+        //         Apr: [],
 
-                May: [],
+        //         May: [],
 
-                June: [],
+        //         June: [],
 
-                July: [],
+        //         July: [],
 
-                Aug: [],
+        //         Aug: [],
 
-                Sep: [],
+        //         Sep: [],
 
-                Oct: [],
+        //         Oct: [],
 
-                Nov: [],
+        //         Nov: [],
 
-                Dec: [],
+        //         Dec: [],
 
-                Jan: [],
+        //         Jan: [],
 
-                Feb: [],
+        //         Feb: [],
 
-                Mar: [],
-              })
-            : (updateFieldWithAllMonthOrSix = {
-                Sep: [],
+        //         Mar: [],
+        //       })
+        //     : (updateFieldWithAllMonthOrSix = {
+        //         Sep: [],
 
-                Mar: [],
-              });
-
-          // if (
-          //   Object.keys(
-          //     machineCheckSheetData?.[0]?.checkSheet_data?.[
-          //       arrayOfKeyForAddingMonthsKey?.[index]
-          //     ]
-          //   )?.length !== 12
-          // ) {
-          if (
-            machineCheckSheetData?.[0]?.checkSheet_data?.[
-              arrayOfKeyForAddingMonthsKey?.[index]
-            ] !== undefined &&
-            Object.keys(
-              machineCheckSheetData?.[0]?.checkSheet_data?.[
-                arrayOfKeyForAddingMonthsKey?.[index]
-              ]
-            )?.length !== 12
-          ) {
-            Object.keys(
-              machineCheckSheetData?.[0]?.checkSheet_data?.[
-                arrayOfKeyForAddingMonthsKey?.[index]
-              ]
-            )?.map((key) => {
-              updateFieldWithAllMonthOrSix[key] =
-                machineCheckSheetData?.[0]?.checkSheet_data?.[
-                  arrayOfKeyForAddingMonthsKey[index]
-                ]?.[key];
-            });
-          }
-          let keyForAddEmptyArrayofMonthsOfImplementationApprovalFields = `checkSheet_data.$[outer].${[
-            arrayOfKeyForAddingMonthsKey[index],
-          ]}`;
-          const updateFieldsWithAllMonthsData = await Machine.updateOne(
-            { ...req?.query },
-            {
-              $set: {
-                [keyForAddEmptyArrayofMonthsOfImplementationApprovalFields]:
-                  updateFieldWithAllMonthOrSix,
-              },
-            },
-            {
-              arrayFilters: [
-                {
-                  "outer.current_year": req?.params?.selectedYear,
-                },
-              ],
-            }
-          );
-          // }
-        }
+        //         Mar: [],
+        //       });
+        //   if (
+        //     machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //       arrayOfKeyForAddingMonthsKey?.[index]
+        //     ] !== undefined &&
+        //     Object.keys(
+        //       machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //         arrayOfKeyForAddingMonthsKey?.[index]
+        //       ]
+        //     )?.length !== 12
+        //   ) {
+        //     Object.keys(
+        //       machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //         arrayOfKeyForAddingMonthsKey?.[index]
+        //       ]
+        //     )?.map((key) => {
+        //       updateFieldWithAllMonthOrSix[key] =
+        //         machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //           arrayOfKeyForAddingMonthsKey[index]
+        //         ]?.[key];
+        //     });
+        //   }
+        //   let keyForAddEmptyArrayofMonthsOfImplementationApprovalFields = `checkSheet_data.$[outer].${[
+        //     arrayOfKeyForAddingMonthsKey[index],
+        //   ]}`;
+        //   const updateFieldsWithAllMonthsData = await Machine.updateOne(
+        //     { ...req?.query },
+        //     {
+        //       $set: {
+        //         [keyForAddEmptyArrayofMonthsOfImplementationApprovalFields]:
+        //           updateFieldWithAllMonthOrSix,
+        //       },
+        //     },
+        //     {
+        //       arrayFilters: [
+        //         {
+        //           "outer.current_year": req?.params?.selectedYear,
+        //         },
+        //       ],
+        //     }
+        //   );
+        // }
 
         let commonEditedFields = async () => {
           // if (
