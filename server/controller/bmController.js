@@ -16787,10 +16787,7 @@ const monthsPipeLine = [
                 $arrayElemAt: [
                   "$noLossData.hours",
                   {
-                    $indexOfArray: [
-                      "$noLossData._id",
-                      "$$month.monthName",
-                    ],
+                    $indexOfArray: ["$noLossData._id", "$$month.monthName"],
                   },
                 ],
               },
@@ -16994,7 +16991,6 @@ router.get(
           },
         },
         ...monthsPipeLine,
-        
       ]);
       // console.log(noLossTrend);
 
@@ -17262,8 +17258,6 @@ router.get(
         },
         ...monthsPipeLine,
       ]);
-
-
 
       return res.status(201).json({
         message: "HourTrend data get successfully",
@@ -21659,6 +21653,14 @@ router.post(
         requestSheetRef: req.params?.requestSheetRef,
         ...req.body,
       });
+      const reqSheetBM = await RequestSheetOfBM.findOneAndUpdate(
+        { _id: req.params?.requestSheetRef },
+        {
+          $set: {
+            IsSafetyFormCreated: true,
+          },
+        }
+      );
       if (!safetyForm) {
         return res
           .status(400)

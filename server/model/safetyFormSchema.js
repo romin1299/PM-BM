@@ -5,12 +5,38 @@ const safetyFormSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "requestsheetofbms",
   },
+  workName: {
+    type: String,
+  },
+  keyRisks: {
+    type: String,
+  },
+  preventiveMeasures: {
+    type: String,
+  },
+  generalMaintainanceWork: {
+    IsAccepted: {
+      type: String,
+    },
+    protectiveEquipment: {
+      type: Boolean,
+    },
+    postNecessaryWarnigs: {
+      type: Boolean,
+    },
+    powerAndAirOff: {
+      type: Boolean,
+    },
+  },
   workInsideMachine: {
     protectiveEquipment: {
       type: Boolean,
     },
     hadMeeting: {
       type: Boolean,
+    },
+    IsAccepted: {
+      type: String,
     },
   },
   highPressure: {
@@ -22,6 +48,9 @@ const safetyFormSchema = new mongoose.Schema({
     },
     isTrainedStaffAvailable: {
       type: Boolean,
+    },
+    IsAccepted: {
+      type: String,
     },
   },
   workHandlingHeavyObj: {
@@ -37,6 +66,9 @@ const safetyFormSchema = new mongoose.Schema({
     secureFootingAndHandPosition: {
       type: Boolean,
     },
+    IsAccepted: {
+      type: String,
+    },
   },
   workAtHeight: {
     postASignOfHighPlace: {
@@ -47,6 +79,9 @@ const safetyFormSchema = new mongoose.Schema({
     },
     secureFootingAndSafetyBelt: {
       type: Boolean,
+    },
+    IsAccepted: {
+      type: String,
     },
   },
   workHandlingFire: {
@@ -59,6 +94,9 @@ const safetyFormSchema = new mongoose.Schema({
     isAssociatesQualified: {
       type: Boolean,
     },
+    IsAccepted: {
+      type: String,
+    },
   },
   involvingHandlingOfFlammableLiquid: {
     takeFirePrevention: {
@@ -70,6 +108,9 @@ const safetyFormSchema = new mongoose.Schema({
     isAssociatesQualified: {
       type: Boolean,
     },
+    IsAccepted: {
+      type: String,
+    },
   },
   workInvolvingRiskOfOxygen: {
     holdAnObserverAndWearProtectiveEquipment: {
@@ -78,10 +119,16 @@ const safetyFormSchema = new mongoose.Schema({
     isAssociatesQualified: {
       type: Boolean,
     },
+    IsAccepted: {
+      type: String,
+    },
   },
   workUsingHighVoltage: {
     isAssociatesQualified: {
       type: Boolean,
+    },
+    IsAccepted: {
+      type: String,
     },
   },
 });
