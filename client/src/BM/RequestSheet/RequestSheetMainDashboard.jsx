@@ -60,6 +60,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import SparePartsRequestForm from "../SparePartsRequest/SparePartsRequestForm";
+import { FaHelmetSafety } from "react-icons/fa6";
+import SafetyForm from "../Tabs/SafetyForm/SafetyForm";
 
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
@@ -75,7 +77,7 @@ const RequestSheetMainDashboard = () => {
   const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
   const [sparePartsRequestModal, setSparePartsRequestModal] = useState(false);
   const [greaterValue, setGreaterValue] = useState(
-    localStorage.getItem("greaterValue") 
+    localStorage.getItem("greaterValue")
   );
   const [lesserValue, setLesserValue] = useState(
     localStorage.getItem("lesserValue")
@@ -249,10 +251,10 @@ const RequestSheetMainDashboard = () => {
 
     setLoading(false);
   };
-  useEffect(()=>{
-    localStorage.setItem("greaterValue", "")
-    localStorage.setItem("lesserValue", "")
-  },[])
+  useEffect(() => {
+    localStorage.setItem("greaterValue", "");
+    localStorage.setItem("lesserValue", "");
+  }, []);
 
   const updateRequestSheet = async (updatedRow) => {
     try {
@@ -648,6 +650,7 @@ const RequestSheetMainDashboard = () => {
       (requestSheetModalOpenClose) => !requestSheetModalOpenClose
     );
   };
+  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
 
   let requestSheetActions = [
     // Edit Request Sheet
@@ -670,9 +673,10 @@ const RequestSheetMainDashboard = () => {
       tooltip: "Update Req-sheet",
       position: "row",
       disabled:
-        (row?.assignUserId === context?._id ||
+        ((row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)
+        RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)) &&
+         (row?.IsSafetyFormCreated === true)
           ? false
           : true,
       onClick: (event, selectedRow) =>
@@ -706,6 +710,17 @@ const RequestSheetMainDashboard = () => {
         //     },
         //   }
         // );
+      },
+    }),
+    //Open Safety Form
+    (row) => ({
+      icon: () => <FaHelmetSafety />,
+      tooltip: "Safety Form",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        console.log(selectedRow)
+        setSelectedRow(selectedRow);
+        setSafetyFormModalOpen(true);
       },
     }),
 
@@ -1297,6 +1312,16 @@ const RequestSheetMainDashboard = () => {
             show: sparePartsRequestModal,
             onHide: handleSparePartsModelState,
           }}
+        />
+      )}
+
+      {safetyFormModalOpen && (
+        <SafetyForm
+          id={selectedRow?._id}
+          lineName={selectedRow?.line}
+          machineNo={selectedRow?.machineNo}
+          setSafetyFormModalOpen={setSafetyFormModalOpen}
+          safetyFormModalOpen={safetyFormModalOpen}
         />
       )}
     </>

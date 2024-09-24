@@ -4,6 +4,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   requestSheetNoOfBM: {
     type: String,
   },
+  //If safety form is created
+  IsSafetyFormCreated: {
+    type: Boolean,
+    default: false,
+  },
 
   //If require else byDefault is BM
   maintenanceType: {
@@ -33,7 +38,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     default: new Date(),
   },
 
-  attachedImagesOrVideoByPRDUser: {type: [String]},
+  attachedImagesOrVideoByPRDUser: { type: [String] },
 
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },

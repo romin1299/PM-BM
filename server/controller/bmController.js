@@ -33,6 +33,7 @@ router.use(cookieParser());
 const {
   APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM,
 } = require("../GlobalData/RequestSheetApprovalStatus");
+const SafetyForm = require("../model/safetyFormSchema");
 
 const statusArray = [
   "Generated",
@@ -923,6 +924,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
       },
       {
         $project: {
+          IsSafetyFormCreated:1,
           machines: 1,
           maintenanceType: 1,
           requestSheetCreatedBy: 1,
@@ -20416,5 +20418,57 @@ router.post(
     }
   }
 );
+
+// safety form CRUD Operations
+
+router.post(
+  "/addSafetyForm/:requestSheetRef",
+  authenticate,
+  async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.create({
+        requestSheetRef: req.params?.requestSheetRef,
+        ...req.body,
+      });
+      const reqSheetBM = await RequestSheetOfBM.findOneAndUpdate(
+        { _id: req.params?.requestSheetRef },
+        {
+          $set: {
+            IsSafetyFormCreated: true,
+          },
+        }
+      );
+      if (!safetyForm) {
+        return res
+          .status(400)
+          .json({ message: "Error in creating safety form" });
+      }
+      res
+        .status(201)
+        .json({ message: "Safety form created successfully", safetyForm });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get("/getSafetyForm/:requestSheetRef", authenticate, async (req, res) => {
+  try {
+    const safetyForm = await SafetyForm.findOne({
+      requestSheetRef: mongoose.Types.ObjectId(req.params?.requestSheetRef),
+    });
+    console.log("in server")
+    if (!safetyForm) {
+      return res.status(400).json({ message: "Not Found!!!" });
+    }
+    res.status(200).json({
+      message: "Safety form fetched successfully",
+      safetyForm,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 module.exports = router;
