@@ -337,6 +337,8 @@ const RequestSheetMainDashboard = () => {
       console.log(error);
     }
   };
+  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
+
 
   useEffect(() => {
     if (reduceState?.selectedValue) getAllRequestSheetData();
@@ -346,6 +348,7 @@ const RequestSheetMainDashboard = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
+    safetyFormModalOpen,
   ]);
 
   const handleGenerateBMNavigation = async () => {
@@ -650,7 +653,6 @@ const RequestSheetMainDashboard = () => {
       (requestSheetModalOpenClose) => !requestSheetModalOpenClose
     );
   };
-  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
 
   let requestSheetActions = [
     // Edit Request Sheet
@@ -673,10 +675,10 @@ const RequestSheetMainDashboard = () => {
       tooltip: "Update Req-sheet",
       position: "row",
       disabled:
-        ((row?.assignUserId === context?._id ||
+        (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)) &&
-         (row?.IsSafetyFormCreated === true)
+        RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus) &&
+        row?.IsSafetyFormCreated === true
           ? false
           : true,
       onClick: (event, selectedRow) =>
@@ -718,7 +720,7 @@ const RequestSheetMainDashboard = () => {
       tooltip: "Safety Form",
       position: "row",
       onClick: (event, selectedRow) => {
-        console.log(selectedRow)
+        console.log(selectedRow);
         setSelectedRow(selectedRow);
         setSafetyFormModalOpen(true);
       },

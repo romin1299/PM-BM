@@ -20473,7 +20473,6 @@ router.get("/getSafetyForm/:requestSheetRef", authenticate, async (req, res) => 
     const safetyForm = await SafetyForm.findOne({
       requestSheetRef: mongoose.Types.ObjectId(req.params?.requestSheetRef),
     });
-    console.log("in server")
     if (!safetyForm) {
       return res.status(400).json({ message: "Not Found!!!" });
     }

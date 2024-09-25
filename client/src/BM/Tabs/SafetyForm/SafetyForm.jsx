@@ -136,7 +136,6 @@ const SafetyForm = ({
   const getSafetyForm = async () => {
     try {
       const response = await axios.get(`/getSafetyForm/${id}`);
-      console.log(response);
       if (response?.data?.safetyForm) {
         setSafetyForm(response?.data?.safetyForm);
         reset(response?.data?.safetyForm);
