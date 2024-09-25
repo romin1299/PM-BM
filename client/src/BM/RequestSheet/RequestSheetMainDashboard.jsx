@@ -60,7 +60,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import SparePartsRequestForm from "../SparePartsRequest/SparePartsRequestForm";
-import { FaHelmetSafety } from "react-icons/fa6";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import SafetyForm from "../Tabs/SafetyForm/SafetyForm";
 
 const RequestSheetMainDashboard = () => {
@@ -716,11 +716,10 @@ const RequestSheetMainDashboard = () => {
     }),
     //Open Safety Form
     (row) => ({
-      icon: () => <FaHelmetSafety />,
+      icon: () => <HealthAndSafetyIcon />,
       tooltip: "Safety Form",
       position: "row",
       onClick: (event, selectedRow) => {
-        console.log(selectedRow);
         setSelectedRow(selectedRow);
         setSafetyFormModalOpen(true);
       },

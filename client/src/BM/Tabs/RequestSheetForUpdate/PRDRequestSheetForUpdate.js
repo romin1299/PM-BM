@@ -10,7 +10,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
@@ -21,6 +21,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
 import { exportPDF } from "../../Utils/exportPDF/exportPDF";
+import SafetyForm from "../SafetyForm/SafetyForm";
 
 const list = [
   { key: "A", value: "A" },
@@ -51,6 +52,8 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
 
   const selectedRequestSheetData = useLocation();
   const loggedUserDetails = useContext(RoutingContext);
+  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
+
   // console.log(selectedRequestSheetData?.state?.selectedRow)
 
   // const [selectedShift, setSelectedShift] = useState("");
@@ -212,6 +215,15 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   return (
     <>
       <ToastContainer />
+      {requestSheetDataOfBM?._id && safetyFormModalOpen && (
+        <SafetyForm
+          id={requestSheetDataOfBM?._id}
+          lineName={requestSheetDataOfBM?.lineRef?.line_name}
+          machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
+          setSafetyFormModalOpen={setSafetyFormModalOpen}
+          safetyFormModalOpen={safetyFormModalOpen}
+        />
+      )}
       <Row>
         {/* <Col>
           <button className="btn bg-button m-2" onClick={handleBack}>
@@ -260,10 +272,25 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                           // navigate(
                           //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
                           // );
-                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,"_blank")
+                          window.open(
+                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,
+                            "_blank"
+                          );
                         }}
                       >
-                       Machine Details
+                        Machine Details
+                      </button>
+
+                      <button
+                        // variant="contained"
+                        // color="error"
+                        className="btn btn-danger"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSafetyFormModalOpen(true);
+                        }}
+                      >
+                        <HealthAndSafetyIcon /> &nbsp;Safety Form
                       </button>
                     </Col>
 

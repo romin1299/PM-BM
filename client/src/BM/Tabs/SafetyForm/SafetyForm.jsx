@@ -203,7 +203,7 @@ const SafetyForm = ({
                 <BiPlusMedical size={55} />
               </Box>
               <Box className="text-center border-bottom" width={"40%"}>
-                <h4 className="fw-bold">SAFETY CHECKSHEET FOR MAINTENANCE</h4>
+                <h4 className="fw-bold">SAFETY CHECK-SHEET FOR MAINTENANCE</h4>
               </Box>
               <Box className="text-center border-bottom" width={"fit-content"}>
                 <h4 className="fw-bold" style={{ fontSize: "20px" }}>

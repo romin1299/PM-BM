@@ -936,7 +936,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
       { $limit: pageSize },
       {
         $project: {
-          IsSafetyFormCreated:1,
+          IsSafetyFormCreated: 1,
           machines: 1,
           maintenanceType: 1,
           requestSheetCreatedBy: 1,
@@ -20468,21 +20468,25 @@ router.post(
   }
 );
 
-router.get("/getSafetyForm/:requestSheetRef", authenticate, async (req, res) => {
-  try {
-    const safetyForm = await SafetyForm.findOne({
-      requestSheetRef: mongoose.Types.ObjectId(req.params?.requestSheetRef),
-    });
-    if (!safetyForm) {
-      return res.status(400).json({ message: "Not Found!!!" });
+router.get(
+  "/getSafetyForm/:requestSheetRef",
+  authenticate,
+  async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.findOne({
+        requestSheetRef: mongoose.Types.ObjectId(req?.params?.requestSheetRef),
+      });
+      if (!safetyForm) {
+        return res.status(400).json({ message: "Not Found!!!" });
+      }
+      res.status(200).json({
+        message: "Safety form fetched successfully",
+        safetyForm,
+      });
+    } catch (error) {
+      console.log(error);
     }
-    res.status(200).json({
-      message: "Safety form fetched successfully",
-      safetyForm,
-    });
-  } catch (error) {
-    console.log(error);
   }
-});
+);
 
 module.exports = router;

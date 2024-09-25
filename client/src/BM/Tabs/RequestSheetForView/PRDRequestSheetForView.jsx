@@ -13,7 +13,7 @@ import FormLabel from "@mui/material/FormLabel";
 import { Box, Button, IconButton, Tooltip } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
@@ -26,6 +26,7 @@ import { denso_logo } from "../../../modules/LoginModules";
 import { exportPDF } from "../../Utils/exportPDF/exportPDF";
 import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import ProblemModeHistory from "../../../Common/Machine/ProblemModeHistory";
+import SafetyForm from "../SafetyForm/SafetyForm";
 
 function MyTable({
   requestSheetDataOfBM,
@@ -42,6 +43,7 @@ function MyTable({
   // const { machine_code, selectedYear } = useParams();
 
   const [problemModeCardModal, setProblemModeCardModal] = useState(false);
+  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
 
   const {
     register,
@@ -183,6 +185,15 @@ function MyTable({
           }}
         />
       )}
+      {requestSheetDataOfBM?._id && safetyFormModalOpen && (
+        <SafetyForm
+          id={requestSheetDataOfBM?._id}
+          lineName={requestSheetDataOfBM?.lineRef?.line_name}
+          machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
+          setSafetyFormModalOpen={setSafetyFormModalOpen}
+          safetyFormModalOpen={safetyFormModalOpen}
+        />
+      )}
       <form>
         <Table>
           <tbody className="m-1 border p-3">
@@ -241,10 +252,13 @@ function MyTable({
                           // navigate(
                           //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
                           // );
-                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,"_blank")
+                          window.open(
+                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,
+                            "_blank"
+                          );
                         }}
                       >
-                       Machine Details
+                        Machine Details
                       </button>
                       <Tooltip
                         title="Download Request Sheet"
@@ -278,6 +292,17 @@ function MyTable({
                       >
                         Problem History
                       </Button>
+                      <button
+                        // variant="contained"
+                        // color="error"
+                        className="btn btn-danger"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSafetyFormModalOpen(true);
+                        }}
+                      >
+                        <HealthAndSafetyIcon /> &nbsp;Safety Form
+                      </button>
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">

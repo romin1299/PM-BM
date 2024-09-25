@@ -18,7 +18,6 @@ import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
 import { Button, Typography } from "@mui/material";
 import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
-import SafetyForm from "../SafetyForm/SafetyForm";
 
 const list = [
   { key: "A", value: "A" },
@@ -3200,7 +3199,6 @@ function MyTable({
           </tbody>
         </Table>
       </form>
-      <SafetyForm id={requestSheetDataOfBM?._id} />
     </>
   );
 }
