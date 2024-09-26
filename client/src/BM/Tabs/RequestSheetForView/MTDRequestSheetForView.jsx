@@ -1401,6 +1401,16 @@ function MTDRequestSheetForView({
                   {requestSheetDataOfBM?.qualityConfirmed}
                 </Col>
               </Row>
+              <Row className="m-0">
+                <Col className="border p-2">
+                  <small className="mb-0 d-flex align-items-center justify-content-start">
+                    <b>SAFETY CHECK</b>&nbsp;&nbsp;&nbsp;
+                  </small>
+                </Col>
+                <Col className="border p-2 d-flex align-items-center">
+                  {requestSheetDataOfBM?.IsSafetyFormCreated ? "Yes" : "No"}
+                </Col>
+              </Row>
 
               <Row className="m-0 border border-bottom-0">
                 <p className="text-center mb-0">**PART QUALITY CHECKED</p>

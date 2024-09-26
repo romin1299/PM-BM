@@ -4676,6 +4676,7 @@ const getRequestSheetData = async (req, res, next) => {
           categoriesOfRequestSheet: 1,
           preventive_corrective_maintenance: 1,
           yokotenkai: 1,
+          IsSafetyFormCreated: 1
         },
       },
     ]);
@@ -5192,6 +5193,7 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           categoriesOfRequestSheet: 1,
           preventive_corrective_maintenance: 1,
           yokotenkai: 1,
+          IsSafetyFormCreated: 1
         },
       },
     ]);

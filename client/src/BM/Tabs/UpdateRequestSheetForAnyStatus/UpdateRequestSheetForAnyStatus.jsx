@@ -106,6 +106,10 @@ const UpdateRequestSheetForAnyStatus = () => {
       if (res.status === 201) {
         const data = await res.json();
         reset(data?.requestSheetDataOfBM);
+        setValue(
+          "IsSafetyFormCreated",
+          data?.requestSheetDataOfBM?.IsSafetyFormCreated ? "Yes" : "No"
+        );
         setProblems(
           data?.requestSheetDataOfBM?.maintenanceReportFilledByMTD?.problemsOfBM
         );
@@ -1445,6 +1449,44 @@ const UpdateRequestSheetForAnyStatus = () => {
                     </Form>
                   </Col>
                 </Row>
+                <Row className="m-0">
+                  <Col className="border p-2">
+                    <small className="mb-0 d-flex align-items-center justify-content-start">
+                      <b>SAFETY CHECK</b>&nbsp;&nbsp;&nbsp;
+                    </small>
+                  </Col>
+                  <Col className="border p-2 d-flex align-items-center">
+                    <Form>
+                      <div className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="IsSafetyFormCreated"
+                          type="radio"
+                          value="Yes"
+                          disabled
+                          id="IsSafetyFormCreated"
+                          {...register("IsSafetyFormCreated", {
+                            // required: "This field is required",
+                          })}
+                        />
+                        &nbsp;&nbsp;
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="IsSafetyFormCreated"
+                          type="radio"
+                          value="No"
+                          id="IsSafetyFormCreated-1"
+                          {...register("IsSafetyFormCreated", {
+                            // required: "This field is required",
+                          })}
+                          disabled
+                        />
+                      </div>
+                    </Form>
+                  </Col>
+                </Row>
                 <Row className="m-0 border border-bottom-0">
                   <p className="text-center mb-0">**PART QUALITY CHECKED</p>
                 </Row>
@@ -1563,9 +1605,9 @@ const UpdateRequestSheetForAnyStatus = () => {
                               <Button
                                 target="_blank"
                                 // href={`http://localhost:7000/${watch("attachedDataSheets")}`}
-                                href={`${process.env.REACT_APP_BASE_URL}/${watch(
-                                  "attachedDataSheets"
-                                )}`}
+                                href={`${
+                                  process.env.REACT_APP_BASE_URL
+                                }/${watch("attachedDataSheets")}`}
                                 disableElevation
                                 size="small"
                                 variant="contained"

@@ -668,6 +668,11 @@ function MyTable({
       );
 
       setValue(
+        "IsSafetyFormCreated",
+        requestSheetDataOfBM?.IsSafetyFormCreated ? "Yes" : "No"
+      );
+
+      setValue(
         "breakDownTime",
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.breakDownTime
       );
@@ -787,7 +792,7 @@ function MyTable({
 
       setSelectedSupportedTM(requestSheetDataOfBM?.supportingTM);
     }
-  }, [requestSheetDataOfBM]);
+  }, [requestSheetDataOfBM?._id, setValue]);
 
   useEffect(() => {
     if (timeDifferenceMinutes > 120) {
@@ -2100,6 +2105,44 @@ function MyTable({
                           {errors?.["qualityConfirmed"]?.message}
                         </p>
                       )}
+                    </Form>
+                  </Col>
+                </Row>
+                <Row className="m-0">
+                  <Col className="border p-2">
+                    <small className="mb-0 d-flex align-items-center justify-content-start">
+                      <b>SAFETY CHECK</b>&nbsp;&nbsp;&nbsp;
+                    </small>
+                  </Col>
+                  <Col className="border p-2 d-flex align-items-center">
+                  <Form>
+                      <div className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="IsSafetyFormCreated"
+                          type="radio"
+                          value="Yes"
+                          disabled
+                          id="IsSafetyFormCreated"
+                          {...register("IsSafetyFormCreated", {
+                            // required: "This field is required",
+                          })}
+                        />
+                        &nbsp;&nbsp;
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="IsSafetyFormCreated"
+                          type="radio"
+                          value="No"
+                          id="IsSafetyFormCreated-1"
+                          {...register("IsSafetyFormCreated", {
+                            // required: "This field is required",
+                          })}
+                          disabled
+                        />
+                      </div>
                     </Form>
                   </Col>
                 </Row>
