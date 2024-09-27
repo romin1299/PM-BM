@@ -22,6 +22,10 @@ import { useForm } from "react-hook-form";
 
 import RoutingContext from "../../../context/routing/RoutingContext";
 import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import axios from "axios";
+import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
+import ExistinngMachineReqSheetForOperator from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistinngMachineReqSheetForOperator";
+import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
 
 const CMApprovalDashboardOfRequestSheet = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
@@ -112,36 +116,26 @@ const CMApprovalDashboardOfRequestSheet = () => {
     },
   ];
   const getApprovalRequestSheetData = async () => {
-    // setLoading(true);
+    setLoading(true);
 
     try {
-      const res = await fetch(
-        `/getMachineRequestSheetDetailsForApprovalForCM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
+      const response = await axios.get(
+        `/getMachineRequestSheetDetailsForApprovalForCM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`
       );
-      const data = await res.json();
-      console.log(data);
-      if (res.status === 404) {
-        console.log("error", data?.message);
-      } else {
-        setApprovalRequestSheetDataOfCM(data?.requestSheetData);
-      }
+      setApprovalRequestSheetDataOfCM(response?.data?.requestSheetData);
     } catch (error) {
       console.log(error);
     }
 
-    // setLoading(false);
+    setLoading(false);
   };
   useEffect(() => {
-    getApprovalRequestSheetData();
-  }, []);
+    if (reduceState?.selectedValue) getApprovalRequestSheetData();
+  }, [
+    reduceState?.selectedValue,
+    reduceState?.selectedYear,
+    reduceState?.selectedMonth,
+  ]);
   return (
     <>
       <Container fluid>
@@ -175,7 +169,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
                 //   exportPDFName: "Export as pdf!!"
                 // }
               }}
-              // isLoading={Loading}
+              isLoading={loading}
               actions={requestSheetApprovalAction}
               icons={tableIcons}
               columns={approvalDashboardHeader}
@@ -237,9 +231,8 @@ const CMApprovalDashboardOfRequestSheet = () => {
             CM Request-Sheet
           </Modal.Title>
           <Button
-            variant="secondary"
             onClick={() => setCmReqSheetView(false)}
-            sx={{
+            style={{
               backgroundColor: "#B02A37",
               color: "#F2F2F2",
               "&:hover": {
@@ -252,14 +245,26 @@ const CMApprovalDashboardOfRequestSheet = () => {
           </Button>
         </Modal.Header>
         <Modal.Body>
-          <div>
-            <ExistingMachineReqSheetWithData
-              cmSelectedSheetForView={cmSelectedSheetForView}
-              isEditable={isEditable}
-              setCmReqSheetView={setCmReqSheetView}
-            />
-            
-          </div>
+          {cmSelectedSheetForView?.requestSheetStatusOfCM ===
+            "Under MTD TL/HOSS Approval" && (
+            <div>
+              <MTDExistingMachineReqSheetWithData
+                cmSelectedSheetForView={cmSelectedSheetForView}
+                isEditable={isEditable}
+                setCmReqSheetView={setCmReqSheetView}
+              />
+            </div>
+          )}
+          {cmSelectedSheetForView?.requestSheetStatusOfCM ===
+            "Accepted by MTD TL" && (
+            <div>
+              <HOSExistingMachineReqSheet
+                cmSelectedSheetForView={cmSelectedSheetForView}
+                isEditable={isEditable}
+                setCmReqSheetView={setCmReqSheetView}
+              />
+            </div>
+          )}
         </Modal.Body>
       </Modal>
     </>

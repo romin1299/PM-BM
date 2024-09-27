@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   TextField,
   Select,
@@ -13,13 +13,18 @@ import {
 import { useForm } from "react-hook-form";
 import { Row, Col, Container, Form } from "react-bootstrap";
 import axios from "axios";
+import RoutingContext from "../../../../context/routing/RoutingContext";
 
-const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
-  const { register, handleSubmit, watch } = useForm({
+const ExistinngMachineReqSheetForOperator = ({
+  cmSelectedSheetForView,
+  setCmReqSheetView,
+}) => {
+  const { register, handleSubmit, watch, setError } = useForm({
     defaultValues: {
       dummyText1: "",
       dummyText2: "",
       dummyText3: "",
+      isPermissionOfHOSS: cmSelectedSheetForView?.isPermissionOfHOSS,
       options: "No",
       mtdHOS: "",
       mtdHOSS: "",
@@ -30,11 +35,12 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
 
   const [MTDHOSList, setMTDHOSList] = useState([]);
   const [MTDTLList, setMTDTLList] = useState([]);
+  const context = useContext(RoutingContext);
 
   const getApprovalListOfCM = async () => {
     try {
       const response = await axios.get(
-        `/getMachineDetailsOnScanningRequest/?machine_code=${cmSelectedSheetForView?.machine?.machine_code}&current_year=${cmSelectedSheetForView?.preAggregationTimeStampOfRequestSheet?.current_year}`
+        `/getMachineDetailsOnScanningRequest/?machine_code=${cmSelectedSheetForView?.machineNo}&current_year=${cmSelectedSheetForView?.preAggregationTimeStampOfRequestSheet?.requestSheet_year}`
       );
       console.log(response);
       setMTDHOSList(response?.data?.requestSheetApprovalList?.mtdHOS);
@@ -87,13 +93,14 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
         },
       };
       const response = await axios.patch(
-        `/sendApprovalForRequestSheetOfCM/${cmSelectedSheetForView?._id}/${cmSelectedSheetForView?.machine?.machine_code}`,
+        `/sendApprovalForRequestSheetOfCM/${cmSelectedSheetForView?._id}/${cmSelectedSheetForView?.machineNo}`,
         formData,
         config
       );
 
       console.log(response);
-      if (response.status === 200) {
+      if (response.status === 201) {
+        setCmReqSheetView(false);
       }
     } catch (error) {
       console.log(error);
@@ -103,7 +110,7 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Row className="m-0 border d-flex align-items-center">
+        <Row className="m-0 border d-flex align-items-center p-2">
           <Col lg={5}>
             <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
               <b>Dummy 1: </b>
@@ -118,9 +125,7 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
                 id="id"
                 className="m-1 mb-2"
                 style={{ width: "350px" }}
-                {...register("dummyText1", {
-                  required: "Please enter activity",
-                })}
+                {...register("dummyText1")}
               />
             </div>
             {/* {errors?.cmBasicDataFilledByMTD_TL?.activityOfCM && (
@@ -143,9 +148,7 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
                 id="id"
                 className="m-1 mb-2"
                 style={{ width: "350px" }}
-                {...register("dummyText2", {
-                  required: "Please enter activity",
-                })}
+                {...register("dummyText2")}
               />
             </div>
 
@@ -168,9 +171,7 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
                 id="id"
                 className="m-1 mb-2"
                 style={{ width: "350px" }}
-                {...register("attachedFilesByAssignedUser", {
-                  required: "Please enter activity",
-                })}
+                {...register("attachedFilesByAssignedUser")}
               />
             </div>
 
@@ -180,15 +181,17 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
               </p>
             )} */}
           </Col>
-          <Col className="border p-2">
+        </Row>
+        <Row className="m-0 d-flex border align-items-center p-2">
+          <Col lg={5}>
             <small className="mb-0 d-flex align-items-center justify-content-start">
               <b>MTD HOS Permission</b>&nbsp;&nbsp;&nbsp;
             </small>
           </Col>
-          <Col className="border d-flex align-items-center">
+          <Col lg={7}>
             <Form>
               {["radio"].map((type) => (
-                <div key={`inline-${type}`} className="d-block">
+                <div key={`inline-${type}`} className="d-flex gap-4">
                   <Form.Check
                     flex
                     label="Yes"
@@ -196,9 +199,7 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
                     type={type}
                     id={`inline-${type}-1`}
                     value="Yes"
-                    {...register("isPermissionOfHOSS", {
-                      required: "Please select MTD HOSS Permission",
-                    })}
+                    {...register("isPermissionOfHOSS")}
                   />
                   <Form.Check
                     flex
@@ -207,9 +208,7 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
                     type={type}
                     id={`inline-${type}-2`}
                     value="No"
-                    {...register("isPermissionOfHOSS", {
-                      required: "Please select  MTD HOSS Permission",
-                    })}
+                    {...register("isPermissionOfHOSS")}
                   />
                 </div>
               ))}
@@ -220,8 +219,6 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
                       )} */}
             </Form>
           </Col>
-        </Row>
-        <Row className="m-0 border d-flex align-items-center">
           <Col lg={5}>
             <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
               <b>Select MTD TL/HOSS: </b>
@@ -265,14 +262,18 @@ const ExistinngMachineReqSheetForOperator = ({ cmSelectedSheetForView }) => {
             </>
           )}
         </Row>
-
-        <Row className="m-0 border  d-flex align-items-center justify-content-center">
-          <Col lg={12} className="d-flex justify-content-center">
-            <Button type="submit" variant="contained" color="primary">
-              Send For Approval
-            </Button>
-          </Col>
-        </Row>
+        {context?.user_type === "Operator" &&
+          (cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+            cmSelectedSheetForView?.approvalStatusOfMTD_TL === "Rejected" ||
+            cmSelectedSheetForView?.approvalStatusOfMTD_HOS === "Rejected") && (
+            <Row className="m-0 border  d-flex align-items-center justify-content-center">
+              <Col lg={12} className="d-flex justify-content-center">
+                <Button type="submit" variant="contained" color="primary">
+                  Send For Approval
+                </Button>
+              </Col>
+            </Row>
+          )}
       </form>
     </>
   );

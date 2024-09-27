@@ -5,8 +5,9 @@ import {
   MdFormatListBulletedAdd,
   CalendarMonthIcon,
   EventNoteIcon,
-  FactCheckIcon
+  FactCheckIcon,
 } from "../../components/NavbarComponent/ImportModules";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 
 const allusers = [
   "Admin",
@@ -39,13 +40,19 @@ export const menuItems = [
     title: "Approval Dashboard",
     icon: <FactCheckIcon className="text-white" />,
     route: "/cm/approval",
-    allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
+    allowedRoles: ["Section-Admin", "TL/HOSS"],
   },
   {
     icon: <EventNoteIcon className="text-white" />,
     title: "LTPM Sheet",
     route: "/cm/request-sheet/ltpm",
     allowedRoles: allusers,
+  },
+  {
+    title: "Approval Logs",
+    icon: <AssignmentTurnedInIcon className="text-white" />,
+    route: "/cm/approvalLogs",
+    allowedRoles: reportAccess,
   },
   {
     icon: <AccountCircleIcon className="text-white" />,

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import {
   AppBar,
   Box,
@@ -37,6 +37,9 @@ import {
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import MaterialTable from "@material-table/core";
 import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
+import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
 
 const AllRequestSheetReportDataOfCM = () => {
   const navigate = useNavigate();
@@ -51,11 +54,12 @@ const AllRequestSheetReportDataOfCM = () => {
     reducer,
     initialState("Yes")
   );
+  const [loading, setLoading] = useState(false);
   const [CmReqSheetView, setCmReqSheetView] = useState(false);
-
 
   const getAllCMSheetData = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
@@ -64,6 +68,7 @@ const AllRequestSheetReportDataOfCM = () => {
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
   useEffect(() => {
     if (reduceState?.selectedValue) getAllCMSheetData();
@@ -84,17 +89,17 @@ const AllRequestSheetReportDataOfCM = () => {
     },
     {
       title: "Line Name",
-      field: "lines.line_name",
+      field: "line",
       editable: false,
     },
     {
       title: "Machine No",
-      field: "machine.machine_code",
+      field: "machineNo",
       editable: false,
     },
     {
       title: "Machine Name",
-      field: "machine.machine_name",
+      field: "machineName",
       editable: false,
     },
     {
@@ -132,6 +137,8 @@ const AllRequestSheetReportDataOfCM = () => {
       },
     },
   ];
+  const context = useContext(RoutingContext);
+  console.log(context);
 
   const [greaterValue, setGreaterValue] = useState(
     localStorage.getItem("greaterValue")
@@ -142,6 +149,12 @@ const AllRequestSheetReportDataOfCM = () => {
   const [isEditable, setIsEditable] = useState(false);
   const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  console.log(
+    // cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+    //   cmSelectedSheetForView?.approvalStatusOfMTD_TL === "Rejected" ||
+    //   cmSelectedSheetForView?.approvalStatusOfMTD_HOS === "Rejected"
+    CmReqSheetView
+  );
   const requestSheetApprovalAction = [
     // {
     //   icon: () => <CreditCardIcon className="text-primary1" />,
@@ -152,9 +165,30 @@ const AllRequestSheetReportDataOfCM = () => {
     //   },
     // },
     (row) => ({
-      icon: () => <SvgIcon component={EditSheetIcon} sx={{color: "#FF6F00"}} />,
+      icon: () => (
+        <SvgIcon
+          component={EditSheetIcon}
+          sx={{
+            color:
+              context?.user_type === "Operator" &&
+              (row?.requestSheetStatusOfCM === "Generated" ||
+                row?.approvalStatusOfMTD_TL === "Rejected" ||
+                row?.approvalStatusOfMTD_HOS === "Rejected")
+                ? "#FF6F00"
+                : "",
+          }}
+        />
+      ),
       tooltip: "Update Req-sheet",
       position: "row",
+      // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
+      disabled:
+        context?.user_type === "Operator" &&
+        (row?.requestSheetStatusOfCM === "Generated" ||
+          row?.approvalStatusOfMTD_TL === "Rejected" ||
+          row?.approvalStatusOfMTD_HOS === "Rejected")
+          ? false
+          : true,
       // disabled:
       //   row?.assignUserId === context?._id &&
       //   (row?.work_order_status === "Pending" ||
@@ -172,16 +206,10 @@ const AllRequestSheetReportDataOfCM = () => {
       icon: () => <FaEye className="text-primary" />,
       tooltip: "View",
       position: "row",
-      // disabled:
-      //   row?.assignUserId === context?._id &&
-      //   (row?.work_order_status === "Pending" ||
-      //     row?.work_order_status === "Closed")
-      //     ? false
-      //     : true,
       onClick: (event, selectedRow) => {
         console.log(event, selectedRow);
         setCmReqSheetView(true);
-        setIsEditable(false)
+        setIsEditable(false);
         setCmSelectedSheetForView(selectedRow);
       },
     }),
@@ -358,7 +386,7 @@ const AllRequestSheetReportDataOfCM = () => {
                 // }
               }}
               title={filtration}
-              // isLoading={loading}
+              isLoading={loading}
               actions={requestSheetApprovalAction}
               icons={tableIcons}
               columns={cmApprovalHeaders}
@@ -462,13 +490,40 @@ const AllRequestSheetReportDataOfCM = () => {
               </Button>
             </Modal.Header>
             <Modal.Body>
-              <div>
-                <ExistingMachineReqSheetWithData
-                  cmSelectedSheetForView={cmSelectedSheetForView}
-                  isEditable={isEditable}
-                  setCmReqSheetView={setCmReqSheetView}
-                />
-              </div>
+              {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Generated" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                  "Rejected by MTD TL" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                  "Rejected by MTD HOS") && (
+                <div>
+                  <ExistingMachineReqSheetWithData
+                    cmSelectedSheetForView={cmSelectedSheetForView}
+                    isEditable={isEditable}
+                    setCmReqSheetView={setCmReqSheetView}
+                  />
+                </div>
+              )}
+              {cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Under MTD TL/HOSS Approval" && (
+                <div>
+                  <MTDExistingMachineReqSheetWithData
+                    cmSelectedSheetForView={cmSelectedSheetForView}
+                    isEditable={isEditable}
+                    setCmReqSheetView={setCmReqSheetView}
+                  />
+                </div>
+              )}
+              {cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Accepted by MTD TL" && (
+                <div>
+                  <HOSExistingMachineReqSheet
+                    cmSelectedSheetForView={cmSelectedSheetForView}
+                    isEditable={isEditable}
+                    setCmReqSheetView={setCmReqSheetView}
+                  />
+                </div>
+              )}
             </Modal.Body>
           </Modal>
         </>

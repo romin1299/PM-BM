@@ -49,6 +49,7 @@ const ActivityStatusDashboardOfCM = () => {
 
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
     useState([]);
+  const [loading, setLoading] = useState(false);
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
     initialState("Yes")
@@ -57,6 +58,7 @@ const ActivityStatusDashboardOfCM = () => {
 
   const getAllCMSheetData = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
@@ -65,6 +67,7 @@ const ActivityStatusDashboardOfCM = () => {
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
   useEffect(() => {
     if (reduceState?.selectedValue) getAllCMSheetData();
@@ -84,17 +87,17 @@ const ActivityStatusDashboardOfCM = () => {
     },
     {
       title: "Line Name",
-      field: "lines.line_name",
+      field: "line",
       editable: false,
     },
     {
       title: "Machine No",
-      field: "machine.machine_code",
+      field: "machineNo",
       editable: false,
     },
     {
       title: "Machine Name",
-      field: "machine.machine_name",
+      field: "machineName",
       editable: false,
     },
     {
@@ -328,7 +331,7 @@ const ActivityStatusDashboardOfCM = () => {
                 variant="contained"
                 disableElevation
                 onClick={handleGenerateBMNavigation}
-                disabled={context?.tm_department !== "MTD"}
+                disabled={context?.user_type !== "TL/HOSS"}
                 sx={{
                   fontWeight: 400,
                   bgcolor: "#004b5b",
@@ -354,7 +357,7 @@ const ActivityStatusDashboardOfCM = () => {
                 // }
               }}
               title={filtration}
-              // isLoading={loading}
+              isLoading={loading}
               actions={requestSheetApprovalAction}
               icons={tableIcons}
               columns={cmApprovalHeaders}
