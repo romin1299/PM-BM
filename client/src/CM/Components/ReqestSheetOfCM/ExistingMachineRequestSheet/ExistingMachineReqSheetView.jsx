@@ -38,9 +38,17 @@ const ExistingMachineReqSheetWithData = ({
     clearErrors,
   } = useForm({
     defaultValues: {
-      plannedDateAndTimeOfCM: cmSelectedSheetForView?.plannedDateAndTimeOfCM,
+      plannedDateAndTimeOfCM: moment(
+        cmSelectedSheetForView?.plannedDateAndTimeOfCM
+      )
+        .tz("Asia/Kolkata")
+        .format("YYYY-MM-DDTHH:mm"),
       sheetIssuedDateAndTimeOfCM:
-        cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM,
+      moment(
+        cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM
+      )
+        .tz("Asia/Kolkata")
+        .format("YYYY-MM-DDTHH:mm"),
       maintenanceType: "CM",
       cmBasicDataFilledByMTD_TL:
         cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL,
@@ -56,17 +64,9 @@ const ExistingMachineReqSheetWithData = ({
     },
   });
   console.log(cmSelectedSheetForView);
-  const parts = [
-    {
-      cost: 12,
-      makerName: "sdvfbgn",
-      partName: "dsvbn",
-      partNo: "2",
-      quantity: 1,
-    },
-  ];
   const [supportingTMList, setSupportingTMList] = useState([]);
   const [customCategory, setCustomCategory] = useState("");
+  const [parts, setParts] = useState([]);
   const { machine_code, selectedYear } = useParams();
   const getMachineDetails = async () => {
     try {
@@ -94,6 +94,7 @@ const ExistingMachineReqSheetWithData = ({
 
   useEffect(() => {
     getMachineDetails();
+    setParts(cmSelectedSheetForView?.changedParts);
   }, []);
 
   const handleCategoryChange = (value) => {
@@ -124,7 +125,7 @@ const ExistingMachineReqSheetWithData = ({
 
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
-      console.log(requestSheetDataOfCM);
+      requestSheetDataOfCM.changedParts = parts;
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
       for (
@@ -140,7 +141,6 @@ const ExistingMachineReqSheetWithData = ({
       // console.log(otherFields)
 
       formData.append("otherData", JSON.stringify(otherFields));
-      console.log(formData);
 
       const config = {
         headers: {
@@ -287,11 +287,6 @@ const ExistingMachineReqSheetWithData = ({
                               <input
                                 type="datetime-local"
                                 disabled={!isEditable}
-                                value={moment(
-                                  cmSelectedSheetForView?.plannedDateAndTimeOfCM
-                                )
-                                  .tz("Asia/Kolkata")
-                                  .format("YYYY-MM-DDTHH:mm")}
                                 {...register("plannedDateAndTimeOfCM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>
@@ -339,11 +334,6 @@ const ExistingMachineReqSheetWithData = ({
                               <br />
                               <input
                                 type="datetime-local"
-                                value={moment(
-                                  cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM
-                                )
-                                  .tz("Asia/Kolkata")
-                                  .format("YYYY-MM-DDTHH:mm")}
                                 {...register(
                                   "sheetIssuedDateAndTimeOfCM"
                                   //  {
@@ -841,7 +831,39 @@ const ExistingMachineReqSheetWithData = ({
                 </Row>
               </td>
             </tr>
-
+            {isEditable && <PartList parts={parts} setParts={setParts} />}
+            {cmSelectedSheetForView?.changedParts?.length > 0 &&
+              !isEditable && (
+                <tr className="row m-2">
+                  <td colSpan="12">
+                    <h5 className="mt-4 mb-3">New Part List</h5>
+                    <Table bordered>
+                      <thead>
+                        <tr>
+                          <th>Cost</th>
+                          <th>Maker Name</th>
+                          <th>Part Name</th>
+                          <th>Part No</th>
+                          <th>Quantity</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {cmSelectedSheetForView?.changedParts?.map(
+                          (part, index) => (
+                            <tr key={index}>
+                              <td>{part.cost}</td>
+                              <td>{part.makerName}</td>
+                              <td>{part.partName}</td>
+                              <td>{part.partNo}</td>
+                              <td>{part.quantity}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </Table>
+                  </td>
+                </tr>
+              )}
             {isEditable && (
               <tr>
                 <td>
@@ -865,41 +887,11 @@ const ExistingMachineReqSheetWithData = ({
                 </td>
               </tr>
             )}
-            {cmSelectedSheetForView?.changedParts?.length > 0 && (
-              <tr className="row m-2">
-                <td colSpan="12">
-                  <h5 className="mt-4 mb-3">New Part List</h5>
-                  <Table bordered>
-                    <thead>
-                      <tr>
-                        <th>Cost</th>
-                        <th>Maker Name</th>
-                        <th>Part Name</th>
-                        <th>Part No</th>
-                        <th>Quantity</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cmSelectedSheetForView?.changedParts?.map(
-                        (part, index) => (
-                          <tr key={index}>
-                            <td>{part.cost}</td>
-                            <td>{part.makerName}</td>
-                            <td>{part.partName}</td>
-                            <td>{part.partNo}</td>
-                            <td>{part.quantity}</td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </Table>
-                </td>
-              </tr>
-            )}
           </tbody>
         </Table>
       </form>
-      {isEditable && (
+      {(context?.user_type === "Operator" ||
+        cmSelectedSheetForView?.assigned_users?.length > 0) && (
         <ExistinngMachineReqSheetForOperator
           cmSelectedSheetForView={cmSelectedSheetForView}
           setCmReqSheetView={setCmReqSheetView}

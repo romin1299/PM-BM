@@ -27,6 +27,7 @@ const HOSExistingMachineReqSheet = ({
   isEditable = false,
 }) => {
   console.log(cmSelectedSheetForView);
+  const [parts, setParts] = useState(cmSelectedSheetForView?.changedParts);
   const navigate = useNavigate();
   const {
     register,
@@ -41,9 +42,16 @@ const HOSExistingMachineReqSheet = ({
     clearErrors,
   } = useForm({
     defaultValues: {
-      plannedDateAndTimeOfCM: cmSelectedSheetForView?.plannedDateAndTimeOfCM,
-      sheetIssuedDateAndTimeOfCM:
-        cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM,
+      plannedDateAndTimeOfCM: moment(
+        cmSelectedSheetForView?.plannedDateAndTimeOfCM
+      )
+        .tz("Asia/Kolkata")
+        .format("YYYY-MM-DDTHH:mm"),
+      sheetIssuedDateAndTimeOfCM: moment(
+        cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM
+      )
+        .tz("Asia/Kolkata")
+        .format("YYYY-MM-DDTHH:mm"),
       maintenanceType: "CM",
       cmBasicDataFilledByMTD_TL:
         cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL,
@@ -135,44 +143,45 @@ const HOSExistingMachineReqSheet = ({
     }
     return flagCountForHandlingError;
   };
-  const approveRequestSheetFromHigherAuthority = async (
+  const approveRequestSheetFromHigherAuthority = async () =>
     // requestSheetDataOfCM
-  ) => {
-    try {
-    //   console.log(requestSheetDataOfCM);
+    {
+      try {
+        //   console.log(requestSheetDataOfCM);
 
-      let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
-      if (checkWhetherAnyErrorOccurredOrNot > 0) {
-        console.log("Error Occurred");
-        return;
-      } else {
-        const response = await axios.patch(
-          `/approvalOfHOS/${cmSelectedSheetForView?._id}`,
-          {
-            approvalOfRequestSheet: watch("approvalOfRequestSheet"),
-            rejectedRemarksOfRequestSheet: watch(
-              "rejectedRemarksOfRequestSheet"
-            ),
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
+        let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
+        if (checkWhetherAnyErrorOccurredOrNot > 0) {
+          console.log("Error Occurred");
+          return;
+        } else {
+          const response = await axios.patch(
+            `/approvalOfHOS/${cmSelectedSheetForView?._id}`,
+            {
+              approvalOfRequestSheet: watch("approvalOfRequestSheet"),
+              rejectedRemarksOfRequestSheet: watch(
+                "rejectedRemarksOfRequestSheet"
+              ),
             },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.status === 200) {
+            console.log(response.data);
+            SuccessToast(response.data.message);
+            setCmReqSheetView(false);
           }
-        );
-        if (response.status === 200) {
-          console.log(response.data);
-          SuccessToast(response.data.message);
-          setCmReqSheetView(false);
         }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    };
   const selectedCategory = watch("cmBasicDataFilledByMTD_TL.categories");
 
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
+    requestSheetDataOfCM.changedParts = parts;
     try {
       console.log(requestSheetDataOfCM);
       const formData = new FormData();
@@ -337,11 +346,6 @@ const HOSExistingMachineReqSheet = ({
                               <input
                                 type="datetime-local"
                                 disabled={!isEditable}
-                                value={moment(
-                                  cmSelectedSheetForView?.plannedDateAndTimeOfCM
-                                )
-                                  .tz("Asia/Kolkata")
-                                  .format("YYYY-MM-DDTHH:mm")}
                                 {...register("plannedDateAndTimeOfCM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>
@@ -956,88 +960,90 @@ const HOSExistingMachineReqSheet = ({
           />
         )}
         <>
-          <Row className="m-1 d-flex justify-content-start">
-            {context?.tm_department === "MTD" && (
-              <Col className="col-lg-6 col-md-6 m-1 p-0">
+          {isEditable && (
+            <Row className="m-1 d-flex justify-content-start">
+              {context?.tm_department === "MTD" && (
+                <Col className="col-lg-6 col-md-6 m-1 p-0">
+                  <button
+                    type="submit"
+                    className="btn bg-succ"
+                    style={{ marginTop: "1rem" }}
+                    //   onClick={handleSubmit(newRequestSheetRegistration)}
+                  >
+                    Save Changes
+                  </button>
+                </Col>
+              )}
+
+              <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
+                Kindly approve request-sheet.{" "}
+                <div className="d-flex">
+                  <Form.Check
+                    flex
+                    label="Yes"
+                    name="approvalOfRequestSheet"
+                    type="radio"
+                    value="Yes"
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
+                      // required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />{" "}
+                  &nbsp;
+                  <Form.Check
+                    flex
+                    label="No"
+                    name="approvalOfRequestSheet"
+                    type="radio"
+                    value="No"
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
+                      // required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />
+                </div>
+                {errors?.["approvalOfRequestSheet"] && (
+                  <p className="text-error">
+                    {errors?.["approvalOfRequestSheet"]?.message}
+                  </p>
+                )}
+                {watch("approvalOfRequestSheet") === "No" ? (
+                  <>
+                    <input
+                      type="text"
+                      name="rejectedRemarksOfRequestSheet"
+                      placeholder="Enter rejected remarks"
+                      className="p-1 m-1"
+                      {...register("rejectedRemarksOfRequestSheet", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {errors?.["rejectedRemarksOfRequestSheet"] && (
+                      <p className="text-error">
+                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  ""
+                )}
+                &nbsp;
                 <button
                   type="submit"
-                  className="btn bg-succ"
-                  style={{ marginTop: "1rem" }}
-                  //   onClick={handleSubmit(newRequestSheetRegistration)}
+                  className="btn bg-warning"
+                  onClick={() => {
+                    //   handleSubmit(approveRequestSheetFromHigherAuthority);
+                    approveRequestSheetFromHigherAuthority();
+                    getMachineDetails();
+                  }}
                 >
-                  Save Changes
+                  Submit
                 </button>
               </Col>
-            )}
-
-            <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
-              Kindly approve request-sheet.{" "}
-              <div className="d-flex">
-                <Form.Check
-                  flex
-                  label="Yes"
-                  name="approvalOfRequestSheet"
-                  type="radio"
-                  value="Yes"
-                  id="approvalOfRequestSheet"
-                  {...register("approvalOfRequestSheet", {
-                    // required: "This field is required",
-                  })}
-                  // onChange={handleQuality}
-                />{" "}
-                &nbsp;
-                <Form.Check
-                  flex
-                  label="No"
-                  name="approvalOfRequestSheet"
-                  type="radio"
-                  value="No"
-                  id="approvalOfRequestSheet"
-                  {...register("approvalOfRequestSheet", {
-                    // required: "This field is required",
-                  })}
-                  // onChange={handleQuality}
-                />
-              </div>
-              {errors?.["approvalOfRequestSheet"] && (
-                <p className="text-error">
-                  {errors?.["approvalOfRequestSheet"]?.message}
-                </p>
-              )}
-              {watch("approvalOfRequestSheet") === "No" ? (
-                <>
-                  <input
-                    type="text"
-                    name="rejectedRemarksOfRequestSheet"
-                    placeholder="Enter rejected remarks"
-                    className="p-1 m-1"
-                    {...register("rejectedRemarksOfRequestSheet", {
-                      // required: "Please fill this field",
-                    })}
-                  />
-                  {errors?.["rejectedRemarksOfRequestSheet"] && (
-                    <p className="text-error">
-                      {errors?.["rejectedRemarksOfRequestSheet"]?.message}
-                    </p>
-                  )}
-                </>
-              ) : (
-                ""
-              )}
-              &nbsp;
-              <button
-                type="submit"
-                className="btn bg-warning"
-                onClick={() => {
-                //   handleSubmit(approveRequestSheetFromHigherAuthority);
-                  approveRequestSheetFromHigherAuthority()
-                  getMachineDetails();
-                }}
-              >
-                Submit
-              </button>
-            </Col>
-          </Row>
+            </Row>
+          )}
         </>
       </Box>
     </div>

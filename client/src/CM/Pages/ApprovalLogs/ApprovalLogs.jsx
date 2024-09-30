@@ -40,7 +40,7 @@ const ApprovalLogs = () => {
         return comparison;
       },
       // fixed: "left",
-      width: "15%",
+      width: "7%",
       // sortDirections: ["descend"],
     },
     {
@@ -64,7 +64,7 @@ const ApprovalLogs = () => {
         return comparison;
       },
       // fixed: "left",
-      width: "15%",
+      width: "7%",
       // sortDirections: ["descend"],
     },
     {
@@ -85,13 +85,13 @@ const ApprovalLogs = () => {
         return comparison;
       },
       // fixed: "left",
-      width: "15%",
+      width: "7%",
     },
     {
       title: "Machine Name",
       dataIndex: "machineName",
       // fixed: "left",
-      width: "15%",
+      width: "7%",
     },
     {
       title: "Request-Sheet No.",
@@ -110,7 +110,7 @@ const ApprovalLogs = () => {
         return comparison;
       },
       // fixed: "left",
-      width: "20%",
+      width: "10%",
     },
     {
       title: "Planned Date",
@@ -130,15 +130,22 @@ const ApprovalLogs = () => {
         return comparison;
       },
       // fixed: "left",
-      width: "15%",
+      width: "7%",
     },
     {
       title: "Assign User",
       //   dataIndex: "assignUserForCM",
-      render: (text, record) => <span>{record?.assignUserForCM}</span>,
+      render: (text, record) => (
+        <span>
+          {record?.namesOperators?.map((value, idx) => (
+            <span>{value.tm_name},</span>
+          ))}
+        </span>
+      ),
       // fixed: "left",
-      width: "15%",
+      width: "7%",
     },
+
     {
       title: "MTD TL",
       render: (text, record) =>
@@ -161,7 +168,7 @@ const ApprovalLogs = () => {
           </>
         )),
 
-      width: 300,
+      width: "20%",
     },
     {
       title: "MTD HOS",
@@ -190,7 +197,7 @@ const ApprovalLogs = () => {
           </span>
         </>
       ),
-      width: 300,
+      width: "20%",
     },
   ];
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());

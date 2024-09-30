@@ -170,10 +170,12 @@ const AllRequestSheetReportDataOfCM = () => {
           component={EditSheetIcon}
           sx={{
             color:
-              context?.user_type === "Operator" &&
-              (row?.requestSheetStatusOfCM === "Generated" ||
-                row?.approvalStatusOfMTD_TL === "Rejected" ||
-                row?.approvalStatusOfMTD_HOS === "Rejected")
+              (context?.user_type === "Operator" &&
+                (row?.requestSheetStatusOfCM === "Generated" ||
+                  row?.approvalStatusOfMTD_TL === "Rejected" ||
+                  row?.approvalStatusOfMTD_HOS === "Rejected")) ||
+              (row?.assigned_users?.length === 0 &&
+                context?.user_type === "TL/HOSS")
                 ? "#FF6F00"
                 : "",
           }}
@@ -183,10 +185,11 @@ const AllRequestSheetReportDataOfCM = () => {
       position: "row",
       // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
       disabled:
-        context?.user_type === "Operator" &&
-        (row?.requestSheetStatusOfCM === "Generated" ||
-          row?.approvalStatusOfMTD_TL === "Rejected" ||
-          row?.approvalStatusOfMTD_HOS === "Rejected")
+        (context?.user_type === "Operator" &&
+          (row?.requestSheetStatusOfCM === "Generated" ||
+            row?.approvalStatusOfMTD_TL === "Rejected" ||
+            row?.approvalStatusOfMTD_HOS === "Rejected")) ||
+        (row?.assigned_users?.length === 0 && context?.user_type === "TL/HOSS")
           ? false
           : true,
       // disabled:
@@ -492,10 +495,9 @@ const AllRequestSheetReportDataOfCM = () => {
             <Modal.Body>
               {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
                 "Generated" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
                 cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                  "Rejected by MTD TL" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                  "Rejected by MTD HOS") && (
+                  "Completed") && (
                 <div>
                   <ExistingMachineReqSheetWithData
                     cmSelectedSheetForView={cmSelectedSheetForView}
@@ -515,7 +517,7 @@ const AllRequestSheetReportDataOfCM = () => {
                 </div>
               )}
               {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Accepted by MTD TL" && (
+                "Under MTD HOS Approval" && (
                 <div>
                   <HOSExistingMachineReqSheet
                     cmSelectedSheetForView={cmSelectedSheetForView}

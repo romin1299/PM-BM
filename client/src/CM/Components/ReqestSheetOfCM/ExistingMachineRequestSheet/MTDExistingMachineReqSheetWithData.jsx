@@ -26,7 +26,7 @@ const MTDExistingMachineReqSheetWithData = ({
   setCmReqSheetView,
   isEditable = false,
 }) => {
-  console.log("from mtd comp",cmSelectedSheetForView);
+  console.log("from mtd comp", cmSelectedSheetForView);
   const navigate = useNavigate();
   const {
     register,
@@ -41,9 +41,16 @@ const MTDExistingMachineReqSheetWithData = ({
     clearErrors,
   } = useForm({
     defaultValues: {
-      plannedDateAndTimeOfCM: cmSelectedSheetForView?.plannedDateAndTimeOfCM,
-      sheetIssuedDateAndTimeOfCM:
-        cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM,
+      plannedDateAndTimeOfCM: moment(
+        cmSelectedSheetForView?.plannedDateAndTimeOfCM
+      )
+        .tz("Asia/Kolkata")
+        .format("YYYY-MM-DDTHH:mm"),
+      sheetIssuedDateAndTimeOfCM: moment(
+        cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM
+      )
+        .tz("Asia/Kolkata")
+        .format("YYYY-MM-DDTHH:mm"),
       maintenanceType: "CM",
       cmBasicDataFilledByMTD_TL:
         cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL,
@@ -58,9 +65,10 @@ const MTDExistingMachineReqSheetWithData = ({
       // ),
     },
   });
-  console.log(cmSelectedSheetForView?.assigned_users);
   const [supportingTMList, setSupportingTMList] = useState([]);
   const [customCategory, setCustomCategory] = useState("");
+  const [parts, setParts] = useState([]);
+
   const { machine_code, selectedYear } = useParams();
   const getMachineDetails = async () => {
     try {
@@ -85,9 +93,9 @@ const MTDExistingMachineReqSheetWithData = ({
       console.log(error);
     }
   };
-
   useEffect(() => {
     getMachineDetails();
+    setParts(cmSelectedSheetForView?.changedParts);
   }, []);
   const handleCategoryChange = (value) => {
     setValue("cmBasicDataFilledByMTD_TL.categories", value, {
@@ -141,7 +149,7 @@ const MTDExistingMachineReqSheetWithData = ({
     try {
       let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
       if (checkWhetherAnyErrorOccurredOrNot > 0) {
-        console.log("error")
+        console.log("error");
         return;
       } else {
         const response = await axios.patch(
@@ -167,6 +175,8 @@ const MTDExistingMachineReqSheetWithData = ({
   const selectedCategory = watch("cmBasicDataFilledByMTD_TL.categories");
 
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
+    requestSheetDataOfCM.changedParts = parts;
+
     try {
       console.log(requestSheetDataOfCM);
       const formData = new FormData();
@@ -331,11 +341,6 @@ const MTDExistingMachineReqSheetWithData = ({
                               <input
                                 type="datetime-local"
                                 disabled={!isEditable}
-                                value={moment(
-                                  cmSelectedSheetForView?.plannedDateAndTimeOfCM
-                                )
-                                  .tz("Asia/Kolkata")
-                                  .format("YYYY-MM-DDTHH:mm")}
                                 {...register("plannedDateAndTimeOfCM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>
@@ -383,11 +388,6 @@ const MTDExistingMachineReqSheetWithData = ({
                               <br />
                               <input
                                 type="datetime-local"
-                                value={moment(
-                                  cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM
-                                )
-                                  .tz("Asia/Kolkata")
-                                  .format("YYYY-MM-DDTHH:mm")}
                                 {...register(
                                   "sheetIssuedDateAndTimeOfCM"
                                   //  {
@@ -885,6 +885,39 @@ const MTDExistingMachineReqSheetWithData = ({
                 </Row>
               </td>
             </tr>
+            {isEditable && <PartList parts={parts} setParts={setParts} />}
+            {cmSelectedSheetForView?.changedParts?.length > 0 &&
+              !isEditable && (
+                <tr className="row m-2">
+                  <td colSpan="12">
+                    <h5 className="mt-4 mb-3">New Part List</h5>
+                    <Table bordered>
+                      <thead>
+                        <tr>
+                          <th>Cost</th>
+                          <th>Maker Name</th>
+                          <th>Part Name</th>
+                          <th>Part No</th>
+                          <th>Quantity</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {cmSelectedSheetForView?.changedParts?.map(
+                          (part, index) => (
+                            <tr key={index}>
+                              <td>{part.cost}</td>
+                              <td>{part.makerName}</td>
+                              <td>{part.partName}</td>
+                              <td>{part.partNo}</td>
+                              <td>{part.quantity}</td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </Table>
+                  </td>
+                </tr>
+              )}
 
             {isEditable && (
               <tr>
@@ -892,51 +925,12 @@ const MTDExistingMachineReqSheetWithData = ({
                   <button
                     type="submit"
                     className="btn bg-success"
-                    // onClick={() => {
-                    //   if (
-                    //     !watch("problemFaced") &&
-                    //     !watch("select_problemFaced")
-                    //   ) {
-                    //     return setError("error_problemFaced", {
-                    //       type: "custom",
-                    //       message: "Please fill or select this field",
-                    //     });
-                    //   }
-                    // }}
+                    onClick={() => {
+                      updateRequestOfCM(cmSelectedSheetForView);
+                    }}
                   >
                     Update Request-Sheet
                   </button>
-                </td>
-              </tr>
-            )}
-            {cmSelectedSheetForView?.changedParts?.length > 0 && (
-              <tr className="row m-2">
-                <td colSpan="12">
-                  <h5 className="mt-4 mb-3">New Part List</h5>
-                  <Table bordered>
-                    <thead>
-                      <tr>
-                        <th>Cost</th>
-                        <th>Maker Name</th>
-                        <th>Part Name</th>
-                        <th>Part No</th>
-                        <th>Quantity</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cmSelectedSheetForView?.changedParts?.map(
-                        (part, index) => (
-                          <tr key={index}>
-                            <td>{part.cost}</td>
-                            <td>{part.makerName}</td>
-                            <td>{part.partName}</td>
-                            <td>{part.partNo}</td>
-                            <td>{part.quantity}</td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </Table>
                 </td>
               </tr>
             )}
@@ -950,88 +944,90 @@ const MTDExistingMachineReqSheetWithData = ({
           />
         )}
         <>
-          <Row className="m-1 d-flex justify-content-start">
-            {context?.tm_department === "MTD" && (
-              <Col className="col-lg-6 col-md-6 m-1 p-0">
+          {isEditable && (
+            <Row className="m-1 d-flex justify-content-start">
+              {context?.tm_department === "MTD" && (
+                <Col className="col-lg-6 col-md-6 m-1 p-0">
+                  <button
+                    type="submit"
+                    className="btn bg-succ"
+                    style={{ marginTop: "1rem" }}
+                    //   onClick={handleSubmit(newRequestSheetRegistration)}
+                  >
+                    Save Changes
+                  </button>
+                </Col>
+              )}
+
+              <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
+                Kindly approve request-sheet.{" "}
+                <div className="d-flex">
+                  <Form.Check
+                    flex
+                    label="Yes"
+                    name="approvalOfRequestSheet"
+                    type="radio"
+                    value="Yes"
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
+                      // required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />{" "}
+                  &nbsp;
+                  <Form.Check
+                    flex
+                    label="No"
+                    name="approvalOfRequestSheet"
+                    type="radio"
+                    value="No"
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
+                      // required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />
+                </div>
+                {errors?.["approvalOfRequestSheet"] && (
+                  <p className="text-error">
+                    {errors?.["approvalOfRequestSheet"]?.message}
+                  </p>
+                )}
+                {watch("approvalOfRequestSheet") === "No" ? (
+                  <>
+                    <input
+                      type="text"
+                      name="rejectedRemarksOfRequestSheet"
+                      placeholder="Enter rejected remarks"
+                      className="p-1 m-1"
+                      {...register("rejectedRemarksOfRequestSheet", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {errors?.["rejectedRemarksOfRequestSheet"] && (
+                      <p className="text-error">
+                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  ""
+                )}
+                &nbsp;
                 <button
                   type="submit"
-                  className="btn bg-succ"
-                  style={{ marginTop: "1rem" }}
-                  //   onClick={handleSubmit(newRequestSheetRegistration)}
+                  className="btn bg-warning"
+                  onClick={() => {
+                    approveRequestSheetFromHigherAuthority();
+                    // handleSubmit(approveRequestSheetFromHigherAuthority);
+                    getMachineDetails();
+                  }}
                 >
-                  Save Changes
+                  Submit
                 </button>
               </Col>
-            )}
-
-            <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
-              Kindly approve request-sheet.{" "}
-              <div className="d-flex">
-                <Form.Check
-                  flex
-                  label="Yes"
-                  name="approvalOfRequestSheet"
-                  type="radio"
-                  value="Yes"
-                  id="approvalOfRequestSheet"
-                  {...register("approvalOfRequestSheet", {
-                    // required: "This field is required",
-                  })}
-                  // onChange={handleQuality}
-                />{" "}
-                &nbsp;
-                <Form.Check
-                  flex
-                  label="No"
-                  name="approvalOfRequestSheet"
-                  type="radio"
-                  value="No"
-                  id="approvalOfRequestSheet"
-                  {...register("approvalOfRequestSheet", {
-                    // required: "This field is required",
-                  })}
-                  // onChange={handleQuality}
-                />
-              </div>
-              {errors?.["approvalOfRequestSheet"] && (
-                <p className="text-error">
-                  {errors?.["approvalOfRequestSheet"]?.message}
-                </p>
-              )}
-              {watch("approvalOfRequestSheet") === "No" ? (
-                <>
-                  <input
-                    type="text"
-                    name="rejectedRemarksOfRequestSheet"
-                    placeholder="Enter rejected remarks"
-                    className="p-1 m-1"
-                    {...register("rejectedRemarksOfRequestSheet", {
-                      // required: "Please fill this field",
-                    })}
-                  />
-                  {errors?.["rejectedRemarksOfRequestSheet"] && (
-                    <p className="text-error">
-                      {errors?.["rejectedRemarksOfRequestSheet"]?.message}
-                    </p>
-                  )}
-                </>
-              ) : (
-                ""
-              )}
-              &nbsp;
-              <button
-                type="submit"
-                className="btn bg-warning"
-                onClick={() => {
-                  approveRequestSheetFromHigherAuthority()
-                  // handleSubmit(approveRequestSheetFromHigherAuthority);
-                  getMachineDetails();
-                }}
-              >
-                Submit
-              </button>
-            </Col>
-          </Row>
+            </Row>
+          )}
         </>
       </Box>
     </div>

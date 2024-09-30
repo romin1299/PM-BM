@@ -367,21 +367,39 @@ router.patch(
       // );
       // let { assignApprovalList } = req.body;
       let approvalObj = {
-        approvalOfMTD_TL:
-          requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
-        approvalStatusOfMTD_TL: "Pending",
-        approverNameLogOfMTD_TL:
-          requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.name,
+        approvalOfMTD_HOS:
+          requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
+        approvalStatusOfMTD_HOS: "Pending",
+        approverNameLogOfMTD_HOS:
+          requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.name,
       };
 
-      if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfHOSS === "Yes") {
+      if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
         approvalObj = {
           ...approvalObj,
-          approvalOfMTD_HOS:
+          approvalOfMTD_TL:
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
+          approvalStatusOfMTD_TL: "Pending",
+          approverNameLogOfMTD_TL:
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.name,
+        };
+      }
+      let conditionalStatusChangesForReqSheet = {};
+      if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
+        conditionalStatusChangesForReqSheet = {
+          ...conditionalStatusChangesForReqSheet,
+          requestSheetStatusOfCM: "Under MTD TL/HOSS Approval",
+          "getDataForApprovalDashboard.Id":
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
+          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD TL/HOSS",
+        };
+      } else {
+        conditionalStatusChangesForReqSheet = {
+          ...conditionalStatusChangesForReqSheet,
+          requestSheetStatusOfCM: "Under MTD HOS Approval",
+          "getDataForApprovalDashboard.Id":
             requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
-          approvalStatusOfMTD_HOS: "Pending",
-          approverNameLogOfMTD_HOS:
-            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.name,
+          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
         };
       }
 
@@ -393,12 +411,7 @@ router.patch(
           {
             $set: {
               ...requestSheetDataFilledByMTDUserForCM,
-              requestSheetStatusOfCM: "Under MTD TL/HOSS Approval",
-              "getDataForApprovalDashboard.Id":
-                requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL
-                  ?.id,
-              "getDataForApprovalDashboard.departmentAndGradeOfUser":
-                "MTD TL/HOSS",
+              ...conditionalStatusChangesForReqSheet,
             },
             $push: approvalObj,
           },
@@ -514,6 +527,8 @@ router.patch(
 
 const getRequestSheetData = async (req, res, next) => {
   try {
+    // filterMiddleware(req, res, next);
+    // console.log(req.queryObj);
     let queryObjForGetRequestSheetData = {};
     // delete req?.queryObj?.maintenanceType;
     if (req.query?._id) {
@@ -537,7 +552,6 @@ const getRequestSheetData = async (req, res, next) => {
         ...req.queryObj,
       };
     }
-
     const requestSheetData = await RequestSheetOfCM.aggregate([
       {
         $match: queryObjForGetRequestSheetData,
@@ -1039,6 +1053,7 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $project: {
           requestSheetNoOfCM: 1,
+          requestSheetOfBMRef: 1,
           maintenanceType: 1,
           priorityCode: 1,
           plannedDateAndTimeOfCM: 1,
@@ -1841,6 +1856,7 @@ router.get(
       ];
       if (req.rootUser?.user_type === "Operator") {
         queryPipeline = [
+          ...queryPipeline,
           {
             $match: {
               assignUserForCM: {
@@ -1984,6 +2000,7 @@ router.get(
             requestSheetNoOfCM: 1,
             maintenanceType: 1,
             priorityCode: 1,
+            requestSheetOfBMRef: 1,
             plannedDateAndTimeOfCM: 1,
             sheetIssuedDateAndTimeOfCM: 1,
             shiftOfCM: 1,
@@ -2121,6 +2138,7 @@ router.get(
           },
         },
       ]);
+
       res.json({
         reqSheetCM,
         message: "Request-sheet fetched successfully",
@@ -2149,8 +2167,10 @@ router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
     if (approvalOfRequestSheet === "Yes") {
       requestSheet.approvalStatusOfMTD_TL.pop();
       requestSheet.approvalStatusOfMTD_TL.push("Accepted");
+      requestSheet.approvalDateAndTimeOfMTD_HOS.push(""); //Need to append this date because of the indexing issue at frontend level.
 
-      requestSheet.requestSheetStatusOfCM = "Accepted by MTD TL";
+      // requestSheet.requestSheetStatusOfCM = "Accepted by MTD TL";
+      requestSheet.requestSheetStatusOfCM = "Under MTD HOS Approval";
 
       if (cmSelectedSheetForView?.approvalOfMTD_HOS?.tm_no) {
         requestSheet.getDataForApprovalDashboard = {
@@ -2167,7 +2187,7 @@ router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
         departmentAndGradeOfUser: null,
       };
 
-      requestSheet.requestSheetStatusOfCM = "Rejected by MTD TL";
+      requestSheet.requestSheetStatusOfCM = "Rejected";
       requestSheet.rejectedRemarksOfRequestSheet.push(
         rejectedRemarksOfRequestSheet
       );
@@ -2175,7 +2195,7 @@ router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
     requestSheet.approvalDateAndTimeOfMTD_TL.push(new Date());
     await requestSheet.save();
 
-    res.json({
+    res.status(200).json({
       message: "Request sheet updated successfully",
       requestSheet,
     });
@@ -2206,13 +2226,12 @@ router.patch("/approvalOfHOS/:requestSheetID", async (req, res) => {
     } else if (approvalOfRequestSheet === "No") {
       requestSheet.approvalStatusOfMTD_HOS.pop();
       requestSheet.approvalStatusOfMTD_HOS.push("Rejected");
-      requestSheet.approvalDateAndTimeOfMTD_HOS.push(new Date()); //Need to append this date because of the indexing issue at frontend level.
       requestSheet.getDataForApprovalDashboard = {
         Id: null,
         departmentAndGradeOfUser: null,
       };
 
-      requestSheet.requestSheetStatusOfCM = "Rejected by MTD HOS";
+      requestSheet.requestSheetStatusOfCM = "Rejected";
       requestSheet.rejectedRemarksOfRequestSheet.push(
         rejectedRemarksOfRequestSheet
       );
@@ -2296,6 +2315,7 @@ router.get(
               requestSheetNoOfCM: 1,
               plannedDateAndTimeOfCM: 1,
               assignUserForCM: 1,
+              namesOperators: 1,
 
               approvalOfMTD_TL: 1,
               approvalStatusOfMTD_TL: 1,

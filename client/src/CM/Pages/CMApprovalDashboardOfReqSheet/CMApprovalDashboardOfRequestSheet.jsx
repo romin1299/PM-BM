@@ -122,8 +122,14 @@ const CMApprovalDashboardOfRequestSheet = () => {
       const response = await axios.get(
         `/getMachineRequestSheetDetailsForApprovalForCM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`
       );
-      setApprovalRequestSheetDataOfCM(response?.data?.requestSheetData);
+      console.log(response);
+      if (response?.status === 201) {
+        setApprovalRequestSheetDataOfCM(response?.data?.requestSheetData);
+      }
     } catch (error) {
+      if (error?.response?.status === 400) {
+        setApprovalRequestSheetDataOfCM([]);
+      }
       console.log(error);
     }
 
@@ -135,6 +141,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
     reduceState?.selectedValue,
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
+    cmReqSheetView,
   ]);
   return (
     <>
@@ -256,7 +263,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
             </div>
           )}
           {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-            "Accepted by MTD TL" && (
+            "Under MTD HOS Approval" && (
             <div>
               <HOSExistingMachineReqSheet
                 cmSelectedSheetForView={cmSelectedSheetForView}

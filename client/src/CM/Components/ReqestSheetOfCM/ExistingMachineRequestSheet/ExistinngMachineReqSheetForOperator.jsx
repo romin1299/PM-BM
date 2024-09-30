@@ -24,7 +24,7 @@ const ExistinngMachineReqSheetForOperator = ({
       dummyText1: "",
       dummyText2: "",
       dummyText3: "",
-      isPermissionOfHOSS: cmSelectedSheetForView?.isPermissionOfHOSS,
+      isPermissionOfMTDTL: cmSelectedSheetForView?.isPermissionOfMTDTL,
       options: "No",
       mtdHOS: "",
       mtdHOSS: "",
@@ -199,7 +199,7 @@ const ExistinngMachineReqSheetForOperator = ({
                     type={type}
                     id={`inline-${type}-1`}
                     value="Yes"
-                    {...register("isPermissionOfHOSS")}
+                    {...register("isPermissionOfMTDTL")}
                   />
                   <Form.Check
                     flex
@@ -208,7 +208,7 @@ const ExistinngMachineReqSheetForOperator = ({
                     type={type}
                     id={`inline-${type}-2`}
                     value="No"
-                    {...register("isPermissionOfHOSS")}
+                    {...register("isPermissionOfMTDTL")}
                   />
                 </div>
               ))}
@@ -219,41 +219,22 @@ const ExistinngMachineReqSheetForOperator = ({
                       )} */}
             </Form>
           </Col>
-          <Col lg={5}>
-            <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-              <b>Select MTD TL/HOSS: </b>
-            </p>
-          </Col>
-          <Col md={3}>
-            <FormControl fullWidth>
-              <InputLabel size="small">Select MTD HOSS</InputLabel>
-              <Select
-                {...register("mtdTL")}
-                size="small"
-                label="Select MTD TL/HOSS"
-              >
-                {MTDTLList?.map((obj, idx) => (
-                  <MenuItem value={idx}>{obj?.tm_name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Col>
-          {watch("isPermissionOfHOSS") === "Yes" && (
+          {watch("isPermissionOfMTDTL") === "Yes" && (
             <>
-              <Col lg={5} className="mt-3">
+              <Col lg={5}>
                 <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                   <b>Select MTD TL/HOSS: </b>
                 </p>
               </Col>
-              <Col md={3} className="mt-3">
+              <Col md={3}>
                 <FormControl fullWidth>
-                  <InputLabel size="small">Select MTD HOS</InputLabel>
+                  <InputLabel size="small">Select MTD TL/HOSS:</InputLabel>
                   <Select
-                    {...register("mtdHOS")}
-                    label="Select MTD HOS"
+                    {...register("mtdTL")}
+                    label="Select MTD TL/HOSS"
                     size="small"
                   >
-                    {MTDHOSList?.map((obj, idx) => (
+                    {MTDTLList?.map((obj, idx) => (
                       <MenuItem value={idx}>{obj?.tm_name}</MenuItem>
                     ))}
                   </Select>
@@ -261,6 +242,25 @@ const ExistinngMachineReqSheetForOperator = ({
               </Col>
             </>
           )}
+          <Col lg={5} className="mt-3">
+            <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+              <b>Select MTD HOS: </b>
+            </p>
+          </Col>
+          <Col md={3} className="mt-3">
+            <FormControl fullWidth>
+              <InputLabel size="small">Select MTD HOS</InputLabel>
+              <Select
+                {...register("mtdHOS")}
+                size="small"
+                label="Select MTD HOS"
+              >
+                {MTDHOSList?.map((obj, idx) => (
+                  <MenuItem value={idx}>{obj?.tm_name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Col>
         </Row>
         {context?.user_type === "Operator" &&
           (cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
