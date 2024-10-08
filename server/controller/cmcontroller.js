@@ -236,7 +236,6 @@ router.post(
       .exec();
 
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
-
     if (machine) {
       const _idObject = {
         machineRef: machine._id,
@@ -288,6 +287,8 @@ router.post(
         ..._idObject,
         shiftOfCM: requestSheetDataFilledByMTDUserForCM?.shiftOfBM,
         ...requestSheetDataFilledByMTDUserForCM,
+        partSuggestionByMTDTL:
+          requestSheetDataFilledByMTDUserForCM?.partSuggestionByMTDTL,
         preAggregationTimeStampOfRequestSheet: {
           requestSheet_year: gettingFYYear(
             requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
@@ -317,17 +318,24 @@ router.patch(
   uploadDataSheetsOfBD.fields([
     { name: "attachedFilesByAssignedUser", maxCount: 10 },
   ]),
-  tryCatchHandler(async (req, res, next) => {
+  async (req, res, next) => {
     const id = req.params.id;
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
     if (
       req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
       req.files?.attachedFilesByAssignedUser
     ) {
-      requestSheetDataFilledByMTDUserForCM["attchedFileByAssignedUser"] =
+      requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
         req.files?.attachedFilesByAssignedUser?.[0]?.filename;
     }
-
+    if (
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+        ?.frequencyType === "One-time"
+    ) {
+      requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
+        "";
+    }
+    // console.log(requestSheetDataFilledByMTDUserForCM);
     const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
       { _id: id },
       { ...requestSheetDataFilledByMTDUserForCM },
@@ -337,7 +345,50 @@ router.patch(
       message: "CM Request-sheet updated successfully",
       data: updatedRequestSheetOfCM,
     });
-  })
+  }
+);
+router.patch(
+  "/dummy/:id",
+  authenticate,
+  uploadDataSheetsOfBD.fields([
+    { name: "attachedFilesByAssignedUser", maxCount: 10 },
+  ]),
+  async (req, res, next) => {
+    // console.log(req.params.id);
+    // console.log("object");
+    // res.status(200).json({
+    //   message: "CM Request-sheet updated successfully",
+    //   data: req.params.id,
+    // })
+    console.log("nsdaljgfrsd");
+    const id = req.params.id;
+    console.log(id);
+    const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
+    if (
+      req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
+      req.files?.attachedFilesByAssignedUser
+    ) {
+      requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
+        req.files?.attachedFilesByAssignedUser?.[0]?.filename;
+    }
+    if (
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+        ?.frequencyType === "One-time"
+    ) {
+      requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
+        "";
+    }
+    console.log(requestSheetDataFilledByMTDUserForCM);
+    const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
+      { _id: id },
+      { ...requestSheetDataFilledByMTDUserForCM },
+      { new: true }
+    );
+    res.status(200).json({
+      message: "CM Request-sheet updated successfully",
+      data: updatedRequestSheetOfCM,
+    });
+  }
 );
 
 router.patch(
@@ -345,7 +396,7 @@ router.patch(
   authenticate,
   dashboardLevelUserCheckMiddleware,
   uploadDataSheetsOfBD.fields([
-    { name: "attachedFilesByAssignedUser", maxCount: 10 },
+    { name: "attachedFileByAssignedUser", maxCount: 10 },
   ]),
   async (req, res, next) => {
     try {
@@ -353,19 +404,12 @@ router.patch(
         req.body.otherData
       );
       if (
-        req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
-        req.files?.attachedFilesByAssignedUser
+        req.files?.attachedFileByAssignedUser?.[0]?.filename ||
+        req.files?.attachedFileByAssignedUser
       ) {
-        requestSheetDataFilledByMTDUserForCM["attchedFileByAssignedUser"] =
-          req.files?.attachedFilesByAssignedUser?.[0]?.filename;
+        requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
+          req.files?.attachedFileByAssignedUser?.[0]?.filename;
       }
-
-      // const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
-      //   { _id: id },
-      //   { ...requestSheetDataFilledByMTDUserForCM },
-      //   { new: true }
-      // );
-      // let { assignApprovalList } = req.body;
       let approvalObj = {
         approvalOfMTD_HOS:
           requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
@@ -373,7 +417,6 @@ router.patch(
         approverNameLogOfMTD_HOS:
           requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.name,
       };
-
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
         approvalObj = {
           ...approvalObj,
@@ -382,6 +425,17 @@ router.patch(
           approvalStatusOfMTD_TL: "Pending",
           approverNameLogOfMTD_TL:
             requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.name,
+        };
+      }
+      if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL === "Yes") {
+        approvalObj = {
+          ...approvalObj,
+          approvalOfPRD_TL:
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfPRDTL?.id,
+          approvalStatusOfPRD_TL: "Pending",
+          approverNameLogOfPRD_TL:
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfPRDTL
+              ?.name,
         };
       }
       let conditionalStatusChangesForReqSheet = {};
@@ -403,6 +457,7 @@ router.patch(
         };
       }
 
+      console.log(approvalObj);
       const updateAssignApprovalOfMTD_TL =
         await RequestSheetOfCM.findOneAndUpdate(
           {
@@ -1329,6 +1384,7 @@ const getRequestSheetData = async (req, res, next) => {
           as: "namesOperators",
         },
       },
+
       {
         $lookup: {
           from: "users",
@@ -1995,15 +2051,40 @@ router.get(
             as: "namesOperators",
           },
         },
+        // {
+        //   $unwind: {
+        //     path: "$workDetails",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "workDetails.tmName",
+        //     foreignField: "_id",
+        //     pipeline: [
+        //       {
+        //         $project: {
+        //           tm_no: 1,
+        //           tm_name: 1,
+        //         },
+        //       },
+        //     ],
+        //     as: "workDoneBy",
+        //   },
+        // },
+
         {
           $project: {
             requestSheetNoOfCM: 1,
             maintenanceType: 1,
             priorityCode: 1,
             requestSheetOfBMRef: 1,
+            actionAndCounterMeasureStep: 1,
+            workDetails: 1,
             plannedDateAndTimeOfCM: 1,
             sheetIssuedDateAndTimeOfCM: 1,
             shiftOfCM: 1,
+            partSuggestionByMTDTL: 1,
             qualityRelated: 1,
             preAggregationTimeStampOfRequestSheet: 1,
             requestSheetCreatedBy: {
@@ -2132,6 +2213,12 @@ router.get(
             yokotenkai: 1,
           },
         },
+        // {
+        //   $group: {
+        //     _id: "$_id",
+        //     workDetails: { $push: "$workDetails" },
+        //   },
+        // },
         {
           $sort: {
             _id: -1,
@@ -2148,6 +2235,290 @@ router.get(
     }
   })
 );
+
+// For Calendar Modal
+router.get("/getReqSheetDataByID/:id", authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const requestSheet = await RequestSheetOfCM.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       line_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "machineRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       machine_name: 1,
+          //       machine_code: 1,
+          //     },
+          //   },
+          // ],
+          as: "machines",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignUserForCM",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "assigned_users",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cellRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       cell_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "cells",
+        },
+      },
+      {
+        $lookup: {
+          from: "sections",
+          localField: "sectionRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       section_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "sections",
+        },
+      },
+      {
+        $lookup: {
+          from: "plants",
+          localField: "plantRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       plant_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "plants",
+        },
+      },
+      {
+        $lookup: {
+          from: "subSections",
+          localField: "subSectionRef",
+          foreignField: "_id",
+          // pipeline: [
+          //   {
+          //     $project: {
+          //       subSection_name: 1,
+          //     },
+          //   },
+          // ],
+          as: "subSections",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignUserForCM",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                user_type: 1,
+                tm_no: 1,
+                tm_name: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "namesOperators",
+        },
+      },
+      {
+        $project: {
+          requestSheetNoOfCM: 1,
+          maintenanceType: 1,
+          priorityCode: 1,
+          requestSheetOfBMRef: 1,
+          plannedDateAndTimeOfCM: 1,
+          sheetIssuedDateAndTimeOfCM: 1,
+          shiftOfCM: 1,
+          qualityRelated: 1,
+          preAggregationTimeStampOfRequestSheet: 1,
+          requestSheetCreatedBy: {
+            $arrayElemAt: ["$requestSheetCreatedBy", 0],
+          },
+
+          //only for material table purpose
+          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
+          line: { $arrayElemAt: ["$lines.line_name", 0] },
+          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+          plannedDateAndTimeOfCMForTable: {
+            $dateToString: {
+              format: "%d-%m-%Y T%H:%M",
+              date: "$plannedDateAndTimeOfCM",
+              timezone: "Asia/Kolkata",
+            },
+          },
+          assigned_users: 1,
+
+          approvalOfMTD_SL: {
+            $arrayElemAt: ["$approvalOfMTD_SL", 0],
+          },
+          finalActivity: 1,
+          work_order_status: 1,
+          rejectedRemarksOfRequestSheet: 1,
+          feedbackMTD_HOS: 1,
+          qualityConfirmed: 1,
+
+          approvalOfMTD_TL: {
+            $arrayElemAt: ["$approvalOfMTD_TL", -1],
+          },
+          approvalStatusOfMTD_TL: {
+            $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+          },
+          approvalDateAndTimeOfMTD_TL: {
+            $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
+          },
+
+          approvalOfMTD_HOSS: {
+            $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
+          },
+          approvalStatusOfMTD_HOSS: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
+          },
+          approvalDateAndTimeOfMTD_HOSS: {
+            $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
+          },
+
+          approvalOfMTD_HOS: {
+            $arrayElemAt: ["$approvalOfMTD_HOS", -1],
+          },
+          approvalStatusOfMTD_HOS: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
+          },
+          approvalDateAndTimeOfMTD_HOS: {
+            $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
+          },
+
+          approvalOfPRD_TL: {
+            $arrayElemAt: ["$approvalOfPRD_TL", -1],
+          },
+          approvalStatusOfPRD_TL: {
+            $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
+          },
+          approvalDateAndTimeOfPRD_TL: {
+            $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
+          },
+
+          approvalOfPRD_HOS: {
+            $arrayElemAt: ["$approvalOfPRD_HOS", -1],
+          },
+          approvalStatusOfPRD_HOS: {
+            $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
+          },
+          approvalDateAndTimeOfPRD_HOS: {
+            $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
+          },
+
+          approvalOfPRD_HOD: {
+            $arrayElemAt: ["$approvalOfPRD_HOD", -1],
+          },
+          approvalStatusOfPRD_HOD: {
+            $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
+          },
+          approvalDateAndTimeOfPRD_HOD: {
+            $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
+          },
+
+          approvalOfMTD_HOD: {
+            $arrayElemAt: ["$approvalOfMTD_HOD", -1],
+          },
+          approvalStatusOfMTD_HOD: {
+            $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
+          },
+          approvalDateAndTimeOfMTD_HOD: {
+            $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
+          },
+
+          // partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
+          // partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
+
+          // dataSheetOfBM: 1,
+          // drawingOfBM: 1,
+          // sparePartUsedOrNot: 1,
+          changedParts: 1,
+
+          machineRef: { $arrayElemAt: ["$machines", 0] },
+          lineRef: { $arrayElemAt: ["$lines", 0] },
+          cellRef: { $arrayElemAt: ["$cells", 0] },
+          subSectionRef: { $arrayElemAt: ["$subSections", 0] },
+          sectionRef: { $arrayElemAt: ["$sections", 0] },
+          plantRef: { $arrayElemAt: ["$plants", 0] },
+
+          requestSheetStatusOfCM: 1,
+          getDataForApprovalDashboard: 1,
+
+          actionTemporaryOrNot: 1,
+          cmBasicDataFilledByMTD_TL: 1,
+          dataSheetOfRequestSheet: 1,
+          drawingOfRequestSheet: 1,
+          supportingTM: 1,
+          attachedDataSheets: 1,
+          attachedDrawings: 1,
+          categoriesOfRequestSheet: 1,
+          yokotenkai: 1,
+        },
+      },
+    ]);
+    res.status(200).json({
+      requestSheet,
+      message: "Request sheet fetched successfully",
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
   try {
@@ -2206,7 +2577,11 @@ router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
 router.patch("/approvalOfHOS/:requestSheetID", async (req, res) => {
   try {
     const { requestSheetID } = req.params;
-    const { approvalOfRequestSheet, rejectedRemarksOfRequestSheet } = req.body;
+    const {
+      approvalOfRequestSheet,
+      rejectedRemarksOfRequestSheet,
+      cmSelectedSheetForView,
+    } = req.body;
 
     const requestSheet = await RequestSheetOfCM.findById(requestSheetID);
 
@@ -2218,10 +2593,11 @@ router.patch("/approvalOfHOS/:requestSheetID", async (req, res) => {
       requestSheet.approvalStatusOfMTD_HOS.pop();
       requestSheet.approvalStatusOfMTD_HOS.push("Accepted");
 
-      requestSheet.requestSheetStatusOfCM = "Completed";
+      requestSheet.requestSheetStatusOfCM = "Under PRD TL Approval";
       requestSheet.getDataForApprovalDashboard = {
-        Id: null,
-        departmentAndGradeOfUser: null,
+        Id: cmSelectedSheetForView?.approvalOfPRD_TL?._id,
+        departmentAndGradeOfUser:
+          cmSelectedSheetForView?.approvalOfPRD_TL?.user_type,
       };
     } else if (approvalOfRequestSheet === "No") {
       requestSheet.approvalStatusOfMTD_HOS.pop();
@@ -2237,6 +2613,55 @@ router.patch("/approvalOfHOS/:requestSheetID", async (req, res) => {
       );
     }
     requestSheet.approvalDateAndTimeOfMTD_HOS.push(new Date());
+
+    await requestSheet.save();
+
+    res.json({
+      message: "Request sheet updated successfully",
+      requestSheet,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+router.patch("/approvalOfPRDTL/:requestSheetID", async (req, res) => {
+  try {
+    const { requestSheetID } = req.params;
+    const {
+      approvalOfRequestSheet,
+      rejectedRemarksOfRequestSheet,
+      cmSelectedSheetForView,
+    } = req.body;
+
+    const requestSheet = await RequestSheetOfCM.findById(requestSheetID);
+
+    if (!requestSheet) {
+      return res.status(404).json({ message: "Request sheet not found" });
+    }
+
+    if (approvalOfRequestSheet === "Yes") {
+      requestSheet.approvalStatusOfPRD_TL.pop();
+      requestSheet.approvalStatusOfPRD_TL.push("Accepted");
+
+      requestSheet.requestSheetStatusOfCM = "Completed";
+      requestSheet.getDataForApprovalDashboard = {
+        Id: null,
+        departmentAndGradeOfUser: null,
+      };
+    } else if (approvalOfRequestSheet === "No") {
+      requestSheet.approvalStatusOfPRD_TL.pop();
+      requestSheet.approvalStatusOfPRD_TL.push("Rejected");
+      requestSheet.getDataForApprovalDashboard = {
+        Id: null,
+        departmentAndGradeOfUser: null,
+      };
+
+      requestSheet.requestSheetStatusOfCM = "Rejected";
+      requestSheet.rejectedRemarksOfRequestSheet.push(
+        rejectedRemarksOfRequestSheet
+      );
+    }
+    requestSheet.approvalDateAndTimeOfPRD_TL.push(new Date());
 
     await requestSheet.save();
 
@@ -2366,5 +2791,27 @@ router.get(
     }
   }
 );
+
+router.get("/getReqSheetDataForCalendar", authenticate, async (req, res) => {
+  try {
+    const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
+      {
+        $project: {
+          title: "$cmBasicDataFilledByMTD_TL.activityOfCM",
+          allDay: true,
+          start: "$plannedDateAndTimeOfCM",
+          end: "$plannedDateAndTimeOfCM",
+        },
+      },
+    ]);
+    console.log(reqSheetDataForCalendar);
+    res.status(200).json({
+      message: "Request sheet data for calendar fetched successfully",
+      reqSheetDataForCalendar,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 module.exports = router;

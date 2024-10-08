@@ -403,7 +403,7 @@ function MyTable({
         setError(
           "actionValidation",
           {
-            message: "This field is required !",
+            message: "This field is required!",
           },
           { shouldFocus: true }
         );

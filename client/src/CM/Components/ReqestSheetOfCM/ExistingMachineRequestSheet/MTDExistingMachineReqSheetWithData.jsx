@@ -26,7 +26,7 @@ const MTDExistingMachineReqSheetWithData = ({
   setCmReqSheetView,
   isEditable = false,
 }) => {
-  console.log("from mtd comp", cmSelectedSheetForView);
+  // console.log("from mtd comp", cmSelectedSheetForView);
   const navigate = useNavigate();
   const {
     register,
@@ -163,7 +163,7 @@ const MTDExistingMachineReqSheetWithData = ({
           }
         );
         if (response.status === 200) {
-          console.log(response.data);
+          // console.log(response.data);
           SuccessToast(response.data.message);
           setCmReqSheetView(false);
         }
@@ -178,7 +178,7 @@ const MTDExistingMachineReqSheetWithData = ({
     requestSheetDataOfCM.changedParts = parts;
 
     try {
-      console.log(requestSheetDataOfCM);
+      // console.log(requestSheetDataOfCM);
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
       for (
@@ -194,7 +194,6 @@ const MTDExistingMachineReqSheetWithData = ({
       // console.log(otherFields)
 
       formData.append("otherData", JSON.stringify(otherFields));
-      console.log(formData);
 
       const config = {
         headers: {
@@ -206,8 +205,8 @@ const MTDExistingMachineReqSheetWithData = ({
         formData,
         config
       );
-      console.log(response);
       if (response.status === 200) {
+        SuccessToast("Request-sheet updated successfully");
         setCmReqSheetView(false);
       }
     } catch (error) {

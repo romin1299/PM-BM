@@ -172,8 +172,8 @@ const AllRequestSheetReportDataOfCM = () => {
             color:
               (context?.user_type === "Operator" &&
                 (row?.requestSheetStatusOfCM === "Generated" ||
-                  row?.approvalStatusOfMTD_TL === "Rejected" ||
-                  row?.approvalStatusOfMTD_HOS === "Rejected")) ||
+                  row?.requestSheetStatusOfCM === "Fill Sheet" ||
+                  row?.requestSheetStatusOfCM === "Rejected")) ||
               (row?.assigned_users?.length === 0 &&
                 context?.user_type === "TL/HOSS")
                 ? "#FF6F00"
@@ -187,8 +187,8 @@ const AllRequestSheetReportDataOfCM = () => {
       disabled:
         (context?.user_type === "Operator" &&
           (row?.requestSheetStatusOfCM === "Generated" ||
-            row?.approvalStatusOfMTD_TL === "Rejected" ||
-            row?.approvalStatusOfMTD_HOS === "Rejected")) ||
+            row?.requestSheetStatusOfCM === "Fill Sheet" ||
+            row?.requestSheetStatusOfCM === "Rejected")) ||
         (row?.assigned_users?.length === 0 && context?.user_type === "TL/HOSS")
           ? false
           : true,
@@ -495,6 +495,8 @@ const AllRequestSheetReportDataOfCM = () => {
             <Modal.Body>
               {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
                 "Generated" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                  "Fill Sheet" ||
                 cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
                 cmSelectedSheetForView?.requestSheetStatusOfCM ===
                   "Completed") && (

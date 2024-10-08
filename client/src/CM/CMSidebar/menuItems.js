@@ -8,7 +8,7 @@ import {
   FactCheckIcon,
 } from "../../components/NavbarComponent/ImportModules";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
-
+// import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 const allusers = [
   "Admin",
   "Plant-Admin",
@@ -53,6 +53,12 @@ export const menuItems = [
     icon: <AssignmentTurnedInIcon className="text-white" />,
     route: "/cm/approvalLogs",
     allowedRoles: reportAccess,
+  },
+  {
+    title: "Activity Calendar",
+    icon: <CalendarMonthIcon className="text-white" />,
+    route: "/cm/activity-calendar",
+    allowedRoles: ["Section-Admin", "TL/HOSS"],
   },
   {
     icon: <AccountCircleIcon className="text-white" />,

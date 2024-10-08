@@ -21,7 +21,7 @@ import axios from "axios";
 import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
 import { SuccessToast } from "../../../../BM/Component/ShowTostify";
 
-const HOSExistingMachineReqSheet = ({
+const PRDExistingMachineRequestsheet = ({
   cmSelectedSheetForView,
   setCmReqSheetView,
   isEditable = false,
@@ -155,7 +155,7 @@ const HOSExistingMachineReqSheet = ({
           return;
         } else {
           const response = await axios.patch(
-            `/approvalOfHOS/${cmSelectedSheetForView?._id}`,
+            `/approvalOfPRDTL/${cmSelectedSheetForView?._id}`,
             {
               approvalOfRequestSheet: watch("approvalOfRequestSheet"),
               rejectedRemarksOfRequestSheet: watch(
@@ -206,6 +206,7 @@ const HOSExistingMachineReqSheet = ({
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true,
       };
       const response = await axios.patch(
         `/updateCmReqSheet/${cmSelectedSheetForView?._id}`,
@@ -229,15 +230,15 @@ const HOSExistingMachineReqSheet = ({
           <tbody className="m-1 border p-3">
             <tr class="">
               {/* <td width={100}>
-        <img
-          src={denso_logo}
-          width="120"
-          height="30"
-          className="d-inline-block align-top"
-          alt="React Bootstrap logo"
-        />
-        
-      </td> */}
+          <img
+            src={denso_logo}
+            width="120"
+            height="30"
+            className="d-inline-block align-top"
+            alt="React Bootstrap logo"
+          />
+          
+        </td> */}
 
               <td className="">
                 <Container fluid>
@@ -248,20 +249,20 @@ const HOSExistingMachineReqSheet = ({
                       className="col-auto d-flex gap-2 align-items-center"
                     >
                       {/* <button
-                className="btn bg-button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  // navigate(
-                  //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
-                  // );
-                  window.open(
-                    `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineData?._id}`,
-                    "_blank"
-                  );
-                }}
-              >
-                Machine Details
-              </button> */}
+                  className="btn bg-button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // navigate(
+                    //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                    // );
+                    window.open(
+                      `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineData?._id}`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  Machine Details
+                </button> */}
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
@@ -271,29 +272,29 @@ const HOSExistingMachineReqSheet = ({
                     </Col>
 
                     {/* <Col className="col-auto">
-              <Box
-                display="flex"
-                justifyContent="end"
-                gap={1}
-                // sx={{ position: "absolute", top: "10px", right: "20px" }}
-              >
-                <MachineStatusBox
-                  title="PM Status"
-                  bodyText1={machineStatus?.pmStatusData?.PMStatus}
-                  bodyText2={machineStatus?.pmStatusData?.PMdate}
-                />
-                <MachineStatusBox
-                  title="BM"
-                  bodyText1={
-                    machineStatus?.bmStatusData?.totalHours &&
-                    `${(machineStatus?.bmStatusData?.totalHours).toFixed(
-                      1
-                    )} Hrs./${machineStatus?.bmStatusData?.count} Count`
-                  }
-                />
-                <MachineStatusBox title="CM" />
-              </Box>
-            </Col> */}
+                <Box
+                  display="flex"
+                  justifyContent="end"
+                  gap={1}
+                  // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                >
+                  <MachineStatusBox
+                    title="PM Status"
+                    bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                    bodyText2={machineStatus?.pmStatusData?.PMdate}
+                  />
+                  <MachineStatusBox
+                    title="BM"
+                    bodyText1={
+                      machineStatus?.bmStatusData?.totalHours &&
+                      `${(machineStatus?.bmStatusData?.totalHours).toFixed(
+                        1
+                      )} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                    }
+                  />
+                  <MachineStatusBox title="CM" />
+                </Box>
+              </Col> */}
                   </Row>
                 </Container>
               </td>
@@ -363,23 +364,23 @@ const HOSExistingMachineReqSheet = ({
                             </p>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;
-                    <div className="text-center">
-                      <p className="mb-0">
-                        <b>TIME: </b>
-                        <br />
-                        <input
-                          type="time"
-                          {...register("requestSheettime", {
-                            required: "RequestSheet time is required",
-                          })}
-                        />
-                        {errors?.["requestSheettime"] && (
-                          <p className="text-error">
-                            {errors?.["requestSheettime"]?.message}
-                          </p>
-                        )}
-                      </p>
-                    </div> */}
+                      <div className="text-center">
+                        <p className="mb-0">
+                          <b>TIME: </b>
+                          <br />
+                          <input
+                            type="time"
+                            {...register("requestSheettime", {
+                              required: "RequestSheet time is required",
+                            })}
+                          />
+                          {errors?.["requestSheettime"] && (
+                            <p className="text-error">
+                              {errors?.["requestSheettime"]?.message}
+                            </p>
+                          )}
+                        </p>
+                      </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -411,23 +412,23 @@ const HOSExistingMachineReqSheet = ({
                             </p>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;
-                    <div className="text-center">
-                      <p className="mb-0">
-                        <b>TIME: </b>
-                        <br />
-                        <input
-                          type="time"
-                          {...register("requestSheettime", {
-                            required: "RequestSheet time is required",
-                          })}
-                        />
-                        {errors?.["requestSheettime"] && (
-                          <p className="text-error">
-                            {errors?.["requestSheettime"]?.message}
-                          </p>
-                        )}
-                      </p>
-                    </div> */}
+                      <div className="text-center">
+                        <p className="mb-0">
+                          <b>TIME: </b>
+                          <br />
+                          <input
+                            type="time"
+                            {...register("requestSheettime", {
+                              required: "RequestSheet time is required",
+                            })}
+                          />
+                          {errors?.["requestSheettime"] && (
+                            <p className="text-error">
+                              {errors?.["requestSheettime"]?.message}
+                            </p>
+                          )}
+                        </p>
+                      </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -437,23 +438,23 @@ const HOSExistingMachineReqSheet = ({
 
               <td className="border mb-0 col-12 col-md-2">
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
-          <Col className="border border-left-0">
-            <p className="mb-0">
-              <b>Sr. No.</b>
-            </p>
-            <p className="fs-6 fw-normal">
-              <input
-                style={{ width: "100%" }}
-                {...register("serialNo", {
-                  required: "Serial No. is required",
-                })}
-              />
-              {errors?.["serialNo"] && (
-                <p className="text-error">{errors?.["serialNo"]?.message}</p>
-              )}
-            </p>
-          </Col>
-        </Row> */}
+            <Col className="border border-left-0">
+              <p className="mb-0">
+                <b>Sr. No.</b>
+              </p>
+              <p className="fs-6 fw-normal">
+                <input
+                  style={{ width: "100%" }}
+                  {...register("serialNo", {
+                    required: "Serial No. is required",
+                  })}
+                />
+                {errors?.["serialNo"] && (
+                  <p className="text-error">{errors?.["serialNo"]?.message}</p>
+                )}
+              </p>
+            </Col>
+          </Row> */}
                 <div className="border">
                   <Row className="m-0">
                     <Col className="border pb-2 pt-1">
@@ -473,12 +474,12 @@ const HOSExistingMachineReqSheet = ({
                       <br />
                       <small>{context?.tm_name}</small>
                       {/* <input
-              style={{ width: "100%" }}
-              {...register("TLName", {
-                required: "Team Leader Name is required",
-              })}
-            />
-            {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
+                style={{ width: "100%" }}
+                {...register("TLName", {
+                  required: "Team Leader Name is required",
+                })}
+              />
+              {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
                     </Col>
                   </Row>
                 </div>
@@ -888,8 +889,8 @@ const HOSExistingMachineReqSheet = ({
                           }}
                         />
                         {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
-                  <p className="text-error">{"This field is required"}</p>
-                )} */}
+                    <p className="text-error">{"This field is required"}</p>
+                  )} */}
                       </Form.Group>
                       {/* {selectedAttendee} */}
                     </Col>
@@ -1052,4 +1053,4 @@ const HOSExistingMachineReqSheet = ({
   );
 };
 
-export default HOSExistingMachineReqSheet;
+export default PRDExistingMachineRequestsheet;

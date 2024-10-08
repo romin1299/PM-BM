@@ -26,6 +26,7 @@ import axios from "axios";
 import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
 import ExistinngMachineReqSheetForOperator from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistinngMachineReqSheetForOperator";
 import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
+import PRDExistingMachineRequestsheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/PRDExistingMachineRequestsheet";
 
 const CMApprovalDashboardOfRequestSheet = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
@@ -266,6 +267,16 @@ const CMApprovalDashboardOfRequestSheet = () => {
             "Under MTD HOS Approval" && (
             <div>
               <HOSExistingMachineReqSheet
+                cmSelectedSheetForView={cmSelectedSheetForView}
+                isEditable={isEditable}
+                setCmReqSheetView={setCmReqSheetView}
+              />
+            </div>
+          )}
+          {cmSelectedSheetForView?.requestSheetStatusOfCM ===
+            "Under PRD TL Approval" && (
+            <div>
+              <PRDExistingMachineRequestsheet
                 cmSelectedSheetForView={cmSelectedSheetForView}
                 isEditable={isEditable}
                 setCmReqSheetView={setCmReqSheetView}

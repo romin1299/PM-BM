@@ -9,6 +9,9 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     ref: "RequestSheetOfBM",
     default: null,
   },
+  partSuggestionByMTDTL: {
+    type: String,
+  },
 
   //If require else byDefault is BM
   maintenanceType: {
@@ -217,6 +220,31 @@ const requestSheetOfCMSchema = new mongoose.Schema({
       makerName: { type: String },
       quantity: { type: Number },
       cost: { type: Number },
+    },
+  ],
+  //Work details related fields
+  workDetails: [
+    {
+      work: { type: String },
+      tmName: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+      },
+      fromDate: {
+        type: Date,
+      },
+      toDate: {
+        type: Date,
+      },
+    },
+  ],
+
+  //Action related fields
+  actionAndCounterMeasureStep: [
+    {
+      id: { type: Date },
+      action: { type: String },
+      status: { type: String },
     },
   ],
 

@@ -18,6 +18,7 @@ import {
 } from "../../../GlobalDataAccess/GlobalData";
 import axios from "axios";
 import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
+import { SuccessToast } from "../../../../BM/Component/ShowTostify";
 
 const ExistingMachineReqSheetWithData = ({
   cmSelectedSheetForView,
@@ -43,8 +44,7 @@ const ExistingMachineReqSheetWithData = ({
       )
         .tz("Asia/Kolkata")
         .format("YYYY-MM-DDTHH:mm"),
-      sheetIssuedDateAndTimeOfCM:
-      moment(
+      sheetIssuedDateAndTimeOfCM: moment(
         cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM
       )
         .tz("Asia/Kolkata")
@@ -63,7 +63,6 @@ const ExistingMachineReqSheetWithData = ({
       // ),
     },
   });
-  console.log(cmSelectedSheetForView);
   const [supportingTMList, setSupportingTMList] = useState([]);
   const [customCategory, setCustomCategory] = useState("");
   const [parts, setParts] = useState([]);
@@ -134,7 +133,7 @@ const ExistingMachineReqSheetWithData = ({
         i++
       ) {
         formData.append(
-          "attachedFilesByMTDUser",
+          "attachedFilesByAssignedUser",
           requestSheetDataOfCM?.attachedFilesByMTDUser[i]
         );
       }
@@ -152,9 +151,9 @@ const ExistingMachineReqSheetWithData = ({
         formData,
         config
       );
-      console.log(response);
       if (response.status === 200) {
         setCmReqSheetView(false);
+        SuccessToast("Request-sheet updated successfully");
       }
     } catch (error) {
       console.log(error);
@@ -241,7 +240,7 @@ const ExistingMachineReqSheetWithData = ({
             <tr className="row m-2">
               <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
-                  <b>MAINT. TYPE</b>
+                  <b>MAINT. TYPEJKGLLKL</b>
                 </small>
                 <br />
                 <small>{cmSelectedSheetForView?.maintenanceType}</small>
@@ -720,12 +719,42 @@ const ExistingMachineReqSheetWithData = ({
                     )}
                   </Col>
                 </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={3}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                      <b>Part Suggestion: </b>
+                    </p>
+                  </Col>
 
-                <Col lg={11} md={11}>
-                  <Row className="">
-                    {/* <PartList parts={parts} setParts={setParts} /> */}
-                  </Row>
-                </Col>
+                  <Col lg={9}>
+                    <div>
+                      {" "}
+                      <input
+                        id="partSuggestionByMTDTL"
+                        type="text"
+                        className="m-1 mb-2"
+                        name="partSuggestionByMTDTL"
+                        disabled={!isEditable}
+                        style={{
+                          fontSize: "15px",
+                        }}
+                        value={cmSelectedSheetForView?.partSuggestionByMTDTL}
+                        {...register("partSuggestionByMTDTL", {
+                          required: "Please enter part suggestion",
+                        })}
+                        onInput={() => {
+                          clearErrors("partSuggestionByMTDTL");
+                        }}
+                        // style={{ width: "350px" }}
+                      />
+                    </div>
+                    {errors?.partSuggestionByMTDTL && (
+                      <p className="text-error">
+                        {errors?.partSuggestionByMTDTL?.message}
+                      </p>
+                    )}
+                  </Col>
+                </Row>
               </td>
 
               <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
@@ -831,7 +860,7 @@ const ExistingMachineReqSheetWithData = ({
                 </Row>
               </td>
             </tr>
-            {isEditable && <PartList parts={parts} setParts={setParts} />}
+            {/* {isEditable && <PartList parts={parts} setParts={setParts} />}
             {cmSelectedSheetForView?.changedParts?.length > 0 &&
               !isEditable && (
                 <tr className="row m-2">
@@ -863,36 +892,39 @@ const ExistingMachineReqSheetWithData = ({
                     </Table>
                   </td>
                 </tr>
+              )} */}
+            {isEditable &&
+              (context?.user_type === "MTD_TL" ||
+                context?.user_type === "Section-Admin") && (
+                <tr>
+                  <td>
+                    <button
+                      type="submit"
+                      className="btn bg-success"
+                      // onClick={() => {
+                      //   if (
+                      //     !watch("problemFaced") &&
+                      //     !watch("select_problemFaced")
+                      //   ) {
+                      //     return setError("error_problemFaced", {
+                      //       type: "custom",
+                      //       message: "Please fill or select this field",
+                      //     });
+                      //   }
+                      // }}
+                    >
+                      Update Request-Sheet
+                    </button>
+                  </td>
+                </tr>
               )}
-            {isEditable && (
-              <tr>
-                <td>
-                  <button
-                    type="submit"
-                    className="btn bg-success"
-                    // onClick={() => {
-                    //   if (
-                    //     !watch("problemFaced") &&
-                    //     !watch("select_problemFaced")
-                    //   ) {
-                    //     return setError("error_problemFaced", {
-                    //       type: "custom",
-                    //       message: "Please fill or select this field",
-                    //     });
-                    //   }
-                    // }}
-                  >
-                    Update Request-Sheet
-                  </button>
-                </td>
-              </tr>
-            )}
           </tbody>
         </Table>
       </form>
       {(context?.user_type === "Operator" ||
         cmSelectedSheetForView?.assigned_users?.length > 0) && (
         <ExistinngMachineReqSheetForOperator
+          isEditable={isEditable}
           cmSelectedSheetForView={cmSelectedSheetForView}
           setCmReqSheetView={setCmReqSheetView}
         />

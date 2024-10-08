@@ -18,6 +18,7 @@ import ExistingMachineRequestSheet from "./Components/ReqestSheetOfCM/ExistingMa
 import RequestSheetOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/RequestSheetOfLTPM";
 import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
 import ApprovalLogs from "./Pages/ApprovalLogs/ApprovalLogs";
+import ActivityCalendar from "./Pages/ActivityCalendar/ActivityCalendar";
 
 const CM_Routes = ({ commonRoutes }) => {
   let reportRoutes = [];
@@ -123,6 +124,10 @@ const CM_Routes = ({ commonRoutes }) => {
         {
           path: "/cm/approval",
           element: <CMApprovalDashboardOfRequestSheet />,
+        },
+        {
+          path: "/cm/activity-calendar",
+          element: <ActivityCalendar />,
         },
         {
           path: "/cm/request-sheet/ltpm",
