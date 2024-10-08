@@ -134,6 +134,17 @@ const safetyFormSchema = new mongoose.Schema({
       type: String,
     },
   },
+  workUsingHighTemp: {
+    isAssociatesWereSafetyTools: {
+      type: Boolean,
+    },
+    IsAccepted: {
+      type: String,
+    },
+  },
+  finalSafetyAcceptance: {
+    type: Boolean
+  }
 });
 
 const SafetyForm = mongoose.model("safetyForms", safetyFormSchema);

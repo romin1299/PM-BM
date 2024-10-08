@@ -246,9 +246,7 @@ const SafetyForm = ({
                     <Grid sm={4} fontWeight={650}>
                       TM Signature:
                     </Grid>
-                    <Grid sm={8}>
-                      {safetyForm?.safetyFormFilledUpBy}
-                    </Grid>
+                    <Grid sm={8}>{safetyForm?.safetyFormFilledUpBy}</Grid>
                   </>
                 )}
                 {machineSafetyCheckedByMTD?.tm_name && (
@@ -392,7 +390,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    Work Inside Machine:
+                    1) Work Inside Machine:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -482,7 +480,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    High Pressure (Liquid 30 Mpa, Gas 1 mpa):
+                    2) High Pressure (Liquid 30 Mpa, Gas 1 mpa):
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -594,7 +592,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    Work handling heavy objects ({">"}20 kg):
+                    3) Work handling heavy objects ({">"}20 kg):
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -743,7 +741,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    Work at height ({">"}2 metres):
+                    4) Work at height ({">"}2 metres):
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -855,7 +853,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    Work handling fire/Work:
+                    5) Work handling fire/Work:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -967,7 +965,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    Involving handling of flammable liquid:
+                    6) Involving handling of flammable liquid:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -1094,7 +1092,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    Work involving risk of oxygen deficiency:
+                    7) Work involving risk of oxygen deficiency:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -1192,7 +1190,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    Work using high voltage electric device:
+                    8) Work using high voltage electric device:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -1259,6 +1257,77 @@ const SafetyForm = ({
                   </FormGroup>
                 )}
               </Grid>
+
+              <Grid sm={12} className="border">
+                <Box className="d-flex p-1 align-items-center">
+                  <Grid lg={4} fontWeight={650}>
+                    9) Work in high temperature areas (70 &deg;C or more):
+                  </Grid>
+                  <Grid lg={8}>
+                    <Controller
+                      name="workUsingHighTemp.IsAccepted"
+                      control={control}
+                      rules={{ required: "This field is required" }}
+                      render={({ field }) => (
+                        <Form.Group>
+                          <Form.Check
+                            inline
+                            type="radio"
+                            label="Yes"
+                            value="true"
+                            checked={field.value === "true"}
+                            onChange={() => field.onChange("true")}
+                            disabled={safetyForm}
+                          />
+                          <Form.Check
+                            inline
+                            type="radio"
+                            label="No"
+                            value="false"
+                            checked={field.value === "false"}
+                            onChange={() => field.onChange("false")}
+                            disabled={safetyForm}
+                          />
+                        </Form.Group>
+                      )}
+                    />
+                    {errors.workUsingHighTemp?.IsAccepted && (
+                      <FormHelperText error>
+                        {errors.workUsingHighTemp.IsAccepted.message}
+                      </FormHelperText>
+                    )}
+                  </Grid>
+                </Box>
+                {watch("workUsingHighTemp.IsAccepted") === "true" && (
+                  <FormGroup>
+                    <Controller
+                      name="workUsingHighTemp.isAssociatesWereSafetyTools"
+                      control={control}
+                      rules={{
+                        required:
+                          "This field is required when 'Work in high temperature areas' is Yes",
+                      }}
+                      render={({ field }) => (
+                        <FormControlLabel
+                          disabled={safetyForm}
+                          control={
+                            <Checkbox {...field} checked={field.value} />
+                          }
+                          label="Wear safety glasses, helmet with face shield, protective equipment (heat resistant gloves, arm covers, etc.)"
+                        />
+                      )}
+                    />
+                    {errors.workUsingHighTemp?.isAssociatesWereSafetyTools && (
+                      <FormHelperText error>
+                        {
+                          errors.workUsingHighTemp.isAssociatesWereSafetyTools
+                            .message
+                        }
+                      </FormHelperText>
+                    )}
+                  </FormGroup>
+                )}
+              </Grid>
             </Grid>
 
             <Grid sm={12} className="border">
@@ -1303,6 +1372,29 @@ const SafetyForm = ({
                 </Grid>
               </Box>
             </Grid>
+            <FormGroup>
+              <Controller
+                name="finalSafetyAcceptance"
+                control={control}
+                rules={{
+                  required:
+                    "This field is required",
+                }}
+                render={({ field }) => (
+                  <FormControlLabel
+                    disabled={safetyForm}
+                    control={<Checkbox {...field} checked={field} />}
+                    label="Self declaration: I have checked machine and fixed all Safety Devices
+(Safety area curtain, Safety cover, Emergency Switch, Safety plug, Door interlocks etc.) back to original position @GENBA"
+                  />
+                )}
+              />
+              {errors.finalSafetyAcceptance && (
+                <FormHelperText error>
+                  {errors.finalSafetyAcceptance.message}
+                </FormHelperText>
+              )}
+            </FormGroup>
             {!safetyForm && (
               <Grid item xs={12} mt={2} className="text-center">
                 <Button variant="contained" type="submit">
