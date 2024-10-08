@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
+import moment from "moment";
+import { useParams, useNavigate } from "react-router-dom";
 
 const WorkDetails = ({
   workDetails,
@@ -11,34 +13,79 @@ const WorkDetails = ({
   assigned_users,
   isEditable,
 }) => {
+  const { machine_code, selectedYear } = useParams();
+
   const [newWork, setNewWork] = useState("");
-  const [newTMName, setNewTMName] = useState("");
+  const [newTMName, setNewTMName] = useState({});
   const [newFromDate, setNewFromDate] = useState("");
   const [newToDate, setNewToDate] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [editedWork, setEditedWork] = useState(null);
+  const [supportingTMList, setSupportingTMList] = useState([]);
 
-  // Mock data for TM Name dropdown
-  const tmNames = ["John Doe", "Jane Smith", "Mike Johnson"];
+  const navigate = useNavigate();
+  const getMachineDetails = async () => {
+    try {
+      const res = await fetch(
+        `/getMachineDetailsForRequestSheetOfCM/?machine_code=${machine_code}&&current_year=${selectedYear}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      if (res.status === 404) {
+        navigate("/", { replace: true });
+      } else {
+        const { machine, TLHOSS_and_TM_user_list } = await res.json();
+        setSupportingTMList(TLHOSS_and_TM_user_list);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMachineDetails();
+  }, [machine_code]);
+
   const [dateError, setDateError] = useState("");
 
+  const handleChangeOfTmName = (event, isEditing = false) => {
+    const id = event.target.value;
+    const selectedUser = supportingTMList.find((user) => user._id === id);
+
+    if (isEditing) {
+      setEditedWork((prev) => ({
+        ...prev,
+        tmId: id,
+        tmName: selectedUser?.tm_name || "",
+      }));
+    } else {
+      setNewTMName({ _id: id, name: selectedUser?.tm_name });
+    }
+  };
   const addWorkDetail = (event) => {
     event.preventDefault();
     if (new Date(newFromDate) > new Date(newToDate)) {
       setDateError("From date cannot be later than To date");
       return;
     }
-
     if (newWork.trim() !== "") {
       const newWorkDetail = {
-        id: Date.now(),
+        id: new Date(),
+        tmId: newTMName?._id || "",
         work: newWork,
-        tmName: newTMName,
+        tmName: newTMName?.name || "",
         fromDate: newFromDate,
         toDate: newToDate,
       };
-      console.log("workdetails", workDetails, "newworkdetails", newWorkDetail); 
+      // console.log("workdetails", workDetails, "newworkdetails", newWorkDetail);
       setWorkDetails([...workDetails, newWorkDetail]);
+      // console.log("workdwedawDWD", workDetails);
       handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
       clearErrors && clearErrors("workDetailsValidation");
       setNewWork("");
@@ -53,10 +100,13 @@ const WorkDetails = ({
 
   const editWorkDetail = (event, workId, updatedWork) => {
     event.preventDefault();
-
+    if (new Date(editedWork.fromDate) > new Date(editedWork.toDate)) {
+      setDateError("From date cannot be later than To date");
+      return;
+    }
     const updatedWorkDetails = workDetails?.map((work) => {
       if (work.id === workId) {
-        return { ...work, ...updatedWork };
+        return { ...editedWork };
       }
       return work;
     });
@@ -158,6 +208,7 @@ const WorkDetails = ({
           >
             <small>
               <b>Work {index + 1}</b>
+              {/* {console.log("work ", work)} */}
             </small>
           </Col>
           <Col
@@ -186,19 +237,17 @@ const WorkDetails = ({
           >
             {editedWork && editedWork.id === work.id ? (
               <select
-                value={editedWork.tmName}
-                onChange={(e) =>
-                  setEditedWork({ ...editedWork, tmName: e.target.value })
-                }
+                value={editedWork?.tmId}
+                onChange={(e) => handleChangeOfTmName(e, true)}
               >
-                {assigned_users.map((value) => (
+                {supportingTMList.map((value) => (
                   <option key={value} value={value._id}>
                     {value?.tm_name}
                   </option>
                 ))}
               </select>
             ) : (
-              work.tmName
+              work?.tmName
             )}
           </Col>
           <Col
@@ -215,7 +264,7 @@ const WorkDetails = ({
                 }
               />
             ) : (
-              work.fromDate
+              moment(work.fromDate).format("DD-MM-YYYY")
             )}
           </Col>
           <Col
@@ -232,7 +281,7 @@ const WorkDetails = ({
                 }
               />
             ) : (
-              work.toDate
+              moment(work.toDate).format("DD-MM-YYYY")
             )}
           </Col>
           <Col
@@ -244,9 +293,7 @@ const WorkDetails = ({
               <>
                 <button
                   className="bg-info text-white border-0"
-                  onClick={(event) =>
-                    editWorkDetail(event, work.id, editedWork)
-                  }
+                  onClick={(event) => editWorkDetail(event, work.id)}
                   style={{
                     display: isEditable ? "block" : "none",
                   }}
@@ -269,7 +316,7 @@ const WorkDetails = ({
                   className="bg-warning text-white border-0"
                   onClick={(event) => {
                     event.preventDefault();
-                    setEditedWork(work);
+                    setEditedWork({ ...work });
                   }}
                   style={{
                     display: isEditable ? "block" : "none",
@@ -321,12 +368,12 @@ const WorkDetails = ({
             className="border col-auto d-flex align-items-center gap-1"
           >
             <select
-              value={newTMName}
-              onChange={(e) => setNewTMName(e.target.value)}
+              value={newTMName._id || ""}
+              onChange={(e) => handleChangeOfTmName(e)}
             >
               <option value="">Select TM</option>
-              {assigned_users.map((value) => (
-                <option key={value.tm_name} value={value._id}>
+              {supportingTMList.map((value) => (
+                <option key={value} value={value._id}>
                   {value?.tm_name}
                 </option>
               ))}

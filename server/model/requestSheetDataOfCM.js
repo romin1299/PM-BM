@@ -226,9 +226,12 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   workDetails: [
     {
       work: { type: String },
-      tmName: {
+      tmId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users",
+      },
+      tmName:{
+        type: String,
       },
       fromDate: {
         type: Date,

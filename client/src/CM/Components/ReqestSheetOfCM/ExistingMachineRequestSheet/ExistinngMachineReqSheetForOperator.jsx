@@ -99,16 +99,16 @@ const ExistinngMachineReqSheetForOperator = ({
       );
       flagCountForHandlingError++;
     }
-    if (watch("mtdHOS") === "") {
-      setError(
-        "mtdHOS",
-        {
-          message: "This field is required !",
-        },
-        { shouldFocus: true }
-      );
-      flagCountForHandlingError++;
-    }
+    // if (watch("mtdHOS") === "") {
+    //   setError(
+    //     "mtdHOS",
+    //     {
+    //       message: "This field is required !",
+    //     },
+    //     { shouldFocus: true }
+    //   );
+    //   flagCountForHandlingError++;
+    // }
     if (actions?.length === 0) {
       setError(
         "actionValidation",
@@ -340,7 +340,7 @@ const ExistinngMachineReqSheetForOperator = ({
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Row className="m-0 border d-flex align-items-center p-2 ">
+        <Row className="m-0 border d-flex align-items-center p-2">
           <Col lg={6} sm={12}>
             <Row className="">
               <PartList
@@ -407,9 +407,7 @@ const ExistinngMachineReqSheetForOperator = ({
                 className="m-1 mb-2"
                 disabled={!isEditable}
                 style={{ width: "350px" }}
-                {...register("attachedFilesByAssignedUser", {
-                  required: "This field is required",
-                })}
+                {...register("attachedFilesByAssignedUser")}
               />
             </div>
 
@@ -515,9 +513,9 @@ const ExistinngMachineReqSheetForOperator = ({
                     control={control}
                     name="mtdHOS"
                     // disabled={true}
-                    rules={{
-                      required: true,
-                    }}
+                    // rules={{
+                    //   required: true,
+                    // }}
                     render={({ field: { onChange, onBlur, value } }) => (
                       <select
                         // className="form-control"
