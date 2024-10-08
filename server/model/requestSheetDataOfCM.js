@@ -7,6 +7,10 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   requestSheetOfBMRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "RequestSheetOfBM",
+    default: null,
+  },
+  partSuggestionByMTDTL: {
+    type: String,
   },
 
   //If require else byDefault is BM
@@ -27,7 +31,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     },
   },
 
-  problemOccurredDateAndTimeOfCM: {
+  plannedDateAndTimeOfCM: {
     type: Date,
   },
   sheetIssuedDateAndTimeOfCM: {
@@ -35,6 +39,8 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   },
 
   attachedFilesByMTDUser: { type: [String] },
+
+  attchedFileByAssignedUser: { type: [String] },
 
   cmBasicDataFilledByMTD_TL: {
     activityOfCM: { type: String },
@@ -57,7 +63,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     type: String, //if string required then change value: Yes/No
   },
 
-  //this field for requestSheet created by PRD TL user
+  //this field for requestSheet created by MTD TL user
   requestSheetCreatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
@@ -214,6 +220,34 @@ const requestSheetOfCMSchema = new mongoose.Schema({
       makerName: { type: String },
       quantity: { type: Number },
       cost: { type: Number },
+    },
+  ],
+  //Work details related fields
+  workDetails: [
+    {
+      work: { type: String },
+      tmId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+      },
+      tmName:{
+        type: String,
+      },
+      fromDate: {
+        type: Date,
+      },
+      toDate: {
+        type: Date,
+      },
+    },
+  ],
+
+  //Action related fields
+  actionAndCounterMeasureStep: [
+    {
+      id: { type: Date },
+      action: { type: String },
+      status: { type: String },
     },
   ],
 

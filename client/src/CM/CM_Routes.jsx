@@ -16,6 +16,9 @@ import ApprovalDashboard from "./Pages/ApprovalDashboardOfCM/ApprovalDashboard";
 import RequestSheetStatusMonitoringOfCM from "./Pages/RequestSheetStatusMonitoringOfCM/RequestSheetStatusMonitoringOfCM";
 import ExistingMachineRequestSheet from "./Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineRequestSheet";
 import RequestSheetOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/RequestSheetOfLTPM";
+import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
+import ApprovalLogs from "./Pages/ApprovalLogs/ApprovalLogs";
+import ActivityCalendar from "./Pages/ActivityCalendar/ActivityCalendar";
 
 const CM_Routes = ({ commonRoutes }) => {
   let reportRoutes = [];
@@ -72,14 +75,33 @@ const CM_Routes = ({ commonRoutes }) => {
           path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
+        {
+          path: "/cm/approvalLogs",
+          element: <ApprovalLogs />,
+        },
       ],
     },
-    // {
-    //   user_type: "Section-Admin",
-    //   routes: [
-
-    //   ],
-    // },
+    {
+      user_type: "Section-Admin",
+      routes: [
+        {
+          path: "/cm",
+          element: <ActivityStatusDashboardOfCM />,
+        },
+        {
+          path: "/cm/allRequestSheetReportDataOfCM",
+          element: <AllRequestSheetReportDataOfCM />,
+        },
+        {
+          path: "/cm/approval",
+          element: <CMApprovalDashboardOfRequestSheet />,
+        },
+        {
+          path: "/cm/approvalLogs",
+          element: <ApprovalLogs />,
+        },
+      ],
+    },
     {
       user_type: "TL/HOSS",
       routes: [
@@ -100,8 +122,20 @@ const CM_Routes = ({ commonRoutes }) => {
           element: <ExistingMachineRequestSheet />,
         },
         {
+          path: "/cm/approval",
+          element: <CMApprovalDashboardOfRequestSheet />,
+        },
+        {
+          path: "/cm/activity-calendar",
+          element: <ActivityCalendar />,
+        },
+        {
           path: "/cm/request-sheet/ltpm",
-          element: <RequestSheetOfLTPM/>
+          element: <RequestSheetOfLTPM />,
+        },
+        {
+          path: "/cm/approvalLogs",
+          element: <ApprovalLogs />,
         },
         ...reportRoutes,
       ],
@@ -116,6 +150,10 @@ const CM_Routes = ({ commonRoutes }) => {
         {
           path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
+        },
+        {
+          path: "/cm/approvalLogs",
+          element: <ApprovalLogs />,
         },
       ],
     },

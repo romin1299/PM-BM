@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import RoutingContext from "../../../../context/routing/RoutingContext";
 import PartList from "../../../../BM/Tabs/SubComponents/PartList";
 import {
+  Box,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -20,11 +21,12 @@ import axios from "axios";
 import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
 import { SuccessToast } from "../../../../BM/Component/ShowTostify";
 
-const ExistingMachineReqSheetWithData = ({
+const MTDExistingMachineReqSheetWithData = ({
   cmSelectedSheetForView,
   setCmReqSheetView,
   isEditable = false,
 }) => {
+  // console.log("from mtd comp", cmSelectedSheetForView);
   const navigate = useNavigate();
   const {
     register,
@@ -66,6 +68,7 @@ const ExistingMachineReqSheetWithData = ({
   const [supportingTMList, setSupportingTMList] = useState([]);
   const [customCategory, setCustomCategory] = useState("");
   const [parts, setParts] = useState([]);
+
   const { machine_code, selectedYear } = useParams();
   const getMachineDetails = async () => {
     try {
@@ -90,12 +93,10 @@ const ExistingMachineReqSheetWithData = ({
       console.log(error);
     }
   };
-
   useEffect(() => {
     getMachineDetails();
     setParts(cmSelectedSheetForView?.changedParts);
   }, []);
-
   const handleCategoryChange = (value) => {
     setValue("cmBasicDataFilledByMTD_TL.categories", value, {
       shouldDirty: true,
@@ -120,11 +121,64 @@ const ExistingMachineReqSheetWithData = ({
     }
     clearErrors("cmBasicDataFilledByMTD_TL.categories");
   };
+  const handleCustomErrors = () => {
+    let flagCountForHandlingError = 0;
+    if (!watch("approvalOfRequestSheet")) {
+      setError("approvalOfRequestSheet", {
+        message: "Please select approval value (Yes/No)",
+      });
+      flagCountForHandlingError++;
+      // console.log(flagCountForHandlingError);
+    }
+
+    if (
+      watch("approvalOfRequestSheet") === "No" &&
+      !watch("rejectedRemarksOfRequestSheet")
+    ) {
+      setError("rejectedRemarksOfRequestSheet", {
+        message: "Please fill rejected remarks",
+      });
+      flagCountForHandlingError++;
+      // console.log(flagCountForHandlingError);
+    }
+    return flagCountForHandlingError;
+  };
+  const approveRequestSheetFromHigherAuthority = async (
+    requestSheetDataOfCM
+  ) => {
+    try {
+      let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
+      if (checkWhetherAnyErrorOccurredOrNot > 0) {
+        console.log("error");
+        return;
+      } else {
+        const response = await axios.patch(
+          `/approvalOfMTDTL/${cmSelectedSheetForView?._id}`,
+          {
+            approvalOfRequestSheet: watch("approvalOfRequestSheet"),
+            rejectedRemarksOfRequestSheet: watch(
+              "rejectedRemarksOfRequestSheet"
+            ),
+            cmSelectedSheetForView,
+          }
+        );
+        if (response.status === 200) {
+          // console.log(response.data);
+          SuccessToast(response.data.message);
+          setCmReqSheetView(false);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const selectedCategory = watch("cmBasicDataFilledByMTD_TL.categories");
 
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
+    requestSheetDataOfCM.changedParts = parts;
+
     try {
-      requestSheetDataOfCM.changedParts = parts;
+      // console.log(requestSheetDataOfCM);
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
       for (
@@ -133,7 +187,7 @@ const ExistingMachineReqSheetWithData = ({
         i++
       ) {
         formData.append(
-          "attachedFilesByAssignedUser",
+          "attachedFilesByMTDUser",
           requestSheetDataOfCM?.attachedFilesByMTDUser[i]
         );
       }
@@ -152,8 +206,8 @@ const ExistingMachineReqSheetWithData = ({
         config
       );
       if (response.status === 200) {
-        setCmReqSheetView(false);
         SuccessToast("Request-sheet updated successfully");
+        setCmReqSheetView(false);
       }
     } catch (error) {
       console.log(error);
@@ -167,15 +221,15 @@ const ExistingMachineReqSheetWithData = ({
           <tbody className="m-1 border p-3">
             <tr class="">
               {/* <td width={100}>
-                <img
-                  src={denso_logo}
-                  width="120"
-                  height="30"
-                  className="d-inline-block align-top"
-                  alt="React Bootstrap logo"
-                />
-                
-              </td> */}
+            <img
+              src={denso_logo}
+              width="120"
+              height="30"
+              className="d-inline-block align-top"
+              alt="React Bootstrap logo"
+            />
+            
+          </td> */}
 
               <td className="">
                 <Container fluid>
@@ -186,20 +240,20 @@ const ExistingMachineReqSheetWithData = ({
                       className="col-auto d-flex gap-2 align-items-center"
                     >
                       {/* <button
-                        className="btn bg-button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // navigate(
-                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
-                          // );
-                          window.open(
-                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineData?._id}`,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Machine Details
-                      </button> */}
+                    className="btn bg-button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // navigate(
+                      //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                      // );
+                      window.open(
+                        `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineData?._id}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    Machine Details
+                  </button> */}
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
@@ -209,29 +263,29 @@ const ExistingMachineReqSheetWithData = ({
                     </Col>
 
                     {/* <Col className="col-auto">
-                      <Box
-                        display="flex"
-                        justifyContent="end"
-                        gap={1}
-                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
-                      >
-                        <MachineStatusBox
-                          title="PM Status"
-                          bodyText1={machineStatus?.pmStatusData?.PMStatus}
-                          bodyText2={machineStatus?.pmStatusData?.PMdate}
-                        />
-                        <MachineStatusBox
-                          title="BM"
-                          bodyText1={
-                            machineStatus?.bmStatusData?.totalHours &&
-                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
-                              1
-                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
-                          }
-                        />
-                        <MachineStatusBox title="CM" />
-                      </Box>
-                    </Col> */}
+                  <Box
+                    display="flex"
+                    justifyContent="end"
+                    gap={1}
+                    // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                  >
+                    <MachineStatusBox
+                      title="PM Status"
+                      bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                      bodyText2={machineStatus?.pmStatusData?.PMdate}
+                    />
+                    <MachineStatusBox
+                      title="BM"
+                      bodyText1={
+                        machineStatus?.bmStatusData?.totalHours &&
+                        `${(machineStatus?.bmStatusData?.totalHours).toFixed(
+                          1
+                        )} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                      }
+                    />
+                    <MachineStatusBox title="CM" />
+                  </Box>
+                </Col> */}
                   </Row>
                 </Container>
               </td>
@@ -240,7 +294,7 @@ const ExistingMachineReqSheetWithData = ({
             <tr className="row m-2">
               <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
-                  <b>MAINT. TYPEJKGLLKL</b>
+                  <b>MAINT. TYPE</b>
                 </small>
                 <br />
                 <small>{cmSelectedSheetForView?.maintenanceType}</small>
@@ -301,23 +355,23 @@ const ExistingMachineReqSheetWithData = ({
                             </p>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;
-                            <div className="text-center">
-                              <p className="mb-0">
-                                <b>TIME: </b>
-                                <br />
-                                <input
-                                  type="time"
-                                  {...register("requestSheettime", {
-                                    required: "RequestSheet time is required",
-                                  })}
-                                />
-                                {errors?.["requestSheettime"] && (
-                                  <p className="text-error">
-                                    {errors?.["requestSheettime"]?.message}
-                                  </p>
-                                )}
+                        <div className="text-center">
+                          <p className="mb-0">
+                            <b>TIME: </b>
+                            <br />
+                            <input
+                              type="time"
+                              {...register("requestSheettime", {
+                                required: "RequestSheet time is required",
+                              })}
+                            />
+                            {errors?.["requestSheettime"] && (
+                              <p className="text-error">
+                                {errors?.["requestSheettime"]?.message}
                               </p>
-                            </div> */}
+                            )}
+                          </p>
+                        </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -344,23 +398,23 @@ const ExistingMachineReqSheetWithData = ({
                             </p>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;
-                            <div className="text-center">
-                              <p className="mb-0">
-                                <b>TIME: </b>
-                                <br />
-                                <input
-                                  type="time"
-                                  {...register("requestSheettime", {
-                                    required: "RequestSheet time is required",
-                                  })}
-                                />
-                                {errors?.["requestSheettime"] && (
-                                  <p className="text-error">
-                                    {errors?.["requestSheettime"]?.message}
-                                  </p>
-                                )}
+                        <div className="text-center">
+                          <p className="mb-0">
+                            <b>TIME: </b>
+                            <br />
+                            <input
+                              type="time"
+                              {...register("requestSheettime", {
+                                required: "RequestSheet time is required",
+                              })}
+                            />
+                            {errors?.["requestSheettime"] && (
+                              <p className="text-error">
+                                {errors?.["requestSheettime"]?.message}
                               </p>
-                            </div> */}
+                            )}
+                          </p>
+                        </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -370,23 +424,23 @@ const ExistingMachineReqSheetWithData = ({
 
               <td className="border mb-0 col-12 col-md-2">
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
-                  <Col className="border border-left-0">
-                    <p className="mb-0">
-                      <b>Sr. No.</b>
-                    </p>
-                    <p className="fs-6 fw-normal">
-                      <input
-                        style={{ width: "100%" }}
-                        {...register("serialNo", {
-                          required: "Serial No. is required",
-                        })}
-                      />
-                      {errors?.["serialNo"] && (
-                        <p className="text-error">{errors?.["serialNo"]?.message}</p>
-                      )}
-                    </p>
-                  </Col>
-                </Row> */}
+              <Col className="border border-left-0">
+                <p className="mb-0">
+                  <b>Sr. No.</b>
+                </p>
+                <p className="fs-6 fw-normal">
+                  <input
+                    style={{ width: "100%" }}
+                    {...register("serialNo", {
+                      required: "Serial No. is required",
+                    })}
+                  />
+                  {errors?.["serialNo"] && (
+                    <p className="text-error">{errors?.["serialNo"]?.message}</p>
+                  )}
+                </p>
+              </Col>
+            </Row> */}
                 <div className="border">
                   <Row className="m-0">
                     <Col className="border pb-2 pt-1">
@@ -406,12 +460,12 @@ const ExistingMachineReqSheetWithData = ({
                       <br />
                       <small>{context?.tm_name}</small>
                       {/* <input
-                      style={{ width: "100%" }}
-                      {...register("TLName", {
-                        required: "Team Leader Name is required",
-                      })}
-                    />
-                    {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
+                  style={{ width: "100%" }}
+                  {...register("TLName", {
+                    required: "Team Leader Name is required",
+                  })}
+                />
+                {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
                     </Col>
                   </Row>
                 </div>
@@ -424,14 +478,14 @@ const ExistingMachineReqSheetWithData = ({
                   <Col lg={4} md={6}>
                     <small className="mb-0">
                       <b>MACHINE NAME: </b> &nbsp;&nbsp;
-                      {cmSelectedSheetForView?.machineName}
+                      {cmSelectedSheetForView?.machine?.machine_name}
                     </small>{" "}
                     &nbsp;&nbsp;
                   </Col>
                   <Col lg={4} md={6}>
                     <small className="mb-0">
                       <b>MACHINE NO.:</b>&nbsp;&nbsp;
-                      {cmSelectedSheetForView?.machineNo}
+                      {cmSelectedSheetForView?.machine?.machine_code}
                     </small>
                     &nbsp;&nbsp;
                   </Col>
@@ -719,42 +773,12 @@ const ExistingMachineReqSheetWithData = ({
                     )}
                   </Col>
                 </Row>
-                <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={3}>
-                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                      <b>Part Suggestion: </b>
-                    </p>
-                  </Col>
 
-                  <Col lg={9}>
-                    <div>
-                      {" "}
-                      <input
-                        id="partSuggestionByMTDTL"
-                        type="text"
-                        className="m-1 mb-2"
-                        name="partSuggestionByMTDTL"
-                        disabled={!isEditable}
-                        style={{
-                          fontSize: "15px",
-                        }}
-                        value={cmSelectedSheetForView?.partSuggestionByMTDTL}
-                        {...register("partSuggestionByMTDTL", {
-                          required: "Please enter part suggestion",
-                        })}
-                        onInput={() => {
-                          clearErrors("partSuggestionByMTDTL");
-                        }}
-                        // style={{ width: "350px" }}
-                      />
-                    </div>
-                    {errors?.partSuggestionByMTDTL && (
-                      <p className="text-error">
-                        {errors?.partSuggestionByMTDTL?.message}
-                      </p>
-                    )}
-                  </Col>
-                </Row>
+                <Col lg={11} md={11}>
+                  <Row className="">
+                    {/* <PartList parts={parts} setParts={setParts} /> */}
+                  </Row>
+                </Col>
               </td>
 
               <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
@@ -851,8 +875,8 @@ const ExistingMachineReqSheetWithData = ({
                           }}
                         />
                         {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
-                          <p className="text-error">{"This field is required"}</p>
-                        )} */}
+                      <p className="text-error">{"This field is required"}</p>
+                    )} */}
                       </Form.Group>
                       {/* {selectedAttendee} */}
                     </Col>
@@ -860,7 +884,7 @@ const ExistingMachineReqSheetWithData = ({
                 </Row>
               </td>
             </tr>
-            {/* {isEditable && <PartList parts={parts} setParts={setParts} />}
+            {isEditable && <PartList parts={parts} setParts={setParts} />}
             {cmSelectedSheetForView?.changedParts?.length > 0 &&
               !isEditable && (
                 <tr className="row m-2">
@@ -892,45 +916,121 @@ const ExistingMachineReqSheetWithData = ({
                     </Table>
                   </td>
                 </tr>
-              )} */}
-            {isEditable &&
-              (context?.user_type === "MTD_TL" ||
-                context?.user_type === "Section-Admin") && (
-                <tr>
-                  <td>
-                    <button
-                      type="submit"
-                      className="btn bg-success"
-                      // onClick={() => {
-                      //   if (
-                      //     !watch("problemFaced") &&
-                      //     !watch("select_problemFaced")
-                      //   ) {
-                      //     return setError("error_problemFaced", {
-                      //       type: "custom",
-                      //       message: "Please fill or select this field",
-                      //     });
-                      //   }
-                      // }}
-                    >
-                      Update Request-Sheet
-                    </button>
-                  </td>
-                </tr>
               )}
+
+            {isEditable && (
+              <tr>
+                <td>
+                  <button
+                    type="submit"
+                    className="btn bg-success"
+                    onClick={() => {
+                      updateRequestOfCM(cmSelectedSheetForView);
+                    }}
+                  >
+                    Update Request-Sheet
+                  </button>
+                </td>
+              </tr>
+            )}
           </tbody>
         </Table>
       </form>
-      {(context?.user_type === "Operator" ||
-        cmSelectedSheetForView?.assigned_users?.length > 0) && (
-        <ExistinngMachineReqSheetForOperator
-          isEditable={isEditable}
-          cmSelectedSheetForView={cmSelectedSheetForView}
-          setCmReqSheetView={setCmReqSheetView}
-        />
-      )}
+      <Box className="border">
+        {isEditable && (
+          <ExistinngMachineReqSheetForOperator
+            cmSelectedSheetForView={cmSelectedSheetForView}
+          />
+        )}
+        <>
+          {isEditable && (
+            <Row className="m-1 d-flex justify-content-start">
+              {context?.tm_department === "MTD" && (
+                <Col className="col-lg-6 col-md-6 m-1 p-0">
+                  <button
+                    type="submit"
+                    className="btn bg-succ"
+                    style={{ marginTop: "1rem" }}
+                    //   onClick={handleSubmit(newRequestSheetRegistration)}
+                  >
+                    Save Changes
+                  </button>
+                </Col>
+              )}
+
+              <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
+                Kindly approve request-sheet.{" "}
+                <div className="d-flex">
+                  <Form.Check
+                    flex
+                    label="Yes"
+                    name="approvalOfRequestSheet"
+                    type="radio"
+                    value="Yes"
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
+                      // required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />{" "}
+                  &nbsp;
+                  <Form.Check
+                    flex
+                    label="No"
+                    name="approvalOfRequestSheet"
+                    type="radio"
+                    value="No"
+                    id="approvalOfRequestSheet"
+                    {...register("approvalOfRequestSheet", {
+                      // required: "This field is required",
+                    })}
+                    // onChange={handleQuality}
+                  />
+                </div>
+                {errors?.["approvalOfRequestSheet"] && (
+                  <p className="text-error">
+                    {errors?.["approvalOfRequestSheet"]?.message}
+                  </p>
+                )}
+                {watch("approvalOfRequestSheet") === "No" ? (
+                  <>
+                    <input
+                      type="text"
+                      name="rejectedRemarksOfRequestSheet"
+                      placeholder="Enter rejected remarks"
+                      className="p-1 m-1"
+                      {...register("rejectedRemarksOfRequestSheet", {
+                        // required: "Please fill this field",
+                      })}
+                    />
+                    {errors?.["rejectedRemarksOfRequestSheet"] && (
+                      <p className="text-error">
+                        {errors?.["rejectedRemarksOfRequestSheet"]?.message}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  ""
+                )}
+                &nbsp;
+                <button
+                  type="submit"
+                  className="btn bg-warning"
+                  onClick={() => {
+                    approveRequestSheetFromHigherAuthority();
+                    // handleSubmit(approveRequestSheetFromHigherAuthority);
+                    getMachineDetails();
+                  }}
+                >
+                  Submit
+                </button>
+              </Col>
+            </Row>
+          )}
+        </>
+      </Box>
     </div>
   );
 };
 
-export default ExistingMachineReqSheetWithData;
+export default MTDExistingMachineReqSheetWithData;

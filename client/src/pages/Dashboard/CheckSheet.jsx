@@ -1063,7 +1063,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   const uniqueNames = [
                                     ...new Set([
                                       ...(machineAllData?.checkSheet_data
-                                        ?.implemetation_completed_tm_name[
+                                        ?.implemetation_completed_tm_name?.[
                                         month
                                       ] || []),
                                       ...(machineAllData?.checkSheet_data
@@ -1072,8 +1072,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   ];
                                   return (
                                     <td key={month} className="ar-table-col1">
-                                      {uniqueNames.length > 0
-                                        ? uniqueNames.join(" ,")
+                                      {uniqueNames?.length > 0
+                                        ? uniqueNames?.join(" ,")
                                         : "-"}
                                     </td>
                                   );
@@ -1095,18 +1095,18 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                   machineAllData?.checkSheet_data
                                     ?.implemetation_prd_tl_approval_status
                                 ).map(([month, statusArray]) =>
-                                  statusArray[statusArray.length - 1] ===
+                                  statusArray[statusArray?.length - 1] ===
                                   "Accepted" ? (
                                     <td className="ar-table-col1">
                                       {
                                         machineAllData?.checkSheet_data
-                                          ?.implementation_assign_PRD_TL_name[
+                                          ?.implementation_assign_PRD_TL_name?.[
                                           month
                                         ][
                                           machineAllData?.checkSheet_data
-                                            ?.implementation_assign_PRD_TL_name[
+                                            ?.implementation_assign_PRD_TL_name?.[
                                             month
-                                          ].length - 1
+                                          ]?.length - 1
                                         ]
                                       }
                                     </td>
@@ -1503,7 +1503,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
 
                             <div className="col-8">
                               {machineAllData?.checkSheet_data?.totalPMTime
-                                ? machineAllData?.checkSheet_data?.totalPMTime[
+                                ? machineAllData?.checkSheet_data?.totalPMTime?.[
                                     monthForCompareSystemMonth
                                   ]?.supportingTMData
                                     ?.map((index) => index?.tm_name)

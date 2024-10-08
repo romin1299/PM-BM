@@ -1275,3 +1275,1527 @@
     at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3231:7
     at Array.forEach (<anonymous>)
     at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3230:15
+2024-09-18T09:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-18T09:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-18T09:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-18T09:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-18T09:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-18T09:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:49 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:319:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:50 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:319:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:51 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:320:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:52 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:320:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T10:57 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:320:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-19T11:36 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:320:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-20T16:52 | KPI | Cast to ObjectId failed for value "{ _id: 'undefined' }" (type Object) at path "_id" for model "CM_RequestSheetData"
+		CastError: Cast to ObjectId failed for value "{ _id: 'undefined' }" (type Object) at path "_id" for model "CM_RequestSheetData"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-23T16:24 | BM | Arguments must be aggregate pipeline operators
+		Error: Arguments must be aggregate pipeline operators
+    at Aggregate.append (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:148:11)
+    at new Aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\aggregate.js:58:17)
+    at Function.aggregate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:4426:21)
+    at getRequestSheetData (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:542:53)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\filterMiddleware.js:83:5
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+2024-09-24T00:00 | PM | The "path" argument must be of type string. Received undefined
+		TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+    at Object.join (node:path:433:7)
+    at Task._execution (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\everyDayAutoBackup.js:14:12)
+    at Task.execute (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\task.js:17:25)
+    at ScheduledTask.now (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:38:33)
+    at Scheduler.<anonymous> (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:25:18)
+    at Scheduler.emit (node:events:519:28)
+    at Timeout.matchTime [as _onTimeout] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduler.js:30:26)
+    at listOnTimeout (node:internal/timers:573:17)
+    at process.processTimers (node:internal/timers:514:7)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T10:30 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:31 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T10:31 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:31 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:31 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T10:31 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:35 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:36 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T17:55 | BM | Cannot set headers after they are sent to the client
+		Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+    at ServerResponse.setHeader (node:_http_outgoing:659:11)
+    at ServerResponse.header (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\response.js:794:10)
+    at ServerResponse.send (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\response.js:174:12)
+    at ServerResponse.json (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\response.js:278:15)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:1830:23
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at findTLandOperatorList (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:133:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:42 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:43 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:43 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:43 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:43 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-30T18:43 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:43 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:43 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-30T18:43 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-03T16:35 | KPI | Cast to embedded failed for value "{
+  id: 1727953518894,
+  work: 'eddfsg',
+  tmName: 'John Doe',
+  fromDate: '2024-10-02',
+  toDate: '2024-10-03'
+}" (type Object) at path "workDetails" because of "CastError"
+		CastError: Cast to embedded failed for value "{
+  id: 1727953518894,
+  work: 'eddfsg',
+  tmName: 'John Doe',
+  fromDate: '2024-10-02',
+  toDate: '2024-10-03'
+}" (type Object) at path "workDetails" because of "CastError"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-03T16:35 | KPI | Cast to embedded failed for value "{
+  id: 1727953518894,
+  work: 'eddfsg',
+  tmName: 'John Doe',
+  fromDate: '2024-10-02',
+  toDate: '2024-10-03'
+}" (type Object) at path "workDetails" because of "CastError"
+		CastError: Cast to embedded failed for value "{
+  id: 1727953518894,
+  work: 'eddfsg',
+  tmName: 'John Doe',
+  fromDate: '2024-10-02',
+  toDate: '2024-10-03'
+}" (type Object) at path "workDetails" because of "CastError"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-03T16:36 | KPI | Cast to embedded failed for value "{
+  id: 1727953518894,
+  work: 'eddfsg',
+  tmName: 'John Doe',
+  fromDate: '2024-10-02',
+  toDate: '2024-10-03'
+}" (type Object) at path "workDetails" because of "CastError"
+		CastError: Cast to embedded failed for value "{
+  id: 1727953518894,
+  work: 'eddfsg',
+  tmName: 'John Doe',
+  fromDate: '2024-10-02',
+  toDate: '2024-10-03'
+}" (type Object) at path "workDetails" because of "CastError"
+    at model.Query.exec (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-07T17:26 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:325:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at done (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:45:7)
+    at indicateDone (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:49:68)
+    at Multipart.<anonymous> (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:166:7)
+    at Multipart.emit (node:events:519:28)
+    at emitCloseNT (node:internal/streams/destroy:147:10)
+2024-10-07T17:26 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:325:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at done (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:45:7)
+    at indicateDone (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:49:68)
+    at Multipart.<anonymous> (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:166:7)
+    at Multipart.emit (node:events:519:28)
+    at emitCloseNT (node:internal/streams/destroy:147:10)
+2024-10-07T17:31 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:325:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at multerMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:13:41)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-07T17:32 | KPI | "undefined" is not valid JSON
+		SyntaxError: "undefined" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\cmController.js:325:55
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at done (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:45:7)
+    at indicateDone (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:49:68)
+    at Multipart.<anonymous> (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:166:7)
+    at Multipart.emit (node:events:519:28)
+    at emitCloseNT (node:internal/streams/destroy:147:10)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at param (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:365:14)
+    at param (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:421:3)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at param (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:365:14)
+    at param (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:376:14)
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:421:3)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-10-08T08:37 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:38 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:38 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:38 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-08T08:38 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)

@@ -11,13 +11,14 @@ const initialState = {
   cost: "",
 };
 
-const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
+const PartList = ({ parts, setParts, handleOnchangeFlag, isEditable }) => {
   // console.clear();
   // console.log("parts:", parts);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editedPart, setEditedPart] = useState(null);
   const [newPart, setNewPart] = useState(initialState);
+  console.log("this is edit ", isEditable);
 
   const addPart = (event) => {
     event.preventDefault();
@@ -84,28 +85,28 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
   return (
     <div className="mtd-parts-section">
       <Row className="m-0 d-flex">
-        <Col lg={2} md={2} sm={2} className="border">
-          <small style={{ fontSize: "12px" }}>
+        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
+          <small >
             <b>PART NO.</b>
           </small>
         </Col>
-        <Col lg={2} md={2} sm={2} className="border">
-          <small style={{ fontSize: "12px" }}>
+        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
+          <small >
             <b>PART NAME</b>
           </small>
         </Col>
-        <Col lg={2} md={2} sm={2} className="border">
-          <small style={{ fontSize: "12px" }}>
+        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
+          <small >
             <b>MAKER</b>
           </small>
         </Col>
-        <Col lg={2} md={2} sm={2} className="border">
-          <small style={{ fontSize: "12px" }}>
+        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
+          <small >
             <b>QUANTITY</b>
           </small>
         </Col>
-        <Col lg={2} md={2} sm={2} className="border">
-          <small style={{ fontSize: "12px" }}>
+        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
+          <small >
             <b>COST</b>
           </small>
         </Col>
@@ -113,10 +114,10 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
           lg={2}
           md={2}
           sm={2}
-          className="border"
+          className="border col-auto d-flex align-items-center gap-1 "
           // className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <small style={{ fontSize: "12px" }}>
+          <small >
             <b>UPDATE</b>
           </small>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
@@ -127,7 +128,9 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
         editedPart && editedPart.id === index ? (
           <Row key={index} className="m-0 d-flex">
             {/* Render input fields for editing */}
-            <Col lg={2} md={2} sm={2} className="border">
+            <Col lg={2} md={2} sm={2} className={`border col-auto d-flex align-items-center gap-1 ${
+              editedPart && editedPart.id === parts.id ? "editable" : ""
+            }`}>
               <input
                 type="text"
                 className="mb-2 mt-2"
@@ -221,6 +224,9 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
             >
               <button
                 class="bg-warning text-white border-0"
+                style={{
+                  display: isEditable ? "block" : "none",
+                }}
                 onClick={(event) => {
                   editPart(event, { ...part, id: index });
                 }}
@@ -229,6 +235,9 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
               </button>
               <button
                 class="bg-danger text-white border-0"
+                style={{
+                  display: isEditable ? "block" : "none",
+                }}
                 onClick={(event) => {
                   deletePart(event, index);
                 }}
@@ -311,16 +320,18 @@ const PartList = ({ parts, setParts, handleOnchangeFlag }) => {
           </Col>
         </Row>
       ) : (
-        <Row className="m-0  p-1 border">
-          <Col lg={4}>
-            <button
-              class="bg-warning text-white border-0"
-              onClick={() => setIsAdding(true)}
-            >
-              Add Part
-            </button>
-          </Col>
-        </Row>
+        isEditable && (
+          <Row className="m-0  p-1 border">
+            <Col lg={4}>
+              <button
+                class="bg-warning text-white border-0"
+                onClick={() => setIsAdding(true)}
+              >
+                Add Part
+              </button>
+            </Col>
+          </Row>
+        )
       )}
 
       {Array.from({ length: 2 - parts.length }).map((_, index) => (
