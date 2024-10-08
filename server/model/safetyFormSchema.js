@@ -5,6 +5,9 @@ const safetyFormSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "requestsheetofbms",
   },
+  safetyFormFilledUpBy: {
+    type: String,
+  },
   workName: {
     type: String,
   },

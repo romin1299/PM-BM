@@ -1449,7 +1449,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                     </Form>
                   </Col>
                 </Row>
-                <Row className="m-0">
+                {/* <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>SAFETY CHECK</b>&nbsp;&nbsp;&nbsp;
@@ -1486,9 +1486,9 @@ const UpdateRequestSheetForAnyStatus = () => {
                       </div>
                     </Form>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row className="m-0 border border-bottom-0">
-                  <p className="text-center mb-0">**PART QUALITY CHECKED</p>
+                  <p className="text-center mb-0">**PART QUALITY CHECKED (IPP)</p>
                 </Row>
                 <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
                   <Col lg={6} md={6} className="border pb-2 pt-1">
@@ -1534,6 +1534,54 @@ const UpdateRequestSheetForAnyStatus = () => {
                     )}
                   </Col>
                 </Row>
+                {/* <Row className="m-0 border border-bottom-0">
+                  <p className="text-center mb-0">***MACHINE SAFETY CHECKED</p>
+                </Row>
+                <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
+                  <Col lg={6} md={6} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>PRD</b>
+                    </small>
+                    {watch("machineSafetyCheckedByPRD") ? (
+                      <p className="mb-0">
+                        {watch("machineSafetyCheckedByPRD.tm_name")}
+                      </p>
+                    ) : (
+                      <DropdownElem
+                        name={"machineSafetyCheckedByPRD"}
+                        options={functionForUserDropdown({
+                          tm_department: "PRD",
+                          user_type: "TL/HOSS",
+                        })}
+                        className={"d-inline"}
+                        register={register}
+                        errors={errors}
+                      />
+                    )}
+                  </Col>
+                  <Col lg={6} md={6} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>MTD</b>
+                    </small>
+                    {watch("machineSafetyCheckedByMTD") ? (
+                      <p className="mb-0">
+                        {watch("machineSafetyCheckedByMTD.tm_name")}
+                      </p>
+                    ) : (
+                      <DropdownElem
+                        name={"machineSafetyCheckedByMTD"}
+                        options={functionForUserDropdown({
+                          tm_department: "MTD",
+                          user_type: "TL/HOSS",
+                        })}
+                        className={"d-inline"}
+                        register={register}
+                        errors={errors}
+                      />
+                    )}
+                  </Col>
+                </Row> */}
+
                 <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">

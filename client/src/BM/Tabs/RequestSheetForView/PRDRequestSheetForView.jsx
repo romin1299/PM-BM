@@ -192,6 +192,7 @@ function MyTable({
           machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
           setSafetyFormModalOpen={setSafetyFormModalOpen}
           safetyFormModalOpen={safetyFormModalOpen}
+          machineSafetyCheckedByMTD ={requestSheetDataOfBM?.machineSafetyCheckedByMTD}
         />
       )}
       <form>

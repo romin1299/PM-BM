@@ -12,11 +12,12 @@ import {
   TextField,
 } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { BiPlusMedical } from "react-icons/bi";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { Form, Modal } from "react-bootstrap";
+import RoutingContext from "../../../context/routing/RoutingContext";
 
 const SafetyForm = ({
   id,
@@ -24,8 +25,10 @@ const SafetyForm = ({
   machineNo,
   setSafetyFormModalOpen,
   safetyFormModalOpen,
+  machineSafetyCheckedByMTD,
 }) => {
   const [safetyForm, setSafetyForm] = useState(null);
+  const loggedUserDetails = useContext(RoutingContext);
 
   const {
     handleSubmit,
@@ -237,6 +240,25 @@ const SafetyForm = ({
                   Machine No:
                 </Grid>
                 <Grid sm={8}>{machineNo}</Grid>
+
+                {safetyForm?.safetyFormFilledUpBy && (
+                  <>
+                    <Grid sm={4} fontWeight={650}>
+                      TM Signature:
+                    </Grid>
+                    <Grid sm={8}>
+                      {safetyForm?.safetyFormFilledUpBy}
+                    </Grid>
+                  </>
+                )}
+                {machineSafetyCheckedByMTD?.tm_name && (
+                  <>
+                    <Grid sm={4} fontWeight={650}>
+                      TL Signature:
+                    </Grid>
+                    <Grid sm={8}>{machineSafetyCheckedByMTD?.tm_name}</Grid>
+                  </>
+                )}
               </Box>
               <Box
                 className="d-flex border p-1 border-top-0 align-items-center"

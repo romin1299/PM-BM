@@ -222,6 +222,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
           machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
           setSafetyFormModalOpen={setSafetyFormModalOpen}
           safetyFormModalOpen={safetyFormModalOpen}
+          machineSafetyCheckedByMTD ={requestSheetDataOfBM?.machineSafetyCheckedByMTD}
         />
       )}
       <Row>

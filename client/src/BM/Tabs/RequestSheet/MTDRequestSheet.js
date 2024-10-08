@@ -100,6 +100,17 @@ function MyTable({
         approvalListOfBM?.mtdTL?.[
           requestSheetData?.partQualityCheckedByMTD
         ]?._id;
+
+        //for safety
+        requestSheetData.machineSafetyCheckedByPRD =
+        approvalListOfBM?.prdTL?.[
+          requestSheetData?.machineSafetyCheckedByPRD
+        ]?._id;
+        requestSheetData.machineSafetyCheckedByMTD =
+        approvalListOfBM?.mtdTL?.[
+          requestSheetData?.machineSafetyCheckedByMTD
+        ]?._id;
+
       requestSheetData.dataSheetOfRequestSheet =
         timeDifferenceMinutes > 120
           ? "Yes"
@@ -314,17 +325,17 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (!watch("qualityConfirmed")) {
-        setError(
-          "qualityConfirmed",
-          {
-            message: "This field is required !",
-          },
-          { shouldFocus: true }
-        );
-        flagCountForHandlingError++;
-        // console.log(flagCountForHandlingError);
-      }
+      // if (!watch("qualityConfirmed")) {
+      //   setError(
+      //     "qualityConfirmed",
+      //     {
+      //       message: "This field is required !",
+      //     },
+      //     { shouldFocus: true }
+      //   );
+      //   flagCountForHandlingError++;
+      //   // console.log(flagCountForHandlingError);
+      // }
 
       if (!watch("firstTimeOrRepeat")) {
         setError(
@@ -461,6 +472,23 @@ function MyTable({
 
       if (!watch("partQualityCheckedByMTD")) {
         setError("partQualityCheckedByMTD", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
+      }
+
+      //for safety
+      if (!watch("machineSafetyCheckedByPRD")) {
+        setError("machineSafetyCheckedByPRD", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
+      }
+
+      if (!watch("machineSafetyCheckedByMTD")) {
+        setError("machineSafetyCheckedByMTD", {
           message: "This field is required !",
         });
         flagCountForHandlingError++;
@@ -743,7 +771,7 @@ function MyTable({
       );
 
       // setValue('MTD_TL', requestSheetDataOfBM?.approvalOfMTD_TL)
-      setValue("qualityConfirmed", requestSheetDataOfBM?.qualityConfirmed);
+      // setValue("qualityConfirmed", requestSheetDataOfBM?.qualityConfirmed);
       setValue(
         "partQualityCheckedByPRD",
         requestSheetDataOfBM?.partQualityCheckedByPRD
@@ -751,6 +779,16 @@ function MyTable({
       setValue(
         "partQualityCheckedByMTD",
         requestSheetDataOfBM?.partQualityCheckedByMTD
+      );
+
+      //for safety 
+      setValue(
+        "machineSafetyCheckedByPRD",
+        requestSheetDataOfBM?.machineSafetyCheckedByPRD
+      );
+      setValue(
+        "machineSafetyCheckedByMTD",
+        requestSheetDataOfBM?.machineSafetyCheckedByMTD
       );
 
       setValue(
@@ -2053,7 +2091,7 @@ function MyTable({
               </td>
 
               <td className="col-lg-4 col-md-12 col-sm-12  border-bottom">
-                <Row className="m-0">
+                {/* <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>QUALITY CONFIRMED (IPP)</b>&nbsp;&nbsp;&nbsp;
@@ -2107,15 +2145,15 @@ function MyTable({
                       )}
                     </Form>
                   </Col>
-                </Row>
-                <Row className="m-0">
+                </Row> */}
+                {/* <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>SAFETY CHECK</b>&nbsp;&nbsp;&nbsp;
                     </small>
                   </Col>
                   <Col className="border p-2 d-flex align-items-center">
-                  <Form>
+                    <Form>
                       <div className="d-flex">
                         <Form.Check
                           flex
@@ -2145,9 +2183,9 @@ function MyTable({
                       </div>
                     </Form>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row className="m-0 border border-bottom-0">
-                  <p className="text-center mb-0">**PART QUALITY CHECKED</p>
+                  <p className="text-center mb-0">**PART QUALITY CHECKED (IPP)</p>
                 </Row>
                 <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
                   <Col lg={6} md={6} className="border pb-2 pt-1">
@@ -2179,6 +2217,47 @@ function MyTable({
                     ) : (
                       <DropdownElem
                         name={"partQualityCheckedByMTD"}
+                        options={approvalListOfBM?.mtdTL}
+                        className={"d-inline"}
+                        register={register}
+                        errors={errors}
+                      />
+                    )}
+                  </Col>
+                </Row>
+                <Row className="m-0 border border-bottom-0">
+                  <p className="text-center mb-0">***MACHINE SAFETY CHECKED</p>
+                </Row>
+                <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
+                  <Col lg={6} md={6} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>PRD</b>
+                    </small>
+                    {requestSheetDataOfBM?.machineSafetyCheckedByPRD ? (
+                      <p className="mb-0">
+                        {requestSheetDataOfBM?.machineSafetyCheckedByPRD?.tm_name}
+                      </p>
+                    ) : (
+                      <DropdownElem
+                        name={"machineSafetyCheckedByPRD"}
+                        options={approvalListOfBM?.prdTL}
+                        className={"d-inline"}
+                        register={register}
+                        errors={errors}
+                      />
+                    )}
+                  </Col>
+                  <Col lg={6} md={6} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>MTD</b>
+                    </small>
+                    {requestSheetDataOfBM?.machineSafetyCheckedByMTD ? (
+                      <p className="mb-0">
+                        {requestSheetDataOfBM?.machineSafetyCheckedByMTD?.tm_name}
+                      </p>
+                    ) : (
+                      <DropdownElem
+                        name={"machineSafetyCheckedByMTD"}
                         options={approvalListOfBM?.mtdTL}
                         className={"d-inline"}
                         register={register}
@@ -3014,7 +3093,7 @@ function MyTable({
                   requestSheetDataOfBM?.approvalStatusOfMTD_HOD ===
                     "Rejected") &&
                   (requestSheetDataOfBM?.assignUser?._id !==
-                    loggedUserDetails?._id ||
+                    loggedUserDetails?._id &&
                     requestSheetDataOfBM?.handOverUser?._id !==
                       loggedUserDetails?._id)) ? (
                   <>

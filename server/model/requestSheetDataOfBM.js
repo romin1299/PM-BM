@@ -282,6 +282,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
+  machineSafetyCheckedByPRD: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
   partQualityStatusOfPRD: {
     type: String, //yes no
   },
@@ -291,6 +295,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //part quality checked by MTD
   partQualityCheckedByMTD: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
+  machineSafetyCheckedByMTD: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },

@@ -439,6 +439,12 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD,
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
+
+            //for safety check
+            machineSafetyCheckedByPRD:
+              requestSheetDataFilledByMTDUser?.machineSafetyCheckedByPRD,
+            machineSafetyCheckedByMTD:
+              requestSheetDataFilledByMTDUser?.machineSafetyCheckedByMTD,
             requestSheetStatus:
               // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
               getRequestSheetData?.getDataForApprovalDashboard?.Id ||
@@ -769,14 +775,14 @@ router.post(
 
 const findRequestSheetMiddleware = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Default to page 1
-    const pageSize = parseInt(req.query.pageSize) || 10; // Default to 10 records per page
+    // const page = parseInt(req.query.page) || 1; // Default to page 1
+    // const pageSize = parseInt(req.query.pageSize) || 10; // Default to 10 records per page
 
-    // Calculate the number of documents to skip
-    const skip = (page - 1) * pageSize;
+    // // Calculate the number of documents to skip
+    // const skip = (page - 1) * pageSize;
 
-    // Get the total number of documents (for pagination)
-    const total = await RequestSheetOfBM.countDocuments();
+    // // Get the total number of documents (for pagination)
+    // const total = await RequestSheetOfBM.countDocuments();
 
     const requestSheetData = await RequestSheetOfBM.aggregate([
       ...req.queryPipeline,
@@ -863,6 +869,40 @@ const findRequestSheetMiddleware = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
+          localField: "machineSafetyCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNamePRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "machineSafetyCheckedByMTD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNameMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
           localField: "assignUser",
           foreignField: "_id",
           pipeline: [
@@ -932,8 +972,8 @@ const findRequestSheetMiddleware = async (req, res, next) => {
         $sort: { _id: -1 },
       },
 
-      { $skip: skip },
-      { $limit: pageSize },
+      // { $skip: skip },
+      // { $limit: pageSize },
       {
         $project: {
           IsSafetyFormCreated: 1,
@@ -997,6 +1037,9 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           partQualityStatusOfPRD: 1,
           finalActivity: 1,
           statusPRD_TL: 1,
+          //for safety
+          machineSafetyCheckedByPRD: { $arrayElemAt: ["$safetyNamePRD", 0] },
+          machineSafetyCheckedByMTD: { $arrayElemAt: ["$safetyNameMTD", 0] },
           PRDUser: {
             $concat: [
               "$partQualityStatusOfPRD",
@@ -4182,6 +4225,40 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
+          localField: "machineSafetyCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNamePRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "machineSafetyCheckedByMTD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNameMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
           localField: "assignUser",
           foreignField: "_id",
           pipeline: [
@@ -4652,6 +4729,10 @@ const getRequestSheetData = async (req, res, next) => {
           partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
           partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
 
+          //for safety
+          machineSafetyCheckedByPRD: { $arrayElemAt: ["$safetyNamePRD", 0] },
+          machineSafetyCheckedByMTD: { $arrayElemAt: ["$safetyNameMTD", 0] },
+
           dataSheetOfBM: 1,
           drawingOfBM: 1,
           sparePartUsedOrNot: 1,
@@ -4676,7 +4757,7 @@ const getRequestSheetData = async (req, res, next) => {
           categoriesOfRequestSheet: 1,
           preventive_corrective_maintenance: 1,
           yokotenkai: 1,
-          IsSafetyFormCreated: 1
+          IsSafetyFormCreated: 1,
         },
       },
     ]);
@@ -4973,6 +5054,40 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
       {
         $lookup: {
           from: "users",
+          localField: "machineSafetyCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNamePRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "machineSafetyCheckedByMTD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNameMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
           localField: "assignUser",
           foreignField: "_id",
           pipeline: [
@@ -5176,6 +5291,10 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
           partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
 
+          //for safety
+          machineSafetyCheckedByPRD: { $arrayElemAt: ["$safetyNamePRD", 0] },
+          machineSafetyCheckedByMTD: { $arrayElemAt: ["$safetyNameMTD", 0] },
+
           dataSheetOfBM: 1,
           drawingOfBM: 1,
           sparePartUsedOrNot: 1,
@@ -5193,7 +5312,7 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           categoriesOfRequestSheet: 1,
           preventive_corrective_maintenance: 1,
           yokotenkai: 1,
-          IsSafetyFormCreated: 1
+          IsSafetyFormCreated: 1,
         },
       },
     ]);
@@ -20445,6 +20564,7 @@ router.post(
     try {
       const safetyForm = await SafetyForm.create({
         requestSheetRef: req.params?.requestSheetRef,
+        safetyFormFilledUpBy: req?.rootUser?.tm_name,
         ...req.body,
       });
       const reqSheetBM = await RequestSheetOfBM.findOneAndUpdate(

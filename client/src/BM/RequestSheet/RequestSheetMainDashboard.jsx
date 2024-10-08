@@ -1323,6 +1323,7 @@ const RequestSheetMainDashboard = () => {
           machineNo={selectedRow?.machineNo}
           setSafetyFormModalOpen={setSafetyFormModalOpen}
           safetyFormModalOpen={safetyFormModalOpen}
+          machineSafetyCheckedByMTD ={selectedRow?.machineSafetyCheckedByMTD}
         />
       )}
     </>

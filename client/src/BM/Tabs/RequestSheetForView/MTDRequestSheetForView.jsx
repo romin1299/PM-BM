@@ -1413,7 +1413,7 @@ function MTDRequestSheetForView({
               </Row>
 
               <Row className="m-0 border border-bottom-0">
-                <p className="text-center mb-0">**PART QUALITY CHECKED</p>
+                <p className="text-center mb-0">**PART QUALITY CHECKED (IPP)</p>
               </Row>
               <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
                 <Col lg={6} md={6} className="border pb-2 pt-1">
@@ -1436,6 +1436,36 @@ function MTDRequestSheetForView({
                   {requestSheetDataOfBM?.partQualityCheckedByMTD ? (
                     <p className="mb-0">
                       {requestSheetDataOfBM?.partQualityCheckedByMTD?.tm_name}
+                    </p>
+                  ) : (
+                    <input className="w-100" disabled />
+                  )}
+                </Col>
+              </Row>
+              <Row className="m-0 border border-bottom-0">
+                <p className="text-center mb-0">***MACHINE SAFETY CHECKED</p>
+              </Row>
+              <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
+                <Col lg={6} md={6} className="border pb-2 pt-1">
+                  <small className="mb-0">
+                    <b>PRD</b>
+                  </small>
+                  {requestSheetDataOfBM?.machineSafetyCheckedByPRD ? (
+                    <p className="mb-0">
+                      {requestSheetDataOfBM?.machineSafetyCheckedByPRD?.tm_name}
+                    </p>
+                  ) : (
+                    <input className="w-100" disabled />
+                  )}
+                </Col>
+
+                <Col lg={6} md={6} className="border pb-2 pt-1">
+                  <small className="mb-0">
+                    <b>MTD</b>
+                  </small>
+                  {requestSheetDataOfBM?.machineSafetyCheckedByMTD ? (
+                    <p className="mb-0">
+                      {requestSheetDataOfBM?.machineSafetyCheckedByMTD?.tm_name}
                     </p>
                   ) : (
                     <input className="w-100" disabled />
