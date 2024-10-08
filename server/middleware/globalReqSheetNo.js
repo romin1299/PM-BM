@@ -34,10 +34,11 @@ exports.globalReqSheetNo = tryCatchHandler(
       let generateRequestSheetNo;
       console.log(machine.line_names.requestSheetNoOfCM)
       if (maintenanceType === "CM") {
+        console.log("Thi s +1")
         generateRequestSheetNo = {
           requestSheetNoOfCM:
             machine.line_names.requestSheetNoOfCM
-              ? machine.line_names.requestSheetNoOfCM
+              ? machine.line_names.requestSheetNoOfCM + 1
               : 1,
         };
       } else {
@@ -48,12 +49,12 @@ exports.globalReqSheetNo = tryCatchHandler(
               : 1,
         };
       }
-      console.log("this is nbumber",generateRequestSheetNo)
       let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
         { _id: machine.line_names._id },
         { $set: generateRequestSheetNo },
         { new: true }
       );
+      console.log(increaseCountOfRequestSheetInLine)
 
       const requestSheetNo =
         machine?.line_names?.cell_names?.subSection_names?.section_names

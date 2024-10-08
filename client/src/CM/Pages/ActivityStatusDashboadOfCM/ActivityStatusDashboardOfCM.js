@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import MaterialTable, { MTableToolbar } from "@material-table/core";
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import { FaEye } from "react-icons/fa";
 import tableIcons from "../../../components/MatrialTableIcon";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -34,7 +34,8 @@ import {
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import RoutingContext from "../../../context/routing/RoutingContext";
 
 const ActivityStatusDashboardOfCM = () => {
   // const [loading, setLoading] = useState(true);
@@ -47,13 +48,16 @@ const ActivityStatusDashboardOfCM = () => {
 
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
     useState([]);
+  const [loading, setLoading] = useState(false);
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
     initialState("Yes")
   );
+  const [CmReqSheetView, setCmReqSheetView] = useState(false);
 
   const getAllCMSheetData = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
@@ -62,6 +66,7 @@ const ActivityStatusDashboardOfCM = () => {
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
   useEffect(() => {
     if (reduceState?.selectedValue) getAllCMSheetData();
@@ -81,17 +86,17 @@ const ActivityStatusDashboardOfCM = () => {
     },
     {
       title: "Line Name",
-      field: "lines.line_name",
+      field: "line",
       editable: false,
     },
     {
       title: "Machine No",
-      field: "machine.machine_code",
+      field: "machineNo",
       editable: false,
     },
     {
       title: "Machine Name",
-      field: "machine.machine_name",
+      field: "machineName",
       editable: false,
     },
     {
@@ -121,8 +126,8 @@ const ActivityStatusDashboardOfCM = () => {
       editable: false,
     },
     {
-      title: "Problem Occured",
-      field: "problemOccurredDateAndTimeOfCM",
+      title: "Planned Date",
+      field: "plannedDateAndTimeOfCM",
       type: "date",
       editable: false,
     },
@@ -134,7 +139,6 @@ const ActivityStatusDashboardOfCM = () => {
   const [lesserValue, setLesserValue] = useState(
     localStorage.getItem("lesserValue")
   );
-  const [CmReqSheetView, setCmReqSheetView] = useState(false);
   const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const requestSheetApprovalAction = [
@@ -147,7 +151,7 @@ const ActivityStatusDashboardOfCM = () => {
     //   },
     // },
     (row) => ({
-      icon: () => <FaEye className="text-warning" />,
+      icon: () => <FaEye className="text-primary" />,
       tooltip: "View",
       position: "row",
       // disabled:
@@ -157,12 +161,13 @@ const ActivityStatusDashboardOfCM = () => {
       //     ? false
       //     : true,
       onClick: (event, selectedRow) => {
-        console.log(event, selectedRow);
+        console.log(selectedRow);
         setCmReqSheetView(true);
         setCmSelectedSheetForView(selectedRow);
       },
     }),
   ];
+  const context = useContext(RoutingContext);
 
   // ============== This might change in CM =================
   const RSStatusArray = [
@@ -325,7 +330,7 @@ const ActivityStatusDashboardOfCM = () => {
                 variant="contained"
                 disableElevation
                 onClick={handleGenerateBMNavigation}
-                // disabled={context?.tm_department !== "PRD"}
+                disabled={context?.user_type !== "TL/HOSS"}
                 sx={{
                   fontWeight: 400,
                   bgcolor: "#004b5b",
@@ -351,7 +356,7 @@ const ActivityStatusDashboardOfCM = () => {
                 // }
               }}
               title={filtration}
-              // isLoading={loading}
+              isLoading={loading}
               actions={requestSheetApprovalAction}
               icons={tableIcons}
               columns={cmApprovalHeaders}
@@ -405,30 +410,6 @@ const ActivityStatusDashboardOfCM = () => {
       </Container>
 
       {CmReqSheetView && (
-        // <Dialog
-        //   fullScreen
-        //   open={CmReqSheetView}
-        //   TransitionComponent={Transition}
-        // >
-        //   <AppBar sx={{ position: "relative" }}>
-        //     <Toolbar>
-        //       <IconButton
-        //         edge="start"
-        //         color="inherit"
-        //         onClick={() => setCmReqSheetView(false)}
-        //         aria-label="close"
-        //       >
-        //         <CloseIcon />
-        //       </IconButton>
-        //       {/* <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-        //         Sound
-        //       </Typography>
-        //       <Button autoFocus color="inherit" onClick={handleClose}>
-        //         save
-        //       </Button> */}
-        //     </Toolbar>
-        //   </AppBar>
-        // </Dialog>
         <>
           <Modal
             show={CmReqSheetView}
@@ -457,7 +438,7 @@ const ActivityStatusDashboardOfCM = () => {
             </Modal.Header>
             <Modal.Body>
               <div>
-                <ExistingMachineReqSheetView
+                <ExistingMachineReqSheetWithData
                   cmSelectedSheetForView={cmSelectedSheetForView}
                 />
               </div>

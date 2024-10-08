@@ -8,6 +8,7 @@ const ActionList = ({
   setActions,
   clearErrors,
   handleOnchangeFlag,
+  isEditable,
 }) => {
   const [newActionText, setNewActionText] = useState("");
   const [newActionStatus, setNewActionStatus] = useState("OK");
@@ -84,7 +85,7 @@ const ActionList = ({
         <Col
           lg={8}
           md={8}
-          className="border col-auto d-flex align-items-center gap-1"
+          className="border col-auto d-flex align-items-center gap-1 p-1"
         >
           <small>
             <b>ACTION & COUNTERMEASURE STEPS</b>
@@ -145,6 +146,7 @@ const ActionList = ({
                 <input
                   type="radio"
                   name={`status-${action.id}`}
+                  disabled={!isEditable}
                   value="OK"
                   checked={action.status === "OK"}
                   onChange={() => handleStatusChange(action.id, "OK")}
@@ -155,6 +157,7 @@ const ActionList = ({
                 <input
                   type="radio"
                   name={`status-${action.id}`}
+                  disabled={!isEditable}
                   value="NG"
                   checked={action.status === "NG"}
                   onChange={() => handleStatusChange(action.id, "NG")}
@@ -194,6 +197,9 @@ const ActionList = ({
                     event.preventDefault();
                     setEditedAction(action);
                   }}
+                  style={{
+                    display: isEditable ? "block" : "none",
+                  }}
                 >
                   Edit
                 </button>
@@ -201,6 +207,9 @@ const ActionList = ({
                   class="bg-danger text-white border-0"
                   onClick={(event) => {
                     deleteAction(event, action.id);
+                  }}
+                  style={{
+                    display: isEditable ? "block" : "none",
                   }}
                 >
                   Delete
@@ -268,20 +277,22 @@ const ActionList = ({
           </Col>
         </Row>
       ) : (
-        <Row className="m-0  p-1 border">
-          <Col lg={4}>
-            <button
-              class="bg-warning text-white border-0"
-              onClick={() => setIsAdding(true)}
-            >
-              Add Action
-            </button>
-          </Col>
-          {/* <Col className="border d-flex  align-items-center gap-1 p-1"> */}
-          {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
+        isEditable && (
+          <Row className="m-0  p-1 border">
+            <Col lg={4}>
+              <button
+                class="bg-warning text-white border-0"
+                onClick={() => setIsAdding(true)}
+              >
+                Add Action
+              </button>
+            </Col>
+            {/* <Col className="border d-flex  align-items-center gap-1 p-1"> */}
+            {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
 
-          {/* </Col> */}
-        </Row>
+            {/* </Col> */}
+          </Row>
+        )
       )}
 
       {Array.from({ length: 2 - actions?.length }).map((_, index) => (

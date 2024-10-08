@@ -8,4 +8,4 @@ export const FREQUENCY_OF_CM = [
   },
 ];
 
-export const CATEGORIES_OF_CM = ["Overhauling", "BM Reflection", "LTPM"];
+export const CATEGORIES_OF_CM = ["Overhauling", "BM Reflection", "LTPM", "Others"];

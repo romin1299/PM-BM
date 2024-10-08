@@ -4,9 +4,11 @@ import {
   PiListBulletsFill,
   MdFormatListBulletedAdd,
   CalendarMonthIcon,
-  EventNoteIcon
+  EventNoteIcon,
+  FactCheckIcon,
 } from "../../components/NavbarComponent/ImportModules";
-
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+// import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 const allusers = [
   "Admin",
   "Plant-Admin",
@@ -35,10 +37,28 @@ export const menuItems = [
     allowedRoles: allusers,
   },
   {
+    title: "Approval Dashboard",
+    icon: <FactCheckIcon className="text-white" />,
+    route: "/cm/approval",
+    allowedRoles: ["Section-Admin", "TL/HOSS"],
+  },
+  {
     icon: <EventNoteIcon className="text-white" />,
     title: "LTPM Sheet",
     route: "/cm/request-sheet/ltpm",
     allowedRoles: allusers,
+  },
+  {
+    title: "Approval Logs",
+    icon: <AssignmentTurnedInIcon className="text-white" />,
+    route: "/cm/approvalLogs",
+    allowedRoles: reportAccess,
+  },
+  {
+    title: "Activity Calendar",
+    icon: <CalendarMonthIcon className="text-white" />,
+    route: "/cm/activity-calendar",
+    allowedRoles: ["Section-Admin", "TL/HOSS"],
   },
   {
     icon: <AccountCircleIcon className="text-white" />,

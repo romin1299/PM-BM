@@ -22,6 +22,7 @@ import {
 } from "../../../GlobalDataAccess/GlobalData";
 import PartList from "../../../../BM/Tabs/SubComponents/PartList";
 import Multiselect from "multiselect-react-dropdown";
+import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
 
 const GeneratedExistingMachineRequestSheetByMTD = ({
   selectedMachineData,
@@ -44,9 +45,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     clearErrors,
   } = useForm({
     defaultValues: {
-      problemOccurredDateAndTimeOfCM: moment(new Date()).format(
-        "YYYY-MM-DDTHH:mm"
-      ),
+      plannedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       sheetIssuedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       maintenanceType: "CM",
       "cmBasicDataFilledByMTD_TL.targetDateOfCM": moment(new Date()).format(
@@ -83,8 +82,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     // requestSheetDataOfCM.priorityCode = selectedPriorityCode;
     // requestSheetDataOfCM.qualityRelated = selectedQuality;
     // requestSheetDataOfCM.shiftOfBM = selectedShift;
-
-    requestSheetDataOfCM.changedParts = parts;
+    // requestSheetDataOfCM.changedParts = parts;
 
     try {
       const formData = new FormData();
@@ -131,10 +129,8 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
   const timezone = "Asia/Kolkata";
   const startedDate = moment().tz(timezone).month() + 1;
 
-  const problemOccurredDateAndTimeOfCM = watch(
-    "problemOccurredDateAndTimeOfCM"
-  );
-  const [date, time] = problemOccurredDateAndTimeOfCM.split("T");
+  const plannedDateAndTimeOfCM = watch("plannedDateAndTimeOfCM");
+  const [date, time] = plannedDateAndTimeOfCM.split("T");
   const momentTime = moment(time, "HH:mm");
 
   useEffect(() => {
@@ -167,7 +163,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 
     setValue("shiftOfBM", getCurrentShiftName());
     setSelectedShift(getCurrentShiftName());
-  }, [problemOccurredDateAndTimeOfCM, plantShiftsData]);
+  }, [plannedDateAndTimeOfCM, plantShiftsData]);
 
   React.useEffect(() => {
     const fetchShiftData = async () => {
@@ -453,7 +449,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                     <Col className="border">
                       <Row>
                         <small className="border-right-0 text-center m-0">
-                          <b>PROBLEM OCCURRED</b>
+                          <b>PLANNED DATE</b>
                         </small>
                         <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
                           <div className="text-center">
@@ -465,21 +461,18 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                                 // min={moment(new Date() - 1)
                                 //   .subtract(1, "days")
                                 //   .format("YYYY-MM-DDTHH:mm")}
-                                {...register("problemOccurredDateAndTimeOfCM", {
+                                {...register("plannedDateAndTimeOfCM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>
                                     setValue(
-                                      "problemOccurredDateAndTimeOfCM",
+                                      "plannedDateAndTimeOfCM",
                                       event.target.value
                                     ),
                                 })}
                               />
-                              {errors?.["problemOccurredDateAndTimeOfCM"] && (
+                              {errors?.["plannedDateAndTimeOfCM"] && (
                                 <p className="text-error">
-                                  {
-                                    errors?.["problemOccurredDateAndTimeOfCM"]
-                                      ?.message
-                                  }
+                                  {errors?.["plannedDateAndTimeOfCM"]?.message}
                                 </p>
                               )}
                             </p>
@@ -820,12 +813,43 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                     )}
                   </Col>
                 </Row>
+                <Row className="m-0 border d-flex align-items-center">
+                  <Col lg={5}>
+                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                      <b>Part Suggestion: </b>
+                    </p>
+                  </Col>
 
-                <Col lg={11} md={11}>
+                  <Col lg={7}>
+                    <div className="d-block align-items-center">
+                      {" "}
+                      <input
+                        type="text"
+                        id="partSuggestionByMTDTL"
+                        className="m-1 mb-2"
+                        name="partSuggestionByMTDTL"
+                        // style={{ width: "350px" }}
+                        {...register("partSuggestionByMTDTL", {
+                          required: "Please enter part name",
+                        })}
+                        onInput={() => {
+                          clearErrors("partSuggestionByMTDTL");
+                        }}
+                      />
+                    </div>
+                    {errors?.partSuggestionByMTDTL && (
+                      <p className="text-error">
+                        {errors?.partSuggestionByMTDTL?.message}
+                      </p>
+                    )}
+                  </Col>
+                </Row>
+
+                {/* <Col lg={11} md={11}>
                   <Row className="">
                     <PartList parts={parts} setParts={setParts} />
                   </Row>
-                </Col>
+                </Col> */}
               </td>
 
               <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
