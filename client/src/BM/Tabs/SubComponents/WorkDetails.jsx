@@ -257,7 +257,7 @@ const WorkDetails = ({
           >
             {editedWork && editedWork.id === work.id ? (
               <input
-                type="date"
+                type="datetime-local"
                 value={editedWork.fromDate}
                 onChange={(e) =>
                   setEditedWork({ ...editedWork, fromDate: e.target.value })
@@ -274,7 +274,7 @@ const WorkDetails = ({
           >
             {editedWork && editedWork.id === work.id ? (
               <input
-                type="date"
+                type="datetime-local"
                 value={editedWork.toDate}
                 onChange={(e) =>
                   setEditedWork({ ...editedWork, toDate: e.target.value })
@@ -385,7 +385,7 @@ const WorkDetails = ({
             className="border col-auto d-flex align-items-center gap-1"
           >
             <input
-              type="date"
+              type="datetime-local"
               value={newFromDate}
               onChange={(e) => setNewFromDate(e.target.value)}
             />
@@ -396,7 +396,7 @@ const WorkDetails = ({
             className="border col-auto d-flex align-items-center gap-1"
           >
             <input
-              type="date"
+              type="datetime-local"
               value={newToDate}
               onChange={(e) => setNewToDate(e.target.value)}
             />

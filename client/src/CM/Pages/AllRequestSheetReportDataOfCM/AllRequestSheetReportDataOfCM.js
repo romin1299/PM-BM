@@ -518,8 +518,10 @@ const AllRequestSheetReportDataOfCM = () => {
                   />
                 </div>
               )}
-              {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Under MTD HOS Approval" && (
+              {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Under MTD HOS Approval" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                  "Under PRD TL Approval") && (
                 <div>
                   <HOSExistingMachineReqSheet
                     cmSelectedSheetForView={cmSelectedSheetForView}

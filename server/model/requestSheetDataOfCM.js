@@ -13,12 +13,26 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     type: String,
   },
 
+  inspectionItem: {
+    type: String,
+  },
+  actionForLTPM: {
+    type: String,
+  },
+  personForLTPM: {
+    type: String,
+  },
+
   //If require else byDefault is BM
   maintenanceType: {
     type: String,
     default: "BM",
   },
   priorityCode: {
+    type: String,
+  },
+
+  partSuggestionByMTDTL: {
     type: String,
   },
 
@@ -230,7 +244,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users",
       },
-      tmName:{
+      tmName: {
         type: String,
       },
       fromDate: {

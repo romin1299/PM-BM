@@ -921,46 +921,15 @@ const HOSExistingMachineReqSheet = ({
                 </td>
               </tr>
             )}
-            {cmSelectedSheetForView?.changedParts?.length > 0 && (
-              <tr className="row m-2">
-                <td colSpan="12">
-                  <h5 className="mt-4 mb-3">New Part List</h5>
-                  <Table bordered>
-                    <thead>
-                      <tr>
-                        <th>Cost</th>
-                        <th>Maker Name</th>
-                        <th>Part Name</th>
-                        <th>Part No</th>
-                        <th>Quantity</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cmSelectedSheetForView?.changedParts?.map(
-                        (part, index) => (
-                          <tr key={index}>
-                            <td>{part.cost}</td>
-                            <td>{part.makerName}</td>
-                            <td>{part.partName}</td>
-                            <td>{part.partNo}</td>
-                            <td>{part.quantity}</td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </Table>
-                </td>
-              </tr>
-            )}
+            
           </tbody>
         </Table>
       </form>
       <Box className="border">
-        {!isEditable && (
-          <ExistinngMachineReqSheetForOperator
-            cmSelectedSheetForView={cmSelectedSheetForView}
-          />
-        )}
+        <ExistinngMachineReqSheetForOperator
+          cmSelectedSheetForView={cmSelectedSheetForView}
+          isEditable={isEditable}
+        />
         <>
           {isEditable && (
             <Row className="m-1 d-flex justify-content-start">

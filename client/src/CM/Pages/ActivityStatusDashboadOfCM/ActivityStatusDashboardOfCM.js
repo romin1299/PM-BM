@@ -136,6 +136,7 @@ const ActivityStatusDashboardOfCM = () => {
   const [greaterValue, setGreaterValue] = useState(
     localStorage.getItem("greaterValue")
   );
+  const [isEditable, setIsEditable] = useState(false);
   const [lesserValue, setLesserValue] = useState(
     localStorage.getItem("lesserValue")
   );
@@ -163,6 +164,7 @@ const ActivityStatusDashboardOfCM = () => {
       onClick: (event, selectedRow) => {
         // console.log(selectedRow);
         setCmReqSheetView(true);
+        setIsEditable(false);
         setCmSelectedSheetForView(selectedRow);
       },
     }),
@@ -440,6 +442,7 @@ const ActivityStatusDashboardOfCM = () => {
               <div>
                 <ExistingMachineReqSheetWithData
                   cmSelectedSheetForView={cmSelectedSheetForView}
+                  isEditable={isEditable}
                 />
               </div>
             </Modal.Body>
