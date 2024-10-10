@@ -2799,3 +2799,7 @@
     at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
     at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
     at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-09T15:01 | PM | updateChecksheetRow is not defined
+		ReferenceError: updateChecksheetRow is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:4690:19
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)

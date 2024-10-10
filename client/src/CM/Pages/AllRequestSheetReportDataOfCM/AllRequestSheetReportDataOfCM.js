@@ -138,7 +138,7 @@ const AllRequestSheetReportDataOfCM = () => {
     },
   ];
   const context = useContext(RoutingContext);
-  console.log(context);
+  // console.log(context);
 
   const [greaterValue, setGreaterValue] = useState(
     localStorage.getItem("greaterValue")
@@ -199,7 +199,7 @@ const AllRequestSheetReportDataOfCM = () => {
       //     ? false
       //     : true,
       onClick: (event, selectedRow) => {
-        console.log(event, selectedRow);
+        // console.log(event, selectedRow);
         setCmReqSheetView(true);
         setIsEditable(true);
         setCmSelectedSheetForView(selectedRow);
@@ -210,7 +210,7 @@ const AllRequestSheetReportDataOfCM = () => {
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        console.log(event, selectedRow);
+        // console.log(event, selectedRow);
         setCmReqSheetView(true);
         setIsEditable(false);
         setCmSelectedSheetForView(selectedRow);

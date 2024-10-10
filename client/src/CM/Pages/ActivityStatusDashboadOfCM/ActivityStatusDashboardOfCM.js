@@ -61,7 +61,7 @@ const ActivityStatusDashboardOfCM = () => {
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
-      console.log(response);
+      // console.log(response);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
     } catch (error) {
       console.log(error);
@@ -161,7 +161,7 @@ const ActivityStatusDashboardOfCM = () => {
       //     ? false
       //     : true,
       onClick: (event, selectedRow) => {
-        console.log(selectedRow);
+        // console.log(selectedRow);
         setCmReqSheetView(true);
         setCmSelectedSheetForView(selectedRow);
       },

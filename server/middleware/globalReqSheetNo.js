@@ -34,7 +34,6 @@ exports.globalReqSheetNo = tryCatchHandler(
       let generateRequestSheetNo;
       console.log(machine.line_names.requestSheetNoOfCM)
       if (maintenanceType === "CM") {
-        console.log("Thi s +1")
         generateRequestSheetNo = {
           requestSheetNoOfCM:
             machine.line_names.requestSheetNoOfCM

@@ -1,12 +1,29 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { Button, Modal, Container, Row, Col } from "react-bootstrap";
 
-const RequestSheetOfLTPM = ({}) => {
-  const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
+const RequestSheetOfLTPM = ({openCloseModalOfLTPM, openCloseLTPM, selectedRow}) => {
+  // const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
+  const [dataOfLTPM, setDataOfLTPM] = useState([]);
 
-  const openCloseModalOfLTPM = () => {
-    setOpenCloseLTPM(!openCloseLTPM);
+  const getDataOfLTPM = async () => {
+    try {
+      const url = `/LTPM/getDatOfLTPM/?lineRef=${selectedRow?._id?.lineName}`;
+
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+
+      setDataOfLTPM(res?.data?.resultOfLTPM);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  // const openCloseModalOfLTPM = () => {
+  //   setOpenCloseLTPM(!openCloseLTPM);
+  // };
 
   let yearsOfLTPM = [
     {
@@ -124,9 +141,13 @@ const RequestSheetOfLTPM = ({}) => {
     },
   ];
 
+  useEffect(() => {
+    getDataOfLTPM();
+  }, []);
+
   return (
     <>
-      <Button onClick={openCloseModalOfLTPM}>LTPM Open</Button>
+      {/* <Button onClick={openCloseModalOfLTPM}>LTPM Open</Button> */}
       <div className="modal-fullscreen">
         <Modal
           className="d-flex align-items-center justify-content-center"
@@ -279,13 +300,15 @@ const RequestSheetOfLTPM = ({}) => {
                         <tr>
                           <th colSpan={8}></th>
                           {yearsOfLTPM?.map((value, idx) => (
-                            <th className="ar-table-col1" colSpan={4}>{value?.yearHeader}</th>
+                            <th className="ar-table-col1" colSpan={4}>
+                              {value?.yearHeader}
+                            </th>
                           ))}
                         </tr>
                       </thead>
                       <thead className="mt-5">
                         <tr>
-                          {columns.map((tColumn) => (
+                          {columns?.map((tColumn) => (
                             <th
                               className={
                                 tColumn.header === ""
@@ -298,6 +321,59 @@ const RequestSheetOfLTPM = ({}) => {
                           ))}
                         </tr>
                       </thead>
+                      {/* <tbody>
+                        {dataOfLTPM.map((rowData, idx) => (
+                          <tr className="ar-table-row">
+                            <td className="ar-table-col">{++idx}</td>
+                            <td
+                              className="ar-table-col"
+                              rowSpan={rowData?.data?.length + 1}
+                            >
+                              {rowData?.machines.machine_code}
+                            </td>
+                            <td className="ar-table-col">
+                              {rowData?.machines.machine_name}
+                            </td>
+                            <td className="ar-table-col"></td>
+                            <td className="ar-table-col"></td>
+                            <td className="ar-table-col">
+                              {rowData?.data?.frequencyValue}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody> */}
+
+                      <tbody>
+                        {dataOfLTPM?.map((item, index) => (
+                          <React.Fragment key={index}>
+                            <tr className="ar-table-row">
+                              <td className="ar-table-col" rowSpan={item?.data?.length + 1}>{++index}</td>
+                              <td
+                                rowSpan={item?.data?.length + 1}
+                                className="ar-table-col"
+                              >
+                                {item?.machines.machine_code}
+                              </td>
+                              <td
+                                rowSpan={item?.data?.length + 1}
+                                className="ar-table-col"
+                              >
+                                {item?.machines.machine_name}
+                              </td>
+                            </tr>
+
+                            {item?.data?.map((item1, index) => (
+                              <tr key={index}>
+                                <td></td>
+                                <td></td>
+                                <td className="ar-table-col">
+                                  {item1?.frequencyValue}
+                                </td>
+                              </tr>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </tbody>
                     </table>
                   </Col>
                 </Row>

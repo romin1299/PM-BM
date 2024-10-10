@@ -360,9 +360,9 @@ router.patch(
     //   message: "CM Request-sheet updated successfully",
     //   data: req.params.id,
     // })
-    console.log("nsdaljgfrsd");
+    // console.log("nsdaljgfrsd");
     const id = req.params.id;
-    console.log(id);
+    // console.log(id);
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
     if (
       req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
@@ -378,7 +378,7 @@ router.patch(
       requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
         "";
     }
-    console.log(requestSheetDataFilledByMTDUserForCM);
+    // console.log(requestSheetDataFilledByMTDUserForCM);
     const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
       { _id: id },
       { ...requestSheetDataFilledByMTDUserForCM },
@@ -2528,7 +2528,7 @@ router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
       rejectedRemarksOfRequestSheet,
       cmSelectedSheetForView,
     } = req.body;
-    console.log(rejectedRemarksOfRequestSheet);
+    // console.log(rejectedRemarksOfRequestSheet);
     const requestSheet = await RequestSheetOfCM.findById(requestSheetID);
 
     if (!requestSheet) {
@@ -2804,7 +2804,7 @@ router.get("/getReqSheetDataForCalendar", authenticate, async (req, res) => {
         },
       },
     ]);
-    console.log(reqSheetDataForCalendar);
+    // console.log(reqSheetDataForCalendar);
     res.status(200).json({
       message: "Request sheet data for calendar fetched successfully",
       reqSheetDataForCalendar,
@@ -2813,5 +2813,109 @@ router.get("/getReqSheetDataForCalendar", authenticate, async (req, res) => {
     console.log(error);
   }
 });
+
+router.get("/LTPM/getDatOfLTPM", authenticate, async (req, res) => {
+  try {
+    const resultOfLTPM = await RequestSheetOfCM.aggregate([
+      {
+        $match: {
+          "cmBasicDataFilledByMTD_TL.categories": "LTPM",
+          lineRef: mongoose.Types.ObjectId(req?.query?.lineRef)
+        },
+      },
+      {
+        $group: {
+          _id: "$machineRef",
+          data: {
+            $push: {
+              frequencyValue: "$cmBasicDataFilledByMTD_TL.frequencyValue",
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "machinesalldatas",
+          localField: "_id",
+          foreignField: "_id",
+          as: "machines",
+          pipeline: [
+            {
+              $project: {
+                machine_code: 1,
+                machine_name: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: "$machines",
+      },
+    ]);
+
+    res.status(200).json({
+      message: "LTPM Data fetched successfully",
+      resultOfLTPM,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error?.message, error: new Error(error) });
+  }
+});
+
+router.get(
+  "/LTPM/getLineWiseLTPM/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    const listOfLine = await RequestSheetOfCM.aggregate([
+      {
+        $group: {
+          _id: { lineName: "$lineRef", cellName: "$cellRef" }
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "_id.lineName",
+          foreignField: "_id",
+          as: "lines",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "_id.cellName",
+          foreignField: "_id",
+          as: "cells",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          cellName: { $arrayElemAt: ["$cells.cell_name", 0] },
+          lineName: { $arrayElemAt: ["$lines.line_name", 0] },
+        },
+      },
+    ]);
+
+    successResponse(res, "LTPM Line wise data get successfully", {
+      listOfLine,
+    });
+  })
+);
 
 module.exports = router;
