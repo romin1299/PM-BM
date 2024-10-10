@@ -32,20 +32,18 @@ exports.globalReqSheetNo = tryCatchHandler(
         })
         .exec();
       let generateRequestSheetNo;
-      console.log(machine.line_names.requestSheetNoOfCM)
+      // console.log(machine.line_names.requestSheetNoOfCM);
       if (maintenanceType === "CM") {
         generateRequestSheetNo = {
-          requestSheetNoOfCM:
-            machine.line_names.requestSheetNoOfCM
-              ? machine.line_names.requestSheetNoOfCM + 1
-              : 1,
+          requestSheetNoOfCM: machine.line_names.requestSheetNoOfCM
+            ? machine.line_names.requestSheetNoOfCM + 1
+            : 1,
         };
       } else {
         generateRequestSheetNo = {
-          requestSheetNos:
-            machine.line_names.requestSheetNos
-              ? machine.line_names.requestSheetNos + 1
-              : 1,
+          requestSheetNos: machine.line_names.requestSheetNos
+            ? machine.line_names.requestSheetNos + 1
+            : 1,
         };
       }
       let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
@@ -53,7 +51,7 @@ exports.globalReqSheetNo = tryCatchHandler(
         { $set: generateRequestSheetNo },
         { new: true }
       );
-      console.log(increaseCountOfRequestSheetInLine)
+      // console.log(increaseCountOfRequestSheetInLine);
 
       const requestSheetNo =
         machine?.line_names?.cell_names?.subSection_names?.section_names
@@ -61,9 +59,9 @@ exports.globalReqSheetNo = tryCatchHandler(
           ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
               .trim()
               .substring(0, 2)
-              .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${moment()
-              .tz("Asia/Kolkata")
-              .month()}-${maintenanceType}-${
+              .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
+              moment().tz("Asia/Kolkata").month() + 1
+            }-${maintenanceType}-${
               increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
             }`.trim()
           : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)

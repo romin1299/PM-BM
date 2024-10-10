@@ -20,7 +20,7 @@ import { FaEye } from "react-icons/fa";
 
 const DashboardOfLTPM = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
   const [selectedRow, setSelectedRow] = useState([]);
 
@@ -83,7 +83,7 @@ const DashboardOfLTPM = () => {
   };
 
   useEffect(() => {
-    getAllLTPMLineWiseSheetData();
+    reduceState?.selectedValue && getAllLTPMLineWiseSheetData();
   }, [
     reduceState?.selectedValue,
     reduceState?.selectedYear,

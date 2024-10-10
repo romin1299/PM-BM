@@ -2898,6 +2898,9 @@ router.get("/LTPM/getDatOfLTPM", authenticate, async (req, res) => {
           data: {
             $push: {
               frequencyValue: "$cmBasicDataFilledByMTD_TL.frequencyValue",
+              inspectionItem: "$cmBasicDataFilledByMTD_TL.inspectionItem",
+              actionForLTPM: "$cmBasicDataFilledByMTD_TL.actionForLTPM",
+              personForLTPM: "$cmBasicDataFilledByMTD_TL.personForLTPM",
             },
           },
         },
@@ -2938,6 +2941,11 @@ router.get(
   filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
     const listOfLine = await RequestSheetOfCM.aggregate([
+      {
+        $match: {
+          ...req?.queryObj
+        }
+      },
       {
         $group: {
           _id: { lineName: "$lineRef", cellName: "$cellRef" }
