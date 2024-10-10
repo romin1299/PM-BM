@@ -80,14 +80,14 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     console.log(
       watch("cmBasicDataFilledByMTD_TL.categories"),
       "and ",
-      watch("inspectionItem")
+      watch("cmBasicDataFilledByMTD_TL.inspectionItem")
     );
     if (
       watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
-      watch("inspectionItem") === ""
+      watch("cmBasicDataFilledByMTD_TL.inspectionItem") === ""
     ) {
       setError(
-        "inspectionItem",
+        "cmBasicDataFilledByMTD_TL.inspectionItem",
         {
           message: "This field is required !",
         },
@@ -97,10 +97,10 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     }
     if (
       watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
-      watch("actionForLTPM") === ""
+      watch("cmBasicDataFilledByMTD_TL.actionForLTPM") === ""
     ) {
       setError(
-        "actionForLTPM",
+        "cmBasicDataFilledByMTD_TL.actionForLTPM",
         {
           message: "This field is required !",
         },
@@ -109,10 +109,10 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     }
     if (
       watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
-      watch("personForLTPM") === ""
+      watch("cmBasicDataFilledByMTD_TL.personForLTPM") === ""
     ) {
       setError(
-        "personForLTPM",
+        "cmBasicDataFilledByMTD_TL.personForLTPM",
         {
           message: "This field is required !",
         },
@@ -122,10 +122,10 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     }
     if (
       watch("partRequiredByMTDTL") === "Yes" &&
-      watch("partSuggestionByMTDTL") === ""
+      watch("cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL") === ""
     ) {
       setError(
-        "partSuggestionByMTDTL",
+        "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
         {
           message: "This field is required !",
         },
@@ -856,15 +856,22 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             className="m-1 mb-2"
                             name="inspectionItem"
                             // style={{ width: "350px" }}
-                            {...register("inspectionItem")}
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.inspectionItem"
+                            )}
                             onInput={() => {
-                              clearErrors("inspectionItem");
+                              clearErrors(
+                                "cmBasicDataFilledByMTD_TL.inspectionItem"
+                              );
                             }}
                           />
                         </div>
-                        {errors?.inspectionItem && (
+                        {errors?.cmBasicDataFilledByMTD_TL?.inspectionItem && (
                           <p className="text-error">
-                            {errors?.inspectionItem?.message}
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.inspectionItem
+                                ?.message
+                            }
                           </p>
                         )}
                       </Col>
@@ -885,15 +892,22 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             className="m-1 mb-2"
                             name="actionForLTPM"
                             // style={{ width: "350px" }}
-                            {...register("actionForLTPM")}
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.actionForLTPM"
+                            )}
                             onInput={() => {
-                              clearErrors("actionForLTPM");
+                              clearErrors(
+                                "cmBasicDataFilledByMTD_TL.actionForLTPM"
+                              );
                             }}
                           />
                         </div>
-                        {errors?.actionForLTPM && (
+                        {errors?.cmBasicDataFilledByMTD_TL?.actionForLTPM && (
                           <p className="text-error">
-                            {errors?.actionForLTPM?.message}
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.actionForLTPM
+                                ?.message
+                            }
                           </p>
                         )}
                       </Col>
@@ -914,15 +928,22 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             className="m-1 mb-2"
                             name="personForLTPM"
                             // style={{ width: "350px" }}
-                            {...register("personForLTPM")}
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.personForLTPM"
+                            )}
                             onInput={() => {
-                              clearErrors("personForLTPM");
+                              clearErrors(
+                                "cmBasicDataFilledByMTD_TL.personForLTPM"
+                              );
                             }}
                           />
                         </div>
-                        {errors?.personForLTPM && (
+                        {errors?.cmBasicDataFilledByMTD_TL?.personForLTPM && (
                           <p className="text-error">
-                            {errors?.personForLTPM?.message}
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.personForLTPM
+                                ?.message
+                            }
                           </p>
                         )}
                       </Col>
@@ -982,11 +1003,13 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       <input
                         type="radio"
                         id="partRequiredByMTDTL"
-                        value={"Yes"}
+                        value="Yes"
                         className="m-1 mb-2"
                         name="partRequiredByMTDTL"
                         // style={{ width: "350px" }}
-                        {...register("partRequiredByMTDTL")}
+                        {...register("partRequiredByMTDTL", {
+                          required: "This field is required !",
+                        })}
                         onInput={() => {
                           clearErrors("partRequiredByMTDTL");
                         }}
@@ -998,20 +1021,25 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       <input
                         type="radio"
                         id="partRequiredByMTDTL"
-                        value={"No"}
+                        value="No"
                         className="m-1 mb-2"
                         name="partRequiredByMTDTL"
                         // style={{ width: "350px" }}
-                        {...register("partRequiredByMTDTL")}
+                        {...register("partRequiredByMTDTL", {
+                          required: "This field is required !",
+                        })}
                         onInput={() => {
                           clearErrors("partRequiredByMTDTL");
                         }}
                       />
                       <label>No</label>
                     </Col>
-                    {errors?.partRequiredByMTDTL && (
+                    {errors?.cmBasicDataFilledByMTD_TL?.partRequiredByMTDTL && (
                       <p className="text-error">
-                        {errors?.partRequiredByMTDTL?.message}
+                        {
+                          errors?.cmBasicDataFilledByMTD_TL?.partRequiredByMTDTL
+                            ?.message
+                        }
                       </p>
                     )}
                   </Col>
@@ -1033,17 +1061,26 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                           className="m-1 mb-2"
                           name="partSuggestionByMTDTL"
                           // style={{ width: "350px" }}
-                          {...register("partSuggestionByMTDTL", {
-                            required: "Please enter part name",
-                          })}
+                          {...register(
+                            "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
+                            {
+                              required: "Please enter part name",
+                            }
+                          )}
                           onInput={() => {
-                            clearErrors("partSuggestionByMTDTL");
+                            clearErrors(
+                              "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
+                            );
                           }}
                         />
                       </div>
-                      {errors?.partSuggestionByMTDTL && (
+                      {errors?.cmBasicDataFilledByMTD_TL
+                        ?.partSuggestionByMTDTL && (
                         <p className="text-error">
-                          {errors?.partSuggestionByMTDTL?.message}
+                          {
+                            errors?.cmBasicDataFilledByMTD_TL
+                              ?.partSuggestionByMTDTL?.message
+                          }
                         </p>
                       )}
                     </Col>
