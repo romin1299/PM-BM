@@ -199,6 +199,35 @@ const ApprovalLogs = () => {
       ),
       width: "20%",
     },
+    {
+      title: "PRD TL",
+      render: (text, record) => (
+        <>
+          <span>
+            {record?.approvalStatusOfPRD_TL?.map((value, idx) => (
+              <>
+                <span>
+                  <b>{value}</b> -{record["approverNameLogOfPRD_TL"]?.[idx]},
+                  {record["approvalDateAndTimeOfPRD_TL"]?.[idx] &&
+                    moment(record["approvalDateAndTimeOfPRD_TL"]?.[idx])
+                      .tz("Asia/Kolkata")
+                      .format("DD-MM-YYYY THH:mm")}
+                  {value === "Rejected" && (
+                    <>
+                      {", "}
+                      <b>Remarks:</b>{" "}
+                      {record?.rejectedRemarksOfRequestSheet?.[idx]}
+                    </>
+                  )}
+                </span>
+                <br />
+              </>
+            ))}
+          </span>
+        </>
+      ),
+      width: "20%",
+    },
   ];
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";

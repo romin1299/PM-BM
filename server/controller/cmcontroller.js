@@ -280,7 +280,6 @@ router.post(
         req.query?.machineRef,
         "CM"
       );
-
       let requestSheetOfCM = new RequestSheetOfCM({
         requestSheetNoOfCM,
         ...req.query,
@@ -316,17 +315,17 @@ router.patch(
   "/updateCmReqSheet/:id",
   authenticate,
   uploadDataSheetsOfBD.fields([
-    { name: "attachedFilesByAssignedUser", maxCount: 10 },
+    { name: "attachedFileByAssignedUser", maxCount: 10 },
   ]),
   async (req, res, next) => {
     const id = req.params.id;
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
     if (
-      req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
-      req.files?.attachedFilesByAssignedUser
+      req.files?.attachedFileByAssignedUser?.[0]?.filename ||
+      req.files?.attachedFileByAssignedUser
     ) {
       requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
-        req.files?.attachedFilesByAssignedUser?.[0]?.filename;
+        req.files?.attachedFileByAssignedUser?.[0]?.filename;
     }
     if (
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
@@ -335,7 +334,8 @@ router.patch(
       requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
         "";
     }
-    // console.log(requestSheetDataFilledByMTDUserForCM);
+    // 
+    (requestSheetDataFilledByMTDUserForCM);
     const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
       { _id: id },
       { ...requestSheetDataFilledByMTDUserForCM },
@@ -360,9 +360,7 @@ router.patch(
     //   message: "CM Request-sheet updated successfully",
     //   data: req.params.id,
     // })
-    console.log("nsdaljgfrsd");
     const id = req.params.id;
-    console.log(id);
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
     if (
       req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
@@ -378,7 +376,6 @@ router.patch(
       requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
         "";
     }
-    console.log(requestSheetDataFilledByMTDUserForCM);
     const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
       { _id: id },
       { ...requestSheetDataFilledByMTDUserForCM },
@@ -410,66 +407,128 @@ router.patch(
         requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
           req.files?.attachedFileByAssignedUser?.[0]?.filename;
       }
-      let approvalObj = {
-        approvalOfMTD_HOS:
-          requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
-        approvalStatusOfMTD_HOS: "Pending",
-        approverNameLogOfMTD_HOS:
-          requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.name,
+      // let approvalObj = {
+      //   approvalOfMTD_HOS:
+      //     requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
+      //   approvalStatusOfMTD_HOS: "Pending",
+      //   approverNameLogOfMTD_HOS:
+      //     requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.name,
+      // };
+      // if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
+      //   approvalObj = {
+      //     ...approvalObj,
+      //     approvalOfMTD_TL:
+      //       requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
+      //     approvalStatusOfMTD_TL: "Pending",
+      //     approverNameLogOfMTD_TL:
+      //       requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.name,
+      //   };
+      // }
+      // if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL === "Yes") {
+      //   approvalObj = {
+      //     ...approvalObj,
+      //     approvalOfPRD_TL:
+      //       requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfPRDTL?.id,
+      //     approvalStatusOfPRD_TL: "Pending",
+      //     approverNameLogOfPRD_TL:
+      //       requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfPRDTL
+      //         ?.name,
+      //   };
+      // }
+
+      // let conditionalStatusChangesForReqSheet = {};
+      // if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
+      //   conditionalStatusChangesForReqSheet = {
+      //     ...conditionalStatusChangesForReqSheet,
+      //     requestSheetStatusOfCM: "Under MTD TL/HOSS Approval",
+      //     "getDataForApprovalDashboard.Id":
+      //       requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
+      //     "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD TL/HOSS",
+      //   };
+      // } else {
+      //   conditionalStatusChangesForReqSheet = {
+      //     ...conditionalStatusChangesForReqSheet,
+      //     requestSheetStatusOfCM: "Under MTD HOS Approval",
+      //     "getDataForApprovalDashboard.Id":
+      //       requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
+      //     "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
+      //   };
+      // }
+      let updateObj = {
+        $push: {
+          approvalOfMTD_HOS:
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
+          approvalStatusOfMTD_HOS: "Pending",
+          approverNameLogOfMTD_HOS:
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.name,
+          approvalDateAndTimeOfMTD_HOS: new Date(),
+        },
       };
+
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
-        approvalObj = {
-          ...approvalObj,
+        updateObj.$push = {
+          ...updateObj.$push,
           approvalOfMTD_TL:
             requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
           approvalStatusOfMTD_TL: "Pending",
           approverNameLogOfMTD_TL:
             requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.name,
+          approvalDateAndTimeOfMTD_TL: "",
+        };
+        updateObj.$set = {
+          ...updateObj.$set,
+          requestSheetStatusOfCM: "Under MTD TL/HOSS Approval",
+          "getDataForApprovalDashboard.Id":
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
+          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD TL/HOSS",
+          approvalDateAndTimeOfMTD_TL: new Date(),
+        };
+      } else {
+        updateObj.$set = {
+          ...updateObj.$set,
+          requestSheetStatusOfCM: "Under MTD HOS Approval",
+          "getDataForApprovalDashboard.Id":
+            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
+          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
+          approvalDateAndTimeOfMTD_TL: new Date(),
         };
       }
+
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL === "Yes") {
-        approvalObj = {
-          ...approvalObj,
+        updateObj.$push = {
+          ...updateObj.$push,
           approvalOfPRD_TL:
             requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfPRDTL?.id,
           approvalStatusOfPRD_TL: "Pending",
           approverNameLogOfPRD_TL:
             requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfPRDTL
               ?.name,
+          approvalDateAndTimeOfPRD_TL: "",
         };
       }
-      let conditionalStatusChangesForReqSheet = {};
-      if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
-        conditionalStatusChangesForReqSheet = {
-          ...conditionalStatusChangesForReqSheet,
-          requestSheetStatusOfCM: "Under MTD TL/HOSS Approval",
-          "getDataForApprovalDashboard.Id":
-            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
-          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD TL/HOSS",
-        };
-      } else {
-        conditionalStatusChangesForReqSheet = {
-          ...conditionalStatusChangesForReqSheet,
-          requestSheetStatusOfCM: "Under MTD HOS Approval",
-          "getDataForApprovalDashboard.Id":
-            requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.id,
-          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
-        };
-      }
+      updateObj = {
+        ...updateObj,
+        workDetails: requestSheetDataFilledByMTDUserForCM?.workDetails,
+        changedParts: requestSheetDataFilledByMTDUserForCM?.changedParts,
+        actionAndCounterMeasureStep:
+          requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
+      };
 
-      console.log(approvalObj);
+      // console.log(requestSheetDataFilledByMTDUserForCM);
       const updateAssignApprovalOfMTD_TL =
         await RequestSheetOfCM.findOneAndUpdate(
           {
             _id: mongoose.Types.ObjectId(req.params?.reqId),
           },
-          {
-            $set: {
-              ...requestSheetDataFilledByMTDUserForCM,
-              ...conditionalStatusChangesForReqSheet,
-            },
-            $push: approvalObj,
-          },
+          // {
+          //   $set: {
+          //     ...requestSheetDataFilledByMTDUserForCM,
+          //     ...conditionalStatusChangesForReqSheet,
+          //     ...approvalObj,
+          //   },
+          //   $push: pushObj,
+          // },
+          updateObj,
           { new: true }
         );
       if (updateAssignApprovalOfMTD_TL) {
@@ -1222,6 +1281,8 @@ const getRequestSheetData = async (req, res, next) => {
           // drawingOfBM: 1,
           // sparePartUsedOrNot: 1,
           changedParts: 1,
+          workDetails: 1,
+          actionAndCounterMeasureStep: 1,
 
           machineRef: { $arrayElemAt: ["$machines", 0] },
           lineRef: { $arrayElemAt: ["$lines", 0] },
@@ -2191,6 +2252,8 @@ router.get(
             // drawingOfBM: 1,
             // sparePartUsedOrNot: 1,
             changedParts: 1,
+            workDetails: 1,
+            actionAndCounterMeasureStep: 1,
 
             machineRef: { $arrayElemAt: ["$machines", 0] },
             lineRef: { $arrayElemAt: ["$lines", 0] },
@@ -2528,7 +2591,6 @@ router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
       rejectedRemarksOfRequestSheet,
       cmSelectedSheetForView,
     } = req.body;
-    console.log(rejectedRemarksOfRequestSheet);
     const requestSheet = await RequestSheetOfCM.findById(requestSheetID);
 
     if (!requestSheet) {
@@ -2750,10 +2812,15 @@ router.get(
               approvalStatusOfMTD_HOS: 1,
               approvalDateAndTimeOfMTD_HOS: 1,
 
+              approvalOfPRD_TL: 1,
+              approvalStatusOfPRD_TL: 1,
+              approvalDateAndTimeOfPRD_TL: 1,
+
               rejectedRemarksOfRequestSheet: 1,
 
               approverNameLogOfMTD_TL: 1,
               approverNameLogOfMTD_HOS: 1,
+              approverNameLogOfPRD_TL: 1,
 
               requestSheetStatus: 1,
 
@@ -2804,7 +2871,6 @@ router.get("/getReqSheetDataForCalendar", authenticate, async (req, res) => {
         },
       },
     ]);
-    console.log(reqSheetDataForCalendar);
     res.status(200).json({
       message: "Request sheet data for calendar fetched successfully",
       reqSheetDataForCalendar,

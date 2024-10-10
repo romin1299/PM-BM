@@ -921,14 +921,17 @@ const ExistingMachineReqSheetWithData = ({
           </tbody>
         </Table>
       </form>
+      
       {(context?.user_type === "Operator" ||
-        cmSelectedSheetForView?.assigned_users?.length > 0) && (
-        <ExistinngMachineReqSheetForOperator
-          isEditable={isEditable}
-          cmSelectedSheetForView={cmSelectedSheetForView}
-          setCmReqSheetView={setCmReqSheetView}
-        />
-      )}
+        cmSelectedSheetForView?.assigned_users?.length > 0) &&
+        (cmSelectedSheetForView?.requestSheetStatusOfCM !== "Generated" ||
+          isEditable === true) && (
+          <ExistinngMachineReqSheetForOperator
+            isEditable={isEditable}
+            cmSelectedSheetForView={cmSelectedSheetForView}
+            setCmReqSheetView={setCmReqSheetView}
+          />
+        )}
     </div>
   );
 };
