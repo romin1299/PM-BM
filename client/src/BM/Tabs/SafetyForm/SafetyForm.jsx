@@ -1372,29 +1372,26 @@ const SafetyForm = ({
                 </Grid>
               </Box>
             </Grid>
-            <FormGroup>
-              <Controller
-                name="finalSafetyAcceptance"
-                control={control}
-                rules={{
-                  required:
-                    "This field is required",
-                }}
-                render={({ field }) => (
-                  <FormControlLabel
-                    disabled={safetyForm}
-                    control={<Checkbox {...field} checked={field} />}
-                    label="Self declaration: I have checked machine and fixed all Safety Devices
-(Safety area curtain, Safety cover, Emergency Switch, Safety plug, Door interlocks etc.) back to original position @GENBA"
-                  />
-                )}
-              />
-              {errors.finalSafetyAcceptance && (
-                <FormHelperText error>
-                  {errors.finalSafetyAcceptance.message}
-                </FormHelperText>
-              )}
-            </FormGroup>
+
+            <input
+              type="checkbox"
+              name="finalSafetyAcceptance"
+              {...register("finalSafetyAcceptance")}
+              id="finalSafetyAcceptance"
+              disabled={safetyForm}
+            />
+            &ensp;
+            <span>
+              Self declaration: I have checked machine and fixed all Safety
+              Devices (Safety area curtain, Safety cover, Emergency Switch,
+              Safety plug, Door interlocks etc.) back to original position
+              @GENBA
+            </span>
+            {errors?.finalSafetyAcceptance && (
+              <FormHelperText error>
+                {errors?.finalSafetyAcceptance?.message}
+              </FormHelperText>
+            )}
             {!safetyForm && (
               <Grid item xs={12} mt={2} className="text-center">
                 <Button variant="contained" type="submit">

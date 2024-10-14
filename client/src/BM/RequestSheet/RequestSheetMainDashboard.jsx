@@ -339,7 +339,6 @@ const RequestSheetMainDashboard = () => {
   };
   const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
 
-
   useEffect(() => {
     if (reduceState?.selectedValue) getAllRequestSheetData();
   }, [
@@ -677,8 +676,12 @@ const RequestSheetMainDashboard = () => {
       disabled:
         (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus) &&
-        row?.IsSafetyFormCreated === true
+        // RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)
+        (row?.requestSheetStatus === "Fill Sheet" ||
+          row?.requestSheetStatus === "Work Order Pending" ||
+          row?.requestSheetStatus === "Work Order Closed" ||
+          row?.approvalStatusOfMTD_TL === "Rejected") &&
+        row?.IsSafetyFormCreated
           ? false
           : true,
       onClick: (event, selectedRow) =>
@@ -1323,7 +1326,7 @@ const RequestSheetMainDashboard = () => {
           machineNo={selectedRow?.machineNo}
           setSafetyFormModalOpen={setSafetyFormModalOpen}
           safetyFormModalOpen={safetyFormModalOpen}
-          machineSafetyCheckedByMTD ={selectedRow?.machineSafetyCheckedByMTD}
+          machineSafetyCheckedByMTD={selectedRow?.machineSafetyCheckedByMTD}
         />
       )}
     </>
