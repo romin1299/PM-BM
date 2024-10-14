@@ -1,8 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, Modal, Container, Row, Col } from "react-bootstrap";
+import moment from "moment";
 
-const RequestSheetOfLTPM = ({openCloseModalOfLTPM, openCloseLTPM, selectedRow}) => {
+const RequestSheetOfLTPM = ({
+  openCloseModalOfLTPM,
+  openCloseLTPM,
+  selectedRow,
+}) => {
   // const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
   const [dataOfLTPM, setDataOfLTPM] = useState([]);
 
@@ -144,6 +149,17 @@ const RequestSheetOfLTPM = ({openCloseModalOfLTPM, openCloseLTPM, selectedRow}) 
   useEffect(() => {
     getDataOfLTPM();
   }, []);
+
+  function getFinancialQuarter(date) {
+    const financialYearStartMonth = 4; // April is the 4th month
+    const month = moment(date).month() + 1; // moment().month() is zero-based, so adding 1
+    return Math.ceil((((month - financialYearStartMonth + 12) % 12) + 1) / 3);
+  }
+
+  // Example usage with current date
+  const currentFinancialQuarter = getFinancialQuarter(moment());
+
+  console.log(currentFinancialQuarter);
 
   return (
     <>
@@ -321,33 +337,16 @@ const RequestSheetOfLTPM = ({openCloseModalOfLTPM, openCloseLTPM, selectedRow}) 
                           ))}
                         </tr>
                       </thead>
-                      {/* <tbody>
-                        {dataOfLTPM.map((rowData, idx) => (
-                          <tr className="ar-table-row">
-                            <td className="ar-table-col">{++idx}</td>
-                            <td
-                              className="ar-table-col"
-                              rowSpan={rowData?.data?.length + 1}
-                            >
-                              {rowData?.machines.machine_code}
-                            </td>
-                            <td className="ar-table-col">
-                              {rowData?.machines.machine_name}
-                            </td>
-                            <td className="ar-table-col"></td>
-                            <td className="ar-table-col"></td>
-                            <td className="ar-table-col">
-                              {rowData?.data?.frequencyValue}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody> */}
-
                       <tbody>
                         {dataOfLTPM?.map((item, index) => (
                           <React.Fragment key={index}>
                             <tr className="ar-table-row">
-                              <td className="ar-table-col" rowSpan={item?.data?.length + 1}>{++index}</td>
+                              <td
+                                className="ar-table-col"
+                                rowSpan={item?.data?.length + 1}
+                              >
+                                {++index}
+                              </td>
                               <td
                                 rowSpan={item?.data?.length + 1}
                                 className="ar-table-col"
@@ -364,10 +363,17 @@ const RequestSheetOfLTPM = ({openCloseModalOfLTPM, openCloseLTPM, selectedRow}) 
 
                             {item?.data?.map((item1, index) => (
                               <tr key={index}>
-                                <td></td>
-                                <td></td>
+                                <td className="ar-table-col">
+                                  {item1?.inspectionItem}
+                                </td>
+                                <td className="ar-table-col">
+                                  {item1?.actionForLTPM}
+                                </td>
                                 <td className="ar-table-col">
                                   {item1?.frequencyValue}
+                                </td>
+                                <td className="ar-table-col">
+                                  {item1?.personForLTPM}
                                 </td>
                               </tr>
                             ))}
