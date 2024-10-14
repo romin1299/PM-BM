@@ -20248,12 +20248,8 @@ router.post(
           lineRef: noLossRequestSheetData?.selectedLine || null,
           machineRef: noLossRequestSheetData?.selectedMachine || null,
           preAggregationTimeStampOfRequestSheet: {
-            requestSheet_year: gettingFYYearForSelectedDate(
-              noLossRequestSheetData?.DateOfNoLossBD
-            ),
-            requestSheet_month: gettingMonthForSelectedDate(
-              noLossRequestSheetData?.DateOfNoLossBD
-            ),
+            requestSheet_year: gettingFYYearForSelectedDate(new Date()),
+            requestSheet_month: gettingMonthForSelectedDate(new Date()),
           },
         });
 

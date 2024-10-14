@@ -178,11 +178,18 @@ const NoLossBDEntryForm = () => {
 
       if (res.status === 201) {
         SuccessToast(data?.message);
-        reset();
+        reset({
+          actionTemporaryOrNot: "",
+          maintenanceType: "",
+          shiftOfBM: "",
+          machineStatus: "",
+          workStartedDateOfBM: "",
+          workEndedDateOfBM: "",
+        });
         setProblems([]);
         setActions([]);
         setSelectedSupportedTM([]);
-        setInc(inc + 1);
+        setInc((inc) => inc + 1);
       } else {
         WarningToast(data?.message);
       }
@@ -366,14 +373,18 @@ const NoLossBDEntryForm = () => {
                       flex
                       label={shiftInfo.shiftName}
                       type="radio"
-                      value={shiftInfo.shiftName}
-                      name={`shiftOfBM`}
+                      // value={shiftInfo.shiftName}
+                      // name={`shiftOfBM`}
+                      {...register(`shiftOfBM`, {
+                        required: "This field is required",
+                      })}
+
                       // {...register(`shiftOfBM.${shiftInfo.shiftName}`)}
-                      onChange={(e) => {
-                        setValue(`shiftOfBM`, e.target.value, {
-                          shouldDirty: true,
-                        });
-                      }}
+                      // onChange={(e) => {
+                      //   setValue(`shiftOfBM`, e.target.value, {
+                      //     shouldDirty: true,
+                      //   });
+                      // }}
                     />
                   ))}
                   {errors?.["shiftOfBM"] && (
@@ -612,7 +623,7 @@ const NoLossBDEntryForm = () => {
                             width: "15rem",
                           },
                         }}
-                        // selectedValues={requestSheetDataOfBM?.supportingTM}
+                        selectedValues={selectedSupportedTM}
                       />
                     )}
                   />

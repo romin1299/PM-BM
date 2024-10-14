@@ -896,3 +896,7 @@
 		Error: user not found
     at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-14T10:39 | BM | Date.now is not a constructor
+		TypeError: Date.now is not a constructor
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:20252:61
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
