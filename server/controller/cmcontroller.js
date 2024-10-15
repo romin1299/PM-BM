@@ -70,7 +70,6 @@ const successResponse = (res, message, data) => {
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
     // console.log(file.fieldname);
-    console.log(file)
     if (file.fieldname === "attachedFileByAssignedUser") {
       cb(null, "./AttachedFilesByAssignedUser/");
     }
@@ -335,7 +334,7 @@ router.patch(
       requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
         "";
     }
-    // 
+    //
     // console.log(requestSheetDataFilledByMTDUserForCM);
     const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
       { _id: id },
