@@ -11,7 +11,13 @@ const initialState = {
   cost: "",
 };
 
-const PartList = ({ parts, setParts, handleOnchangeFlag, isEditable }) => {
+const PartList = ({
+  parts,
+  setParts,
+  handleOnchangeFlag,
+  isEditable,
+  clearErrors,
+}) => {
   // console.clear();
   // console.log("parts:", parts);
 
@@ -35,6 +41,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag, isEditable }) => {
 
       setParts([...parts, newPart]);
       handleOnchangeFlag && handleOnchangeFlag("parts_val_flag");
+      clearErrors("partList");
       setNewPart(initialState);
       setIsAdding(false);
     }
@@ -85,28 +92,53 @@ const PartList = ({ parts, setParts, handleOnchangeFlag, isEditable }) => {
   return (
     <div className="mtd-parts-section">
       <Row className="m-0 d-flex">
-        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
-          <small >
+        <Col
+          lg={2}
+          md={2}
+          sm={2}
+          className="border col-auto d-flex align-items-center gap-1"
+        >
+          <small>
             <b>PART NO.</b>
           </small>
         </Col>
-        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
-          <small >
+        <Col
+          lg={2}
+          md={2}
+          sm={2}
+          className="border col-auto d-flex align-items-center gap-1"
+        >
+          <small>
             <b>PART NAME</b>
           </small>
         </Col>
-        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
-          <small >
+        <Col
+          lg={2}
+          md={2}
+          sm={2}
+          className="border col-auto d-flex align-items-center gap-1"
+        >
+          <small>
             <b>MAKER</b>
           </small>
         </Col>
-        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
-          <small >
+        <Col
+          lg={2}
+          md={2}
+          sm={2}
+          className="border col-auto d-flex align-items-center gap-1"
+        >
+          <small>
             <b>QUANTITY</b>
           </small>
         </Col>
-        <Col lg={2} md={2} sm={2} className="border col-auto d-flex align-items-center gap-1">
-          <small >
+        <Col
+          lg={2}
+          md={2}
+          sm={2}
+          className="border col-auto d-flex align-items-center gap-1"
+        >
+          <small>
             <b>COST</b>
           </small>
         </Col>
@@ -117,7 +149,7 @@ const PartList = ({ parts, setParts, handleOnchangeFlag, isEditable }) => {
           className="border col-auto d-flex align-items-center gap-1 "
           // className="border col-auto d-flex align-items-center gap-1 p-1"
         >
-          <small >
+          <small>
             <b>UPDATE</b>
           </small>
           {/* <AddBoxIcon onClick={() => setIsAdding(true)} /> */}
@@ -128,9 +160,14 @@ const PartList = ({ parts, setParts, handleOnchangeFlag, isEditable }) => {
         editedPart && editedPart.id === index ? (
           <Row key={index} className="m-0 d-flex">
             {/* Render input fields for editing */}
-            <Col lg={2} md={2} sm={2} className={`border col-auto d-flex align-items-center gap-1 ${
-              editedPart && editedPart.id === parts.id ? "editable" : ""
-            }`}>
+            <Col
+              lg={2}
+              md={2}
+              sm={2}
+              className={`border col-auto d-flex align-items-center gap-1 ${
+                editedPart && editedPart.id === parts.id ? "editable" : ""
+              }`}
+            >
               <input
                 type="text"
                 className="mb-2 mt-2"
