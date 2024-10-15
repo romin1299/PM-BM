@@ -9383,13 +9383,13 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
     return res.status(200).json({
       message: "Monthly BD trend data for hourly get successfully",
       bdTrendData: [
-        { label: "<1", data: bdTrendData?.[0].lessThanOne },
-        { label: "<2", data: bdTrendData?.[0].lessThanTwo },
-        { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
+        { label: "<1", data: bdTrendData?.[0]?.lessThanOne },
+        { label: "<2", data: bdTrendData?.[0]?.lessThanTwo },
+        { label: ">2", data: bdTrendData?.[0]?.greaterThanTwo },
         // { label: "Total", data: bdTrendData?.[0].totalCount },
       ],
-      totalCount: bdTrendData?.[0].totalCount,
-      bdTrendDataTarget: req.target,
+      totalCount: bdTrendData?.[0]?.totalCount,
+      bdTrendDataTarget: req?.target,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -9432,6 +9432,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
           pipeline: [
             {
               $match: {
+                maintenanceType: "BM",
                 $expr: {
                   $eq: ["$$subsection", "$subSectionRef"],
                 },
@@ -9759,7 +9760,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
       bdTrendData,
       bdTrendDataTarget: req.target,
-      averageData: averageData?.[0].data,
+      averageData: averageData?.[0]?.data,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -10219,8 +10220,8 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       message: "Line Wise Monthly BD trend data for line get successfully",
 
       bdTrendData,
-      bdTrendDataTarget: req.target,
-      averageData: averageData?.[0].data,
+      bdTrendDataTarget: req?.target,
+      averageData: averageData?.[0]?.data,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -10447,8 +10448,8 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       message: "Machine Wise Monthly BD trend data for line get successfully",
 
       bdTrendData,
-      bdTrendDataTarget: req.target,
-      averageData: averageData?.[0].data,
+      bdTrendDataTarget: req?.target,
+      averageData: averageData?.[0]?.data,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -11144,7 +11145,7 @@ router.get(
       if (req.params.selectedId) {
         const sections = await Section.find({
           plant_names: mongoose.Types.ObjectId(
-            req.queryObj.plantRef.toString()
+            req.queryObj.plantRef
           ),
         });
         // console.log(sections);

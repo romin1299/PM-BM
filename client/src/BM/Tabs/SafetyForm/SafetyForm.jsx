@@ -214,7 +214,6 @@ const SafetyForm = ({
                 </h4>
               </Box>
             </Grid>
-
             <Grid sm={12}>
               <Box className="d-flex border  p-1 align-items-center">
                 <Grid sm={4} fontWeight={650}>
@@ -241,19 +240,19 @@ const SafetyForm = ({
                 </Grid>
                 <Grid sm={8}>{machineNo}</Grid>
 
+                <Grid sm={4} fontWeight={650}>
+                  TM Signature:
+                </Grid>
                 {safetyForm?.safetyFormFilledUpBy && (
                   <>
-                    <Grid sm={4} fontWeight={650}>
-                      TM Signature:
-                    </Grid>
                     <Grid sm={8}>{safetyForm?.safetyFormFilledUpBy}</Grid>
                   </>
                 )}
+                <Grid sm={4} fontWeight={650}>
+                  TL Signature:
+                </Grid>
                 {machineSafetyCheckedByMTD?.tm_name && (
                   <>
-                    <Grid sm={4} fontWeight={650}>
-                      TL Signature:
-                    </Grid>
                     <Grid sm={8}>{machineSafetyCheckedByMTD?.tm_name}</Grid>
                   </>
                 )}
@@ -1329,7 +1328,6 @@ const SafetyForm = ({
                 )}
               </Grid>
             </Grid>
-
             <Grid sm={12} className="border">
               <Box className="d-flex p-1 align-items-center">
                 <Grid lg={4} fontWeight={650}>
@@ -1372,7 +1370,6 @@ const SafetyForm = ({
                 </Grid>
               </Box>
             </Grid>
-
             <input
               type="checkbox"
               name="finalSafetyAcceptance"
