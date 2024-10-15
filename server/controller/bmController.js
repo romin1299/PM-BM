@@ -10256,6 +10256,7 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 },
                 "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                   req.query.selectedYear,
+                  maintenanceType: "BM",
               },
             },
 
