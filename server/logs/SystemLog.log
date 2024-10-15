@@ -3054,3 +3054,16 @@
     at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
     at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
     at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-15T12:41 | BM | Cannot read properties of undefined (reading 'categories')
+		TypeError: Cannot read properties of undefined (reading 'categories')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8148:50
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-15T12:41 | BM | Cannot read properties of undefined (reading 'categories')
+		TypeError: Cannot read properties of undefined (reading 'categories')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8148:50
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-15T12:41 | BM | Cannot read properties of undefined (reading 'categories')
+		TypeError: Cannot read properties of undefined (reading 'categories')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8148:50
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)

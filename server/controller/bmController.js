@@ -9388,6 +9388,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                 },
                 "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                   req.query.selectedYear,
+                  maintenanceType : "BM"
               },
             },
             {
@@ -11131,6 +11132,7 @@ router.get(
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                     req.query.selectedYear,
+                  maintenanceType : "BM"
                 },
               },
               {
@@ -11256,6 +11258,7 @@ router.get(
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                     req.query.selectedYear,
+                  maintenanceType : "BM"
                 },
               },
 
