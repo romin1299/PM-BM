@@ -70,7 +70,7 @@ const successResponse = (res, message, data) => {
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
     // console.log(file.fieldname);
-    if (file.fieldname === "attachedFilesByAssignedUser") {
+    if (file.fieldname === "attachedFileByAssignedUser") {
       cb(null, "./AttachedFilesByAssignedUser/");
     }
   },
@@ -334,8 +334,8 @@ router.patch(
       requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
         "";
     }
-    // 
-    (requestSheetDataFilledByMTDUserForCM);
+    //
+    // console.log(requestSheetDataFilledByMTDUserForCM);
     const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
       { _id: id },
       { ...requestSheetDataFilledByMTDUserForCM },
@@ -462,7 +462,7 @@ router.patch(
           approvalStatusOfMTD_HOS: "Pending",
           approverNameLogOfMTD_HOS:
             requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfHOS?.name,
-          approvalDateAndTimeOfMTD_HOS: new Date(),
+          approvalDateAndTimeOfMTD_HOS: "",
         },
       };
 
@@ -482,7 +482,6 @@ router.patch(
           "getDataForApprovalDashboard.Id":
             requestSheetDataFilledByMTDUserForCM?.assignApprovalListOfTL?.id,
           "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD TL/HOSS",
-          approvalDateAndTimeOfMTD_TL: new Date(),
         };
       } else {
         updateObj.$set = {
