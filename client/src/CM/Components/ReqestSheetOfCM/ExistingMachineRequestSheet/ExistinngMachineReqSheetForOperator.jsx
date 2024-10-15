@@ -89,8 +89,8 @@ const ExistinngMachineReqSheetForOperator = ({
   console.log("HOS", watch("mtdHOS"));
 
   const handleCustomErrors = () => {
-    console.log("object");
-    if (watch("mtdHOS") === "") {
+    console.log("object", watch("mtdHOS"));
+    if (watch("mtdHOS") === undefined) {
       setError(
         "mtdHOS",
         {
@@ -101,9 +101,25 @@ const ExistinngMachineReqSheetForOperator = ({
         }
       );
     }
-    if (watch("isPermissionOfMTDTL") === "Yes" && watch("mtdTL") === "") {
+    if (
+      watch("isPermissionOfMTDTL") === "Yes" &&
+      watch("mtdTL") === undefined
+    ) {
       setError(
         "mtdTL",
+        {
+          message: "This field is required !",
+        },
+        { shouldFocus: true }
+      );
+      flagCountForHandlingError++;
+    }
+    if (
+      watch("isPermissionOfPRDTL") === "Yes" &&
+      watch("prdTL") === undefined
+    ) {
+      setError(
+        "prdTL",
         {
           message: "This field is required !",
         },
@@ -172,11 +188,11 @@ const ExistinngMachineReqSheetForOperator = ({
   const upadteReqSheet = async (requestSheetDataOfCM) => {
     console.log("rgdfshfgdhfghgfdh");
     console.log("This is reqsheet", requestSheetDataOfCM);
-    let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
-    console.log("helvfs", checkWhetherAnyErrorOccurredOrNot);
-    if (checkWhetherAnyErrorOccurredOrNot > 0) {
-      return;
-    }
+    // let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
+    // console.log("helvfs", checkWhetherAnyErrorOccurredOrNot);
+    // if (checkWhetherAnyErrorOccurredOrNot > 0) {
+    //   return;
+    // }
     requestSheetDataOfCM.changedParts = parts;
     requestSheetDataOfCM.workDetails = workDetails;
     requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
@@ -513,17 +529,24 @@ const ExistinngMachineReqSheetForOperator = ({
                 <Col lg={8}>
                   {watch("isPermissionOfMTDTL") === "Yes" && (
                     <>
-                      <Col className="pt-2 d-flex mb-2">
-                        <small className="mb-0 pt-1 ">
+                      <Col className="pt-2 d-flex">
+                        <small
+                          className="mb-0 pt-1 "
+                          style={{
+                            fontSize: "15px",
+                            width: "fit-content",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           <b>Select MTD TL/HOSS: </b>
                         </small>
                         &nbsp;&nbsp;
                         <Controller
                           control={control}
                           name="mtdTL"
-                          rules={{
-                            required: "This field is required",
-                          }}
+                          // rules={{
+                          //   required: "This field is required",
+                          // }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <select
                               // className="form-control"
@@ -548,15 +571,23 @@ const ExistinngMachineReqSheetForOperator = ({
                           )}
                         />
                         {errors?.["mtdTL"] && (
-                          <p className="text-error">
+                          <p className="text-error m-0 p-0">
                             {errors?.["mtdTL"]?.message}
                           </p>
                         )}
                       </Col>
+                      <br />
                     </>
                   )}
                   <Col className="pt-2 d-flex mb-2">
-                    <small className="mb-0 pt-1" style={{ fontSize: "15px" }}>
+                    <small
+                      className="mb-0 pt-1"
+                      style={{
+                        fontSize: "15px",
+                        width: "fit-content",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       <b>Select MTD HOS: </b>
                     </small>
                     &nbsp;&nbsp;
@@ -564,9 +595,9 @@ const ExistinngMachineReqSheetForOperator = ({
                       control={control}
                       name="mtdHOS"
                       // disabled={true}
-                      rules={{
-                        required: "This field is required",
-                      }}
+                      // rules={{
+                      //   required: "This field is required",
+                      // }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <select
                           // className="form-control"
@@ -589,19 +620,22 @@ const ExistinngMachineReqSheetForOperator = ({
                       )}
                     />
                     &nbsp;&nbsp;
-                    {errors?.["mtdHOS"] && (
-                      <p className="text-error">
-                        {errors?.["mtdHOS"]?.message}
-                      </p>
-                    )}
                   </Col>
+                  {errors?.["mtdHOS"] && (
+                    <p className="text-error">{errors?.["mtdHOS"]?.message}</p>
+                  )}
                 </Col>
               </Row>
             </Col>
-            <Col lg={6} style={{ paddingLeft: "0px" }}>
+            <Col lg={6} style={{ paddingRight: "0px" }}>
               <Row className="row m-0 border">
-                <Col lg={3} className="m-0  border center p-2">
-                  <small className="mb-0 d-flex align-items-center justify-content-start">
+                <Col lg={3} md={12} className="m-0  border center p-2">
+                  <small
+                    className="mb-0 d-flex align-items-center justify-content-start"
+                    style={{
+                      width: "fit-content",
+                    }}
+                  >
                     <b>PRD TL Permission</b>&nbsp;&nbsp;&nbsp;
                   </small>
                   <Form>
@@ -641,13 +675,17 @@ const ExistinngMachineReqSheetForOperator = ({
                   )}
                   <br />
                 </Col>
-                <Col lg={8}>
+                <Col lg={8} sm={12}>
                   {watch("isPermissionOfPRDTL") === "Yes" && (
                     <>
-                      <Col lg={8} className="mt-2 d-flex">
+                      <Col lg={12} className="mt-2 d-flex">
                         <small
                           className="mb-0 pt-1 "
-                          style={{ fontSize: "15px" }}
+                          style={{
+                            fontSize: "15px",
+                            width: "fit-content",
+                            whiteSpace: "nowrap",
+                          }}
                         >
                           <b>Select PRD TL: </b>
                         </small>
@@ -655,9 +693,6 @@ const ExistinngMachineReqSheetForOperator = ({
                         <Controller
                           control={control}
                           name="prdTL"
-                          rules={{
-                            required: "This field is required"
-                          }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <select
                               size="small"
@@ -676,13 +711,11 @@ const ExistinngMachineReqSheetForOperator = ({
                             </select>
                           )}
                         />
-                        {errors?.["prdTL"] && (
-                          <p className="text-error">
-                            {errors?.["prdTL"]?.message}
-                          </p>
-                        )}
                       </Col>
                     </>
+                  )}
+                  {errors?.["prdTL"] && (
+                    <p className="text-error">{errors?.["prdTL"]?.message}</p>
                   )}
                 </Col>
               </Row>
