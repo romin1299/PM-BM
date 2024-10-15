@@ -63,7 +63,6 @@ const AllRequestSheetReportDataOfCM = () => {
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
-      console.log(response);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
     } catch (error) {
       console.log(error);
@@ -149,12 +148,6 @@ const AllRequestSheetReportDataOfCM = () => {
   const [isEditable, setIsEditable] = useState(false);
   const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-  console.log(
-    // cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
-    //   cmSelectedSheetForView?.approvalStatusOfMTD_TL === "Rejected" ||
-    //   cmSelectedSheetForView?.approvalStatusOfMTD_HOS === "Rejected"
-    CmReqSheetView
-  );
   const requestSheetApprovalAction = [
     // {
     //   icon: () => <CreditCardIcon className="text-primary1" />,

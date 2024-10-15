@@ -18,7 +18,6 @@ const PartList = ({ parts, setParts, handleOnchangeFlag, isEditable }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editedPart, setEditedPart] = useState(null);
   const [newPart, setNewPart] = useState(initialState);
-  console.log("this is edit ", isEditable);
 
   const addPart = (event) => {
     event.preventDefault();

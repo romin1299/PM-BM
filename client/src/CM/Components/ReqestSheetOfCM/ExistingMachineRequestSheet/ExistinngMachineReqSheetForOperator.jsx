@@ -42,8 +42,6 @@ const ExistinngMachineReqSheetForOperator = ({
       isPermissionOfMTDTL: cmSelectedSheetForView?.isPermissionOfMTDTL,
     },
   });
-  console.log(cmSelectedSheetForView);
-  console.log("Thisn is edita", isEditable);
   const showMTDHOSS = watch("options") === "Yes";
 
   const [MTDHOSList, setMTDHOSList] = useState([]);
@@ -79,14 +77,12 @@ const ExistinngMachineReqSheetForOperator = ({
       console.log(error);
     }
   };
-  console.log(cmSelectedSheetForView);
   useEffect(() => {
     getApprovalListOfCM();
     setParts(cmSelectedSheetForView?.changedParts);
     setActions(cmSelectedSheetForView?.actionAndCounterMeasureStep);
     setWorkDetails(cmSelectedSheetForView?.workDetails);
   }, []);
-  console.log("HOS", watch("mtdHOS"));
 
   const handleCustomErrors = () => {
     if (watch("isPermissionOfMTDTL") === "Yes" && watch("mtdTL") === "") {
@@ -153,7 +149,6 @@ const ExistinngMachineReqSheetForOperator = ({
     return flagCountForHandlingError;
   };
   const upadteReqSheet = async (requestSheetDataOfCM) => {
-    console.log(requestSheetDataOfCM);
     let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
     if (checkWhetherAnyErrorOccurredOrNot > 0) {
       return;
@@ -227,7 +222,6 @@ const ExistinngMachineReqSheetForOperator = ({
       console.log(error);
       WarningToast("Request Sheet Updation Failed..!!");
     }
-    console.log(requestSheetDataOfCM);
   };
   let flagCountForHandlingError = 0;
 
@@ -280,7 +274,6 @@ const ExistinngMachineReqSheetForOperator = ({
     requestSheetDataOfCM.changedParts = parts;
     requestSheetDataOfCM.workDetails = workDetails;
     requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
-    console.log(requestSheetDataOfCM);
     try {
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
@@ -318,7 +311,6 @@ const ExistinngMachineReqSheetForOperator = ({
         );
         console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
       }
-      console.log("These are ", otherFields);
       formData.append(
         "otherData",
         JSON.stringify({
@@ -349,8 +341,6 @@ const ExistinngMachineReqSheetForOperator = ({
         formData,
         config
       );
-
-      console.log(response);
       if (response.status === 201) {
         SuccessToast("Approval Send Successfully");
         setCmReqSheetView(false);
