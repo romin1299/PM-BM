@@ -1034,12 +1034,9 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       />
                       <label>No</label>
                     </Col>
-                    {errors?.cmBasicDataFilledByMTD_TL?.partRequiredByMTDTL && (
+                    {errors?.partRequiredByMTDTL && (
                       <p className="text-error">
-                        {
-                          errors?.cmBasicDataFilledByMTD_TL?.partRequiredByMTDTL
-                            ?.message
-                        }
+                        {errors?.partRequiredByMTDTL?.message}
                       </p>
                     )}
                   </Col>
