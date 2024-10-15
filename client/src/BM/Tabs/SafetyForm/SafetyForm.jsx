@@ -159,6 +159,7 @@ const SafetyForm = ({
           "Content-type": "application/json",
         },
       };
+      console.log(data);
       const response = await axios.post(`/addSafetyForm/${id}`, data, config);
       toast.success(response.data.message);
       setSafetyFormModalOpen(false);
@@ -322,7 +323,7 @@ const SafetyForm = ({
                       <FormControlLabel
                         disabled={safetyForm}
                         control={<Checkbox {...field} checked={field.value} />}
-                        label="Wear personal protective equipment(Safety glasses, safety shoes)"
+                        label="Wear personal protective equipment(Safety glasses, helmet, safety shoes)"
                       />
                     )}
                   />
@@ -383,13 +384,13 @@ const SafetyForm = ({
             <Grid sm={12} className="border">
               <Box className="text-center w-100 border-bottom">
                 <h4 style={{ fontSize: "20px" }}>
-                  High Risk Works (Work in pairs)
+                  6 Designated Works (Work in pairs)
                 </h4>
               </Box>
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    1) Work Inside Machine:
+                    1) Work Team:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -441,7 +442,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Hold an observer and wear personal protective equipment (helmet, safety glasses) depending on the necessity."
+                          label="Determine a leader. (Leader's name)"
                         />
                       )}
                     />
@@ -455,7 +456,7 @@ const SafetyForm = ({
                       control={control}
                       rules={{
                         required:
-                          "This field is required when 'Work Inside Machine' is Yes",
+                          "This field is required when 'Work Team' is Yes",
                       }}
                       render={({ field }) => (
                         <FormControlLabel
@@ -463,7 +464,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Hold a meeting before work (to confirm the details, procedures, steps, repetition.)"
+                          label="Hold a meeting before work (to confirm the details, procedures, steps, regulation.)"
                         />
                       )}
                     />
@@ -479,7 +480,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    2) High Pressure (Liquid 30 Mpa, Gas 1 mpa):
+                    2) Work bypassing safety devices:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -523,7 +524,7 @@ const SafetyForm = ({
                       control={control}
                       rules={{
                         required:
-                          "This field is required when 'High Pressure' is Yes",
+                          "This field is required when 'bypassing safety devices' is Yes",
                       }}
                       render={({ field }) => (
                         <FormControlLabel
@@ -531,7 +532,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Don't Open Pressure Line during Running."
+                          label="Issue a permission of bypassing safety devices."
                         />
                       )}
                     />
@@ -553,7 +554,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Do the Proper 3S for Work"
+                          label="Observe alternative safety measure and restore the safety device after work."
                         />
                       )}
                     />
@@ -575,7 +576,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Check Trained Staff should available."
+                          label="Insert a safety block (to prevent the machine from moving due to its own weight.)"
                         />
                       )}
                     />
@@ -591,7 +592,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    3) Work handling heavy objects ({">"}20 kg):
+                    3) Work handling heavy objects:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -681,32 +682,7 @@ const SafetyForm = ({
                         }
                       </FormHelperText>
                     )}
-                    <Controller
-                      name="workHandlingHeavyObj.wearPersonalProtectiveEquipment"
-                      control={control}
-                      rules={{
-                        required:
-                          "This field is required when 'Work handling heavy objects' is Yes",
-                      }}
-                      render={({ field }) => (
-                        <FormControlLabel
-                          disabled={safetyForm}
-                          control={
-                            <Checkbox {...field} checked={field.value} />
-                          }
-                          label="Wear personal protective equipment (helmet, safety belt/harness, high voltage rubber gloves, boots)"
-                        />
-                      )}
-                    />
-                    {errors.workHandlingHeavyObj
-                      ?.wearPersonalProtectiveEquipment && (
-                      <FormHelperText error>
-                        {
-                          errors.workHandlingHeavyObj
-                            .wearPersonalProtectiveEquipment.message
-                        }
-                      </FormHelperText>
-                    )}
+
                     <Controller
                       name="workHandlingHeavyObj.secureFootingAndHandPosition"
                       control={control}
@@ -780,6 +756,31 @@ const SafetyForm = ({
                 {workAtHeightValue === "true" && (
                   <FormGroup>
                     <Controller
+                      name="workAtHeight.wearPersonalProtectiveEquipment"
+                      control={control}
+                      rules={{
+                        required:
+                          "This field is required when 'Work handling heavy objects' is Yes",
+                      }}
+                      render={({ field }) => (
+                        <FormControlLabel
+                          disabled={safetyForm}
+                          control={
+                            <Checkbox {...field} checked={field.value} />
+                          }
+                          label="Wear personal protective equipment (helmet, safety belt/harness)."
+                        />
+                      )}
+                    />
+                    {errors.workAtHeight?.wearPersonalProtectiveEquipment && (
+                      <FormHelperText error>
+                        {
+                          errors.workAtHeight.wearPersonalProtectiveEquipment
+                            .message
+                        }
+                      </FormHelperText>
+                    )}
+                    <Controller
                       name="workAtHeight.postASignOfHighPlace"
                       control={control}
                       rules={{
@@ -801,28 +802,7 @@ const SafetyForm = ({
                         {errors.workAtHeight.postASignOfHighPlace.message}
                       </FormHelperText>
                     )}
-                    <Controller
-                      name="workAtHeight.postASignToUseFire"
-                      control={control}
-                      rules={{
-                        required:
-                          "This field is required when 'Work at height' is Yes",
-                      }}
-                      render={({ field }) => (
-                        <FormControlLabel
-                          disabled={safetyForm}
-                          control={
-                            <Checkbox {...field} checked={field.value} />
-                          }
-                          label="Post a sign indicating the use of fire is permitted. Check that there is no remaining fire in 30 minutes after operations."
-                        />
-                      )}
-                    />
-                    {errors.workAtHeight?.postASignToUseFire && (
-                      <FormHelperText error>
-                        {errors.workAtHeight.postASignToUseFire.message}
-                      </FormHelperText>
-                    )}
+
                     <Controller
                       name="workAtHeight.secureFootingAndSafetyBelt"
                       control={control}
@@ -843,6 +823,28 @@ const SafetyForm = ({
                     {errors.workAtHeight?.secureFootingAndSafetyBelt && (
                       <FormHelperText error>
                         {errors.workAtHeight.secureFootingAndSafetyBelt.message}
+                      </FormHelperText>
+                    )}
+                    <Controller
+                      name="workAtHeight.isAssociatesQualified"
+                      control={control}
+                      rules={{
+                        required:
+                          "This field is required when 'Work handling fire/Work' is Yes",
+                      }}
+                      render={({ field }) => (
+                        <FormControlLabel
+                          disabled={safetyForm}
+                          control={
+                            <Checkbox {...field} checked={field.value} />
+                          }
+                          label="Ensure that associates are properly qualified (High place skill training, electric wire skill training, high voltage special education)."
+                        />
+                      )}
+                    />
+                    {errors.workAtHeight?.isAssociatesQualified && (
+                      <FormHelperText error>
+                        {errors.workAtHeight.isAssociatesQualified.message}
                       </FormHelperText>
                     )}
                   </FormGroup>
@@ -892,6 +894,28 @@ const SafetyForm = ({
                 {workHandlingFireValue === "true" && (
                   <FormGroup>
                     <Controller
+                      name="workHandlingFire.postASignToUseFire"
+                      control={control}
+                      rules={{
+                        required:
+                          "This field is required when 'Work at height' is Yes",
+                      }}
+                      render={({ field }) => (
+                        <FormControlLabel
+                          disabled={safetyForm}
+                          control={
+                            <Checkbox {...field} checked={field.value} />
+                          }
+                          label="Post a sign indicating the use of fire is permitted. Check that there is no remaining fire in 30 minutes after operations."
+                        />
+                      )}
+                    />
+                    {errors.workHandlingFire?.postASignToUseFire && (
+                      <FormHelperText error>
+                        {errors.workHandlingFire.postASignToUseFire.message}
+                      </FormHelperText>
+                    )}
+                    <Controller
                       name="workHandlingFire.takeFirePrevention"
                       control={control}
                       rules={{
@@ -913,28 +937,7 @@ const SafetyForm = ({
                         {errors.workHandlingFire.takeFirePrevention.message}
                       </FormHelperText>
                     )}
-                    <Controller
-                      name="workHandlingFire.measureOxygen"
-                      control={control}
-                      rules={{
-                        required:
-                          "This field is required when 'Work handling fire/Work' is Yes",
-                      }}
-                      render={({ field }) => (
-                        <FormControlLabel
-                          disabled={safetyForm}
-                          control={
-                            <Checkbox {...field} checked={field.value} />
-                          }
-                          label="Measure the oxygen concentration (work supervisor) and properly ventilate the work area."
-                        />
-                      )}
-                    />
-                    {errors.workHandlingFire?.measureOxygen && (
-                      <FormHelperText error>
-                        {errors.workHandlingFire.measureOxygen.message}
-                      </FormHelperText>
-                    )}
+
                     <Controller
                       name="workHandlingFire.isAssociatesQualified"
                       control={control}
@@ -961,7 +964,7 @@ const SafetyForm = ({
                 )}
               </Grid>
 
-              <Grid sm={12} className="border">
+              {/* <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
                     6) Involving handling of flammable liquid:
@@ -1086,12 +1089,12 @@ const SafetyForm = ({
                     )}
                   </FormGroup>
                 )}
-              </Grid>
+              </Grid> */}
 
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    7) Work involving risk of oxygen deficiency:
+                    6) Work involving risk of oxygen deficiency:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -1130,6 +1133,28 @@ const SafetyForm = ({
                 </Box>
                 {workInvolvingRiskOfOxygenValue === "true" && (
                   <FormGroup>
+                    <Controller
+                      name="workInvolvingRiskOfOxygen.measureOxygen"
+                      control={control}
+                      rules={{
+                        required:
+                          "This field is required when 'Work handling fire/Work' is Yes",
+                      }}
+                      render={({ field }) => (
+                        <FormControlLabel
+                          disabled={safetyForm}
+                          control={
+                            <Checkbox {...field} checked={field.value} />
+                          }
+                          label="Measure the oxygen concentration (work supervisor) and properly ventilate the work area."
+                        />
+                      )}
+                    />
+                    {errors.workInvolvingRiskOfOxygen?.measureOxygen && (
+                      <FormHelperText error>
+                        {errors.workInvolvingRiskOfOxygen.measureOxygen.message}
+                      </FormHelperText>
+                    )}
                     <Controller
                       name="workInvolvingRiskOfOxygen.holdAnObserverAndWearProtectiveEquipment"
                       control={control}
@@ -1189,78 +1214,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    8) Work using high voltage electric device:
-                  </Grid>
-                  <Grid lg={8}>
-                    <Controller
-                      name="workUsingHighVoltage.IsAccepted"
-                      control={control}
-                      rules={{ required: "This field is required" }}
-                      render={({ field }) => (
-                        <Form.Group>
-                          <Form.Check
-                            inline
-                            type="radio"
-                            label="Yes"
-                            value="true"
-                            checked={field.value === "true"}
-                            onChange={() => field.onChange("true")}
-                            disabled={safetyForm}
-                          />
-                          <Form.Check
-                            inline
-                            type="radio"
-                            label="No"
-                            value="false"
-                            checked={field.value === "false"}
-                            onChange={() => field.onChange("false")}
-                            disabled={safetyForm}
-                          />
-                        </Form.Group>
-                      )}
-                    />
-                    {errors.workUsingHighVoltage?.IsAccepted && (
-                      <FormHelperText error>
-                        {errors.workUsingHighVoltage.IsAccepted.message}
-                      </FormHelperText>
-                    )}
-                  </Grid>
-                </Box>
-                {workUsingHighVoltageValue === "true" && (
-                  <FormGroup>
-                    <Controller
-                      name="workUsingHighVoltage.isAssociatesQualified"
-                      control={control}
-                      rules={{
-                        required:
-                          "This field is required when 'Work using high voltage electric device' is Yes",
-                      }}
-                      render={({ field }) => (
-                        <FormControlLabel
-                          disabled={safetyForm}
-                          control={
-                            <Checkbox {...field} checked={field.value} />
-                          }
-                          label="Ensure that associates are properly qualified (High place skill training, electric wire skill training, high voltage special education)."
-                        />
-                      )}
-                    />
-                    {errors.workUsingHighVoltage?.isAssociatesQualified && (
-                      <FormHelperText error>
-                        {
-                          errors.workUsingHighVoltage.isAssociatesQualified
-                            .message
-                        }
-                      </FormHelperText>
-                    )}
-                  </FormGroup>
-                )}
-              </Grid>
-
-              <Grid sm={12} className="border">
-                <Box className="d-flex p-1 align-items-center">
-                  <Grid lg={4} fontWeight={650}>
-                    9) Work in high temperature areas (70 &deg;C or more):
+                    7) Work in high temperature areas (70 &deg;C or more):
                   </Grid>
                   <Grid lg={8}>
                     <Controller

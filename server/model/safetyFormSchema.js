@@ -63,9 +63,7 @@ const safetyFormSchema = new mongoose.Schema({
     prohibitSlingOpWithSingleWire: {
       type: Boolean,
     },
-    wearPersonalProtectiveEquipment: {
-      type: Boolean,
-    },
+
     secureFootingAndHandPosition: {
       type: Boolean,
     },
@@ -74,13 +72,17 @@ const safetyFormSchema = new mongoose.Schema({
     },
   },
   workAtHeight: {
+    wearPersonalProtectiveEquipment: {
+      type: Boolean,
+    },
     postASignOfHighPlace: {
       type: Boolean,
     },
-    postASignToUseFire: {
+
+    secureFootingAndSafetyBelt: {
       type: Boolean,
     },
-    secureFootingAndSafetyBelt: {
+    isAssociatesQualified: {
       type: Boolean,
     },
     IsAccepted: {
@@ -88,6 +90,9 @@ const safetyFormSchema = new mongoose.Schema({
     },
   },
   workHandlingFire: {
+    postASignToUseFire: {
+      type: Boolean,
+    },
     takeFirePrevention: {
       type: Boolean,
     },
@@ -101,21 +106,22 @@ const safetyFormSchema = new mongoose.Schema({
       type: String,
     },
   },
-  involvingHandlingOfFlammableLiquid: {
-    takeFirePrevention: {
-      type: Boolean,
-    },
-    measureOxygen: {
-      type: Boolean,
-    },
-    isAssociatesQualified: {
-      type: Boolean,
-    },
-    IsAccepted: {
-      type: String,
-    },
-  },
+  // involvingHandlingOfFlammableLiquid: {
+  //   takeFirePrevention: {
+  //     type: Boolean,
+  //   },
+
+  //   isAssociatesQualified: {
+  //     type: Boolean,
+  //   },
+  //   IsAccepted: {
+  //     type: String,
+  //   },
+  // },
   workInvolvingRiskOfOxygen: {
+    measureOxygen: {
+      type: Boolean,
+    },
     holdAnObserverAndWearProtectiveEquipment: {
       type: Boolean,
     },
@@ -126,14 +132,14 @@ const safetyFormSchema = new mongoose.Schema({
       type: String,
     },
   },
-  workUsingHighVoltage: {
-    isAssociatesQualified: {
-      type: Boolean,
-    },
-    IsAccepted: {
-      type: String,
-    },
-  },
+  // workUsingHighVoltage: {
+  //   isAssociatesQualified: {
+  //     type: Boolean,
+  //   },
+  //   IsAccepted: {
+  //     type: String,
+  //   },
+  // },
   workUsingHighTemp: {
     isAssociatesWereSafetyTools: {
       type: Boolean,
@@ -143,8 +149,8 @@ const safetyFormSchema = new mongoose.Schema({
     },
   },
   finalSafetyAcceptance: {
-    type: Boolean
-  }
+    type: Boolean,
+  },
 });
 
 const SafetyForm = mongoose.model("safetyForms", safetyFormSchema);

@@ -942,3 +942,35 @@
 		TypeError: Cannot read properties of undefined (reading 'data')
     at lineMonthlyBdTrendForSectionMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10224:36)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-15T09:42 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-15T09:42 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-15T09:42 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-15T09:42 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-15T09:43 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-15T09:43 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-15T09:43 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-15T09:43 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
