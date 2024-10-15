@@ -162,7 +162,7 @@ const ExistinngMachineReqSheetForOperator = ({
       );
       flagCountForHandlingError++;
     }
-    console.log("flag ", flagCountForHandlingError);
+    // console.log("flag ", flagCountForHandlingError);
     return flagCountForHandlingError;
   };
   const upadteReqSheet = async (requestSheetDataOfCM) => {
@@ -194,21 +194,21 @@ const ExistinngMachineReqSheetForOperator = ({
         assignApprovalListOfHOS = ApprovalAssignFOrHOS(
           requestSheetDataOfCM.mtdHOS
         );
-        console.log("Approval list for HOS:", assignApprovalListOfHOS);
+        // console.log("Approval list for HOS:", assignApprovalListOfHOS);
       }
 
       if (requestSheetDataOfCM?.mtdTL) {
         assignApprovalListOfTL = ApprovalAssignFOrTL(
           requestSheetDataOfCM.mtdTL
         );
-        console.log("Approval list for TL:", assignApprovalListOfTL);
+        // console.log("Approval list for TL:", assignApprovalListOfTL);
       }
 
       if (requestSheetDataOfCM?.prdTL) {
         assignApprovalListOfPRDTL = ApprovalAssignFOrPRDTL(
           requestSheetDataOfCM.prdTL
         );
-        console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
+        // console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
       }
       formData.append(
         "otherData",
@@ -312,21 +312,21 @@ const ExistinngMachineReqSheetForOperator = ({
         assignApprovalListOfHOS = ApprovalAssignFOrHOS(
           requestSheetDataOfCM.mtdHOS
         );
-        console.log("Approval list for HOS:", assignApprovalListOfHOS);
+        // console.log("Approval list for HOS:", assignApprovalListOfHOS);
       }
 
       if (requestSheetDataOfCM?.mtdTL) {
         assignApprovalListOfTL = ApprovalAssignFOrTL(
           requestSheetDataOfCM.mtdTL
         );
-        console.log("Approval list for TL:", assignApprovalListOfTL);
+        // console.log("Approval list for TL:", assignApprovalListOfTL);
       }
 
       if (requestSheetDataOfCM?.prdTL) {
         assignApprovalListOfPRDTL = ApprovalAssignFOrPRDTL(
           requestSheetDataOfCM.prdTL
         );
-        console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
+        // console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
       }
       formData.append(
         "otherData",
