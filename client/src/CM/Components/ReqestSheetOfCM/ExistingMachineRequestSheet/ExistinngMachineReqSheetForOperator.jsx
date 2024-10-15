@@ -85,6 +85,18 @@ const ExistinngMachineReqSheetForOperator = ({
   }, []);
 
   const handleCustomErrors = () => {
+    console.log("object");
+    if (watch("mtdHOS") === "") {
+      setError(
+        "mtdHOS",
+        {
+          message: "This field is required !",
+        },
+        {
+          shouldFocus: true,
+        }
+      );
+    }
     if (watch("isPermissionOfMTDTL") === "Yes" && watch("mtdTL") === "") {
       setError(
         "mtdTL",
@@ -116,7 +128,11 @@ const ExistinngMachineReqSheetForOperator = ({
     //   );
     //   flagCountForHandlingError++;
     // }
-    if (cmSelectedSheetForView?.partSuggestionByMTDTL && parts.length === 0) {
+    if (
+      cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL
+        ?.partSuggestionByMTDTL &&
+      parts.length === 0
+    ) {
       setError(
         "partList",
         {
@@ -146,6 +162,7 @@ const ExistinngMachineReqSheetForOperator = ({
       );
       flagCountForHandlingError++;
     }
+    console.log("flag ", flagCountForHandlingError);
     return flagCountForHandlingError;
   };
   const upadteReqSheet = async (requestSheetDataOfCM) => {
@@ -352,7 +369,7 @@ const ExistinngMachineReqSheetForOperator = ({
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(upadteReqSheet)}>
         <Row className="m-0 border d-flex align-items-center p-2">
           <Col lg={6} sm={12}>
             <Row className="">
@@ -360,11 +377,15 @@ const ExistinngMachineReqSheetForOperator = ({
                 parts={parts}
                 setParts={setParts}
                 isEditable={isEditable}
+                clearErrors={clearErrors}
               />
               <input
                 {...register("partList")}
                 className="visually-hidden"
               ></input>
+              {errors?.["partList"] && (
+                <p className="text-error">{errors?.["partList"]?.message}</p>
+              )}
             </Row>
           </Col>
           <Col lg={6} sm={12}>
@@ -409,9 +430,9 @@ const ExistinngMachineReqSheetForOperator = ({
             </Row>
           </Col>
           <Col lg={5}>
-            <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+            <small className="mb-0 pt-1">
               <b>Dummy 1: </b>
-            </p>
+            </small>
           </Col>
           <Col lg={7}>
             <div className="d-block align-items-center">
@@ -489,7 +510,7 @@ const ExistinngMachineReqSheetForOperator = ({
                           control={control}
                           name="mtdTL"
                           rules={{
-                            required: true,
+                            required: "This field is required",
                           }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <select
@@ -499,7 +520,10 @@ const ExistinngMachineReqSheetForOperator = ({
                               label="Select MTD TL/HOSS"
                               value={value}
                               disabled={!isEditable}
-                              onChange={onChange}
+                              onChange={(e) => {
+                                onChange(e);
+                                clearErrors("mtdHOS");
+                              }}
                               onBlur={onBlur}
                             >
                               <option value="">Select MTD TL/HOSS</option>
@@ -529,7 +553,7 @@ const ExistinngMachineReqSheetForOperator = ({
                       name="mtdHOS"
                       // disabled={true}
                       rules={{
-                        required: true,
+                        required: "This field is required",
                       }}
                       render={({ field: { onChange, onBlur, value } }) => (
                         <select
@@ -539,7 +563,10 @@ const ExistinngMachineReqSheetForOperator = ({
                           size="small"
                           label="Select MTD HOS"
                           value={value}
-                          onChange={onChange}
+                          onChange={(e) => {
+                            onChange(e);
+                            clearErrors("mtdHOS");
+                          }}
                           onBlur={onBlur}
                         >
                           <option value="">Select MTD HOS</option>
@@ -549,6 +576,7 @@ const ExistinngMachineReqSheetForOperator = ({
                         </select>
                       )}
                     />
+                    &nbsp;&nbsp;
                     {errors?.["mtdHOS"] && (
                       <p className="text-error">
                         {errors?.["mtdHOS"]?.message}
@@ -616,7 +644,7 @@ const ExistinngMachineReqSheetForOperator = ({
                           control={control}
                           name="prdTL"
                           rules={{
-                            required: true,
+                            required: "This field is required"
                           }}
                           render={({ field: { onChange, onBlur, value } }) => (
                             <select
@@ -757,7 +785,7 @@ const ExistinngMachineReqSheetForOperator = ({
                   type="submit"
                   className="btn bg-warning"
                   style={{ marginTop: "1rem" }}
-                  onClick={() => handleSubmit(onSubmit)}
+                  onClick={handleSubmit(onSubmit)}
                 >
                   Send For Approval
                 </button>
