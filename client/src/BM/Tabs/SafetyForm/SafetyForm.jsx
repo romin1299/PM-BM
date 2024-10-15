@@ -262,7 +262,42 @@ const SafetyForm = ({
                 className="d-flex border p-1 border-top-0 align-items-center"
                 fontWeight={600}
               >
-                * Work instruction items (8 High risk works should be checked
+                <Grid sm={4} fontWeight={650}>
+                  Process Name:
+                </Grid>
+                <Grid sm={4}>
+                  <TextField
+                    size="small"
+                    disabled={safetyForm}
+                    placeholder="Enter Process Name"
+                    {...register("processName", {
+                      required: "Process Name is required",
+                    })}
+                    error={!!errors.processName}
+                    helperText={errors.processName?.message}
+                  />
+                </Grid>
+                <Grid sm={4} fontWeight={650}>
+                  Asset Admin No:
+                </Grid>
+                <Grid sm={4}>
+                  <TextField
+                    size="small"
+                    disabled={safetyForm}
+                    placeholder="Enter Asset Admin No"
+                    {...register("assetAdminNo", {
+                      required: "Asset Admin No is required",
+                    })}
+                    error={!!errors.assetAdminNo}
+                    helperText={errors.assetAdminNo?.message}
+                  />
+                </Grid>
+              </Box>
+              <Box
+                className="d-flex border p-1 border-top-0 align-items-center"
+                fontWeight={600}
+              >
+                *Work instruction items (6 designated works should be checked
                 onsite before giving instruction.)
               </Box>
             </Grid>
@@ -272,7 +307,7 @@ const SafetyForm = ({
               </Box>
               <Box className="d-flex p-1 align-items-center">
                 <Grid lg={4} fontWeight={650}>
-                  General Maintainance Work:
+                  1) General Maintainance Work (Check by operators onsite):
                 </Grid>
                 <Grid lg={8}>
                   <Controller
@@ -390,7 +425,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    1) Work Team:
+                    2) Work Team:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -464,7 +499,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Hold a meeting before work (to confirm the details, procedures, steps, regulation.)"
+                          label="Hold a meeting before work (to confirm the details, procedures, steps, repetition.)"
                         />
                       )}
                     />
@@ -480,7 +515,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    2) Work bypassing safety devices:
+                    3) Work bypassing safety devices:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -554,7 +589,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Observe alternative safety measure and restore the safety device after work."
+                          label="Observe alternative safety measure and restore the safety device after the work."
                         />
                       )}
                     />
@@ -592,7 +627,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    3) Work handling heavy objects:
+                    4) Work handling heavy objects:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -716,7 +751,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    4) Work at height ({">"}2 metres):
+                    5) Work at height ({">"}2 metres):
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -793,7 +828,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Post a sign indicating that high-place work is in progress or high voltage work is in progress"
+                          label="Post a sign indicating that high-place work is in progress."
                         />
                       )}
                     />
@@ -838,7 +873,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Ensure that associates are properly qualified (High place skill training, electric wire skill training, high voltage special education)."
+                          label="Ensure that associates are properly qualified (High place: special education, skill training course for the operation of vehicle for work at height, slinging work: skill training, handling fire: skill training course for gas welding, special education on arc welding, oxygen deficiency: work supervisor, special education"
                         />
                       )}
                     />
@@ -854,7 +889,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    5) Work handling fire/Work:
+                    6) Work handling fire/Work:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -951,7 +986,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Ensure that associates are properly qualified (High place skill training, electric wire skill training, high voltage special education)."
+                          label="Ensure that associates are properly qualified (High place: special education, skill training course for the operation of vehicle for work at height, slinging work: skill training, handling fire: skill training course for gas welding, special education on arc welding, oxygen deficiency: work supervisor, special education"
                         />
                       )}
                     />
@@ -1094,7 +1129,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    6) Work involving risk of oxygen deficiency:
+                    7) Work involving risk of oxygen deficiency:
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -1194,7 +1229,7 @@ const SafetyForm = ({
                           control={
                             <Checkbox {...field} checked={field.value} />
                           }
-                          label="Ensure that associates are properly qualified (High place skill training, electric wire skill training, high voltage special education)."
+                          label="Ensure that associates are properly qualified (High place: special education, skill training course for the operation of vehicle for work at height, slinging work: skill training, handling fire: skill training course for gas welding, special education on arc welding, oxygen deficiency: work supervisor, special education"
                         />
                       )}
                     />
@@ -1214,7 +1249,7 @@ const SafetyForm = ({
               <Grid sm={12} className="border">
                 <Box className="d-flex p-1 align-items-center">
                   <Grid lg={4} fontWeight={650}>
-                    7) Work in high temperature areas (70 &deg;C or more):
+                    8) Work in high temperature areas (70 &deg;C or more):
                   </Grid>
                   <Grid lg={8}>
                     <Controller
@@ -1281,6 +1316,21 @@ const SafetyForm = ({
                   </FormGroup>
                 )}
               </Grid>
+
+              <Grid sm={12} className="border">
+                <Box className="d-flex p-1 align-items-center">
+                  <h4>Safety is Paramount</h4>
+                </Box>
+              </Grid>
+            </Grid>
+            <Grid sm={12} className="border">
+              <Box className="d-flex p-1 align-items-center">
+                Risk prediction (KY) and preventive measures (one-point KY) ※3:
+                Operator conducts on site. Key risks: Is there any potential
+                risk? <br /> ※1: Work supervisor: Managerial class personnel in
+                charge of maintenance or designated representative who gives
+                instructions at work sites.
+              </Box>
             </Grid>
             <Grid sm={12} className="border">
               <Box className="d-flex p-1 align-items-center">
@@ -1327,7 +1377,10 @@ const SafetyForm = ({
             <input
               type="checkbox"
               name="finalSafetyAcceptance"
-              {...register("finalSafetyAcceptance")}
+              {...register("finalSafetyAcceptance", {
+                required: "Final Safety Acceptance is required",
+
+              })}
               id="finalSafetyAcceptance"
               disabled={safetyForm}
             />

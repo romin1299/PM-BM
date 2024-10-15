@@ -8,6 +8,12 @@ const safetyFormSchema = new mongoose.Schema({
   safetyFormFilledUpBy: {
     type: String,
   },
+  processName: {
+    type: String
+  },
+  assetAdminNo: {
+    type: String,
+  },
   workName: {
     type: String,
   },
