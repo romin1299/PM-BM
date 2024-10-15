@@ -3067,3 +3067,19 @@
 		TypeError: Cannot read properties of undefined (reading 'categories')
     at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8148:50
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-15T16:39 | PM | updateChecksheetRow is not defined
+		ReferenceError: updateChecksheetRow is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:4690:19
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-15T16:40 | PM | updateChecksheetRow is not defined
+		ReferenceError: updateChecksheetRow is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:4690:19
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-15T16:49 | PM | updateChecksheetRow is not defined
+		ReferenceError: updateChecksheetRow is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:4690:19
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-15T17:05 | PM | updateChecksheetRow is not defined
+		ReferenceError: updateChecksheetRow is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:4690:19
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)

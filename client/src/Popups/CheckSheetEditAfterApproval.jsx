@@ -303,7 +303,7 @@ const CheckSheetEditAfterApproval = ({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            machine_code:  selectedRow?.machine_code,
+            machine_code: selectedRow?.machine_code,
           }),
         }
       );
@@ -709,8 +709,8 @@ const CheckSheetEditAfterApproval = ({
                       {newTableData?.map((rData, rIndex) => (
                         <tr
                           className={
-                            rData[11]?.["key"] === "isDeleted" &&
-                            rData[11]?.["value"] === true
+                            rData[10]?.["key"] === "isDeleted" &&
+                            rData[10]?.["value"] === true
                               ? "ar-table-row table-col-mid-year-delete"
                               : "ar-table-row"
                           }
@@ -773,7 +773,7 @@ const CheckSheetEditAfterApproval = ({
                                     colData.value.length === 1 ? (
                                       <>
                                         <p style={{ fontWeight: "900" }}>--></p>
-                                        {rData[11]?.["key"] !== "isDeleted" &&
+                                        {rData[10]?.["key"] !== "isDeleted" &&
                                         new Date().getMonth() > 2
                                           ? moment()
                                               .month(colData.key)
@@ -820,7 +820,7 @@ const CheckSheetEditAfterApproval = ({
                                           : moment()
                                               .month(colData.key)
                                               .format("M") > 3 &&
-                                            rData[11]?.["key"] !==
+                                            rData[10]?.["key"] !==
                                               "isDeleted" && (
                                               <button
                                                 className="pmImplementationBtn"
@@ -861,7 +861,7 @@ const CheckSheetEditAfterApproval = ({
                                       colData.value[0] === "1" ? (
                                       <>
                                         <p style={{ fontWeight: "900" }}>--></p>
-                                        {rData[11]?.["key"] !== "isDeleted" && (
+                                        {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
                                             className="pmImplementationBtn"
                                             id={rData[0].value}
@@ -912,7 +912,7 @@ const CheckSheetEditAfterApproval = ({
                                         ) : (
                                           ""
                                         )}
-                                        {rData[11]?.["key"] !== "isDeleted" &&
+                                        {rData[10]?.["key"] !== "isDeleted" &&
                                           moment()
                                             .month(colData.key)
                                             .format("M") -
@@ -969,7 +969,7 @@ const CheckSheetEditAfterApproval = ({
                                         ) : (
                                           ""
                                         )}
-                                        {rData[11]?.["key"] !== "isDeleted" && (
+                                        {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
                                             className="pmImplementationBtn"
                                             id={rData[0].value}
@@ -1034,7 +1034,7 @@ const CheckSheetEditAfterApproval = ({
                                           {" "}
                                           -->
                                         </p>
-                                        {rData[11]?.["key"] !== "isDeleted" && (
+                                        {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
                                             className="pmImplementationBtn"
                                             id={rData[0].value}
@@ -1099,7 +1099,7 @@ const CheckSheetEditAfterApproval = ({
                                         ) : (
                                           ""
                                         )}
-                                        {rData[11]?.["key"] !== "isDeleted" && (
+                                        {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
                                             className="pmImplementationBtn"
                                             id={rData[0].value}

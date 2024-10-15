@@ -182,10 +182,10 @@ const ExistinngMachineReqSheetForOperator = ({
     return flagCountForHandlingError;
   };
   const upadteReqSheet = async (requestSheetDataOfCM) => {
-    let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
-    if (checkWhetherAnyErrorOccurredOrNot > 0) {
-      return;
-    }
+    // let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
+    // if (checkWhetherAnyErrorOccurredOrNot > 0) {
+    //   return;
+    // }
     requestSheetDataOfCM.changedParts = parts;
     requestSheetDataOfCM.workDetails = workDetails;
     requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
