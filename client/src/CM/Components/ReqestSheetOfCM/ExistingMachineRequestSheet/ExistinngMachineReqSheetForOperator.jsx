@@ -160,6 +160,7 @@ const ExistinngMachineReqSheetForOperator = ({
         },
         { shouldFocus: true }
       );
+      flagCountForHandlingError++;
     }
     if (actions?.length === 0) {
       setError(
@@ -321,12 +322,12 @@ const ExistinngMachineReqSheetForOperator = ({
       const { ...otherFields } = requestSheetDataOfCM;
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.attachedFilesByAssignedUser?.length;
+        i < requestSheetDataOfCM?.attachedFileByAssignedUser?.length;
         i++
       ) {
         formData.append(
           "attachedFileByAssignedUser",
-          requestSheetDataOfCM?.attachedFilesyAssignedUser[i]
+          requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
       // console.log(otherFields)
