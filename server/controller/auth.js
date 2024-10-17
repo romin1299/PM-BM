@@ -4609,7 +4609,7 @@ router.post(
     try {
       const { rowData, oldRow, machineId, yearOfCheckSheet, isEdited } =
         req.body;
-      console.log(isEdited, machineId, yearOfCheckSheet);
+      // console.log(isEdited, machineId, yearOfCheckSheet);
       let flagForCycleChange;
       if (isEdited === true) {
         const updateChecksheetRow = await Machine.updateOne(
@@ -4685,7 +4685,7 @@ router.post(
           }
         );
       }
-      console.log(updateChecksheetRow);
+      // console.log(updateChecksheetRow);
       res.status(201).json({
         message: "CheckSheet data updated successfully",
         flagForCycleChange,
@@ -7183,72 +7183,87 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           i < machineLastData[0]?.checkSheet_data?.checkSheet?.length;
           i++
         ) {
-          if (machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?.isDeleted) {
-            checkWhetherRevisionContentDeleted = 1;
-          }
-          if (machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?.isAdded) {
-            // console.log("is Added ---- ")
-            checkWhetherRevisionContentAdded = 1;
-            for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
-              let month = financialYearWiseMonthKeyArray[j];
-              // let previousMonthForMidYearChange = financialYearWiseMonthKeyArray[j - 1] || "Apr"
-              // console.log("is added in loop ");
-              if (
-                machineLastData[0]?.checkSheet_data?.checkSheet?.[i]
-                  ?.planningTableAnimationArray2?.[month][0] === "1" &&
-                (monthKeyArray.indexOf(month) >=
-                  new Date(
-                    mongoose.Types.ObjectId(
-                      machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?._id
-                    ).getTimestamp()
-                  ).getMonth() ||
-                  monthKeyArray.indexOf(month) < 3)
-              ) {
-                // console.log(month, "----inside if ......", new Date(mongoose.Types.ObjectId(machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?._id).getTimestamp()).getMonth())
+          if (
+            machineLastData?.[0]?.checkSheet_data?.PMStatus 
+          ) {
+            if (
+              machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]?.isDeleted
+            ) {
+              checkWhetherRevisionContentDeleted = 1;
+            }
+            if (
+              machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]?.isAdded
+            ) {
+              // console.log("is Added ---- ")
+              checkWhetherRevisionContentAdded = 1;
+              for (let j = 0; j < financialYearWiseMonthKeyArray?.length; j++) {
+                let month = financialYearWiseMonthKeyArray?.[j];
+                // let previousMonthForMidYearChange = financialYearWiseMonthKeyArray[j - 1] || "Apr"
+                // console.log("is added in loop ");
                 if (
-                  machineLastData[0]?.checkSheet_data?.PMStatus?.[month] === ""
+                  machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]
+                    ?.planningTableAnimationArray2?.[month]?.[0] === "1" &&
+                  (monthKeyArray.indexOf(month) >=
+                    new Date(
+                      mongoose.Types.ObjectId(
+                        machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]
+                          ?._id
+                      ).getTimestamp()
+                    ).getMonth() ||
+                    monthKeyArray.indexOf(month) < 3)
                 ) {
-                  // console.log("Current........")
+                  // console.log(month, "----inside if ......", new Date(mongoose.Types.ObjectId(machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?._id).getTimestamp()).getMonth())
+                  if (
+                    machineLastData?.[0]?.checkSheet_data?.PMStatus?.[month] ===
+                    ""
+                  ) {
+                    // console.log("Current........")
 
-                  machineLastData[0].checkSheet_data.PMStatus[month] =
-                    "Current Plan";
-                  machineLastData[0].checkSheet_data.currentMonthScheduleOrNotStatus[
-                    month
-                  ] = "Scheduled";
-                } else if (
-                  machineLastData[0]?.checkSheet_data?.PMStatus?.[month] ===
-                  "Completed"
-                ) {
-                  // console.log("Completed........")
-                  machineLastData[0].checkSheet_data.PMStatus[month] =
-                    "Ongoing";
-                  machineLastData[0].checkSheet_data.currentMonthScheduleOrNotStatus[
-                    month
-                  ] = "Scheduled";
+                    machineLastData[0].checkSheet_data.PMStatus[month] =
+                      "Current Plan";
+                    machineLastData[0].checkSheet_data.currentMonthScheduleOrNotStatus[
+                      month
+                    ] = "Scheduled";
+                  } else if (
+                    machineLastData?.[0]?.checkSheet_data?.PMStatus?.[month] ===
+                    "Completed"
+                  ) {
+                    // console.log("Completed........")
+                    machineLastData[0].checkSheet_data.PMStatus[month] =
+                      "Ongoing";
+                    machineLastData[0].checkSheet_data.currentMonthScheduleOrNotStatus[
+                      month
+                    ] = "Scheduled";
+                  }
                 }
               }
             }
-          }
-          if (machineLastData[0].checkSheet_data.checkSheet[i]?.isEdited) {
-            checkWhetherRevisionContentEdited = 1;
+            if (
+              machineLastData?.[0].checkSheet_data?.checkSheet?.[i]?.isEdited
+            ) {
+              checkWhetherRevisionContentEdited = 1;
+              console.log(
+                machineLastData?.[0].checkSheet_data?.checkSheet?.[i]
+              );
+            }
           }
         }
         const changeMidYearStatusEditedOrDeleted = (keyOfMonth) => {
-          for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
+          for (let j = 0; j < financialYearWiseMonthKeyArray?.length; j++) {
             let month = financialYearWiseMonthKeyArray[j];
             let plannedPMCount = 0,
               totalCarriedPMCount = 0,
               completedPMCount = 0;
             if (
-              monthKeyArray.indexOf(month) >=
+              monthKeyArray?.indexOf(month) >=
                 new Date(
-                  machineLastData[0]?.checkSheet_data?.[keyOfMonth]
-                ).getMonth() ||
-              monthKeyArray.indexOf(month) < 3
+                  machineLastData?.[0]?.checkSheet_data?.[keyOfMonth]
+                )?.getMonth() ||
+              monthKeyArray?.indexOf(month) < 3
             ) {
               for (
                 let i = 0;
-                i < machineLastData[0].checkSheet_data.checkSheet.length;
+                i < machineLastData?.[0]?.checkSheet_data?.checkSheet?.length;
                 i++
               ) {
                 // let previousMonthForMidYearChange = financialYearWiseMonthKeyArray[j - 1] || "Apr"
@@ -7256,25 +7271,26 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                 // console.log("in if condition in edited")
                 //for completed status
                 if (
-                  machineLastData[0].checkSheet_data.checkSheet[i]
-                    ?.planningTableAnimationArray2[month][0] === "1" &&
-                  !machineLastData[0].checkSheet_data.checkSheet[i]?.isDeleted
+                  machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]
+                    ?.planningTableAnimationArray2?.[month]?.[0] === "1" &&
+                  !machineLastData?.[0].checkSheet_data.checkSheet[i]?.isDeleted
                 ) {
                   plannedPMCount = plannedPMCount + 1;
                 }
                 if (
-                  machineLastData[0].checkSheet_data.checkSheet[i]
-                    ?.planningTableAnimationArray2[month].length >= 2 &&
-                  machineLastData[0].checkSheet_data.checkSheet[i]
-                    ?.planningTableAnimationArray2[month][0] === "1" &&
-                  !machineLastData[0].checkSheet_data.checkSheet[i]?.isDeleted
+                  machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]
+                    ?.planningTableAnimationArray2?.[month]?.length >= 2 &&
+                  machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]
+                    ?.planningTableAnimationArray2?.[month]?.[0] === "1" &&
+                  !machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]
+                    ?.isDeleted
                 ) {
                   completedPMCount = completedPMCount + 1;
                 }
               }
 
               if (
-                machineLastData[0].checkSheet_data.PMStatus[month] ===
+                machineLastData?.[0]?.checkSheet_data?.PMStatus?.[month] ===
                 "No Completion"
               ) {
                 machineLastData[0].checkSheet_data.PMStatus[month] =
@@ -7319,14 +7335,14 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           // console.log(checkWhetherRevisionContentDeleted, "-----", checkWhetherRevisionContentAdded)
           for (
             let i = 0;
-            i < machineLastData[0].checkSheet_data.checkSheet.length;
+            i < machineLastData?.[0]?.checkSheet_data?.checkSheet?.length;
             i++
           ) {
             for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
               let month = financialYearWiseMonthKeyArray[j];
               if (
-                machineLastData[0].checkSheet_data.checkSheet[i]
-                  .planningTableAnimationArray2[month][0] === "1"
+                machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]
+                  ?.planningTableAnimationArray2?.[month]?.[0] === "1"
               ) {
                 PMStatusArray[financialYearWiseMonthKeyArray[j]] =
                   "Current Plan";
@@ -7340,26 +7356,26 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         machineLastData[0].checkSheet_data.prd_tl_approval_status[
           machineLastData[0].checkSheet_data.prd_tl_approval_status.length - 1
         ] = "Accepted";
-        // console.log(machineLastData[0].checkSheet_data.prd_tl_approval_status)
+        // console.log(machineLastData?.[0].checkSheet_data.prd_tl_approval_status)
         const PRDTLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: machineLastData[0].machine_code },
+          { machine_code: machineLastData?.[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].prd_tl_approval_status":
-                machineLastData[0].checkSheet_data.prd_tl_approval_status,
+                machineLastData?.[0]?.checkSheet_data?.prd_tl_approval_status,
               "checkSheet_data.$[outer].checksheet_status": "Implementation",
               "checkSheet_data.$[outer].PMStatus":
                 checkWhetherRevisionContentDeleted !== 1 &&
                 checkWhetherRevisionContentAdded !== 1 &&
                 checkWhetherRevisionContentEdited !== 1
                   ? PMStatusArray
-                  : machineLastData[0]?.checkSheet_data?.PMStatus,
+                  : machineLastData?.[0]?.checkSheet_data?.PMStatus,
               "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus":
                 checkWhetherRevisionContentDeleted !== 1 &&
                 checkWhetherRevisionContentAdded !== 1 &&
                 checkWhetherRevisionContentEdited !== 1
                   ? CurrentMonthPMScheduleOrNotStatusArray
-                  : machineLastData[0]?.checkSheet_data
+                  : machineLastData?.[0]?.checkSheet_data
                       ?.currentMonthScheduleOrNotStatus,
               "checkSheet_data.$[outer].flagForRevisionContent": false,
 
@@ -7375,7 +7391,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  machineLastData[0].checkSheet_data.current_year,
+                  machineLastData?.[0].checkSheet_data.current_year,
               },
             ],
           }
@@ -7400,31 +7416,31 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           result?.email ? result?.email : undefined
         );
 
-        // console.log(machineLastData[0]?.checkSheet_data?.plan_prepared_email, machineLastData[0]?.checkSheet_data?.plan_prepared_tm_name)
+        // console.log(machineLastData?.[0]?.checkSheet_data?.plan_prepared_email, machineLastData?.[0]?.checkSheet_data?.plan_prepared_tm_name)
 
-        subject = `Checksheet Planning Approval (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
+        subject = `Checksheet Planning Approval (${machineLastData?.[0]?.cell_name}/${machineLastData?.[0]?.line_name}/${machineLastData?.[0]?.machine_code})`;
         title = `Checksheet Planning is Approved.`;
-        greetings = `${machineLastData[0]?.checkSheet_data?.plan_prepared_tm_name} San`;
+        greetings = `${machineLastData?.[0]?.checkSheet_data?.plan_prepared_tm_name} San`;
         bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
       
                         <tr>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData?.[0]?.cell_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData?.[0]?.line_name}</td>
                         </tr>
 
                         <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData?.[0]?.machine_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_code}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData?.[0]?.machine_code}</td>
                         </tr>
                         
                         <tr>
@@ -7446,16 +7462,16 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           bodyTable,
           ccMail,
           undefined, // findAssignHosName.tm_name,
-          undefined, // machineLastData[0].checkSheet_data.sender_tm_no[(machineLastData[0].checkSheet_data.sender_tm_no).length - 1],
-          undefined, // machineLastData[0].checkSheet_data.sender_tm_name[(machineLastData[0].checkSheet_data.sender_tm_name).length - 1],
-          undefined, // machineLastData[0].machine_code,
-          undefined, // machineLastData[0].machine_name,
-          undefined, // machineLastData[0].checkSheet_data.checksheet_status,
-          machineLastData[0]?.checkSheet_data?.plan_prepared_email[
-            (machineLastData[0]?.checkSheet_data?.plan_prepared_email).length -
-              1
+          undefined, // machineLastData?.[0].checkSheet_data.sender_tm_no[(machineLastData?.[0].checkSheet_data.sender_tm_no).length - 1],
+          undefined, // machineLastData?.[0].checkSheet_data.sender_tm_name[(machineLastData?.[0].checkSheet_data.sender_tm_name).length - 1],
+          undefined, // machineLastData?.[0].machine_code,
+          undefined, // machineLastData?.[0].machine_name,
+          undefined, // machineLastData?.[0].checkSheet_data.checksheet_status,
+          machineLastData?.[0]?.checkSheet_data?.plan_prepared_email[
+            (machineLastData?.[0]?.checkSheet_data?.plan_prepared_email)
+              .length - 1
           ],
-          undefined, // machineLastData[0].checkSheet_data.assign_HOS[(machineLastData[0].checkSheet_data.checkSheetSendingUser).length - 1],
+          undefined, // machineLastData?.[0].checkSheet_data.assign_HOS[(machineLastData?.[0].checkSheet_data.checkSheetSendingUser).length - 1],
           undefined // tlApproval, undefined, undefined
         );
       } else if (
@@ -22881,7 +22897,6 @@ router.post(
         // }
 
         let commonEditedFields = async () => {
-
           machineCheckSheetData[0].checkSheet_data[
             `implemetation_${userDepAndType.toLowerCase()}_approval_status`
           ][`${editedApprovalData?.selectedMonth}`][
@@ -22960,7 +22975,6 @@ router.post(
             ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1 || 0
           ] === "Accepted"
         ) {
-
           // console.log("------Accepted called----------------");
           machineCheckSheetData[0].checkSheet_data[
             `implementation_approved_by_${userDepAndType}`
@@ -23012,9 +23026,8 @@ router.post(
             machineCheckSheetData[0]?.checkSheet_data?.[
               `implemetation_${userDepAndType.toLowerCase()}_approval_status`
             ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1 || 0
-          ] === "Rejected" 
+          ] === "Rejected"
         ) {
-
           // console.log("------Pending/ Rejected called----------------");
 
           await commonEditedFields();
@@ -23363,19 +23376,27 @@ router.patch(
         },
         { $inc: { machine_sequence: -1 } }
       );
-      const updateReqestSheetData = await RequestSheetOfBM.updateMany({machineRef: req?.query?._id},{
-        $set:{
-          lineRef: submittedData?.line_id,
-          cellRef: submittedData?.cell_id
-        }
-      },{new : true})
+      const updateReqestSheetData = await RequestSheetOfBM.updateMany(
+        { machineRef: req?.query?._id },
+        {
+          $set: {
+            lineRef: submittedData?.line_id,
+            cellRef: submittedData?.cell_id,
+          },
+        },
+        { new: true }
+      );
 
-      const updateNoLossReqestSheetData = await noLossBDData.updateMany({machineRef: req?.query?._id},{
-        $set:{
-          lineRef: submittedData?.line_id,
-          cellRef: submittedData?.cell_id
-        }
-      },{new : true})
+      const updateNoLossReqestSheetData = await noLossBDData.updateMany(
+        { machineRef: req?.query?._id },
+        {
+          $set: {
+            lineRef: submittedData?.line_id,
+            cellRef: submittedData?.cell_id,
+          },
+        },
+        { new: true }
+      );
 
       const updateMachineLineAndCellId = await Machine.findOneAndUpdate(
         { _id: req?.query?._id },

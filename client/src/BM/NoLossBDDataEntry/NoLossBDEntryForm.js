@@ -185,6 +185,9 @@ const NoLossBDEntryForm = () => {
           machineStatus: "",
           workStartedDateOfBM: "",
           workEndedDateOfBM: "",
+          causeOfNoLoss: "",
+          counterMeasureStep: "",
+          attachedFilesForOtherLoss: ""
         });
         setProblems([]);
         setActions([]);

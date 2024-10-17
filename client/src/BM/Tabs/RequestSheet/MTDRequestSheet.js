@@ -53,6 +53,7 @@ function MyTable({
     watch,
     setValue,
     setError,
+    setFocus,
     control,
     clearErrors,
     // reset,
@@ -484,6 +485,7 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
+        setFocus("machineSafetyCheckedByPRD")
         // console.log(flagCountForHandlingError);
       }
 
@@ -492,6 +494,7 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
+        setFocus("machineSafetyCheckedByMTD")
         // console.log(flagCountForHandlingError);
       }
     }

@@ -974,3 +974,234 @@
 		Error: user not found
     at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-15T18:05 | PM | updateChecksheetRow is not defined
+		ReferenceError: updateChecksheetRow is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:4688:19
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at param (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:365:14)
+    at param (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:376:14)
+    at param (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:376:14)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at param (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:365:14)
+    at param (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:376:14)
+    at param (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:376:14)
+2024-10-16T09:39 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-10-16T12:02 | PM | Cannot set properties of undefined (setting 'Jan')
+		TypeError: Cannot set properties of undefined (setting 'Jan')
+    at changeMidYearStatusEditedOrDeleted (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7291:70)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7308:11
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-16T12:03 | PM | Cannot set properties of undefined (setting 'Jan')
+		TypeError: Cannot set properties of undefined (setting 'Jan')
+    at changeMidYearStatusEditedOrDeleted (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7291:70)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7308:11
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-16T12:03 | PM | Cannot set properties of undefined (setting 'Jan')
+		TypeError: Cannot set properties of undefined (setting 'Jan')
+    at changeMidYearStatusEditedOrDeleted (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7291:70)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7308:11
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-16T12:04 | PM | Cannot set properties of undefined (setting 'Jan')
+		TypeError: Cannot set properties of undefined (setting 'Jan')
+    at changeMidYearStatusEditedOrDeleted (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7296:70)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7313:11
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-16T12:10 | PM | Cannot set properties of undefined (setting 'Jan')
+		TypeError: Cannot set properties of undefined (setting 'Jan')
+    at changeMidYearStatusEditedOrDeleted (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7297:70)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7314:11
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-16T12:22 | PM | Cannot convert undefined or null to object
+		TypeError: Cannot convert undefined or null to object
+    at Function.keys (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7186:21
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-16T12:23 | PM | Cannot convert undefined or null to object
+		TypeError: Cannot convert undefined or null to object
+    at Function.keys (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7188:20
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
