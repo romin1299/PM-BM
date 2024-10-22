@@ -277,7 +277,7 @@ const SafetyForm = ({
                     helperText={errors.processName?.message}
                   />
                 </Grid>
-                <Grid sm={4} fontWeight={650}>
+                {/* <Grid sm={4} fontWeight={650}>
                   Asset Admin No:
                 </Grid>
                 <Grid sm={4}>
@@ -291,7 +291,7 @@ const SafetyForm = ({
                     error={!!errors.assetAdminNo}
                     helperText={errors.assetAdminNo?.message}
                   />
-                </Grid>
+                </Grid> */}
               </Box>
               <Box
                 className="d-flex border p-1 border-top-0 align-items-center"
