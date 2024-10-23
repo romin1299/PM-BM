@@ -49,7 +49,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
       position: "row",
 
       onClick: (event, selectedRow) => {
-        console.log(selectedRow);
+        console.log("THIS IS ROLE",selectedRow);
         setCmSelectedSheetForView(selectedRow);
         setCmReqSheetView(true);
         setIsEditable(true);

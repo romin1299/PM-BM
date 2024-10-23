@@ -32,8 +32,9 @@ exports.globalReqSheetNo = tryCatchHandler(
         })
         .exec();
       let generateRequestSheetNo;
-      // console.log(machine.line_names.requestSheetNoOfCM);
+      // console.log(machine.line_names.requestSheetNoOfCM)
       if (maintenanceType === "CM") {
+        // console.log("Thi s +1")
         generateRequestSheetNo = {
           requestSheetNoOfCM: machine.line_names.requestSheetNoOfCM
             ? machine.line_names.requestSheetNoOfCM + 1
@@ -51,7 +52,7 @@ exports.globalReqSheetNo = tryCatchHandler(
         { $set: generateRequestSheetNo },
         { new: true }
       );
-      // console.log(increaseCountOfRequestSheetInLine);
+      // console.log(increaseCountOfRequestSheetInLine)
 
       const requestSheetNo =
         machine?.line_names?.cell_names?.subSection_names?.section_names

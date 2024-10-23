@@ -77,6 +77,7 @@ const ExistinngMachineReqSheetForOperator = ({
       console.log(error);
     }
   };
+  console.log(cmSelectedSheetForView);  
   useEffect(() => {
     getApprovalListOfCM();
     setParts(cmSelectedSheetForView?.changedParts);
@@ -156,6 +157,7 @@ const ExistinngMachineReqSheetForOperator = ({
         },
         { shouldFocus: true }
       );
+      flagCountForHandlingError++;
     }
     if (actions?.length === 0) {
       setError(
@@ -182,6 +184,7 @@ const ExistinngMachineReqSheetForOperator = ({
     return flagCountForHandlingError;
   };
   const upadteReqSheet = async (requestSheetDataOfCM) => {
+    console.log("This is reqsheet", requestSheetDataOfCM);
     // let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
     // if (checkWhetherAnyErrorOccurredOrNot > 0) {
     //   return;
@@ -189,7 +192,9 @@ const ExistinngMachineReqSheetForOperator = ({
     requestSheetDataOfCM.changedParts = parts;
     requestSheetDataOfCM.workDetails = workDetails;
     requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
-    requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
+    if (context?.user_type === "Operator") {
+      requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
+    }
     try {
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
@@ -312,12 +317,12 @@ const ExistinngMachineReqSheetForOperator = ({
       const { ...otherFields } = requestSheetDataOfCM;
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.attachedFilesByAssignedUser?.length;
+        i < requestSheetDataOfCM?.attachedFileByAssignedUser?.length;
         i++
       ) {
         formData.append(
           "attachedFileByAssignedUser",
-          requestSheetDataOfCM?.attachedFilesyAssignedUser[i]
+          requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
       // console.log(otherFields)
@@ -825,6 +830,36 @@ const ExistinngMachineReqSheetForOperator = ({
                 {/* <Button type="submit" variant="contained" color="primary">
                   Send For Approval
                 </Button> */}
+              </Col>
+            </Row>
+          )}
+        {isEditable &&
+          ((context?.user_type === "TL/HOSS" &&
+            cmSelectedSheetForView?.requestSheetStatusOfCM ===
+              "Under MTD TL/HOSS Approval") ||
+            (context?.user_type === "Section-Admin" &&
+              cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Under MTD HOS Approval") ||
+            (context?.tm_department === "PRD" &&
+              cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Under PRD TL Approval")) && (
+            // <Row className="m-0 border  d-flex align-items-center justify-content-center">
+            //   <Col lg={12} className="d-flex justify-content-center">
+            //     <Button type="submit" variant="contained" color="primary">
+            //       Send For Approval
+            //     </Button>
+            //   </Col>
+            // </Row>
+            <Row className="m-0 border p-2 d-flex justify-content-between">
+              <Col lg={6} md={6} sm={12}>
+                <button
+                  type="submit"
+                  className="btn bg-success"
+                  style={{ marginTop: "1rem" }}
+                  onClick={handleSubmit(upadteReqSheet)}
+                >
+                  Save Changes
+                </button>
               </Col>
             </Row>
           )}

@@ -1098,7 +1098,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       <FormLabel id="demo-radio-buttons-group-label">
                         <small>
                           <b>SHIFT</b>
-                        </small>
+                        </small>  
                       </FormLabel>
 
                       {watch("shiftOfBM") && (

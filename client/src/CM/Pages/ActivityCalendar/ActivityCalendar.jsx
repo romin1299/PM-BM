@@ -25,6 +25,7 @@ import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import axios from "axios";
 import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import moment from "moment";
 
 const locales = {
   "en-US": enUS,
@@ -69,10 +70,13 @@ const initialEvents = [
   // },
 ];
 
-const EventCalendar = ({ onNavigate, label, onView, date }) => {
+const EventCalendar = ({ onNavigate, label, onView, date, view }) => {
   const [selectedMonth, setSelectedMonth] = useState(date.getMonth());
+  const [selectedDate, setSelectedDate] = useState(
+    moment(date).format("DD/MM/YYYY")
+  );
   const [selectedYear, setSelectedYear] = useState(date.getFullYear());
-
+  console.log("vieew fo ", view);
   const handleMonthChange = (event) => {
     const newMonth = event.target.value;
     setSelectedMonth(newMonth);
@@ -86,6 +90,58 @@ const EventCalendar = ({ onNavigate, label, onView, date }) => {
     const newDate = new Date(date.setFullYear(newYear));
     onNavigate("DATE", newDate);
   };
+  // const handlePrevClick = () => {
+  //   const newDate = new Date(date);
+  //   newDate.setMonth(selectedMonth - 1);
+  //   setSelectedMonth(newDate.getMonth());
+  //   setSelectedYear(newDate.getFullYear());
+  //   onNavigate("DATE", newDate);
+  // };
+
+  // const handleNextClick = () => {
+  //   const newDate = new Date(date);
+  //   newDate.setMonth(selectedMonth + 1);
+  //   setSelectedMonth(newDate.getMonth());
+  //   setSelectedYear(newDate.getFullYear());
+  //   onNavigate("DATE", newDate);
+  // };
+  const handlePrevClick = () => {
+    const newDate = new Date(date);
+    if (view === "day") {
+      newDate.setDate(newDate.getDate() - 1);
+    } else if (view === "week") {
+      newDate.setDate(newDate.getDate() - 7);
+    } else {
+      newDate.setMonth(selectedMonth - 1);
+    }
+    setSelectedDate(moment(newDate).format("DD/MM/YYYY"));
+    setSelectedMonth(newDate.getMonth());
+    setSelectedYear(newDate.getFullYear());
+    onNavigate("DATE", newDate);
+  };
+
+  const handleNextClick = () => {
+    const newDate = new Date(date);
+    if (view === "day") {
+      newDate.setDate(newDate.getDate() + 1);
+    } else if (view === "week") {
+      newDate.setDate(newDate.getDate() + 7);
+    } else {
+      newDate.setMonth(selectedMonth + 1);
+    }
+    setSelectedDate(moment(newDate).format("DD/MM/YYYY"));
+    setSelectedMonth(newDate.getMonth());
+    setSelectedYear(newDate.getFullYear());
+    onNavigate("DATE", newDate);
+  };
+
+  const handleTodayClick = () => {
+    const newDate = new Date();
+    setSelectedMonth(newDate.getMonth());
+    setSelectedYear(newDate.getFullYear());
+    setSelectedDate(moment(newDate).format("DD/MM/YYYY"));
+    onNavigate("TODAY", newDate);
+  };
 
   const months = Array.from({ length: 12 }, (_, i) =>
     format(new Date(0, i), "MMMM")
@@ -98,37 +154,48 @@ const EventCalendar = ({ onNavigate, label, onView, date }) => {
   return (
     <div className="custom-toolbar d-flex justify-content-between mb-4">
       <div className="d-flex align-items-center">
-        <FormControl size="small" style={{ margin: "0 8px" }}>
-          <InputLabel>Month</InputLabel>
-          <Select
-            value={selectedMonth}
-            onChange={handleMonthChange}
-            label="Month"
-            style={{ width: 120 }}
-          >
-            {months.map((month, index) => (
-              <MenuItem key={index} value={index}>
-                {month}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" style={{ margin: "0 8px" }}>
-          <InputLabel>Year</InputLabel>
-          <Select
-            value={selectedYear}
-            onChange={handleYearChange}
-            label="Year"
-            style={{ width: 120 }}
-          >
-            {years.map((year) => (
-              <MenuItem key={year} value={year}>
-                {year}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button sx={{ pr: 0, pl: 0 }} onClick={() => onNavigate("PREV")}>
+        {view === "day" ? (
+          <input
+            type="text"
+            disabled
+            value={selectedDate}
+            className="text-center"
+          />
+        ) : (
+          <>
+            <FormControl size="small" style={{ margin: "0 8px" }}>
+              <InputLabel>Month</InputLabel>
+              <Select
+                value={selectedMonth}
+                onChange={handleMonthChange}
+                label="Month"
+                style={{ width: "fit-content" }}
+              >
+                {months.map((month, index) => (
+                  <MenuItem key={index} value={index}>
+                    {month}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl size="small" style={{ margin: "0 8px" }}>
+              <InputLabel>Year</InputLabel>
+              <Select
+                value={selectedYear}
+                onChange={handleYearChange}
+                label="Year"
+                style={{ width: 120 }}
+              >
+                {years.map((year) => (
+                  <MenuItem key={year} value={year}>
+                    {year}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </>
+        )}
+        <Button sx={{ pr: 0, pl: 0 }} onClick={handlePrevClick}>
           <FaChevronLeft />
         </Button>
         <Button
@@ -141,11 +208,11 @@ const EventCalendar = ({ onNavigate, label, onView, date }) => {
             color: "#ffffff",
             ":hover": { background: "#B5D8D9", color: "#018B8D" },
           }}
-          onClick={() => onNavigate("TODAY")}
+          onClick={handleTodayClick}
         >
           Today
         </Button>
-        <Button onClick={() => onNavigate("NEXT")}>
+        <Button onClick={handleNextClick}>
           <FaChevronRight />
         </Button>
       </div>
@@ -213,7 +280,6 @@ const ActivityCalendar = () => {
         withCredentials: true,
         credentials: "include",
       });
-      console.log(response);
       if (response.status === 200) {
         const events = response.data.reqSheetDataForCalendar?.map((event) => ({
           start: new Date(event.start),
@@ -337,8 +403,10 @@ const ActivityCalendar = () => {
         onDoubleClickEvent={(event) => getModalOpenForReqSheet(event)}
         style={{ height: 500 }}
         components={{
-          toolbar: CustomToolbar, // Use CustomToolbar for view updates
-          event: CustomEvent, // Use CustomEvent for displaying event details
+          toolbar: (toolbarProps) => (
+            <CustomToolbar {...toolbarProps} setCurrentView={setCurrentView} />
+          ), // Pass setCurrentView to CustomToolbar
+          event: CustomEvent,
         }}
         eventPropGetter={eventPropGetter}
       />
