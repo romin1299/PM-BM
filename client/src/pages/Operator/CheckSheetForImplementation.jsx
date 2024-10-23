@@ -1430,7 +1430,7 @@ const CheckSheet = ({
                                 const uniqueNames = [
                                   ...new Set([
                                     ...(machineAllData?.checkSheet_data
-                                      ?.implemetation_completed_tm_name[
+                                      ?.implemetation_completed_tm_name?.[
                                       month
                                     ] || []),
                                     ...(machineAllData?.checkSheet_data
