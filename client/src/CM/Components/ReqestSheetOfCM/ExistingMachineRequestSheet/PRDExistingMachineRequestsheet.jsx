@@ -960,12 +960,14 @@ const PRDExistingMachineRequestsheet = ({
         {!isEditable && (
           <ExistinngMachineReqSheetForOperator
             cmSelectedSheetForView={cmSelectedSheetForView}
+            setCmReqSheetView={setCmReqSheetView}
+            isEditable={isEditable}
           />
         )}
         <>
           {isEditable && (
             <Row className="m-1 d-flex justify-content-start">
-              {context?.tm_department === "MTD" && (
+              {/* {context?.tm_department === "MTD" && (
                 <Col className="col-lg-6 col-md-6 m-1 p-0">
                   <button
                     type="submit"
@@ -976,7 +978,7 @@ const PRDExistingMachineRequestsheet = ({
                     Save Changes
                   </button>
                 </Col>
-              )}
+              )} */}
 
               <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
                 Kindly approve request-sheet.{" "}

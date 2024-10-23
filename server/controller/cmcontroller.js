@@ -1280,7 +1280,7 @@ const getRequestSheetData = async (req, res, next) => {
           // drawingOfBM: 1,
           // sparePartUsedOrNot: 1,
           changedParts: 1,
-          workDetails: 1,
+          workDetails: 1, 
           actionAndCounterMeasureStep: 1,
 
           machineRef: { $arrayElemAt: ["$machines", 0] },
@@ -1920,7 +1920,7 @@ const getRequestSheetData = async (req, res, next) => {
       },
     ];
     req.requestSheetData = requestSheetData;
-
+    console.log("This is req sheet",requestSheetData);
     if (requestSheetData?.length === 0) {
       return res.status(400).json({
         // pipeline: req.pipeline,
