@@ -9,9 +9,9 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     ref: "RequestSheetOfBM",
     default: null,
   },
-  partSuggestionByMTDTL: {
-    type: String,
-  },
+  // partSuggestionByMTDTL: {
+  //   type: String,
+  // },
 
   //If require else byDefault is BM
   maintenanceType: {
@@ -21,6 +21,10 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   priorityCode: {
     type: String,
   },
+
+  // partSuggestionByMTDTL: {
+  //   type: String,
+  // },
 
   preAggregationTimeStampOfRequestSheet: {
     requestSheet_year: {
@@ -54,6 +58,18 @@ const requestSheetOfCMSchema = new mongoose.Schema({
       type: String,
     },
     targetDateOfCM: { type: Date },
+    inspectionItem: {
+      type: String,
+    },
+    actionForLTPM: {
+      type: String,
+    },
+    personForLTPM: {
+      type: String,
+    },
+    partSuggestionByMTDTL: {
+      type: String,
+    },
   },
 
   shiftOfCM: {
@@ -225,12 +241,13 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   //Work details related fields
   workDetails: [
     {
+      id: { type: Date },
       work: { type: String },
       tmId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users",
       },
-      tmName:{
+      tmName: {
         type: String,
       },
       fromDate: {

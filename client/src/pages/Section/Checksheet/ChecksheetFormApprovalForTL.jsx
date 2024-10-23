@@ -163,7 +163,7 @@ function ChecksheetFormApprovalForTL() {
 
   let previousMonth =
     monthKeyArray[new Date().getMonth() - 1] === undefined
-      ? monthKeyArray.splice(-1)[0]
+      ? monthKeyArray.splice(-1)[0] 
       : monthKeyArray[new Date().getMonth() - 1];
 
   const PMCarryOnToNextMonth = async (tableRowId) => {

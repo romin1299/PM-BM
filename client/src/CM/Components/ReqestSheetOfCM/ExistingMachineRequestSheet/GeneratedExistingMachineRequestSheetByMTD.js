@@ -75,6 +75,66 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
   // const handleQuality = (event) => {
   //   setSelectedQuality(event.target.value);
   // };
+  let flagCountForHandlingError = 0;
+  const handleCustomError = () => {
+    console.log(
+      watch("cmBasicDataFilledByMTD_TL.categories"),
+      "and ",
+      watch("cmBasicDataFilledByMTD_TL.inspectionItem")
+    );
+    if (
+      watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
+      watch("cmBasicDataFilledByMTD_TL.inspectionItem") === ""
+    ) {
+      setError(
+        "cmBasicDataFilledByMTD_TL.inspectionItem",
+        {
+          message: "This field is required !",
+        },
+        { shouldFocus: true }
+      );
+      flagCountForHandlingError++;
+    }
+    if (
+      watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
+      watch("cmBasicDataFilledByMTD_TL.actionForLTPM") === ""
+    ) {
+      setError(
+        "cmBasicDataFilledByMTD_TL.actionForLTPM",
+        {
+          message: "This field is required !",
+        },
+        { shouldFocus: true }
+      );
+    }
+    if (
+      watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
+      watch("cmBasicDataFilledByMTD_TL.personForLTPM") === ""
+    ) {
+      setError(
+        "cmBasicDataFilledByMTD_TL.personForLTPM",
+        {
+          message: "This field is required !",
+        },
+        { shouldFocus: true }
+      );
+      flagCountForHandlingError++;
+    }
+    if (
+      watch("partRequiredByMTDTL") === "Yes" &&
+      watch("cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL") === ""
+    ) {
+      setError(
+        "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
+        {
+          message: "This field is required !",
+        },
+        { shouldFocus: true }
+      );
+      flagCountForHandlingError++;
+    }
+    return flagCountForHandlingError;
+  };
 
   const newRequestSheetRegistrationOfCM = async (requestSheetDataOfCM) => {
     // const machineRef = "63b67ccea716e21c95cd471a";
@@ -83,6 +143,11 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     // requestSheetDataOfCM.qualityRelated = selectedQuality;
     // requestSheetDataOfCM.shiftOfBM = selectedShift;
     // requestSheetDataOfCM.changedParts = parts;
+    const customErrorCount = await handleCustomError();
+    console.log("cnt", customErrorCount);
+    if (customErrorCount > 0) {
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -773,6 +838,118 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                     )}
                   </Col>
                 </Row>
+                {watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" && (
+                  <>
+                    <Row className="m-0 border d-flex align-items-center">
+                      <Col lg={5}>
+                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                          <b>Inspection Item: </b>
+                        </p>
+                      </Col>
+
+                      <Col lg={7}>
+                        <div className="d-block align-items-center">
+                          {" "}
+                          <input
+                            type="text"
+                            id="inspectionItem"
+                            className="m-1 mb-2"
+                            name="inspectionItem"
+                            // style={{ width: "350px" }}
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.inspectionItem"
+                            )}
+                            onInput={() => {
+                              clearErrors(
+                                "cmBasicDataFilledByMTD_TL.inspectionItem"
+                              );
+                            }}
+                          />
+                        </div>
+                        {errors?.cmBasicDataFilledByMTD_TL?.inspectionItem && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.inspectionItem
+                                ?.message
+                            }
+                          </p>
+                        )}
+                      </Col>
+                    </Row>
+                    <Row className="m-0 border d-flex align-items-center">
+                      <Col lg={5}>
+                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                          <b>Action: </b>
+                        </p>
+                      </Col>
+
+                      <Col lg={7}>
+                        <div className="d-block align-items-center">
+                          {" "}
+                          <input
+                            type="text"
+                            id="actionForLTPM"
+                            className="m-1 mb-2"
+                            name="actionForLTPM"
+                            // style={{ width: "350px" }}
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.actionForLTPM"
+                            )}
+                            onInput={() => {
+                              clearErrors(
+                                "cmBasicDataFilledByMTD_TL.actionForLTPM"
+                              );
+                            }}
+                          />
+                        </div>
+                        {errors?.cmBasicDataFilledByMTD_TL?.actionForLTPM && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.actionForLTPM
+                                ?.message
+                            }
+                          </p>
+                        )}
+                      </Col>
+                    </Row>
+                    <Row className="m-0 border d-flex align-items-center">
+                      <Col lg={5}>
+                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                          <b>Person: </b>
+                        </p>
+                      </Col>
+
+                      <Col lg={7}>
+                        <div className="d-block align-items-center">
+                          {" "}
+                          <input
+                            type="text"
+                            id="personForLTPM"
+                            className="m-1 mb-2"
+                            name="personForLTPM"
+                            // style={{ width: "350px" }}
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.personForLTPM"
+                            )}
+                            onInput={() => {
+                              clearErrors(
+                                "cmBasicDataFilledByMTD_TL.personForLTPM"
+                              );
+                            }}
+                          />
+                        </div>
+                        {errors?.cmBasicDataFilledByMTD_TL?.personForLTPM && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.personForLTPM
+                                ?.message
+                            }
+                          </p>
+                        )}
+                      </Col>
+                    </Row>
+                  </>
+                )}
 
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
@@ -813,37 +990,99 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                     )}
                   </Col>
                 </Row>
-                <Row className="m-0 border d-flex align-items-center">
+                <Row className="m-0 border d-flex align-items-center justify-content-start">
                   <Col lg={5}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                      <b>Part Suggestion: </b>
+                      <b>Part Required: </b>
                     </p>
                   </Col>
 
-                  <Col lg={7}>
-                    <div className="d-block align-items-center">
+                  <Col lg={7} className="d-flex align-items-center">
+                    <Col>
                       {" "}
                       <input
-                        type="text"
-                        id="partSuggestionByMTDTL"
+                        type="radio"
+                        id="partRequiredByMTDTL"
+                        value="Yes"
                         className="m-1 mb-2"
-                        name="partSuggestionByMTDTL"
+                        name="partRequiredByMTDTL"
                         // style={{ width: "350px" }}
-                        {...register("partSuggestionByMTDTL", {
-                          required: "Please enter part name",
+                        {...register("partRequiredByMTDTL", {
+                          required: "This field is required !",
                         })}
                         onInput={() => {
-                          clearErrors("partSuggestionByMTDTL");
+                          clearErrors("partRequiredByMTDTL");
                         }}
                       />
-                    </div>
-                    {errors?.partSuggestionByMTDTL && (
+                      <label>Yes</label>
+                    </Col>
+                    <Col>
+                      {" "}
+                      <input
+                        type="radio"
+                        id="partRequiredByMTDTL"
+                        value="No"
+                        className="m-1 mb-2"
+                        name="partRequiredByMTDTL"
+                        // style={{ width: "350px" }}
+                        {...register("partRequiredByMTDTL", {
+                          required: "This field is required !",
+                        })}
+                        onInput={() => {
+                          clearErrors("partRequiredByMTDTL");
+                        }}
+                      />
+                      <label>No</label>
+                    </Col>
+                    {errors?.partRequiredByMTDTL && (
                       <p className="text-error">
-                        {errors?.partSuggestionByMTDTL?.message}
+                        {errors?.partRequiredByMTDTL?.message}
                       </p>
                     )}
                   </Col>
                 </Row>
+                {watch("partRequiredByMTDTL") === "Yes" && (
+                  <Row className="m-0 border d-flex align-items-center">
+                    <Col lg={5}>
+                      <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                        <b>Part Suggestion: </b>
+                      </p>
+                    </Col>
+
+                    <Col lg={7}>
+                      <div className="d-block align-items-center">
+                        {" "}
+                        <input
+                          type="text"
+                          id="partSuggestionByMTDTL"
+                          className="m-1 mb-2"
+                          name="partSuggestionByMTDTL"
+                          // style={{ width: "350px" }}
+                          {...register(
+                            "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
+                            {
+                              required: "Please enter part name",
+                            }
+                          )}
+                          onInput={() => {
+                            clearErrors(
+                              "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
+                            );
+                          }}
+                        />
+                      </div>
+                      {errors?.cmBasicDataFilledByMTD_TL
+                        ?.partSuggestionByMTDTL && (
+                        <p className="text-error">
+                          {
+                            errors?.cmBasicDataFilledByMTD_TL
+                              ?.partSuggestionByMTDTL?.message
+                          }
+                        </p>
+                      )}
+                    </Col>
+                  </Row>
+                )}
 
                 {/* <Col lg={11} md={11}>
                   <Row className="">

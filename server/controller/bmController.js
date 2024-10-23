@@ -9388,6 +9388,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                 },
                 "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                   req.query.selectedYear,
+                  maintenanceType : "BM"
               },
             },
             {
@@ -11131,6 +11132,7 @@ router.get(
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                     req.query.selectedYear,
+                  maintenanceType : "BM"
                 },
               },
               {
@@ -11256,6 +11258,7 @@ router.get(
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                     req.query.selectedYear,
+                  maintenanceType : "BM"
                 },
               },
 
@@ -14062,11 +14065,11 @@ const middlewareForMachineAgeLookup = async (req, res, next) => {
             from: "subsections",
             localField: "subSectionRef",
             foreignField: "_id",
-            as: "subSection_data",
+            as: "section_data",
           },
         },
         {
-          $unwind: "$subSection_data",
+          $unwind: "$section_data",
         },
       ];
     }
@@ -14416,8 +14419,6 @@ router.get(
         },
       },
     ]);
-
-    // console.log(machineData);
 
     return res.status(201).json({
       message: "Yearwise Machine Age data get successfully",

@@ -884,7 +884,7 @@ const MTDExistingMachineReqSheetWithData = ({
                 </Row>
               </td>
             </tr>
-            {isEditable && <PartList parts={parts} setParts={setParts} />}
+            {/* {isEditable && <PartList parts={parts} setParts={setParts} />}
             {cmSelectedSheetForView?.changedParts?.length > 0 &&
               !isEditable && (
                 <tr className="row m-2">
@@ -916,7 +916,7 @@ const MTDExistingMachineReqSheetWithData = ({
                     </Table>
                   </td>
                 </tr>
-              )}
+              )} */}
 
             {isEditable && (
               <tr>
@@ -937,11 +937,11 @@ const MTDExistingMachineReqSheetWithData = ({
         </Table>
       </form>
       <Box className="border">
-        {isEditable && (
-          <ExistinngMachineReqSheetForOperator
-            cmSelectedSheetForView={cmSelectedSheetForView}
-          />
-        )}
+        <ExistinngMachineReqSheetForOperator
+          cmSelectedSheetForView={cmSelectedSheetForView}
+          isEditable={isEditable}
+        />
+
         <>
           {isEditable && (
             <Row className="m-1 d-flex justify-content-start">

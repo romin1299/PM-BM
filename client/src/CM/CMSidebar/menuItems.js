@@ -45,7 +45,7 @@ export const menuItems = [
   {
     icon: <EventNoteIcon className="text-white" />,
     title: "LTPM Sheet",
-    route: "/cm/request-sheet/ltpm",
+    route: "/cm/dashboard/ltpm",
     allowedRoles: allusers,
   },
   {

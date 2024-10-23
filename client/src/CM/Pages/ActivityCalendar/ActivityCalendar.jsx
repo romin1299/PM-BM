@@ -219,7 +219,7 @@ const ActivityCalendar = () => {
           start: new Date(event.start),
           end: new Date(event.end),
           title: event.title,
-          allDay: true,
+          // allDay: true,
           id: event._id,
         }));
         setAllEvents(events);

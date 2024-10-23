@@ -16,6 +16,7 @@ import ApprovalDashboard from "./Pages/ApprovalDashboardOfCM/ApprovalDashboard";
 import RequestSheetStatusMonitoringOfCM from "./Pages/RequestSheetStatusMonitoringOfCM/RequestSheetStatusMonitoringOfCM";
 import ExistingMachineRequestSheet from "./Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineRequestSheet";
 import RequestSheetOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/RequestSheetOfLTPM";
+import DashboardOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/DashboardOfLTPM";
 import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
 import ApprovalLogs from "./Pages/ApprovalLogs/ApprovalLogs";
 import ActivityCalendar from "./Pages/ActivityCalendar/ActivityCalendar";
@@ -130,8 +131,8 @@ const CM_Routes = ({ commonRoutes }) => {
           element: <ActivityCalendar />,
         },
         {
-          path: "/cm/request-sheet/ltpm",
-          element: <RequestSheetOfLTPM />,
+          path: "/cm/dashboard/ltpm",
+          element: <DashboardOfLTPM />,
         },
         {
           path: "/cm/approvalLogs",

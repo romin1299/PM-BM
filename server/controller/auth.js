@@ -29,7 +29,7 @@ const sendApprovalOfSkippedPM = require("../sendMail/sendApprovalOfSkippedPM");
 const sendMailForAnnualPmScheduleReport = require("../sendMail/sendMailForAnnualPmScheduleReport");
 const filterMiddleware = require("../middleware/filterMiddleware");
 const FinancialYear1 = require("../model/financialYearSchema");
-const CM_RequestSheetData= require ('../model/requestSheetDataOfCM')
+const CM_RequestSheetData = require("../model/requestSheetDataOfCM");
 
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
@@ -22800,94 +22800,85 @@ router.post(
           `implementation_assign_${userDepAndType}_tm_no`,
         ];
 
-        for (
-          let index = 0;
-          index < arrayOfKeyForAddingMonthsKey?.length;
-          index++
-        ) {
-          let updateFieldWithAllMonthOrSix = {};
+        // for (
+        //   let index = 0;
+        //   index < arrayOfKeyForAddingMonthsKey?.length;
+        //   index++
+        // ) {
+        //   let updateFieldWithAllMonthOrSix = {};
 
-          userDepAndType !== "MTD_HOD"
-            ? (updateFieldWithAllMonthOrSix = {
-                Apr: [],
+        //   userDepAndType !== "MTD_HOD"
+        //     ? (updateFieldWithAllMonthOrSix = {
+        //         Apr: [],
 
-                May: [],
+        //         May: [],
 
-                June: [],
+        //         June: [],
 
-                July: [],
+        //         July: [],
 
-                Aug: [],
+        //         Aug: [],
 
-                Sep: [],
+        //         Sep: [],
 
-                Oct: [],
+        //         Oct: [],
 
-                Nov: [],
+        //         Nov: [],
 
-                Dec: [],
+        //         Dec: [],
 
-                Jan: [],
+        //         Jan: [],
 
-                Feb: [],
+        //         Feb: [],
 
-                Mar: [],
-              })
-            : (updateFieldWithAllMonthOrSix = {
-                Sep: [],
+        //         Mar: [],
+        //       })
+        //     : (updateFieldWithAllMonthOrSix = {
+        //         Sep: [],
 
-                Mar: [],
-              });
-
-          // if (
-          //   Object.keys(
-          //     machineCheckSheetData?.[0]?.checkSheet_data?.[
-          //       arrayOfKeyForAddingMonthsKey?.[index]
-          //     ]
-          //   )?.length !== 12
-          // ) {
-          if (
-            machineCheckSheetData?.[0]?.checkSheet_data?.[
-              arrayOfKeyForAddingMonthsKey?.[index]
-            ] !== undefined &&
-            Object.keys(
-              machineCheckSheetData?.[0]?.checkSheet_data?.[
-                arrayOfKeyForAddingMonthsKey?.[index]
-              ]
-            )?.length !== 12
-          ) {
-            Object.keys(
-              machineCheckSheetData?.[0]?.checkSheet_data?.[
-                arrayOfKeyForAddingMonthsKey?.[index]
-              ]
-            )?.map((key) => {
-              updateFieldWithAllMonthOrSix[key] =
-                machineCheckSheetData?.[0]?.checkSheet_data?.[
-                  arrayOfKeyForAddingMonthsKey[index]
-                ]?.[key];
-            });
-          }
-          let keyForAddEmptyArrayofMonthsOfImplementationApprovalFields = `checkSheet_data.$[outer].${[
-            arrayOfKeyForAddingMonthsKey[index],
-          ]}`;
-          const updateFieldsWithAllMonthsData = await Machine.updateOne(
-            { ...req?.query },
-            {
-              $set: {
-                [keyForAddEmptyArrayofMonthsOfImplementationApprovalFields]:
-                  updateFieldWithAllMonthOrSix,
-              },
-            },
-            {
-              arrayFilters: [
-                {
-                  "outer.current_year": req?.params?.selectedYear,
-                },
-              ],
-            }
-          );
-          // }
-        }
+        //         Mar: [],
+        //       });
+        //   if (
+        //     machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //       arrayOfKeyForAddingMonthsKey?.[index]
+        //     ] !== undefined &&
+        //     Object.keys(
+        //       machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //         arrayOfKeyForAddingMonthsKey?.[index]
+        //       ]
+        //     )?.length !== 12
+        //   ) {
+        //     Object.keys(
+        //       machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //         arrayOfKeyForAddingMonthsKey?.[index]
+        //       ]
+        //     )?.map((key) => {
+        //       updateFieldWithAllMonthOrSix[key] =
+        //         machineCheckSheetData?.[0]?.checkSheet_data?.[
+        //           arrayOfKeyForAddingMonthsKey[index]
+        //         ]?.[key];
+        //     });
+        //   }
+        //   let keyForAddEmptyArrayofMonthsOfImplementationApprovalFields = `checkSheet_data.$[outer].${[
+        //     arrayOfKeyForAddingMonthsKey[index],
+        //   ]}`;
+        //   const updateFieldsWithAllMonthsData = await Machine.updateOne(
+        //     { ...req?.query },
+        //     {
+        //       $set: {
+        //         [keyForAddEmptyArrayofMonthsOfImplementationApprovalFields]:
+        //           updateFieldWithAllMonthOrSix,
+        //       },
+        //     },
+        //     {
+        //       arrayFilters: [
+        //         {
+        //           "outer.current_year": req?.params?.selectedYear,
+        //         },
+        //       ],
+        //     }
+        //   );
+        // }
 
         let commonEditedFields = async () => {
           // if (
@@ -23401,26 +23392,38 @@ router.patch(
         },
         { $inc: { machine_sequence: -1 } }
       );
-      const updateReqestSheetData = await RequestSheetOfBM.updateMany({machineRef: req?.query?._id},{
-        $set:{
-          lineRef: submittedData?.line_id,
-          cellRef: submittedData?.cell_id
-        }
-      },{new : true})
+      const updateReqestSheetData = await RequestSheetOfBM.updateMany(
+        { machineRef: req?.query?._id },
+        {
+          $set: {
+            lineRef: submittedData?.line_id,
+            cellRef: submittedData?.cell_id,
+          },
+        },
+        { new: true }
+      );
 
-      const updateNoLossReqestSheetData = await noLossBDData.updateMany({machineRef: req?.query?._id},{
-        $set:{
-          lineRef: submittedData?.line_id,
-          cellRef: submittedData?.cell_id
-        }
-      },{new : true})
+      const updateNoLossReqestSheetData = await noLossBDData.updateMany(
+        { machineRef: req?.query?._id },
+        {
+          $set: {
+            lineRef: submittedData?.line_id,
+            cellRef: submittedData?.cell_id,
+          },
+        },
+        { new: true }
+      );
 
-      const updateReqestSheetDataOfCM = await CM_RequestSheetData.updateMany({machineRef: req?.query?._id},{
-        $set:{
-          lineRef: submittedData?.line_id,
-          cellRef: submittedData?.cell_id
-        }
-      },{new : true})
+      const updateReqestSheetDataOfCM = await CM_RequestSheetData.updateMany(
+        { machineRef: req?.query?._id },
+        {
+          $set: {
+            lineRef: submittedData?.line_id,
+            cellRef: submittedData?.cell_id,
+          },
+        },
+        { new: true }
+      );
 
       const updateMachineLineAndCellId = await Machine.findOneAndUpdate(
         { _id: req?.query?._id },

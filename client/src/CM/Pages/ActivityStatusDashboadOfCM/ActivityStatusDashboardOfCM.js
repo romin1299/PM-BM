@@ -61,7 +61,7 @@ const ActivityStatusDashboardOfCM = () => {
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
-      console.log(response);
+      // console.log(response);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
     } catch (error) {
       console.log(error);
@@ -136,6 +136,7 @@ const ActivityStatusDashboardOfCM = () => {
   const [greaterValue, setGreaterValue] = useState(
     localStorage.getItem("greaterValue")
   );
+  const [isEditable, setIsEditable] = useState(false);
   const [lesserValue, setLesserValue] = useState(
     localStorage.getItem("lesserValue")
   );
@@ -161,8 +162,9 @@ const ActivityStatusDashboardOfCM = () => {
       //     ? false
       //     : true,
       onClick: (event, selectedRow) => {
-        console.log(selectedRow);
+        // console.log(selectedRow);
         setCmReqSheetView(true);
+        setIsEditable(false);
         setCmSelectedSheetForView(selectedRow);
       },
     }),
@@ -440,6 +442,7 @@ const ActivityStatusDashboardOfCM = () => {
               <div>
                 <ExistingMachineReqSheetWithData
                   cmSelectedSheetForView={cmSelectedSheetForView}
+                  isEditable={isEditable}
                 />
               </div>
             </Modal.Body>

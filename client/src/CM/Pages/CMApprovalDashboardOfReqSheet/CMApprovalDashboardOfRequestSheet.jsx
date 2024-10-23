@@ -274,9 +274,9 @@ const CMApprovalDashboardOfRequestSheet = () => {
             </div>
           )}
           {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-            "Under PRD TL Approval" && (
+            "Under PRD TL Approval" && (  
             <div>
-              <PRDExistingMachineRequestsheet
+              <HOSExistingMachineReqSheet
                 cmSelectedSheetForView={cmSelectedSheetForView}
                 isEditable={isEditable}
                 setCmReqSheetView={setCmReqSheetView}

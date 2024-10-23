@@ -11,6 +11,10 @@
 
 # production
 #/build
+/server/logs
+
+/client/package-lock.json
+/server/package-lock.json
 
 # misc
 .DS_Store

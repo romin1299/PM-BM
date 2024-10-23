@@ -54,6 +54,7 @@ const ExistingMachineReqSheetWithData = ({
         cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL,
 
       assignUserForCM: cmSelectedSheetForView?.assigned_users,
+
       // "cmBasicDataFilledByMTD_TL.frequencyType":
       //   cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL?.frequencyType,
       // "cmBasicDataFilledByMTD_TL.categories":
@@ -739,18 +740,27 @@ const ExistingMachineReqSheetWithData = ({
                           fontSize: "15px",
                         }}
                         value={cmSelectedSheetForView?.partSuggestionByMTDTL}
-                        {...register("partSuggestionByMTDTL", {
-                          required: "Please enter part suggestion",
-                        })}
+                        {...register(
+                          "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
+                          {
+                            required: "Please enter part suggestion",
+                          }
+                        )}
                         onInput={() => {
-                          clearErrors("partSuggestionByMTDTL");
+                          clearErrors(
+                            "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
+                          );
                         }}
                         // style={{ width: "350px" }}
                       />
                     </div>
-                    {errors?.partSuggestionByMTDTL && (
+                    {errors?.cmBasicDataFilledByMTD_TL
+                      ?.partSuggestionByMTDTL && (
                       <p className="text-error">
-                        {errors?.partSuggestionByMTDTL?.message}
+                        {
+                          errors?.cmBasicDataFilledByMTD_TL
+                            ?.partSuggestionByMTDTL?.message
+                        }
                       </p>
                     )}
                   </Col>
@@ -921,14 +931,17 @@ const ExistingMachineReqSheetWithData = ({
           </tbody>
         </Table>
       </form>
+
       {(context?.user_type === "Operator" ||
-        cmSelectedSheetForView?.assigned_users?.length > 0) && (
-        <ExistinngMachineReqSheetForOperator
-          isEditable={isEditable}
-          cmSelectedSheetForView={cmSelectedSheetForView}
-          setCmReqSheetView={setCmReqSheetView}
-        />
-      )}
+        cmSelectedSheetForView?.assigned_users?.length > 0) &&
+        (cmSelectedSheetForView?.requestSheetStatusOfCM !== "Generated" ||
+          isEditable === true) && (
+          <ExistinngMachineReqSheetForOperator
+            isEditable={isEditable}
+            cmSelectedSheetForView={cmSelectedSheetForView}
+            setCmReqSheetView={setCmReqSheetView}
+          />
+        )}
     </div>
   );
 };

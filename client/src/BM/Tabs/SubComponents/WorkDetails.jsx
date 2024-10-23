@@ -208,7 +208,7 @@ const WorkDetails = ({
           >
             <small>
               <b>Work {index + 1}</b>
-              {/* {console.log("work ", work)} */}
+              {console.log("work ", work)}
             </small>
           </Col>
           <Col
@@ -255,16 +255,19 @@ const WorkDetails = ({
             md={2}
             className="border col-auto d-flex align-items-center gap-1"
           >
+            {console.log("edit", editedWork)}
             {editedWork && editedWork.id === work.id ? (
               <input
-                type="date"
-                value={editedWork.fromDate}
+                type="datetime-local"
+                value={moment(editedWork.fromDate)
+                  .tz("Asia/Kolkata")
+                  .format("YYYY-MM-DDTHH:mm")}
                 onChange={(e) =>
                   setEditedWork({ ...editedWork, fromDate: e.target.value })
                 }
               />
             ) : (
-              moment(work.fromDate).format("DD-MM-YYYY")
+              moment(work.fromDate).format("DD-MM-YYYY hh:mm A")
             )}
           </Col>
           <Col
@@ -274,14 +277,16 @@ const WorkDetails = ({
           >
             {editedWork && editedWork.id === work.id ? (
               <input
-                type="date"
-                value={editedWork.toDate}
+                type="datetime-local"
+                value={moment(editedWork.toDate)
+                  .tz("Asia/Kolkata")
+                  .format("YYYY-MM-DDTHH:mm")}
                 onChange={(e) =>
                   setEditedWork({ ...editedWork, toDate: e.target.value })
                 }
               />
             ) : (
-              moment(work.toDate).format("DD-MM-YYYY")
+              moment(work.toDate).format("DD-MM-YYYY hh:mm A")
             )}
           </Col>
           <Col
@@ -385,7 +390,7 @@ const WorkDetails = ({
             className="border col-auto d-flex align-items-center gap-1"
           >
             <input
-              type="date"
+              type="datetime-local"
               value={newFromDate}
               onChange={(e) => setNewFromDate(e.target.value)}
             />
@@ -396,7 +401,7 @@ const WorkDetails = ({
             className="border col-auto d-flex align-items-center gap-1"
           >
             <input
-              type="date"
+              type="datetime-local"
               value={newToDate}
               onChange={(e) => setNewToDate(e.target.value)}
             />

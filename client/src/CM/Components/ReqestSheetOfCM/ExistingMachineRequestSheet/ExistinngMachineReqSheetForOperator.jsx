@@ -40,12 +40,8 @@ const ExistinngMachineReqSheetForOperator = ({
   } = useForm({
     defaultValues: {
       isPermissionOfMTDTL: cmSelectedSheetForView?.isPermissionOfMTDTL,
-      mtdHOS: cmSelectedSheetForView?.approvalOfMTD_HOS,
-      prdTL: cmSelectedSheetForView?.approvalOfPRD_TL,
     },
   });
-  console.log(cmSelectedSheetForView);
-  console.log("Thisn is edita", isEditable);
   const showMTDHOSS = watch("options") === "Yes";
 
   const [MTDHOSList, setMTDHOSList] = useState([]);
@@ -64,34 +60,73 @@ const ExistinngMachineReqSheetForOperator = ({
       setMTDHOSList(response?.data?.requestSheetApprovalList?.mtdHOS);
       setMTDTLList(response?.data?.requestSheetApprovalList?.mtdTL);
       setPRDTLList(response?.data?.requestSheetApprovalList?.prdTL);
+      reset(cmSelectedSheetForView);
+      setValue(
+        "isPermissionOfMTDTL",
+        cmSelectedSheetForView?.approvalOfMTD_TL ? "Yes" : "No"
+      );
+      setValue(
+        "isPermissionOfPRDTL",
+        cmSelectedSheetForView?.approvalOfPRD_TL ? "Yes" : "No"
+      );
+      setValue("prdTL", cmSelectedSheetForView?.approvalOfPRD_TL);
+
+      setValue("mtdTL", cmSelectedSheetForView?.approvalOfMTD_TL);
+      setValue("mtdHOS", cmSelectedSheetForView?.approvalOfMTD_HOS);
     } catch (error) {
       console.log(error);
     }
   };
-  console.log(cmSelectedSheetForView);
   useEffect(() => {
     getApprovalListOfCM();
-    reset(cmSelectedSheetForView);
-    setValue(
-      "isPermissionOfMTDTL",
-      cmSelectedSheetForView?.approvalOfMTD_TL ? "Yes" : "No"
-    );
-    setValue(
-      "isPermissionOfPRDTL",
-      cmSelectedSheetForView?.approvalOfPRD_TL ? "Yes" : "No"
-    );
-    setValue("prdTL", cmSelectedSheetForView?.approvalOfPRD_TL);
-
-    // setValue("mtdHOS", cmSelectedSheetForView?.approvalOfMTD_HOS);
     setParts(cmSelectedSheetForView?.changedParts);
     setActions(cmSelectedSheetForView?.actionAndCounterMeasureStep);
     setWorkDetails(cmSelectedSheetForView?.workDetails);
   }, []);
 
   const handleCustomErrors = () => {
-    if (watch("isPermissionOfMTDTL") === "Yes" && watch("mtdTL") === "") {
+    console.log("object", watch("mtdHOS"));
+    if (watch("mtdHOS") === undefined) {
+      setError(
+        "mtdHOS",
+        {
+          message: "This field is required !",
+        },
+        {
+          shouldFocus: true,
+        }
+      );
+    }
+    if (
+      watch("isPermissionOfMTDTL") === "Yes" &&
+      watch("mtdTL") === undefined
+    ) {
       setError(
         "mtdTL",
+        {
+          message: "This field is required !",
+        },
+        { shouldFocus: true }
+      );
+      flagCountForHandlingError++;
+    }
+    if (
+      watch("isPermissionOfPRDTL") === "Yes" &&
+      watch("prdTL") === undefined
+    ) {
+      setError(
+        "prdTL",
+        {
+          message: "This field is required !",
+        },
+        { shouldFocus: true }
+      );
+      flagCountForHandlingError++;
+    }
+    // console.log("fhgtghth", watch("attachedFileByAssignedUser").length === 0);
+    if (watch("attachedFileByAssignedUser").length === 0) {
+      setError(
+        "attachedFileByAssignedUser",
         {
           message: "This field is required !",
         },
@@ -109,6 +144,19 @@ const ExistinngMachineReqSheetForOperator = ({
     //   );
     //   flagCountForHandlingError++;
     // }
+    if (
+      cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL
+        ?.partSuggestionByMTDTL &&
+      parts.length === 0
+    ) {
+      setError(
+        "partList",
+        {
+          message: "This field is required !",
+        },
+        { shouldFocus: true }
+      );
+    }
     if (actions?.length === 0) {
       setError(
         "actionValidation",
@@ -130,10 +178,14 @@ const ExistinngMachineReqSheetForOperator = ({
       );
       flagCountForHandlingError++;
     }
+    // console.log("flag ", flagCountForHandlingError);
     return flagCountForHandlingError;
   };
   const upadteReqSheet = async (requestSheetDataOfCM) => {
-    console.log(requestSheetDataOfCM);
+    // let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
+    // if (checkWhetherAnyErrorOccurredOrNot > 0) {
+    //   return;
+    // }
     requestSheetDataOfCM.changedParts = parts;
     requestSheetDataOfCM.workDetails = workDetails;
     requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
@@ -143,12 +195,12 @@ const ExistinngMachineReqSheetForOperator = ({
       const { ...otherFields } = requestSheetDataOfCM;
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.attachedFilesByAssignedUser?.length;
+        i < requestSheetDataOfCM?.attachedFileByAssignedUser?.length;
         i++
       ) {
         formData.append(
-          "attachedFilesByAssignedUser",
-          requestSheetDataOfCM?.attachedFilesByAssignedUser[i]
+          "attachedFileByAssignedUser",
+          requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
       let assignApprovalListOfHOS = {};
@@ -158,21 +210,21 @@ const ExistinngMachineReqSheetForOperator = ({
         assignApprovalListOfHOS = ApprovalAssignFOrHOS(
           requestSheetDataOfCM.mtdHOS
         );
-        console.log("Approval list for HOS:", assignApprovalListOfHOS);
+        // console.log("Approval list for HOS:", assignApprovalListOfHOS);
       }
 
       if (requestSheetDataOfCM?.mtdTL) {
         assignApprovalListOfTL = ApprovalAssignFOrTL(
           requestSheetDataOfCM.mtdTL
         );
-        console.log("Approval list for TL:", assignApprovalListOfTL);
+        // console.log("Approval list for TL:", assignApprovalListOfTL);
       }
 
       if (requestSheetDataOfCM?.prdTL) {
         assignApprovalListOfPRDTL = ApprovalAssignFOrPRDTL(
           requestSheetDataOfCM.prdTL
         );
-        console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
+        // console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
       }
       formData.append(
         "otherData",
@@ -203,7 +255,6 @@ const ExistinngMachineReqSheetForOperator = ({
       console.log(error);
       WarningToast("Request Sheet Updation Failed..!!");
     }
-    console.log(requestSheetDataOfCM);
   };
   let flagCountForHandlingError = 0;
 
@@ -249,10 +300,7 @@ const ExistinngMachineReqSheetForOperator = ({
   };
 
   const onSubmit = async (requestSheetDataOfCM) => {
-    console.log("sdfhdsjg");
-    console.log(requestSheetDataOfCM);
     let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
-    console.log(checkWhetherAnyErrorOccurredOrNot);
     if (checkWhetherAnyErrorOccurredOrNot > 0) {
       return;
     }
@@ -269,7 +317,7 @@ const ExistinngMachineReqSheetForOperator = ({
       ) {
         formData.append(
           "attachedFileByAssignedUser",
-          requestSheetDataOfCM?.attachedFilesByAssignedUser[i]
+          requestSheetDataOfCM?.attachedFilesyAssignedUser[i]
         );
       }
       // console.log(otherFields)
@@ -280,21 +328,21 @@ const ExistinngMachineReqSheetForOperator = ({
         assignApprovalListOfHOS = ApprovalAssignFOrHOS(
           requestSheetDataOfCM.mtdHOS
         );
-        console.log("Approval list for HOS:", assignApprovalListOfHOS);
+        // console.log("Approval list for HOS:", assignApprovalListOfHOS);
       }
 
       if (requestSheetDataOfCM?.mtdTL) {
         assignApprovalListOfTL = ApprovalAssignFOrTL(
           requestSheetDataOfCM.mtdTL
         );
-        console.log("Approval list for TL:", assignApprovalListOfTL);
+        // console.log("Approval list for TL:", assignApprovalListOfTL);
       }
 
       if (requestSheetDataOfCM?.prdTL) {
         assignApprovalListOfPRDTL = ApprovalAssignFOrPRDTL(
           requestSheetDataOfCM.prdTL
         );
-        console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
+        // console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
       }
       formData.append(
         "otherData",
@@ -326,8 +374,6 @@ const ExistinngMachineReqSheetForOperator = ({
         formData,
         config
       );
-
-      console.log(response);
       if (response.status === 201) {
         SuccessToast("Approval Send Successfully");
         setCmReqSheetView(false);
@@ -339,7 +385,7 @@ const ExistinngMachineReqSheetForOperator = ({
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(upadteReqSheet)}>
         <Row className="m-0 border d-flex align-items-center p-2">
           <Col lg={6} sm={12}>
             <Row className="">
@@ -347,7 +393,15 @@ const ExistinngMachineReqSheetForOperator = ({
                 parts={parts}
                 setParts={setParts}
                 isEditable={isEditable}
+                clearErrors={clearErrors}
               />
+              <input
+                {...register("partList")}
+                className="visually-hidden"
+              ></input>
+              {errors?.["partList"] && (
+                <p className="text-error">{errors?.["partList"]?.message}</p>
+              )}
             </Row>
           </Col>
           <Col lg={6} sm={12}>
@@ -359,9 +413,7 @@ const ExistinngMachineReqSheetForOperator = ({
                 isEditable={isEditable}
               />
               <input
-                {...register("actionValidation", {
-                  // required: "This field is required",
-                })}
+                {...register("actionValidation")}
                 className="visually-hidden"
               ></input>
               {errors?.["actionValidation"] && (
@@ -394,9 +446,9 @@ const ExistinngMachineReqSheetForOperator = ({
             </Row>
           </Col>
           <Col lg={5}>
-            <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+            <small className="mb-0 pt-1">
               <b>Dummy 1: </b>
-            </p>
+            </small>
           </Col>
           <Col lg={7}>
             <div className="d-block align-items-center">
@@ -407,230 +459,256 @@ const ExistinngMachineReqSheetForOperator = ({
                 className="m-1 mb-2"
                 disabled={!isEditable}
                 style={{ width: "350px" }}
-                {...register("attachedFilesByAssignedUser")}
+                {...register("attachedFileByAssignedUser")}
               />
             </div>
-
-            {errors?.attachedFilesByAssignedUser && (
+            {errors?.["attachedFileByAssignedUser"] && (
               <p className="text-error">
-                {errors?.attachedFilesByAssignedUser?.message}
+                {errors?.["attachedFileByAssignedUser"]?.message}
               </p>
             )}
           </Col>
         </Row>
-        <Row className="m-0 d-flex border align-items-start p-2">
-          <Col lg={6} style={{ paddingRight: "0px" }}>
-            <Row className="row m-0 border">
-              <Col lg={4} className="m-0  border center p-2">
-                <small className="mb-0 d-flex align-items-center justify-content-start">
-                  <b>MTD TL/HOSS Permission</b>&nbsp;&nbsp;&nbsp;
-                </small>
-                <Form>
-                  {["radio"].map((type) => (
-                    <div key={`inline-${type}`} className="d-flex gap-4">
-                      <Form.Check
-                        flex
-                        label="Yes"
-                        name="group1"
-                        type={type}
-                        disabled={!isEditable}
-                        id={`inline-${type}-1`}
-                        value="Yes"
-                        {...register("isPermissionOfMTDTL", {
-                          required: "This field is required",
-                        })}
-                      />
-                      <Form.Check
-                        flex
-                        label="No"
-                        name="group1"
-                        disabled={!isEditable}
-                        type={type}
-                        id={`inline-${type}-2`}
-                        value="No"
-                        {...register("isPermissionOfMTDTL", {
-                          required: "This field is required",
-                        })}
-                      />
-                    </div>
-                  ))}
-                </Form>
-                {errors?.isPermissionOfMTDTL && (
-                  <p className="text-error">
-                    {errors?.isPermissionOfMTDTL?.message}
-                  </p>
-                )}
-                <br />
-              </Col>
-              <Col lg={8}>
-                {watch("isPermissionOfMTDTL") === "Yes" && (
-                  <>
-                    <Col className="pt-2 d-flex mb-2">
-                      <small className="mb-0 pt-1 ">
-                        <b>Select MTD TL/HOSS: </b>
-                      </small>
-                      &nbsp;&nbsp;
-                      <Controller
-                        control={control}
-                        name="mtdTL"
-                        rules={{
-                          required: true,
-                        }}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                          <select
-                            // className="form-control"
-                            // {...register("mtdHOS")}
-                            size="small"
-                            label="Select MTD TL/HOSS"
-                            value={value}
-                            disabled={!isEditable}
-                            onChange={onChange}
-                            onBlur={onBlur}
-                          >
-                            <option value="">Select MTD TL/HOSS</option>
-                            {MTDTLList.map((value) => (
-                              <option value={value._id}>
-                                {value?.tm_name}
-                              </option>
-                            ))}
-                          </select>
-                        )}
-                      />
-                      {errors?.["mtdTL"] && (
-                        <p className="text-error">
-                          {errors?.["mtdTL"]?.message}
-                        </p>
-                      )}
-                    </Col>
-                  </>
-                )}
-                <Col className="pt-2 d-flex mb-2">
-                  <small className="mb-0 pt-1" style={{ fontSize: "15px" }}>
-                    <b>Select MTD HOS: </b>
+        {context?.user_type === "Operator" && (
+          <Row className="m-0 d-flex border align-items-start p-2">
+            <Col lg={6} style={{ paddingRight: "0px" }}>
+              <Row className="row m-0 border">
+                <Col lg={4} className="m-0  border center p-2">
+                  <small className="mb-0 d-flex align-items-center justify-content-start">
+                    <b>MTD TL/HOSS Permission</b>&nbsp;&nbsp;&nbsp;
                   </small>
-                  &nbsp;&nbsp;
-                  <Controller
-                    control={control}
-                    name="mtdHOS"
-                    // disabled={true}
-                    // rules={{
-                    //   required: true,
-                    // }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <select
-                        // className="form-control"
-                        // {...register("mtdHOS")}
-                        disabled={!isEditable}
-                        size="small"
-                        label="Select MTD HOS"
-                        value={value}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                      >
-                        <option value="">Select MTD HOS</option>
-                        {MTDHOSList.map((value) => (
-                          <option value={value._id}>{value?.tm_name}</option>
-                        ))}
-                      </select>
-                    )}
-                  />
+                  <Form>
+                    {["radio"].map((type) => (
+                      <div key={`inline-${type}`} className="d-flex gap-4">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="group1"
+                          type={type}
+                          disabled={!isEditable}
+                          id={`inline-${type}-1`}
+                          value="Yes"
+                          {...register("isPermissionOfMTDTL", {
+                            required: "This field is required",
+                          })}
+                        />
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="group1"
+                          disabled={!isEditable}
+                          type={type}
+                          id={`inline-${type}-2`}
+                          value="No"
+                          {...register("isPermissionOfMTDTL", {
+                            required: "This field is required",
+                          })}
+                        />
+                      </div>
+                    ))}
+                  </Form>
+                  {errors?.isPermissionOfMTDTL && (
+                    <p className="text-error">
+                      {errors?.isPermissionOfMTDTL?.message}
+                    </p>
+                  )}
+                  <br />
+                </Col>
+                <Col lg={8}>
+                  {watch("isPermissionOfMTDTL") === "Yes" && (
+                    <>
+                      <Col className="pt-2 d-flex">
+                        <small
+                          className="mb-0 pt-1 "
+                          style={{
+                            fontSize: "15px",
+                            width: "fit-content",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <b>Select MTD TL/HOSS: </b>
+                        </small>
+                        &nbsp;&nbsp;
+                        <Controller
+                          control={control}
+                          name="mtdTL"
+                          // rules={{
+                          //   required: "This field is required",
+                          // }}
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <select
+                              // className="form-control"
+                              // {...register("mtdHOS")}
+                              size="small"
+                              label="Select MTD TL/HOSS"
+                              value={value}
+                              disabled={!isEditable}
+                              onChange={(e) => {
+                                onChange(e);
+                                clearErrors("mtdHOS");
+                              }}
+                              onBlur={onBlur}
+                            >
+                              <option value="">Select MTD TL/HOSS</option>
+                              {MTDTLList.map((value) => (
+                                <option value={value._id}>
+                                  {value?.tm_name}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        />
+                        {errors?.["mtdTL"] && (
+                          <p className="text-error m-0 p-0">
+                            {errors?.["mtdTL"]?.message}
+                          </p>
+                        )}
+                      </Col>
+                      <br />
+                    </>
+                  )}
+                  <Col className="pt-2 d-flex mb-2">
+                    <small
+                      className="mb-0 pt-1"
+                      style={{
+                        fontSize: "15px",
+                        width: "fit-content",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <b>Select MTD HOS: </b>
+                    </small>
+                    &nbsp;&nbsp;
+                    <Controller
+                      control={control}
+                      name="mtdHOS"
+                      // disabled={true}
+                      // rules={{
+                      //   required: "This field is required",
+                      // }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <select
+                          // className="form-control"
+                          // {...register("mtdHOS")}
+                          disabled={!isEditable}
+                          size="small"
+                          label="Select MTD HOS"
+                          value={value}
+                          onChange={(e) => {
+                            onChange(e);
+                            clearErrors("mtdHOS");
+                          }}
+                          onBlur={onBlur}
+                        >
+                          <option value="">Select MTD HOS</option>
+                          {MTDHOSList.map((value) => (
+                            <option value={value._id}>{value?.tm_name}</option>
+                          ))}
+                        </select>
+                      )}
+                    />
+                    &nbsp;&nbsp;
+                  </Col>
                   {errors?.["mtdHOS"] && (
                     <p className="text-error">{errors?.["mtdHOS"]?.message}</p>
                   )}
                 </Col>
-              </Col>
-            </Row>
-          </Col>
-          <Col lg={6} style={{ paddingLeft: "0px" }}>
-            <Row className="row m-0 border">
-              <Col lg={3} className="m-0  border center p-2">
-                <small className="mb-0 d-flex align-items-center justify-content-start">
-                  <b>PRD TL Permission</b>&nbsp;&nbsp;&nbsp;
-                </small>
-                <Form>
-                  {["radio"].map((type) => (
-                    <div key={`inline-${type}`} className="d-flex gap-4">
-                      <Form.Check
-                        flex
-                        label="Yes"
-                        name="group1"
-                        type={type}
-                        disabled={!isEditable}
-                        id={`inline-${type}-1`}
-                        value="Yes"
-                        {...register("isPermissionOfPRDTL", {
-                          required: "This field is required",
-                        })}
-                      />
-                      <Form.Check
-                        flex
-                        label="No"
-                        name="group1"
-                        type={type}
-                        disabled={!isEditable}
-                        id={`inline-${type}-2`}
-                        value="No"
-                        {...register("isPermissionOfPRDTL", {
-                          required: "This field is required",
-                        })}
-                      />
-                    </div>
-                  ))}
-                </Form>
-                {errors?.isPermissionOfPRDTL && (
-                  <p className="text-error">
-                    {errors?.isPermissionOfPRDTL?.message}
-                  </p>
-                )}
-                <br />
-              </Col>
-              <Col lg={8}>
-                {watch("isPermissionOfPRDTL") === "Yes" && (
-                  <>
-                    <Col lg={8} className="mt-2 d-flex">
-                      <small
-                        className="mb-0 pt-1 "
-                        style={{ fontSize: "15px" }}
-                      >
-                        <b>Select PRD TL: </b>
-                      </small>
-                      &nbsp;&nbsp;
-                      <Controller
-                        control={control}
-                        name="prdTL"
-                        rules={{
-                          required: true,
-                        }}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                          <select
-                            size="small"
-                            label="Select PRD TL"
-                            value={value}
-                            disabled={!isEditable}
-                            onChange={onChange}
-                            onBlur={onBlur}
-                          >
-                            <option value="">Select PRD TL </option>
-                            {PRDTLList.map((value) => (
-                              <option value={value._id}>
-                                {value?.tm_name}
-                              </option>
-                            ))}
-                          </select>
-                        )}
-                      />
-                      {errors?.["prdTL"] && (
-                        <p className="text-error">
-                          {errors?.["prdTL"]?.message}
-                        </p>
-                      )}
-                    </Col>
-                  </>
-                )}
-              </Col>
-            </Row>
-          </Col>
-          {/* <Col className="m-0 d-flex border align-items-center p-2">
+              </Row>
+            </Col>
+            <Col lg={6} style={{ paddingRight: "0px" }}>
+              <Row className="row m-0 border">
+                <Col lg={3} md={12} className="m-0  border center p-2">
+                  <small
+                    className="mb-0 d-flex align-items-center justify-content-start"
+                    style={{
+                      width: "fit-content",
+                    }}
+                  >
+                    <b>PRD TL Permission</b>&nbsp;&nbsp;&nbsp;
+                  </small>
+                  <Form>
+                    {["radio"].map((type) => (
+                      <div key={`inline-${type}`} className="d-flex gap-4">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="group1"
+                          type={type}
+                          disabled={!isEditable}
+                          id={`inline-${type}-1`}
+                          value="Yes"
+                          {...register("isPermissionOfPRDTL", {
+                            required: "This field is required",
+                          })}
+                        />
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="group1"
+                          type={type}
+                          disabled={!isEditable}
+                          id={`inline-${type}-2`}
+                          value="No"
+                          {...register("isPermissionOfPRDTL", {
+                            required: "This field is required",
+                          })}
+                        />
+                      </div>
+                    ))}
+                  </Form>
+                  {errors?.isPermissionOfPRDTL && (
+                    <p className="text-error">
+                      {errors?.isPermissionOfPRDTL?.message}
+                    </p>
+                  )}
+                  <br />
+                </Col>
+                <Col lg={8} sm={12}>
+                  {watch("isPermissionOfPRDTL") === "Yes" && (
+                    <>
+                      <Col lg={12} className="mt-2 d-flex">
+                        <small
+                          className="mb-0 pt-1 "
+                          style={{
+                            fontSize: "15px",
+                            width: "fit-content",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <b>Select PRD TL: </b>
+                        </small>
+                        &nbsp;&nbsp;
+                        <Controller
+                          control={control}
+                          name="prdTL"
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <select
+                              size="small"
+                              label="Select PRD TL"
+                              value={value}
+                              disabled={!isEditable}
+                              onChange={onChange}
+                              onBlur={onBlur}
+                            >
+                              <option value="">Select PRD TL </option>
+                              {PRDTLList.map((value) => (
+                                <option value={value._id}>
+                                  {value?.tm_name}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        />
+                      </Col>
+                    </>
+                  )}
+                  {errors?.["prdTL"] && (
+                    <p className="text-error">{errors?.["prdTL"]?.message}</p>
+                  )}
+                </Col>
+              </Row>
+            </Col>
+            {/* <Col className="m-0 d-flex border align-items-center p-2">
             <Col lg={3}>
               <small className="mb-0 d-flex align-items-center justify-content-start">
                 <b>PRD TL Permission</b>&nbsp;&nbsp;&nbsp;
@@ -711,7 +789,8 @@ const ExistinngMachineReqSheetForOperator = ({
               </>
             )}
           </Col> */}
-        </Row>
+          </Row>
+        )}
         {isEditable &&
           context?.user_type === "Operator" &&
           (cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
@@ -739,7 +818,7 @@ const ExistinngMachineReqSheetForOperator = ({
                   type="submit"
                   className="btn bg-warning"
                   style={{ marginTop: "1rem" }}
-                  onClick={() => handleSubmit(onSubmit)}
+                  onClick={handleSubmit(onSubmit)}
                 >
                   Send For Approval
                 </button>

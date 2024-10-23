@@ -63,7 +63,6 @@ const AllRequestSheetReportDataOfCM = () => {
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
-      console.log(response);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
     } catch (error) {
       console.log(error);
@@ -138,7 +137,7 @@ const AllRequestSheetReportDataOfCM = () => {
     },
   ];
   const context = useContext(RoutingContext);
-  console.log(context);
+  // console.log(context);
 
   const [greaterValue, setGreaterValue] = useState(
     localStorage.getItem("greaterValue")
@@ -149,12 +148,6 @@ const AllRequestSheetReportDataOfCM = () => {
   const [isEditable, setIsEditable] = useState(false);
   const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-  console.log(
-    // cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
-    //   cmSelectedSheetForView?.approvalStatusOfMTD_TL === "Rejected" ||
-    //   cmSelectedSheetForView?.approvalStatusOfMTD_HOS === "Rejected"
-    CmReqSheetView
-  );
   const requestSheetApprovalAction = [
     // {
     //   icon: () => <CreditCardIcon className="text-primary1" />,
@@ -199,7 +192,7 @@ const AllRequestSheetReportDataOfCM = () => {
       //     ? false
       //     : true,
       onClick: (event, selectedRow) => {
-        console.log(event, selectedRow);
+        // console.log(event, selectedRow);
         setCmReqSheetView(true);
         setIsEditable(true);
         setCmSelectedSheetForView(selectedRow);
@@ -210,7 +203,7 @@ const AllRequestSheetReportDataOfCM = () => {
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        console.log(event, selectedRow);
+        // console.log(event, selectedRow);
         setCmReqSheetView(true);
         setIsEditable(false);
         setCmSelectedSheetForView(selectedRow);
@@ -518,8 +511,10 @@ const AllRequestSheetReportDataOfCM = () => {
                   />
                 </div>
               )}
-              {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Under MTD HOS Approval" && (
+              {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Under MTD HOS Approval" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                  "Under PRD TL Approval") && (
                 <div>
                   <HOSExistingMachineReqSheet
                     cmSelectedSheetForView={cmSelectedSheetForView}

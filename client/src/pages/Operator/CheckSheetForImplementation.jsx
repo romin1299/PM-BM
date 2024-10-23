@@ -717,6 +717,8 @@ const CheckSheet = ({
     postMachineIdToGetAllDetailsOfMachine();
   }, []);
 
+  console.log(newTableData);
+
   return (
     <>
       {workOnImplementationPM}
@@ -1143,8 +1145,8 @@ const CheckSheet = ({
                         {newTableData?.map((rData, rIndex) => (
                           <tr
                             className={
-                              rData[11]?.["key"] === "isDeleted" &&
-                              rData[11]?.["value"] === true
+                              rData[10]?.["key"] === "isDeleted" &&
+                              rData[10]?.["value"] === true
                                 ? "ar-table-row table-col-mid-year-delete"
                                 : "ar-table-row"
                             }
@@ -1209,8 +1211,8 @@ const CheckSheet = ({
                                       colData.value.length === 1 &&
                                       colData.key ===
                                         monthForCompareSystemMonth &&
-                                      rData[11]?.["key"] !== "isDeleted" &&
-                                      rData[11]?.["value"] !== true ? (
+                                      rData[10]?.["key"] !== "isDeleted" &&
+                                      rData[10]?.["value"] !== true ? (
                                         <>
                                           {" "}
                                           <button

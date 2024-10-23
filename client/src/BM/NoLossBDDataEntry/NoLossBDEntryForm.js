@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect, useContext } from "react";
+import React, { useReducer, useState, useEffect, useContext, forwardRef } from "react";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   reducer,
@@ -176,9 +176,16 @@ const NoLossBDEntryForm = () => {
       const data = await res.json();
 
       if (res.status === 201) {
+        reset({
+          actionTemporaryOrNot: "",
+          maintenanceType: "",
+          shiftOfBM: "",
+          machineStatus: "",
+          workStartedDateOfBM: "",
+          workEndedDateOfBM: "",
+        });
         SuccessToast(data?.message);
-        reset();
-        setProblems([]);
+        setProblems([]);  
         setActions([]);
         setSelectedSupportedTM([]);
         setInc(inc + 1);
@@ -191,10 +198,10 @@ const NoLossBDEntryForm = () => {
   };
 
   useEffect(() => {
-    if(reduceState?.selectedMachine !== ""){
+    if (reduceState?.selectedMachine !== "") {
       clearErrors("selectedValue");
     }
-  }, [reduceState?.selectedMachine])
+  }, [reduceState?.selectedMachine]);
 
   return (
     <Container fluid>
@@ -367,12 +374,14 @@ const NoLossBDEntryForm = () => {
                       type="radio"
                       value={shiftInfo.shiftName}
                       name={`shiftOfBM`}
-                      // {...register(`shiftOfBM.${shiftInfo.shiftName}`)}
-                      onChange={(e) => {
-                        setValue(`shiftOfBM`, e.target.value, {
-                          shouldDirty: true,
-                        });
-                      }}
+                      {...register(`shiftOfBM`, {
+                        required: "This field is required",
+                      })}
+                      // onChange={(e) => {
+                      //   setValue(`shiftOfBM`, e.target.value, {
+                      //     shouldDirty: true,
+                      //   });
+                      // }}
                     />
                   ))}
                   {errors?.["shiftOfBM"] && (
@@ -611,7 +620,7 @@ const NoLossBDEntryForm = () => {
                             width: "15rem",
                           },
                         }}
-                        // selectedValues={requestSheetDataOfBM?.supportingTM}
+                        selectedValues={selectedSupportedTM}
                       />
                     )}
                   />
