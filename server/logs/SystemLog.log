@@ -1205,3 +1205,60 @@
     at Function.keys (<anonymous>)
     at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7188:20
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T11:58 | PM | noLossBDData is not defined
+		ReferenceError: noLossBDData is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23390:43
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T12:37 | PM | Cannot convert undefined or null to object
+		TypeError: Cannot convert undefined or null to object
+    at Function.keys (<anonymous>)
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22859:36)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23062:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T12:38 | PM | Cannot convert undefined or null to object
+		TypeError: Cannot convert undefined or null to object
+    at Function.keys (<anonymous>)
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22864:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23058:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T13:00 | PM | Cannot convert undefined or null to object
+		TypeError: Cannot convert undefined or null to object
+    at Function.keys (<anonymous>)
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22873:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23063:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T14:52 | PM | Cannot read properties of undefined (reading 'Sep')
+		TypeError: Cannot read properties of undefined (reading 'Sep')
+    at commonEditedFields (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22957:12)
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23063:17)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23096:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T15:04 | PM | Cannot read properties of undefined (reading 'Sep')
+		TypeError: Cannot read properties of undefined (reading 'Sep')
+    at commonEditedFields (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22957:12)
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23063:17)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23096:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T15:12 | PM | Cannot read properties of undefined (reading 'Sep')
+		TypeError: Cannot read properties of undefined (reading 'Sep')
+    at commonEditedFields (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22958:14)
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23067:17)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23100:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T15:14 | PM | Cannot read properties of undefined (reading 'Sep')
+		TypeError: Cannot read properties of undefined (reading 'Sep')
+    at commonEditedFields (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22960:14)
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23069:17)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23102:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T15:16 | PM | Cannot read properties of undefined (reading 'Sep')
+		TypeError: Cannot read properties of undefined (reading 'Sep')
+    at commonEditedFields (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22985:16)
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23067:17)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23100:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-10-23T16:09 | PM | machineCheckSheetData[0].checkSheet_data[userDepAndType][(intermediate value)] is not a function
+		TypeError: machineCheckSheetData[0].checkSheet_data[userDepAndType][(intermediate value)] is not a function
+    at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23022:54)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23122:15
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)

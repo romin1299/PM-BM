@@ -1087,7 +1087,7 @@ function ChecksheetFormApprovalForTL() {
                         const uniqueNames = [
                           ...new Set([
                             ...(machineAllData?.checkSheet_data
-                              ?.implemetation_completed_tm_name[month] || []),
+                              ?.implemetation_completed_tm_name?.[month] || []),
                             ...(machineAllData?.checkSheet_data
                               ?.PMworkedTMName?.[month] || []),
                           ]),
