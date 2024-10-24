@@ -3,6 +3,7 @@ import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar"
 import {
   reducer,
   initialState,
+  getFiltrationValue,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import { Controller, useForm } from "react-hook-form";
 import { Row, Col, Form, Container } from "react-bootstrap";
@@ -71,9 +72,103 @@ const NoLossBDEntryForm = () => {
     }
   };
 
+  const getFiltrationValueByDefault = async () => {
+    const { res, data } = await getFiltrationValue({
+      url: `${baseUrlForFiltering}/byDefault`,
+    });
+
+    const {
+      message,
+
+      flagForTogglingFilter,
+      selectedValue,
+
+      selectedSection,
+      sections,
+      selectedSubSection,
+      subSections,
+      selectedCell,
+      cells,
+      selectedLine,
+      lines,
+      selectedMachine,
+      machines,
+      selectedRSStatus,
+    } = data;
+
+    if (res?.status === 201) {
+      reducerDispatch({
+        type: "get-data",
+
+        flagForTogglingFilter,
+        selectedValue,
+
+        selectedSection,
+        sections,
+        selectedSubSection,
+        subSections,
+        cells,
+        selectedCell,
+        selectedLine,
+        lines,
+        selectedMachine,
+        machines,
+        message,
+        selectedRSStatus,
+      });
+    }
+  };
+  // const getFiltrationValueByDefault = async () => {
+  //   const { res, data } = await getFiltrationValue({
+  //     url: `/getFiltrationValue/sectionBased/byDefault`,
+  //   });
+
+  //   const {
+  //     message,
+
+  //     flagForTogglingFilter,
+  //     selectedValue,
+
+  //     selectedSection,
+  //     sections,
+  //     selectedSubSection,
+  //     subSections,
+  //     selectedCell,
+  //     cells,
+  //     selectedLine,
+  //     lines,
+  //     selectedMachine,
+  //     machines,
+  //     selectedRSStatus,
+  //   } = data;
+
+  //   if (res?.status === 201) {
+  //     reducerDispatch({
+  //       type: "get-data",
+  //       flagForTogglingFilter,
+  //       selectedValue,
+
+  //       selectedSection,
+  //       sections,
+  //       selectedSubSection,
+  //       subSections,
+  //       cells,
+  //       selectedCell,
+  //       selectedLine,
+  //       lines,
+  //       selectedMachine,
+  //       machines,
+  //       message,
+  //       selectedRSStatus,
+  //     });
+  //   }
+  // };
+
   useEffect(() => {
     getListOfTheTLAndOperatorForNoLossBDEntryForm();
   }, []);
+
+  // console.log("this is reduce", reduceState);
 
   const timezone = "Asia/Kolkata";
   const currentMonth = moment().format("MMM");
@@ -177,8 +272,12 @@ const NoLossBDEntryForm = () => {
       const data = await res.json();
 
       if (res.status === 201) {
+        // const result = initialState();
+        // console.log("this is result", result);
+
         SuccessToast(data?.message);
         reset({
+          doneByNoLossBD: loggedUserDetails?._id,
           actionTemporaryOrNot: "",
           maintenanceType: "",
           shiftOfBM: "",
@@ -187,12 +286,18 @@ const NoLossBDEntryForm = () => {
           workEndedDateOfBM: "",
           causeOfNoLoss: "",
           counterMeasureStep: "",
-          attachedFilesForOtherLoss: ""
+          attachedFilesForOtherLoss: "",
         });
         setProblems([]);
         setActions([]);
         setSelectedSupportedTM([]);
         setInc((inc) => inc + 1);
+        getFiltrationValueByDefault();
+        for (const categoryObj of plantCategories) {
+          setValue(`categories.${categoryObj?.name}`, "");
+        }
+       
+        console.log("this is state", reduceState);
       } else {
         WarningToast(data?.message);
       }
@@ -229,6 +334,7 @@ const NoLossBDEntryForm = () => {
               cellFiltration
               lineFiltration
               machineFiltration
+              // isWithLocalStorageForFiltration={"Yes"}
             />
           </Col>
           {errors?.selectedValue && (
