@@ -118,52 +118,7 @@ const NoLossBDEntryForm = () => {
       });
     }
   };
-  // const getFiltrationValueByDefault = async () => {
-  //   const { res, data } = await getFiltrationValue({
-  //     url: `/getFiltrationValue/sectionBased/byDefault`,
-  //   });
-
-  //   const {
-  //     message,
-
-  //     flagForTogglingFilter,
-  //     selectedValue,
-
-  //     selectedSection,
-  //     sections,
-  //     selectedSubSection,
-  //     subSections,
-  //     selectedCell,
-  //     cells,
-  //     selectedLine,
-  //     lines,
-  //     selectedMachine,
-  //     machines,
-  //     selectedRSStatus,
-  //   } = data;
-
-  //   if (res?.status === 201) {
-  //     reducerDispatch({
-  //       type: "get-data",
-  //       flagForTogglingFilter,
-  //       selectedValue,
-
-  //       selectedSection,
-  //       sections,
-  //       selectedSubSection,
-  //       subSections,
-  //       cells,
-  //       selectedCell,
-  //       selectedLine,
-  //       lines,
-  //       selectedMachine,
-  //       machines,
-  //       message,
-  //       selectedRSStatus,
-  //     });
-  //   }
-  // };
-
+  
   useEffect(() => {
     getListOfTheTLAndOperatorForNoLossBDEntryForm();
   }, []);
@@ -296,8 +251,6 @@ const NoLossBDEntryForm = () => {
         for (const categoryObj of plantCategories) {
           setValue(`categories.${categoryObj?.name}`, "");
         }
-       
-        console.log("this is state", reduceState);
       } else {
         WarningToast(data?.message);
       }
