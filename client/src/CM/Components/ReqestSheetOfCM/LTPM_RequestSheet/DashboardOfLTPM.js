@@ -19,7 +19,7 @@ import axios from "axios";
 import { FaEye } from "react-icons/fa";
 
 const DashboardOfLTPM = () => {
-  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
   const [loading, setLoading] = useState(true);
   const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
   const [selectedRow, setSelectedRow] = useState([]);
@@ -28,10 +28,7 @@ const DashboardOfLTPM = () => {
     []
   );
 
-  const [reduceState, reducerDispatch] = useReducer(
-    reducer,
-    initialState("Yes")
-  );
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState(""));
   const approvalDashboardHeader = [
     {
       title: "Sr. No.",
@@ -68,29 +65,28 @@ const DashboardOfLTPM = () => {
     }),
   ];
 
-  const getAllLTPMLineWiseSheetData = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `/LTPM/getLineWiseLTPM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
-      );
-      // console.log(response);
-      setDisplayLineWiseDataOfLTPM(response?.data?.listOfLine);
-    } catch (error) {
-      console.log(error);
-    }
-    setLoading(false);
-  };
+  // const getAllLTPMLineWiseSheetData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await axios.get(
+  //       `/LTPM/getLineWiseLTPM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`
+  //     );
+  //     // console.log(response);
+  //     setDisplayLineWiseDataOfLTPM(response?.data?.listOfLine);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  //   setLoading(false);
+  // };
 
-  useEffect(() => {
-    reduceState?.selectedValue && getAllLTPMLineWiseSheetData();
-  }, [
-    reduceState?.selectedValue,
-    reduceState?.selectedYear,
-    reduceState?.selectedMonth,
-    reduceState?.selectedRSStatus,
-    reduceState?.selectedMaintenanceType,
-  ]);
+  // useEffect(() => {
+  //   if (reduceState?.selectedValue) getAllLTPMLineWiseSheetData();
+  // }, [
+  //   reduceState?.selectedValue,
+  //   reduceState.selectedYear,
+  //   reduceState.selectedMonth,
+  // ]);
+
   return (
     <>
       <Container fluid>
@@ -108,11 +104,12 @@ const DashboardOfLTPM = () => {
               cellFiltration
               lineFiltration
               resetButtonFiltration
-              isWithLocalStorageForFiltration="Yes"
+              selectedLineOrNot="Yes"
+              // isWithLocalStorageForFiltration="Yes"
             />
           }
         />
-        <Row>
+        {/* <Row>
           <Col>
             <MaterialTable
               localization={{
@@ -170,14 +167,13 @@ const DashboardOfLTPM = () => {
               sx={MaterialTableSX}
             />
           </Col>
-        </Row>
+        </Row> */}
       </Container>
 
-      {openCloseLTPM && (
+      {reduceState?.selectedValue && (
         <RequestSheetOfLTPM
-          openCloseModalOfLTPM={openCloseModalOfLTPM}
-          openCloseLTPM={openCloseLTPM}
-          selectedRow={selectedRow}
+          reduceState={reduceState}
+          selectedLine={reduceState?.selectedLine}
         />
       )}
     </>

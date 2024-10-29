@@ -25,7 +25,8 @@ const ChartsToolbar = ({
   maintenanceTypeArrayForFilter,
   maintenanceTypeFiltration,
   resetButtonFiltration,
-  isWithLocalStorageForFiltration
+  isWithLocalStorageForFiltration,
+  selectedLineOrNot,
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -116,6 +117,7 @@ const ChartsToolbar = ({
           maintenanceTypeFiltration={maintenanceTypeFiltration}
           resetButtonFiltration={resetButtonFiltration}
           isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
+          selectedLineOrNot={selectedLineOrNot}
         />
       </Box>
 

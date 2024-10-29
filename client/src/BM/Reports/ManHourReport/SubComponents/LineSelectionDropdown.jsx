@@ -89,6 +89,7 @@ export default function LineSelectionDropdown({
 
   resetButtonFiltration,
   isWithLocalStorageForFiltration,
+  selectedLineOrNot = ""
 }) {
   const context = useContext(RoutingContext);
 
@@ -117,7 +118,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/sectionBased/${section}`,
+        url: `${baseUrlForFiltering}/sectionBased/${section}?selectedLineOrNot=${selectedLineOrNot}`,
       });
 
       const {
@@ -167,7 +168,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnSubSection = async ({ subSection }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/subSectionBased/${subSection}`,
+        url: `${baseUrlForFiltering}/subSectionBased/${subSection}?selectedLineOrNot=${selectedLineOrNot}`,
       });
 
       const {
@@ -213,7 +214,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnCell = async ({ cell }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/cellBased/${cell}`,
+        url: `${baseUrlForFiltering}/cellBased/${cell}?selectedLineOrNot=${selectedLineOrNot}`,
       });
       const {
         message,
@@ -253,7 +254,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnLine = async ({ line }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/lineBased/${line}`,
+        url: `${baseUrlForFiltering}/lineBased/${line}?selectedLineOrNot=${selectedLineOrNot}`,
       });
       const {
         message,
@@ -289,7 +290,7 @@ export default function LineSelectionDropdown({
 
   const getFiltrationValueByDefault = async () => {
     const { res, data } = await getFiltrationValue({
-      url: `${baseUrlForFiltering}/byDefault`,
+      url: `${baseUrlForFiltering}/byDefault/?selectedLineOrNot=${selectedLineOrNot}`,
     });
 
     const {
