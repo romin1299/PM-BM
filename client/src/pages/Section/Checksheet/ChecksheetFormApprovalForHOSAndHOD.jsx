@@ -534,7 +534,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           : selectedMachineCheckSheetData?.state?.dashboardID ===
             "FromPlanningApprovalDashboard"
           ? navigate("/pm/planningApproval")
-          : navigate("/pm/implementationApproval");
+          : navigate(-1);
       }
     },
   });
@@ -611,7 +611,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       : selectedMachineCheckSheetData?.state?.dashboardID ===
                         "FromPlanningApprovalDashboard"
                       ? navigate("/pm/planningApproval")
-                      : navigate("/pm/implementationApproval");
+                      : navigate(-1);
 
                     // if (
                     //   selectedMachineCheckSheetData?.state?.dashboardID ===
