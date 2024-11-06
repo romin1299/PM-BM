@@ -8145,7 +8145,7 @@ router.get(
 
       return res.status(201).json({
         message: "Categories data in PieChart get successfully",
-        categoriesPieChartData: pieChartData?.[0].categories,
+        categoriesPieChartData: pieChartData?.[0]?.categories,
         // pieChartData
       });
     } catch (error) {
@@ -9388,7 +9388,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
                 },
                 "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                   req.query.selectedYear,
-                  maintenanceType : "BM"
+                maintenanceType: "BM",
               },
             },
             {
@@ -11132,7 +11132,7 @@ router.get(
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                     req.query.selectedYear,
-                  maintenanceType : "BM"
+                  maintenanceType: "BM",
                 },
               },
               {
@@ -11258,7 +11258,7 @@ router.get(
                   },
                   "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                     req.query.selectedYear,
-                  maintenanceType : "BM"
+                  maintenanceType: "BM",
                 },
               },
 
@@ -18366,8 +18366,12 @@ router.get(
           return res.status(201).json({
             message: "Data get successfully",
 
-            flagForTogglingFilter: "based-on-cell",
-            selectedValue: req.cellID,
+            flagForTogglingFilter: req?.query?.selectedLineOrNot
+              ? "based-on-line"
+              : "based-on-cell",
+            selectedValue: req?.query?.selectedLineOrNot
+              ? req?.lineID
+              : req.cellID,
 
             selectedSection: req.section?._id,
             sections: req.sections,
@@ -18375,7 +18379,7 @@ router.get(
             subSections: req.subSections,
             selectedCell: req.cellID,
             cells: req.cells,
-            selectedLine: "",
+            selectedLine: req?.query?.selectedLineOrNot ? req.lineID : "",
             lines: req.lines,
           });
         }
@@ -18383,8 +18387,12 @@ router.get(
         return res.status(201).json({
           message: "Data get successfully",
 
-          flagForTogglingFilter: "based-on-cell",
-          selectedValue: req.cellID,
+          flagForTogglingFilter: req?.query?.selectedLineOrNot
+            ? "based-on-line"
+            : "based-on-cell",
+          selectedValue: req?.query?.selectedLineOrNot
+            ? req?.lineID
+            : req.cellID,
 
           selectedSection: req.section?._id,
           sections: req.sections,
@@ -18392,7 +18400,7 @@ router.get(
           subSections: [],
           selectedCell: req.cellID,
           cells: req.cells,
-          selectedLine: "",
+          selectedLine: req?.query?.selectedLineOrNot ? req.lineID : "",
           lines: req.lines,
         });
       }
@@ -18401,8 +18409,12 @@ router.get(
         return res.status(201).json({
           message: "Data get successfully",
 
-          flagForTogglingFilter: "based-on-cell",
-          selectedValue: req.cellID,
+          flagForTogglingFilter: req?.query?.selectedLineOrNot
+            ? "based-on-line"
+            : "based-on-cell",
+          selectedValue: req?.query?.selectedLineOrNot
+            ? req?.lineID
+            : req.cellID,
 
           selectedSection: "",
           sections: [],
@@ -18410,7 +18422,7 @@ router.get(
           subSections: req.subSections,
           selectedCell: req.cellID,
           cells: req.cells,
-          selectedLine: "",
+          selectedLine: req?.query?.selectedLineOrNot ? req.lineID : "",
           lines: req.lines,
         });
       }
@@ -18418,8 +18430,10 @@ router.get(
       return res.status(201).json({
         message: "Data get successfully",
 
-        flagForTogglingFilter: "based-on-cell",
-        selectedValue: req.cellID,
+        flagForTogglingFilter: req?.query?.selectedLineOrNot
+          ? "based-on-line"
+          : "based-on-cell",
+        selectedValue: req?.query?.selectedLineOrNot ? req?.lineID : req.cellID,
 
         selectedSection: "",
         sections: [],
@@ -18427,7 +18441,7 @@ router.get(
         subSections: [],
         selectedCell: req.cellID,
         cells: req.cells,
-        selectedLine: "",
+        selectedLine: req?.query?.selectedLineOrNot ? req.lineID : "",
         lines: req.lines,
       });
     } catch (error) {
@@ -18452,8 +18466,12 @@ router.get(
         return res.status(201).json({
           message: "Data get successfully",
 
-          flagForTogglingFilter: "based-on-cell",
-          selectedValue: req.cellID,
+          flagForTogglingFilter: req?.query?.selectedLineOrNot
+            ? "based-on-line"
+            : "based-on-cell",
+          selectedValue: req?.query?.selectedLineOrNot
+            ? req?.lineID
+            : req.cellID,
 
           selectedSection: req.section?._id,
 
@@ -18461,7 +18479,7 @@ router.get(
           subSections: req.subSections,
           selectedCell: req.cellID,
           cells: req.cells,
-          selectedLine: "",
+          selectedLine: req?.query?.selectedLineOrNot ? req.lineID : "",
           lines: req.lines,
 
           selectedMachine: "",
@@ -18472,8 +18490,10 @@ router.get(
       return res.status(201).json({
         message: "Data get successfully",
 
-        flagForTogglingFilter: "based-on-cell",
-        selectedValue: req.cellID,
+        flagForTogglingFilter: req?.query?.selectedLineOrNot
+          ? "based-on-line"
+          : "based-on-cell",
+        selectedValue: req?.query?.selectedLineOrNot ? req?.lineID : req.cellID,
 
         selectedSection: req.section?._id,
 
@@ -18481,7 +18501,7 @@ router.get(
         subSections: [],
         selectedCell: req.cellID,
         cells: req.cells,
-        selectedLine: "",
+        selectedLine: req?.query?.selectedLineOrNot ? req.lineID : "",
         lines: req.lines,
 
         selectedMachine: "",
@@ -18515,14 +18535,16 @@ router.get(
       return res.status(201).json({
         message: "Data get successfully",
 
-        flagForTogglingFilter: "based-on-cell",
-        selectedValue: req.cellID,
+        flagForTogglingFilter: req?.query?.selectedLineOrNot
+          ? "based-on-line"
+          : "based-on-cell",
+        selectedValue: req?.query?.selectedLineOrNot ? req?.lineID : req.cellID,
 
         selectedSubSection: req.params?.id,
 
         selectedCell: req.cellID,
         cells: req.cells,
-        selectedLine: "",
+        selectedLine: req?.query?.selectedLineOrNot ? req.lineID : "",
         lines: req.lines,
         selectedMachine: "",
         machines: [],
@@ -18553,12 +18575,16 @@ router.get(
       return res.status(201).json({
         message: "Line dropdown value get successfully",
 
-        selectedValue: req.params?.id,
-        flagForTogglingFilter: "based-on-cell",
+        selectedValue: req?.query?.selectedLineOrNot
+          ? req?.lineID
+          : req.params?.id,
+        flagForTogglingFilter: req?.query?.selectedLineOrNot
+          ? "based-on-line"
+          : "based-on-cell",
 
         selectedCell: req.params?.id,
 
-        selectedLine: "",
+        selectedLine: req?.query?.selectedLineOrNot ? req.lineID : "",
         lines: req.lines,
         selectedMachine: "",
         machines: [],

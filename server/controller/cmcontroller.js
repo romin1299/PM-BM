@@ -2882,18 +2882,83 @@ router.get("/getReqSheetDataForCalendar", authenticate, async (req, res) => {
   }
 });
 
-router.get("/LTPM/getDatOfLTPM", authenticate, async (req, res) => {
+const middlewareForSectionAndSubSectionLookup = async (req, res, next) => {
   try {
+    let queryObjPipeline = [];
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
+
+    if (section.dashboardLevel === "Yes") {
+      queryObjPipeline = [
+        {
+          $lookup: {
+            from: "sections",
+            localField: "_id.sectionRef",
+            foreignField: "_id",
+            as: "section_data",
+            pipeline: [
+              {
+                $project: { section_name: "$section_name" },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: "$section_data",
+        },
+      ];
+    } else {
+      queryObjPipeline = [
+        {
+          $lookup: {
+            from: "subsections",
+            localField: "_id.subSectionRef",
+            foreignField: "_id",
+            as: "section_data",
+            pipeline: [
+              {
+                $project: { section_name: "$subSection_name" },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: "$section_data",
+        },
+      ];
+    }
+
+    req.queryObjPipeline = queryObjPipeline;
+    next();
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
+router.get(
+  "/LTPM/getDatOfLTPM/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  middlewareForSectionAndSubSectionLookup,
+  tryCatchHandler(async (req, res, next) => {
     const resultOfLTPM = await RequestSheetOfCM.aggregate([
       {
         $match: {
           "cmBasicDataFilledByMTD_TL.categories": "LTPM",
-          lineRef: mongoose.Types.ObjectId(req?.query?.lineRef)
+          // lineRef: mongoose.Types.ObjectId(req?.query?.lineRef),
+          ...req?.queryObj
         },
       },
       {
         $group: {
-          _id: "$machineRef",
+          _id: {
+            machineRef: "$machineRef",
+            lineRef: "$lineRef",
+            sectionRef: "$sectionRef",
+            subSectionRef: "$subSectionRef",
+          },
           data: {
             $push: {
               frequencyValue: "$cmBasicDataFilledByMTD_TL.frequencyValue",
@@ -2902,12 +2967,13 @@ router.get("/LTPM/getDatOfLTPM", authenticate, async (req, res) => {
               personForLTPM: "$cmBasicDataFilledByMTD_TL.personForLTPM",
             },
           },
+          lineName: { $first: "$lineRef" },
         },
       },
       {
         $lookup: {
           from: "machinesalldatas",
-          localField: "_id",
+          localField: "_id.machineRef",
           foreignField: "_id",
           as: "machines",
           pipeline: [
@@ -2923,16 +2989,13 @@ router.get("/LTPM/getDatOfLTPM", authenticate, async (req, res) => {
       {
         $unwind: "$machines",
       },
+      ...req.queryObjPipeline,
     ]);
-
-    res.status(200).json({
-      message: "LTPM Data fetched successfully",
+    successResponse(res, "LTPM Line wise data get successfully", {
       resultOfLTPM,
     });
-  } catch (error) {
-    res.status(500).json({ message: error?.message, error: new Error(error) });
-  }
-});
+  })
+);
 
 router.get(
   "/LTPM/getLineWiseLTPM/:filter/:selectedId",
@@ -2942,12 +3005,12 @@ router.get(
     const listOfLine = await RequestSheetOfCM.aggregate([
       {
         $match: {
-          ...req?.queryObj
-        }
+          ...req?.queryObj,
+        },
       },
       {
         $group: {
-          _id: { lineName: "$lineRef", cellName: "$cellRef" }
+          _id: { lineName: "$lineRef", cellName: "$cellRef" },
         },
       },
       {

@@ -1,19 +1,16 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import moment from "moment";
+import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
 
-const RequestSheetOfLTPM = ({
-  openCloseModalOfLTPM,
-  openCloseLTPM,
-  selectedRow,
-}) => {
+const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   // const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
   const [dataOfLTPM, setDataOfLTPM] = useState([]);
 
   const getDataOfLTPM = async () => {
     try {
-      const url = `/LTPM/getDatOfLTPM/?lineRef=${selectedRow?._id?.lineName}`;
+      const url = `/LTPM/getDatOfLTPM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`;
 
       const res = await axios.get(url, {
         withCredentials: true,
@@ -25,10 +22,6 @@ const RequestSheetOfLTPM = ({
       console.log(error);
     }
   };
-
-  // const openCloseModalOfLTPM = () => {
-  //   setOpenCloseLTPM(!openCloseLTPM);
-  // };
 
   let yearsOfLTPM = [
     {
@@ -148,7 +141,11 @@ const RequestSheetOfLTPM = ({
 
   useEffect(() => {
     getDataOfLTPM();
-  }, []);
+  }, [
+    reduceState?.selectedValue,
+    reduceState.selectedYear,
+    reduceState.selectedMonth,
+  ]);
 
   function getFinancialQuarter(date) {
     const financialYearStartMonth = 4; // April is the 4th month
@@ -159,33 +156,13 @@ const RequestSheetOfLTPM = ({
   // Example usage with current date
   const currentFinancialQuarter = getFinancialQuarter(moment());
 
-  console.log(currentFinancialQuarter);
-
   return (
     <>
-      {/* <Button onClick={openCloseModalOfLTPM}>LTPM Open</Button> */}
-      <div className="modal-fullscreen">
-        <Modal
-          className="d-flex align-items-center justify-content-center"
-          show={openCloseLTPM}
-          fullscreen={true}
-          onHide={openCloseModalOfLTPM}
-          scrollable={true}
-          enforceFocus={false}
-        >
-          <Modal.Header>
-            <Modal.Title>
-              LONG TERM PREVENTIVE MAINTENANCE PLAN ( DURATION > 1 YEAR )
-            </Modal.Title>
-            <Button
-              variant="secondary"
-              onClick={openCloseModalOfLTPM}
-              className="btn-danger"
-            >
-              Close
-            </Button>
-          </Modal.Header>
-          <Modal.Body>
+      <div>
+        {dataOfLTPM?.length <= 0 ? (
+          <DataNotFound />
+        ) : (
+          <>
             <div>
               <Container fluid>
                 <Row>
@@ -235,7 +212,7 @@ const RequestSheetOfLTPM = ({
                             // colSpan={2}
                             rowSpan={3}
                           >
-                            <p>Section Name :</p>
+                            <p>Section Name : {dataOfLTPM?.[0]?.section_data?.section_name}</p>
                             <br />
                             <p>Line Name :</p>
                           </th>
@@ -385,8 +362,8 @@ const RequestSheetOfLTPM = ({
                 </Row>
               </Container>
             </div>
-          </Modal.Body>
-        </Modal>
+          </>
+        )}
       </div>
     </>
   );
