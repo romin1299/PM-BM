@@ -31,6 +31,7 @@ import { FiArrowLeftCircle, FiArrowRightCircle } from "react-icons/fi";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 import BackupTableIcon from "@mui/icons-material/BackupTable";
+import handleProSideBarWidthVarForMainDashboard from "./handleProSideBarWidthVarForMainDashboard";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -63,6 +64,7 @@ const Admin = ({ userData }) => {
   };
   const onClickMenuIcon = () => {
     // setCollapsed(!collapsed);
+    handleProSideBarWidthVarForMainDashboard(menuCollapse);
     menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
   };
 
