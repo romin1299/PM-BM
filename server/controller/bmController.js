@@ -14113,11 +14113,11 @@ const middlewareForMachineAgeLookup = async (req, res, next) => {
             from: "subsections",
             localField: "subSectionRef",
             foreignField: "_id",
-            as: "subSection_data",
+            as: "section_data",
           },
         },
         {
-          $unwind: "$subSection_data",
+          $unwind: "$section_data",
         },
       ];
     }
