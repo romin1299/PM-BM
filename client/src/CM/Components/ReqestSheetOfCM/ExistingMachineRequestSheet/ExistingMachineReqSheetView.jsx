@@ -130,12 +130,12 @@ const ExistingMachineReqSheetWithData = ({
       const { ...otherFields } = requestSheetDataOfCM;
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.attachedFilesByMTDUser?.length;
+        i < requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.length;
         i++
       ) {
         formData.append(
           "attachedFilesByAssignedUser",
-          requestSheetDataOfCM?.attachedFilesByMTDUser[i]
+          requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser[i]
         );
       }
       // console.log(otherFields)
@@ -854,10 +854,10 @@ const ExistingMachineReqSheetWithData = ({
                           multiple
                           // accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
-                            setValue("attachedFilesByMTDUser", e.target.files, {
+                            setValue("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", e.target.files, {
                               shouldDirty: true,
                             });
-                            clearErrors("attachedFilesByMTDUser");
+                            clearErrors("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser");
                           }}
                         />
                         {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (

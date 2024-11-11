@@ -210,7 +210,7 @@ router.post(
   authenticate,
   dashboardLevelUserCheckMiddleware,
   uploadDataSheetsOfBD.fields([
-    { name: "attachedFilesByMTDUser", maxCount: 10 },
+    { name: "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", maxCount: 10 },
   ]),
   async (req, res, next) => {
     const dataSheet = req.files;
@@ -302,10 +302,10 @@ router.post(
                 requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
               ),
             },
-            sparePartUsedOrNot:
-              requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
-                ? "Yes"
-                : "No",
+            // sparePartUsedOrNot:
+            //   requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
+            //     ? "Yes" 
+            //     : "No",
           },
         ],
       });
