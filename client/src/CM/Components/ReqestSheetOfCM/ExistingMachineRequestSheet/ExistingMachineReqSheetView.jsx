@@ -241,7 +241,7 @@ const ExistingMachineReqSheetWithData = ({
             <tr className="row m-2">
               <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
-                  <b>MAINT. TYPEJKGLLKL</b>
+                  <b>MAINT. TYPE</b>
                 </small>
                 <br />
                 <small>{cmSelectedSheetForView?.maintenanceType}</small>
