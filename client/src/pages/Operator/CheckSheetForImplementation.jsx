@@ -1431,7 +1431,7 @@ const CheckSheet = ({
                                 const uniqueNames = [
                                   ...new Set([
                                     ...(machineAllData?.checkSheet_data
-                                      ?.implemetation_completed_tm_name[
+                                      ?.implemetation_completed_tm_name?.[
                                       month
                                     ] || []),
                                     ...(machineAllData?.checkSheet_data
@@ -1468,13 +1468,13 @@ const CheckSheet = ({
                                   <td className="ar-table-col1">
                                     {
                                       machineAllData?.checkSheet_data
-                                        ?.implementation_assign_PRD_TL_name[
+                                        ?.implementation_assign_PRD_TL_name?.[
                                         month
                                       ][
                                         machineAllData?.checkSheet_data
-                                          ?.implementation_assign_PRD_TL_name[
+                                          ?.implementation_assign_PRD_TL_name?.[
                                           month
-                                        ].length - 1
+                                        ]?.length - 1
                                       ]
                                     }
                                   </td>

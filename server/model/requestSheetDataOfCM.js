@@ -26,15 +26,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   //   type: String,
   // },
 
-  preAggregationTimeStampOfRequestSheet: {
-    requestSheet_year: {
-      type: String,
-    },
-    requestSheet_month: {
-      type: String,
-    },
-  },
-
   plannedDateAndTimeOfCM: {
     type: Date,
   },
@@ -81,11 +72,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
 
   //this field for requestSheet created by MTD TL user
   requestSheetCreatedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Users",
-  },
-
-  breakDownAttendedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
@@ -213,58 +199,59 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     type: [String],
   },
 
-  dataSheetOfRequestSheet: {
-    type: String,
-  },
-  attachedDataSheets: {
-    type: String,
-  },
-
-  drawingOfRequestSheet: {
-    type: String,
-  },
-  attachedDrawings: {
-    type: [String],
-  },
-
-  //Spare parts related fields
-  sparePartUsedOrNot: { type: String },
-  changedParts: [
+  commonDataFilledByAssignUser: [
     {
-      partNo: { type: String },
-      partName: { type: String },
-      makerName: { type: String },
-      quantity: { type: Number },
-      cost: { type: Number },
-    },
-  ],
-  //Work details related fields
-  workDetails: [
-    {
-      id: { type: Date },
-      work: { type: String },
-      tmId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
+      preAggregationTimeStampOfRequestSheet: {
+        requestSheet_year: {
+          type: String,
+        },
+        requestSheet_month: {
+          type: String,
+        },
+        requestSheet_quarter: {
+          type: String,
+        },
       },
-      tmName: {
-        type: String,
-      },
-      fromDate: {
-        type: Date,
-      },
-      toDate: {
-        type: Date,
-      },
-    },
-  ],
+      //Spare parts related fields
+      sparePartUsedOrNot: { type: String },
+      changedParts: [
+        {
+          partNo: { type: String },
+          partName: { type: String },
+          makerName: { type: String },
+          quantity: { type: Number },
+          cost: { type: Number },
+        },
+      ],
+      //Work details related fields
+      workDetails: [
+        {
+          id: { type: Date },
+          work: { type: String },
+          tmId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users",
+          },
+          tmName: {
+            type: String,
+          },
+          fromDate: {
+            type: Date,
+          },
+          toDate: {
+            type: Date,
+          },
+        },
+      ],
 
-  //Action related fields
-  actionAndCounterMeasureStep: [
-    {
-      id: { type: Date },
-      action: { type: String },
-      status: { type: String },
+      //Action related fields
+      actionAndCounterMeasureStep: [
+        {
+          id: { type: Date },
+          action: { type: String },
+          status: { type: String },
+        },
+      ],
     },
   ],
 
@@ -371,24 +358,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   requestSheetStatusOfCM: {
     type: String,
     default: "Generated",
-  },
-
-  getDataForApprovalDashboard: {
-    Id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
-    },
-    departmentAndGradeOfUser: {
-      type: String,
-    },
-  },
-
-  preventive_corrective_maintenance: {
-    type: String,
-  },
-
-  yokotenkai: {
-    type: String,
   },
 });
 
