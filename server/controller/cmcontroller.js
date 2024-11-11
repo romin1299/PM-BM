@@ -2989,6 +2989,24 @@ router.get(
       {
         $unwind: "$machines",
       },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "lineName",
+          foreignField: "_id",
+          as: "lines",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $unwind: "$lines",
+      },
       ...req.queryObjPipeline,
     ]);
     successResponse(res, "LTPM Line wise data get successfully", {

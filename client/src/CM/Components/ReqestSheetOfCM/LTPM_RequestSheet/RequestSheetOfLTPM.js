@@ -3,12 +3,18 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import moment from "moment";
 import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
+import Loading from "../../../../components/Loading/Loading";
+import PaginationForLTPM from "../../../../components/Pagination/PaginationForLTPM";
+// import currentYear from "../../../../pages/Dashboard/DashboardComponent/currentYear";
 
 const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
-  // const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
   const [dataOfLTPM, setDataOfLTPM] = useState([]);
+  const currentYear = 2025
+
+  const [loading, setLoading] = useState(true);
 
   const getDataOfLTPM = async () => {
+    setLoading(true);
     try {
       const url = `/LTPM/getDatOfLTPM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`;
 
@@ -21,28 +27,20 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
 
-  let yearsOfLTPM = [
-    {
-      yearHeader: new Date().getFullYear(),
-    },
-    {
-      yearHeader: new Date().getFullYear() + 1,
-    },
-    {
-      yearHeader: new Date().getFullYear() + 2,
-    },
-    {
-      yearHeader: new Date().getFullYear() + 3,
-    },
-    {
-      yearHeader: new Date().getFullYear() + 4,
-    },
-    {
-      yearHeader: new Date().getFullYear() + 5,
-    },
-  ];
+  // let yearsOfLTPM = [
+  //   new Date().getFullYear(),
+  //   new Date().getFullYear() + 1,
+  //   new Date().getFullYear() + 2,
+  //   new Date().getFullYear() + 3,
+  //   new Date().getFullYear() + 4,
+  // ];
+
+  // const currentYear = new Date().getFullYear();
+  const yearsOfLTPM = Array.from({ length: 5 }, (_, i) => currentYear + i);
+  const [visibleYears, setVisibleYears] = useState(yearsOfLTPM.slice(0, 4));
 
   let columns = [
     {
@@ -155,11 +153,19 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 
   // Example usage with current date
   const currentFinancialQuarter = getFinancialQuarter(moment());
+  console.log(visibleYears);
+
+  // yearsOfLTPM?.reduce((acc, curr) => {
+  //   console.log(yearsOfLTPM[acc]);
+  //   return acc + 1;
+  // }, 1);
 
   return (
     <>
       <div>
-        {dataOfLTPM?.length <= 0 ? (
+        {loading ? (
+          <Loading />
+        ) : dataOfLTPM?.length <= 0 ? (
           <DataNotFound />
         ) : (
           <>
@@ -212,9 +218,14 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                             // colSpan={2}
                             rowSpan={3}
                           >
-                            <p>Section Name : {dataOfLTPM?.[0]?.section_data?.section_name}</p>
+                            <p>
+                              Section Name :{" "}
+                              {dataOfLTPM?.[0]?.section_data?.section_name}
+                            </p>
                             <br />
-                            <p>Line Name :</p>
+                            <p>
+                              Line Name : {dataOfLTPM?.[0]?.lines?.line_name}
+                            </p>
                           </th>
                           <th
                             className="ar-table-thead-header1 headerPD  align-items-center"
@@ -289,12 +300,18 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                           <td className="ar-table-col1"></td>
                         </tr>
                       </thead>
+
+                      <PaginationForLTPM
+                        setVisibleYears={setVisibleYears}
+                        yearsOfLTPM={yearsOfLTPM}
+                        visibleYears={visibleYears}
+                      />
                       <thead>
                         <tr>
                           <th colSpan={8}></th>
-                          {yearsOfLTPM?.map((value, idx) => (
-                            <th className="ar-table-col1" colSpan={4}>
-                              {value?.yearHeader}
+                          {visibleYears.map((year, idx) => (
+                            <th className="ar-table-col1" colSpan={4} key={idx}>
+                              {year}-{year + 1}
                             </th>
                           ))}
                         </tr>

@@ -20,13 +20,7 @@ import { FaEye } from "react-icons/fa";
 
 const DashboardOfLTPM = () => {
   const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
-  const [loading, setLoading] = useState(true);
   const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
-  const [selectedRow, setSelectedRow] = useState([]);
-
-  const [displayLineWiseDataOfLTPM, setDisplayLineWiseDataOfLTPM] = useState(
-    []
-  );
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState(""));
   const approvalDashboardHeader = [
@@ -58,7 +52,6 @@ const DashboardOfLTPM = () => {
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        setSelectedRow(selectedRow);
         setOpenCloseLTPM(true);
         openCloseModalOfLTPM();
       },
@@ -97,7 +90,7 @@ const DashboardOfLTPM = () => {
               baseUrlForFiltering={baseUrlForFiltering}
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
-              monthFiltration
+              // monthFiltration
               yearFiltration
               sectionFiltration
               subSectionFiltration
