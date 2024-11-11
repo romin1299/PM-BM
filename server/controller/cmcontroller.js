@@ -31,6 +31,7 @@ const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
 const { gettingFYYear } = require("../middleware/gettingFYYear");
 const {
   gettingMonthForSelectedDate,
+  getFinancialQuarter,
 } = require("../middleware/gettingFYMonthForPreAgg");
 
 router.use(cookieParser());
@@ -288,18 +289,25 @@ router.post(
         ...requestSheetDataFilledByMTDUserForCM,
         partSuggestionByMTDTL:
           requestSheetDataFilledByMTDUserForCM?.partSuggestionByMTDTL,
-        preAggregationTimeStampOfRequestSheet: {
-          requestSheet_year: gettingFYYear(
-            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-          ),
-          requestSheet_month: gettingMonthForSelectedDate(
-            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-          ),
-        },
-        sparePartUsedOrNot:
-          requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
-            ? "Yes"
-            : "No",
+        commonDataFilledByAssignUser: [
+          {
+            preAggregationTimeStampOfRequestSheet: {
+              requestSheet_year: gettingFYYear(
+                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+              ),
+              requestSheet_month: gettingMonthForSelectedDate(
+                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+              ),
+              requestSheet_quarter: getFinancialQuarter(
+                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+              ),
+            },
+            sparePartUsedOrNot:
+              requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
+                ? "Yes"
+                : "No",
+          },
+        ],
       });
 
       const result = await requestSheetOfCM.save();
@@ -2948,7 +2956,7 @@ router.get(
         $match: {
           "cmBasicDataFilledByMTD_TL.categories": "LTPM",
           // lineRef: mongoose.Types.ObjectId(req?.query?.lineRef),
-          ...req?.queryObj
+          ...req?.queryObj,
         },
       },
       {
