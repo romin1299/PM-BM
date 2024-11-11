@@ -147,7 +147,7 @@ function App() {
     // } else {
     //   setActiveKey(pathParts[1]);
     // }
-  }, [location.pathname]);
+  }, [location.pathname]);  
 
   const loggedUser = useContext(RoutingContext);
   let mainRouteForCompanyBased = [];
@@ -269,7 +269,7 @@ function App() {
             width={150}
           />
         </Col>
-        <Col
+        <Col  
           lg={8}
           md={8}
           sm={1}

@@ -24,9 +24,6 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 import axios from "axios";
 import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
-import ExistinngMachineReqSheetForOperator from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistinngMachineReqSheetForOperator";
-import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
-import PRDExistingMachineRequestsheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/PRDExistingMachineRequestsheet";
 
 const CMApprovalDashboardOfRequestSheet = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
@@ -49,7 +46,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
       position: "row",
 
       onClick: (event, selectedRow) => {
-        console.log(selectedRow);
+        console.log("THIS IS ROLE", selectedRow);
         setCmSelectedSheetForView(selectedRow);
         setCmReqSheetView(true);
         setIsEditable(true);
@@ -253,17 +250,17 @@ const CMApprovalDashboardOfRequestSheet = () => {
           </Button>
         </Modal.Header>
         <Modal.Body>
-          {cmSelectedSheetForView?.requestSheetStatusOfCM ===
+          <div>
+            <MTDExistingMachineReqSheetWithData
+              cmSelectedSheetForView={cmSelectedSheetForView}
+              isEditable={isEditable}
+              setCmReqSheetView={setCmReqSheetView}
+            />
+          </div>
+          {/* {cmSelectedSheetForView?.requestSheetStatusOfCM ===
             "Under MTD TL/HOSS Approval" && (
-            <div>
-              <MTDExistingMachineReqSheetWithData
-                cmSelectedSheetForView={cmSelectedSheetForView}
-                isEditable={isEditable}
-                setCmReqSheetView={setCmReqSheetView}
-              />
-            </div>
-          )}
-          {cmSelectedSheetForView?.requestSheetStatusOfCM ===
+          )} */}
+          {/* {cmSelectedSheetForView?.requestSheetStatusOfCM ===
             "Under MTD HOS Approval" && (
             <div>
               <HOSExistingMachineReqSheet
@@ -282,7 +279,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
                 setCmReqSheetView={setCmReqSheetView}
               />
             </div>
-          )}
+          )} */}
         </Modal.Body>
       </Modal>
     </>

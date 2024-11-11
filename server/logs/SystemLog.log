@@ -3133,3 +3133,25 @@
     at MessageStream.Writable.write (node:internal/streams/writable:334:10)
     at Socket.ondata (node:internal/streams/readable:754:22)
     at Socket.emit (node:events:390:28)
+2024-10-25T00:00 | PM | The "path" argument must be of type string. Received undefined
+		TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+    at Object.join (node:path:433:7)
+    at Task._execution (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\everyDayAutoBackup.js:14:12)
+    at Task.execute (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\task.js:17:25)
+    at ScheduledTask.now (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:38:33)
+    at Scheduler.<anonymous> (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:25:18)
+    at Scheduler.emit (node:events:519:28)
+    at Timeout.matchTime [as _onTimeout] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduler.js:30:26)
+    at listOnTimeout (node:internal/timers:573:17)
+    at process.processTimers (node:internal/timers:514:7)
+2024-11-07T00:00 | PM | The "path" argument must be of type string. Received undefined
+		TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+    at Object.join (node:path:433:7)
+    at Task._execution (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\everyDayAutoBackup.js:14:12)
+    at Task.execute (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\task.js:17:25)
+    at ScheduledTask.now (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:38:33)
+    at Scheduler.<anonymous> (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:25:18)
+    at Scheduler.emit (node:events:519:28)
+    at Timeout.matchTime [as _onTimeout] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduler.js:30:26)
+    at listOnTimeout (node:internal/timers:573:17)
+    at process.processTimers (node:internal/timers:514:7)

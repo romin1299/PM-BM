@@ -156,6 +156,7 @@ const ExistinngMachineReqSheetForOperator = ({
         },
         { shouldFocus: true }
       );
+      flagCountForHandlingError++;
     }
     if (actions?.length === 0) {
       setError(
@@ -189,7 +190,13 @@ const ExistinngMachineReqSheetForOperator = ({
     requestSheetDataOfCM.changedParts = parts;
     requestSheetDataOfCM.workDetails = workDetails;
     requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
-    requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
+    if (
+      requestSheetDataOfCM?.assigned_users?.some(
+        (user) => user._id === context?._id
+      ) === true
+    ) {
+      requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
+    }
     try {
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
@@ -312,12 +319,12 @@ const ExistinngMachineReqSheetForOperator = ({
       const { ...otherFields } = requestSheetDataOfCM;
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.attachedFilesByAssignedUser?.length;
+        i < requestSheetDataOfCM?.attachedFileByAssignedUser?.length;
         i++
       ) {
         formData.append(
           "attachedFileByAssignedUser",
-          requestSheetDataOfCM?.attachedFilesyAssignedUser[i]
+          requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
       // console.log(otherFields)
@@ -469,7 +476,9 @@ const ExistinngMachineReqSheetForOperator = ({
             )}
           </Col>
         </Row>
-        {context?.user_type === "Operator" && (
+        {cmSelectedSheetForView?.assigned_users?.some(
+          (user) => user._id === context?._id
+        ) === true && (
           <Row className="m-0 d-flex border align-items-start p-2">
             <Col lg={6} style={{ paddingRight: "0px" }}>
               <Row className="row m-0 border">
@@ -792,7 +801,9 @@ const ExistinngMachineReqSheetForOperator = ({
           </Row>
         )}
         {isEditable &&
-          context?.user_type === "Operator" &&
+          cmSelectedSheetForView?.assigned_users?.some(
+            (user) => user._id === context?._id
+          ) === true &&
           (cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
             cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
             cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected") && (
@@ -825,6 +836,36 @@ const ExistinngMachineReqSheetForOperator = ({
                 {/* <Button type="submit" variant="contained" color="primary">
                   Send For Approval
                 </Button> */}
+              </Col>
+            </Row>
+          )}
+        {isEditable &&
+          ((context?.user_type === "TL/HOSS" &&
+            cmSelectedSheetForView?.requestSheetStatusOfCM ===
+              "Under MTD TL/HOSS Approval") ||
+            (context?.user_type === "Section-Admin" &&
+              cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Under MTD HOS Approval") ||
+            (context?.tm_department === "PRD" &&
+              cmSelectedSheetForView?.requestSheetStatusOfCM ===
+                "Under PRD TL Approval")) && (
+            // <Row className="m-0 border  d-flex align-items-center justify-content-center">
+            //   <Col lg={12} className="d-flex justify-content-center">
+            //     <Button type="submit" variant="contained" color="primary">
+            //       Send For Approval
+            //     </Button>
+            //   </Col>
+            // </Row>
+            <Row className="m-0 border p-2 d-flex justify-content-between">
+              <Col lg={6} md={6} sm={12}>
+                <button
+                  type="submit"
+                  className="btn bg-success"
+                  style={{ marginTop: "1rem" }}
+                  onClick={handleSubmit(upadteReqSheet)}
+                >
+                  Save Changes
+                </button>
               </Col>
             </Row>
           )}
