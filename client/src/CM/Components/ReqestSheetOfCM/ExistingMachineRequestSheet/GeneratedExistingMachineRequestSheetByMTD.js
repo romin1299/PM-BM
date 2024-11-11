@@ -155,12 +155,12 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.attachedFilesByMTDUser?.length;
+        i < requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.length;
         i++
       ) {
         formData.append(
-          "attachedFilesByMTDUser",
-          requestSheetDataOfCM?.attachedFilesByMTDUser[i]
+          "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
+          requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.[i]
         );
       }
 
@@ -1224,10 +1224,10 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                           multiple
                           // accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
-                            setValue("attachedFilesByMTDUser", e.target.files, {
+                            setValue("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", e.target.files, {
                               shouldDirty: true,
                             });
-                            clearErrors("attachedFilesByMTDUser");
+                            clearErrors("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser");
                           }}
                         />
                         {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (

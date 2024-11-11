@@ -145,21 +145,6 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     reduceState.selectedMonth,
   ]);
 
-  function getFinancialQuarter(date) {
-    const financialYearStartMonth = 4; // April is the 4th month
-    const month = moment(date).month() + 1; // moment().month() is zero-based, so adding 1
-    return Math.ceil((((month - financialYearStartMonth + 12) % 12) + 1) / 3);
-  }
-
-  // Example usage with current date
-  const currentFinancialQuarter = getFinancialQuarter(moment());
-  console.log(visibleYears);
-
-  // yearsOfLTPM?.reduce((acc, curr) => {
-  //   console.log(yearsOfLTPM[acc]);
-  //   return acc + 1;
-  // }, 1);
-
   return (
     <>
       <div>

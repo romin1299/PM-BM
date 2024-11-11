@@ -9,6 +9,8 @@ export const MaterialTableOptions = {
   draggable: false,
   actionsColumnIndex: -1,
   pageSize: 10,
+
+  
   pageSizeOptions: [5, 10, 20, 50],
   // paginationType: "stepped",
   addRowPosition: "first",

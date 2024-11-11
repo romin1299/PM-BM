@@ -14,6 +14,7 @@ import {
   Tooltip,
   Typography,
   SvgIcon,
+  Paper,
 } from "@mui/material";
 import { FaEye } from "react-icons/fa";
 import { ReactComponent as EditSheetIcon } from "../../../static/svg/edit-sheet-2.svg";
@@ -39,7 +40,7 @@ import MaterialTable from "@material-table/core";
 import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
-import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
+// import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
 
 const AllRequestSheetReportDataOfCM = () => {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ const AllRequestSheetReportDataOfCM = () => {
   );
   const [loading, setLoading] = useState(false);
   const [CmReqSheetView, setCmReqSheetView] = useState(false);
+  const [counters, setCounters] = useState([]);
 
   const getAllCMSheetData = async () => {
     try {
@@ -63,6 +65,7 @@ const AllRequestSheetReportDataOfCM = () => {
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
+      setCounters(response.data.counters);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
     } catch (error) {
       console.log(error);
@@ -163,7 +166,9 @@ const AllRequestSheetReportDataOfCM = () => {
           component={EditSheetIcon}
           sx={{
             color:
-              (context?.user_type === "Operator" &&
+              (row?.assigned_users?.some(
+                (user) => user._id === context?._id
+              ) === true &&
                 (row?.requestSheetStatusOfCM === "Generated" ||
                   row?.requestSheetStatusOfCM === "Fill Sheet" ||
                   row?.requestSheetStatusOfCM === "Rejected")) ||
@@ -178,7 +183,8 @@ const AllRequestSheetReportDataOfCM = () => {
       position: "row",
       // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
       disabled:
-        (context?.user_type === "Operator" &&
+        (row?.assigned_users?.some((user) => user._id === context?._id) ===
+          true &&
           (row?.requestSheetStatusOfCM === "Generated" ||
             row?.requestSheetStatusOfCM === "Fill Sheet" ||
             row?.requestSheetStatusOfCM === "Rejected")) ||
@@ -369,6 +375,61 @@ const AllRequestSheetReportDataOfCM = () => {
             </Typography>
           </Grid>
         </Grid>
+        <Box display="flex" gap="16px" className="mt-3 cell p-2 overflow-auto">
+          {[
+            {
+              title: "Total Requests",
+              value: counters?.total_request_sheet_count || 0,
+              backgroundColor: "#c7defb",
+            },
+            {
+              title: "Open Requests",
+              value: counters?.open_request_sheet_count || 0,
+              backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
+            },
+            {
+              title: "Closed Requests",
+              value: counters?.closed_request_sheet_count || 0,
+              backgroundColor: "#c6efce",
+            },
+          ].map((item) => (
+            <Box className="col-auto">
+              <Paper
+                variant="outlined"
+                sx={{
+                  backgroundColor: item.backgroundColor,
+                  // maxWidth: "100px",
+                  p: "4px",
+                  px: "10px",
+                  borderRadius: "8px",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  component="div"
+                  textAlign="center"
+                  // width={120}
+                  fontWeight={500}
+                  // color={"#15005c"}
+                  // pt={"4px"}
+                  // mb={"2px"}
+                >
+                  {item.title}
+                </Typography>
+
+                <Typography
+                  variant="h5"
+                  component="h5"
+                  textAlign="center"
+                  fontWeight={600}
+                  // pb={"4px"}
+                >
+                  {item.value}
+                </Typography>
+              </Paper>
+            </Box>
+          ))}
+        </Box>
         <Grid container>
           <Grid item xs={12} className="mt-1 cell p-0 border-0">
             <MaterialTable
@@ -435,30 +496,6 @@ const AllRequestSheetReportDataOfCM = () => {
         </Grid>
       </Container>
       {CmReqSheetView && (
-        // <Dialog
-        //   fullScreen
-        //   open={CmReqSheetView}
-        //   TransitionComponent={Transition}
-        // >
-        //   <AppBar sx={{ position: "relative" }}>
-        //     <Toolbar>
-        //       <IconButton
-        //         edge="start"
-        //         color="inherit"
-        //         onClick={() => setCmReqSheetView(false)}
-        //         aria-label="close"
-        //       >
-        //         <CloseIcon />
-        //       </IconButton>
-        //       {/* <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-        //         Sound
-        //       </Typography>
-        //       <Button autoFocus color="inherit" onClick={handleClose}>
-        //         save
-        //       </Button> */}
-        //     </Toolbar>
-        //   </AppBar>
-        // </Dialog>
         <>
           <Modal
             show={CmReqSheetView}
@@ -486,13 +523,10 @@ const AllRequestSheetReportDataOfCM = () => {
               </Button>
             </Modal.Header>
             <Modal.Body>
-              {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Generated" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                  "Fill Sheet" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                  "Completed") && (
+              {cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+              cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
+              cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
+              cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
                 <div>
                   <ExistingMachineReqSheetWithData
                     cmSelectedSheetForView={cmSelectedSheetForView}
@@ -500,23 +534,9 @@ const AllRequestSheetReportDataOfCM = () => {
                     setCmReqSheetView={setCmReqSheetView}
                   />
                 </div>
-              )}
-              {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Under MTD TL/HOSS Approval" && (
+              ) : (
                 <div>
                   <MTDExistingMachineReqSheetWithData
-                    cmSelectedSheetForView={cmSelectedSheetForView}
-                    isEditable={isEditable}
-                    setCmReqSheetView={setCmReqSheetView}
-                  />
-                </div>
-              )}
-              {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Under MTD HOS Approval" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                  "Under PRD TL Approval") && (
-                <div>
-                  <HOSExistingMachineReqSheet
                     cmSelectedSheetForView={cmSelectedSheetForView}
                     isEditable={isEditable}
                     setCmReqSheetView={setCmReqSheetView}

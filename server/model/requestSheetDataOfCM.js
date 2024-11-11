@@ -32,35 +32,32 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   sheetIssuedDateAndTimeOfCM: {
     type: Date,
   },
-
-  attachedFilesByMTDUser: { type: [String] },
-
-  attchedFileByAssignedUser: { type: [String] },
-
+  
   cmBasicDataFilledByMTD_TL: {
     activityOfCM: { type: String },
     problemBackgroundOfCM: { type: String },
     // frequencyOfCM: {
-    frequencyType: { type: String },
-    frequencyValue: { type: String },
-    // },
-
-    categories: {
-      type: String,
-    },
-    targetDateOfCM: { type: Date },
-    inspectionItem: {
-      type: String,
-    },
-    actionForLTPM: {
-      type: String,
-    },
-    personForLTPM: {
-      type: String,
-    },
-    partSuggestionByMTDTL: {
-      type: String,
-    },
+      frequencyType: { type: String },
+      frequencyValue: { type: String },
+      // },
+      
+      categories: {
+        type: String,
+      },
+      targetDateOfCM: { type: Date },
+      inspectionItem: {
+        type: String,
+      },
+      actionForLTPM: {
+        type: String,
+      },
+      personForLTPM: {
+        type: String,
+      },
+      partSuggestionByMTDTL: {
+        type: String,
+      },
+      attachedFilesByMTDUser: { type: [String] },
   },
 
   shiftOfCM: {

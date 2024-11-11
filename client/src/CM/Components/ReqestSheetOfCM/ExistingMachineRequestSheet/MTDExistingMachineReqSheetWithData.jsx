@@ -27,6 +27,7 @@ const MTDExistingMachineReqSheetWithData = ({
   isEditable = false,
 }) => {
   // console.log("from mtd comp", cmSelectedSheetForView);
+  const context = useContext(RoutingContext);
   const navigate = useNavigate();
   const {
     register,
@@ -143,6 +144,20 @@ const MTDExistingMachineReqSheetWithData = ({
     }
     return flagCountForHandlingError;
   };
+  const handleApprovalReq = () => {
+    let str = "";
+    if (context?.user_type === "TL/HOSS" && context?.tm_department === "MTD") {
+      str = "approvalOfMTDTL";
+    } else if (context?.user_type === "Section-Admin") {
+      str = "approvalOfHOS";
+    } else if (
+      context?.tm_department === "PRD" &&
+      context?.user_type === "TL/HOSS"
+    ) {
+      str = "approvalOfPRDTL";
+    }
+    return str;
+  };
   const approveRequestSheetFromHigherAuthority = async (
     requestSheetDataOfCM
   ) => {
@@ -153,7 +168,7 @@ const MTDExistingMachineReqSheetWithData = ({
         return;
       } else {
         const response = await axios.patch(
-          `/approvalOfMTDTL/${cmSelectedSheetForView?._id}`,
+          `/${handleApprovalReq()}/${cmSelectedSheetForView?._id}`,
           {
             approvalOfRequestSheet: watch("approvalOfRequestSheet"),
             rejectedRemarksOfRequestSheet: watch(
@@ -183,12 +198,12 @@ const MTDExistingMachineReqSheetWithData = ({
       const { ...otherFields } = requestSheetDataOfCM;
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.attachedFilesByMTDUser?.length;
+        i < requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.length;
         i++
       ) {
         formData.append(
-          "attachedFilesByMTDUser",
-          requestSheetDataOfCM?.attachedFilesByMTDUser[i]
+          "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
+          requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.[i]
         );
       }
       // console.log(otherFields)
@@ -213,7 +228,6 @@ const MTDExistingMachineReqSheetWithData = ({
       console.log(error);
     }
   };
-  const context = useContext(RoutingContext);
   return (
     <div>
       <form onSubmit={handleSubmit(updateRequestOfCM)}>
@@ -868,10 +882,10 @@ const MTDExistingMachineReqSheetWithData = ({
                           multiple
                           // accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
-                            setValue("attachedFilesByMTDUser", e.target.files, {
+                            setValue("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", e.target.files, {
                               shouldDirty: true,
                             });
-                            clearErrors("attachedFilesByMTDUser");
+                            clearErrors("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser");
                           }}
                         />
                         {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (

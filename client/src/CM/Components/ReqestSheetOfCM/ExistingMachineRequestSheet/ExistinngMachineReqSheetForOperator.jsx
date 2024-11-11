@@ -77,7 +77,6 @@ const ExistinngMachineReqSheetForOperator = ({
       console.log(error);
     }
   };
-  console.log(cmSelectedSheetForView);  
   useEffect(() => {
     getApprovalListOfCM();
     setParts(cmSelectedSheetForView?.changedParts);
@@ -184,7 +183,6 @@ const ExistinngMachineReqSheetForOperator = ({
     return flagCountForHandlingError;
   };
   const upadteReqSheet = async (requestSheetDataOfCM) => {
-    console.log("This is reqsheet", requestSheetDataOfCM);
     // let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
     // if (checkWhetherAnyErrorOccurredOrNot > 0) {
     //   return;
@@ -192,7 +190,11 @@ const ExistinngMachineReqSheetForOperator = ({
     requestSheetDataOfCM.changedParts = parts;
     requestSheetDataOfCM.workDetails = workDetails;
     requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
-    if (context?.user_type === "Operator") {
+    if (
+      requestSheetDataOfCM?.assigned_users?.some(
+        (user) => user._id === context?._id
+      ) === true
+    ) {
       requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
     }
     try {
@@ -474,7 +476,9 @@ const ExistinngMachineReqSheetForOperator = ({
             )}
           </Col>
         </Row>
-        {context?.user_type === "Operator" && (
+        {cmSelectedSheetForView?.assigned_users?.some(
+          (user) => user._id === context?._id
+        ) === true && (
           <Row className="m-0 d-flex border align-items-start p-2">
             <Col lg={6} style={{ paddingRight: "0px" }}>
               <Row className="row m-0 border">
@@ -797,7 +801,9 @@ const ExistinngMachineReqSheetForOperator = ({
           </Row>
         )}
         {isEditable &&
-          context?.user_type === "Operator" &&
+          cmSelectedSheetForView?.assigned_users?.some(
+            (user) => user._id === context?._id
+          ) === true &&
           (cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
             cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
             cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected") && (
