@@ -2623,6 +2623,7 @@ router.get("/getReqSheetDataByID/:id", authenticate, async (req, res) => {
 router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
   try {
     const { requestSheetID } = req.params;
+    console.log("tjhosnk sa");
     const {
       approvalOfRequestSheet,
       rejectedRemarksOfRequestSheet,
@@ -2635,9 +2636,9 @@ router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
     }
 
     if (approvalOfRequestSheet === "Yes") {
-      requestSheet.approvalStatusOfMTD_TL.pop();
-      requestSheet.approvalStatusOfMTD_TL.push("Accepted");
-      requestSheet.approvalDateAndTimeOfMTD_HOS.push(""); //Need to append this date because of the indexing issue at frontend level.
+      requestSheet?.approvalStatusOfMTD_TL?.pop();
+      requestSheet?.approvalStatusOfMTD_TL?.push("Accepted");
+      requestSheet?.approvalDateAndTimeOfMTD_HOS?.push(""); //Need to append this date because of the indexing issue at frontend level.
 
       // requestSheet.requestSheetStatusOfCM = "Accepted by MTD TL";
       requestSheet.requestSheetStatusOfCM = "Under MTD HOS Approval";
@@ -2662,7 +2663,7 @@ router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
         rejectedRemarksOfRequestSheet
       );
     }
-    requestSheet.approvalDateAndTimeOfMTD_TL.push(new Date());
+    requestSheet?.approvalDateAndTimeOfMTD_TL?.push(new Date());
     await requestSheet.save();
 
     res.status(200).json({
@@ -2687,17 +2688,25 @@ router.patch("/approvalOfHOS/:requestSheetID", async (req, res) => {
     if (!requestSheet) {
       return res.status(404).json({ message: "Request sheet not found" });
     }
+    console.log(cmSelectedSheetForView);
 
     if (approvalOfRequestSheet === "Yes") {
       requestSheet.approvalStatusOfMTD_HOS.pop();
       requestSheet.approvalStatusOfMTD_HOS.push("Accepted");
-
-      requestSheet.requestSheetStatusOfCM = "Under PRD TL Approval";
-      requestSheet.getDataForApprovalDashboard = {
-        Id: cmSelectedSheetForView?.approvalOfPRD_TL?._id,
-        departmentAndGradeOfUser:
-          cmSelectedSheetForView?.approvalOfPRD_TL?.user_type,
-      };
+      if (!cmSelectedSheetForView?.approvalOfPRD_TL?._id) {
+        requestSheet.requestSheetStatusOfCM = "Completed";
+        requestSheet.getDataForApprovalDashboard = {
+          Id: null,
+          departmentAndGradeOfUser: null,
+        };
+      } else {
+        requestSheet.requestSheetStatusOfCM = "Under PRD TL Approval";
+        requestSheet.getDataForApprovalDashboard = {
+          Id: cmSelectedSheetForView?.approvalOfPRD_TL?._id,
+          departmentAndGradeOfUser:
+            cmSelectedSheetForView?.approvalOfPRD_TL?.user_type,
+        };
+      }
     } else if (approvalOfRequestSheet === "No") {
       requestSheet.approvalStatusOfMTD_HOS.pop();
       requestSheet.approvalStatusOfMTD_HOS.push("Rejected");

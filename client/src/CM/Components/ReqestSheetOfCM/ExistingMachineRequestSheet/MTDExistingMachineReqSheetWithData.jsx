@@ -27,6 +27,7 @@ const MTDExistingMachineReqSheetWithData = ({
   isEditable = false,
 }) => {
   // console.log("from mtd comp", cmSelectedSheetForView);
+  const context = useContext(RoutingContext);
   const navigate = useNavigate();
   const {
     register,
@@ -143,6 +144,20 @@ const MTDExistingMachineReqSheetWithData = ({
     }
     return flagCountForHandlingError;
   };
+  const handleApprovalReq = () => {
+    let str = "";
+    if (context?.user_type === "TL/HOSS" && context?.tm_department === "MTD") {
+      str = "approvalOfMTDTL";
+    } else if (context?.user_type === "Section-Admin") {
+      str = "approvalOfHOS";
+    } else if (
+      context?.tm_department === "PRD" &&
+      context?.user_type === "TL/HOSS"
+    ) {
+      str = "approvalOfPRDTL";
+    }
+    return str;
+  };
   const approveRequestSheetFromHigherAuthority = async (
     requestSheetDataOfCM
   ) => {
@@ -153,7 +168,7 @@ const MTDExistingMachineReqSheetWithData = ({
         return;
       } else {
         const response = await axios.patch(
-          `/approvalOfMTDTL/${cmSelectedSheetForView?._id}`,
+          `/${handleApprovalReq()}/${cmSelectedSheetForView?._id}`,
           {
             approvalOfRequestSheet: watch("approvalOfRequestSheet"),
             rejectedRemarksOfRequestSheet: watch(
@@ -213,7 +228,6 @@ const MTDExistingMachineReqSheetWithData = ({
       console.log(error);
     }
   };
-  const context = useContext(RoutingContext);
   return (
     <div>
       <form onSubmit={handleSubmit(updateRequestOfCM)}>

@@ -40,7 +40,7 @@ import MaterialTable from "@material-table/core";
 import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
-import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
+// import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
 
 const AllRequestSheetReportDataOfCM = () => {
   const navigate = useNavigate();
@@ -155,8 +155,35 @@ const AllRequestSheetReportDataOfCM = () => {
     // cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
     //   cmSelectedSheetForView?.approvalStatusOfMTD_TL === "Rejected" ||
     //   cmSelectedSheetForView?.approvalStatusOfMTD_HOS === "Rejected"
-    CmReqSheetView
+    approvalRequestSheetDataOfCM
   );
+  console
+    .log
+    // // (context?.user_type === "Operator" &&
+    // //   (approvalRequestSheetDataOfCM?.requestSheetStatusOfCM === "Generated" ||
+    // //     approvalRequestSheetDataOfCM?.requestSheetStatusOfCM === "Fill Sheet" ||
+    // //     approvalRequestSheetDataOfCM?.requestSheetStatusOfCM === "Rejected")) ||
+    // //   (approvalRequestSheetDataOfCM?.assigned_users?.length === 0 &&
+    // //     context?.user_type === "TL/HOSS") ||
+    // approvalRequestSheetDataOfCM,
+    // approvalRequestSheetDataOfCM[0]?.assigned_users?.some(
+    //   (user) => {
+    //     console.log(user._id, context?._id);
+    //     return user._id === context?._id;
+    //   }
+    // )
+    //   (approvalRequestSheetDataOfCM[0]?.assigned_users?.some(
+    //     (user) => user._id === context?._id
+    //   ) === true &&
+    //     (approvalRequestSheetDataOfCM[0]?.requestSheetStatusOfCM ===
+    //       "Generated" ||
+    //       approvalRequestSheetDataOfCM[0]?.requestSheetStatusOfCM ===
+    //         "Fill Sheet" ||
+    //       approvalRequestSheetDataOfCM[0]?.requestSheetStatusOfCM ===
+    //         "Rejected")) ||
+    //     (approvalRequestSheetDataOfCM[0]?.assigned_users?.length === 0 &&
+    //       context?.user_type === "TL/HOSS")
+    ();
   const requestSheetApprovalAction = [
     // {
     //   icon: () => <CreditCardIcon className="text-primary1" />,
@@ -172,7 +199,9 @@ const AllRequestSheetReportDataOfCM = () => {
           component={EditSheetIcon}
           sx={{
             color:
-              (context?.user_type === "Operator" &&
+              (row?.assigned_users?.some(
+                (user) => user._id === context?._id
+              ) === true &&
                 (row?.requestSheetStatusOfCM === "Generated" ||
                   row?.requestSheetStatusOfCM === "Fill Sheet" ||
                   row?.requestSheetStatusOfCM === "Rejected")) ||
@@ -187,7 +216,8 @@ const AllRequestSheetReportDataOfCM = () => {
       position: "row",
       // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
       disabled:
-        (context?.user_type === "Operator" &&
+        (row?.assigned_users?.some((user) => user._id === context?._id) ===
+          true &&
           (row?.requestSheetStatusOfCM === "Generated" ||
             row?.requestSheetStatusOfCM === "Fill Sheet" ||
             row?.requestSheetStatusOfCM === "Rejected")) ||
@@ -421,7 +451,7 @@ const AllRequestSheetReportDataOfCM = () => {
                 </Typography>
 
                 <Typography
-                  variant="h5"    
+                  variant="h5"
                   component="h5"
                   textAlign="center"
                   fontWeight={600}
@@ -432,7 +462,7 @@ const AllRequestSheetReportDataOfCM = () => {
               </Paper>
             </Box>
           ))}
-        </Box>  
+        </Box>
         <Grid container>
           <Grid item xs={12} className="mt-1 cell p-0 border-0">
             <MaterialTable
@@ -499,30 +529,6 @@ const AllRequestSheetReportDataOfCM = () => {
         </Grid>
       </Container>
       {CmReqSheetView && (
-        // <Dialog
-        //   fullScreen
-        //   open={CmReqSheetView}
-        //   TransitionComponent={Transition}
-        // >
-        //   <AppBar sx={{ position: "relative" }}>
-        //     <Toolbar>
-        //       <IconButton
-        //         edge="start"
-        //         color="inherit"
-        //         onClick={() => setCmReqSheetView(false)}
-        //         aria-label="close"
-        //       >
-        //         <CloseIcon />
-        //       </IconButton>
-        //       {/* <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-        //         Sound
-        //       </Typography>
-        //       <Button autoFocus color="inherit" onClick={handleClose}>
-        //         save
-        //       </Button> */}
-        //     </Toolbar>
-        //   </AppBar>
-        // </Dialog>
         <>
           <Modal
             show={CmReqSheetView}
@@ -550,13 +556,10 @@ const AllRequestSheetReportDataOfCM = () => {
               </Button>
             </Modal.Header>
             <Modal.Body>
-              {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Generated" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                  "Fill Sheet" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                  "Completed") && (
+              {cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+              cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
+              cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
+              cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
                 <div>
                   <ExistingMachineReqSheetWithData
                     cmSelectedSheetForView={cmSelectedSheetForView}
@@ -564,23 +567,9 @@ const AllRequestSheetReportDataOfCM = () => {
                     setCmReqSheetView={setCmReqSheetView}
                   />
                 </div>
-              )}
-              {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Under MTD TL/HOSS Approval" && (
+              ) : (
                 <div>
                   <MTDExistingMachineReqSheetWithData
-                    cmSelectedSheetForView={cmSelectedSheetForView}
-                    isEditable={isEditable}
-                    setCmReqSheetView={setCmReqSheetView}
-                  />
-                </div>
-              )}
-              {(cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                "Under MTD HOS Approval" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM ===
-                  "Under PRD TL Approval") && (
-                <div>
-                  <HOSExistingMachineReqSheet
                     cmSelectedSheetForView={cmSelectedSheetForView}
                     isEditable={isEditable}
                     setCmReqSheetView={setCmReqSheetView}
