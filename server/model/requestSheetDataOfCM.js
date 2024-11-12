@@ -26,9 +26,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   //   type: String,
   // },
 
-  plannedDateAndTimeOfCM: {
-    type: Date,
-  },
   sheetIssuedDateAndTimeOfCM: {
     type: Date,
   },
@@ -198,6 +195,9 @@ const requestSheetOfCMSchema = new mongoose.Schema({
 
   commonDataFilledByAssignUser: [
     {
+      plannedDateAndTimeOfCM: {
+        type: Date,
+      },
       preAggregationTimeStampOfRequestSheet: {
         requestSheet_year: {
           type: String,

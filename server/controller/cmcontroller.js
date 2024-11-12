@@ -291,6 +291,8 @@ router.post(
           requestSheetDataFilledByMTDUserForCM?.partSuggestionByMTDTL,
         commonDataFilledByAssignUser: [
           {
+            plannedDateAndTimeOfCM:
+              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
             preAggregationTimeStampOfRequestSheet: {
               requestSheet_year: gettingFYYear(
                 requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
@@ -304,7 +306,7 @@ router.post(
             },
             // sparePartUsedOrNot:
             //   requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
-            //     ? "Yes" 
+            //     ? "Yes"
             //     : "No",
           },
         ],
@@ -312,8 +314,48 @@ router.post(
 
       const result = await requestSheetOfCM.save();
 
+      const addOtherYearFreqUptoNextFourYear = [];
+
+      for (
+        let index = moment(new Date()).tz("Asia/Kolkata").year() + 1;
+        index < moment(new Date()).tz("Asia/Kolkata").year() + 4;
+        index++
+      ) {
+        addOtherYearFreqUptoNextFourYear.push({
+          plannedDateAndTimeOfCM:
+            (requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM).replace(
+              moment(new Date()).tz("Asia/Kolkata").year(),
+              index
+            ),
+          preAggregationTimeStampOfRequestSheet: {
+            requestSheet_year: `${index}-${index + 1}`,
+            requestSheet_month: gettingMonthForSelectedDate(
+              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+            ),
+            requestSheet_quarter: getFinancialQuarter(
+              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+            ),
+          },
+        });
+      }
+
+      const updateCommonDataFilledByAssignUser =
+        await RequestSheetOfCM.findOneAndUpdate(
+          {
+            _id: result._id,
+          },
+          {
+            $push: {
+              commonDataFilledByAssignUser: {
+                $each: addOtherYearFreqUptoNextFourYear,
+              },
+            },
+          },
+          { new: true }
+        );
+
       successResponse(res, "CM Request-sheet generated successfully", {
-        requestSheetOfCM,
+        updateCommonDataFilledByAssignUser,
       });
     }
   }
