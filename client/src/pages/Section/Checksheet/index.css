@@ -117,6 +117,16 @@ screen and (min-width: 1000px) and (max-width: 1055px) {
     /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
 }
 
+.ltpm-pagination {
+    padding: 0.25rem 0.3rem;
+
+    .btn-pagination {
+        background-color: transparent;
+        border: none;
+    }
+
+}
+
 /* .ar-table-thead-row, */
 .ar-table-thead-header {
     /* background-color: rgba(216, 3, 3, 0.904); */

@@ -1,10 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import moment from "moment";
 import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
 import Loading from "../../../../components/Loading/Loading";
-import PaginationForLTPM from "../../../../components/Pagination/PaginationForLTPM";
+// import PaginationForLTPM from "../../../../components/Pagination/PaginationForLTPM";
 // import currentYear from "../../../../pages/Dashboard/DashboardComponent/currentYear";
 
 const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
@@ -27,6 +26,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 
   const initialState = {
     loading: true,
+    paginationCount: 0,
     yearList: yearsOfLTPM.slice(0, 4),
     quarterList: ["Q1", "Q2", "Q3", "Q4"],
     data: [],
@@ -36,13 +36,13 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 
   // const [loading, setLoading] = useState(true);
 
-  const getDataOfLTPM = async () => {
+  const getDataOfLTPM = async (propPaginationCount = 0) => {
     // setLoading(true);
 
     setLTPMData(initialState);
 
     try {
-      const url = `/LTPM/getDatOfLTPM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`;
+      const url = `/LTPM/getDatOfLTPM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&paginationCount=${propPaginationCount}`;
 
       const res = await axios.get(url, {
         withCredentials: true,
@@ -225,6 +225,23 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                             (MTD HOS)
                           </th>
                           <td className="ar-table-col1"></td>
+                          <td className="ltpm-pagination" colSpan={3}>
+                            <button
+                              className="btn-pagination"
+                              onClick={() =>
+                                getDataOfLTPM(LTPMData?.paginationCount + 1)
+                              }
+                            >
+                              Previous FY
+                            </button>
+                            &nbsp;
+                            <button
+                              className="btn-pagination"
+                              onClick={() => getDataOfLTPM(0)}
+                            >
+                              Reset
+                            </button>
+                          </td>
                         </tr>
                       </thead>
 
