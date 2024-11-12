@@ -34,6 +34,10 @@ const {
   getFinancialQuarter,
 } = require("../middleware/gettingFYMonthForPreAgg");
 
+const {
+  CM_PLANNED_STATUS,
+} = require("../GlobalData/RequestSheetApprovalStatus");
+
 router.use(cookieParser());
 
 const monthKeyArray = [
@@ -205,6 +209,30 @@ router.get(
   })
 );
 
+const quarterlyDataAdd = (plannedDateAndTimeOfCM) => {
+  const findPlannedQuarterAndAssignValue = [],
+    QUARTER = ["Q1", "Q2", "Q3", "Q4"];
+
+  for (let index = 0; index < QUARTER.length; index++) {
+    if (QUARTER?.[index] === getFinancialQuarter(plannedDateAndTimeOfCM)) {
+      findPlannedQuarterAndAssignValue.push(
+        {
+          requestSheet_quarter: QUARTER?.[index],
+          statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
+        },
+      );
+    } else {
+      findPlannedQuarterAndAssignValue.push(
+        {
+          requestSheet_quarter: QUARTER?.[index],
+        },
+      );
+    }
+  }
+
+  return findPlannedQuarterAndAssignValue;
+};
+
 router.post(
   "/newRequestSheetRegistrationOfCM",
   authenticate,
@@ -273,14 +301,14 @@ router.post(
               requestSheet_month: gettingMonthForSelectedDate(
                 requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
               ),
-              requestSheet_quarter: getFinancialQuarter(
-                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-              ),
             },
             // sparePartUsedOrNot:
             //   requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
             //     ? "Yes"
             //     : "No",
+            quarterlyDataOfTheCM: quarterlyDataAdd(
+              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+            ),
           },
         ],
       });
@@ -290,14 +318,14 @@ router.post(
       const addOtherYearFreqUptoNextFourYear = [];
 
       for (
-        let index = moment(new Date()).tz("Asia/Kolkata").year() + 1;
-        index < moment(new Date()).tz("Asia/Kolkata").year() + 4;
+        let index = moment(new Date()).tz(timezone).year() + 1;
+        index <= moment(new Date()).tz(timezone).year() + 4;
         index++
       ) {
         addOtherYearFreqUptoNextFourYear.push({
           plannedDateAndTimeOfCM:
             (requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM).replace(
-              moment(new Date()).tz("Asia/Kolkata").year(),
+              moment(new Date()).tz(timezone).year(),
               index
             ),
           preAggregationTimeStampOfRequestSheet: {
@@ -305,10 +333,10 @@ router.post(
             requestSheet_month: gettingMonthForSelectedDate(
               requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
             ),
-            requestSheet_quarter: getFinancialQuarter(
-              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-            ),
           },
+          quarterlyDataOfTheCM: quarterlyDataAdd(
+            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+          ),
         });
       }
 
@@ -1211,7 +1239,7 @@ const getRequestSheetData = async (req, res, next) => {
             $dateToString: {
               format: "%d-%m-%Y T%H:%M",
               date: "$plannedDateAndTimeOfCM",
-              timezone: "Asia/Kolkata",
+              timezone: timezone,
             },
           },
           assignUser: {
@@ -1827,7 +1855,7 @@ const getRequestSheetData = async (req, res, next) => {
             $dateToString: {
               format: "%d-%m-%Y T%H:%M",
               date: "$plannedDateAndTimeOfCM",
-              timezone: "Asia/Kolkata",
+              timezone: timezone,
             },
           },
           assignUser: {
@@ -2184,7 +2212,7 @@ router.get(
               $dateToString: {
                 format: "%d-%m-%Y T%H:%M",
                 date: "$plannedDateAndTimeOfCM",
-                timezone: "Asia/Kolkata",
+                timezone: timezone,
               },
             },
             assigned_users: 1,
@@ -2521,7 +2549,7 @@ router.get("/getReqSheetDataByID/:id", authenticate, async (req, res) => {
             $dateToString: {
               format: "%d-%m-%Y T%H:%M",
               date: "$plannedDateAndTimeOfCM",
-              timezone: "Asia/Kolkata",
+              timezone: timezone,
             },
           },
           assigned_users: 1,
@@ -2911,7 +2939,7 @@ router.get(
                 $dateToString: {
                   format: "%d-%m-%Y T%H:%M",
                   date: "$plannedDateAndTimeOfCM",
-                  timezone: "Asia/Kolkata",
+                  timezone: timezone,
                 },
               },
             },
@@ -3013,6 +3041,15 @@ router.get(
   filterMiddleware,
   middlewareForSectionAndSubSectionLookup,
   tryCatchHandler(async (req, res, next) => {
+    const yearList = Array.from(
+      { length: 5 },
+      (_, i) => moment(new Date()).tz(timezone).year() + i
+    );
+
+    const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
+
+    const quarterList = Array(5).fill(QUARTER).flat();
+
     const data = await RequestSheetOfCM.aggregate([
       {
         $match: {
@@ -3082,68 +3119,70 @@ router.get(
     ]);
     successResponse(res, "LTPM Line wise data get successfully", {
       data,
+      quarterList,
+      yearList,
     });
   })
 );
 
-router.get(
-  "/LTPM/getLineWiseLTPM/:filter/:selectedId",
-  authenticate,
-  filterMiddleware,
-  tryCatchHandler(async (req, res, next) => {
-    const listOfLine = await RequestSheetOfCM.aggregate([
-      {
-        $match: {
-          ...req?.queryObj,
-        },
-      },
-      {
-        $group: {
-          _id: { lineName: "$lineRef", cellName: "$cellRef" },
-        },
-      },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "_id.lineName",
-          foreignField: "_id",
-          as: "lines",
-          pipeline: [
-            {
-              $project: {
-                line_name: 1,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "_id.cellName",
-          foreignField: "_id",
-          as: "cells",
-          pipeline: [
-            {
-              $project: {
-                cell_name: 1,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $project: {
-          cellName: { $arrayElemAt: ["$cells.cell_name", 0] },
-          lineName: { $arrayElemAt: ["$lines.line_name", 0] },
-        },
-      },
-    ]);
+// router.get(
+//   "/LTPM/getLineWiseLTPM/:filter/:selectedId",
+//   authenticate,
+//   filterMiddleware,
+//   tryCatchHandler(async (req, res, next) => {
+//     const listOfLine = await RequestSheetOfCM.aggregate([
+//       {
+//         $match: {
+//           ...req?.queryObj,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: { lineName: "$lineRef", cellName: "$cellRef" },
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "lines",
+//           localField: "_id.lineName",
+//           foreignField: "_id",
+//           as: "lines",
+//           pipeline: [
+//             {
+//               $project: {
+//                 line_name: 1,
+//               },
+//             },
+//           ],
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "cells",
+//           localField: "_id.cellName",
+//           foreignField: "_id",
+//           as: "cells",
+//           pipeline: [
+//             {
+//               $project: {
+//                 cell_name: 1,
+//               },
+//             },
+//           ],
+//         },
+//       },
+//       {
+//         $project: {
+//           cellName: { $arrayElemAt: ["$cells.cell_name", 0] },
+//           lineName: { $arrayElemAt: ["$lines.line_name", 0] },
+//         },
+//       },
+//     ]);
 
-    successResponse(res, "LTPM Line wise data get successfully", {
-      listOfLine,
-    });
-  })
-);
+//     successResponse(res, "LTPM Line wise data get successfully", {
+//       listOfLine,
+//     });
+//   })
+// );
 
 module.exports = router;
