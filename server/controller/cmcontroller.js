@@ -34,6 +34,10 @@ const {
   getFinancialQuarter,
 } = require("../middleware/gettingFYMonthForPreAgg");
 
+const {
+  CM_PLANNED_STATUS,
+} = require("../GlobalData/RequestSheetApprovalStatus");
+
 router.use(cookieParser());
 
 const monthKeyArray = [
@@ -205,6 +209,30 @@ router.get(
   })
 );
 
+const quarterlyDataAdd = (plannedDateAndTimeOfCM) => {
+  const findPlannedQuarterAndAssignValue = [],
+    QUARTER = ["Q1", "Q2", "Q3", "Q4"];
+
+  for (let index = 0; index < QUARTER.length; index++) {
+    if (QUARTER?.[index] === getFinancialQuarter(plannedDateAndTimeOfCM)) {
+      findPlannedQuarterAndAssignValue.push(
+        {
+          requestSheet_quarter: QUARTER?.[index],
+          statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
+        },
+      );
+    } else {
+      findPlannedQuarterAndAssignValue.push(
+        {
+          requestSheet_quarter: QUARTER?.[index],
+        },
+      );
+    }
+  }
+
+  return findPlannedQuarterAndAssignValue;
+};
+
 router.post(
   "/newRequestSheetRegistrationOfCM",
   authenticate,
@@ -273,14 +301,14 @@ router.post(
               requestSheet_month: gettingMonthForSelectedDate(
                 requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
               ),
-              requestSheet_quarter: getFinancialQuarter(
-                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-              ),
             },
             // sparePartUsedOrNot:
             //   requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
             //     ? "Yes"
             //     : "No",
+            quarterlyDataOfTheCM: quarterlyDataAdd(
+              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+            ),
           },
         ],
       });
@@ -305,10 +333,10 @@ router.post(
             requestSheet_month: gettingMonthForSelectedDate(
               requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
             ),
-            requestSheet_quarter: getFinancialQuarter(
-              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-            ),
           },
+          quarterlyDataOfTheCM: quarterlyDataAdd(
+            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+          ),
         });
       }
 
@@ -3018,7 +3046,7 @@ router.get(
       (_, i) => moment(new Date()).tz(timezone).year() + i
     );
 
-    const QUARTER = [Q1, Q2, Q3, Q4];
+    const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
     const quarterList = Array(5).fill(QUARTER).flat();
 
