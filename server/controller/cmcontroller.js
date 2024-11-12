@@ -208,12 +208,12 @@ router.get(
 router.post(
   "/newRequestSheetRegistrationOfCM",
   authenticate,
-  dashboardLevelUserCheckMiddleware,
+  // dashboardLevelUserCheckMiddleware,
   uploadDataSheetsOfBD.fields([
     { name: "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", maxCount: 10 },
   ]),
   async (req, res, next) => {
-    const dataSheet = req.files;
+    // const dataSheet = req.files;
 
     const machine = await Machine.findOne({
       _id: req.query?.machineRef,
@@ -250,33 +250,6 @@ router.post(
             .plant_names._id,
       };
 
-      // let generateRequestSheetNoOfCM =
-      //   machine.line_names.requestSheetNoOfCM + 1 || 1;
-
-      // let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
-      //   { _id: machine.line_names._id },
-      //   { $set: { requestSheetNoOfCM: generateRequestSheetNoOfCM } },
-      //   { new: true }
-      // );
-      // ==================== Previous code for req sheet No ==============================================
-      // const requestSheetNoOfCM =
-      //   machine?.line_names?.cell_names?.subSection_names?.section_names
-      //     ?.dashboardLevel === "Yes"
-      //     ? `${(machine?.line_names?.cell_names?.subSection_names?.section_names?.section_name)
-      //         .trim()
-      //         .substring(0, 2)
-      //         .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
-      //         moment().tz("Asia/Kolkata").month()
-      //       }-CM-${increaseCountOfRequestSheetInLine?.requestSheetNoOfCM}`.trim()
-      //     : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
-      //         .trim()
-      //         .substring(0, 2)
-      //         .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
-      //         moment().tz("Asia/Kolkata").month() + 1
-      //       }-CM-${
-      //         increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
-      //       }`.trim();
-      // =========================================================================================================
       const requestSheetNoOfCM = await globalReqSheetNo(
         req.query?.machineRef,
         "CM"
@@ -3045,7 +3018,7 @@ router.get(
         $match: {
           "cmBasicDataFilledByMTD_TL.categories": "LTPM",
           // lineRef: mongoose.Types.ObjectId(req?.query?.lineRef),
-          ...req?.queryObj,
+          // ...req?.queryObj,
         },
       },
       {
@@ -3062,6 +3035,7 @@ router.get(
               inspectionItem: "$cmBasicDataFilledByMTD_TL.inspectionItem",
               actionForLTPM: "$cmBasicDataFilledByMTD_TL.actionForLTPM",
               personForLTPM: "$cmBasicDataFilledByMTD_TL.personForLTPM",
+              commonDataFilledByAssignUser: "$commonDataFilledByAssignUser",
             },
           },
           lineName: { $first: "$lineRef" },

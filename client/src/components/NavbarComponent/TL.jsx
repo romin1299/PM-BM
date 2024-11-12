@@ -70,6 +70,7 @@ import ArticleIcon from "@mui/icons-material/Article";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import CancelScheduleSendIcon from "@mui/icons-material/CancelScheduleSend";
+import handleProSideBarWidthVarForMainDashboard from "./handleProSideBarWidthVarForMainDashboard";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -102,6 +103,7 @@ const TL = ({ userData, userDepartment }) => {
   };
   const onClickMenuIcon = () => {
     // setCollapsed(!collapsed);
+    handleProSideBarWidthVarForMainDashboard(menuCollapse);
     menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
   };
 

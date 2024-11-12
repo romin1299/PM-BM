@@ -17,6 +17,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import Logout from "../../Integration/Logout/Logout";
 import { useNavigate } from "react-router-dom";
 import { FaCog, FaUserTie, FaColumns, FaThList } from "react-icons/fa";
+import handleProSideBarWidthVarForMainDashboard from "./handleProSideBarWidthVarForMainDashboard";
 
 import { useState } from "react";
 
@@ -90,6 +91,7 @@ const Operator = ({ userData }) => {
   };
   const onClickMenuIcon = () => {
     // setCollapsed(!collapsed);
+    handleProSideBarWidthVarForMainDashboard(menuCollapse);
     menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
   };
 

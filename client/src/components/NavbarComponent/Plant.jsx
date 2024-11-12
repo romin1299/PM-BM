@@ -43,6 +43,7 @@ import SummarizeIcon from "@mui/icons-material/Summarize";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import handleProSideBarWidthVarForMainDashboard from "./handleProSideBarWidthVarForMainDashboard";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -75,6 +76,7 @@ const Plant = ({ userData, userDepartment }) => {
   };
   const onClickMenuIcon = () => {
     // setCollapsed(!collapsed);
+    handleProSideBarWidthVarForMainDashboard(menuCollapse);
     menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
   };
 
