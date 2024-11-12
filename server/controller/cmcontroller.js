@@ -3013,7 +3013,7 @@ router.get(
   filterMiddleware,
   middlewareForSectionAndSubSectionLookup,
   tryCatchHandler(async (req, res, next) => {
-    const resultOfLTPM = await RequestSheetOfCM.aggregate([
+    const data = await RequestSheetOfCM.aggregate([
       {
         $match: {
           "cmBasicDataFilledByMTD_TL.categories": "LTPM",
@@ -3081,7 +3081,7 @@ router.get(
       ...req.queryObjPipeline,
     ]);
     successResponse(res, "LTPM Line wise data get successfully", {
-      resultOfLTPM,
+      data,
     });
   })
 );

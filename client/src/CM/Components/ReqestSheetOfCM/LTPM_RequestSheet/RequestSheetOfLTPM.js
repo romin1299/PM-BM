@@ -14,27 +14,21 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   const yearsOfLTPM = Array.from({ length: 5 }, (_, i) => currentYear + i);
   // const [visibleYears, setVisibleYears] = useState(yearsOfLTPM.slice(0, 4));
 
+  let columns = [
+    "SN",
+    "Machine No.",
+    "Machine Name",
+    "Inspection item",
+    "Action",
+    "Cycle",
+    "Person in charge",
+    "",
+  ];
+
   const initialState = {
     loading: true,
     yearList: yearsOfLTPM.slice(0, 4),
-    quarterList: [
-      {
-        header: "Q1",
-        sort: "true",
-      },
-      {
-        header: "Q2",
-        sort: "true",
-      },
-      {
-        header: "Q3",
-        sort: "true",
-      },
-      {
-        header: "Q4",
-        sort: "true",
-      },
-    ],
+    quarterList: ["Q1", "Q2", "Q3", "Q4"],
     data: [],
   };
 
@@ -60,7 +54,8 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
       setLTPMData((LTPMData) => ({
         ...LTPMData,
         loading: false,
-        data: res?.data?.resultOfLTPM,
+        ...res?.data,
+        // data: res?.data?.resultOfLTPM,
       }));
     } catch (error) {
       console.log(error);
@@ -82,101 +77,6 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   // ];
 
   // const currentYear = new Date().getFullYear();
-
-  let columns = [
-    {
-      header: "SN",
-      sort: "true",
-    },
-    {
-      header: "Machine No.",
-      sort: "true",
-    },
-    {
-      header: "Machine Name",
-      sort: "true",
-    },
-    {
-      header: "Inspection item",
-      sort: "true",
-    },
-    // {
-    //   header: "Inspection point",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Judgement criteria",
-    //   sort: "true",
-    // },
-    {
-      header: "Action",
-      sort: "true",
-    },
-    {
-      header: "Cycle",
-      sort: "true",
-    },
-    {
-      header: "Person in charge",
-      sort: "true",
-    },
-    // {
-    //   header: "PM Time (min)",
-    //   sort: "true",
-    // },
-    {
-      header: "",
-      sort: "true",
-    },
-    // {
-    //   header: "Q1",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q2",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q3",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q4",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q1",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q2",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q3",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q4",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q1",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q2",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q3",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Q4 ",
-    //   sort: "true",
-    // },
-  ];
 
   useEffect(() => {
     getDataOfLTPM();
@@ -351,12 +251,12 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                             ?.map((tColumn) => (
                               <th
                                 className={
-                                  tColumn.header === ""
+                                  tColumn === ""
                                     ? "ar-table-thead-header3"
                                     : "ar-table-thead-header"
                                 }
                               >
-                                {tColumn.header}
+                                {tColumn}
                               </th>
                             ))}
                         </tr>
