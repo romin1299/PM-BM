@@ -79,13 +79,19 @@ const ExistinngMachineReqSheetForOperator = ({
   };
   useEffect(() => {
     getApprovalListOfCM();
-    setParts(cmSelectedSheetForView?.changedParts);
-    setActions(cmSelectedSheetForView?.actionAndCounterMeasureStep);
-    setWorkDetails(cmSelectedSheetForView?.workDetails);
+    setParts(
+      cmSelectedSheetForView?.commonDataFilledByAssignUser?.[0]?.changedParts
+    );
+    setActions(
+      cmSelectedSheetForView?.commonDataFilledByAssignUser?.[0]
+        ?.actionAndCounterMeasureStep
+    );
+    setWorkDetails(
+      cmSelectedSheetForView?.commonDataFilledByAssignUser?.[0]?.workDetails
+    );
   }, []);
 
   const handleCustomErrors = () => {
-    console.log("object", watch("mtdHOS"));
     if (watch("mtdHOS") === undefined) {
       setError(
         "mtdHOS",
@@ -123,7 +129,6 @@ const ExistinngMachineReqSheetForOperator = ({
       );
       flagCountForHandlingError++;
     }
-    // console.log("fhgtghth", watch("attachedFileByAssignedUser").length === 0);
     if (watch("attachedFileByAssignedUser").length === 0) {
       setError(
         "attachedFileByAssignedUser",
@@ -196,7 +201,7 @@ const ExistinngMachineReqSheetForOperator = ({
       ) === true
     ) {
       requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
-    }
+    } 
     try {
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;

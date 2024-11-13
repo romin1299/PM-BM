@@ -155,7 +155,7 @@ const PartList = ({
         </Col>
       </Row>
 
-      {parts.map((part, index) =>
+      {parts?.map((part, index) =>
         editedPart && editedPart.id === index ? (
           <Row key={index} className="m-0 d-flex">
             {/* Render input fields for editing */}
@@ -370,7 +370,7 @@ const PartList = ({
         )
       )}
 
-      {Array.from({ length: 2 - parts.length }).map((_, index) => (
+      {Array.from({ length: 2 - parts?.length }).map((_, index) => (
         <Row key={index} className="m-0 p-1 border">
           <AddBoxIcon onClick={() => setIsAdding(true)} />
         </Row>
