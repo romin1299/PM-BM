@@ -8,13 +8,39 @@ import PaginationForLTPM from "../../../../components/Pagination/PaginationForLT
 // import currentYear from "../../../../pages/Dashboard/DashboardComponent/currentYear";
 
 const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
-  const [dataOfLTPM, setDataOfLTPM] = useState([]);
-  const currentYear = 2025
+  // const [dataOfLTPM, setDataOfLTPM] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const currentYear = 2025;
+  const yearsOfLTPM = Array.from({ length: 5 }, (_, i) => currentYear + i);
+  // const [visibleYears, setVisibleYears] = useState(yearsOfLTPM.slice(0, 4));
+
+  let columns = [
+    "SN",
+    "Machine No.",
+    "Machine Name",
+    "Inspection item",
+    "Action",
+    "Cycle",
+    "Person in charge",
+    "",
+  ];
+
+  const initialState = {
+    loading: true,
+    yearList: yearsOfLTPM.slice(0, 4),
+    quarterList: ["Q1", "Q2", "Q3", "Q4"],
+    data: [],
+  };
+
+  const [LTPMData, setLTPMData] = useState(initialState);
+
+  // const [loading, setLoading] = useState(true);
 
   const getDataOfLTPM = async () => {
-    setLoading(true);
+    // setLoading(true);
+
+    setLTPMData(initialState);
+
     try {
       const url = `/LTPM/getDatOfLTPM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`;
 
@@ -23,11 +49,23 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
         credentials: "include",
       });
 
-      setDataOfLTPM(res?.data?.resultOfLTPM);
+      // setDataOfLTPM(res?.data?.resultOfLTPM);
+
+      setLTPMData((LTPMData) => ({
+        ...LTPMData,
+        loading: false,
+        ...res?.data,
+        // data: res?.data?.resultOfLTPM,
+      }));
     } catch (error) {
       console.log(error);
+
+      setLTPMData({
+        loading: false,
+        ...initialState,
+      });
     }
-    setLoading(false);
+    // setLoading(false);
   };
 
   // let yearsOfLTPM = [
@@ -39,103 +77,6 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   // ];
 
   // const currentYear = new Date().getFullYear();
-  const yearsOfLTPM = Array.from({ length: 5 }, (_, i) => currentYear + i);
-  const [visibleYears, setVisibleYears] = useState(yearsOfLTPM.slice(0, 4));
-
-  let columns = [
-    {
-      header: "SN",
-      sort: "true",
-    },
-    {
-      header: "Machine No.",
-      sort: "true",
-    },
-    {
-      header: "Machine Name",
-      sort: "true",
-    },
-    {
-      header: "Inspection item",
-      sort: "true",
-    },
-    // {
-    //   header: "Inspection point",
-    //   sort: "true",
-    // },
-    // {
-    //   header: "Judgement criteria",
-    //   sort: "true",
-    // },
-    {
-      header: "Action",
-      sort: "true",
-    },
-    {
-      header: "Cycle",
-      sort: "true",
-    },
-    {
-      header: "Person in charge",
-      sort: "true",
-    },
-    // {
-    //   header: "PM Time (min)",
-    //   sort: "true",
-    // },
-    {
-      header: "",
-      sort: "true",
-    },
-    {
-      header: "Q1",
-      sort: "true",
-    },
-    {
-      header: "Q2",
-      sort: "true",
-    },
-    {
-      header: "Q3",
-      sort: "true",
-    },
-    {
-      header: "Q4",
-      sort: "true",
-    },
-    {
-      header: "Q1",
-      sort: "true",
-    },
-    {
-      header: "Q2",
-      sort: "true",
-    },
-    {
-      header: "Q3",
-      sort: "true",
-    },
-    {
-      header: "Q4",
-      sort: "true",
-    },
-    {
-      header: "Q1",
-      sort: "true",
-    },
-    {
-      header: "Q2",
-      sort: "true",
-    },
-    {
-      header: "Q3",
-      sort: "true",
-    },
-    {
-      header: "Q4 ",
-      sort: "true",
-    },
-  ];
 
   useEffect(() => {
     getDataOfLTPM();
@@ -148,9 +89,9 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   return (
     <>
       <div>
-        {loading ? (
+        {LTPMData?.loading ? (
           <Loading />
-        ) : dataOfLTPM?.length <= 0 ? (
+        ) : LTPMData?.data?.length <= 0 ? (
           <DataNotFound />
         ) : (
           <>
@@ -205,11 +146,12 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                           >
                             <p>
                               Section Name :{" "}
-                              {dataOfLTPM?.[0]?.section_data?.section_name}
+                              {LTPMData?.data?.[0]?.section_data?.section_name}
                             </p>
                             <br />
                             <p>
-                              Line Name : {dataOfLTPM?.[0]?.lines?.line_name}
+                              Line Name :{" "}
+                              {LTPMData?.data?.[0]?.lines?.line_name}
                             </p>
                           </th>
                           <th
@@ -286,15 +228,16 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                         </tr>
                       </thead>
 
-                      <PaginationForLTPM
-                        setVisibleYears={setVisibleYears}
+                      {/* <PaginationForLTPM
+                        // setVisibleYears={setVisibleYears}
+                        // visibleYears={visibleYears}
                         yearsOfLTPM={yearsOfLTPM}
-                        visibleYears={visibleYears}
-                      />
+                        setLTPMData={setLTPMData}
+                      /> */}
                       <thead>
                         <tr>
                           <th colSpan={8}></th>
-                          {visibleYears.map((year, idx) => (
+                          {LTPMData?.yearList?.map((year, idx) => (
                             <th className="ar-table-col1" colSpan={4} key={idx}>
                               {year}-{year + 1}
                             </th>
@@ -303,21 +246,23 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                       </thead>
                       <thead className="mt-5">
                         <tr>
-                          {columns?.map((tColumn) => (
-                            <th
-                              className={
-                                tColumn.header === ""
-                                  ? "ar-table-thead-header3"
-                                  : "ar-table-thead-header"
-                              }
-                            >
-                              {tColumn.header}
-                            </th>
-                          ))}
+                          {columns
+                            ?.concat(LTPMData?.quarterList)
+                            ?.map((tColumn) => (
+                              <th
+                                className={
+                                  tColumn === ""
+                                    ? "ar-table-thead-header3"
+                                    : "ar-table-thead-header"
+                                }
+                              >
+                                {tColumn}
+                              </th>
+                            ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {dataOfLTPM?.map((item, index) => (
+                        {LTPMData?.data?.map((item, index) => (
                           <React.Fragment key={index}>
                             <tr className="ar-table-row">
                               <td
@@ -343,7 +288,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                             {item?.data?.map((item1, index) => (
                               <tr key={index}>
                                 <td className="ar-table-col">
-                                  {item1?.inspectionItem}
+                                  {item1?.inspectionItem}aaa
                                 </td>
                                 <td className="ar-table-col">
                                   {item1?.actionForLTPM}
@@ -354,6 +299,13 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                                 <td className="ar-table-col">
                                   {item1?.personForLTPM}
                                 </td>
+                                <td className="ar-table-thead-header3"></td>
+
+                                {item1?.commonDataFilledByAssignUser?.map(
+                                  (item2, index2) => (
+                                    <td className="ar-table-col">--&gt;</td>
+                                  )
+                                )}
                               </tr>
                             ))}
                           </React.Fragment>

@@ -40,3 +40,10 @@ exports.APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM = [
 exports.NAME_OF_THE_COMPANY = 'DNHA';
 
 exports.LIST_OF_COMPANY = ['DNHA', 'DNIN'];
+
+exports.CM_PLANNED_STATUS =[
+  'Planned',
+  'In progress',
+  'Completed',
+  'Done with delay'
+]

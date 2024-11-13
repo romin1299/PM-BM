@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import RoutingContext from "../../context/routing/RoutingContext";
-import "./MainDashboard.css";
+import "./MainDashboard.scss";
 import { Container, Row, Col } from "reactstrap";
 import CheckSheet from "./CheckSheet";
 import { useNavigate } from "react-router-dom";
@@ -713,7 +713,7 @@ const MainDashboard = () => {
       {/* <button onClick={funForDummyApi}>dummy</button> */}
       <Container fluid className="operatorDashboard">
         <Row>
-          <Col xs={12} sm={12} md={12} xl={9} className="mt-4">
+          <Col xs={12} sm={12} md={12} xl={9} className="mt-4 left-component-main-dashboard">
             {Object.keys(allDataSectionWise).length > 0 ? (
               <Col>
                 <div class="container-fluid px-2">

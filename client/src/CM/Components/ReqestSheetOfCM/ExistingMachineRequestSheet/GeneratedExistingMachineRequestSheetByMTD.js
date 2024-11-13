@@ -144,7 +144,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     // requestSheetDataOfCM.shiftOfBM = selectedShift;
     // requestSheetDataOfCM.changedParts = parts;
     const customErrorCount = await handleCustomError();
-    console.log("cnt", customErrorCount);
     if (customErrorCount > 0) {
       return;
     }
@@ -180,7 +179,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
       const data = await res.json();
 
       if (res.status === 201) {
-        SuccessToast(data?.message);
+        SuccessToast(data?.message);  
         reset();
         navigate("/cm", { replace: true });
       } else {

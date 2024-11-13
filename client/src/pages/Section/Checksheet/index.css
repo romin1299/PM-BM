@@ -53,6 +53,7 @@ screen and (min-width: 1000px) and (max-width: 1055px) {
 .right-component-main-dashboard {
     position: fixed;
     /* right: 2.5rem; */
+    width: 20rem;
     right: 15px;
     top: 7rem;
     max-height: 85vh;
