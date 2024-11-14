@@ -215,18 +215,14 @@ const quarterlyDataAdd = (plannedDateAndTimeOfCM) => {
 
   for (let index = 0; index < QUARTER.length; index++) {
     if (QUARTER?.[index] === getFinancialQuarter(plannedDateAndTimeOfCM)) {
-      findPlannedQuarterAndAssignValue.push(
-        {
-          requestSheet_quarter: QUARTER?.[index],
-          statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
-        },
-      );
+      findPlannedQuarterAndAssignValue.push({
+        requestSheet_quarter: QUARTER?.[index],
+        statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
+      });
     } else {
-      findPlannedQuarterAndAssignValue.push(
-        {
-          requestSheet_quarter: QUARTER?.[index],
-        },
-      );
+      findPlannedQuarterAndAssignValue.push({
+        requestSheet_quarter: QUARTER?.[index],
+      });
     }
   }
 
@@ -312,7 +308,7 @@ router.post(
           },
         ],
       });
-      
+
       const result = await requestSheetOfCM.save();
 
       const addOtherYearFreqUptoNextFourYear = [];
@@ -2198,6 +2194,7 @@ router.get(
             shiftOfCM: 1,
             partSuggestionByMTDTL: 1,
             qualityRelated: 1,
+            commonDataFilledByAssignUser: 1,
             preAggregationTimeStampOfRequestSheet: 1,
             requestSheetCreatedBy: {
               $arrayElemAt: ["$requestSheetCreatedBy", 0],

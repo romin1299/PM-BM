@@ -19,7 +19,7 @@ const PartList = ({
   clearErrors,
 }) => {
   // console.clear();
-  // console.log("parts:", parts);
+  console.log("parts:", parts);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editedPart, setEditedPart] = useState(null);
