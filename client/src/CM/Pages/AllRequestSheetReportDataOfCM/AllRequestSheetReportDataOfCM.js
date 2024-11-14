@@ -115,7 +115,7 @@ const AllRequestSheetReportDataOfCM = () => {
       editable: false,
     },
     {
-      title: "Acivity",
+      title: "Activity",
       field: "cmBasicDataFilledByMTD_TL.activityOfCM",
       editable: false,
     },

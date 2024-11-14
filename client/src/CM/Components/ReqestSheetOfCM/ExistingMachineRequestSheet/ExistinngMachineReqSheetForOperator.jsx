@@ -182,7 +182,7 @@ const ExistinngMachineReqSheetForOperator = ({
     // console.log("flag ", flagCountForHandlingError);
     return flagCountForHandlingError;
   };
-  const upadteReqSheet = async (requestSheetDataOfCM) => {
+  const updateReqSheet = async (requestSheetDataOfCM) => {
     // let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
     // if (checkWhetherAnyErrorOccurredOrNot > 0) {
     //   return;
@@ -210,38 +210,8 @@ const ExistinngMachineReqSheetForOperator = ({
           requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
-      let assignApprovalListOfHOS = {};
-      let assignApprovalListOfTL = {};
-      let assignApprovalListOfPRDTL = {};
-      if (requestSheetDataOfCM?.mtdHOS) {
-        assignApprovalListOfHOS = ApprovalAssignFOrHOS(
-          requestSheetDataOfCM.mtdHOS
-        );
-        // console.log("Approval list for HOS:", assignApprovalListOfHOS);
-      }
 
-      if (requestSheetDataOfCM?.mtdTL) {
-        assignApprovalListOfTL = ApprovalAssignFOrTL(
-          requestSheetDataOfCM.mtdTL
-        );
-        // console.log("Approval list for TL:", assignApprovalListOfTL);
-      }
-
-      if (requestSheetDataOfCM?.prdTL) {
-        assignApprovalListOfPRDTL = ApprovalAssignFOrPRDTL(
-          requestSheetDataOfCM.prdTL
-        );
-        // console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
-      }
-      formData.append(
-        "otherData",
-        JSON.stringify({
-          ...otherFields,
-          assignApprovalListOfTL,
-          assignApprovalListOfHOS,
-          assignApprovalListOfPRDTL,
-        })
-      );
+      formData.append("otherData", JSON.stringify(otherFields));
 
       const config = {
         headers: {
@@ -265,46 +235,46 @@ const ExistinngMachineReqSheetForOperator = ({
   };
   let flagCountForHandlingError = 0;
 
-  const ApprovalAssignFOrTL = (mtdTL) => {
-    if (mtdTL && MTDTLList) {
-      const foundItem = MTDTLList.find((item) => item._id === mtdTL);
-      if (foundItem) {
-        return {
-          id: foundItem._id,
-          name: foundItem.tm_name,
-          email: foundItem.email,
-        };
-      }
-    }
-    return null;
-  };
+  // const ApprovalAssignFOrTL = (mtdTL) => {
+  //   if (mtdTL && MTDTLList) {
+  //     const foundItem = MTDTLList.find((item) => item._id === mtdTL);
+  //     if (foundItem) {
+  //       return {
+  //         id: foundItem._id,
+  //         name: foundItem.tm_name,
+  //         email: foundItem.email,
+  //       };
+  //     }
+  //   }
+  //   return null;
+  // };
 
-  const ApprovalAssignFOrHOS = (mtdHOS) => {
-    if (mtdHOS && MTDHOSList) {
-      const foundItem = MTDHOSList.find((item) => item._id === mtdHOS);
-      if (foundItem) {
-        return {
-          id: foundItem._id,
-          name: foundItem.tm_name,
-          email: foundItem.email,
-        };
-      }
-    }
-    return null;
-  };
-  const ApprovalAssignFOrPRDTL = (prdTL) => {
-    if (prdTL && PRDTLList) {
-      const foundItem = PRDTLList.find((item) => item._id === prdTL);
-      if (foundItem) {
-        return {
-          id: foundItem._id,
-          name: foundItem.tm_name,
-          email: foundItem.email,
-        };
-      }
-    }
-    return null;
-  };
+  // const ApprovalAssignFOrHOS = (mtdHOS) => {
+  //   if (mtdHOS && MTDHOSList) {
+  //     const foundItem = MTDHOSList.find((item) => item._id === mtdHOS);
+  //     if (foundItem) {
+  //       return {
+  //         id: foundItem._id,
+  //         name: foundItem.tm_name,
+  //         email: foundItem.email,
+  //       };
+  //     }
+  //   }
+  //   return null;
+  // };
+  // const ApprovalAssignFOrPRDTL = (prdTL) => {
+  //   if (prdTL && PRDTLList) {
+  //     const foundItem = PRDTLList.find((item) => item._id === prdTL);
+  //     if (foundItem) {
+  //       return {
+  //         id: foundItem._id,
+  //         name: foundItem.tm_name,
+  //         email: foundItem.email,
+  //       };
+  //     }
+  //   }
+  //   return null;
+  // };
 
   const onSubmit = async (requestSheetDataOfCM) => {
     let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
@@ -327,49 +297,23 @@ const ExistinngMachineReqSheetForOperator = ({
           requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
-      // console.log(otherFields)
-      let assignApprovalListOfHOS = {};
-      let assignApprovalListOfTL = {};
-      let assignApprovalListOfPRDTL = {};
+
       if (requestSheetDataOfCM?.mtdHOS) {
-        assignApprovalListOfHOS = ApprovalAssignFOrHOS(
-          requestSheetDataOfCM.mtdHOS
-        );
-        // console.log("Approval list for HOS:", assignApprovalListOfHOS);
+        otherFields["approvalOfMTD_HOS"] =
+          MTDHOSList?.[requestSheetDataOfCM?.mtdHOS];
       }
 
       if (requestSheetDataOfCM?.mtdTL) {
-        assignApprovalListOfTL = ApprovalAssignFOrTL(
-          requestSheetDataOfCM.mtdTL
-        );
-        // console.log("Approval list for TL:", assignApprovalListOfTL);
+        otherFields["approvalOfMTD_TL"] =
+          MTDTLList?.[requestSheetDataOfCM.mtdTL];
       }
 
       if (requestSheetDataOfCM?.prdTL) {
-        assignApprovalListOfPRDTL = ApprovalAssignFOrPRDTL(
-          requestSheetDataOfCM.prdTL
-        );
-        // console.log("Approval list for PRD TL:", assignApprovalListOfPRDTL);
+        otherFields["approvalOfPRD_TL"] =
+          PRDTLList?.[requestSheetDataOfCM?.prdTL];
       }
-      formData.append(
-        "otherData",
-        JSON.stringify({
-          ...otherFields,
-          assignApprovalListOfTL,
-          assignApprovalListOfHOS,
-          assignApprovalListOfPRDTL,
-          // assignApprovalListOfTL: {
-          //   id: MTDTLList?.[requestSheetDataOfCM?.mtdTL]?._id,
-          //   name: MTDTLList?.[requestSheetDataOfCM?.mtdTL]?.tm_name,
-          //   email: MTDTLList?.[requestSheetDataOfCM?.mtdTL]?.email,
-          // },
-          // assignApprovalListOfHOS: {
-          //   id: MTDHOSList?.[requestSheetDataOfCM?.mtdHOS]?._id,
-          //   name: MTDHOSList?.[requestSheetDataOfCM?.mtdHOS]?.tm_name,
-          //   email: MTDHOSList?.[requestSheetDataOfCM?.mtdHOS]?.email,
-          // },
-        })
-      );
+
+      formData.append("otherData", JSON.stringify(otherFields));
 
       const config = {
         headers: {
@@ -392,7 +336,7 @@ const ExistinngMachineReqSheetForOperator = ({
 
   return (
     <>
-      <form onSubmit={handleSubmit(upadteReqSheet)}>
+      <form onSubmit={handleSubmit(updateReqSheet)}>
         <Row className="m-0 border d-flex align-items-center p-2">
           <Col lg={6} sm={12}>
             <Row className="">
@@ -559,10 +503,8 @@ const ExistinngMachineReqSheetForOperator = ({
                               onBlur={onBlur}
                             >
                               <option value="">Select MTD TL/HOSS</option>
-                              {MTDTLList.map((value) => (
-                                <option value={value._id}>
-                                  {value?.tm_name}
-                                </option>
+                              {MTDTLList.map((value, index) => (
+                                <option value={index}>{value?.tm_name}</option>
                               ))}
                             </select>
                           )}
@@ -610,8 +552,8 @@ const ExistinngMachineReqSheetForOperator = ({
                           onBlur={onBlur}
                         >
                           <option value="">Select MTD HOS</option>
-                          {MTDHOSList.map((value) => (
-                            <option value={value._id}>{value?.tm_name}</option>
+                          {MTDHOSList.map((value, index) => (
+                            <option value={index}>{value?.tm_name}</option>
                           ))}
                         </select>
                       )}
@@ -700,10 +642,8 @@ const ExistinngMachineReqSheetForOperator = ({
                               onBlur={onBlur}
                             >
                               <option value="">Select PRD TL </option>
-                              {PRDTLList.map((value) => (
-                                <option value={value._id}>
-                                  {value?.tm_name}
-                                </option>
+                              {PRDTLList.map((value, index) => (
+                                <option value={index}>{value?.tm_name}</option>
                               ))}
                             </select>
                           )}
@@ -820,7 +760,7 @@ const ExistinngMachineReqSheetForOperator = ({
                   type="submit"
                   className="btn bg-success"
                   style={{ marginTop: "1rem" }}
-                  onClick={handleSubmit(upadteReqSheet)}
+                  onClick={handleSubmit(updateReqSheet)}
                 >
                   Save Changes
                 </button>
@@ -862,7 +802,7 @@ const ExistinngMachineReqSheetForOperator = ({
                   type="submit"
                   className="btn bg-success"
                   style={{ marginTop: "1rem" }}
-                  onClick={handleSubmit(upadteReqSheet)}
+                  onClick={handleSubmit(updateReqSheet)}
                 >
                   Save Changes
                 </button>

@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Row, Col, Form, Container } from "react-bootstrap";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -9,7 +9,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import moment from "moment-timezone";
-import { Box } from "@mui/material";
+// import { Box } from "@mui/material";
 import axios from "axios";
 import RoutingContext from "../../../../context/routing/RoutingContext";
 import {
@@ -20,9 +20,9 @@ import {
   FREQUENCY_OF_CM,
   CATEGORIES_OF_CM,
 } from "../../../GlobalDataAccess/GlobalData";
-import PartList from "../../../../BM/Tabs/SubComponents/PartList";
+// import PartList from "../../../../BM/Tabs/SubComponents/PartList";
 import Multiselect from "multiselect-react-dropdown";
-import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
+// import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
 
 const GeneratedExistingMachineRequestSheetByMTD = ({
   selectedMachineData,
@@ -30,7 +30,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 }) => {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
-  const [parts, setParts] = useState([]);
+  // const [parts, setParts] = useState([]);
 
   const {
     register,
@@ -56,7 +56,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 
   const [plantShiftsData, setPlantShiftsData] = useState([]);
 
-  const [selectedShift, setSelectedShift] = useState("");
+  // const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
   // const [selectedQuality, setSelectedQuality] = useState("");
@@ -77,11 +77,11 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
   // };
   let flagCountForHandlingError = 0;
   const handleCustomError = () => {
-    console.log(
-      watch("cmBasicDataFilledByMTD_TL.categories"),
-      "and ",
-      watch("cmBasicDataFilledByMTD_TL.inspectionItem")
-    );
+    // console.log(
+    //   watch("cmBasicDataFilledByMTD_TL.categories"),
+    //   "and ",
+    //   watch("cmBasicDataFilledByMTD_TL.inspectionItem")
+    // );
     if (
       watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
       watch("cmBasicDataFilledByMTD_TL.inspectionItem") === ""
@@ -154,12 +154,15 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.length;
+        i <
+        requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser
+          ?.length;
         i++
       ) {
         formData.append(
           "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
-          requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.[i]
+          requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL
+            ?.attachedFilesByMTDUser?.[i]
         );
       }
 
@@ -179,7 +182,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
       const data = await res.json();
 
       if (res.status === 201) {
-        SuccessToast(data?.message);  
+        SuccessToast(data?.message);
         reset();
         navigate("/cm", { replace: true });
       } else {
@@ -226,7 +229,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     };
 
     setValue("shiftOfBM", getCurrentShiftName());
-    setSelectedShift(getCurrentShiftName());
+    // setSelectedShift(getCurrentShiftName());
   }, [plannedDateAndTimeOfCM, plantShiftsData]);
 
   React.useEffect(() => {
@@ -1097,7 +1100,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       <FormLabel id="demo-radio-buttons-group-label">
                         <small>
                           <b>SHIFT</b>
-                        </small>  
+                        </small>
                       </FormLabel>
 
                       {watch("shiftOfBM") && (
@@ -1223,10 +1226,16 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                           multiple
                           // accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
-                            setValue("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", e.target.files, {
-                              shouldDirty: true,
-                            });
-                            clearErrors("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser");
+                            setValue(
+                              "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
+                              e.target.files,
+                              {
+                                shouldDirty: true,
+                              }
+                            );
+                            clearErrors(
+                              "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser"
+                            );
                           }}
                         />
                         {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (

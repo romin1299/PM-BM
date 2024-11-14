@@ -319,9 +319,15 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                                 <td className="ar-table-thead-header3"></td>
 
                                 {item1?.commonDataFilledByAssignUser?.map(
-                                  (item2, index2) => (
-                                    <td className="ar-table-col">--&gt;</td>
-                                  )
+                                  (item2) =>
+                                    item2?.quarterlyDataOfTheCM?.map(
+                                      (item3) => (
+                                        <td className="ar-table-col">
+                                          {item3?.statusOfPlannedCM ===
+                                            "Planned" && <>--&gt;</>}
+                                        </td>
+                                      )
+                                    )
                                 )}
                               </tr>
                             ))}

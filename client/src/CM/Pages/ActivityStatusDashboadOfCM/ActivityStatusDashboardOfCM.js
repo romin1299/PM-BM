@@ -305,6 +305,13 @@ const ActivityStatusDashboardOfCM = () => {
         >
           Go
         </Button>
+        <h6
+          style={{
+            color: "red",
+          }}
+        >
+          Planned Date is remaining
+        </h6>
       </Box>
     </div>,
     // "sd;kfgksn"
