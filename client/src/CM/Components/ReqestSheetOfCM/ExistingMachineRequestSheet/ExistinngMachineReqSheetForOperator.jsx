@@ -85,6 +85,7 @@ const ExistinngMachineReqSheetForOperator = ({
     setCommonDataFilledByAssignUser(
       cmSelectedSheetForView?.commonDataFilledByAssignUser
     );
+
     // setParts(
     //   cmSelectedSheetForView?.commonDataFilledByAssignUser?.[0]?.changedParts
     // );
@@ -96,6 +97,23 @@ const ExistinngMachineReqSheetForOperator = ({
     //   cmSelectedSheetForView?.commonDataFilledByAssignUser?.[0]?.workDetails
     // );
   }, []);
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const currentQuarter = getFinancialQuarter();
+
+    commonDataFilledByAssignUser?.forEach((year) => {
+      const checkYear = new Date(year?.plannedDateAndTimeOfCM).getFullYear();
+      if (checkYear === currentYear) {
+        year.quarterlyDataOfTheCM?.forEach((quarter) => {
+          if (quarter?.requestSheet_quarter === `${currentQuarter}`) {
+            setParts(quarter.changedParts);
+            setActions(quarter.actionAndCounterMeasureStep);
+            setWorkDetails(quarter.workDetails);
+          }
+        });
+      }
+    });
+  }, [commonDataFilledByAssignUser]);
 
   const handleCustomErrors = () => {
     if (watch("mtdHOS") === undefined) {
