@@ -14,6 +14,7 @@ const ActionList = ({
   const [newActionStatus, setNewActionStatus] = useState("OK");
   const [isAdding, setIsAdding] = useState(false);
   const [editedAction, setEditedAction] = useState(null);
+  console.log("This is actions",actions)
 
   const addAction = (event) => {
     event.preventDefault();

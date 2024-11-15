@@ -2228,6 +2228,7 @@ router.get(
             shiftOfCM: 1,
             partSuggestionByMTDTL: 1,
             qualityRelated: 1,
+            commonDataFilledByAssignUser: 1,
             preAggregationTimeStampOfRequestSheet: 1,
             requestSheetCreatedBy: {
               $arrayElemAt: ["$requestSheetCreatedBy", 0],
