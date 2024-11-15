@@ -44,7 +44,6 @@ const ExistinngMachineReqSheetForOperator = ({
     },
   });
   const showMTDHOSS = watch("options") === "Yes";
-  console.log("Ths is whbole list", cmSelectedSheetForView);
 
   const [MTDHOSList, setMTDHOSList] = useState([]);
   const [MTDTLList, setMTDTLList] = useState([]);
@@ -228,7 +227,6 @@ const ExistinngMachineReqSheetForOperator = ({
           actions;
       }
     }
-    console.log(requestSheetDataOfCM?.commonDataFilledByAssignUser);
     // requestSheetDataOfCM.changedParts = parts;
     // requestSheetDataOfCM.workDetails = workDetails;
     // requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
