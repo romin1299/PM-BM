@@ -209,12 +209,43 @@ router.get(
   })
 );
 
-const quarterlyDataAdd = (plannedDateAndTimeOfCM) => {
+const quarterlyDataAdd = (
+  plannedDateAndTimeOfCM,
+  frequencyValue,
+  firstQuarterPlanned
+) => {
   const findPlannedQuarterAndAssignValue = [],
     QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
+  let flagForOnePerSixMonthQuarter = 0;
+
+  const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM);
+
   for (let index = 0; index < QUARTER.length; index++) {
-    if (QUARTER?.[index] === getFinancialQuarter(plannedDateAndTimeOfCM)) {
+
+    if (frequencyValue === "1/6 M") {
+
+      if(QUARTER?.[index] === plannedQuarter){
+        findPlannedQuarterAndAssignValue.push({
+          requestSheet_quarter: QUARTER?.[index],
+          statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
+        });
+      }else{
+        if(["Q1", "Q2"].includes(QUARTER?.[index])){
+          
+        }
+      }
+
+        findPlannedQuarterAndAssignValue.push({
+          requestSheet_quarter: firstQuarterPlanned
+            ? QUARTER?.[index]
+            : ["Q1", "Q2"].includes(QUARTER?.[index])
+            ? QUARTER[plannedQuarter.charAt(1) + 2]
+            : QUARTER[plannedQuarter.charAt(1) - 2],
+          statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
+        });
+    }
+    if (QUARTER?.[index] === plannedQuarter) {
       findPlannedQuarterAndAssignValue.push({
         requestSheet_quarter: QUARTER?.[index],
         statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
@@ -304,7 +335,9 @@ router.post(
             //     ? "Yes"
             //     : "No",
             quarterlyDataOfTheCM: quarterlyDataAdd(
-              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
+              cmBasicDataFilledByMTD_TL?.frequencyValue,
+              true
             ),
           },
         ],
@@ -332,7 +365,8 @@ router.post(
             ),
           },
           quarterlyDataOfTheCM: quarterlyDataAdd(
-            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
+            cmBasicDataFilledByMTD_TL?.frequencyValue
           ),
         });
       }
