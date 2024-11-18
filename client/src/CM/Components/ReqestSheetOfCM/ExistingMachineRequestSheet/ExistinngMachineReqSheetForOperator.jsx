@@ -54,6 +54,7 @@ const ExistinngMachineReqSheetForOperator = ({
   const [actions, setActions] = useState([]);
   const [workDetails, setWorkDetails] = useState([]);
   const context = useContext(RoutingContext);
+  console.log("This is from op", cmSelectedSheetForView);
 
   const getApprovalListOfCM = async () => {
     try {
@@ -152,7 +153,7 @@ const ExistinngMachineReqSheetForOperator = ({
       );
       flagCountForHandlingError++;
     }
-    if (watch("attachedFileByAssignedUser").length === 0) {
+    if (watch("attachedFileByAssignedUser")?.length === 0) {
       setError(
         "attachedFileByAssignedUser",
         {
@@ -210,11 +211,7 @@ const ExistinngMachineReqSheetForOperator = ({
     // console.log("flag ", flagCountForHandlingError);
     return flagCountForHandlingError;
   };
-  const updateReqSheet = async (requestSheetDataOfCM) => {
-    // let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
-    // if (checkWhetherAnyErrorOccurredOrNot > 0) {
-    //   return;
-    // }
+  const getYearAndMonthIdx = (requestSheetDataOfCM) => {
     const currentYear = new Date().getFullYear();
     const yearQuery = `${currentYear}-${currentYear + 1}`;
 
@@ -225,32 +222,58 @@ const ExistinngMachineReqSheetForOperator = ({
           data.preAggregationTimeStampOfRequestSheet.requestSheet_year ===
           yearQuery
       );
-    if (yearIndex !== -1) {
-      const quarterIndex = requestSheetDataOfCM.commonDataFilledByAssignUser[
-        yearIndex
-      ].quarterlyDataOfTheCM.findIndex(
-        (quarter) => quarter.requestSheet_quarter === `${currentQuarter}`
-      );
 
-      if (quarterIndex !== -1) {
-        requestSheetDataOfCM.commonDataFilledByAssignUser[
-          yearIndex
-        ].quarterlyDataOfTheCM[quarterIndex].changedParts = parts;
-        requestSheetDataOfCM.commonDataFilledByAssignUser[
-          yearIndex
-        ].quarterlyDataOfTheCM[quarterIndex].workDetails = workDetails;
-        requestSheetDataOfCM.commonDataFilledByAssignUser[
-          yearIndex
-        ].quarterlyDataOfTheCM[quarterIndex].actionAndCounterMeasureStep =
-          actions;
-      }
+    const quarterIndex = requestSheetDataOfCM.commonDataFilledByAssignUser[
+      yearIndex
+    ].quarterlyDataOfTheCM.findIndex(
+      (quarter) => quarter.requestSheet_quarter === `${currentQuarter}`
+    );
+    return { yearIndex, quarterIndex };
+  };
+  const updateReqSheet = async (requestSheetDataOfCM) => {
+    // let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
+    // if (checkWhetherAnyErrorOccurredOrNot > 0) {
+    //   return;
+    // }
+    // const currentYear = new Date().getFullYear();
+    // const yearQuery = `${currentYear}-${currentYear + 1}`;
+
+    // const currentQuarter = getFinancialQuarter();
+    const yearIndex = getYearAndMonthIdx(requestSheetDataOfCM).yearIndex;
+    const quarterIndex = getYearAndMonthIdx(requestSheetDataOfCM).quarterIndex;
+    // requestSheetDataOfCM.commonDataFilledByAssignUser.findIndex(
+    //   (data) =>
+    //     data.preAggregationTimeStampOfRequestSheet.requestSheet_year ===
+    //     yearQuery
+    // );
+    // if (yearIndex !== -1) {
+    // const quarterIndex = requestSheetDataOfCM.commonDataFilledByAssignUser[
+    //   yearIndex
+    // ].quarterlyDataOfTheCM.findIndex(
+    //   (quarter) => quarter.requestSheet_quarter === `${currentQuarter}`
+    // );
+
+    if (quarterIndex !== -1) {
+      requestSheetDataOfCM.commonDataFilledByAssignUser[
+        yearIndex
+      ].quarterlyDataOfTheCM[quarterIndex].changedParts = parts;
+      requestSheetDataOfCM.commonDataFilledByAssignUser[
+        yearIndex
+      ].quarterlyDataOfTheCM[quarterIndex].workDetails = workDetails;
+      requestSheetDataOfCM.commonDataFilledByAssignUser[
+        yearIndex
+      ].quarterlyDataOfTheCM[quarterIndex].actionAndCounterMeasureStep =
+        actions;
     }
+    // }
     // requestSheetDataOfCM.changedParts = parts;
     // requestSheetDataOfCM.workDetails = workDetails;
     // requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
     if (
-      requestSheetDataOfCM?.assigned_users?.some(
-        (user) => user._id === context?._id
+      requestSheetDataOfCM?.commonDataFilledByAssignUser?.some((user) =>
+        user.quarterlyDataOfTheCM.some((quarter) =>
+          quarter.assignUserForCM.some((u) => u._id === context?._id)
+        )
       ) === true
     ) {
       requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
@@ -362,20 +385,36 @@ const ExistinngMachineReqSheetForOperator = ({
           requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
+      console.log("Other fields", otherFields);
+      const yearIndex = getYearAndMonthIdx(requestSheetDataOfCM).yearIndex;
+      const quarterIndex =
+        getYearAndMonthIdx(requestSheetDataOfCM).quarterIndex;
 
       if (requestSheetDataOfCM?.mtdHOS) {
-        otherFields["approvalOfMTD_HOS"] =
-          MTDHOSList?.[requestSheetDataOfCM?.mtdHOS];
+        otherFields.commonDataFilledByAssignUser[
+          yearIndex
+        ].quarterlyDataOfTheCM[quarterIndex].approvalOfMTD_HOS =
+          MTDHOSList?.[requestSheetDataOfCM.mtdHOS];
+        // otherFields["approvalOfMTD_HOS"] =
+        //   MTDHOSList?.[requestSheetDataOfCM?.mtdHOS];
       }
 
       if (requestSheetDataOfCM?.mtdTL) {
-        otherFields["approvalOfMTD_TL"] =
+        otherFields.commonDataFilledByAssignUser[
+          yearIndex
+        ].quarterlyDataOfTheCM[quarterIndex].approvalOfMTD_TL =
           MTDTLList?.[requestSheetDataOfCM.mtdTL];
+        // otherFields["approvalOfMTD_TL"] =
+        // MTDTLList?.[requestSheetDataOfCM.mtdTL];
       }
 
       if (requestSheetDataOfCM?.prdTL) {
-        otherFields["approvalOfPRD_TL"] =
-          PRDTLList?.[requestSheetDataOfCM?.prdTL];
+        otherFields.commonDataFilledByAssignUser[
+          yearIndex
+        ].quarterlyDataOfTheCM[quarterIndex].approvalOfPRD_TL =
+          PRDTLList?.[requestSheetDataOfCM.prdTL];
+        // otherFields["approvalOfPRD_TL"] =
+        //   PRDTLList?.[requestSheetDataOfCM?.prdTL];
       }
 
       formData.append("otherData", JSON.stringify(otherFields));
@@ -412,7 +451,6 @@ const ExistinngMachineReqSheetForOperator = ({
               if (checkYear === currentYear) {
                 return year.quarterlyDataOfTheCM?.map((quarter) => {
                   const currentQuarter = getFinancialQuarter();
-                  console.log(currentQuarter);
                   if (
                     quarter?.changedParts?.length > 0 ||
                     quarter?.requestSheet_quarter === `${currentQuarter}`
@@ -451,7 +489,6 @@ const ExistinngMachineReqSheetForOperator = ({
               if (checkYear === currentYear) {
                 return year.quarterlyDataOfTheCM?.map((quarter) => {
                   const currentQuarter = getFinancialQuarter();
-                  console.log(currentQuarter);
                   if (
                     quarter?.actionAndCounterMeasureStep?.length > 0 ||
                     quarter?.requestSheet_quarter === `${currentQuarter}`
@@ -490,7 +527,6 @@ const ExistinngMachineReqSheetForOperator = ({
               if (checkYear === currentYear) {
                 return year.quarterlyDataOfTheCM?.map((quarter) => {
                   const currentQuarter = getFinancialQuarter();
-                  console.log(currentQuarter);
                   if (
                     quarter?.workDetails?.length > 0 ||
                     quarter?.requestSheet_quarter === `${currentQuarter}`
@@ -550,8 +586,10 @@ const ExistinngMachineReqSheetForOperator = ({
             )}
           </Col>
         </Row>
-        {cmSelectedSheetForView?.assigned_users?.some(
-          (user) => user._id === context?._id
+        {cmSelectedSheetForView?.commonDataFilledByAssignUser?.some((user) =>
+          user.quarterlyDataOfTheCM.some((quarter) =>
+            quarter.assignUserForCM.some((u) => u._id === context?._id)
+          )
         ) === true && (
           <Row className="m-0 d-flex border align-items-start p-2">
             <Col lg={6} style={{ paddingRight: "0px" }}>
@@ -871,8 +909,10 @@ const ExistinngMachineReqSheetForOperator = ({
           </Row>
         )}
         {isEditable &&
-          cmSelectedSheetForView?.assigned_users?.some(
-            (user) => user._id === context?._id
+          cmSelectedSheetForView?.commonDataFilledByAssignUser?.some((user) =>
+            user.quarterlyDataOfTheCM.some((quarter) =>
+              quarter.assignUserForCM.some((u) => u._id === context?._id)
+            )
           ) === true &&
           (cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
             cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||

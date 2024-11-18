@@ -212,7 +212,8 @@ router.get(
 const quarterlyDataAdd = (
   plannedDateAndTimeOfCM,
   frequencyValue,
-  firstQuarterPlanned
+  firstQuarterPlanned,
+  requestSheetDataFilledByMTDUserForCM
 ) => {
   const findPlannedQuarterAndAssignValue = [],
     QUARTER = ["Q1", "Q2", "Q3", "Q4"];
@@ -222,39 +223,44 @@ const quarterlyDataAdd = (
   const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM);
 
   for (let index = 0; index < QUARTER.length; index++) {
-
     if (frequencyValue === "1/6 M") {
-
-      if(QUARTER?.[index] === plannedQuarter){
+      if (QUARTER?.[index] === plannedQuarter) {
         findPlannedQuarterAndAssignValue.push({
           requestSheet_quarter: QUARTER?.[index],
           statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
+          assignUserForCM:
+            requestSheetDataFilledByMTDUserForCM?.assignUserForCM,
         });
-      }else{
-        if(["Q1", "Q2"].includes(QUARTER?.[index])){
-          
+      } else {
+        if (["Q1", "Q2"].includes(QUARTER?.[index])) {
         }
       }
 
-        findPlannedQuarterAndAssignValue.push({
-          requestSheet_quarter: firstQuarterPlanned
-            ? QUARTER?.[index]
-            : ["Q1", "Q2"].includes(QUARTER?.[index])
-            ? QUARTER[plannedQuarter.charAt(1) + 2]
-            : QUARTER[plannedQuarter.charAt(1) - 2],
-          statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
-        });
+      findPlannedQuarterAndAssignValue.push({
+        requestSheet_quarter: firstQuarterPlanned
+          ? QUARTER?.[index]
+          : ["Q1", "Q2"].includes(QUARTER?.[index])
+          ? QUARTER[plannedQuarter.charAt(1) + 2]
+          : QUARTER[plannedQuarter.charAt(1) - 2],
+        statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
+        // assignUserForCM: requestSheetDataFilledByMTDUserForCM?.assignUserForCM,
+      });
     }
     if (QUARTER?.[index] === plannedQuarter) {
       findPlannedQuarterAndAssignValue.push({
         requestSheet_quarter: QUARTER?.[index],
         statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
+        assignUserForCM: requestSheetDataFilledByMTDUserForCM?.assignUserForCM,
       });
     } else {
       findPlannedQuarterAndAssignValue.push({
         requestSheet_quarter: QUARTER?.[index],
+        // assignUserForCM: requestSheetDataFilledByMTDUserForCM?.assignUserForCM,
       });
     }
+    // findPlannedQuarterAndAssignValue.push({
+    //   assignUserForCM: requestSheetDataFilledByMTDUserForCM?.assignUserForCM,
+    // });
   }
 
   return findPlannedQuarterAndAssignValue;
@@ -330,18 +336,25 @@ router.post(
                 requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
               ),
             },
+
             // sparePartUsedOrNot:
             //   requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
             //     ? "Yes"
             //     : "No",
             quarterlyDataOfTheCM: quarterlyDataAdd(
               requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
-              cmBasicDataFilledByMTD_TL?.frequencyValue,
-              true
+              requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+                ?.frequencyValue,
+              true,
+              requestSheetDataFilledByMTDUserForCM
             ),
           },
         ],
       });
+      console.log(
+        requestSheetOfCM?.commonDataFilledByAssignUser?.[0]
+          ?.quarterlyDataOfTheCM
+      );
 
       const result = await requestSheetOfCM.save();
 
@@ -366,7 +379,10 @@ router.post(
           },
           quarterlyDataOfTheCM: quarterlyDataAdd(
             requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
-            cmBasicDataFilledByMTD_TL?.frequencyValue
+            requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+              ?.frequencyValue,
+            false,
+            requestSheetDataFilledByMTDUserForCM
           ),
         });
       }
@@ -495,6 +511,7 @@ router.patch(
         approvalStatus: "Pending",
         approvalDateAndTime: "",
       };
+      console.log(requestSheetDataFilledByMTDUserForCM)
       let updateObj = {
         $push: {
           approvalOfMTD_HOS: {
@@ -546,8 +563,8 @@ router.patch(
         actionAndCounterMeasureStep:
           requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
       };
-
-      // console.log(requestSheetDataFilledByMTDUserForCM);
+      console.log(updateObj)
+      console.log(requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM);
       const updateAssignApprovalOfMTD_TL =
         await RequestSheetOfCM.findOneAndUpdate(
           {
@@ -1302,11 +1319,12 @@ router.get(
           {
             $match: {
               ...queryPipeline?.[0]?.$match,
-              assignUserForCM: {
-                $elemMatch: {
-                  _id: mongoose.Types.ObjectId(req.rootUser._id),
+              "commonDataFilledByAssignUser.quarterlyDataOfTheCM.assignUserForCM":
+                {
+                  $elemMatch: {
+                    _id: mongoose.Types.ObjectId(req.rootUser._id),
+                  },
                 },
-              },
             },
           },
         ];
