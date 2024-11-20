@@ -149,6 +149,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     }
 
     try {
+      console.log(requestSheetDataOfCM);
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
 

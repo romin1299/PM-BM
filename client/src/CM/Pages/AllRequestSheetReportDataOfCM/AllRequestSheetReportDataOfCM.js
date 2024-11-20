@@ -126,16 +126,35 @@ const AllRequestSheetReportDataOfCM = () => {
     },
     {
       title: "Planned Date",
-      field: "plannedDateAndTimeOfCM",
+      // field: "plannedDateAndTimeOfCM",
+      render: (rowData) => {
+        return rowData?.commonDataFilledByAssignUser?.map((item) =>{
+          return `${moment(item?.plannedDateAndTimeOfCM).format("DD-MM-YYYY")}, `
+        })
+      },
       type: "date",
       editable: false,
     },
     {
       title: "Assigned To",
       render: (rowData) => {
-        return rowData?.assigned_users?.length > 0
-          ? rowData?.assigned_users?.map((user) => user?.tm_name).join(", ")
-          : "Not Assigned";
+        console.log("This is row", rowData);
+        // return rowData?.assigned_users?.length > 0
+        //   ? rowData?.assigned_users?.map((user) => user?.tm_name).join(", ")
+        //   : "Not Assigned";
+        return rowData?.commonDataFilledByAssignUser?.map((year) => {
+          return year?.quarterlyDataOfTheCM?.map((quarter) => {
+            if (
+              quarter?.assignUserForCM?.length > 0 &&
+              quarter?.statusOfPlannedCM === "Planned"
+            ) {
+              const assigned_users = quarter?.assignUserForCM?.map((users) => {
+                return `${users?.tm_name}, `;
+              });
+              return assigned_users;
+            }
+          });
+        });
       },
     },
   ];
@@ -166,8 +185,10 @@ const AllRequestSheetReportDataOfCM = () => {
           component={EditSheetIcon}
           sx={{
             color:
-              (row?.assigned_users?.some(
-                (user) => user._id === context?._id
+              (row?.commonDataFilledByAssignUser?.some((user) =>
+                user?.quarterlyDataOfTheCM?.some((quarter) =>
+                  quarter?.assignUserForCM?.some((u) => u._id === context?._id)
+                )
               ) === true &&
                 (row?.requestSheetStatusOfCM === "Generated" ||
                   row?.requestSheetStatusOfCM === "Fill Sheet" ||
@@ -183,8 +204,11 @@ const AllRequestSheetReportDataOfCM = () => {
       position: "row",
       // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
       disabled:
-        (row?.assigned_users?.some((user) => user._id === context?._id) ===
-          true &&
+        (row?.commonDataFilledByAssignUser?.some((user) =>
+          user?.quarterlyDataOfTheCM?.some((quarter) =>
+            quarter?.assignUserForCM?.some((u) => u._id === context?._id)
+          )
+        ) === true &&
           (row?.requestSheetStatusOfCM === "Generated" ||
             row?.requestSheetStatusOfCM === "Fill Sheet" ||
             row?.requestSheetStatusOfCM === "Rejected")) ||
@@ -409,7 +433,7 @@ const AllRequestSheetReportDataOfCM = () => {
                   component="div"
                   textAlign="center"
                   // width={120}
-                  fontWeight={500}
+                  fontWeight={500}  
                   // color={"#15005c"}
                   // pt={"4px"}
                   // mb={"2px"}
