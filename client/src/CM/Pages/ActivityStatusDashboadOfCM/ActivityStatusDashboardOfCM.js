@@ -143,7 +143,7 @@ const ActivityStatusDashboardOfCM = () => {
   const [lesserValue, setLesserValue] = useState(
     localStorage.getItem("lesserValue")
   );
-  const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
+  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState();
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const requestSheetApprovalAction = [
     // {
@@ -168,7 +168,7 @@ const ActivityStatusDashboardOfCM = () => {
         // console.log(selectedRow);
         setCmReqSheetView(true);
         setIsEditable(false);
-        setCmSelectedSheetForView(selectedRow);
+        setSelectedRowRequestSheetId(selectedRow?._id);
       },
     }),
   ];
@@ -478,7 +478,7 @@ const ActivityStatusDashboardOfCM = () => {
 
       {CmReqSheetView && (
         <ExistingMachineReqSheetWithData
-          cmSelectedSheetForView={cmSelectedSheetForView}
+          selectedRowRequestSheetId={selectedRowRequestSheetId}
           isEditable={isEditable}
           setCmReqSheetView={setCmReqSheetView}
           CmReqSheetView={CmReqSheetView}

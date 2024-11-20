@@ -35,6 +35,8 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 
   const [LTPMData, setLTPMData] = useState(initialState);
   const [CmReqSheetView, setCmReqSheetView] = useState(false);
+  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] =
+    useState("");
 
   // const [loading, setLoading] = useState(true);
 
@@ -89,7 +91,6 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   ]);
 
   const openModalOfRequestSheetOfCm = () => {
-    console.log("calleeee");
     setCmReqSheetView((CmReqSheetView) => !CmReqSheetView);
   };
 
@@ -337,9 +338,12 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                                                 <button
                                                   type="button"
                                                   className="commonBtn viewRequestSheetOfCMBtn"
-                                                  onClick={
-                                                    openModalOfRequestSheetOfCm
-                                                  }
+                                                  onClick={() => {
+                                                    openModalOfRequestSheetOfCm();
+                                                    setSelectedRowRequestSheetId(
+                                                      item?._id?._id
+                                                    );
+                                                  }}
                                                 >
                                                   --&gt;
                                                 </button>
@@ -365,7 +369,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
       </div>
       {CmReqSheetView && (
         <ExistingMachineReqSheetWithData
-          // cmSelectedSheetForView={cmSelectedSheetForView}
+          selectedRowRequestSheetId={selectedRowRequestSheetId}
           isEditable={false}
           setCmReqSheetView={setCmReqSheetView}
           CmReqSheetView={CmReqSheetView}

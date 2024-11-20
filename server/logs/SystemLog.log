@@ -3467,3 +3467,197 @@
     at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
     at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
     at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-11-20T09:38 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-11-20T11:32 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T11:32 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T11:39 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T11:40 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at runNextTicks (node:internal/process/task_queues:65:3)
+    at processImmediate (node:internal/timers:437:9)
+2024-11-20T11:40 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T11:40 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T11:40 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T11:40 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:24 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:24 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:24 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:24 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:25 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:25 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:25 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:25 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:28 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-11-20T12:28 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:666:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
