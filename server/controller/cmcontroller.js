@@ -209,55 +209,80 @@ router.get(
   })
 );
 
-const quarterlyDataAdd = (
-  plannedDateAndTimeOfCM,
-  frequencyValue,
-  firstQuarterPlanned
-) => {
-  const findPlannedQuarterAndAssignValue = [],
-    QUARTER = ["Q1", "Q2", "Q3", "Q4"];
+const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue) => {
+  const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
+  const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM); // Get the starting quarter
+  const plannedQuarterIndex = QUARTERS.indexOf(plannedQuarter);
+  const plannedData = [];
 
-  let flagForOnePerSixMonthQuarter = 0;
+  const totalYears = 5; // Generate data for 4 years
+  const currentYear = moment(new Date()).tz(timezone).year();
+  const currentQuarterIndex = Math.floor(moment(new Date()).month() / 3);
 
-  const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM);
+  for (let year = currentYear; year < currentYear + totalYears; year++) {
+    const yearlyDataObject = {
+      plannedDateAndTimeOfCM: plannedDateAndTimeOfCM.replace(currentYear, year),
+      preAggregationTimeStampOfRequestSheet: {
+        requestSheet_year: `${year}-${year + 1}`,
+        requestSheet_month: gettingMonthForSelectedDate(plannedDateAndTimeOfCM),
+      },
+      quarterlyDataOfTheCM: [],
+    };
 
-  for (let index = 0; index < QUARTER.length; index++) {
+    for (let i = 0; i < QUARTERS.length; i++) {
+      const quarter = QUARTERS[i];
+      let isPlanned = false;
 
-    if (frequencyValue === "1/6 M") {
+      if (frequencyValue === "1/Y") {
+        // Plan only the starting quarter each year
+        isPlanned = i === plannedQuarterIndex;
+      } else if (frequencyValue === "1/2 Y") {
+        // Plan the starting quarter every two years
+        const currentQuarter = (year - currentYear) * 4 + i;
+        isPlanned = currentQuarter % 8 === plannedQuarterIndex;
+      } else if (frequencyValue === "1/3 Y") {
+        // Plan the starting quarter every three years
+        const currentQuarter = (year - currentYear) * 4 + i;
+        isPlanned = currentQuarter % 12 === plannedQuarterIndex;
+      } else if (frequencyValue === "1/4 Y") {
+        // Plan the starting quarter every four years
+        // Plan the quarter 4 years later (not in between)
+        // Current year plan: should happen in next cycle 4 years later
+        if (year - currentYear >= 4 && (year - currentYear) % 4 === 0) {
+          isPlanned = i === plannedQuarterIndex;
+        }
+      } else if (frequencyValue === "1/6 M") {
+        // Alternate quarters based on the starting quarter
+        const alternatingQuarters = [
+          plannedQuarterIndex,
+          (plannedQuarterIndex + 2) % 4, // Alternate quarters
+        ];
 
-      if(QUARTER?.[index] === plannedQuarter){
-        findPlannedQuarterAndAssignValue.push({
-          requestSheet_quarter: QUARTER?.[index],
-          statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
-        });
-      }else{
-        if(["Q1", "Q2"].includes(QUARTER?.[index])){
-          
+        if (year === currentYear) {
+          // Current year: exclude past quarters
+          isPlanned =
+            alternatingQuarters.includes(i) && i >= currentQuarterIndex;
+        } else {
+          // Future years: alternate as per the pattern
+          isPlanned = alternatingQuarters.includes(i);
         }
       }
 
-        findPlannedQuarterAndAssignValue.push({
-          requestSheet_quarter: firstQuarterPlanned
-            ? QUARTER?.[index]
-            : ["Q1", "Q2"].includes(QUARTER?.[index])
-            ? QUARTER[plannedQuarter.charAt(1) + 2]
-            : QUARTER[plannedQuarter.charAt(1) - 2],
-          statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
-        });
-    }
-    if (QUARTER?.[index] === plannedQuarter) {
-      findPlannedQuarterAndAssignValue.push({
-        requestSheet_quarter: QUARTER?.[index],
-        statusOfPlannedCM: CM_PLANNED_STATUS?.[0],
-      });
-    } else {
-      findPlannedQuarterAndAssignValue.push({
-        requestSheet_quarter: QUARTER?.[index],
+      // Ensure that the starting quarter is planned for the current year
+      if (year === currentYear && i === plannedQuarterIndex) {
+        isPlanned = true;
+      }
+
+      yearlyDataObject?.quarterlyDataOfTheCM?.push({
+        requestSheet_quarter: quarter,
+        statusOfPlannedCM: isPlanned ? "Planned" : "Not Planned",
       });
     }
+
+    plannedData?.push(yearlyDataObject);
   }
 
-  return findPlannedQuarterAndAssignValue;
+  return plannedData;
 };
 
 router.post(
@@ -318,58 +343,15 @@ router.post(
         ...requestSheetDataFilledByMTDUserForCM,
         partSuggestionByMTDTL:
           requestSheetDataFilledByMTDUserForCM?.partSuggestionByMTDTL,
-        commonDataFilledByAssignUser: [
-          {
-            plannedDateAndTimeOfCM:
-              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
-            preAggregationTimeStampOfRequestSheet: {
-              requestSheet_year: gettingFYYear(
-                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-              ),
-              requestSheet_month: gettingMonthForSelectedDate(
-                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-              ),
-            },
-            // sparePartUsedOrNot:
-            //   requestSheetDataFilledByMTDUserForCM?.changedParts?.length > 0
-            //     ? "Yes"
-            //     : "No",
-            quarterlyDataOfTheCM: quarterlyDataAdd(
-              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
-              cmBasicDataFilledByMTD_TL?.frequencyValue,
-              true
-            ),
-          },
-        ],
       });
 
       const result = await requestSheetOfCM.save();
 
-      const addOtherYearFreqUptoNextFourYear = [];
-
-      for (
-        let index = moment(new Date()).tz(timezone).year() + 1;
-        index <= moment(new Date()).tz(timezone).year() + 4;
-        index++
-      ) {
-        addOtherYearFreqUptoNextFourYear.push({
-          plannedDateAndTimeOfCM:
-            (requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM).replace(
-              moment(new Date()).tz(timezone).year(),
-              index
-            ),
-          preAggregationTimeStampOfRequestSheet: {
-            requestSheet_year: `${index}-${index + 1}`,
-            requestSheet_month: gettingMonthForSelectedDate(
-              requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
-            ),
-          },
-          quarterlyDataOfTheCM: quarterlyDataAdd(
-            requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
-            cmBasicDataFilledByMTD_TL?.frequencyValue
-          ),
-        });
-      }
+      const quarterlyData = quarterlyDataAdd(
+        requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
+        requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+          ?.frequencyValue
+      );
 
       const updateCommonDataFilledByAssignUser =
         await RequestSheetOfCM.findOneAndUpdate(
@@ -379,7 +361,7 @@ router.post(
           {
             $push: {
               commonDataFilledByAssignUser: {
-                $each: addOtherYearFreqUptoNextFourYear,
+                $each: quarterlyData,
               },
             },
           },
@@ -2318,22 +2300,31 @@ router.get(
   middlewareForSectionAndSubSectionLookup,
   tryCatchHandler(async (req, res, next) => {
     const paginationCount = req?.query?.paginationCount * 1;
-    const yearList = Array.from(
-      { length: 5 },
-      (_, i) =>
-        moment().subtract(paginationCount, "years").tz(timezone).year() + i
-    );
-
+    const startYearOfLTPM = moment()
+      .subtract(paginationCount, "years")
+      .tz(timezone)
+      .year();
+    const yearList = Array.from({ length: 5 }, (_, i) => startYearOfLTPM + i);
     const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
-    const quarterList = Array(5).fill(QUARTER).flat();
 
+    req.queryObj = {
+      ...req?.queryObj,
+      commonDataFilledByAssignUser: {
+        $elemMatch: {
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            `${startYearOfLTPM}-${startYearOfLTPM + 1}`,
+        },
+      },
+    };
+
+    const quarterList = Array(5).fill(QUARTER).flat();
     const data = await RequestSheetOfCM.aggregate([
       {
         $match: {
           "cmBasicDataFilledByMTD_TL.categories": "LTPM",
           // lineRef: mongoose.Types.ObjectId(req?.query?.lineRef),
-          // ...req?.queryObj,
+          ...req?.queryObj,
         },
       },
       {

@@ -477,42 +477,12 @@ const ActivityStatusDashboardOfCM = () => {
       </Container>
 
       {CmReqSheetView && (
-        <>
-          <Modal
-            show={CmReqSheetView}
-            fullscreen
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-          >
-            <Modal.Header>
-              <Modal.Title id="contained-modal-title-vcenter">
-                CM Request-Sheet
-              </Modal.Title>
-              <Button
-                variant="secondary"
-                onClick={() => setCmReqSheetView(false)}
-                sx={{
-                  backgroundColor: "#B02A37",
-                  color: "#F2F2F2",
-                  "&:hover": {
-                    backgroundColor: "#B02A37",
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                Close
-              </Button>
-            </Modal.Header>
-            <Modal.Body>
-              <div>
-                <ExistingMachineReqSheetWithData
-                  cmSelectedSheetForView={cmSelectedSheetForView}
-                  isEditable={isEditable}
-                />
-              </div>
-            </Modal.Body>
-          </Modal>
-        </>
+        <ExistingMachineReqSheetWithData
+          cmSelectedSheetForView={cmSelectedSheetForView}
+          isEditable={isEditable}
+          setCmReqSheetView={setCmReqSheetView}
+          CmReqSheetView={CmReqSheetView}
+        />
       )}
     </>
   );

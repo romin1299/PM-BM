@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
 import Loading from "../../../../components/Loading/Loading";
+import ExistingMachineReqSheetWithData from "../ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 // import PaginationForLTPM from "../../../../components/Pagination/PaginationForLTPM";
 // import currentYear from "../../../../pages/Dashboard/DashboardComponent/currentYear";
 
@@ -33,6 +34,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   };
 
   const [LTPMData, setLTPMData] = useState(initialState);
+  const [CmReqSheetView, setCmReqSheetView] = useState(false);
 
   // const [loading, setLoading] = useState(true);
 
@@ -86,14 +88,15 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     reduceState.selectedMonth,
   ]);
 
+  const openModalOfRequestSheetOfCm = () => {
+    console.log("calleeee");
+    setCmReqSheetView((CmReqSheetView) => !CmReqSheetView);
+  };
+
   return (
     <>
       <div>
-        {LTPMData?.loading ? (
-          <Loading />
-        ) : LTPMData?.data?.length <= 0 ? (
-          <DataNotFound />
-        ) : (
+        {
           <>
             <div>
               <Container fluid>
@@ -279,60 +282,78 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {LTPMData?.data?.map((item, index) => (
-                          <React.Fragment key={index}>
-                            <tr className="ar-table-row">
-                              <td
-                                className="ar-table-col"
-                                rowSpan={item?.data?.length + 1}
-                              >
-                                {++index}
-                              </td>
-                              <td
-                                rowSpan={item?.data?.length + 1}
-                                className="ar-table-col"
-                              >
-                                {item?.machines.machine_code}
-                              </td>
-                              <td
-                                rowSpan={item?.data?.length + 1}
-                                className="ar-table-col"
-                              >
-                                {item?.machines.machine_name}
-                              </td>
-                            </tr>
-
-                            {item?.data?.map((item1, index) => (
-                              <tr key={index}>
-                                <td className="ar-table-col">
-                                  {item1?.inspectionItem}aaa
+                        {LTPMData?.loading ? (
+                          <Loading />
+                        ) : LTPMData?.data?.length <= 0 ? (
+                          <DataNotFound />
+                        ) : (
+                          LTPMData?.data?.map((item, index) => (
+                            <React.Fragment key={index}>
+                              <tr className="ar-table-row">
+                                <td
+                                  className="ar-table-col"
+                                  rowSpan={item?.data?.length + 1}
+                                >
+                                  {++index}
                                 </td>
-                                <td className="ar-table-col">
-                                  {item1?.actionForLTPM}
+                                <td
+                                  rowSpan={item?.data?.length + 1}
+                                  className="ar-table-col"
+                                >
+                                  {item?.machines.machine_code}
                                 </td>
-                                <td className="ar-table-col">
-                                  {item1?.frequencyValue}
+                                <td
+                                  rowSpan={item?.data?.length + 1}
+                                  className="ar-table-col"
+                                >
+                                  {item?.machines.machine_name}
                                 </td>
-                                <td className="ar-table-col">
-                                  {item1?.personForLTPM}
-                                </td>
-                                <td className="ar-table-thead-header3"></td>
-
-                                {item1?.commonDataFilledByAssignUser?.map(
-                                  (item2) =>
-                                    item2?.quarterlyDataOfTheCM?.map(
-                                      (item3) => (
-                                        <td className="ar-table-col">
-                                          {item3?.statusOfPlannedCM ===
-                                            "Planned" && <>--&gt;</>}
-                                        </td>
-                                      )
-                                    )
-                                )}
                               </tr>
-                            ))}
-                          </React.Fragment>
-                        ))}
+
+                              {item?.data?.map((item1, index) => (
+                                <tr key={index}>
+                                  <td className="ar-table-col">
+                                    {item1?.inspectionItem}
+                                  </td>
+                                  <td className="ar-table-col">
+                                    {item1?.actionForLTPM}
+                                  </td>
+                                  <td className="ar-table-col">
+                                    {item1?.frequencyValue}
+                                  </td>
+                                  <td className="ar-table-col">
+                                    {item1?.personForLTPM}
+                                  </td>
+                                  <td className="ar-table-thead-header3"></td>
+
+                                  {item1?.commonDataFilledByAssignUser?.map(
+                                    (item2) =>
+                                      item2?.quarterlyDataOfTheCM?.map(
+                                        (item3) => (
+                                          <td className="ar-table-col">
+                                            {item3?.statusOfPlannedCM ===
+                                              "Planned" && (
+                                              <>
+                                                <button
+                                                  type="button"
+                                                  className="commonBtn viewRequestSheetOfCMBtn"
+                                                  onClick={
+                                                    openModalOfRequestSheetOfCm
+                                                  }
+                                                >
+                                                  --&gt;
+                                                </button>
+                                              </>
+                                            )}
+                                          </td>
+                                        )
+                                      )
+                                  )}
+                                </tr>
+                              ))}
+                            </React.Fragment>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </Col>
@@ -340,8 +361,16 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
               </Container>
             </div>
           </>
-        )}
+        }
       </div>
+      {CmReqSheetView && (
+        <ExistingMachineReqSheetWithData
+          // cmSelectedSheetForView={cmSelectedSheetForView}
+          isEditable={false}
+          setCmReqSheetView={setCmReqSheetView}
+          CmReqSheetView={CmReqSheetView}
+        />
+      )}
     </>
   );
 };

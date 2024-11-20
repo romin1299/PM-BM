@@ -1216,7 +1216,7 @@ const CheckSheet = ({
                                         <>
                                           {" "}
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(

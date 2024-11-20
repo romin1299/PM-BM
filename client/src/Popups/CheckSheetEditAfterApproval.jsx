@@ -784,7 +784,7 @@ const CheckSheetEditAfterApproval = ({
                                               .month(colData.key)
                                               .format("M") > 3 && (
                                               <button
-                                                className="pmImplementationBtn"
+                                                className="commonBtn pmImplementationBtn"
                                                 id={rData[0].value}
                                                 onClick={() => {
                                                   setWorkOnImplementationPM(
@@ -823,7 +823,7 @@ const CheckSheetEditAfterApproval = ({
                                             rData[10]?.["key"] !==
                                               "isDeleted" && (
                                               <button
-                                                className="pmImplementationBtn"
+                                                className="commonBtn pmImplementationBtn"
                                                 id={rData[0].value}
                                                 onClick={() => {
                                                   setWorkOnImplementationPM(
@@ -863,7 +863,7 @@ const CheckSheetEditAfterApproval = ({
                                         <p style={{ fontWeight: "900" }}>--></p>
                                         {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
@@ -922,7 +922,7 @@ const CheckSheetEditAfterApproval = ({
                                             .month(colData.key)
                                             .format("M") > 3 && (
                                             <button
-                                              className="pmImplementationBtn"
+                                              className="commonBtn pmImplementationBtn"
                                               id={rData[0].value}
                                               onClick={() => {
                                                 setWorkOnImplementationPM(
@@ -971,7 +971,7 @@ const CheckSheetEditAfterApproval = ({
                                         )}
                                         {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
@@ -1036,7 +1036,7 @@ const CheckSheetEditAfterApproval = ({
                                         </p>
                                         {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
@@ -1101,7 +1101,7 @@ const CheckSheetEditAfterApproval = ({
                                         )}
                                         {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
