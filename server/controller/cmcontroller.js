@@ -508,10 +508,10 @@ router.patch(
       }
 
       let commonApprovalStatusObj = {
-        approvalStatus: "Pending",
+        approvalStatus: "Pending",  
         approvalDateAndTime: "",
       };
-      console.log(requestSheetDataFilledByMTDUserForCM)
+      // console.log("approval: ",requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM)
       let updateObj = {
         $push: {
           approvalOfMTD_HOS: {
@@ -543,7 +543,7 @@ router.patch(
           "getDataForApprovalDashboard.Id":
             requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
           "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
-          approvalDateAndTimeOfMTD_TL: new Date(),
+          approvalDateAndTimeOfMTD_TL: new Date(),  
         };
       }
 
@@ -564,29 +564,29 @@ router.patch(
           requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
       };
       console.log(updateObj)
-      console.log(requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM);
-      const updateAssignApprovalOfMTD_TL =
-        await RequestSheetOfCM.findOneAndUpdate(
-          {
-            _id: mongoose.Types.ObjectId(req.params?.reqId),
-          },
-          // {
-          //   $set: {
-          //     ...requestSheetDataFilledByMTDUserForCM,
-          //     ...conditionalStatusChangesForReqSheet,
-          //     ...approvalObj,
-          //   },
-          //   $push: pushObj,
-          // },
-          updateObj,
-          { new: true }
-        );
-      if (updateAssignApprovalOfMTD_TL) {
-        return res.status(201).json({
-          message: `Request-sheet approval send !!`,
-          updateAssignApprovalOfMTD_TL,
-        });
-      }
+      // console.log(requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM);
+      // const updateAssignApprovalOfMTD_TL =
+      //   await RequestSheetOfCM.findOneAndUpdate(
+      //     {
+      //       _id: mongoose.Types.ObjectId(req.params?.reqId),
+      //     },
+      //     // {
+      //     //   $set: {
+      //     //     ...requestSheetDataFilledByMTDUserForCM,
+      //     //     ...conditionalStatusChangesForReqSheet,
+      //     //     ...approvalObj,
+      //     //   },
+      //     //   $push: pushObj,
+      //     // },
+      //     updateObj,
+      //     { new: true }
+      //   );
+      // if (updateAssignApprovalOfMTD_TL) {
+      //   return res.status(201).json({
+      //     message: `Request-sheet approval send !!`,
+      //     updateAssignApprovalOfMTD_TL,
+      //   });
+      // }
     } catch (error) {
       console.log(error);
     }
@@ -725,11 +725,11 @@ const getRequestSheetData = async (req, res, next) => {
           from: "machinesalldatas",
           localField: "machineRef",
           foreignField: "_id",
-          as: "machines",
+          as: "machines", 
         },
       },
       {
-        $lookup: {
+        $lookup: {  
           from: "lines",
           localField: "lineRef",
           foreignField: "_id",
