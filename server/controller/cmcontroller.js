@@ -344,10 +344,6 @@ router.post(
         partSuggestionByMTDTL:
           requestSheetDataFilledByMTDUserForCM?.partSuggestionByMTDTL,
       });
-      console.log(
-        requestSheetOfCM?.commonDataFilledByAssignUser?.[0]
-          ?.quarterlyDataOfTheCM
-      );
 
       const result = await requestSheetOfCM.save();
 
@@ -1933,7 +1929,7 @@ router.get(
       //   },
       // ]);
       res.status(200).json({
-        requestSheet: req.requestSheetData,
+        requestSheet: req?.requestSheetData?.[0],
         message: "Request sheet fetched successfully",
       });
     } catch (error) {
@@ -2345,6 +2341,7 @@ router.get(
             lineRef: "$lineRef",
             sectionRef: "$sectionRef",
             subSectionRef: "$subSectionRef",
+            _id: "$_id",
           },
           data: {
             $push: {

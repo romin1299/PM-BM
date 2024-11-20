@@ -22,11 +22,14 @@ import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOp
 import { SuccessToast } from "../../../../BM/Component/ShowTostify";
 
 const ExistingMachineReqSheetWithData = ({
-  cmSelectedSheetForView,
+  selectedRowRequestSheetId,
   setCmReqSheetView,
   isEditable = false,
   CmReqSheetView,
 }) => {
+
+  const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
+
   const navigate = useNavigate();
   const {
     register,
@@ -70,6 +73,7 @@ const ExistingMachineReqSheetWithData = ({
   const [customCategory, setCustomCategory] = useState("");
   const [parts, setParts] = useState([]);
   const { machine_code, selectedYear } = useParams();
+
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
@@ -94,7 +98,19 @@ const ExistingMachineReqSheetWithData = ({
     }
   };
 
+  const getModalOpenForReqSheet = async (event) => {
+    try {
+      const response = await axios.get(`/getReqSheetDataByID/?_id=${selectedRowRequestSheetId}`);
+      if (response.status === 200) {
+        setCmSelectedSheetForView(response.data.requestSheet);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
+    getModalOpenForReqSheet();
     getMachineDetails();
     setParts(cmSelectedSheetForView?.changedParts);
   }, []);
