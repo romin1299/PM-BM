@@ -478,15 +478,30 @@ router.patch(
       }
 
       let commonApprovalStatusObj = {
-        approvalStatus: "Pending",  
+        approvalStatus: "Pending",
         approvalDateAndTime: "",
       };
       // console.log("approval: ",requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM)
+
+      let allKeys = {
+        requestSheetStatusOfCM: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].requestSheetStatusOfCM`,
+        getDataForApprovalDashboard: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].getDataForApprovalDashboard`,
+
+        approvalOfMTD_HOS: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].approvalOfMTD_HOS`,
+        approvalOfMTD_TL: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].approvalOfMTD_TL`,
+        approvalOfPRD_TL: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].approvalOfPRD_TL`,
+
+        workDetails: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].workDetails`,
+        changedParts: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].changedParts`,
+        actionAndCounterMeasureStep: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].actionAndCounterMeasureStep`,
+      };
+
       let updateObj = {
         $push: {
-          approvalOfMTD_HOS: {
+          [allKeys?.approvalOfMTD_HOS]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS,
             ...commonApprovalStatusObj,
+            approvalDateAndTime: new Date(),
           },
         },
       };
@@ -494,69 +509,72 @@ router.patch(
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
-          approvalOfMTD_TL: {
+          [allKeys?.approvalOfMTD_TL]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL,
             ...commonApprovalStatusObj,
           },
         };
         updateObj.$set = {
-          ...updateObj.$set,
-          requestSheetStatusOfCM: "Under MTD TL/HOSS Approval",
-          "getDataForApprovalDashboard.Id":
-            requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
-          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD TL/HOSS",
+          [allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
+          [allKeys?.getDataForApprovalDashboard]: {
+            Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
+            departmentAndGradeOfUser: "MTD TL/HOSS",
+          },
         };
       } else {
         updateObj.$set = {
-          ...updateObj.$set,
-          requestSheetStatusOfCM: "Under MTD HOS Approval",
-          "getDataForApprovalDashboard.Id":
-            requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
-          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
-          approvalDateAndTimeOfMTD_TL: new Date(),  
+          [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
+          [allKeys?.getDataForApprovalDashboard]: {
+            Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
+            departmentAndGradeOfUser: "MTD HOS",
+          },
+
+          // requestSheetStatusOfCM: "Under MTD HOS Approval",
+          // "getDataForApprovalDashboard.Id":
+          //   requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
+          // "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
+          // approvalDateAndTimeOfMTD_TL: new Date(),
         };
       }
 
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
-          approvalOfPRD_TL: {
+          [allKeys?.approvalOfPRD_TL]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL,
             ...commonApprovalStatusObj,
           },
         };
       }
-      updateObj = {
-        ...updateObj,
-        workDetails: requestSheetDataFilledByMTDUserForCM?.workDetails,
-        changedParts: requestSheetDataFilledByMTDUserForCM?.changedParts,
-        actionAndCounterMeasureStep:
+      updateObj.$set = {
+        ...updateObj.$set,
+        [allKeys?.workDetails]:
+          requestSheetDataFilledByMTDUserForCM?.workDetails,
+        [allKeys?.changedParts]:
+          requestSheetDataFilledByMTDUserForCM?.changedParts,
+        [allKeys?.actionAndCounterMeasureStep]:
           requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
       };
-      console.log(updateObj)
-      // console.log(requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM);
-      // const updateAssignApprovalOfMTD_TL =
-      //   await RequestSheetOfCM.findOneAndUpdate(
-      //     {
-      //       _id: mongoose.Types.ObjectId(req.params?.reqId),
-      //     },
-      //     // {
-      //     //   $set: {
-      //     //     ...requestSheetDataFilledByMTDUserForCM,
-      //     //     ...conditionalStatusChangesForReqSheet,
-      //     //     ...approvalObj,
-      //     //   },
-      //     //   $push: pushObj,
-      //     // },
-      //     updateObj,
-      //     { new: true }
-      //   );
-      // if (updateAssignApprovalOfMTD_TL) {
-      //   return res.status(201).json({
-      //     message: `Request-sheet approval send !!`,
-      //     updateAssignApprovalOfMTD_TL,
-      //   });
-      // }
+      const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
+        {
+          _id: mongoose.Types.ObjectId(req.params?.reqId),
+        },
+        updateObj,
+        {
+          arrayFilters: [
+            {
+              "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                currentYear,
+            },
+            { "quarterFilter.requestSheet_quarter": getFinancialQuarter() },
+          ],
+        },
+        { new: true }
+      );
+      return res.status(201).json({
+        message: `Request-sheet approval send !!`,
+        requestSheetOfCM,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -695,11 +713,11 @@ const getRequestSheetData = async (req, res, next) => {
           from: "machinesalldatas",
           localField: "machineRef",
           foreignField: "_id",
-          as: "machines", 
+          as: "machines",
         },
       },
       {
-        $lookup: {  
+        $lookup: {
           from: "lines",
           localField: "lineRef",
           foreignField: "_id",
@@ -1333,24 +1351,6 @@ router.get(
             as: "machines",
           },
         },
-        // {
-        //   $lookup: {
-        //     from: "users",
-        //     localField: "assignUserForCM",
-        //     foreignField: "_id",
-        //     pipeline: [
-        //       {
-        //         $project: {
-        //           user_type: 1,
-        //           tm_no: 1,
-        //           tm_name: 1,
-        //           email: 1,
-        //         },
-        //       },
-        //     ],
-        //     as: "assigned_users",
-        //   },
-        // },
         {
           $lookup: {
             from: "cells",
@@ -1411,45 +1411,6 @@ router.get(
             as: "subSections",
           },
         },
-        // {
-        //   $lookup: {
-        //     from: "users",
-        //     localField: "assignUserForCM",
-        //     foreignField: "_id",
-        //     pipeline: [
-        //       {
-        //         $project: {
-        //           user_type: 1,
-        //           tm_no: 1,
-        //           tm_name: 1,
-        //           email: 1,
-        //         },
-        //       },
-        //     ],
-        //     as: "namesOperators",
-        //   },
-        // },
-        // {
-        //   $unwind: {
-        //     path: "$workDetails",
-        //   },
-        // },
-        // {
-        //   $lookup: {
-        //     from: "users",
-        //     localField: "workDetails.tmName",
-        //     foreignField: "_id",
-        //     pipeline: [
-        //       {
-        //         $project: {
-        //           tm_no: 1,
-        //           tm_name: 1,
-        //         },
-        //       },
-        //     ],
-        //     as: "workDoneBy",
-        //   },
-        // },
 
         {
           $project: {
@@ -1490,83 +1451,7 @@ router.get(
             rejectedRemarksOfRequestSheet: 1,
             feedbackMTD_HOS: 1,
             qualityConfirmed: 1,
-
-            // approvalOfMTD_TL: {
-            //   $arrayElemAt: ["$approvalOfMTD_TL", -1],
-            // },
-            // approvalStatusOfMTD_TL: {
-            //   $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
-            // },
-            // approvalDateAndTimeOfMTD_TL: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
-            // },
-
-            // approvalOfMTD_HOSS: {
-            //   $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
-            // },
-            // approvalStatusOfMTD_HOSS: {
-            //   $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
-            // },
-            // approvalDateAndTimeOfMTD_HOSS: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
-            // },
-
-            // approvalOfMTD_HOS: {
-            //   $arrayElemAt: ["$approvalOfMTD_HOS", -1],
-            // },
-            // approvalStatusOfMTD_HOS: {
-            //   $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-            // },
-            // approvalDateAndTimeOfMTD_HOS: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-            // },
-
-            // approvalOfPRD_TL: {
-            //   $arrayElemAt: ["$approvalOfPRD_TL", -1],
-            // },
-            // approvalStatusOfPRD_TL: {
-            //   $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
-            // },
-            // approvalDateAndTimeOfPRD_TL: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
-            // },
-
-            // approvalOfPRD_HOS: {
-            //   $arrayElemAt: ["$approvalOfPRD_HOS", -1],
-            // },
-            // approvalStatusOfPRD_HOS: {
-            //   $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
-            // },
-            // approvalDateAndTimeOfPRD_HOS: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
-            // },
-
-            // approvalOfPRD_HOD: {
-            //   $arrayElemAt: ["$approvalOfPRD_HOD", -1],
-            // },
-            // approvalStatusOfPRD_HOD: {
-            //   $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-            // },
-            // approvalDateAndTimeOfPRD_HOD: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-            // },
-
-            // approvalOfMTD_HOD: {
-            //   $arrayElemAt: ["$approvalOfMTD_HOD", -1],
-            // },
-            // approvalStatusOfMTD_HOD: {
-            //   $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
-            // },
-            // approvalDateAndTimeOfMTD_HOD: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
-            // },
-
-            // partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
-            // partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
-
-            // dataSheetOfBM: 1,
-            // drawingOfBM: 1,
-            // sparePartUsedOrNot: 1,
+      
             changedParts: 1,
             workDetails: 1,
             actionAndCounterMeasureStep: 1,
@@ -1592,12 +1477,6 @@ router.get(
             yokotenkai: 1,
           },
         },
-        // {
-        //   $group: {
-        //     _id: "$_id",
-        //     workDetails: { $push: "$workDetails" },
-        //   },
-        // },
         {
           $sort: {
             _id: -1,
@@ -2313,13 +2192,13 @@ router.get(
     const yearList = Array.from({ length: 5 }, (_, i) => startYearOfLTPM + i);
     const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
-
     req.queryObj = {
       ...req?.queryObj,
       commonDataFilledByAssignUser: {
         $elemMatch: {
-          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-            `${startYearOfLTPM}-${startYearOfLTPM + 1}`,
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year": `${startYearOfLTPM}-${
+            startYearOfLTPM + 1
+          }`,
         },
       },
     };

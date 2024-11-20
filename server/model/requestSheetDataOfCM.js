@@ -175,6 +175,11 @@ const requestSheetOfCMSchema = new mongoose.Schema({
               type: String,
             },
           },
+
+          requestSheetStatusOfCM: {
+            type: String,
+            default: "Generated",
+          },
         },
       ],
     },
@@ -206,11 +211,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   plantRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Plants",
-  },
-
-  requestSheetStatusOfCM: {
-    type: String,
-    default: "Generated",
   },
 });
 

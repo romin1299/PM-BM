@@ -385,34 +385,18 @@ const ExistinngMachineReqSheetForOperator = ({
           requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
-      console.log("Other fields", otherFields);
-      const yearIndex = getYearAndMonthIdx(requestSheetDataOfCM).yearIndex;
-      const quarterIndex =
-        getYearAndMonthIdx(requestSheetDataOfCM).quarterIndex;
 
       if (requestSheetDataOfCM?.mtdHOS) {
-        // otherFields.commonDataFilledByAssignUser[
-        //   yearIndex
-        // ].quarterlyDataOfTheCM[quarterIndex]["approvalOfMTD_HOS"] =
-        //   MTDHOSList?.[requestSheetDataOfCM.mtdHOS];
         otherFields["approvalOfMTD_HOS"] =
           MTDHOSList?.[requestSheetDataOfCM?.mtdHOS];
       }
 
       if (requestSheetDataOfCM?.mtdTL) {
-        // otherFields.commonDataFilledByAssignUser[
-        //   yearIndex
-        // ].quarterlyDataOfTheCM[quarterIndex]["approvalOfMTD_TL"] =
-        //   MTDTLList?.[requestSheetDataOfCM.mtdTL];
         otherFields["approvalOfMTD_TL"] =
-        MTDTLList?.[requestSheetDataOfCM.mtdTL];
+          MTDTLList?.[requestSheetDataOfCM.mtdTL];
       }
 
       if (requestSheetDataOfCM?.prdTL) {
-        // otherFields.commonDataFilledByAssignUser[
-        //   yearIndex
-        // ].quarterlyDataOfTheCM[quarterIndex]["approvalOfPRD_TL"] =
-        //   PRDTLList?.[requestSheetDataOfCM.prdTL];
         otherFields["approvalOfPRD_TL"] =
           PRDTLList?.[requestSheetDataOfCM?.prdTL];
       }
