@@ -133,7 +133,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
           statusOfPlannedCM: { type: String },
 
           assignUserForCM: [userObj],
-          supportingTM: [userObj],
           approvalOfMTD_TL: [
             {
               ...userObj,

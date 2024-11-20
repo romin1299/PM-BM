@@ -209,7 +209,7 @@ router.get(
   })
 );
 
-const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue) => {
+const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue, assignUserForCM) => {
   const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
   const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM); // Get the starting quarter
   const plannedQuarterIndex = QUARTERS.indexOf(plannedQuarter);
@@ -276,6 +276,7 @@ const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue) => {
       yearlyDataObject?.quarterlyDataOfTheCM?.push({
         requestSheet_quarter: quarter,
         statusOfPlannedCM: isPlanned ? "Planned" : "Not Planned",
+        assignUserForCM
       });
     }
 
@@ -350,7 +351,8 @@ router.post(
       const quarterlyData = quarterlyDataAdd(
         requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
         requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-          ?.frequencyValue
+          ?.frequencyValue,
+        requestSheetDataFilledByMTDUserForCM?.assignUserForCM
       );
 
       const updateCommonDataFilledByAssignUser =
