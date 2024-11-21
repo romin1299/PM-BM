@@ -175,6 +175,10 @@ const requestSheetOfCMSchema = new mongoose.Schema({
             },
           },
 
+          attachedFileByAssignedUser: {
+            type: String,
+          },
+
           requestSheetStatusOfCM: {
             type: String,
             default: "Generated",

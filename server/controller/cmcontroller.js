@@ -209,7 +209,11 @@ router.get(
   })
 );
 
-const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue, assignUserForCM) => {
+const quarterlyDataAdd = (
+  plannedDateAndTimeOfCM,
+  frequencyValue,
+  assignUserForCM
+) => {
   const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
   const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM); // Get the starting quarter
   const plannedQuarterIndex = QUARTERS.indexOf(plannedQuarter);
@@ -276,7 +280,7 @@ const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue, assignUserForC
       yearlyDataObject?.quarterlyDataOfTheCM?.push({
         requestSheet_quarter: quarter,
         statusOfPlannedCM: isPlanned ? "Planned" : "Not Planned",
-        assignUserForCM
+        assignUserForCM,
       });
     }
 
@@ -464,35 +468,31 @@ router.patch(
   ]),
   async (req, res, next) => {
     try {
-      const requestSheetDataFilledByMTDUserForCM = JSON.parse(
-        req.body.otherData
-      );
-      if (
-        req.files?.attachedFileByAssignedUser?.[0]?.filename ||
-        req.files?.attachedFileByAssignedUser
-      ) {
-        requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
-          req.files?.attachedFileByAssignedUser?.[0]?.filename;
-      }
-
       let commonApprovalStatusObj = {
         approvalStatus: "Pending",
         approvalDateAndTime: "",
       };
-      // console.log("approval: ",requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM)
+
+      let commonKey =
+        "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter]";
 
       let allKeys = {
-        requestSheetStatusOfCM: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].requestSheetStatusOfCM`,
-        getDataForApprovalDashboard: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].getDataForApprovalDashboard`,
+        attachedFileByAssignedUser: `${commonKey}.attachedFileByAssignedUser`,
+        requestSheetStatusOfCM: `${commonKey}.requestSheetStatusOfCM`,
+        getDataForApprovalDashboard: `${commonKey}.getDataForApprovalDashboard`,
 
-        approvalOfMTD_HOS: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].approvalOfMTD_HOS`,
-        approvalOfMTD_TL: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].approvalOfMTD_TL`,
-        approvalOfPRD_TL: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].approvalOfPRD_TL`,
+        approvalOfMTD_HOS: `${commonKey}.approvalOfMTD_HOS`,
+        approvalOfMTD_TL: `${commonKey}.approvalOfMTD_TL`,
+        approvalOfPRD_TL: `${commonKey}.approvalOfPRD_TL`,
 
-        workDetails: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].workDetails`,
-        changedParts: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].changedParts`,
-        actionAndCounterMeasureStep: `commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].actionAndCounterMeasureStep`,
+        workDetails: `${commonKey}.workDetails`,
+        changedParts: `${commonKey}.changedParts`,
+        actionAndCounterMeasureStep: `${commonKey}.actionAndCounterMeasureStep`,
       };
+
+      const requestSheetDataFilledByMTDUserForCM = JSON.parse(
+        req.body.otherData
+      );
 
       let updateObj = {
         $push: {
@@ -504,6 +504,19 @@ router.patch(
         },
       };
 
+      if (
+        req.files?.attachedFileByAssignedUser?.[0]?.filename ||
+        req.files?.attachedFileByAssignedUser
+      ) {
+        requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
+          req.files?.attachedFileByAssignedUser?.[0]?.filename;
+
+        updateObj.$set = {
+          [allKeys?.attachedFileByAssignedUser]:
+            req.files?.attachedFileByAssignedUser?.[0]?.filename,
+        };
+      }
+
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
@@ -513,6 +526,7 @@ router.patch(
           },
         };
         updateObj.$set = {
+          ...updateObj.$set,
           [allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
           [allKeys?.getDataForApprovalDashboard]: {
             Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
@@ -521,6 +535,7 @@ router.patch(
         };
       } else {
         updateObj.$set = {
+          ...updateObj.$set,
           [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
           [allKeys?.getDataForApprovalDashboard]: {
             Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
@@ -553,6 +568,7 @@ router.patch(
         [allKeys?.actionAndCounterMeasureStep]:
           requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
       };
+
       const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
         {
           _id: mongoose.Types.ObjectId(req.params?.reqId),
@@ -566,8 +582,8 @@ router.patch(
             },
             { "quarterFilter.requestSheet_quarter": getFinancialQuarter() },
           ],
-        },
-        { new: true }
+          new: true,
+        }
       );
       return res.status(201).json({
         message: `Request-sheet approval send !!`,
@@ -1449,7 +1465,7 @@ router.get(
             rejectedRemarksOfRequestSheet: 1,
             feedbackMTD_HOS: 1,
             qualityConfirmed: 1,
-      
+
             changedParts: 1,
             workDetails: 1,
             actionAndCounterMeasureStep: 1,
