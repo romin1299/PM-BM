@@ -27,7 +27,6 @@ const ExistingMachineReqSheetWithData = ({
   isEditable = false,
   CmReqSheetView,
 }) => {
-
   const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
 
   const navigate = useNavigate();
@@ -100,9 +99,12 @@ const ExistingMachineReqSheetWithData = ({
 
   const getModalOpenForReqSheet = async (event) => {
     try {
-      const response = await axios.get(`/getReqSheetDataByID/?_id=${selectedRowRequestSheetId}`);
+      const response = await axios.get(
+        `/getReqSheetDataByID/?_id=${selectedRowRequestSheetId}`
+      );
       if (response.status === 200) {
-        setCmSelectedSheetForView(response.data.requestSheet);
+        setCmSelectedSheetForView(response?.data?.requestSheet);
+        reset(response?.data?.requestSheet);
       }
     } catch (error) {
       console.log(error);
@@ -1007,16 +1009,18 @@ const ExistingMachineReqSheetWithData = ({
             </Table>
           </form>
 
-          {(context?.user_type === "Operator" ||
-            cmSelectedSheetForView?.assigned_users?.length > 0) &&
-            (cmSelectedSheetForView?.requestSheetStatusOfCM !== "Generated" ||
-              isEditable === true) && (
+          {
+            // context?.user_type === "Operator" ||
+            // cmSelectedSheetForView?.assigned_users?.length > 0) &&
+            // (cmSelectedSheetForView?.requestSheetStatusOfCM !== "Generated" ||
+            //   isEditable === true) && (
+            cmSelectedSheetForView && (
               <ExistinngMachineReqSheetForOperator
                 isEditable={isEditable}
                 cmSelectedSheetForView={cmSelectedSheetForView}
-                setCmReqSheetView={setCmReqSheetView}
               />
-            )}
+            )
+          }
         </div>
       </Modal.Body>
     </Modal>

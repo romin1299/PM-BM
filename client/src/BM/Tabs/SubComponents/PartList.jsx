@@ -19,7 +19,6 @@ const PartList = ({
   clearErrors,
 }) => {
   // console.clear();
-  console.log("parts:", parts);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editedPart, setEditedPart] = useState(null);
@@ -53,7 +52,6 @@ const PartList = ({
 
   const updatePart = (event) => {
     event.preventDefault();
-
     if (
       editedPart.partNo &&
       editedPart.partName &&
@@ -356,7 +354,7 @@ const PartList = ({
           </Col>
         </Row>
       ) : (
-        isEditable && (
+        // isEditable && (
           <Row className="m-0  p-1 border">
             <Col lg={4}>
               <button
@@ -367,7 +365,7 @@ const PartList = ({
               </button>
             </Col>
           </Row>
-        )
+        // )
       )}
 
       {Array.from({ length: 2 - parts?.length }).map((_, index) => (

@@ -14,7 +14,7 @@ const ActionList = ({
   const [newActionStatus, setNewActionStatus] = useState("OK");
   const [isAdding, setIsAdding] = useState(false);
   const [editedAction, setEditedAction] = useState(null);
-  console.log("This is actions",actions)
+  // console.log("This is actions",actions)
 
   const addAction = (event) => {
     event.preventDefault();
@@ -36,7 +36,6 @@ const ActionList = ({
 
   const editAction = (event, actionId, newText) => {
     event.preventDefault();
-
     const updatedActions = actions?.map((action) => {
       if (action.id === actionId) {
         return { ...action, action: newText };

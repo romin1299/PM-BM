@@ -1231,6 +1231,7 @@ const getRequestSheetData = async (req, res, next) => {
           attachedDrawings: 1,
           categoriesOfRequestSheet: 1,
           yokotenkai: 1,
+          commonDataFilledByAssignUser: 1
         },
       },
     ]);

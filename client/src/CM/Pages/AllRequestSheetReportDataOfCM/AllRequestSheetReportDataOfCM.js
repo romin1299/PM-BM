@@ -55,6 +55,8 @@ const AllRequestSheetReportDataOfCM = () => {
     reducer,
     initialState("Yes")
   );
+  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState();
+
   const [loading, setLoading] = useState(false);
   const [CmReqSheetView, setCmReqSheetView] = useState(false);
   const [counters, setCounters] = useState([]);
@@ -128,9 +130,11 @@ const AllRequestSheetReportDataOfCM = () => {
       title: "Planned Date",
       // field: "plannedDateAndTimeOfCM",
       render: (rowData) => {
-        return rowData?.commonDataFilledByAssignUser?.map((item) =>{
-          return `${moment(item?.plannedDateAndTimeOfCM).format("DD-MM-YYYY")}, `
-        })
+        return rowData?.commonDataFilledByAssignUser?.map((item) => {
+          return `${moment(item?.plannedDateAndTimeOfCM).format(
+            "DD-MM-YYYY"
+          )}, `;
+        });
       },
       type: "date",
       editable: false,
@@ -138,7 +142,6 @@ const AllRequestSheetReportDataOfCM = () => {
     {
       title: "Assigned To",
       render: (rowData) => {
-        console.log("This is row", rowData);
         // return rowData?.assigned_users?.length > 0
         //   ? rowData?.assigned_users?.map((user) => user?.tm_name).join(", ")
         //   : "Not Assigned";
@@ -203,18 +206,18 @@ const AllRequestSheetReportDataOfCM = () => {
       tooltip: "Update Req-sheet",
       position: "row",
       // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
-      disabled:
-        (row?.commonDataFilledByAssignUser?.some((user) =>
-          user?.quarterlyDataOfTheCM?.some((quarter) =>
-            quarter?.assignUserForCM?.some((u) => u._id === context?._id)
-          )
-        ) === true &&
-          (row?.requestSheetStatusOfCM === "Generated" ||
-            row?.requestSheetStatusOfCM === "Fill Sheet" ||
-            row?.requestSheetStatusOfCM === "Rejected")) ||
-        (row?.assigned_users?.length === 0 && context?.user_type === "TL/HOSS")
-          ? false
-          : true,
+      // disabled:
+      //   (row?.commonDataFilledByAssignUser?.some((user) =>
+      //     user?.quarterlyDataOfTheCM?.some((quarter) =>
+      //       quarter?.assignUserForCM?.some((u) => u._id === context?._id)
+      //     )
+      //   ) === true &&
+      //     (row?.requestSheetStatusOfCM === "Generated" ||
+      //       row?.requestSheetStatusOfCM === "Fill Sheet" ||
+      //       row?.requestSheetStatusOfCM === "Rejected")) ||
+      //   (row?.assigned_users?.length === 0 && context?.user_type === "TL/HOSS")
+      //     ? false
+      //     : true,
       // disabled:
       //   row?.assignUserId === context?._id &&
       //   (row?.work_order_status === "Pending" ||
@@ -226,6 +229,7 @@ const AllRequestSheetReportDataOfCM = () => {
         setCmReqSheetView(true);
         setIsEditable(true);
         setCmSelectedSheetForView(selectedRow);
+        setSelectedRowRequestSheetId(selectedRow?._id);
       },
     }),
     (row) => ({
@@ -236,7 +240,7 @@ const AllRequestSheetReportDataOfCM = () => {
         // console.log(event, selectedRow);
         setCmReqSheetView(true);
         setIsEditable(false);
-        setCmSelectedSheetForView(selectedRow);
+        setSelectedRowRequestSheetId(selectedRow?._id);
       },
     }),
   ];
@@ -433,7 +437,7 @@ const AllRequestSheetReportDataOfCM = () => {
                   component="div"
                   textAlign="center"
                   // width={120}
-                  fontWeight={500}  
+                  fontWeight={500}
                   // color={"#15005c"}
                   // pt={"4px"}
                   // mb={"2px"}
@@ -521,7 +525,7 @@ const AllRequestSheetReportDataOfCM = () => {
       </Container>
       {CmReqSheetView && (
         <>
-          <Modal
+          {/* <Modal
             show={CmReqSheetView}
             fullscreen
             aria-labelledby="contained-modal-title-vcenter"
@@ -547,18 +551,20 @@ const AllRequestSheetReportDataOfCM = () => {
               </Button>
             </Modal.Header>
             <Modal.Body>
-              {cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
-              cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
-              cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
-              cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
-                <div>
-                  <ExistingMachineReqSheetWithData
-                    cmSelectedSheetForView={cmSelectedSheetForView}
-                    isEditable={isEditable}
-                    setCmReqSheetView={setCmReqSheetView}
-                  />
-                </div>
-              ) : (
+              {
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
+                  <div>
+                    <ExistingMachineReqSheetWithData
+                      selectedRowRequestSheetId={selectedRowRequestSheetId}
+                      isEditable={isEditable}
+                      setCmReqSheetView={setCmReqSheetView}
+                      CmReqSheetView={CmReqSheetView}
+                    />
+                  </div>
+                ) :
                 <div>
                   <MTDExistingMachineReqSheetWithData
                     cmSelectedSheetForView={cmSelectedSheetForView}
@@ -566,9 +572,29 @@ const AllRequestSheetReportDataOfCM = () => {
                     setCmReqSheetView={setCmReqSheetView}
                   />
                 </div>
-              )}
+              }
             </Modal.Body>
-          </Modal>
+          </Modal> */}
+
+          {
+            // cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+            //   cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
+            //   cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
+            //   (cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" && (
+            <div>
+              <ExistingMachineReqSheetWithData
+                selectedRowRequestSheetId={selectedRowRequestSheetId}
+                isEditable={isEditable}
+                setCmReqSheetView={setCmReqSheetView}
+                CmReqSheetView={CmReqSheetView}
+              />
+              <MTDExistingMachineReqSheetWithData
+                // cmSelectedSheetForView={cmSelectedSheetForView}
+                isEditable={isEditable}
+                setCmReqSheetView={setCmReqSheetView}
+              />
+            </div>
+          }
         </>
       )}
     </>

@@ -22,10 +22,10 @@ import {
   WarningToast,
 } from "../../../../BM/Component/ShowTostify";
 import moment from "moment";
+import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
 
 const ExistinngMachineReqSheetForOperator = ({
   cmSelectedSheetForView,
-  setCmReqSheetView,
   isEditable = false,
 }) => {
   const {
@@ -37,24 +37,24 @@ const ExistinngMachineReqSheetForOperator = ({
     reset,
     control,
     clearErrors,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = useForm({
     defaultValues: {
       isPermissionOfMTDTL: cmSelectedSheetForView?.isPermissionOfMTDTL,
     },
   });
-  const showMTDHOSS = watch("options") === "Yes";
+
+  const [allDataOFTableFilledByOperator, setAllDataOFTableFilledByOperator] =
+    useState({
+      parts: [],
+      actions: [],
+      workDetails: [],
+    });
 
   const [MTDHOSList, setMTDHOSList] = useState([]);
   const [MTDTLList, setMTDTLList] = useState([]);
   const [PRDTLList, setPRDTLList] = useState([]);
-  const [parts, setParts] = useState([]);
-  const [commonDataFilledByAssignUser, setCommonDataFilledByAssignUser] =
-    useState([]);
-  const [actions, setActions] = useState([]);
-  const [workDetails, setWorkDetails] = useState([]);
   const context = useContext(RoutingContext);
-  console.log("This is from op", cmSelectedSheetForView);
 
   const getApprovalListOfCM = async () => {
     try {
@@ -82,38 +82,24 @@ const ExistinngMachineReqSheetForOperator = ({
   };
   useEffect(() => {
     getApprovalListOfCM();
-    setCommonDataFilledByAssignUser(
-      cmSelectedSheetForView?.commonDataFilledByAssignUser
-    );
-
-    // setParts(
-    //   cmSelectedSheetForView?.commonDataFilledByAssignUser?.[0]?.changedParts
-    // );
-    // setActions(
-    //   cmSelectedSheetForView?.commonDataFilledByAssignUser?.[0]
-    //     ?.actionAndCounterMeasureStep
-    // );
-    // setWorkDetails(
-    //   cmSelectedSheetForView?.commonDataFilledByAssignUser?.[0]?.workDetails
-    // );
   }, []);
-  useEffect(() => {
-    const currentYear = new Date().getFullYear();
-    const currentQuarter = getFinancialQuarter();
+  // useEffect(() => {
+  //   const currentYear = new Date().getFullYear();
+  //   const currentQuarter = getFinancialQuarter();
 
-    commonDataFilledByAssignUser?.forEach((year) => {
-      const checkYear = new Date(year?.plannedDateAndTimeOfCM).getFullYear();
-      if (checkYear === currentYear) {
-        year.quarterlyDataOfTheCM?.forEach((quarter) => {
-          if (quarter?.requestSheet_quarter === `${currentQuarter}`) {
-            setParts(quarter.changedParts);
-            setActions(quarter.actionAndCounterMeasureStep);
-            setWorkDetails(quarter.workDetails);
-          }
-        });
-      }
-    });
-  }, [commonDataFilledByAssignUser]);
+  //   commonDataFilledByAssignUser?.forEach((year) => {
+  //     const checkYear = new Date(year?.plannedDateAndTimeOfCM).getFullYear();
+  //     if (checkYear === currentYear) {
+  //       year.quarterlyDataOfTheCM?.forEach((quarter) => {
+  //         if (quarter?.requestSheet_quarter === `${currentQuarter}`) {
+  //           setParts(quarter.changedParts);
+  //           setActions(quarter.actionAndCounterMeasureStep);
+  //           setWorkDetails(quarter.workDetails);
+  //         }
+  //       });
+  //     }
+  //   });
+  // }, [commonDataFilledByAssignUser]);
 
   const handleCustomErrors = () => {
     if (watch("mtdHOS") === undefined) {
@@ -176,7 +162,7 @@ const ExistinngMachineReqSheetForOperator = ({
     if (
       cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL
         ?.partSuggestionByMTDTL &&
-      parts.length === 0
+      allDataOFTableFilledByOperator?.parts.length === 0
     ) {
       setError(
         "partList",
@@ -187,7 +173,7 @@ const ExistinngMachineReqSheetForOperator = ({
       );
       flagCountForHandlingError++;
     }
-    if (actions?.length === 0) {
+    if (allDataOFTableFilledByOperator?.actions?.length === 0) {
       setError(
         "actionValidation",
         {
@@ -198,7 +184,7 @@ const ExistinngMachineReqSheetForOperator = ({
       flagCountForHandlingError++;
       // console.log(flagCountForHandlingError);
     }
-    if (workDetails?.length === 0) {
+    if (allDataOFTableFilledByOperator?.workDetails?.length === 0) {
       setError(
         "workDetailsValidation",
         {
@@ -256,14 +242,16 @@ const ExistinngMachineReqSheetForOperator = ({
     if (quarterIndex !== -1) {
       requestSheetDataOfCM.commonDataFilledByAssignUser[
         yearIndex
-      ].quarterlyDataOfTheCM[quarterIndex].changedParts = parts;
+      ].quarterlyDataOfTheCM[quarterIndex].changedParts =
+        allDataOFTableFilledByOperator?.parts;
       requestSheetDataOfCM.commonDataFilledByAssignUser[
         yearIndex
-      ].quarterlyDataOfTheCM[quarterIndex].workDetails = workDetails;
+      ].quarterlyDataOfTheCM[quarterIndex].workDetails =
+        allDataOFTableFilledByOperator?.workDetails;
       requestSheetDataOfCM.commonDataFilledByAssignUser[
         yearIndex
       ].quarterlyDataOfTheCM[quarterIndex].actionAndCounterMeasureStep =
-        actions;
+        allDataOFTableFilledByOperator?.actions;
     }
     // }
     // requestSheetDataOfCM.changedParts = parts;
@@ -306,7 +294,6 @@ const ExistinngMachineReqSheetForOperator = ({
         config
       );
       if (response.status === 200) {
-        setCmReqSheetView(false);
         SuccessToast("Request-sheet updated successfully");
       }
     } catch (error) {
@@ -369,9 +356,11 @@ const ExistinngMachineReqSheetForOperator = ({
     if (checkWhetherAnyErrorOccurredOrNot > 0) {
       return;
     }
-    requestSheetDataOfCM.changedParts = parts;
-    requestSheetDataOfCM.workDetails = workDetails;
-    requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
+    requestSheetDataOfCM.changedParts = allDataOFTableFilledByOperator?.parts;
+    requestSheetDataOfCM.workDetails =
+      allDataOFTableFilledByOperator?.workDetails;
+    requestSheetDataOfCM.actionAndCounterMeasureStep =
+      allDataOFTableFilledByOperator?.actions;
     try {
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
@@ -385,10 +374,6 @@ const ExistinngMachineReqSheetForOperator = ({
           requestSheetDataOfCM?.attachedFileByAssignedUser[i]
         );
       }
-      console.log("Other fields", otherFields);
-      const yearIndex = getYearAndMonthIdx(requestSheetDataOfCM).yearIndex;
-      const quarterIndex =
-        getYearAndMonthIdx(requestSheetDataOfCM).quarterIndex;
 
       if (requestSheetDataOfCM?.mtdHOS) {
         // otherFields.commonDataFilledByAssignUser[
@@ -405,7 +390,7 @@ const ExistinngMachineReqSheetForOperator = ({
         // ].quarterlyDataOfTheCM[quarterIndex]["approvalOfMTD_TL"] =
         //   MTDTLList?.[requestSheetDataOfCM.mtdTL];
         otherFields["approvalOfMTD_TL"] =
-        MTDTLList?.[requestSheetDataOfCM.mtdTL];
+          MTDTLList?.[requestSheetDataOfCM.mtdTL];
       }
 
       if (requestSheetDataOfCM?.prdTL) {
@@ -431,7 +416,6 @@ const ExistinngMachineReqSheetForOperator = ({
       );
       if (response.status === 201) {
         SuccessToast("Approval Send Successfully");
-        setCmReqSheetView(false);
       }
     } catch (error) {
       console.log(error);
@@ -442,132 +426,117 @@ const ExistinngMachineReqSheetForOperator = ({
     <>
       <form onSubmit={handleSubmit(updateReqSheet)}>
         <Row className="m-0 border d-flex align-items-center p-2">
-          <Col lg={6} sm={12}>
-            {commonDataFilledByAssignUser?.map((year) => {
-              const currentYear = new Date().getFullYear();
-              const checkYear = new Date(
-                year?.plannedDateAndTimeOfCM
-              ).getFullYear();
-              if (checkYear === currentYear) {
-                return year.quarterlyDataOfTheCM?.map((quarter) => {
-                  const currentQuarter = getFinancialQuarter();
-                  if (
-                    quarter?.changedParts?.length > 0 ||
-                    quarter?.requestSheet_quarter === `${currentQuarter}`
-                  ) {
-                    // setParts(quarter?.changedParts)
-                    return (
-                      <Row className="">
-                        <PartList
-                          parts={parts}
-                          setParts={setParts}
-                          isEditable={isEditable}
-                          clearErrors={clearErrors}
-                        />
-                        <input
-                          {...register("partList")}
-                          className="visually-hidden"
-                        ></input>
-                        {errors?.["partList"] && (
-                          <p className="text-error">
-                            {errors?.["partList"]?.message}
-                          </p>
-                        )}
-                      </Row>
-                    );
-                  }
-                });
-              }
-            })}
-          </Col>
-          <Col lg={6} sm={12}>
-            {commonDataFilledByAssignUser?.map((year) => {
-              const currentYear = new Date().getFullYear();
-              const checkYear = new Date(
-                year?.plannedDateAndTimeOfCM
-              ).getFullYear();
-              if (checkYear === currentYear) {
-                return year.quarterlyDataOfTheCM?.map((quarter) => {
-                  const currentQuarter = getFinancialQuarter();
-                  if (
-                    quarter?.actionAndCounterMeasureStep?.length > 0 ||
-                    quarter?.requestSheet_quarter === `${currentQuarter}`
-                  ) {
-                    // setParts(quarter?.changedParts)
-                    return (
-                      <Row className="">
-                        <ActionList
-                          actions={actions}
-                          setActions={setActions}
-                          clearErrors={clearErrors}
-                          isEditable={isEditable}
-                        />
-                        <input
-                          {...register("actionValidation")}
-                          className="visually-hidden"
-                        ></input>
-                        {errors?.["actionValidation"] && (
-                          <p className="text-error">
-                            {errors?.["actionValidation"]?.message}
-                          </p>
-                        )}
-                      </Row>
-                    );
-                  }
-                });
-              }
-            })}
-          </Col>
-          <Col sm={12}>
-            {commonDataFilledByAssignUser?.map((year) => {
-              const currentYear = new Date().getFullYear();
-              const checkYear = new Date(
-                year?.plannedDateAndTimeOfCM
-              ).getFullYear();
-              if (checkYear === currentYear) {
-                return year.quarterlyDataOfTheCM?.map((quarter) => {
-                  const currentQuarter = getFinancialQuarter();
-                  if (
-                    quarter?.workDetails?.length > 0 ||
-                    quarter?.requestSheet_quarter === `${currentQuarter}`
-                  ) {
-                    // setParts(quarter?.changedParts)
-                    return (
-                      <Row className="">
-                        <WorkDetails
-                          workDetails={workDetails}
-                          setWorkDetails={setWorkDetails}
-                          clearErrors={clearErrors}
-                          assigned_users={
-                            cmSelectedSheetForView?.assigned_users
-                          }
-                          isEditable={isEditable}
-                        />
-                        <input
-                          {...register("workDetailsValidation", {
-                            // required: "This field is required",
-                          })}
-                          className="visually-hidden"
-                        ></input>
-                        {errors?.["workDetailsValidation"] && (
-                          <p className="text-error">
-                            {errors?.["workDetailsValidation"]?.message}
-                          </p>
-                        )}
-                      </Row>
-                    );
-                  }
-                });
-              }
-            })}
-          </Col>
+          {/* <Col>
+            {cmSelectedSheetForView?.commonDataFilledByAssignUser?.map(
+              (xy, index) => (
+                <p> fsdfsd: {xy?.plannedDateAndTimeOfCM}</p>
+              )
+            )}
+          </Col> */}
+          {cmSelectedSheetForView?.commonDataFilledByAssignUser?.map((year) => {
+            const currentYear = new Date().getFullYear();
+            const checkYear = new Date(
+              year?.plannedDateAndTimeOfCM
+            ).getFullYear();
+            if (checkYear === currentYear) {
+              return year.quarterlyDataOfTheCM?.map((quarter) => {
+                const currentQuarter = getFinancialQuarter();
+                if (
+                  quarter?.changedParts?.length > 0 ||
+                  quarter?.actionAndCounterMeasureStep?.length > 0 ||
+                  quarter?.workDetails?.length > 0 ||
+                  quarter?.requestSheet_quarter === `${currentQuarter}`
+                ) {
+                  // setParts(quarter?.changedParts);
+                  return (
+                    <MiddlewareForTablesOfMTD
+                      partsData={quarter?.changedParts}
+                      actionData={quarter?.actionAndCounterMeasureStep}
+                      workData={quarter?.workDetails}
+                      isEditable={isEditable}
+                      allDataOFTableFilledByOperator={
+                        allDataOFTableFilledByOperator
+                      }
+                      setAllDataOFTableFilledByOperator={
+                        setAllDataOFTableFilledByOperator
+                      }
+                    />
+                    // <>
+                    //   <Col lg={6} sm={12}>
+                    //     <Row className="">
+                    //       <PartList
+                    //         parts={parts}
+                    //         setParts={setParts}
+                    //         isEditable={isEditable}
+                    //         clearErrors={clearErrors}
+                    //       />
+                    //       <input
+                    //         {...register("partList")}
+                    //         className="visually-hidden"
+                    //       ></input>
+                    //       {errors?.["partList"] && (
+                    //         <p className="text-error">
+                    //           {errors?.["partList"]?.message}
+                    //         </p>
+                    //       )}
+                    //     </Row>
+                    //   </Col>
+                    //   <Col lg={6} sm={12}>
+                    //     <Row className="">
+                    //       <ActionList
+                    //         actions={actions}
+                    //         setActions={setActions}
+                    //         clearErrors={clearErrors}
+                    //         isEditable={isEditable}
+                    //       />
+                    //       <input
+                    //         {...register("actionValidation")}
+                    //         className="visually-hidden"
+                    //       ></input>
+                    //       {errors?.["actionValidation"] && (
+                    //         <p className="text-error">
+                    //           {errors?.["actionValidation"]?.message}
+                    //         </p>
+                    //       )}
+                    //     </Row>
+                    //   </Col>
+                    //   <Col lg={6} sm={12}>
+                    //     <Row className="">
+                    //       <WorkDetails
+                    //         workDetails={workDetails}
+                    //         setWorkDetails={setWorkDetails}
+                    //         clearErrors={clearErrors}
+                    //         assigned_users={
+                    //           cmSelectedSheetForView?.assigned_users
+                    //         }
+                    //         isEditable={isEditable}
+                    //       />
+                    //       <input
+                    //         {...register("workDetailsValidation", {
+                    //           // required: "This field is required",
+                    //         })}
+                    //         className="visually-hidden"
+                    //       ></input>
+                    //       {errors?.["workDetailsValidation"] && (
+                    //         <p className="text-error">
+                    //           {errors?.["workDetailsValidation"]?.message}
+                    //         </p>
+                    //       )}
+                    //     </Row>
+                    //   </Col>
+                    // </>
+                  );
+                }
+              });
+            }
+          })}
 
-          <Col lg={5}>
-            <small className="mb-0 pt-1">
-              <b>Dummy 1: </b>
-            </small>
-          </Col>
           <Col lg={7}>
+            <Col lg={5}>
+              <small className="mb-0 pt-1">
+                <b>Dummy 1:</b>
+              </small>
+            </Col>
             <div className="d-block align-items-center">
               {" "}
               <input
@@ -908,47 +877,49 @@ const ExistinngMachineReqSheetForOperator = ({
           </Col> */}
           </Row>
         )}
-        {isEditable &&
+        {/* {isEditable &&
           cmSelectedSheetForView?.commonDataFilledByAssignUser?.some((user) =>
             user.quarterlyDataOfTheCM.some((quarter) =>
               quarter.assignUserForCM.some((u) => u._id === context?._id)
             )
           ) === true &&
-          (cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+          (
+            cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
             cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
-            cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected") && (
-            // <Row className="m-0 border  d-flex align-items-center justify-content-center">
+            cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected") && 
+            ( */}
+        {/* // <Row className="m-0 border  d-flex align-items-center justify-content-center">
             //   <Col lg={12} className="d-flex justify-content-center">
             //     <Button type="submit" variant="contained" color="primary">
             //       Send For Approval
             //     </Button>
             //   </Col>
-            // </Row>
-            <Row className="m-0 border p-2 d-flex justify-content-between">
-              <Col lg={6} md={6} sm={12}>
-                <button
-                  type="submit"
-                  className="btn bg-success"
-                  style={{ marginTop: "1rem" }}
-                  onClick={handleSubmit(updateReqSheet)}
-                >
-                  Save Changes
-                </button>
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <button
-                  type="submit"
-                  className="btn bg-warning"
-                  style={{ marginTop: "1rem" }}
-                  onClick={handleSubmit(onSubmit)}
-                >
-                  Send For Approval
-                </button>
-                {/* <Button type="submit" variant="contained" color="primary">
+            // </Row> */}
+        <Row className="m-0 border p-2 d-flex justify-content-between">
+          <Col lg={6} md={6} sm={12}>
+            <button
+              type="submit"
+              className="btn bg-success"
+              style={{ marginTop: "1rem" }}
+              onClick={handleSubmit(updateReqSheet)}
+            >
+              Save Changes
+            </button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button
+              type="submit"
+              className="btn bg-warning"
+              style={{ marginTop: "1rem" }}
+              onClick={handleSubmit(onSubmit)}
+            >
+              Send For Approval
+            </button>
+            {/* <Button type="submit" variant="contained" color="primary">
                   Send For Approval
                 </Button> */}
-              </Col>
-            </Row>
-          )}
+          </Col>
+        </Row>
+        {/* )}
         {isEditable &&
           ((context?.user_type === "TL/HOSS" &&
             cmSelectedSheetForView?.requestSheetStatusOfCM ===
@@ -978,7 +949,7 @@ const ExistinngMachineReqSheetForOperator = ({
                 </button>
               </Col>
             </Row>
-          )}
+          )} */}
       </form>
     </>
   );
