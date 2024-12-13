@@ -27,8 +27,9 @@ const sendApproval = require("../sendMail/sendApproval");
 const autoSendMail = require("../sendMail/autoSendMail");
 const sendApprovalOfSkippedPM = require("../sendMail/sendApprovalOfSkippedPM");
 const sendMailForAnnualPmScheduleReport = require("../sendMail/sendMailForAnnualPmScheduleReport");
-
+const filterMiddleware = require("../middleware/filterMiddleware");
 const FinancialYear1 = require("../model/financialYearSchema");
+const CM_RequestSheetData= require ('../model/requestSheetDataOfCM')
 
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
@@ -39,6 +40,12 @@ const path = require("path");
 const { parse } = require("path");
 const { Console, log } = require("console");
 router.use(cookieParser());
+const truncValue = require("../utils/truncValue");
+const moment = require("moment");
+const logger = require("../utils/LoggingController/loggers");
+const maintenanceType = require("../utils/maintenanceType");
+const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
+const noLossBDData = require("../model/noLossBDSheetData");
 
 //for profile image upload
 const storage = multer.diskStorage({
@@ -66,6 +73,9 @@ const fileFilter = (req, file, cb) => {
   } else {
     // cb(null, false);
     // console.log(new Error())
+    logger.error(new Error("Only .png, .jpg and .jpeg format allowed!"), {
+      maintenanceType: maintenanceType?.[0],
+    });
     return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
   }
 };
@@ -102,6 +112,7 @@ router.post("/updateUserProfile", upload.single("photo"), async (req, res) => {
 
     res.status(200).send("User name updated");
   } catch (err) {
+    logger.error(err, { maintenanceType: maintenanceType?.[0] });
     console.log("err");
     // res.status(400).send("error")
   }
@@ -160,14 +171,23 @@ router.post("/signIn", async (req, res) => {
       if (!passwordMatch) {
         res.status(400).json({ error: "Invalid password " });
       } else {
-        // console.log("user login successfully")
-        res.json({ message: "user login successfully" });
+        res.json({
+          message: "user login successfully",
+          userLogin: {
+            tm_no: userLogin?.tm_no,
+            tm_name: userLogin?.tm_name,
+            tm_department: userLogin?.tm_department,
+            tm_grade: userLogin?.tm_grade,
+            user_type: userLogin?.user_type,
+          },
+        });
       }
       // }
     } else {
       res.status(400).json({ error: "Invalid user " });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Credential not valid or received!!!");
     console.log(error);
   }
@@ -181,8 +201,8 @@ router.post("/resetPass", (req, res) => {
         console.log(error);
       }
       const token = buffer.toString("hex");
-      const user = await User.findOne({ email: req.body.email });
-      console.log(user);
+      const user = await User.findOne({ email: req.body?.email });
+      // console.log(user);
       if (!user) {
         return res.status(422).send("User don't exists with that email");
       } else {
@@ -190,15 +210,17 @@ router.post("/resetPass", (req, res) => {
           user.token = token;
           user.expireToken = Date.now() + 300000;
           user.save().then((result) => {
-            sendMail(user.email, token);
+            sendMail(user?.email, token);
           });
           res.status(201).json("Email send successful!!!");
         } catch (error) {
+          logger.error(error, { maintenanceType: maintenanceType?.[0] });
           res.status(554).json("Email not send");
         }
       }
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Reset password token is not valid or received!!!");
   }
 });
@@ -230,6 +252,7 @@ router.post("/newPassword", async (req, res) => {
       }
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Data not received !!!");
   }
 });
@@ -269,6 +292,7 @@ router.post("/updatePassword", authenticate, async (req, res) => {
       res.status(400).json({ error: "Invalid user " });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("New password data not received or bad request !!!");
   }
 });
@@ -285,6 +309,7 @@ router.post("/newUser", async (req, res) => {
 
     res.status(201).json({ message: "Employee register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -305,6 +330,7 @@ router.post("/updateUser", async (req, res) => {
     );
     res.status(201).json({ message: "Employee updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("user already exists!!!");
   }
 });
@@ -326,6 +352,7 @@ router.post("/deleteUser", async (req, res) => {
       return res.status(400).json("Employee not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -341,6 +368,7 @@ router.get("/displayUser", authenticate, async (req, res) => {
     // console.log(usersInfo)
     res.json(usersInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -351,6 +379,7 @@ router.get("/loggedUserDetails", authenticate, async (req, res) => {
     // console.log(req.rootUser);
     res.send(req.rootUser);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -378,6 +407,7 @@ router.post("/addNewPlant", authenticate, async (req, res) => {
 
     res.status(201).json({ message: "Plant register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Data not valid or received !!!");
   }
 });
@@ -396,6 +426,7 @@ router.get("/displayPlant/:plant_data", authenticate, async (req, res) => {
     //req.plantInfo=plantInfo;
     res.json(plantInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Plant data not send or get!!!");
   }
 });
@@ -420,6 +451,7 @@ router.post("/updatePlant", authenticate, async (req, res) => {
       { $set: { plant_data: `${plant_id}-${plant_name}` } }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Plant already exists!!!");
   }
 });
@@ -445,6 +477,7 @@ router.post("/deletePlant", authenticate, async (req, res) => {
       return res.status(400).json("Plant not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -487,6 +520,7 @@ router.post("/addNewSection", authenticate, async (req, res) => {
     await newSection.save();
     res.status(201).json({ message: "Section register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -495,7 +529,7 @@ router.post("/addNewSection", authenticate, async (req, res) => {
 //update the plant in plant management table
 router.post("/updateSection", authenticate, async (req, res) => {
   try {
-    const { section_id, section_name, oldRow } = req.body;
+    const { section_id, section_name, oldRow, updateRow } = req.body;
     // console.log(section_id, section_name);
 
     // if (!section_id || !section_name || !user_type) {
@@ -503,7 +537,12 @@ router.post("/updateSection", authenticate, async (req, res) => {
     // }
     await Section.updateOne(
       { section_id: section_id },
-      { $set: { section_name: section_name } }
+      {
+        $set: {
+          section_name: section_name,
+          dashboardLevel: updateRow?.dashboardLevel,
+        },
+      }
     );
     res.status(201).json({ message: "Section updated successfully" });
     let sectionIdLiteral = `${section_id}-${oldRow.section_name}`;
@@ -512,6 +551,7 @@ router.post("/updateSection", authenticate, async (req, res) => {
       { $set: { section_data: `${section_id}-${section_name}` } }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Section already exists!!!");
   }
 });
@@ -539,6 +579,7 @@ router.post("/deleteSection", authenticate, async (req, res) => {
       return res.status(400).json("Section not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -551,6 +592,7 @@ router.get("/displaySection", authenticate, async (req, res) => {
     //req.plantInfo=plantInfo;
     res.json(plantInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Plant data not send or get!!!");
   }
 });
@@ -619,6 +661,7 @@ router.post("/addNewSubSection", authenticate, async (req, res) => {
     await newSubSection.save();
     res.status(201).json({ message: "SubSection register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -675,6 +718,7 @@ router.post("/updateSubSection", authenticate, async (req, res) => {
       { $set: { "subSection_data.$": newSubSectionIdLiteral } }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("SubSection already exists!!!");
     console.log(error);
   }
@@ -722,6 +766,7 @@ router.post("/deleteSubSection", authenticate, async (req, res) => {
       return res.status(400).json("SubSection not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -739,6 +784,13 @@ router.post("/addNewCell", authenticate, async (req, res) => {
     }
     let total = await Cell.find().sort({ _id: -1 }).limit(1);
 
+    const findLoggedUserPlantData = await Plant.findOne({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    });
+
+    const findLoggedUserSectionData = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
     // console.log(total)
     var cell_id;
     var cellName = "C";
@@ -770,6 +822,8 @@ router.post("/addNewCell", authenticate, async (req, res) => {
         cell_name,
         subSection_names: subSectionInfo[0]._id,
         cell_sequence,
+        plant_names: findLoggedUserPlantData?._id,
+        section_names: findLoggedUserSectionData?._id,
       });
     } else {
       newCell = new Cell({
@@ -777,6 +831,8 @@ router.post("/addNewCell", authenticate, async (req, res) => {
         cell_name,
         subSection_names: subSectionInfo[0]._id,
         cell_sequence,
+        plant_names: findLoggedUserPlantData?._id,
+        section_names: findLoggedUserSectionData?._id,
       });
     }
 
@@ -786,6 +842,7 @@ router.post("/addNewCell", authenticate, async (req, res) => {
     await newCell.save();
     res.status(201).json({ message: "Cell register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -833,6 +890,7 @@ router.post("/updateCell", authenticate, async (req, res) => {
       { $set: { "cell_data.$": newCellIdLiteral } }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Cell already exists!!!");
   }
 });
@@ -876,6 +934,7 @@ router.post("/deleteCell", authenticate, async (req, res) => {
       return res.status(400).json("Cell not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -962,6 +1021,9 @@ router.post("/addNewLine", authenticate, async (req, res) => {
       newLine = new Line({
         line_id,
         line_name,
+        plant_names: cellInfo[0]?.plant_names,
+        section_names: cellInfo[0]?.section_names,
+        subSection_names: cellInfo[0]?.subSection_names,
         cell_names: cellInfo[0]._id,
         line_sequence,
         annualPmScheduleApproval: {
@@ -973,6 +1035,9 @@ router.post("/addNewLine", authenticate, async (req, res) => {
       newLine = new Line({
         line_id,
         line_name,
+        plant_names: cellInfo[0]?.plant_names,
+        section_names: cellInfo[0]?.section_names,
+        subSection_names: cellInfo[0]?.subSection_names,
         cell_names: cellInfo[0]._id,
         line_sequence,
         annualPmScheduleApproval: {
@@ -987,6 +1052,7 @@ router.post("/addNewLine", authenticate, async (req, res) => {
     await newLine.save();
     res.status(201).json({ message: "Line register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1028,6 +1094,7 @@ router.post("/updateLine", authenticate, async (req, res) => {
     );
     res.status(201).json({ message: "Line updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Line already exists!!!");
   }
 });
@@ -1071,6 +1138,7 @@ router.post("/deleteLine", authenticate, async (req, res) => {
       return res.status(400).json("Line not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1092,6 +1160,7 @@ router.post("/clearTokens", async (req, res) => {
       res.status(201).json({ message: "Removed token !!!" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User id not received!!!");
   }
 });
@@ -1103,6 +1172,7 @@ router.get("/logout", (req, res) => {
     res.clearCookie("Token", { path: "/" });
     res.status(200).send("user Logout");
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Cookies or Credential not clear !!!");
   }
 });
@@ -1119,6 +1189,7 @@ router.get("/checking", async (req, res) => {
     // const deleteChild  = await Section.deleteOne({plant_names._id})
     // res.json(WorkOrderNumbers);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Work order number not found");
   }
@@ -1135,6 +1206,7 @@ router.get("/fetchPlantList", authenticate, async (req, res) => {
     // console.log(plantArray)
     res.json({ plantArray, plantLists });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User data not send or get!!!");
   }
@@ -1161,6 +1233,7 @@ router.post("/postPlantToGetSectionList", authenticate, async (req, res) => {
 
     res.json({ sectionArray, sectionsInfo });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -1211,6 +1284,7 @@ router.post(
 
       res.json({ subSectionArray, subSectionsInfo, sectionInfo });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -1242,6 +1316,7 @@ router.post("/postSubSectionToGetCellList", authenticate, async (req, res) => {
 
     res.json({ cellArray, cellInfo });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -1252,9 +1327,9 @@ router.post("/postCellToGetLineList", authenticate, async (req, res) => {
     let { cell } = req.body;
     // console.log(cell);
     let cellSplit = cell.split("-");
-    const cellInfo = await Cell.find({ cell_id: cellSplit[0] });
+    const cellInfo = await Cell.find({ cell_id: cellSplit?.[0] });
     // console.log(cellInfo[0]._id)
-    const LineInfo = await Line.find({ cell_names: cellInfo[0]._id }).sort({
+    const LineInfo = await Line.find({ cell_names: cellInfo?.[0]?._id }).sort({
       line_sequence: 1,
     });
     // console.log("____________", LineInfo)
@@ -1268,6 +1343,7 @@ router.post("/postCellToGetLineList", authenticate, async (req, res) => {
 
     res.json({ lineArray, lineInfo: LineInfo });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -1360,6 +1436,7 @@ router.post("/postLineToGetMachineList", authenticate, async (req, res) => {
 
     res.json({ machineArray, machineInfo, machineInfoWithChecksheet });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -1392,6 +1469,7 @@ router.post(
 
       res.json({ sectionArray: sectionArray });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -1425,6 +1503,7 @@ router.post(
 
       res.json({ subSectionArray: subSectionArray });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -1466,6 +1545,7 @@ router.post(
 
       res.json({ cellArray: cellArray });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -1478,6 +1558,7 @@ router.post("/postUserAssign", async (req, res) => {
     const {
       tm_name,
       tm_no,
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
       user_type,
       tm_grade,
       email,
@@ -1515,6 +1596,7 @@ router.post("/postUserAssign", async (req, res) => {
     const addNewUser = new User({
       tm_name,
       tm_no,
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
       user_type,
       tm_grade,
       email,
@@ -1533,6 +1615,7 @@ router.post("/postUserAssign", async (req, res) => {
     // console.log(result)
     res.status(201).json({ message: "Employee register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1549,6 +1632,7 @@ router.get("/displayAssignUser", authenticate, async (req, res) => {
     //req.usersInfo=usersInfo;
     res.json(usersInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -1571,6 +1655,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
       cell_data,
       contact_no,
       joining_date,
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
     } = req.body;
 
     // console.log(tm_no,
@@ -1619,6 +1704,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
           $set: {
             tm_name,
             tm_grade,
+            isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
             tm_department,
             email,
             address,
@@ -1637,6 +1723,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
           $set: {
             tm_name,
             tm_grade,
+            isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
             // tm_grade: user_type === "Section-Admin" ? "HOS" : "",
             user_type,
             tm_department,
@@ -1674,6 +1761,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
           $set: {
             tm_name,
             tm_grade,
+            isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
             user_type,
             tm_department,
             email,
@@ -1694,6 +1782,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
           $set: {
             tm_name,
             tm_grade,
+            isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
             tm_department,
             email,
             operator_password,
@@ -1710,6 +1799,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
     }
     res.status(201).json({ message: "Employee updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("user already exists!!!");
   }
 });
@@ -1730,6 +1820,7 @@ router.post("/deleteAssignUser", async (req, res) => {
       return res.status(400).json("Employee not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1775,6 +1866,7 @@ router.get("/displaySectionAssignUser", authenticate, async (req, res) => {
     // console.log(usersInfo)
     res.json(usersInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -1809,6 +1901,7 @@ router.get("/displayTLHOSSAssignUser", authenticate, async (req, res) => {
     // console.log(usersInfo)
     res.json(usersInfo);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
   }
 });
@@ -1859,6 +1952,10 @@ router.post("/addNewMachine", async (req, res) => {
         manufacturingDate,
         maker_name,
         maker_sr_no,
+        plant_names: lineInfo[0]?.plant_names,
+        section_names: lineInfo[0]?.section_names,
+        subSection_names: lineInfo[0]?.subSection_names,
+        cell_names: lineInfo[0]?.cell_names,
         line_names: lineInfo[0]._id,
       });
     } else {
@@ -1872,6 +1969,10 @@ router.post("/addNewMachine", async (req, res) => {
         manufacturingDate,
         maker_name,
         maker_sr_no,
+        plant_names: lineInfo[0]?.plant_names,
+        section_names: lineInfo[0]?.section_names,
+        subSection_names: lineInfo[0]?.subSection_names,
+        cell_names: lineInfo[0]?.cell_names,
         line_names: lineInfo[0]._id,
       });
     }
@@ -1880,6 +1981,7 @@ router.post("/addNewMachine", async (req, res) => {
 
     res.status(201).json({ message: "Machine register successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1919,6 +2021,7 @@ router.post("/deleteMachine", authenticate, async (req, res) => {
       return res.status(400).json("Machine not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -1989,6 +2092,7 @@ router.post("/updateMachine", authenticate, async (req, res) => {
     );
     res.status(201).json({ message: "Machine updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Machine already exists!!!");
   }
 });
@@ -2017,6 +2121,7 @@ router.post("/postPlantToGetCellData", authenticate, async (req, res) => {
 
     res.json({ cellData });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -2066,6 +2171,7 @@ router.post(
 
       res.json({ sectionDataArray });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -2093,6 +2199,7 @@ router.post(
 
       res.json({ subSectionsData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -2514,49 +2621,6 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
         lineIdArray.push(lineData[i]._id);
       }
 
-      // console.log(cellIdArray)
-
-      // const x = "new ObjectId("63243decc42b17be9a33f982")"
-      // let groupData
-      // let linedataWithGroup = []
-      // for (let i = 0; i < cellIdArray.length; i++) {
-      //     groupData = await Line.aggregate([
-
-      //         {
-      //             $group:{
-      //                 _id:"$cell_names",
-      //                 books: { $push: "$$ROOT" }
-      //             }
-
-      //         },
-      //         {
-      //             $match:{
-      //                 "books": {
-      //                     $elemMatch:{cell_names: cellIdArray[i]}
-      //                 }
-      //             }
-      //         },
-      //         // {$match: {"books[0].cell_names":{$in: [
-      //         //     `new ObjectId("63243decc42b17be9a33f982")`
-
-      //         //   ]}}},
-      //         {
-      //             $project:{
-      //                 "_id":0
-      //             }
-      //         }
-
-      //     ])
-      //     if(groupData.length > 0){
-      //         for (let i = 0; i < groupData[0].books.length; i++) {
-      //             linedataWithGroup.push(groupData[0].books[i])
-      //         }
-      //     }
-
-      // }
-      // let xyz = await Line.populate(linedataWithGroup,{path:"cell_names"})
-      // console.log(xyz);
-      // console.log(linedataWithGroup)
       //machine data of preparation and planning approval
       machineDataOfPrepAndPlanApproval = await Machine.aggregate([
         {
@@ -2722,42 +2786,19 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
       machineLastData,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
 });
 
 router.post(
-  "/postSectionToGetPMSheetApprovalData",
+  "/postSectionToGetPMSheetApprovalData/:dashboard",
   authenticate,
   async (req, res) => {
     try {
-      let { section, selectedYear } = req.body;
+      let { section, selectedYear, selectedMonth } = req.body;
       let loggedUserData = req.rootUser;
-
-      let currentYear =
-        new Date().getMonth() < 3
-          ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-          : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-      // let selectedYearOfCheckSheet =
-      //     selectedYear === currentYear ? [{
-      //         "checkSheet_data.current_year": selectedYear
-
-      //     },
-      //     {
-      //         "checkSheet_data": []
-
-      //     },
-      //     {
-      //         "checkSheet_data": undefined
-
-      //     }
-      //     ] : [{
-      //         "checkSheet_data.current_year": selectedYear
-
-      //     },
-
-      //     ]
 
       let subSectionsData,
         subSectionIdArray = [],
@@ -2765,246 +2806,71 @@ router.post(
         cellIdArray = [],
         lineData,
         lineIdArray = [],
-        machineData,
-        machineDataForChecksheet,
-        machineDataOfPrepAndPlanApproval,
+        approvalLogMiddleware = [],
+        approvalLogOfPM,
         subsectionSplitIdArrayForChecksheet = [],
-        machineLastData;
+        acceptedAndTotalApprovalCount = [];
 
-      if (section?.dashboardLevel === "Yes") {
+      let queryObjForPendingGroup = {};
+
+      let sectionInfo =
+        typeof section === "string"
+          ? await Section.findOne({
+              section_id: section.split("-")?.[0],
+            })
+          : section;
+
+      if (sectionInfo.dashboardLevel === "Yes") {
         subSectionsData = await SubSection.find({
-          section_names: section?._id,
+          section_names: sectionInfo._id,
         }).sort({ subSection_sequence: 1 });
-
-        for (let i = 0; i < subSectionsData.length; i++) {
-          subSectionIdArray.push(subSectionsData[i]._id);
-        }
-
-        cellData = await Cell.find({
-          subSection_names: { $in: subSectionIdArray },
-        }).sort({ cell_sequence: 1 });
-
-        for (let i = 0; i < cellData.length; i++) {
-          cellIdArray.push(cellData[i]._id);
-        }
-
-        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({
-          line_sequence: 1,
-        });
-
-        for (let i = 0; i < lineData.length; i++) {
-          lineIdArray.push(lineData[i]._id);
-        }
-
-        machineDataOfImplementationApproval = await Machine.aggregate([
-          {
-            $match: {
-              line_names: { $in: lineIdArray },
-            },
-          },
-          {
-            $unwind: "$checkSheet_data",
-          },
-          {
-            $match: {
-              "checkSheet_data.current_year": selectedYear,
-            },
-          },
-          // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-          {
-            $match: {
-              $and: [
-                {
-                  "checkSheet_data.checksheet_status": "Implementation",
-                },
-                {
-                  "checkSheet_data.checksheet_status": { $ne: "" },
-                },
-              ],
-            },
-          },
-          {
-            $project: {
-              machine_code: 1,
-              machine_name: 1,
-              machine_nickname: 1,
-              machine_sequence: 1,
-              installation_date: 1,
-              maker_name: 1,
-              maker_sr_no: 1,
-              manufacturingDate: 1,
-              isPM: 1,
-              line_names: 1,
-              checkSheet_data: 1,
-            },
-          },
-        ]);
-        // console.log(machineData)
-        machineDataOfImplementationApproval = await Machine.populate(
-          machineDataOfImplementationApproval,
-          {
-            path: "line_names",
-            populate: { path: "cell_names", model: "Cells" },
-          }
-        );
-
-        //machine data of preparation and planning approval
-        machineDataOfPrepAndPlanApproval = await Machine.aggregate([
-          {
-            $match: {
-              line_names: { $in: lineIdArray },
-            },
-          },
-          {
-            $project: {
-              machine_code: 1,
-              machine_name: 1,
-              machine_nickname: 1,
-              machine_sequence: 1,
-              installation_date: 1,
-              maker_name: 1,
-              maker_sr_no: 1,
-              manufacturingDate: 1,
-              isPM: 1,
-              line_names: 1,
-              checkSheet_data: 1,
-            },
-          },
-          {
-            $unwind: "$checkSheet_data",
-          },
-          {
-            $match: {
-              "checkSheet_data.current_year": selectedYear,
-            },
-          },
-
-          // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-          {
-            $match: {
-              $and: [
-                // {
-                //     "checkSheet_data.checksheet_status": { $ne: "Implementation" }
-                // },
-                {
-                  "checkSheet_data.checksheet_status": { $ne: "" },
-                },
-                {
-                  "checkSheet_data.assign_TL": { $ne: [] },
-                },
-                {
-                  checkSheet_data: { $ne: undefined },
-                },
-              ],
-            },
-          },
-        ]);
-        // console.log(machineData)
-        machineDataOfPrepAndPlanApproval = await Machine.populate(
-          machineDataOfPrepAndPlanApproval,
-          {
-            path: "line_names",
-            populate: { path: "cell_names", model: "Cells" },
-          }
-        );
-
-        // console.log(selectedYear, typeof (selectedYear))
-        // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-        // machineLastData = await Machine.aggregate([{
-        //     $match: {
-        //         line_names: { $in: lineIdArray },
-
-        //     }
-        // },
-        // {
-        //     $project: {
-        //         machine_code: 1,
-        //         machine_name: 1,
-        //         machine_nickname: 1,
-        //         machine_sequence: 1,
-        //         installation_date: 1,
-        //         maker_name: 1,
-        //         maker_sr_no: 1,
-        //         manufacturingDate: 1,
-        //         isPM: 1,
-        //         line_names: 1,
-        //         // checkSheet_data: 1
-        //         checkSheet_data: 1
-        //     }
-        // },
-        // {
-        //     $unwind: {
-        //         path: "$checkSheet_data",
-        //         preserveNullAndEmptyArrays: true
-        //     }
-        // },
-        // {
-        //     $match: {
-        //         $or: selectedYearOfCheckSheet
-
-        //         // "checkSheet_data.current_year": selectedYear
-        //     }
-        // },
-        // ])
-
-        // machineLastData = await Machine.populate(machineLastData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-        // console.log(machineLastData)
       } else {
-        cellData = await Cell.find({ subSection_names: section?._id }).sort({
-          cell_sequence: 1,
-        });
-
-        for (let i = 0; i < cellData.length; i++) {
-          cellIdArray.push(cellData[i]._id);
+        if (loggedUserData?.tm_grade === "HOD") {
+          subSectionsData = await SubSection.find({
+            _id: section?._id,
+          }).sort({ subSection_sequence: 1 });
+        } else {
+          loggedUserData.subSection_data.map((ids) => {
+            let subsectionsId = ids.split("-");
+            subsectionSplitIdArrayForChecksheet.push(subsectionsId[0]);
+          });
+          subSectionsData = await SubSection.find({
+            subSection_id: { $in: subsectionSplitIdArrayForChecksheet },
+          }).sort({ subSection_sequence: 1 });
         }
+      }
+      cellData = await Cell.find({
+        subSection_names: { $in: subSectionsData?.map((item) => item?._id) },
+      }).sort({ cell_sequence: 1 });
 
-        lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({
-          line_sequence: 1,
-        });
+      lineData = await Line.find({
+        cell_names: { $in: cellData?.map((item) => item?._id) },
+      }).sort({ line_sequence: 1 });
 
-        for (let i = 0; i < lineData.length; i++) {
-          lineIdArray.push(lineData[i]._id);
-        }
+      let queryObj = {};
+      queryObj = {
+        line_names: { $in: lineData?.map((item) => item?._id) },
+      };
+      if (req?.query?.lineId !== "undefined" && req?.query?.lineId) {
+        queryObj = {
+          line_names: mongoose.Types.ObjectId(req?.query?.lineId),
+        };
+      }
+      if (
+        req?.query?.machine_code !== "undefined" &&
+        req?.query?.machine_code
+      ) {
+        queryObj = {
+          ...queryObj,
+          machine_code: req?.query?.machine_code,
+        };
+      }
 
-        //machine data of preparation and planning approval
-        machineDataOfPrepAndPlanApproval = await Machine.aggregate([
-          {
-            $match: {
-              line_names: { $in: lineIdArray },
-            },
-          },
-          {
-            $project: {
-              machine_code: 1,
-              machine_name: 1,
-              machine_nickname: 1,
-              machine_sequence: 1,
-              installation_date: 1,
-              maker_name: 1,
-              maker_sr_no: 1,
-              manufacturingDate: 1,
-              isPM: 1,
-              line_names: 1,
-              checkSheet_data: 1,
-            },
-          },
-          {
-            $unwind: "$checkSheet_data",
-          },
-          {
-            $match: {
-              "checkSheet_data.current_year": selectedYear,
-            },
-          },
-
-          // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+      if (req?.params?.dashboard === "preparationAndPlanningPhaseApprovalLog") {
+        approvalLogMiddleware = [
           {
             $match: {
               $and: [
-                // {
-                //     "checkSheet_data.checksheet_status": { $ne: "Implementation" }
-                // },
                 {
                   "checkSheet_data.checksheet_status": { $ne: "" },
                 },
@@ -3017,32 +2883,50 @@ router.post(
               ],
             },
           },
-        ]);
-        // console.log(machineData)
-        machineDataOfPrepAndPlanApproval = await Machine.populate(
-          machineDataOfPrepAndPlanApproval,
+        ];
+        acceptedAndTotalApprovalCount = [
           {
-            path: "line_names",
-            populate: { path: "cell_names", model: "Cells" },
-          }
-        );
-
-        // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checksheet_status: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-        machineDataOfImplementationApproval = await Machine.aggregate([
-          {
-            $match: {
-              line_names: { $in: lineIdArray },
+            $addFields: {
+              userWithStatusInfo: [
+                {
+                  userType: "MTD TL/HOSS",
+                  // userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                  userName: {
+                    $arrayElemAt: ["$checkSheet_data.assign_TL_name", -1],
+                  },
+                  status: {
+                    $arrayElemAt: ["$checkSheet_data.tl_approval_status", -1],
+                  },
+                },
+                {
+                  userType: "MTD HOS",
+                  // userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                  userName: {
+                    $arrayElemAt: ["$checkSheet_data.assign_HOS_name", -1],
+                  },
+                  status: {
+                    $arrayElemAt: ["$checkSheet_data.hos_approval_status", -1],
+                  },
+                },
+                {
+                  userType: "PRD TL",
+                  // userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                  userName: {
+                    $arrayElemAt: ["$checkSheet_data.assign_PRD_TL_name", -1],
+                  },
+                  status: {
+                    $arrayElemAt: [
+                      "$checkSheet_data.prd_tl_approval_status",
+                      -1,
+                    ],
+                  },
+                },
+              ],
             },
           },
-          {
-            $unwind: "$checkSheet_data",
-          },
-          {
-            $match: {
-              "checkSheet_data.current_year": selectedYear,
-            },
-          },
-          // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
+        ];
+      } else {
+        approvalLogMiddleware = [
           {
             $match: {
               $and: [
@@ -3055,71 +2939,460 @@ router.post(
               ],
             },
           },
+        ];
+        acceptedAndTotalApprovalCount = [
           {
-            $project: {
-              machine_code: 1,
-              machine_name: 1,
-              machine_nickname: 1,
-              machine_sequence: 1,
-              installation_date: 1,
-              maker_name: 1,
-              maker_sr_no: 1,
-              manufacturingDate: 1,
-              isPM: 1,
-              line_names: 1,
-              checkSheet_data: 1,
+            $addFields: {
+              userWithStatusInfo: {
+                $concatArrays: [
+                  {
+                    $map: {
+                      input: {
+                        $objectToArray:
+                          "$checkSheet_data.implemetation_prd_tl_approval_status",
+                      },
+                      as: "prdStatusArray",
+                      in: {
+                        userType: "PRD TL/HOSS",
+                        machine_code: "$machine_code",
+                        userName: {
+                          $arrayElemAt: [
+                            {
+                              $getField: {
+                                field: "v",
+                                input: {
+                                  $arrayElemAt: [
+                                    {
+                                      $filter: {
+                                        input: {
+                                          $objectToArray:
+                                            "$checkSheet_data.implementation_assign_PRD_TL_name",
+                                        },
+                                        as: "prdName",
+                                        cond: {
+                                          $eq: [
+                                            "$$prdStatusArray.k",
+                                            "$$prdName.k",
+                                          ],
+                                        },
+                                      },
+                                    },
+                                    0,
+                                  ],
+                                },
+                              },
+                            },
+                            -1,
+                          ],
+                        },
+                        status: {
+                          $arrayElemAt: ["$$prdStatusArray.v", -1],
+                        },
+                        month: "$$prdStatusArray.k",
+                      },
+                    },
+                  },
+                  {
+                    $map: {
+                      input: {
+                        $objectToArray:
+                          "$checkSheet_data.implemetation_mtd_tl_approval_status",
+                      },
+                      as: "mtdTlStatusArray",
+                      in: {
+                        userType: "MTD TL/HOSS",
+                        machine_code: "$machine_code",
+                        userName: {
+                          $arrayElemAt: [
+                            {
+                              $getField: {
+                                field: "v",
+                                input: {
+                                  $arrayElemAt: [
+                                    {
+                                      $filter: {
+                                        input: {
+                                          $objectToArray:
+                                            "$checkSheet_data.implementation_assign_MTD_TL_name",
+                                        },
+                                        as: "mtdName",
+                                        cond: {
+                                          $eq: [
+                                            "$$mtdTlStatusArray.k",
+                                            "$$mtdName.k",
+                                          ],
+                                        },
+                                      },
+                                    },
+                                    0,
+                                  ],
+                                },
+                              },
+                            },
+                            -1,
+                          ],
+                        },
+                        status: {
+                          $arrayElemAt: ["$$mtdTlStatusArray.v", -1],
+                        },
+                        month: "$$mtdTlStatusArray.k",
+                      },
+                    },
+                  },
+                  {
+                    $map: {
+                      input: {
+                        $objectToArray:
+                          "$checkSheet_data.implemetation_mtd_hos_approval_status",
+                      },
+                      as: "mtdHosStatusArray",
+                      in: {
+                        userType: "MTD HOS",
+                        machine_code: "$machine_code",
+                        userName: {
+                          $arrayElemAt: [
+                            {
+                              $getField: {
+                                field: "v",
+                                input: {
+                                  $arrayElemAt: [
+                                    {
+                                      $filter: {
+                                        input: {
+                                          $objectToArray:
+                                            "$checkSheet_data.implementation_assign_MTD_HOS_name",
+                                        },
+                                        as: "mtdHosName",
+                                        cond: {
+                                          $eq: [
+                                            "$$mtdHosStatusArray.k",
+                                            "$$mtdHosName.k",
+                                          ],
+                                        },
+                                      },
+                                    },
+                                    0,
+                                  ],
+                                },
+                              },
+                            },
+                            -1,
+                          ],
+                        },
+                        status: {
+                          $arrayElemAt: ["$$mtdHosStatusArray.v", -1],
+                        },
+                        month: "$$mtdHosStatusArray.k",
+                      },
+                    },
+                  },
+                ],
+              },
             },
           },
-        ]);
-        // console.log(machineData)
-        machineDataOfImplementationApproval = await Machine.populate(
-          machineDataOfImplementationApproval,
-          {
-            path: "line_names",
-            populate: { path: "cell_names", model: "Cells" },
-          }
-        );
-        // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-        // machineLastData = await Machine.aggregate([{
-        //     $match: {
-        //         line_names: { $in: lineIdArray },
-        //         $or: selectedYearOfCheckSheet
-
-        //     }
-        // },
-        // {
-        //     $project: {
-        //         machine_code: 1,
-        //         machine_name: 1,
-        //         machine_nickname: 1,
-        //         machine_sequence: 1,
-        //         installation_date: 1,
-        //         maker_name: 1,
-        //         maker_sr_no: 1,
-        //         manufacturingDate: 1,
-        //         isPM: 1,
-        //         line_names: 1,
-        //         checkSheet_data: 1
-        //     }
-        // },
-        // {
-        //     $unwind: {
-        //         path: "$checkSheet_data",
-        //         preserveNullAndEmptyArrays: true
-        //     }
-        // },
-        // {
-        //     $match: {
-        //         $or: selectedYearOfCheckSheet
-
-        //         // "checkSheet_data.current_year": selectedYear
-        //     }
-        // },
-        // ])
-
-        // machineLastData = await Machine.populate(machineLastData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
+        ];
+        if (selectedMonth) {
+          acceptedAndTotalApprovalCount = [
+            {
+              $addFields: {
+                userWithStatusInfo: [
+                  {
+                    userType: "PRD TL/HOSS",
+                    // userId: { $arrayElemAt: ["$approvalOfMTD_HOSS", -1] },
+                    userName: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implementation_assign_PRD_TL_name.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                    status: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implemetation_prd_tl_approval_status.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                  },
+                  {
+                    userType: "MTD TL/HOSS",
+                    // userId: { $arrayElemAt: ["$approvalOfMTD_HOS", -1] },
+                    userName: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implementation_assign_MTD_TL_name.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                    status: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implemetation_mtd_tl_approval_status.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                  },
+                  {
+                    userType: "MTD HOS",
+                    // userId: { $arrayElemAt: ["$approvalOfPRD_TL", -1] },
+                    userName: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implementation_assign_MTD_HOS_name.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                    status: {
+                      $arrayElemAt: [
+                        `$checkSheet_data.implemetation_mtd_hos_approval_status.${selectedMonth}`,
+                        -1,
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ];
+        }
+        if (req?.query?.pendingFilterValue === "true") {
+          queryObjForPendingGroup = {
+            approvalMonth: "$month",
+          };
+        }
       }
+      let pendingFilterApplyOrNot = [];
+      // if (req?.query?.pendingFilterValue === "true") {
+      //   pendingFilterApplyOrNot = [
+      //     ...acceptedAndTotalApprovalCount,
+      //     {
+      //       $unwind: "$userWithStatusInfo",
+      //     },
+      //     {
+      //       $match: {
+      //         "userWithStatusInfo.userName": { $nin: [undefined, null, ""] },
+      //         "userWithStatusInfo.status": "Pending",
+      //       },
+      //     },
+      //     {
+      //       $group: {
+      //         _id: {
+      //           ...queryObjForPendingGroup,
+      //           machine_code: "$machine_code",
+      //         },
+      //         machine_code: {
+      //           $first: "$machine_code",
+      //         },
+      //         machine_name: {
+      //           $first: "$machine_name",
+      //         },
+      //         line_names: {
+      //           $first: "$line_names",
+      //         },
+      //         checkSheet_data: {
+      //           $first: "$checkSheet_data",
+      //         },
+      //         userWithStatusInfo: {
+      //           $first: "$userWithStatusInfo"
+      //         }
+      //       },
+      //     },
+      //   ];
+      // }
+
+      approvalLogOfPM = await Machine.aggregate([
+        {
+          $match: {
+            ...queryObj,
+          },
+        },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: {
+            "checkSheet_data.current_year": selectedYear,
+          },
+        },
+        ...approvalLogMiddleware,
+        // ...pendingFilterApplyOrNot,
+        {
+          $project: {
+            machine_code: 1,
+            machine_name: 1,
+            line_names: 1,
+            checkSheet_data: 1,
+            userWithStatusInfo: 1,
+          },
+        },
+      ]);
+
+      approvalLogOfPM = await Machine.populate(approvalLogOfPM, {
+        path: "line_names",
+        populate: { path: "cell_names", model: "Cells" },
+      });
+
+      const countOfAcceptedAndTotalApprovalOfUsers = await Machine.aggregate([
+        {
+          $match: {
+            ...queryObj,
+            // machine_code: "EETP-002",
+          },
+        },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: {
+            "checkSheet_data.current_year": selectedYear,
+          },
+        },
+        ...acceptedAndTotalApprovalCount,
+        {
+          $unwind: "$userWithStatusInfo",
+        },
+        {
+          $match: {
+            "userWithStatusInfo.userName": {
+              $nin: [undefined, null, ""],
+            },
+          },
+        },
+
+        {
+          $group: {
+            _id: {
+              month: "$userWithStatusInfo.month",
+              machine_code: "$userWithStatusInfo.machine_code",
+            },
+            data: {
+              $push: {
+                userName: "$userWithStatusInfo.userName",
+                status: "$userWithStatusInfo.status",
+                userType: "$userWithStatusInfo.userType",
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              month: "$_id.month",
+              machine_code: "$_id.machine_code",
+            },
+            pendingUsersList: {
+              $first: {
+                $arrayElemAt: [
+                  {
+                    $filter: {
+                      input: "$data",
+                      as: "approvalData",
+                      cond: {
+                        $eq: ["$$approvalData.status", "Pending"],
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+            },
+            acceptedUserList: {
+              $push: {
+                $filter: {
+                  input: "$data",
+                  as: "approvalData",
+                  cond: {
+                    $eq: ["$$approvalData.status", "Accepted"],
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            $or: [
+              {
+                pendingUsersList: { $ne: null },
+              },
+              {
+                acceptedUserList: { $ne: [] },
+              },
+            ],
+          },
+        },
+        {
+          $facet: {
+            pendingCounts: [
+              { $unwind: "$pendingUsersList" },
+              {
+                $group: {
+                  _id: {
+                    userName: "$pendingUsersList.userName",
+                    userType: "$pendingUsersList.userType",
+                  },
+                  countOfPending: { $sum: 1 },
+                },
+              },
+            ],
+            acceptedCounts: [
+              { $unwind: "$acceptedUserList" },
+              {
+                $unwind: "$acceptedUserList", // Unwind second level of nested array within the acceptedUserList
+              },
+              {
+                $group: {
+                  _id: {
+                    userName: "$acceptedUserList.userName",
+                    userType: "$acceptedUserList.userType",
+                  },
+                  countOfAccepted: { $sum: 1 },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $project: {
+            combined: { $concatArrays: ["$pendingCounts", "$acceptedCounts"] },
+          },
+        },
+        {
+          $unwind: "$combined",
+        },
+        {
+          $group: {
+            _id: {
+              userName: "$combined._id.userName",
+              userType: "$combined._id.userType",
+            },
+            countOfPending: {
+              $sum: { $ifNull: ["$combined.countOfPending", 0] },
+            },
+            countOfAccepted: {
+              $sum: { $ifNull: ["$combined.countOfAccepted", 0] },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.userType",
+            data: {
+              $push: {
+                userName: "$_id.userName",
+                countOfPending: "$countOfPending",
+                countOfAccepted: "$countOfAccepted",
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            userType: "$_id",
+            data: 1,
+            _id: 0,
+          },
+        },
+        {
+          $sort: {
+            userType: -1,
+          },
+        },
+      ]);
 
       res.json({
         subSectionsData,
@@ -3128,10 +3401,11 @@ router.post(
         cellIdArray,
         lineData,
         lineIdArray,
-        machineDataOfPrepAndPlanApproval,
-        machineDataOfImplementationApproval,
+        approvalLogOfPM,
+        countOfAcceptedAndTotalApprovalOfUsers,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -3523,7 +3797,7 @@ router.post(
                 if (
                   key1.planningTableAnimationArray2?.[previousMonth]?.[0] ===
                     "1" &&
-                  key1.planningTableAnimationArray2?.[previousMonth]?.length <
+                  key1.planningTableAnimationArray2?.[previousMonth]?.length <=
                     2 &&
                   key1.cycle === "1/1M" &&
                   !key1?.isDeleted &&
@@ -3546,7 +3820,7 @@ router.post(
                     monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
                   key1.planningTableAnimationArray2?.[previousMonth]?.[0] ===
                     "1" &&
-                  key1.planningTableAnimationArray2?.[previousMonth]?.length <
+                  key1.planningTableAnimationArray2?.[previousMonth]?.length <=
                     2 &&
                   key1.cycle === "1/1M" &&
                   (key1.isAdded || key1.isEdited)
@@ -3730,6 +4004,7 @@ router.post(
         defaultSubSectionArray,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -3852,6 +4127,7 @@ router.post(
         defaultSubSectionArray,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -3873,6 +4149,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
       PM_time,
       machineId,
       isAdded,
+      remarksCompulsoryOrNot,
     } = req.body;
     // console.log(req.body)
     let tableRowId;
@@ -3990,6 +4267,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   personInCharge,
                   PM_time,
                   isAdded,
+                  remarksCompulsoryOrNot,
                 },
               },
             }
@@ -4015,6 +4293,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                     cycle,
                     personInCharge,
                     PM_time,
+                    remarksCompulsoryOrNot,
                   },
                 },
               },
@@ -4041,6 +4320,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   cycle,
                   personInCharge,
                   PM_time,
+                  remarksCompulsoryOrNot,
                 },
               },
             }
@@ -4092,6 +4372,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                     personInCharge,
                     PM_time,
                     isAdded,
+                    remarksCompulsoryOrNot,
                   },
                   flagForRevisionContent: true,
                 },
@@ -4122,6 +4403,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   personInCharge,
                   PM_time,
                   isAdded,
+                  remarksCompulsoryOrNot,
                 },
               },
             }
@@ -4147,6 +4429,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                     cycle,
                     personInCharge,
                     PM_time,
+                    remarksCompulsoryOrNot,
                   },
                 },
               },
@@ -4172,6 +4455,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   cycle,
                   personInCharge,
                   PM_time,
+                  remarksCompulsoryOrNot,
                 },
               },
             }
@@ -4184,6 +4468,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
       .status(201)
       .json({ message: "Checksheet row data entered successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User id not received!!!");
     console.log(error);
   }
@@ -4312,6 +4597,7 @@ router.post(
       });
       // }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -4325,7 +4611,7 @@ router.post(
     try {
       const { rowData, oldRow, machineId, yearOfCheckSheet, isEdited } =
         req.body;
-      // console.log(rowData, machineId, yearOfCheckSheet)
+      console.log(isEdited, machineId, yearOfCheckSheet);
       let flagForCycleChange;
       if (isEdited === true) {
         const updateChecksheetRow = await Machine.updateOne(
@@ -4349,6 +4635,8 @@ router.post(
                 rowData.personInCharge,
               "checkSheet_data.$[outer].checkSheet.$[inner].PM_time":
                 rowData.PM_time,
+              "checkSheet_data.$[outer].checkSheet.$[inner].remarksCompulsoryOrNot":
+                rowData.remarksCompulsoryOrNot,
               "checkSheet_data.$[outer].checkSheet.$[inner].isEdited": isEdited,
               "checkSheet_data.$[outer].isEditedMonth": new Date(),
               "checkSheet_data.$[outer].flagForRevisionContent": true,
@@ -4387,6 +4675,8 @@ router.post(
                 rowData.personInCharge,
               "checkSheet_data.$[outer].checkSheet.$[inner].PM_time":
                 rowData.PM_time,
+              "checkSheet_data.$[outer].checkSheet.$[inner].remarksCompulsoryOrNot":
+                rowData.remarksCompulsoryOrNot,
             },
           },
           {
@@ -4397,12 +4687,13 @@ router.post(
           }
         );
       }
-      // console.log(updateChecksheetRow)
+      console.log(updateChecksheetRow);
       res.status(201).json({
         message: "CheckSheet data updated successfully",
         flagForCycleChange,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(409).json("user already exists!!!");
     }
   }
@@ -4481,6 +4772,7 @@ router.post(
         return res.status(400).json("Checksheet row not deleted!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -4750,6 +5042,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
       HODList,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
     console.log(error);
   }
@@ -4836,6 +5129,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
     let keyOfImplemetation_prd_tl_approval_status = `checkSheet_data.$[outer].implemetation_prd_tl_approval_status.${monthForCompareSystemMonth}`;
     let keyOfImplemetation_mtd_hos_approval_status = `checkSheet_data.$[outer].implemetation_mtd_hos_approval_status.${monthForCompareSystemMonth}`;
     let keyOfImplemetation_completed_date = `checkSheet_data.$[outer].implemetation_completed_date.${monthForCompareSystemMonth}`;
+    let keyOfImplementation_due_date = `checkSheet_data.$[outer].implementation_due_date.${monthForCompareSystemMonth}`;
+
     let keyOfImplemetation_completed_tm_no = `checkSheet_data.$[outer].implemetation_completed_tm_no.${monthForCompareSystemMonth}`;
     let keyOfImplemetation_completed_tm_name = `checkSheet_data.$[outer].implemetation_completed_tm_name.${monthForCompareSystemMonth}`;
     let keyOfImplemetation_mtd_tl_approval_status = `checkSheet_data.$[outer].implemetation_mtd_tl_approval_status.${monthForCompareSystemMonth}`;
@@ -4861,6 +5156,13 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           machine_code: selected_machine_data.machine_code,
         },
       },
+      { $unwind: "$checkSheet_data" },
+      {
+        $match: {
+          "checkSheet_data.current_year":
+            selected_machine_data.checkSheet_data.current_year,
+        },
+      },
       {
         $project: {
           machine_code: 1,
@@ -4873,7 +5175,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           manufacturingDate: 1,
           isPM: 1,
           line_names: 1,
-          checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+          checkSheet_data: 1,
         },
       },
     ]);
@@ -4885,15 +5187,15 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
       section_id: loggedUserData?.section_data?.split("-")?.[0],
     });
 
-    if (request === "Yes" && tl_list.email != "") {
+    if (request === "Yes" && tl_list?.email != "") {
       //for grreting of the mail
       const findAssignTlName = await User.findOne({
-        tm_no: tl_list.tm_no,
-        email: tl_list.email,
+        tm_no: tl_list?.tm_no,
+        email: tl_list?.email,
       });
       const findAssignHosName = await User.findOne({
-        tm_no: hos_list.tm_no,
-        email: hos_list.email,
+        tm_no: hos_list?.tm_no,
+        email: hos_list?.email,
       });
 
       const updateChecksheetStatus = await Machine.updateOne(
@@ -4907,15 +5209,16 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           $push: {
             "checkSheet_data.$[outer].tl_approval_status": "Pending",
             "checkSheet_data.$[outer].hos_approval_status": "Pending",
-            "checkSheet_data.$[outer].assign_TL": tl_list.email,
-            "checkSheet_data.$[outer].assign_TL_name": findAssignTlName.tm_name,
-            "checkSheet_data.$[outer].assign_HOS": hos_list.email,
+            "checkSheet_data.$[outer].assign_TL": tl_list?.email,
+            "checkSheet_data.$[outer].assign_TL_name":
+              findAssignTlName?.tm_name,
+            "checkSheet_data.$[outer].assign_HOS": hos_list?.email,
             "checkSheet_data.$[outer].assign_HOS_name":
-              findAssignHosName.tm_name,
-            "checkSheet_data.$[outer].sender_tm_no": loggedUserData.tm_no,
-            "checkSheet_data.$[outer].sender_tm_name": loggedUserData.tm_name,
+              findAssignHosName?.tm_name,
+            "checkSheet_data.$[outer].sender_tm_no": loggedUserData?.tm_no,
+            "checkSheet_data.$[outer].sender_tm_name": loggedUserData?.tm_name,
             "checkSheet_data.$[outer].checkSheetSendingUser":
-              loggedUserData.email,
+              loggedUserData?.email,
             "checkSheet_data.$[outer].preparation_TL_date": preparation_TL_date,
           },
         },
@@ -4974,8 +5277,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         selected_machine_data.machine_code,
         selected_machine_data.machine_name,
         checksheet_status,
-        tl_list.email,
-        hos_list.email,
+        tl_list?.email,
+        hos_list?.email,
         undefined,
         undefined,
         request
@@ -4984,8 +5287,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
     } else if (prd_tl_list?.email && phaseStatus === "Planning") {
       //for grreting of the mail
       const findAssignTlName = await User.findOne({
-        tm_no: prd_tl_list.tm_no,
-        email: prd_tl_list.email,
+        tm_no: prd_tl_list?.tm_no,
+        email: prd_tl_list?.email,
       });
 
       if (sectionInfo?.dashboardLevel === "Yes") {
@@ -5021,15 +5324,15 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           },
           $push: {
             "checkSheet_data.$[outer].prd_tl_approval_status": "Pending",
-            "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list.email,
+            "checkSheet_data.$[outer].assign_PRD_TL": prd_tl_list?.email,
             "checkSheet_data.$[outer].assign_PRD_TL_name":
-              findAssignTlName.tm_name,
+              findAssignTlName?.tm_name,
             "checkSheet_data.$[outer].plan_prepared_tm_no":
-              loggedUserData.tm_no,
+              loggedUserData?.tm_no,
             "checkSheet_data.$[outer].plan_prepared_tm_name":
-              loggedUserData.tm_name,
+              loggedUserData?.tm_name,
             "checkSheet_data.$[outer].plan_prepared_email":
-              loggedUserData.email,
+              loggedUserData?.email,
             "checkSheet_data.$[outer].planning_TL_date": planning_TL_date,
           },
         },
@@ -5088,7 +5391,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         selected_machine_data.machine_code,
         selected_machine_data.machine_name,
         selected_machine_data.checksheet_status,
-        prd_tl_list.email,
+        prd_tl_list?.email,
         undefined,
         undefined,
         undefined,
@@ -5096,8 +5399,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
       );
       return res.status(201).json("approval request send successfully!!!");
     } else if (
-      prd_tl_list?.email &&
-      mtd_tl_list?.email &&
+      prd_tl_list?.tm_no && //change prd_tl_list.email to tm_no for DENSO-INDIA
+      mtd_tl_list?.tm_no && //change mtd_tl_list.email to tm_no for DENSO-INDIA
       mtd_hos_list?.email &&
       phaseStatus === "Implementation"
     ) {
@@ -5147,8 +5450,11 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
             ],
           }
         );
-        // console.log(updateImplementationData)
       }
+      console.log(
+        "implemetation_completed_date-----",
+        implemetation_completed_date
+      );
       const updateImplementationCompletionPhase = await Machine.updateOne(
         { machine_code: selected_machine_data.machine_code },
         {
@@ -5156,18 +5462,31 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
             [keyOfImplemetation_prd_tl_approval_status]: "Pending",
             [keyOfImplemetation_mtd_tl_approval_status]: "Pending",
             [keyOfImplemetation_mtd_hos_approval_status]: "Pending",
-            [keyOfImplementation_assign_PRD_TL]: prd_tl_list.email,
-            [keyOfImplementation_assign_MTD_TL]: mtd_tl_list.email,
-            [keyOfImplementation_assign_MTD_HOS]: mtd_hos_list.email,
-            [keyOfImplementation_assign_PRD_TL_name]: prd_tl_list.tm_name,
+            [keyOfImplementation_assign_PRD_TL]: prd_tl_list?.email,
+            [keyOfImplementation_assign_MTD_TL]: mtd_tl_list?.email,
+            [keyOfImplementation_assign_MTD_HOS]: mtd_hos_list?.email,
+            [keyOfImplementation_assign_PRD_TL_name]: prd_tl_list?.tm_name,
             [keyOfImplementation_assign_PRD_TL_tm_no]: prd_tl_list?.tm_no,
-            [keyOfImplementation_assign_MTD_TL_name]: mtd_tl_list.tm_name,
+            [keyOfImplementation_assign_MTD_TL_name]: mtd_tl_list?.tm_name,
             [keyOfImplementation_assign_MTD_TL_tm_no]: mtd_tl_list?.tm_no,
-            [keyOfImplementation_assign_MTD_HOS_name]: mtd_hos_list.tm_name,
+            [keyOfImplementation_assign_MTD_HOS_name]: mtd_hos_list?.tm_name,
             [keyOfImplementation_assign_MTD_HOS_tm_no]: mtd_hos_list?.tm_no,
-            [keyOfImplemetation_completed_tm_no]: loggedUserData.tm_no,
-            [keyOfImplemetation_completed_tm_name]: loggedUserData.tm_name,
+            [keyOfImplemetation_completed_tm_no]: loggedUserData?.tm_no,
+            [keyOfImplemetation_completed_tm_name]: loggedUserData?.tm_name,
             [keyOfImplemetation_completed_date]: implemetation_completed_date,
+            [keyOfImplementation_due_date]: moment(
+              implemetation_completed_date,
+              "D/M/YYYY - hh:mm A"
+            )
+              .add(
+                parseInt(
+                  machineLastDataForKeyexistsOrNot[0]?.checkSheet_data?.checkSheet?.[0]?.cycle?.match(
+                    /^(\d+)\/(\d+)M$/
+                  )?.[2] || 1
+                ),
+                "M" || "y"
+              )
+              .format("DD-MM-YYYY THH:mm"),
           },
         },
         {
@@ -5182,11 +5501,11 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
       // console.log(updateImplementationCompletionPhase)
       // console.log(prd_tl_list, mtd_tl_list, mtd_hos_list)
 
-      let ccMail = [mtd_tl_list.email, mtd_hos_list.email];
+      let ccMail = [mtd_tl_list?.email, mtd_hos_list?.email];
       // for grreting of the mail
       const findAssignTlName = await User.findOne({
-        tm_no: prd_tl_list.tm_no,
-        email: prd_tl_list.email,
+        tm_no: prd_tl_list?.tm_no,
+        email: prd_tl_list?.email,
       });
 
       subject = `Checksheet Approval Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
@@ -5239,7 +5558,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         selected_machine_data.machine_code,
         selected_machine_data.machine_name,
         selected_machine_data.checksheet_status,
-        prd_tl_list.email,
+        prd_tl_list?.email,
         undefined,
         undefined,
         undefined,
@@ -5324,8 +5643,8 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
     } else {
       //for grreting of the mail
       const findAssignHosName = await User.findOne({
-        tm_no: hos_list.tm_no,
-        email: hos_list.email,
+        tm_no: hos_list?.tm_no,
+        email: hos_list?.email,
       });
 
       const updateChecksheetStatus = await Machine.updateOne(
@@ -5339,7 +5658,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
           },
           $push: {
             "checkSheet_data.$[outer].hos_approval_status": "Pending",
-            "checkSheet_data.$[outer].assign_HOS": hos_list.email,
+            "checkSheet_data.$[outer].assign_HOS": hos_list?.email,
             "checkSheet_data.$[outer].assign_HOS_name":
               findAssignHosName.tm_name,
             "checkSheet_data.$[outer].sender_tm_no": loggedUserData.tm_no,
@@ -5351,7 +5670,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
             "checkSheet_data.$[outer].preparation_TL_date": preparation_TL_date,
             "checkSheet_data.$[outer].preparation_TL_HOSS_date": "",
             "checkSheet_data.$[outer].checkSheetSendingUser":
-              loggedUserData.email,
+              loggedUserData?.email,
           },
         },
         {
@@ -5409,7 +5728,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         selected_machine_data.machine_code,
         selected_machine_data.machine_name,
         checksheet_status,
-        hos_list.email,
+        hos_list?.email,
         undefined,
         undefined,
         undefined,
@@ -5421,6 +5740,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
     // return res.status(201).json("approval request send successfully!!!");
     //  console.log(req.body)
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -5428,8 +5748,9 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
 
 //get approval request data for perticular user which was asssign by TL or Operator
 router.get(
-  "/getSixMonthApprovalRequestData/:selectedYear",
+  "/getSixMonthApprovalRequestData/:filter/:selectedId",
   authenticate,
+  filterMiddleware,
   async (req, res) => {
     try {
       //  ------------------------------------- Real --------------------------------------------
@@ -5439,93 +5760,108 @@ router.get(
       let requestData1, requestData2;
 
       requestData1 = await Machine.aggregate([
-        // {
-        // {
-        //     $match: {
-        //         machine_code: "M-EN-O2-2FA-02-120-1"
-        //     }
-        // },
-
+        { $match: req.queryObjForPM },
         {
           $unwind: "$checkSheet_data",
         },
         {
           $match: {
-            "checkSheet_data.current_year": req.params.selectedYear,
+            "checkSheet_data.current_year": req?.query?.selectedYear,
+            "checkSheet_data.implemetation_mtd_hod_approval_status": {
+              $ne: undefined,
+            },
+            "checkSheet_data.checksheet_status": "Implementation",
           },
         },
         {
           $addFields: {
-            // checkSheet_data:
-            // {
-            //     $arrayElemAt: ["$checkSheet_data", -1]
-            // },
-            senderApprovalMonth: "Sep",
+            senderApprovalMonth: {
+              $getField: {
+                field: "k",
+                input: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: {
+                          $objectToArray:
+                            "$checkSheet_data.implemetation_mtd_hod_approval_status",
+                        },
+                        as: "approvalData",
+                        cond: {
+                          $eq: [
+                            {
+                              $arrayElemAt: ["$$approvalData.v", -1],
+                            },
+                            "Pending",
+                          ],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
           },
         },
         {
           $match: {
-            $and: [
+            senderApprovalMonth: { $ne: undefined },
+          },
+        },
+        {
+          $lookup: {
+            from: "lines",
+            localField: "line_names",
+            foreignField: "_id",
+            pipeline: [
               {
-                $expr: {
-                  $eq: [
-                    {
-                      $arrayElemAt: [
-                        "$checkSheet_data.implemetation_mtd_hod_approval_status.Sep",
-                        -1,
-                      ],
-                    },
-                    "Pending",
-                  ],
+                $project: {
+                  line_name: 1,
                 },
               },
+            ],
+            as: "lines",
+          },
+        },
+        {
+          $lookup: {
+            from: "cells",
+            localField: "cell_names",
+            foreignField: "_id",
+            pipeline: [
               {
-                "checkSheet_data.checksheet_status": "Implementation",
+                $project: {
+                  cell_name: 1,
+                },
               },
             ],
-
-            // $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.implemetation_mtd_hod_approval_status.Sep", -1] }, "Pending"] }
+            as: "cells",
           },
-          // {
-          //     $match: {
-          //         $and: [{
-          //             $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.assign_TL", -1] }, loggedUserData.email] }
-          //         },
-          //         {
-          //             $expr: { $eq: [{ $arrayElemAt: ["$checkSheet_data.tl_approval_status", -1] }, "Pending"] }
-          //         },
-
-          //         ]
-          //     }
-          // }
+        },
+        {
+          $project: {
+            machine_name: 1,
+            machine_code: 1,
+            line_name: { $arrayElemAt: ["$lines.line_name", 0] },
+            cell_name: { $arrayElemAt: ["$cells.cell_name", 0] },
+            senderApprovalMonth: 1,
+          },
         },
       ]);
 
       requestData2 = await Machine.aggregate([
-        // {
-        //     $addFields:
-        //     {
-        //         checkSheet_data:
-        //         {
-        //             $arrayElemAt: ["$checkSheet_data", -1]
-        //         },
-        //         senderApprovalMonth: "Mar"
-        //     }
-        // },
+        { $match: req.queryObjForPM },
         {
           $unwind: "$checkSheet_data",
         },
         {
           $match: {
-            "checkSheet_data.current_year": req.params.selectedYear,
+            "checkSheet_data.current_year": req?.query?.selectedYear,
           },
         },
         {
           $addFields: {
-            // checkSheet_data:
-            // {
-            //     $arrayElemAt: ["$checkSheet_data", -1]
-            // },
             senderApprovalMonth: "Mar",
           },
         },
@@ -5555,15 +5891,16 @@ router.get(
 
       // console.log(requestData1,requestData2)
 
-      const requestData = await requestData1.concat(requestData2);
+      // const requestData = await requestData1.concat(requestData2);
 
-      const machineDataWithPopulate = await Machine.populate(requestData, {
+      const machineDataWithPopulate = await Machine.populate(requestData1, {
         path: "line_names",
         populate: { path: "cell_names", model: "Cells" },
       });
 
       res.json(machineDataWithPopulate);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -5606,7 +5943,7 @@ router.get(
                     $expr: {
                       $eq: [
                         { $arrayElemAt: ["$checkSheet_data.assign_TL", -1] },
-                        loggedUserData.email,
+                        loggedUserData?.email,
                       ],
                     },
                   },
@@ -5649,7 +5986,7 @@ router.get(
                       $expr: {
                         $eq: [
                           { $arrayElemAt: ["$checkSheet_data.assign_HOS", -1] },
-                          loggedUserData.email,
+                          loggedUserData?.email,
                         ],
                       },
                     },
@@ -5711,7 +6048,7 @@ router.get(
                       $expr: {
                         $eq: [
                           { $arrayElemAt: ["$checkSheet_data.assign_HOS", -1] },
-                          loggedUserData.email,
+                          loggedUserData?.email,
                         ],
                       },
                     },
@@ -5735,6 +6072,7 @@ router.get(
 
       res.json(machineDataWithPopulate);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -5780,7 +6118,7 @@ router.get(
                         {
                           $arrayElemAt: ["$checkSheet_data.assign_PRD_TL", -1],
                         },
-                        loggedUserData.email,
+                        loggedUserData?.email,
                       ],
                     },
                   },
@@ -5813,6 +6151,7 @@ router.get(
 
       res.json(machineDataWithPopulate);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -5929,7 +6268,7 @@ router.get(
                               -1,
                             ],
                           },
-                          loggedUserData.email,
+                          loggedUserData?.email,
                         ],
                       },
                     },
@@ -6026,7 +6365,7 @@ router.get(
                               -1,
                             ],
                           },
-                          loggedUserData.email,
+                          loggedUserData?.email,
                         ],
                       },
                     },
@@ -6150,7 +6489,7 @@ router.get(
                             -1,
                           ],
                         },
-                        loggedUserData.email,
+                        loggedUserData?.email,
                       ],
                     },
                   },
@@ -6241,6 +6580,7 @@ router.get(
 
       res.json(machineDataWithPopulate);
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
 
       console.log("User data not send or get!!!");
@@ -6255,6 +6595,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
       request,
       rejected_remarks,
       selected_machine_data,
+      selectedYear,
       approved_by_TL,
       approved_by_HOS,
       approved_by_PRD_TL,
@@ -6427,33 +6768,95 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
     //     senderApprovalMonth, selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status
     // )
 
+    let machineLastData = await Machine.aggregate([
+      {
+        $match: {
+          machine_code: selected_machine_data?.machine_code,
+        },
+      },
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": selectedYear,
+        },
+      },
+      {
+        $lookup: {
+          from: "lines",
+          localField: "line_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                line_name: 1,
+              },
+            },
+          ],
+          as: "lines",
+        },
+      },
+      {
+        $lookup: {
+          from: "cells",
+          localField: "cell_names",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                cell_name: 1,
+              },
+            },
+          ],
+          as: "cells",
+        },
+      },
+      {
+        $project: {
+          machine_code: 1,
+          machine_name: 1,
+          machine_nickname: 1,
+          machine_sequence: 1,
+          installation_date: 1,
+          maker_name: 1,
+          maker_sr_no: 1,
+          manufacturingDate: 1,
+          isPM: 1,
+          line_name: { $arrayElemAt: ["$lines.line_name", 0] },
+          cell_name: { $arrayElemAt: ["$cells.cell_name", 0] },
+          checkSheet_data: 1,
+        },
+      },
+    ]);
+
     if (request === "Yes") {
       if (
-        selected_machine_data.checkSheet_data.tl_approval_status[
-          selected_machine_data.checkSheet_data.tl_approval_status?.length - 1
+        machineLastData?.[0]?.checkSheet_data?.tl_approval_status?.[
+          machineLastData?.[0].checkSheet_data?.tl_approval_status?.length - 1
         ] === "Pending"
       ) {
         let tlApproval = "Accepted";
 
         const requestSenderUserData = await User.findOne({
           tm_no:
-            selected_machine_data?.checkSheet_data?.sender_tm_no[
-              selected_machine_data?.checkSheet_data?.sender_tm_no?.length - 1
+            machineLastData[0]?.checkSheet_data?.sender_tm_no[
+              machineLastData[0]?.checkSheet_data?.sender_tm_no?.length - 1
             ],
         });
 
         // console.log(
-        //     selected_machine_data.tl_approval_status
+        //     machineLastData[0].tl_approval_status
         // )
-        selected_machine_data.checkSheet_data.tl_approval_status[
-          selected_machine_data.checkSheet_data.tl_approval_status.length - 1
+        machineLastData[0].checkSheet_data.tl_approval_status[
+          machineLastData[0].checkSheet_data.tl_approval_status.length - 1
         ] = "Accepted";
         const TLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: selected_machine_data.machine_code },
+          { machine_code: machineLastData[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].tl_approval_status":
-                selected_machine_data.checkSheet_data.tl_approval_status,
+                machineLastData[0].checkSheet_data.tl_approval_status,
               "checkSheet_data.$[outer].flagForRevisionContent": false,
 
               "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false,
@@ -6468,7 +6871,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  selected_machine_data.checkSheet_data.current_year,
+                  machineLastData[0].checkSheet_data.current_year,
               },
             ],
           }
@@ -6476,34 +6879,34 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         // console.log(TLApprovalStatusUpdate)
         const findAssignHosName = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.assign_HOS[
-              selected_machine_data.checkSheet_data.assign_HOS.length - 1
+            machineLastData[0]?.checkSheet_data?.assign_HOS?.[
+              machineLastData[0]?.checkSheet_data?.assign_HOS?.length - 1
             ],
         });
 
-        subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+        subject = `Checksheet Preparation Approval (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
         title = `Checksheet is Approved`;
         greetings = `Sir\\Ma'am`;
         bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
 
                         <tr>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                         </tr>
 
                         <tr style="background-color: #dddddd;">
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                         </tr>
 
                         <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                         </tr>
 
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_code}</td>
                         </tr>
 
                         <tr>
@@ -6518,13 +6921,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
                     </table>`;
 
-        console.log(
-          "when click on button",
-          selected_machine_data.checkSheet_data.assign_HOS[
-            selected_machine_data.checkSheet_data.checkSheetSendingUser.length -
-              1
-          ]
-        );
+        // console.log(
+        //   "when click on button",
+        //   machineLastData[0].checkSheet_data.assign_HOS[
+        //     machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
+        //       1
+        //   ]
+        // );
 
         sendApproval(
           subject,
@@ -6533,55 +6936,54 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           bodyTable,
           undefined,
           findAssignHosName.tm_name,
-          selected_machine_data.checkSheet_data.sender_tm_no[
-            selected_machine_data.checkSheet_data.sender_tm_no.length - 1
+          machineLastData[0].checkSheet_data.sender_tm_no[
+            machineLastData[0].checkSheet_data.sender_tm_no.length - 1
           ],
-          selected_machine_data.checkSheet_data.sender_tm_name[
-            selected_machine_data.checkSheet_data.sender_tm_name.length - 1
+          machineLastData[0].checkSheet_data.sender_tm_name[
+            machineLastData[0].checkSheet_data.sender_tm_name.length - 1
           ],
-          selected_machine_data.machine_code,
-          selected_machine_data.machine_name,
-          selected_machine_data.checkSheet_data.checksheet_status,
+          machineLastData[0].machine_code,
+          machineLastData[0].machine_name,
+          machineLastData[0].checkSheet_data.checksheet_status,
           requestSenderUserData?.user_type === "Operator"
             ? undefined
-            : selected_machine_data.checkSheet_data.checkSheetSendingUser[
-                selected_machine_data.checkSheet_data.checkSheetSendingUser
+            : machineLastData[0].checkSheet_data.checkSheetSendingUser[
+                machineLastData[0].checkSheet_data.checkSheetSendingUser
                   .length - 1
               ] || undefined,
-          selected_machine_data.checkSheet_data.assign_HOS[
-            selected_machine_data.checkSheet_data.checkSheetSendingUser.length -
-              1
+          machineLastData[0].checkSheet_data.assign_HOS[
+            machineLastData[0].checkSheet_data.checkSheetSendingUser.length - 1
           ],
           tlApproval,
           undefined,
           undefined
         );
       } else if (
-        selected_machine_data.checkSheet_data.tl_approval_status[
-          selected_machine_data.checkSheet_data.tl_approval_status?.length - 1
+        machineLastData[0]?.checkSheet_data?.tl_approval_status?.[
+          machineLastData[0]?.checkSheet_data?.tl_approval_status?.length - 1
         ] === "Accepted" &&
-        selected_machine_data.checkSheet_data.hos_approval_status[
-          selected_machine_data.checkSheet_data.hos_approval_status.length - 1
+        machineLastData[0]?.checkSheet_data?.hos_approval_status?.[
+          machineLastData[0]?.checkSheet_data?.hos_approval_status?.length - 1
         ] === "Pending"
       ) {
         let hosApproval = "Accepted";
-        selected_machine_data.checkSheet_data.hos_approval_status[
-          selected_machine_data.checkSheet_data.hos_approval_status.length - 1
+        machineLastData[0].checkSheet_data.hos_approval_status[
+          machineLastData[0].checkSheet_data.hos_approval_status.length - 1
         ] = "Accepted";
 
         const requestSenderUserData = await User.findOne({
           tm_no:
-            selected_machine_data?.checkSheet_data?.sender_tm_no[
-              selected_machine_data?.checkSheet_data?.sender_tm_no?.length - 1
+            machineLastData[0]?.checkSheet_data?.sender_tm_no[
+              machineLastData[0]?.checkSheet_data?.sender_tm_no?.length - 1
             ],
         });
 
         const TLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: selected_machine_data.machine_code },
+          { machine_code: machineLastData[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].hos_approval_status":
-                selected_machine_data.checkSheet_data.hos_approval_status,
+                machineLastData[0].checkSheet_data.hos_approval_status,
               "checkSheet_data.$[outer].checksheet_status": "Planning",
               "checkSheet_data.$[outer].flagForRevisionContent": false,
 
@@ -6597,7 +6999,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  selected_machine_data.checkSheet_data.current_year,
+                  machineLastData[0].checkSheet_data.current_year,
               },
             ],
           }
@@ -6605,29 +7007,29 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
         if (requestSenderUserData?.user_type !== "Operator") {
           //  console.log(TLApprovalStatusUpdate)
-          subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+          subject = `Checksheet Preparation Approval (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
           title = `Checksheet is Approved`;
           greetings = `Sir\\Ma'am`;
           bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
 
                             <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                             </tr>
                             
                             <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                             </tr>
 
                             <tr>
                                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                             </tr>
                             
                             <tr style="background-color: #dddddd;">
                                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_code}</td>
                             </tr>
                             
                             <tr>
@@ -6654,9 +7056,9 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             undefined,
             undefined,
             undefined,
-            selected_machine_data.checkSheet_data.checkSheetSendingUser[
-              selected_machine_data.checkSheet_data.checkSheetSendingUser
-                .length - 1
+            machineLastData[0].checkSheet_data.checkSheetSendingUser[
+              machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
+                1
             ],
             undefined,
             hosApproval,
@@ -6665,29 +7067,29 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         }
       } else if (
-        selected_machine_data.checkSheet_data.hos_approval_status[
-          selected_machine_data.checkSheet_data.hos_approval_status?.length - 1
+        machineLastData[0]?.checkSheet_data?.hos_approval_status?.[
+          machineLastData[0]?.checkSheet_data?.hos_approval_status?.length - 1
         ] === "Pending"
       ) {
         let hosApproval = "Accepted";
 
         const requestSenderUserData = await User.findOne({
           tm_no:
-            selected_machine_data?.checkSheet_data?.sender_tm_no[
-              selected_machine_data?.checkSheet_data?.sender_tm_no?.length - 1
+            machineLastData[0]?.checkSheet_data?.sender_tm_no[
+              machineLastData[0]?.checkSheet_data?.sender_tm_no?.length - 1
             ],
         });
 
-        selected_machine_data.checkSheet_data.hos_approval_status[
-          selected_machine_data.checkSheet_data.hos_approval_status.length - 1
+        machineLastData[0].checkSheet_data.hos_approval_status[
+          machineLastData[0].checkSheet_data.hos_approval_status.length - 1
         ] = "Accepted";
         const TLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: selected_machine_data.machine_code },
+          { machine_code: machineLastData[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].checksheet_status": "Planning",
               "checkSheet_data.$[outer].hos_approval_status":
-                selected_machine_data.checkSheet_data.hos_approval_status,
+                machineLastData[0].checkSheet_data.hos_approval_status,
               "checkSheet_data.$[outer].flagForRevisionContent": false,
 
               "checkSheet_data.$[outer].flagForNewRevisionContentDataAdded": false,
@@ -6702,36 +7104,36 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  selected_machine_data.checkSheet_data.current_year,
+                  machineLastData[0].checkSheet_data.current_year,
               },
             ],
           }
         );
 
         if (requestSenderUserData?.user_type !== "Operator") {
-          subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+          subject = `Checksheet Preparation Approval (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
           title = `Checksheet is Approved`;
           greetings = `Sir\\Ma'am`;
           bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
           
                             <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                             </tr>
                             
                             <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                             </tr>
     
                             <tr>
                                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                             </tr>
                             
                             <tr style="background-color: #dddddd;">
                                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_code}</td>
                             </tr>
                             
                             <tr>
@@ -6758,9 +7160,9 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             undefined,
             undefined,
             undefined,
-            selected_machine_data.checkSheet_data.checkSheetSendingUser[
-              selected_machine_data.checkSheet_data.checkSheetSendingUser
-                .length - 1
+            machineLastData[0].checkSheet_data.checkSheetSendingUser[
+              machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
+                1
             ],
             undefined,
             hosApproval,
@@ -6769,8 +7171,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         }
       } else if (
-        selected_machine_data.checkSheet_data.prd_tl_approval_status[
-          selected_machine_data.checkSheet_data.prd_tl_approval_status?.length -
+        machineLastData[0]?.checkSheet_data?.prd_tl_approval_status?.[
+          machineLastData[0]?.checkSheet_data?.prd_tl_approval_status?.length -
             1
         ] === "Pending"
       ) {
@@ -6780,17 +7182,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
         for (
           let i = 0;
-          i < selected_machine_data?.checkSheet_data?.checkSheet?.length;
+          i < machineLastData[0]?.checkSheet_data?.checkSheet?.length;
           i++
         ) {
-          if (
-            selected_machine_data?.checkSheet_data?.checkSheet?.[i]?.isDeleted
-          ) {
+          if (machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?.isDeleted) {
             checkWhetherRevisionContentDeleted = 1;
           }
-          if (
-            selected_machine_data?.checkSheet_data?.checkSheet?.[i]?.isAdded
-          ) {
+          if (machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?.isAdded) {
             // console.log("is Added ---- ")
             checkWhetherRevisionContentAdded = 1;
             for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
@@ -6798,44 +7196,42 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               // let previousMonthForMidYearChange = financialYearWiseMonthKeyArray[j - 1] || "Apr"
               // console.log("is added in loop ");
               if (
-                selected_machine_data?.checkSheet_data?.checkSheet?.[i]
+                machineLastData[0]?.checkSheet_data?.checkSheet?.[i]
                   ?.planningTableAnimationArray2?.[month][0] === "1" &&
                 (monthKeyArray.indexOf(month) >=
                   new Date(
                     mongoose.Types.ObjectId(
-                      selected_machine_data?.checkSheet_data?.checkSheet?.[i]
-                        ?._id
+                      machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?._id
                     ).getTimestamp()
                   ).getMonth() ||
                   monthKeyArray.indexOf(month) < 3)
               ) {
-                // console.log(month, "----inside if ......", new Date(mongoose.Types.ObjectId(selected_machine_data?.checkSheet_data?.checkSheet?.[i]?._id).getTimestamp()).getMonth())
+                // console.log(month, "----inside if ......", new Date(mongoose.Types.ObjectId(machineLastData[0]?.checkSheet_data?.checkSheet?.[i]?._id).getTimestamp()).getMonth())
                 if (
-                  selected_machine_data?.checkSheet_data?.PMStatus?.[month] ===
-                  ""
+                  machineLastData[0]?.checkSheet_data?.PMStatus?.[month] === ""
                 ) {
                   // console.log("Current........")
 
-                  selected_machine_data.checkSheet_data.PMStatus[month] =
+                  machineLastData[0].checkSheet_data.PMStatus[month] =
                     "Current Plan";
-                  selected_machine_data.checkSheet_data.currentMonthScheduleOrNotStatus[
+                  machineLastData[0].checkSheet_data.currentMonthScheduleOrNotStatus[
                     month
                   ] = "Scheduled";
                 } else if (
-                  selected_machine_data?.checkSheet_data?.PMStatus?.[month] ===
+                  machineLastData[0]?.checkSheet_data?.PMStatus?.[month] ===
                   "Completed"
                 ) {
                   // console.log("Completed........")
-                  selected_machine_data.checkSheet_data.PMStatus[month] =
+                  machineLastData[0].checkSheet_data.PMStatus[month] =
                     "Ongoing";
-                  selected_machine_data.checkSheet_data.currentMonthScheduleOrNotStatus[
+                  machineLastData[0].checkSheet_data.currentMonthScheduleOrNotStatus[
                     month
                   ] = "Scheduled";
                 }
               }
             }
           }
-          if (selected_machine_data.checkSheet_data.checkSheet[i]?.isEdited) {
+          if (machineLastData[0].checkSheet_data.checkSheet[i]?.isEdited) {
             checkWhetherRevisionContentEdited = 1;
           }
         }
@@ -6848,13 +7244,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             if (
               monthKeyArray.indexOf(month) >=
                 new Date(
-                  selected_machine_data?.checkSheet_data?.[keyOfMonth]
+                  machineLastData[0]?.checkSheet_data?.[keyOfMonth]
                 ).getMonth() ||
               monthKeyArray.indexOf(month) < 3
             ) {
               for (
                 let i = 0;
-                i < selected_machine_data.checkSheet_data.checkSheet.length;
+                i < machineLastData[0].checkSheet_data.checkSheet.length;
                 i++
               ) {
                 // let previousMonthForMidYearChange = financialYearWiseMonthKeyArray[j - 1] || "Apr"
@@ -6862,48 +7258,46 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                 // console.log("in if condition in edited")
                 //for completed status
                 if (
-                  selected_machine_data.checkSheet_data.checkSheet[i]
+                  machineLastData[0].checkSheet_data.checkSheet[i]
                     ?.planningTableAnimationArray2[month][0] === "1" &&
-                  !selected_machine_data.checkSheet_data.checkSheet[i]
-                    ?.isDeleted
+                  !machineLastData[0].checkSheet_data.checkSheet[i]?.isDeleted
                 ) {
                   plannedPMCount = plannedPMCount + 1;
                 }
                 if (
-                  selected_machine_data.checkSheet_data.checkSheet[i]
+                  machineLastData[0].checkSheet_data.checkSheet[i]
                     ?.planningTableAnimationArray2[month].length >= 2 &&
-                  selected_machine_data.checkSheet_data.checkSheet[i]
+                  machineLastData[0].checkSheet_data.checkSheet[i]
                     ?.planningTableAnimationArray2[month][0] === "1" &&
-                  !selected_machine_data.checkSheet_data.checkSheet[i]
-                    ?.isDeleted
+                  !machineLastData[0].checkSheet_data.checkSheet[i]?.isDeleted
                 ) {
                   completedPMCount = completedPMCount + 1;
                 }
               }
 
               if (
-                selected_machine_data.checkSheet_data.PMStatus[month] ===
+                machineLastData[0].checkSheet_data.PMStatus[month] ===
                 "No Completion"
               ) {
-                selected_machine_data.checkSheet_data.PMStatus[month] =
+                machineLastData[0].checkSheet_data.PMStatus[month] =
                   "No Completion";
               } else if (plannedPMCount) {
                 // console.log(month, "----Planned----> ", plannedPMCount, "---> Completed ---", completedPMCount)
                 if (plannedPMCount === completedPMCount) {
-                  selected_machine_data.checkSheet_data.PMStatus[month] =
+                  machineLastData[0].checkSheet_data.PMStatus[month] =
                     "Completed";
                 } else if (completedPMCount === 1) {
-                  selected_machine_data.checkSheet_data.PMStatus[month] =
+                  machineLastData[0].checkSheet_data.PMStatus[month] =
                     "Ongoing";
                 } else if (completedPMCount === 0) {
-                  selected_machine_data.checkSheet_data.PMStatus[month] =
+                  machineLastData[0].checkSheet_data.PMStatus[month] =
                     "Current Plan";
                 }
               } else {
                 // console.log("5570*******>>", month, "----Planned----> ", plannedPMCount, "---> Completed ---", completedPMCount)
 
-                selected_machine_data.checkSheet_data.PMStatus[month] = "";
-                selected_machine_data.checkSheet_data.currentMonthScheduleOrNotStatus[
+                machineLastData[0].checkSheet_data.PMStatus[month] = "";
+                machineLastData[0].checkSheet_data.currentMonthScheduleOrNotStatus[
                   month
                 ] = "";
               }
@@ -6927,13 +7321,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           // console.log(checkWhetherRevisionContentDeleted, "-----", checkWhetherRevisionContentAdded)
           for (
             let i = 0;
-            i < selected_machine_data.checkSheet_data.checkSheet.length;
+            i < machineLastData[0].checkSheet_data.checkSheet.length;
             i++
           ) {
             for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
               let month = financialYearWiseMonthKeyArray[j];
               if (
-                selected_machine_data.checkSheet_data.checkSheet[i]
+                machineLastData[0].checkSheet_data.checkSheet[i]
                   .planningTableAnimationArray2[month][0] === "1"
               ) {
                 PMStatusArray[financialYearWiseMonthKeyArray[j]] =
@@ -6945,30 +7339,29 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             }
           }
         }
-        selected_machine_data.checkSheet_data.prd_tl_approval_status[
-          selected_machine_data.checkSheet_data.prd_tl_approval_status.length -
-            1
+        machineLastData[0].checkSheet_data.prd_tl_approval_status[
+          machineLastData[0].checkSheet_data.prd_tl_approval_status.length - 1
         ] = "Accepted";
-        // console.log(selected_machine_data.checkSheet_data.prd_tl_approval_status)
+        // console.log(machineLastData[0].checkSheet_data.prd_tl_approval_status)
         const PRDTLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: selected_machine_data.machine_code },
+          { machine_code: machineLastData[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].prd_tl_approval_status":
-                selected_machine_data.checkSheet_data.prd_tl_approval_status,
+                machineLastData[0].checkSheet_data.prd_tl_approval_status,
               "checkSheet_data.$[outer].checksheet_status": "Implementation",
               "checkSheet_data.$[outer].PMStatus":
                 checkWhetherRevisionContentDeleted !== 1 &&
                 checkWhetherRevisionContentAdded !== 1 &&
                 checkWhetherRevisionContentEdited !== 1
                   ? PMStatusArray
-                  : selected_machine_data?.checkSheet_data?.PMStatus,
+                  : machineLastData[0]?.checkSheet_data?.PMStatus,
               "checkSheet_data.$[outer].currentMonthScheduleOrNotStatus":
                 checkWhetherRevisionContentDeleted !== 1 &&
                 checkWhetherRevisionContentAdded !== 1 &&
                 checkWhetherRevisionContentEdited !== 1
                   ? CurrentMonthPMScheduleOrNotStatusArray
-                  : selected_machine_data?.checkSheet_data
+                  : machineLastData[0]?.checkSheet_data
                       ?.currentMonthScheduleOrNotStatus,
               "checkSheet_data.$[outer].flagForRevisionContent": false,
 
@@ -6984,7 +7377,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  selected_machine_data.checkSheet_data.current_year,
+                  machineLastData[0].checkSheet_data.current_year,
               },
             ],
           }
@@ -7009,31 +7402,31 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           result?.email ? result?.email : undefined
         );
 
-        // console.log(selected_machine_data?.checkSheet_data?.plan_prepared_email, selected_machine_data?.checkSheet_data?.plan_prepared_tm_name)
+        // console.log(machineLastData[0]?.checkSheet_data?.plan_prepared_email, machineLastData[0]?.checkSheet_data?.plan_prepared_tm_name)
 
-        subject = `Checksheet Planning Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+        subject = `Checksheet Planning Approval (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
         title = `Checksheet Planning is Approved.`;
-        greetings = `${selected_machine_data?.checkSheet_data?.plan_prepared_tm_name} San`;
+        greetings = `${machineLastData[0]?.checkSheet_data?.plan_prepared_tm_name} San`;
         bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
       
                         <tr>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                         </tr>
 
                         <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_code}</td>
                         </tr>
                         
                         <tr>
@@ -7055,32 +7448,40 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           bodyTable,
           ccMail,
           undefined, // findAssignHosName.tm_name,
-          undefined, // selected_machine_data.checkSheet_data.sender_tm_no[(selected_machine_data.checkSheet_data.sender_tm_no).length - 1],
-          undefined, // selected_machine_data.checkSheet_data.sender_tm_name[(selected_machine_data.checkSheet_data.sender_tm_name).length - 1],
-          undefined, // selected_machine_data.machine_code,
-          undefined, // selected_machine_data.machine_name,
-          undefined, // selected_machine_data.checkSheet_data.checksheet_status,
-          selected_machine_data?.checkSheet_data?.plan_prepared_email[
-            (selected_machine_data?.checkSheet_data?.plan_prepared_email)
-              .length - 1
+          undefined, // machineLastData[0].checkSheet_data.sender_tm_no[(machineLastData[0].checkSheet_data.sender_tm_no).length - 1],
+          undefined, // machineLastData[0].checkSheet_data.sender_tm_name[(machineLastData[0].checkSheet_data.sender_tm_name).length - 1],
+          undefined, // machineLastData[0].machine_code,
+          undefined, // machineLastData[0].machine_name,
+          undefined, // machineLastData[0].checkSheet_data.checksheet_status,
+          machineLastData[0]?.checkSheet_data?.plan_prepared_email[
+            (machineLastData[0]?.checkSheet_data?.plan_prepared_email).length -
+              1
           ],
-          undefined, // selected_machine_data.checkSheet_data.assign_HOS[(selected_machine_data.checkSheet_data.checkSheetSendingUser).length - 1],
+          undefined, // machineLastData[0].checkSheet_data.assign_HOS[(machineLastData[0].checkSheet_data.checkSheetSendingUser).length - 1],
           undefined // tlApproval, undefined, undefined
         );
       } else if (
-        selected_machine_data.checkSheet_data
-          .implemetation_prd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
-            .implemetation_prd_tl_approval_status[senderApprovalMonth]?.length -
-            1
-        ] === "Pending"
+        machineLastData?.[0]?.checkSheet_data
+          ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.[
+          machineLastData?.[0]?.checkSheet_data
+            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
+        ] === "Pending" &&
+        req?.rootUser?.tm_grade !== "HOD"
       ) {
         let prd_tl_approval_status = "Accepted";
 
         let machineLastDataForKeyexistsOrNot = await Machine.aggregate([
           {
             $match: {
-              machine_code: selected_machine_data.machine_code,
+              machine_code: machineLastData[0].machine_code,
+            },
+          },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                machineLastData[0].checkSheet_data.current_year,
             },
           },
           {
@@ -7095,19 +7496,19 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
+              // checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] }
             },
           },
         ]);
 
-        // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_approved_by_PRD_TL": { $exists: true } });
-
+        // const keyExistsCheck = await Machine.findOne({ machine_code: machineLastData[0].machine_code, "checkSheet_data.implementation_approved_by_PRD_TL": { $exists: true } });
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_approved_by_PRD_TL
+          machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+            ?.implementation_approved_by_PRD_TL === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 "checkSheet_data.$[outer].implementation_approved_by_PRD_TL":
@@ -7122,28 +7523,28 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         }
 
-        selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[
+        machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[
           senderApprovalMonth
         ][
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_prd_tl_approval_status[senderApprovalMonth].length -
             1
         ] = "Accepted";
-        // selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth]).length - 1] = "Pending"
+        // machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth][(machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth]).length - 1] = "Pending"
         if (
-          selected_machine_data?.checkSheet_data?.PMStatus[previousMonth] ===
+          machineLastData[0]?.checkSheet_data?.PMStatus[previousMonth] ===
             "Done with delay" &&
           previousMonth !== undefined
         ) {
           const addPreviousMonthDonewithDelayApproval = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $push: {
                 [keyOfImplementation_approved_by_PRD_TL_for_doneWithDelay]:
@@ -7154,21 +7555,21 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         }
         const PRDTLApprovalStatusUpdateOfImplementation =
-          await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+          await Machine.findOneAndUpdate(
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 [keyOfImplemetation_prd_tl_approval_status]:
-                  selected_machine_data.checkSheet_data
+                  machineLastData[0].checkSheet_data
                     .implemetation_prd_tl_approval_status[senderApprovalMonth],
-                //   [keyOfImplemetation_mtd_tl_approval_status]: selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth],
+                //   [keyOfImplemetation_mtd_tl_approval_status]: machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[monthForCompareSystemMonth],
               },
               $push: {
                 [keyOfImplementation_approved_by_PRD_TL]:
@@ -7183,50 +7584,51 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
+              new: true,
             }
           );
-
-        // console.log(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth])
+        // console.log(machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth])
         let ccMail =
-          selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
+          machineLastData[0]?.checkSheet_data?.implementation_assign_MTD_HOS?.[
             senderApprovalMonth
           ];
         const findAssignMTDTLNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[
+            machineLastData[0]?.checkSheet_data?.implementation_assign_MTD_TL?.[
               senderApprovalMonth
             ][
-              selected_machine_data.checkSheet_data
-                .implementation_assign_MTD_TL[senderApprovalMonth].length - 1
+              machineLastData[0]?.checkSheet_data
+                ?.implementation_assign_MTD_TL?.[senderApprovalMonth]?.length -
+                1
             ],
         });
 
-        subject = `Checksheet Approved by PRD TL Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+        subject = `Checksheet Approved by PRD TL Plan vs Actual (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
         title = `Checksheet Approved Plan vs Actual, Kindly proceed for further approval`;
         greetings = `${findAssignMTDTLNameOfImplementation.tm_name} San`;
         bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
       
                         <tr>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                         </tr>
 
                         <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_code}</td>
                         </tr>
                         
                         <tr>
@@ -7248,28 +7650,29 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           bodyTable,
           ccMail,
           findAssignMTDTLNameOfImplementation.tm_name,
-          selected_machine_data.checkSheet_data.implemetation_completed_tm_no[
+          machineLastData[0].checkSheet_data.implemetation_completed_tm_no[
             senderApprovalMonth
           ][
-            selected_machine_data.checkSheet_data.implemetation_completed_tm_no[
+            machineLastData[0].checkSheet_data.implemetation_completed_tm_no[
               senderApprovalMonth
             ].length - 1
           ],
-          selected_machine_data.checkSheet_data.implemetation_completed_tm_name[
+          machineLastData[0].checkSheet_data.implemetation_completed_tm_name[
             senderApprovalMonth
           ][
-            selected_machine_data.checkSheet_data
-              .implemetation_completed_tm_name[senderApprovalMonth].length - 1
-          ],
-          selected_machine_data.machine_code,
-          selected_machine_data.machine_name,
-          selected_machine_data.checkSheet_data.checksheet_status,
-          selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[
-            senderApprovalMonth
-          ][
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[
+            machineLastData[0].checkSheet_data.implemetation_completed_tm_name[
               senderApprovalMonth
             ].length - 1
+          ],
+          machineLastData[0].machine_code,
+          machineLastData[0].machine_name,
+          machineLastData[0].checkSheet_data.checksheet_status,
+          machineLastData[0]?.checkSheet_data?.implementation_assign_MTD_TL?.[
+            senderApprovalMonth
+          ][
+            machineLastData[0]?.checkSheet_data?.implementation_assign_MTD_TL?.[
+              senderApprovalMonth
+            ]?.length - 1
           ],
           undefined,
           prd_tl_approval_status,
@@ -7279,34 +7682,42 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         );
 
         // sendApprovalOfImplementation(findAssignMTDTLNameOfImplementation.tm_name,
-        //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
-        //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
-        //     selected_machine_data.machine_code,
-        //     selected_machine_data.machine_name,
-        //     selected_machine_data.checkSheet_data.checksheet_status,
-        //     selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
+        //     machineLastData[0].checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(machineLastData[0].checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
+        //     machineLastData[0].checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(machineLastData[0].checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
+        //     machineLastData[0].machine_code,
+        //     machineLastData[0].machine_name,
+        //     machineLastData[0].checkSheet_data.checksheet_status,
+        //     machineLastData[0].checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(machineLastData[0].checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
         //     undefined,
         //     prd_tl_approval_status, undefined, undefined, undefined)
       } else if (
-        selected_machine_data.checkSheet_data
-          .implemetation_prd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
-            .implemetation_prd_tl_approval_status[senderApprovalMonth]?.length -
-            1
+        machineLastData?.[0]?.checkSheet_data
+          ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.[
+          machineLastData?.[0]?.checkSheet_data
+            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
         ] === "Accepted" &&
-        selected_machine_data.checkSheet_data
-          .implemetation_mtd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
-            .implemetation_mtd_tl_approval_status[senderApprovalMonth]?.length -
-            1
-        ] === "Pending"
+        machineLastData?.[0]?.checkSheet_data
+          ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]?.[
+          machineLastData?.[0]?.checkSheet_data
+            ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
+        ] === "Pending" &&
+        req?.rootUser?.tm_grade !== "HOD"
       ) {
         let mtd_tl_approval_status = "Accepted";
 
         let machineLastDataForKeyexistsOrNot = await Machine.aggregate([
           {
             $match: {
-              machine_code: selected_machine_data.machine_code,
+              machine_code: machineLastData[0].machine_code,
+            },
+          },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                machineLastData[0].checkSheet_data.current_year,
             },
           },
           {
@@ -7321,19 +7732,19 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
 
-        // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_approved_by_MTD_TL": { $exists: true } });
+        // const keyExistsCheck = await Machine.findOne({ machine_code: machineLastData[0].machine_code, "checkSheet_data.implementation_approved_by_MTD_TL": { $exists: true } });
 
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_approved_by_MTD_TL
+          machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+            ?.implementation_approved_by_MTD_TL === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 "checkSheet_data.$[outer].implementation_approved_by_MTD_TL":
@@ -7346,28 +7757,28 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         }
 
-        selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[
+        machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[
           senderApprovalMonth
         ][
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_tl_approval_status[senderApprovalMonth].length -
             1
         ] = "Accepted";
-        // selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[senderApprovalMonth]).length - 1] = "Pending"
+        // machineLastData[0].checkSheet_data.implemetation_mtd_hos_approval_status[senderApprovalMonth][(machineLastData[0].checkSheet_data.implemetation_mtd_hos_approval_status[senderApprovalMonth]).length - 1] = "Pending"
         if (
-          selected_machine_data?.checkSheet_data?.PMStatus[previousMonth] ===
+          machineLastData[0]?.checkSheet_data?.PMStatus[previousMonth] ===
             "Done with delay" &&
           previousMonth !== undefined
         ) {
           const addPreviousMonthDonewithDelayApproval = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $push: {
                 [keyOfImplementation_approved_by_MTD_TL_for_doneWithDelay]:
@@ -7378,7 +7789,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
@@ -7386,13 +7797,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         }
         const MTDTLApprovalStatusUpdateOfImplementation =
           await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 [keyOfImplemetation_mtd_tl_approval_status]:
-                  selected_machine_data.checkSheet_data
+                  machineLastData[0].checkSheet_data
                     .implemetation_mtd_tl_approval_status[senderApprovalMonth],
-                // [keyOfImplemetation_mtd_hos_approval_status]: selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[senderApprovalMonth],
+                // [keyOfImplemetation_mtd_hos_approval_status]: machineLastData[0].checkSheet_data.implemetation_mtd_hos_approval_status[senderApprovalMonth],
               },
               $push: {
                 [keyOfImplementation_approved_by_MTD_TL]:
@@ -7405,53 +7816,53 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         const findAssignMTDHOSNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
-              senderApprovalMonth
-            ][
-              selected_machine_data.checkSheet_data
-                .implementation_assign_MTD_HOS[senderApprovalMonth].length - 1
+            machineLastData[0]?.checkSheet_data
+              ?.implementation_assign_MTD_HOS?.[senderApprovalMonth][
+              machineLastData[0]?.checkSheet_data
+                ?.implementation_assign_MTD_HOS?.[senderApprovalMonth]?.length -
+                1
             ],
         });
-        console.log(
-          selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
-            senderApprovalMonth
-          ][
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
-              senderApprovalMonth
-            ].length - 1
-          ]
-        );
+        // console.log(
+        //   machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[
+        //     senderApprovalMonth
+        //   ][
+        //     machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[
+        //       senderApprovalMonth
+        //     ].length - 1
+        //   ]
+        // );
 
-        subject = `Checksheet Approved by MTD TL/HoSS Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+        subject = `Checksheet Approved by MTD TL/HoSS Plan vs Actual (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
         title = `Checksheet Approved Plan vs Actual`;
         greetings = `${findAssignMTDHOSNameOfImplementation.tm_name} San-(MTD HOS)`;
         bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
       
                         <tr>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                         </tr>
 
                         <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_code}</td>
                         </tr>
                         
                         <tr>
@@ -7473,33 +7884,34 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           bodyTable,
           undefined,
           findAssignMTDHOSNameOfImplementation.tm_name,
-          selected_machine_data.checkSheet_data.implemetation_completed_tm_no[
+          machineLastData[0].checkSheet_data.implemetation_completed_tm_no[
             senderApprovalMonth
           ][
-            selected_machine_data.checkSheet_data.implemetation_completed_tm_no[
+            machineLastData[0].checkSheet_data.implemetation_completed_tm_no[
               senderApprovalMonth
             ].length - 1
           ],
-          selected_machine_data.checkSheet_data.implemetation_completed_tm_name[
+          machineLastData[0].checkSheet_data.implemetation_completed_tm_name[
             senderApprovalMonth
           ][
-            selected_machine_data.checkSheet_data
-              .implemetation_completed_tm_name[senderApprovalMonth].length - 1
+            machineLastData[0].checkSheet_data.implemetation_completed_tm_name[
+              senderApprovalMonth
+            ].length - 1
           ],
-          selected_machine_data.machine_code,
-          selected_machine_data.machine_name,
-          selected_machine_data.checkSheet_data.checksheet_status,
-          selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
+          machineLastData[0].machine_code,
+          machineLastData[0].machine_name,
+          machineLastData[0].checkSheet_data.checksheet_status,
+          machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[
             senderApprovalMonth
           ][
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
+            machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[
               senderApprovalMonth
             ].length - 1
           ],
           undefined,
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_prd_tl_approval_status[senderApprovalMonth][
-            selected_machine_data.checkSheet_data
+            machineLastData[0].checkSheet_data
               .implemetation_prd_tl_approval_status[senderApprovalMonth]
               .length - 1
           ],
@@ -7509,41 +7921,49 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         );
 
         // sendApprovalOfImplementation(findAssignMTDHOSNameOfImplementation.tm_name,
-        //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[senderApprovalMonth]).length - 1],
-        //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[senderApprovalMonth]).length - 1],
-        //     selected_machine_data.machine_code,
-        //     selected_machine_data.machine_name,
-        //     selected_machine_data.checkSheet_data.checksheet_status,
-        //     selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth]).length - 1],
+        //     machineLastData[0].checkSheet_data.implemetation_completed_tm_no[senderApprovalMonth][(machineLastData[0].checkSheet_data.implemetation_completed_tm_no[senderApprovalMonth]).length - 1],
+        //     machineLastData[0].checkSheet_data.implemetation_completed_tm_name[senderApprovalMonth][(machineLastData[0].checkSheet_data.implemetation_completed_tm_name[senderApprovalMonth]).length - 1],
+        //     machineLastData[0].machine_code,
+        //     machineLastData[0].machine_name,
+        //     machineLastData[0].checkSheet_data.checksheet_status,
+        //     machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth][(machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth]).length - 1],
         //     undefined,
-        //     selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth]).length - 1],
+        //     machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth][(machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth]).length - 1],
         //     mtd_tl_approval_status, undefined, undefined)
       } else if (
-        selected_machine_data.checkSheet_data
-          .implemetation_prd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
-            .implemetation_prd_tl_approval_status[senderApprovalMonth].length -
-            1
-        ] === "Accepted" &&
-        selected_machine_data.checkSheet_data
-          .implemetation_mtd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
-            .implemetation_mtd_tl_approval_status[senderApprovalMonth]?.length -
-            1
-        ] === "Accepted" &&
-        selected_machine_data.checkSheet_data
-          .implemetation_mtd_hos_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
-            .implemetation_mtd_hos_approval_status[senderApprovalMonth]
+        machineLastData?.[0]?.checkSheet_data
+          ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.[
+          machineLastData?.[0]?.checkSheet_data
+            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]
             ?.length - 1
-        ] === "Pending"
+        ] === "Accepted" &&
+        machineLastData?.[0]?.checkSheet_data
+          ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]?.[
+          machineLastData?.[0]?.checkSheet_data
+            ?.implemetation_mtd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
+        ] === "Accepted" &&
+        machineLastData?.[0]?.checkSheet_data
+          ?.implemetation_mtd_hos_approval_status?.[senderApprovalMonth]?.[
+          machineLastData?.[0]?.checkSheet_data
+            ?.implemetation_mtd_hos_approval_status?.[senderApprovalMonth]
+            ?.length - 1
+        ] === "Pending" &&
+        req?.rootUser?.tm_grade !== "HOD"
       ) {
-        // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_approved_by_MTD_HOS": { $exists: true } });
+        // const keyExistsCheck = await Machine.findOne({ machine_code: machineLastData[0].machine_code, "checkSheet_data.implementation_approved_by_MTD_HOS": { $exists: true } });
 
         let machineLastDataForKeyexistsOrNot = await Machine.aggregate([
           {
             $match: {
-              machine_code: selected_machine_data.machine_code,
+              machine_code: machineLastData[0].machine_code,
+            },
+          },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                machineLastData[0].checkSheet_data.current_year,
             },
           },
           {
@@ -7558,17 +7978,17 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
 
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_approved_by_MTD_HOS
+          machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+            ?.implementation_approved_by_MTD_HOS === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS":
@@ -7581,19 +8001,19 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         }
         if (
-          selected_machine_data?.checkSheet_data?.PMStatus[previousMonth] ===
+          machineLastData[0]?.checkSheet_data?.PMStatus[previousMonth] ===
             "Done with delay" &&
           previousMonth !== undefined
         ) {
           const addPreviousMonthDonewithDelayApproval = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $push: {
                 [keyOfImplementation_approved_by_MTD_HOS_for_doneWithDelay]:
@@ -7604,27 +8024,27 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         }
 
-        selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[
+        machineLastData[0].checkSheet_data.implemetation_mtd_hos_approval_status[
           senderApprovalMonth
         ][
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_hos_approval_status[senderApprovalMonth].length -
             1
         ] = "Accepted";
         const MTDHOSApprovalStatusUpdateOfImplementation =
           await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 [keyOfImplemetation_mtd_hos_approval_status]:
-                  selected_machine_data.checkSheet_data
+                  machineLastData[0].checkSheet_data
                     .implemetation_mtd_hos_approval_status[senderApprovalMonth],
               },
               $push: {
@@ -7638,35 +8058,35 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
 
-        subject = `Checksheet Approved by MTD HOS Plan vs Actual (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+        subject = `Checksheet Approved by MTD HOS Plan vs Actual (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
         title = `Checksheet Approved Plan vs Actual,`;
         // greetings = `${findAssignMTDHOSNameOfImplementation.tm_name} San-(MTD HOD)`
         bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
       
                         <tr>
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                         <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                        <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                         </tr>
 
                         <tr>
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                         </tr>
                         
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_code}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_code}</td>
                         </tr>
                         
                         <tr>
@@ -7681,11 +8101,11 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                         
                     </table>`;
       } else if (
-        selected_machine_data?.checkSheet_data
+        machineLastData[0]?.checkSheet_data
           ?.implemetation_mtd_hod_approval_status?.[
           selected_machine_data?.senderApprovalMonth
         ]?.[
-          selected_machine_data?.checkSheet_data
+          machineLastData[0]?.checkSheet_data
             ?.implemetation_mtd_hod_approval_status?.[
             selected_machine_data?.senderApprovalMonth
           ]?.length - 1
@@ -7693,7 +8113,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
       ) {
         // let machineLastDataForKeyexistsOrNot = await Machine.aggregate([{
         //     $match: {
-        //         machine_code: selected_machine_data.machine_code
+        //         machine_code: machineLastData[0].machine_code
         //     }
         // },
         // {
@@ -7715,10 +8135,10 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
         // if (!machineLastDataForKeyexistsOrNot[0].checkSheet_data.implementation_approved_by_MTD_HOD) {
 
-        //     const updateImplementationData = await Machine.updateOne({ machine_code: selected_machine_data.machine_code }, {
+        //     const updateImplementationData = await Machine.updateOne({ machine_code: machineLastData[0].machine_code }, {
         //         $set: { "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD": creationMonthKeyArray, "checkSheet_data.$[outer].implementation_approved_MTD_HOD_date": creationMonthKeyArray }
         //     }, {
-        //         arrayFilters: [{ 'outer.current_year': selected_machine_data.checkSheet_data.current_year }],
+        //         arrayFilters: [{ 'outer.current_year': machineLastData[0].checkSheet_data.current_year }],
         //     })
 
         // }
@@ -7727,26 +8147,26 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
         // let monthForCompareSystemMonth2 = "Sep"
 
-        // console.log(".............", selected_machine_data?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[selected_machine_data?.senderApprovalMonth]?.[(selected_machine_data?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[selected_machine_data?.senderApprovalMonth])?.length - 1])
+        // console.log(".............", machineLastData[0]?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[selected_machine_data?.senderApprovalMonth]?.[(machineLastData[0]?.checkSheet_data?.implemetation_mtd_hod_approval_status?.[selected_machine_data?.senderApprovalMonth])?.length - 1])
 
-        selected_machine_data.checkSheet_data.implemetation_mtd_hod_approval_status[
+        machineLastData[0].checkSheet_data.implemetation_mtd_hod_approval_status[
           selected_machine_data?.senderApprovalMonth
         ][
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_hod_approval_status[
             selected_machine_data?.senderApprovalMonth
           ].length - 1
         ] = "Accepted";
 
-        // console.log("++++++++++++++++++", selected_machine_data.checkSheet_data.implemetation_mtd_hod_approval_status[selected_machine_data?.senderApprovalMonth])
+        // console.log("++++++++++++++++++", machineLastData[0].checkSheet_data.implemetation_mtd_hod_approval_status[selected_machine_data?.senderApprovalMonth])
 
         const MTDHODApprovalStatusUpdateOfImplementation =
           await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 [keyOfImplemetation_mtd_hod_approval_status]:
-                  selected_machine_data.checkSheet_data
+                  machineLastData[0].checkSheet_data
                     .implemetation_mtd_hod_approval_status[
                     selected_machine_data?.senderApprovalMonth
                   ],
@@ -7763,7 +8183,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
@@ -7773,28 +8193,28 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
       }
     } else {
       if (
-        selected_machine_data.checkSheet_data.tl_approval_status[
-          selected_machine_data.checkSheet_data.tl_approval_status.length - 1
+        machineLastData[0].checkSheet_data.tl_approval_status[
+          machineLastData[0].checkSheet_data.tl_approval_status.length - 1
         ] === "Pending"
       ) {
         let tlApproval = "Rejected";
-        selected_machine_data.checkSheet_data.tl_approval_status[
-          selected_machine_data.checkSheet_data.tl_approval_status.length - 1
+        machineLastData[0].checkSheet_data.tl_approval_status[
+          machineLastData[0].checkSheet_data.tl_approval_status.length - 1
         ] = "Rejected";
 
         const requestSenderUserData = await User.findOne({
           tm_no:
-            selected_machine_data?.checkSheet_data?.sender_tm_no[
-              selected_machine_data?.checkSheet_data?.sender_tm_no?.length - 1
+            machineLastData[0]?.checkSheet_data?.sender_tm_no[
+              machineLastData[0]?.checkSheet_data?.sender_tm_no?.length - 1
             ],
         });
 
         const TLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: selected_machine_data.machine_code },
+          { machine_code: machineLastData[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].tl_approval_status":
-                selected_machine_data.checkSheet_data.tl_approval_status,
+                machineLastData[0].checkSheet_data.tl_approval_status,
             },
             $push: {
               "checkSheet_data.$[outer].preparation_TL_HOSS_date":
@@ -7809,7 +8229,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  selected_machine_data.checkSheet_data.current_year,
+                  machineLastData[0].checkSheet_data.current_year,
               },
             ],
           }
@@ -7817,19 +8237,19 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
         const findAssignHOSName = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.assign_HOS[
-              selected_machine_data.checkSheet_data.checkSheetSendingUser
-                .length - 1
+            machineLastData[0]?.checkSheet_data?.assign_HOS?.[
+              machineLastData[0]?.checkSheet_data?.checkSheetSendingUser
+                ?.length - 1
             ],
         });
 
         let greetingNames = `${findAssignHOSName.tm_name} and ${
-          selected_machine_data.checkSheet_data.sender_tm_name[
-            selected_machine_data.checkSheet_data.sender_tm_name.length - 1
+          machineLastData[0].checkSheet_data.sender_tm_name[
+            machineLastData[0].checkSheet_data.sender_tm_name.length - 1
           ]
         }`;
 
-        subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+        subject = `Checksheet Preparation Rejected (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
         title = `Checksheet is rejected for Below reason`;
         greetings = `Sir\\Ma'am`;
         bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
@@ -7841,17 +8261,17 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                         </tr>
                         
                         <tr >
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                         </tr>
 
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                         </tr>
                     
                         <tr >
@@ -7873,24 +8293,23 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           bodyTable,
           undefined,
           greetingNames,
-          selected_machine_data.checkSheet_data.sender_tm_no[
-            selected_machine_data.checkSheet_data.sender_tm_no.length - 1
+          machineLastData[0].checkSheet_data.sender_tm_no[
+            machineLastData[0].checkSheet_data.sender_tm_no.length - 1
           ],
-          selected_machine_data.checkSheet_data.sender_tm_name[
-            selected_machine_data.checkSheet_data.sender_tm_name.length - 1
+          machineLastData[0].checkSheet_data.sender_tm_name[
+            machineLastData[0].checkSheet_data.sender_tm_name.length - 1
           ],
-          selected_machine_data.machine_code,
-          selected_machine_data.machine_name,
-          selected_machine_data.checkSheet_data.checksheet_status,
+          machineLastData[0].machine_code,
+          machineLastData[0].machine_name,
+          machineLastData[0].checkSheet_data.checksheet_status,
           requestSenderUserData?.user_type === "Operator"
             ? undefined
-            : selected_machine_data.checkSheet_data.checkSheetSendingUser[
-                selected_machine_data.checkSheet_data.checkSheetSendingUser
+            : machineLastData[0].checkSheet_data.checkSheetSendingUser[
+                machineLastData[0].checkSheet_data.checkSheetSendingUser
                   .length - 1
               ] || undefined,
-          selected_machine_data.checkSheet_data.assign_HOS[
-            selected_machine_data.checkSheet_data.checkSheetSendingUser.length -
-              1
+          machineLastData[0].checkSheet_data.assign_HOS[
+            machineLastData[0].checkSheet_data.checkSheetSendingUser.length - 1
           ],
           tlApproval,
           undefined,
@@ -7898,31 +8317,31 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           rejected_remarks
         );
       } else if (
-        selected_machine_data.checkSheet_data.tl_approval_status[
-          selected_machine_data.checkSheet_data.tl_approval_status.length - 1
+        machineLastData[0].checkSheet_data.tl_approval_status[
+          machineLastData[0].checkSheet_data.tl_approval_status.length - 1
         ] === "Accepted" &&
-        selected_machine_data.checkSheet_data.hos_approval_status[
-          selected_machine_data.checkSheet_data.hos_approval_status.length - 1
+        machineLastData[0].checkSheet_data.hos_approval_status[
+          machineLastData[0].checkSheet_data.hos_approval_status.length - 1
         ] === "Pending"
       ) {
         let hosApproval = "Rejected";
-        selected_machine_data.checkSheet_data.hos_approval_status[
-          selected_machine_data.checkSheet_data.hos_approval_status.length - 1
+        machineLastData[0].checkSheet_data.hos_approval_status[
+          machineLastData[0].checkSheet_data.hos_approval_status.length - 1
         ] = "Rejected";
 
         const requestSenderUserData = await User.findOne({
           tm_no:
-            selected_machine_data?.checkSheet_data?.sender_tm_no[
-              selected_machine_data?.checkSheet_data?.sender_tm_no?.length - 1
+            machineLastData[0]?.checkSheet_data?.sender_tm_no[
+              machineLastData[0]?.checkSheet_data?.sender_tm_no?.length - 1
             ],
         });
 
         const TLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: selected_machine_data.machine_code },
+          { machine_code: machineLastData[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].hos_approval_status":
-                selected_machine_data.checkSheet_data.hos_approval_status,
+                machineLastData[0].checkSheet_data.hos_approval_status,
             },
             $push: {
               "checkSheet_data.$[outer].preparation_HOS_date":
@@ -7934,13 +8353,13 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  selected_machine_data.checkSheet_data.current_year,
+                  machineLastData[0].checkSheet_data.current_year,
               },
             ],
           }
         );
 
-        subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+        subject = `Checksheet Preparation Rejected (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
         title = `Checksheet is rejected for Below reason`;
         greetings = `TM`;
         bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
@@ -7952,17 +8371,17 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
     
                             <tr style="background-color: #dddddd;">
                                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                             </tr>
                             
                             <tr >
                                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                             </tr>
     
                             <tr style="background-color: #dddddd;">
                                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                                <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                             </tr>
                         
                             <tr >
@@ -7983,55 +8402,55 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           greetings,
           bodyTable,
           undefined,
-          selected_machine_data.checkSheet_data.sender_tm_name[
-            selected_machine_data.checkSheet_data.sender_tm_name.length - 1
+          machineLastData[0].checkSheet_data.sender_tm_name[
+            machineLastData[0].checkSheet_data.sender_tm_name.length - 1
           ],
-          selected_machine_data.checkSheet_data.sender_tm_no[
-            selected_machine_data.checkSheet_data.sender_tm_no.length - 1
+          machineLastData[0].checkSheet_data.sender_tm_no[
+            machineLastData[0].checkSheet_data.sender_tm_no.length - 1
           ],
-          selected_machine_data.checkSheet_data.sender_tm_name[
-            selected_machine_data.checkSheet_data.sender_tm_name.length - 1
+          machineLastData[0].checkSheet_data.sender_tm_name[
+            machineLastData[0].checkSheet_data.sender_tm_name.length - 1
           ],
-          selected_machine_data.machine_code,
-          selected_machine_data.machine_name,
-          selected_machine_data.checkSheet_data.checksheet_status,
+          machineLastData[0].machine_code,
+          machineLastData[0].machine_name,
+          machineLastData[0].checkSheet_data.checksheet_status,
           requestSenderUserData?.user_type === "Operator"
             ? undefined
-            : selected_machine_data.checkSheet_data.checkSheetSendingUser[
-                selected_machine_data.checkSheet_data.checkSheetSendingUser
+            : machineLastData[0].checkSheet_data.checkSheetSendingUser[
+                machineLastData[0].checkSheet_data.checkSheetSendingUser
                   .length - 1
               ] || undefined,
           undefined,
-          selected_machine_data.checkSheet_data.tl_approval_status[
-            selected_machine_data.checkSheet_data.tl_approval_status.length - 1
+          machineLastData[0].checkSheet_data.tl_approval_status[
+            machineLastData[0].checkSheet_data.tl_approval_status.length - 1
           ],
           hosApproval,
           undefined,
           rejected_remarks
         );
       } else if (
-        selected_machine_data.checkSheet_data.hos_approval_status[
-          selected_machine_data.checkSheet_data.hos_approval_status.length - 1
+        machineLastData[0].checkSheet_data.hos_approval_status[
+          machineLastData[0].checkSheet_data.hos_approval_status.length - 1
         ] === "Pending"
       ) {
         let hosApproval = "Rejected";
 
         const requestSenderUserData = await User.findOne({
           tm_no:
-            selected_machine_data?.checkSheet_data?.sender_tm_no[
-              selected_machine_data?.checkSheet_data?.sender_tm_no?.length - 1
+            machineLastData[0]?.checkSheet_data?.sender_tm_no[
+              machineLastData[0]?.checkSheet_data?.sender_tm_no?.length - 1
             ],
         });
 
-        selected_machine_data.checkSheet_data.hos_approval_status[
-          selected_machine_data.checkSheet_data.hos_approval_status.length - 1
+        machineLastData[0].checkSheet_data.hos_approval_status[
+          machineLastData[0].checkSheet_data.hos_approval_status.length - 1
         ] = "Rejected";
         const TLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: selected_machine_data.machine_code },
+          { machine_code: machineLastData[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].hos_approval_status":
-                selected_machine_data.checkSheet_data.hos_approval_status,
+                machineLastData[0].checkSheet_data.hos_approval_status,
             },
             $push: {
               "checkSheet_data.$[outer].preparation_HOS_date":
@@ -8043,14 +8462,14 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  selected_machine_data.checkSheet_data.current_year,
+                  machineLastData[0].checkSheet_data.current_year,
               },
             ],
           }
         );
 
         if (requestSenderUserData?.user_type !== "Operator") {
-          subject = `Checksheet Preparation Rejected (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
+          subject = `Checksheet Preparation Rejected (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
           title = `Checksheet is rejected for Below reason`;
           greetings = `TM`;
           bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
@@ -8062,17 +8481,17 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.cell_names?.cell_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.cell_name}</td>
                         </tr>
                         
                         <tr >
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.line_names?.line_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.line_name}</td>
                         </tr>
 
                         <tr style="background-color: #dddddd;">
                             <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${selected_machine_data?.machine_name}</td>
+                            <td style="border: 1px solid black;text-align: left;padding: 8px;">${machineLastData[0]?.machine_name}</td>
                         </tr>
                     
                         <tr >
@@ -8093,21 +8512,21 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             greetings,
             bodyTable,
             undefined,
-            selected_machine_data.checkSheet_data.sender_tm_name[
-              selected_machine_data.checkSheet_data.sender_tm_name.length - 1
+            machineLastData[0].checkSheet_data.sender_tm_name[
+              machineLastData[0].checkSheet_data.sender_tm_name.length - 1
             ],
-            selected_machine_data.checkSheet_data.sender_tm_no[
-              selected_machine_data.checkSheet_data.sender_tm_no.length - 1
+            machineLastData[0].checkSheet_data.sender_tm_no[
+              machineLastData[0].checkSheet_data.sender_tm_no.length - 1
             ],
-            selected_machine_data.checkSheet_data.sender_tm_name[
-              selected_machine_data.checkSheet_data.sender_tm_name.length - 1
+            machineLastData[0].checkSheet_data.sender_tm_name[
+              machineLastData[0].checkSheet_data.sender_tm_name.length - 1
             ],
-            selected_machine_data.machine_code,
-            selected_machine_data.machine_name,
-            selected_machine_data.checkSheet_data.checksheet_status,
-            selected_machine_data.checkSheet_data.checkSheetSendingUser[
-              selected_machine_data.checkSheet_data.checkSheetSendingUser
-                .length - 1
+            machineLastData[0].machine_code,
+            machineLastData[0].machine_name,
+            machineLastData[0].checkSheet_data.checksheet_status,
+            machineLastData[0].checkSheet_data.checkSheetSendingUser[
+              machineLastData[0].checkSheet_data.checkSheetSendingUser.length -
+                1
             ],
             undefined,
             undefined,
@@ -8117,22 +8536,20 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           );
         }
       } else if (
-        selected_machine_data.checkSheet_data.prd_tl_approval_status[
-          selected_machine_data.checkSheet_data.prd_tl_approval_status.length -
-            1
+        machineLastData[0].checkSheet_data.prd_tl_approval_status[
+          machineLastData[0].checkSheet_data.prd_tl_approval_status.length - 1
         ] === "Pending"
       ) {
         let prdTlApproval = "Rejected";
-        selected_machine_data.checkSheet_data.prd_tl_approval_status[
-          selected_machine_data.checkSheet_data.prd_tl_approval_status.length -
-            1
+        machineLastData[0].checkSheet_data.prd_tl_approval_status[
+          machineLastData[0].checkSheet_data.prd_tl_approval_status.length - 1
         ] = "Rejected";
         const PRDTLApprovalStatusUpdate = await Machine.updateOne(
-          { machine_code: selected_machine_data.machine_code },
+          { machine_code: machineLastData[0].machine_code },
           {
             $set: {
               "checkSheet_data.$[outer].prd_tl_approval_status":
-                selected_machine_data.checkSheet_data.prd_tl_approval_status,
+                machineLastData[0].checkSheet_data.prd_tl_approval_status,
               "checkSheet_data.$[outer].rejected_remarks": rejected_remarks,
             },
             $push: {
@@ -8145,107 +8562,42 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             arrayFilters: [
               {
                 "outer.current_year":
-                  selected_machine_data.checkSheet_data.current_year,
+                  machineLastData[0].checkSheet_data.current_year,
               },
             ],
           }
         );
-        // sendApproval(undefined, undefined, undefined, undefined, undefined, selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1], selected_machine_data.checkSheet_data.plan_prepared_tm_no[(selected_machine_data.checkSheet_data.plan_prepared_tm_no).length - 1],
-        //     selected_machine_data.checkSheet_data.plan_prepared_tm_name[(selected_machine_data.checkSheet_data.plan_prepared_tm_name).length - 1],
-        //     selected_machine_data.machine_code,
-        //     selected_machine_data.machine_name,
-        //     selected_machine_data.checkSheet_data.checksheet_status,
-        //     selected_machine_data.checkSheet_data.plan_prepared_email[(selected_machine_data.checkSheet_data.plan_prepared_email).length - 1],
+        // sendApproval(undefined, undefined, undefined, undefined, undefined, machineLastData[0].checkSheet_data.plan_prepared_tm_name[(machineLastData[0].checkSheet_data.plan_prepared_tm_name).length - 1], machineLastData[0].checkSheet_data.plan_prepared_tm_no[(machineLastData[0].checkSheet_data.plan_prepared_tm_no).length - 1],
+        //     machineLastData[0].checkSheet_data.plan_prepared_tm_name[(machineLastData[0].checkSheet_data.plan_prepared_tm_name).length - 1],
+        //     machineLastData[0].machine_code,
+        //     machineLastData[0].machine_name,
+        //     machineLastData[0].checkSheet_data.checksheet_status,
+        //     machineLastData[0].checkSheet_data.plan_prepared_email[(machineLastData[0].checkSheet_data.plan_prepared_email).length - 1],
         //     undefined,
         //     undefined,
         //     prdTlApproval,
         //     "No", rejected_remarks)
       }
       //Implemetation rejected by PRD TL
-
-      // else if (selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1] === "Pending") {
-      //     let prd_tl_approval_status = "Rejected"
-
-      //     let machineLastDataForKeyexistsOrNot = await Machine.aggregate([
-      //         {
-      //             $match:{
-      //                 machine_code: selected_machine_data.machine_code
-      //             }
-      //         },
-      //         {
-      //             $project:{
-      //                 machine_code:1,
-      //                 machine_name:1,
-      //                 machine_nickname:1,
-      //                 machine_sequence: 1,
-      //                 installation_date:1,
-      //                 maker_name:1,
-      //                 maker_sr_no:1,
-      //                 manufacturingDate:1,
-      //                 isPM:1,
-      //                 line_names: 1,
-      //                 checkSheet_data:{$arrayElemAt: ["$checkSheet_data", -1]}
-      //             }
-      //         }
-      //     ])
-
-      //     // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
-
-      //     if (!machineLastDataForKeyexistsOrNot[0].checkSheet_data.implementation_rejected_remarks){
-      //         const updateImplementationData = await Machine.updateOne({ machine_code: selected_machine_data.machine_code },
-      //              { $set: { "checkSheet_data.$[outer].implementation_rejected_remarks": creationMonthKeyArray } },
-      //              {
-      //                 arrayFilters: [{ 'outer.current_year':selected_machine_data.checkSheet_data.current_year }],
-      //             })
-
-      //     }
-
-      //     selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth]).length - 1] = "Rejected"
-
-      //     const PRDTLApprovalStatusUpdateOfImplementation = await Machine.updateOne({ machine_code: selected_machine_data.machine_code },
-      //          { $set:
-      //             {
-      //                 [keyOfImplemetation_prd_tl_approval_status]: selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[monthForCompareSystemMonth],
-      //                 [keyOfImplementation_approved_PRD_TL_date]: implementation_approved_PRD_TL_date,
-      //                 [keyOfImplementation_rejected_remarks]: rejected_remarks } },
-      //          {
-      //             arrayFilters: [{ 'outer.current_year':selected_machine_data.checkSheet_data.current_year }],
-      //         })
-      //     const findAssignMTDTLNameOfImplementation = await User.findOne({ email: selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1] })
-      //     let greetingNamesForAll = "All"
-      //     sendApprovalOfImplementation(greetingNamesForAll,
-      //         selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[monthForCompareSystemMonth]).length - 1],
-      //         selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[monthForCompareSystemMonth]).length - 1],
-      //         selected_machine_data.machine_code,
-      //         selected_machine_data.machine_name,
-      //         selected_machine_data.checkSheet_data.checksheet_status,
-      //         selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_TL[monthForCompareSystemMonth]).length - 1],
-      //         selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth]).length - 1],
-      //         prd_tl_approval_status,
-      //         undefined,
-      //         undefined, rejected_remarks)
-      // }
       else if (
-        selected_machine_data.checkSheet_data
-          .implemetation_prd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
-            .implemetation_prd_tl_approval_status[senderApprovalMonth].length -
-            1
-        ] === "Accepted" &&
-        selected_machine_data.checkSheet_data
-          .implemetation_mtd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
-            .implemetation_mtd_tl_approval_status[senderApprovalMonth].length -
-            1
+        machineLastData[0]?.checkSheet_data
+          ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]?.[
+          machineLastData[0]?.checkSheet_data
+            ?.implemetation_prd_tl_approval_status?.[senderApprovalMonth]
+            ?.length - 1
         ] === "Pending"
       ) {
-        let mtd_tl_approval_status = "Rejected";
-        console.log(implementation_approved_MTD_TL_date);
-
         let machineLastDataForKeyexistsOrNot = await Machine.aggregate([
           {
             $match: {
-              machine_code: selected_machine_data.machine_code,
+              machine_code: machineLastData[0].machine_code,
+            },
+          },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                machineLastData[0].checkSheet_data.current_year,
             },
           },
           {
@@ -8260,19 +8612,145 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
 
-        // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
+        // const keyExistsCheck = await Machine.findOne({ machine_code: machineLastData[0].machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
 
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_rejected_remarks
+          machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+            ?.implementation_rejected_remarks === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
+            {
+              $set: {
+                "checkSheet_data.$[outer].implementation_rejected_remarks":
+                  creationMonthKeyArray,
+                "checkSheet_data.$[outer].implementation_approved_MTD_TL_date":
+                  creationMonthKeyArray,
+                "checkSheet_data.$[outer].implementation_approved_MTD_HOS_date":
+                  creationMonthKeyArray,
+                "checkSheet_data.$[outer].implementation_approved_by_MTD_HOS":
+                  creationMonthKeyArray,
+                "checkSheet_data.$[outer].implementation_approved_by_MTD_TL":
+                  creationMonthKeyArray,
+                "checkSheet_data.$[outer].implementation_approved_by_PRD_TL":
+                  creationMonthKeyArray,
+                "checkSheet_data.$[outer].implementation_approved_PRD_TL_date":
+                  creationMonthKeyArray,
+              },
+            },
+            {
+              arrayFilters: [
+                {
+                  "outer.current_year":
+                    machineLastData[0].checkSheet_data.current_year,
+                },
+              ],
+            }
+          );
+        }
+
+        machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[
+          senderApprovalMonth
+        ][
+          machineLastData[0].checkSheet_data
+            .implemetation_prd_tl_approval_status[senderApprovalMonth].length -
+            1
+        ] = "Rejected";
+
+        const PRDTLApprovalStatusUpdateOfImplementation =
+          await Machine.updateOne(
+            { machine_code: machineLastData[0].machine_code },
+            {
+              $set: {
+                [keyOfImplemetation_prd_tl_approval_status]:
+                  machineLastData[0]?.checkSheet_data
+                    ?.implemetation_prd_tl_approval_status?.[
+                    senderApprovalMonth
+                  ],
+              },
+              $push: {
+                [keyOfImplementation_approved_PRD_TL_date]:
+                  implementation_approved_PRD_TL_date,
+                [keyOfImplementation_approved_by_PRD_TL]: "",
+                [keyOfImplemetation_quality_remarks]: "",
+                [keyOfImplementation_approved_MTD_TL_date]: "",
+                [keyOfImplementation_rejected_remarks]: rejected_remarks,
+                [keyOfImplementation_approved_by_MTD_TL]: "",
+                [keyOfImplementation_approved_by_MTD_HOS]: "",
+                [keyOfImplementation_approved_MTD_HOS_date]: "",
+              },
+            },
+            {
+              arrayFilters: [
+                {
+                  "outer.current_year":
+                    machineLastData[0].checkSheet_data.current_year,
+                },
+              ],
+            }
+          );
+      } else if (
+        machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[
+          senderApprovalMonth
+        ][
+          machineLastData[0].checkSheet_data
+            .implemetation_prd_tl_approval_status[senderApprovalMonth].length -
+            1
+        ] === "Accepted" &&
+        machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[
+          senderApprovalMonth
+        ][
+          machineLastData[0].checkSheet_data
+            .implemetation_mtd_tl_approval_status[senderApprovalMonth].length -
+            1
+        ] === "Pending"
+      ) {
+        let mtd_tl_approval_status = "Rejected";
+        // console.log(implementation_approved_MTD_TL_date);
+
+        let machineLastDataForKeyexistsOrNot = await Machine.aggregate([
+          {
+            $match: {
+              machine_code: machineLastData[0].machine_code,
+            },
+          },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                machineLastData[0].checkSheet_data.current_year,
+            },
+          },
+          {
+            $project: {
+              machine_code: 1,
+              machine_name: 1,
+              machine_nickname: 1,
+              machine_sequence: 1,
+              installation_date: 1,
+              maker_name: 1,
+              maker_sr_no: 1,
+              manufacturingDate: 1,
+              isPM: 1,
+              line_names: 1,
+              checkSheet_data: 1,
+            },
+          },
+        ]);
+
+        // const keyExistsCheck = await Machine.findOne({ machine_code: machineLastData[0].machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
+
+        if (
+          machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+            ?.implementation_rejected_remarks === undefined
+        ) {
+          const updateImplementationData = await Machine.updateOne(
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 "checkSheet_data.$[outer].implementation_rejected_remarks":
@@ -8291,27 +8769,27 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         }
 
-        selected_machine_data.checkSheet_data.implemetation_mtd_tl_approval_status[
+        machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[
           senderApprovalMonth
         ][
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_tl_approval_status[senderApprovalMonth].length -
             1
         ] = "Rejected";
         const MTDTLApprovalStatusUpdateOfImplementation =
           await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 [keyOfImplemetation_mtd_tl_approval_status]:
-                  selected_machine_data.checkSheet_data
+                  machineLastData[0].checkSheet_data
                     .implemetation_mtd_tl_approval_status[senderApprovalMonth],
               },
               $push: {
@@ -8327,48 +8805,50 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         const findAssignMTDHOSNameOfImplementation = await User.findOne({
           email:
-            selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[
-              senderApprovalMonth
-            ][
-              selected_machine_data.checkSheet_data
-                .implementation_assign_MTD_HOS[senderApprovalMonth].length - 1
+            machineLastData[0]?.checkSheet_data
+              ?.implementation_assign_MTD_HOS?.[senderApprovalMonth][
+              machineLastData[0]?.checkSheet_data
+                ?.implementation_assign_MTD_HOS?.[senderApprovalMonth]?.length -
+                1
             ],
         });
         let greetingNamesForAll = "All";
         // sendApprovalOfImplementation(findAssignMTDHOSNameOfImplementation,
-        //     selected_machine_data.checkSheet_data.implemetation_completed_tm_no[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_no[senderApprovalMonth]).length - 1],
-        //     selected_machine_data.checkSheet_data.implemetation_completed_tm_name[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_completed_tm_name[senderApprovalMonth]).length - 1],
-        //     selected_machine_data.machine_code,
-        //     selected_machine_data.machine_name,
-        //     selected_machine_data.checkSheet_data.checksheet_status,
-        //     selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth][(selected_machine_data.checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth]).length - 1],
+        //     machineLastData[0].checkSheet_data.implemetation_completed_tm_no[senderApprovalMonth][(machineLastData[0].checkSheet_data.implemetation_completed_tm_no[senderApprovalMonth]).length - 1],
+        //     machineLastData[0].checkSheet_data.implemetation_completed_tm_name[senderApprovalMonth][(machineLastData[0].checkSheet_data.implemetation_completed_tm_name[senderApprovalMonth]).length - 1],
+        //     machineLastData[0].machine_code,
+        //     machineLastData[0].machine_name,
+        //     machineLastData[0].checkSheet_data.checksheet_status,
+        //     machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth][(machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[senderApprovalMonth]).length - 1],
         //     undefined,
-        //     selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth][(selected_machine_data.checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth]).length - 1],
+        //     machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth][(machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[senderApprovalMonth]).length - 1],
         //     mtd_tl_approval_status,
         //     undefined, rejected_remarks)
       } else if (
-        selected_machine_data.checkSheet_data
-          .implemetation_prd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
+        machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[
+          senderApprovalMonth
+        ][
+          machineLastData[0].checkSheet_data
             .implemetation_prd_tl_approval_status[senderApprovalMonth].length -
             1
         ] === "Accepted" &&
-        selected_machine_data.checkSheet_data
-          .implemetation_mtd_tl_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
+        machineLastData[0].checkSheet_data.implemetation_mtd_tl_approval_status[
+          senderApprovalMonth
+        ][
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_tl_approval_status[senderApprovalMonth].length -
             1
         ] === "Accepted" &&
-        selected_machine_data.checkSheet_data
+        machineLastData[0].checkSheet_data
           .implemetation_mtd_hos_approval_status[senderApprovalMonth][
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_hos_approval_status[senderApprovalMonth].length -
             1
         ] === "Pending"
@@ -8376,7 +8856,14 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         let machineLastDataForKeyexistsOrNot = await Machine.aggregate([
           {
             $match: {
-              machine_code: selected_machine_data.machine_code,
+              machine_code: machineLastData[0].machine_code,
+            },
+          },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                machineLastData[0].checkSheet_data.current_year,
             },
           },
           {
@@ -8391,19 +8878,19 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
 
-        // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
+        // const keyExistsCheck = await Machine.findOne({ machine_code: machineLastData[0].machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
 
         if (
-          !machineLastDataForKeyexistsOrNot[0].checkSheet_data
-            .implementation_rejected_remarks
+          machineLastDataForKeyexistsOrNot?.[0]?.checkSheet_data
+            ?.implementation_rejected_remarks === undefined
         ) {
           const updateImplementationData = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 "checkSheet_data.$[outer].implementation_rejected_remarks":
@@ -8414,26 +8901,26 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         }
-        selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[
+        machineLastData[0].checkSheet_data.implemetation_mtd_hos_approval_status[
           senderApprovalMonth
         ][
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_hos_approval_status[senderApprovalMonth].length -
             1
         ] = "Rejected";
         const MTDHOSApprovalStatusUpdateOfImplementation =
           await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 [keyOfImplemetation_mtd_hos_approval_status]:
-                  selected_machine_data.checkSheet_data
+                  machineLastData[0].checkSheet_data
                     .implemetation_mtd_hos_approval_status[senderApprovalMonth],
               },
               $push: {
@@ -8447,26 +8934,33 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
       } else if (
-        selected_machine_data.checkSheet_data
+        machineLastData[0].checkSheet_data
           .implemetation_mtd_hod_approval_status[
-          selected_machine_data?.senderApprovalMonth
+          machineLastData[0]?.senderApprovalMonth
         ]?.[
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_hod_approval_status[
-            selected_machine_data?.senderApprovalMonth
+            machineLastData[0]?.senderApprovalMonth
           ] - 1
         ] === "Pending"
       ) {
         let machineLastDataForKeyexistsOrNot = await Machine.aggregate([
           {
             $match: {
-              machine_code: selected_machine_data.machine_code,
+              machine_code: machineLastData[0].machine_code,
+            },
+          },
+          { $unwind: "$checkSheet_data" },
+          {
+            $match: {
+              "checkSheet_data.current_year":
+                machineLastData[0].checkSheet_data.current_year,
             },
           },
           {
@@ -8481,19 +8975,19 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               manufacturingDate: 1,
               isPM: 1,
               line_names: 1,
-              checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+              checkSheet_data: 1,
             },
           },
         ]);
 
-        // const keyExistsCheck = await Machine.findOne({ machine_code: selected_machine_data.machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
+        // const keyExistsCheck = await Machine.findOne({ machine_code: machineLastData[0].machine_code, "checkSheet_data.implementation_rejected_remarks": { $exists: true } });
 
         if (
           !machineLastDataForKeyexistsOrNot[0].checkSheet_data
             .implementation_rejected_remarks
         ) {
           const updateImplementationData = await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 "checkSheet_data.$[outer].implementation_rejected_remarks":
@@ -8504,26 +8998,26 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
           );
         }
-        selected_machine_data.checkSheet_data.implemetation_mtd_hos_approval_status[
+        machineLastData[0].checkSheet_data.implemetation_mtd_hos_approval_status[
           monthForCompareSystemMonth
         ][
-          selected_machine_data.checkSheet_data
+          machineLastData[0].checkSheet_data
             .implemetation_mtd_hos_approval_status[monthForCompareSystemMonth]
             .length - 1
         ] = "Rejected";
         const MTDHOSApprovalStatusUpdateOfImplementation =
           await Machine.updateOne(
-            { machine_code: selected_machine_data.machine_code },
+            { machine_code: machineLastData[0].machine_code },
             {
               $set: {
                 [keyOfImplemetation_mtd_hos_approval_status]:
-                  selected_machine_data.checkSheet_data
+                  machineLastData[0].checkSheet_data
                     .implemetation_mtd_hos_approval_status[
                     monthForCompareSystemMonth
                   ],
@@ -8539,7 +9033,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               arrayFilters: [
                 {
                   "outer.current_year":
-                    selected_machine_data.checkSheet_data.current_year,
+                    machineLastData[0].checkSheet_data.current_year,
                 },
               ],
             }
@@ -8549,6 +9043,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 
     return res.status(201).json("Checksheet approval done!!!");
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -8757,6 +9252,7 @@ router.post(
       }
       // console.log(updateChecksheetRow)
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(409).json("TableRow already exists!!!");
       // console.log(error)
     }
@@ -8766,7 +9262,7 @@ router.post(
 let fileNameForLogHistory;
 //add data of implementation when operator worked on machine PM
 router.post(
-  "/postImplementationWorkedData",
+  "/postImplementationWorkedData/:dashboardName",
   upload1.single("photoUpload"),
   authenticate,
   async (req, res) => {
@@ -9539,7 +10035,14 @@ router.post(
         // console.log(key.planningTableAnimationArray2[monthForCompareSystemMonth])
         // console.log(count)
       });
-      // console.log(plannedPMCount)
+      // console.log(
+      //   "plannedPMCount",
+      //   plannedPMCount,
+      //   "completedPMCount",
+      //   completedPMCount,
+      //   "totalCarriedPMCount",
+      //   totalCarriedPMCount
+      // );
       // console.log(completedPMCount)
 
       if (completedPMCount === 1) {
@@ -9589,23 +10092,77 @@ router.post(
         );
       }
       let keyOfPMworkedTMNameForPreviosMonthDoneWithDelay = `checkSheet_data.$[outer].PMworkedTMName.${previousMonth}`;
+      //for add time and worked PM operator for skip pm data
+      let PMworkedTMNameArray = {
+        Apr: [],
+
+        May: [],
+
+        June: [],
+
+        July: [],
+
+        Aug: [],
+
+        Sep: [],
+
+        Oct: [],
+
+        Nov: [],
+
+        Dec: [],
+
+        Jan: [],
+
+        Feb: [],
+
+        Mar: [],
+      };
+
+      PMworkedTMNameArray?.[previousMonth]?.push(
+        loggedUserData.tm_name?.split(" ")?.[0]
+      );
+
+      let keyOfMonthOfTotalWorkedPMTime = `checkSheet_data.$[outer].PMworkedTMName`;
 
       //for done with delay status
-      if (totalCarriedPMCount) {
+      if (
+        totalCarriedPMCount &&
+        req?.params?.dashboardName === "editDataAsFlowWise"
+      ) {
         if (completedCarriedPMCount >= 1) {
           if (
-            !machineDataAfterSaveAllData[0]?.checkSheet_data?.PMworkedTMName?.[
-              previousMonth
-            ]?.includes(loggedUserData.tm_name)
+            machineDataAfterSaveAllData[0].checkSheet_data.PMworkedTMName !=
+            undefined
           ) {
+            if (
+              !machineDataAfterSaveAllData[0]?.checkSheet_data?.PMworkedTMName?.[
+                previousMonth
+              ]?.includes(loggedUserData.tm_name?.split(" ")?.[0])
+            ) {
+              updatePMworkedTMName = await Machine.updateOne(
+                {
+                  machine_code: machineId,
+                },
+                {
+                  $push: {
+                    [keyOfPMworkedTMNameForPreviosMonthDoneWithDelay]:
+                      loggedUserData.tm_name?.split(" ")?.[0],
+                  },
+                },
+                {
+                  arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
+                }
+              );
+            }
+          } else {
             updatePMworkedTMName = await Machine.updateOne(
               {
                 machine_code: machineId,
               },
               {
-                $push: {
-                  [keyOfPMworkedTMNameForPreviosMonthDoneWithDelay]:
-                    loggedUserData.tm_name,
+                $set: {
+                  [keyOfMonthOfTotalWorkedPMTime]: PMworkedTMNameArray,
                 },
               },
               {
@@ -9664,6 +10221,7 @@ router.post(
         return res.status(400).json("Checksheet worked data not posted!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -10058,6 +10616,7 @@ router.post("/submitLogHistory", authenticate, async (req, res) => {
       return res.status(400).json("Getting error");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -10253,6 +10812,7 @@ router.post(
         return res.status(400).json("Getting error");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -10622,6 +11182,7 @@ router.post(
         return res.status(400).json("Getting error");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -10819,7 +11380,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
       if (
         !getSelectedMachineChecksheet[0]?.checkSheet_data?.PMworkedTMName[
           monthForCompareSystemMonth
-        ].includes(PMworkedTMName)
+        ]?.includes(PMworkedTMName)
       ) {
         updatePMworkedTMName = await Machine.updateOne(
           {
@@ -10860,6 +11421,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
       return res.status(400).json("PM worked data not save...!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -11129,6 +11691,7 @@ router.post("/deleteCheckSheet", authenticate, async (req, res) => {
       res.status(201).json({ message: "Removed Checksheet !!!" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -11193,6 +11756,7 @@ router.post("/PMCarryOnToNextMonth", async (req, res) => {
       return res.status(400).json("Checksheet data not carried!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -11203,7 +11767,7 @@ router.post(
   authenticate,
   async (req, res) => {
     try {
-      let { machineID, selectedYear } = req.body;
+      let { machine_code, selectedYear } = req.body;
       // console.log(machineID)
 
       let currentYear =
@@ -11211,10 +11775,10 @@ router.post(
           ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
           : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
       let selectedYearOfCheckSheet =
-        selectedYear === currentYear
+        req?.query?.selectedYear === currentYear
           ? [
               {
-                "checkSheet_data.current_year": selectedYear,
+                "checkSheet_data.current_year": req?.query?.selectedYear,
               },
               {
                 checkSheet_data: [],
@@ -11222,17 +11786,16 @@ router.post(
             ]
           : [
               {
-                "checkSheet_data.current_year": selectedYear,
+                "checkSheet_data.current_year": req?.query?.selectedYear,
               },
             ];
 
       // const machineData = await Machine.findOne({ _id: machineID })
-
       let machineLastData;
       machineLastData = await Machine.aggregate([
         {
           $match: {
-            machine_code: machineID.machine_code,
+            machine_code,
             $or: selectedYearOfCheckSheet,
           },
         },
@@ -11256,7 +11819,7 @@ router.post(
         },
         {
           $match: {
-            "checkSheet_data.current_year": selectedYear,
+            "checkSheet_data.current_year": req?.query?.selectedYear,
           },
         },
       ]);
@@ -11272,10 +11835,88 @@ router.post(
         },
       });
 
+      const section = await Section.findOne({
+        section_id: req?.rootUser?.section_data?.split("-")?.[0],
+      });
+
+      let queryObj = {
+        plant_data: req?.rootUser?.plant_data,
+        _id: { $ne: req?.rootUser?._id },
+      };
+
+      if (req?.query?.getAllUser) {
+        delete queryObj?._id;
+      }
+
+      if (req?.rootUser?.tm_grade !== "HOD") {
+        if (section.dashboardLevel === "Yes") {
+          queryObj = {
+            ...queryObj,
+            section_data: req?.rootUser?.section_data,
+          };
+        } else {
+          queryObj = {
+            ...queryObj,
+            section_data: req?.rootUser?.section_data,
+            subSection_data: { $in: req?.rootUser?.subSection_data },
+          };
+        }
+      }
+
+      const mtdHOS = await User.find(
+        {
+          ...queryObj,
+          tm_department: "MTD",
+          tm_grade: "HOS",
+        },
+        { tm_no: 1, tm_name: 1, email: 1 }
+      );
+      const mtdTL = await User.find(
+        {
+          ...queryObj,
+          tm_department: "MTD",
+          user_type: "TL/HOSS",
+        },
+        { tm_no: 1, tm_name: 1, email: 1 }
+      );
+      const mtdHOD = await User.find(
+        {
+          plant_data: req?.rootUser?.plant_data,
+          _id: { $ne: req?.rootUser?._id },
+          tm_department: "MTD",
+          tm_grade: "HOD",
+        },
+        { tm_no: 1, tm_name: 1, email: 1 }
+      );
+      const prdTL = await User.find(
+        {
+          ...queryObj,
+          tm_department: "PRD",
+          user_type: "TL/HOSS",
+        },
+        { tm_no: 1, tm_name: 1, email: 1 }
+      );
+
+      const operatorList = await User.find(
+        {
+          ...queryObj,
+          user_type: "Operator",
+        },
+        { tm_no: 1, tm_name: 1, email: 1 }
+      );
+
       // console.log(machineLastData)
 
-      res.send({ machineLastData: machineLastData[0] });
+      res.send({
+        machineLastData: machineLastData[0],
+        mtdHOS,
+        mtdTL,
+        mtdHOD,
+        prdTL,
+        operatorList,
+      });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -11520,6 +12161,7 @@ router.post(
         return res.status(400).json("Checksheet data not carried!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -11682,6 +12324,7 @@ router.post(
 
       res.json({ lineInfo });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("============= 5690", error);
       console.log("User id not received!!!");
     }
@@ -11828,6 +12471,7 @@ router.post(
 
       res.json({ machineInfo });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("========== 5751", error);
       console.log("User id not received!!!");
     }
@@ -12292,6 +12936,7 @@ router.post(
 
       res.json({ lineDataWithCounter, lineData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -12311,6 +12956,7 @@ router.post("/postFileName", authenticate, async (req, res) => {
       res.status(201).json({ message: "File name posted" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     // console.log("2032", error)
     console.log("Filename not received");
   }
@@ -12320,6 +12966,7 @@ router.get("/downloadFile", authenticate, async (req, res) => {
     // console.log(downloadFileName)
     res.download(downloadFileName);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("2032", error);
     console.log("Filename not received");
   }
@@ -12383,6 +13030,7 @@ router.post("/updateOpenPMData", authenticate, async (req, res) => {
 
     // res.json({ machineInfo })
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -12423,6 +13071,7 @@ router.post("/updateOpenPMToClose", authenticate, async (req, res) => {
       return res.status(400).json("Checksheet status not updated!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(409).json("Section already exists!!!");
   }
 });
@@ -12618,6 +13267,107 @@ router.post(
         },
       ]);
 
+      let GetAllPlanAndCompletedHours;
+      if (req?.query?.filter === "Hours") {
+        const commonMiddleware = [
+          {
+            $match: {
+              line_names: { $in: lineIdArray },
+              checkSheet_data: { $ne: [] },
+            },
+          },
+          {
+            $unwind: "$checkSheet_data",
+          },
+          {
+            $match: {
+              "checkSheet_data.current_year": selectedYear,
+              $and: [
+                {
+                  [keyForCurrentMonthPMStatus]: { $ne: "" },
+                },
+                {
+                  [keyForCurrentMonthScheduleOrNotStatus]: { $ne: "" },
+                },
+              ],
+              "checkSheet_data.PMStatus": { $ne: undefined },
+            },
+          },
+        ];
+
+        let GetAllPlanHours = await Machine.aggregate([
+          ...commonMiddleware,
+          {
+            $unwind: "$checkSheet_data.checkSheet",
+          },
+          {
+            $group: {
+              _id: null,
+              schedulePm: {
+                $sum: {
+                  $cond: {
+                    if: {
+                      $eq: [
+                        {
+                          $arrayElemAt: [
+                            `$checkSheet_data.checkSheet.planningTableAnimationArray2.${currentMonth}`,
+                            0,
+                          ],
+                        },
+                        "1",
+                      ],
+                    },
+                    then: {
+                      $round: [
+                        {
+                          $divide: [
+                            {
+                              $toDouble: "$checkSheet_data.checkSheet.PM_time",
+                            },
+                            60,
+                          ],
+                        },
+                        1,
+                      ],
+                    },
+                    else: 0,
+                  },
+                },
+              },
+            },
+          },
+        ]);
+
+        const GetAllCompletedHours = await Machine.aggregate([
+          ...commonMiddleware,
+          {
+            $group: {
+              _id: null,
+              completed: {
+                $sum: {
+                  $round: [
+                    {
+                      $divide: [
+                        {
+                          $toDouble: `$checkSheet_data.totalPMTime.${currentMonth}.totalWorkedPMTime`,
+                        },
+                        60,
+                      ],
+                    },
+                    1,
+                  ],
+                },
+              },
+            },
+          },
+        ]);
+
+        GetAllPlanAndCompletedHours = {
+          ...GetAllPlanHours?.[0],
+          ...GetAllCompletedHours?.[0],
+        };
+      }
+
       machineDataForPreviousMonth = await Machine.aggregate([
         {
           $match: {
@@ -12767,6 +13517,10 @@ router.post(
                   keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
                 checkSheet_data: keyForCheckSheet?.checkSheet_data,
                 flagForPreviousMonthData: true,
+                // completionTargetDate:
+                //       keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[
+                //         previousMonth
+                //       ],
               })
             );
           }
@@ -12782,844 +13536,16 @@ router.post(
         { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
       );
 
-      // if (typeof (section) === "object") {
-      //     if (section?.dashboardLevel === "Yes") {
-      //         subSectionsData = await SubSection.find({ section_names: section?._id }).sort({ subSection_sequence: 1 })
-
-      //         for (let i = 0; i < subSectionsData.length; i++) {
-      //             subSectionIdArray.push(subSectionsData[i]._id);
-      //         }
-
-      //         cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
-
-      //         for (let i = 0; i < cellData.length; i++) {
-      //             cellIdArray.push(cellData[i]._id);
-      //         }
-
-      //         lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
-
-      //         for (let i = 0; i < lineData.length; i++) {
-      //             lineIdArray.push(lineData[i]._id);
-      //         }
-
-      //         // machineDataForCurrentMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForCurrentMonthPMStatus]: { $ne: "" }, PMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         // const machineData = await Machine.findOne({ _id: machineID })
-      //         let keyOfPMStatusOfCurrentMonth = `checkSheet_data.PMStatus.${monthForCompareSystemMonth}`
-
-      //         machineDataForCurrentMonth = await Machine.aggregate([{
-      //             $match: {
-      //                 line_names: { $in: lineIdArray },
-      //                 $or: selectedYearOfCheckSheet,
-      //                 "checkSheet_data": { $ne: [] },
-      //             }
-      //         },
-      //         {
-      //             $project: {
-      //                 machine_code: 1,
-      //                 machine_name: 1,
-      //                 machine_nickname: 1,
-      //                 machine_sequence: 1,
-      //                 installation_date: 1,
-      //                 maker_name: 1,
-      //                 maker_sr_no: 1,
-      //                 manufacturingDate: 1,
-      //                 isPM: 1,
-      //                 line_names: 1,
-      //                 checkSheet_data: 1
-      //             }
-      //         },
-      //         {
-      //             $unwind: "$checkSheet_data"
-      //         },
-      //         {
-      //             $match: {
-      //                 "checkSheet_data.current_year": selectedYear
-      //             }
-      //         },
-      //         {
-      //             $match: {
-      //                 $and: [
-      //                     {
-      //                         [keyForCurrentMonthPMStatus]: { $ne: "" }
-      //                     },
-      //                     {
-      //                         [keyForCurrentMonthScheduleOrNotStatus]: { $ne: "" }
-      //                     }
-      //                 ],
-      //                 "checkSheet_data.PMStatus": { $ne: undefined },
-      //                 // [keyOfPMStatusOfCurrentMonth]: { $ne:  "No Completion" }
-      //             }
-      //         },
-      //         ])
-
-      //         console.log("========>", machineDataForCurrentMonth)
-
-      //         machineDataForPreviousMonth = await Machine.aggregate([{
-      //             $match: {
-      //                 line_names: { $in: lineIdArray },
-      //                 $or: selectedYearOfCheckSheet,
-      //                 "checkSheet_data": { $ne: [] },
-      //             }
-      //         },
-      //         {
-      //             $project: {
-      //                 machine_code: 1,
-      //                 machine_name: 1,
-      //                 machine_nickname: 1,
-      //                 machine_sequence: 1,
-      //                 installation_date: 1,
-      //                 maker_name: 1,
-      //                 maker_sr_no: 1,
-      //                 manufacturingDate: 1,
-      //                 isPM: 1,
-      //                 line_names: 1,
-      //                 checkSheet_data: 1
-      //             }
-      //         },
-      //         {
-      //             $unwind: "$checkSheet_data"
-      //         },
-      //         {
-      //             $match: {
-      //                 "checkSheet_data.current_year": selectedYear
-      //             }
-      //         },
-      //         {
-      //             $match: {
-      //                 // [keyForPreviousMonthPMStatus]: { $ne: "" },
-      //                 "checkSheet_data.PMStatus": { $ne: undefined },
-
-      //             }
-      //         },
-      //         ])
-      //         machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         machineDataForPreviousMonth.map((keyForCheckSheet) => {
-
-      //             for (let i = 0; i < Object.keys(keyForCheckSheet?.checkSheet_data?.PMStatus)?.length; i++) {
-      //                 let month = financialYearWiseMonthKeyArray[i]
-
-      //                 if (keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "PM Skip") {
-      //                     for (let j = 0; j < keyForCheckSheet?.checkSheet_data?.checkSheet?.length; j++) {
-
-      //                         if (
-      //                             // (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== '1/1M' ||
-      //                             //     keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== '1/2M')
-      //                             (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/3M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/4M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/6M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/Y")
-      //                             &&
-      //                             (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][1] === "skip" &&
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][0] === "1")
-      //                         ) {
-      //                             // console.log(keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.tableRowId, "-----", keyForCheckSheet?.machine_code, "--->", keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle, "---", j, "month---", month)
-
-      //                             skipMachineDataWithEveryMonth.push(
-      //                                 new Object({
-      //                                     machine_id: keyForCheckSheet?._id,
-      //                                     machine_name: keyForCheckSheet?.machine_name,
-      //                                     machine_code: keyForCheckSheet?.machine_code,
-      //                                     yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                                     schedule_month: month,
-      //                                     line_names: keyForCheckSheet?.line_names,
-      //                                     PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-      //                                     completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month],
-      //                                     checkSheet_data: keyForCheckSheet?.checkSheet_data,
-
-      //                                 })
-      //                             );
-      //                             break;
-      //                         }
-
-      //                     }
-
-      //                 }
-      //                 // console.log(keyForCheckSheet?.checkSheet_data?.PMStatus[month], "----", keyForCheckSheet?.machine_name)
-      //                 if ((keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "Done with delay" &&
-      //                     keyForCheckSheet?.checkSheet_data?.flagOfDoneWithDelayForOneMonth?.[month] === currentMonthInNumber)) {
-      //                     skipMachineDataWithEveryMonth.push(
-      //                         new Object({
-      //                             machine_id: keyForCheckSheet?._id,
-      //                             machine_name: keyForCheckSheet?.machine_name,
-      //                             machine_code: keyForCheckSheet?.machine_code,
-      //                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                             schedule_month: month,
-      //                             line_names: keyForCheckSheet?.line_names,
-      //                             PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-      //                             checkSheet_data: keyForCheckSheet?.checkSheet_data,
-      //                             completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month]
-
-      //                         })
-      //                     );
-      //                 }
-
-      //             }
-      //             if (previousMonth != "Mar") {
-      //                 if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" &&
-      //                     keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined &&
-      //                     keyForCheckSheet?.checkSheet_data?.currentMonthScheduleOrNotStatus?.[monthForCompareSystemMonth] === ""
-      //                 ) {
-      //                     skipMachineDataWithEveryMonth.push(
-      //                         new Object({
-      //                             machine_id: keyForCheckSheet?._id,
-      //                             machine_name: keyForCheckSheet?.machine_name,
-      //                             machine_code: keyForCheckSheet?.machine_code,
-      //                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                             line_names: keyForCheckSheet?.line_names,
-      //                             schedule_month: previousMonth,
-      //                             PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
-      //                             checkSheet_data: keyForCheckSheet?.checkSheet_data,
-      //                             flagForPreviousMonthData: true
-      //                         })
-      //                     )
-      //                 }
-      //             }
-
-      //         })
-
-      //         machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-      //         skipMachineDataWithEveryMonth = await Machine.populate(skipMachineDataWithEveryMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         // console.log("========>", machineDataForCurrentMonth)
-      //         // console.log("========>", machineDataForPreviousMonth)
-
-      //         // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //     } else {
-
-      //         // console.log("*******", section?._id)
-
-      //         // subSectionIdArray?.push(section?._id)
-      //         // if (req.rootUser?.user_type === "Plant-Admin" && req.rootUser?.tm_grade === "HOD") {
-      //         // } else {
-
-      //         //     loggedUserData.subSection_data.map((ids) => {
-      //         //         let subsectionsId = ids.split("-")
-      //         //         subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
-      //         //     })
-      //         //     subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
-
-      //         //     for (let i = 0; i < subSectionsData.length; i++) {
-      //         //         subSectionIdArray.push(subSectionsData[i]._id);
-      //         //     }
-      //         // }
-      //         // cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
-
-      //         // console.log("8754 ===================>")
-
-      //         cellData = await Cell.find({ subSection_names: section?._id }).sort({ cell_sequence: 1 });
-
-      //         for (let i = 0; i < cellData.length; i++) {
-      //             cellIdArray.push(cellData[i]._id);
-      //         }
-
-      //         lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
-
-      //         for (let i = 0; i < lineData.length; i++) {
-      //             lineIdArray.push(lineData[i]._id);
-      //         }
-
-      //         machineDataForCurrentMonth = await Machine.aggregate([{
-      //             $match: {
-      //                 line_names: { $in: lineIdArray },
-      //                 $or: selectedYearOfCheckSheet,
-      //                 "checkSheet_data": { $ne: [] },
-      //             }
-      //         },
-      //         {
-      //             $project: {
-      //                 machine_code: 1,
-      //                 machine_name: 1,
-      //                 machine_nickname: 1,
-      //                 machine_sequence: 1,
-      //                 installation_date: 1,
-      //                 maker_name: 1,
-      //                 maker_sr_no: 1,
-      //                 manufacturingDate: 1,
-      //                 isPM: 1,
-      //                 line_names: 1,
-      //                 checkSheet_data: 1
-      //             }
-      //         },
-      //         {
-      //             $unwind: "$checkSheet_data"
-      //         },
-      //         {
-      //             $match: {
-      //                 "checkSheet_data.current_year": selectedYear
-      //             }
-      //         },
-      //         {
-      //             $match: {
-      //                 $and: [
-      //                     {
-      //                         [keyForCurrentMonthPMStatus]: { $ne: "" }
-      //                     },
-      //                     {
-      //                         [keyForCurrentMonthScheduleOrNotStatus]: { $ne: "" }
-      //                     }
-      //                 ],
-      //                 "checkSheet_data.PMStatus": { $ne: undefined },
-      //             }
-      //         },
-      //         ])
-
-      //         // console.log("========>", machineDataForCurrentMonth)
-
-      //         machineDataForPreviousMonth = await Machine.aggregate([{
-      //             $match: {
-      //                 line_names: { $in: lineIdArray },
-      //                 $or: selectedYearOfCheckSheet,
-      //                 "checkSheet_data": { $ne: [] },
-      //             }
-      //         },
-      //         {
-      //             $project: {
-      //                 machine_code: 1,
-      //                 machine_name: 1,
-      //                 machine_nickname: 1,
-      //                 machine_sequence: 1,
-      //                 installation_date: 1,
-      //                 maker_name: 1,
-      //                 maker_sr_no: 1,
-      //                 manufacturingDate: 1,
-      //                 isPM: 1,
-      //                 line_names: 1,
-      //                 checkSheet_data: 1
-      //             }
-      //         },
-      //         {
-      //             $unwind: "$checkSheet_data"
-      //         },
-      //         {
-      //             $match: {
-      //                 "checkSheet_data.current_year": selectedYear
-      //             }
-      //         },
-      //         {
-      //             $match: {
-      //                 // [keyForPreviousMonthPMStatus]: { $ne: "" },
-      //                 "checkSheet_data.PMStatus": { $ne: undefined },
-      //             }
-      //         },
-      //         ])
-      //         machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         machineDataForPreviousMonth.map((keyForCheckSheet) => {
-
-      //             for (let i = 0; i < Object.keys(keyForCheckSheet?.checkSheet_data?.PMStatus)?.length; i++) {
-      //                 let month = financialYearWiseMonthKeyArray[i]
-
-      //                 if (keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "PM Skip") {
-      //                     for (let j = 0; j < keyForCheckSheet?.checkSheet_data?.checkSheet?.length; j++) {
-
-      //                         if (
-      //                             // (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== '1/1M' ||
-      //                             //     keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== '1/2M')
-      //                             (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/3M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/4M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/6M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/Y")
-      //                             &&
-      //                             (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][1] === "skip" &&
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][0] === "1")
-      //                         ) {
-      //                             // console.log(keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.tableRowId, "-----", keyForCheckSheet?.machine_code, "--->", keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle, "---", j, "month---", month)
-
-      //                             skipMachineDataWithEveryMonth.push(
-      //                                 new Object({
-      //                                     machine_id: keyForCheckSheet?._id,
-      //                                     machine_name: keyForCheckSheet?.machine_name,
-      //                                     machine_code: keyForCheckSheet?.machine_code,
-      //                                     yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                                     schedule_month: month,
-      //                                     line_names: keyForCheckSheet?.line_names,
-      //                                     PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-      //                                     completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month],
-      //                                     checkSheet_data: keyForCheckSheet?.checkSheet_data,
-
-      //                                 })
-      //                             );
-      //                             break;
-      //                         }
-
-      //                     }
-
-      //                 }
-      //                 // console.log(keyForCheckSheet?.checkSheet_data?.PMStatus[month], "----", keyForCheckSheet?.machine_name)
-      //                 if ((keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "Done with delay" &&
-      //                     keyForCheckSheet?.checkSheet_data?.flagOfDoneWithDelayForOneMonth?.[month] === currentMonthInNumber)) {
-      //                     skipMachineDataWithEveryMonth.push(
-      //                         new Object({
-      //                             machine_id: keyForCheckSheet?._id,
-      //                             machine_name: keyForCheckSheet?.machine_name,
-      //                             machine_code: keyForCheckSheet?.machine_code,
-      //                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                             schedule_month: month,
-      //                             line_names: keyForCheckSheet?.line_names,
-      //                             PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-      //                             checkSheet_data: keyForCheckSheet?.checkSheet_data,
-      //                             completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month]
-
-      //                         })
-      //                     );
-      //                 }
-
-      //             }
-      //             if (previousMonth != "Mar") {
-      //                 if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" &&
-      //                     keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined &&
-      //                     keyForCheckSheet?.checkSheet_data?.currentMonthScheduleOrNotStatus?.[monthForCompareSystemMonth] === ""
-      //                 ) {
-      //                     skipMachineDataWithEveryMonth.push(
-      //                         new Object({
-      //                             machine_id: keyForCheckSheet?._id,
-      //                             machine_name: keyForCheckSheet?.machine_name,
-      //                             machine_code: keyForCheckSheet?.machine_code,
-      //                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                             line_names: keyForCheckSheet?.line_names,
-      //                             schedule_month: previousMonth,
-      //                             PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
-      //                             checkSheet_data: keyForCheckSheet?.checkSheet_data,
-      //                             flagForPreviousMonthData: true
-      //                         })
-      //                     )
-      //                 }
-      //             }
-
-      //         })
-
-      //         machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-      //         skipMachineDataWithEveryMonth = await Machine.populate(skipMachineDataWithEveryMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         // machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-      //     }
-      // } else {
-      //     if (section?.dashboardLevel === "Yes") {
-      //         subSectionsData = await SubSection.find({ section_names: section?._id }).sort({ subSection_sequence: 1 })
-
-      //         for (let i = 0; i < subSectionsData.length; i++) {
-      //             subSectionIdArray.push(subSectionsData[i]._id);
-      //         }
-
-      //         cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
-
-      //         for (let i = 0; i < cellData.length; i++) {
-      //             cellIdArray.push(cellData[i]._id);
-      //         }
-
-      //         lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
-
-      //         for (let i = 0; i < lineData.length; i++) {
-      //             lineIdArray.push(lineData[i]._id);
-      //         }
-
-      //         // machineDataForCurrentMonth = await Machine.find({ line_names: { $in: lineIdArray }, [keyForCurrentMonthPMStatus]: { $ne: "" }, PMStatus: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         // const machineData = await Machine.findOne({ _id: machineID })
-      //         let keyOfPMStatusOfCurrentMonth = `checkSheet_data.PMStatus.${monthForCompareSystemMonth}`
-
-      //         machineDataForCurrentMonth = await Machine.aggregate([{
-      //             $match: {
-      //                 line_names: { $in: lineIdArray },
-      //                 $or: selectedYearOfCheckSheet,
-      //                 "checkSheet_data": { $ne: [] },
-      //             }
-      //         },
-      //         {
-      //             $project: {
-      //                 machine_code: 1,
-      //                 machine_name: 1,
-      //                 machine_nickname: 1,
-      //                 machine_sequence: 1,
-      //                 installation_date: 1,
-      //                 maker_name: 1,
-      //                 maker_sr_no: 1,
-      //                 manufacturingDate: 1,
-      //                 isPM: 1,
-      //                 line_names: 1,
-      //                 checkSheet_data: 1
-      //             }
-      //         },
-      //         {
-      //             $unwind: "$checkSheet_data"
-      //         },
-      //         {
-      //             $match: {
-      //                 "checkSheet_data.current_year": selectedYear
-      //             }
-      //         },
-      //         {
-      //             $match: {
-      //                 $and: [
-      //                     {
-      //                         [keyForCurrentMonthPMStatus]: { $ne: "" }
-      //                     },
-      //                     {
-      //                         [keyForCurrentMonthScheduleOrNotStatus]: { $ne: "" }
-      //                     }
-      //                 ],
-      //                 "checkSheet_data.PMStatus": { $ne: undefined },
-      //                 // [keyOfPMStatusOfCurrentMonth]: { $ne:  "No Completion" }
-      //             }
-      //         },
-      //         ])
-
-      //         console.log("========>", machineDataForCurrentMonth)
-
-      //         machineDataForPreviousMonth = await Machine.aggregate([{
-      //             $match: {
-      //                 line_names: { $in: lineIdArray },
-      //                 $or: selectedYearOfCheckSheet,
-      //                 "checkSheet_data": { $ne: [] },
-      //             }
-      //         },
-      //         {
-      //             $project: {
-      //                 machine_code: 1,
-      //                 machine_name: 1,
-      //                 machine_nickname: 1,
-      //                 machine_sequence: 1,
-      //                 installation_date: 1,
-      //                 maker_name: 1,
-      //                 maker_sr_no: 1,
-      //                 manufacturingDate: 1,
-      //                 isPM: 1,
-      //                 line_names: 1,
-      //                 checkSheet_data: 1
-      //             }
-      //         },
-      //         {
-      //             $unwind: "$checkSheet_data"
-      //         },
-      //         {
-      //             $match: {
-      //                 "checkSheet_data.current_year": selectedYear
-      //             }
-      //         },
-      //         {
-      //             $match: {
-      //                 // [keyForPreviousMonthPMStatus]: { $ne: "" },
-      //                 "checkSheet_data.PMStatus": { $ne: undefined },
-
-      //             }
-      //         },
-      //         ])
-      //         machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         machineDataForPreviousMonth.map((keyForCheckSheet) => {
-
-      //             for (let i = 0; i < Object.keys(keyForCheckSheet?.checkSheet_data?.PMStatus)?.length; i++) {
-      //                 let month = financialYearWiseMonthKeyArray[i]
-
-      //                 if (keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "PM Skip") {
-      //                     for (let j = 0; j < keyForCheckSheet?.checkSheet_data?.checkSheet?.length; j++) {
-
-      //                         if (
-      //                             // (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== '1/1M' ||
-      //                             //     keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== '1/2M')
-      //                             (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/3M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/4M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/6M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/Y")
-      //                             &&
-      //                             (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][1] === "skip" &&
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][0] === "1")
-      //                         ) {
-      //                             // console.log(keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.tableRowId, "-----", keyForCheckSheet?.machine_code, "--->", keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle, "---", j, "month---", month)
-
-      //                             skipMachineDataWithEveryMonth.push(
-      //                                 new Object({
-      //                                     machine_id: keyForCheckSheet?._id,
-      //                                     machine_name: keyForCheckSheet?.machine_name,
-      //                                     machine_code: keyForCheckSheet?.machine_code,
-      //                                     yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                                     schedule_month: month,
-      //                                     line_names: keyForCheckSheet?.line_names,
-      //                                     PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-      //                                     completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month],
-      //                                     checkSheet_data: keyForCheckSheet?.checkSheet_data,
-
-      //                                 })
-      //                             );
-      //                             break;
-      //                         }
-
-      //                     }
-
-      //                 }
-      //                 // console.log(keyForCheckSheet?.checkSheet_data?.PMStatus[month], "----", keyForCheckSheet?.machine_name)
-      //                 if ((keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "Done with delay" &&
-      //                     keyForCheckSheet?.checkSheet_data?.flagOfDoneWithDelayForOneMonth?.[month] === currentMonthInNumber)) {
-      //                     skipMachineDataWithEveryMonth.push(
-      //                         new Object({
-      //                             machine_id: keyForCheckSheet?._id,
-      //                             machine_name: keyForCheckSheet?.machine_name,
-      //                             machine_code: keyForCheckSheet?.machine_code,
-      //                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                             schedule_month: month,
-      //                             line_names: keyForCheckSheet?.line_names,
-      //                             PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-      //                             checkSheet_data: keyForCheckSheet?.checkSheet_data,
-      //                             completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month]
-
-      //                         })
-      //                     );
-      //                 }
-
-      //             }
-      //             if (previousMonth != "Mar") {
-      //                 if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" &&
-      //                     keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined &&
-      //                     keyForCheckSheet?.checkSheet_data?.currentMonthScheduleOrNotStatus?.[monthForCompareSystemMonth] === ""
-      //                 ) {
-      //                     skipMachineDataWithEveryMonth.push(
-      //                         new Object({
-      //                             machine_id: keyForCheckSheet?._id,
-      //                             machine_name: keyForCheckSheet?.machine_name,
-      //                             machine_code: keyForCheckSheet?.machine_code,
-      //                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                             line_names: keyForCheckSheet?.line_names,
-      //                             schedule_month: previousMonth,
-      //                             PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
-      //                             checkSheet_data: keyForCheckSheet?.checkSheet_data,
-      //                             flagForPreviousMonthData: true
-      //                         })
-      //                     )
-      //                 }
-      //             }
-
-      //         })
-
-      //         machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-      //         skipMachineDataWithEveryMonth = await Machine.populate(skipMachineDataWithEveryMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         // console.log("========>", machineDataForCurrentMonth)
-      //         // console.log("========>", machineDataForPreviousMonth)
-
-      //         // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //     } else {
-
-      //         // console.log("*******", section?._id)
-
-      //         // subSectionIdArray?.push(section?._id)
-      //         // if (req.rootUser?.user_type === "Plant-Admin" && req.rootUser?.tm_grade === "HOD") {
-      //         // } else {
-
-      //         //     loggedUserData.subSection_data.map((ids) => {
-      //         //         let subsectionsId = ids.split("-")
-      //         //         subsectionSplitIdArrayForChecksheet.push(subsectionsId[0])
-      //         //     })
-      //         //     subSectionsData = await SubSection.find({ subSection_id: { $in: subsectionSplitIdArrayForChecksheet } }).sort({ subSection_sequence: 1 })
-
-      //         //     for (let i = 0; i < subSectionsData.length; i++) {
-      //         //         subSectionIdArray.push(subSectionsData[i]._id);
-      //         //     }
-      //         // }
-      //         // cellData = await Cell.find({ subSection_names: { $in: subSectionIdArray } }).sort({ cell_sequence: 1 });
-
-      //         // console.log("8754 ===================>")
-
-      //         cellData = await Cell.find({ subSection_names: section?._id }).sort({ cell_sequence: 1 });
-
-      //         for (let i = 0; i < cellData.length; i++) {
-      //             cellIdArray.push(cellData[i]._id);
-      //         }
-
-      //         lineData = await Line.find({ cell_names: { $in: cellIdArray } }).sort({ line_sequence: 1 });
-
-      //         for (let i = 0; i < lineData.length; i++) {
-      //             lineIdArray.push(lineData[i]._id);
-      //         }
-
-      //         machineDataForCurrentMonth = await Machine.aggregate([{
-      //             $match: {
-      //                 line_names: { $in: lineIdArray },
-      //                 $or: selectedYearOfCheckSheet,
-      //                 "checkSheet_data": { $ne: [] },
-      //             }
-      //         },
-      //         {
-      //             $project: {
-      //                 machine_code: 1,
-      //                 machine_name: 1,
-      //                 machine_nickname: 1,
-      //                 machine_sequence: 1,
-      //                 installation_date: 1,
-      //                 maker_name: 1,
-      //                 maker_sr_no: 1,
-      //                 manufacturingDate: 1,
-      //                 isPM: 1,
-      //                 line_names: 1,
-      //                 checkSheet_data: 1
-      //             }
-      //         },
-      //         {
-      //             $unwind: "$checkSheet_data"
-      //         },
-      //         {
-      //             $match: {
-      //                 "checkSheet_data.current_year": selectedYear
-      //             }
-      //         },
-      //         {
-      //             $match: {
-      //                 $and: [
-      //                     {
-      //                         [keyForCurrentMonthPMStatus]: { $ne: "" }
-      //                     },
-      //                     {
-      //                         [keyForCurrentMonthScheduleOrNotStatus]: { $ne: "" }
-      //                     }
-      //                 ],
-      //                 "checkSheet_data.PMStatus": { $ne: undefined },
-      //             }
-      //         },
-      //         ])
-
-      //         // console.log("========>", machineDataForCurrentMonth)
-
-      //         machineDataForPreviousMonth = await Machine.aggregate([{
-      //             $match: {
-      //                 line_names: { $in: lineIdArray },
-      //                 $or: selectedYearOfCheckSheet,
-      //                 "checkSheet_data": { $ne: [] },
-      //             }
-      //         },
-      //         {
-      //             $project: {
-      //                 machine_code: 1,
-      //                 machine_name: 1,
-      //                 machine_nickname: 1,
-      //                 machine_sequence: 1,
-      //                 installation_date: 1,
-      //                 maker_name: 1,
-      //                 maker_sr_no: 1,
-      //                 manufacturingDate: 1,
-      //                 isPM: 1,
-      //                 line_names: 1,
-      //                 checkSheet_data: 1
-      //             }
-      //         },
-      //         {
-      //             $unwind: "$checkSheet_data"
-      //         },
-      //         {
-      //             $match: {
-      //                 "checkSheet_data.current_year": selectedYear
-      //             }
-      //         },
-      //         {
-      //             $match: {
-      //                 // [keyForPreviousMonthPMStatus]: { $ne: "" },
-      //                 "checkSheet_data.PMStatus": { $ne: undefined },
-      //             }
-      //         },
-      //         ])
-      //         machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         machineDataForPreviousMonth.map((keyForCheckSheet) => {
-
-      //             for (let i = 0; i < Object.keys(keyForCheckSheet?.checkSheet_data?.PMStatus)?.length; i++) {
-      //                 let month = financialYearWiseMonthKeyArray[i]
-
-      //                 if (keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "PM Skip") {
-      //                     for (let j = 0; j < keyForCheckSheet?.checkSheet_data?.checkSheet?.length; j++) {
-
-      //                         if (
-      //                             // (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== '1/1M' ||
-      //                             //     keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle !== '1/2M')
-      //                             (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/3M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/4M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/6M" ||
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle === "1/Y")
-      //                             &&
-      //                             (keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][1] === "skip" &&
-      //                                 keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.planningTableAnimationArray2[month][0] === "1")
-      //                         ) {
-      //                             // console.log(keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.tableRowId, "-----", keyForCheckSheet?.machine_code, "--->", keyForCheckSheet?.checkSheet_data?.checkSheet[j]?.cycle, "---", j, "month---", month)
-
-      //                             skipMachineDataWithEveryMonth.push(
-      //                                 new Object({
-      //                                     machine_id: keyForCheckSheet?._id,
-      //                                     machine_name: keyForCheckSheet?.machine_name,
-      //                                     machine_code: keyForCheckSheet?.machine_code,
-      //                                     yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                                     schedule_month: month,
-      //                                     line_names: keyForCheckSheet?.line_names,
-      //                                     PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-      //                                     completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month],
-      //                                     checkSheet_data: keyForCheckSheet?.checkSheet_data,
-
-      //                                 })
-      //                             );
-      //                             break;
-      //                         }
-
-      //                     }
-
-      //                 }
-      //                 // console.log(keyForCheckSheet?.checkSheet_data?.PMStatus[month], "----", keyForCheckSheet?.machine_name)
-      //                 if ((keyForCheckSheet?.checkSheet_data?.PMStatus[month] === "Done with delay" &&
-      //                     keyForCheckSheet?.checkSheet_data?.flagOfDoneWithDelayForOneMonth?.[month] === currentMonthInNumber)) {
-      //                     skipMachineDataWithEveryMonth.push(
-      //                         new Object({
-      //                             machine_id: keyForCheckSheet?._id,
-      //                             machine_name: keyForCheckSheet?.machine_name,
-      //                             machine_code: keyForCheckSheet?.machine_code,
-      //                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                             schedule_month: month,
-      //                             line_names: keyForCheckSheet?.line_names,
-      //                             PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[month],
-      //                             checkSheet_data: keyForCheckSheet?.checkSheet_data,
-      //                             completionTargetDate: keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[month]
-
-      //                         })
-      //                     );
-      //                 }
-
-      //             }
-      //             if (previousMonth != "Mar") {
-      //                 if (keyForCheckSheet?.checkSheet_data?.carriedPMStatus?.[monthForCompareSystemMonth] != "" &&
-      //                     keyForCheckSheet?.checkSheet_data?.carriedPMStatus != undefined &&
-      //                     keyForCheckSheet?.checkSheet_data?.currentMonthScheduleOrNotStatus?.[monthForCompareSystemMonth] === ""
-      //                 ) {
-      //                     skipMachineDataWithEveryMonth.push(
-      //                         new Object({
-      //                             machine_id: keyForCheckSheet?._id,
-      //                             machine_name: keyForCheckSheet?.machine_name,
-      //                             machine_code: keyForCheckSheet?.machine_code,
-      //                             yearOfCheckSheet: keyForCheckSheet?.checkSheet_data?.current_year,
-      //                             line_names: keyForCheckSheet?.line_names,
-      //                             schedule_month: previousMonth,
-      //                             PMStatus: keyForCheckSheet?.checkSheet_data?.PMStatus[previousMonth],
-      //                             checkSheet_data: keyForCheckSheet?.checkSheet_data,
-      //                             flagForPreviousMonthData: true
-      //                         })
-      //                     )
-      //                 }
-      //             }
-
-      //         })
-
-      //         machineDataForCurrentMonth = await Machine.populate(machineDataForCurrentMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-      //         skipMachineDataWithEveryMonth = await Machine.populate(skipMachineDataWithEveryMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-
-      //         // machineDataForPreviousMonth = await Machine.populate(machineDataForPreviousMonth, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
-      //     }
-      // }
-
       res.json({
         skipMachineDataWithEveryMonth,
         machineDataForCurrentMonth,
         machineDataForPreviousMonth,
         cellData,
         lineData,
+        GetAllPlanAndCompletedHours,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -13934,6 +13860,7 @@ router.post(
         annual_previous_pending,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -13952,6 +13879,7 @@ router.post("/postSectionToGetSectionInfo", authenticate, async (req, res) => {
       sectionInfo,
     });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -13976,6 +13904,7 @@ router.post(
         subSectionInfo,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -14314,6 +14243,7 @@ router.post(
         sumVariableForTotalPreviousPending,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -14672,6 +14602,13 @@ router.post(
                 "checkSheet_data.$[outer].implementation_approved_by_MTD_HOD":
                   "",
 
+                "checkSheet_data.$[outer].implementation_assign_PRD_TL_tm_no":
+                  "",
+                "checkSheet_data.$[outer].implementation_assign_MTD_TL_tm_no":
+                  "",
+                "checkSheet_data.$[outer].implementation_assign_MTD_HOS_tm_no":
+                  "",
+
                 "checkSheet_data.$[outer].implementation_approved_PRD_TL_date":
                   "",
                 "checkSheet_data.$[outer].implementation_approved_MTD_TL_date":
@@ -14813,6 +14750,7 @@ router.post(
           .json({ error: "Current month is not financial year start month" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -14836,6 +14774,7 @@ router.get("/getFinancialYears", authenticate, async (req, res) => {
       return res.status(400).json("Checksheet not copied!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User data not send or get!!!");
   }
@@ -14857,6 +14796,7 @@ router.get(
         return res.status(400).json("Checksheet not copied!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -14998,7 +14938,7 @@ router.post(
                     keyForAbnormality?.abnormalityDetails?.[month]
                       ?.abnormalityStatus !== undefined
                   ) {
-                    console.log("Checking open");
+                    // console.log("Checking open");
                     if (
                       keyForAbnormality?.abnormalityDetails?.[month]
                         ?.abnormalityStatus === "Open"
@@ -15184,6 +15124,7 @@ router.post(
 
       res.json({ onlyOpenAbnormalityWithAllMonths, lineData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16233,11 +16174,711 @@ router.post(
 
       res.json({ SectionInfo, monthlyChartDataOfSummery });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
   }
 );
+
+router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
+  try {
+    const financialYearWiseMonthKeyArray = [
+      "Apr",
+      "May",
+      "June",
+      "July",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+    ];
+    let previousMonth =
+      financialYearWiseMonthKeyArray[
+        financialYearWiseMonthKeyArray.indexOf(req.query?.selectedMonth) - 1
+      ];
+
+    let keyForSelectedMonth = `$checkSheet_data.PMStatus.${req.query?.selectedMonth}`;
+    let keyForPreviousMonth = `$checkSheet_data.carriedPMStatus.${req.query?.selectedMonth}`;
+    let keyForCurrentMonthScheduleOrNotStatus = `$checkSheet_data.currentMonthScheduleOrNotStatus.${req.query?.selectedMonth}`;
+    let keyOfTotalDoneWithDelay = `$checkSheet_data.PMStatus.${previousMonth}`;
+
+    let monthWiseAllStatusArray = [];
+    for (let i = 0; i < financialYearWiseMonthKeyArray.length; i++) {
+      monthWiseAllStatusArray.push({
+        indexForSorting: i,
+        currentMonth: financialYearWiseMonthKeyArray[i],
+        previousMonth: financialYearWiseMonthKeyArray[i - 1],
+        PMStatus: `$checkSheet_data.PMStatus.${financialYearWiseMonthKeyArray[i]}`,
+        carriedPMStatus: `$checkSheet_data.carriedPMStatus.${financialYearWiseMonthKeyArray[i]}`,
+        currentMonthScheduleOrNotStatus: `$checkSheet_data.currentMonthScheduleOrNotStatus.${financialYearWiseMonthKeyArray[i]}`,
+        keyOfTotalDoneWithDelayForAnnualChart: `$checkSheet_data.PMStatus.${
+          financialYearWiseMonthKeyArray[i - 1]
+        }`,
+      });
+    }
+
+    let groupId = {
+        _id: "$cell_names",
+      },
+      addFieldsPipeline = [],
+      addFieldsPipelineForAnnualData = [
+        {
+          $addFields: {
+            monthWiseAllStatusArray,
+          },
+        },
+      ];
+
+    if (req.query?.filter === "Section") {
+      const sections_with_dashboard_level_yes = await Section.aggregate([
+        {
+          $match: {
+            dashboardLevel: "Yes",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            data: {
+              $push: "$_id",
+            },
+          },
+        },
+      ]);
+
+      addFieldsPipeline = [
+        {
+          $addFields: {
+            groupId: {
+              $cond: [
+                {
+                  $in: [
+                    "$section_names",
+                    sections_with_dashboard_level_yes?.[0]?.data,
+                  ],
+                },
+                "$section_names",
+                "$subSection_names",
+              ],
+            },
+          },
+        },
+      ];
+
+      addFieldsPipelineForAnnualData = [
+        {
+          $addFields: {
+            groupId: {
+              $cond: [
+                {
+                  $in: [
+                    "$section_names",
+                    sections_with_dashboard_level_yes?.[0]?.data,
+                  ],
+                },
+                "$section_names",
+                "$subSection_names",
+              ],
+            },
+            monthWiseAllStatusArray,
+          },
+        },
+      ];
+
+      groupId = {
+        _id: "$groupId",
+      };
+    }
+
+    const monthData = await Machine.aggregate([
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req.query?.selectedYear,
+          "checkSheet_data.PMStatus": { $ne: undefined },
+        },
+      },
+      ...addFieldsPipeline,
+      {
+        $group: {
+          ...groupId,
+          total_pmSchedule: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $ne: [keyForSelectedMonth, ""],
+                    },
+                    {
+                      $ne: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_completed: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: [keyForSelectedMonth, "Completed"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_ongoing: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: [keyForSelectedMonth, "Ongoing"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_done_with_delay: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [keyOfTotalDoneWithDelay, "Done with delay"],
+                    },
+                    {
+                      $eq: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_previous_pending: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [keyForPreviousMonth, "CarriedPM"],
+                    },
+                    {
+                      $eq: [keyForCurrentMonthScheduleOrNotStatus, ""],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          total_pmSchedule: 1,
+          total_previous_pending: 1,
+          total_completed: {
+            $sum: ["$total_completed", "$total_done_with_delay"],
+          },
+          total_ongoing: 1,
+          total_remaining_current_month: {
+            $subtract: [
+              {
+                $sum: ["$total_pmSchedule", "$total_previous_pending"],
+              },
+              {
+                $sum: [
+                  "$total_completed",
+                  "$total_done_with_delay",
+                  "$total_ongoing",
+                ],
+              },
+            ],
+          },
+          percentage: {
+            $trunc: [
+              {
+                $cond: [
+                  {
+                    $ne: [
+                      {
+                        $sum: ["$total_pmSchedule", "$total_previous_pending"],
+                      },
+                      0,
+                    ],
+                  },
+                  {
+                    $divide: [
+                      {
+                        $multiply: [
+                          {
+                            $sum: [
+                              "$total_completed",
+                              "$total_done_with_delay",
+                            ],
+                          },
+                          100,
+                        ],
+                      },
+                      {
+                        $sum: ["$total_pmSchedule", "$total_previous_pending"],
+                      },
+                    ],
+                  },
+                  0,
+                ],
+              },
+              2,
+            ],
+          },
+        },
+      },
+    ]);
+
+    const annualData = await Machine.aggregate([
+      {
+        $unwind: "$checkSheet_data",
+      },
+      {
+        $match: {
+          "checkSheet_data.current_year": req.query?.selectedYear,
+          "checkSheet_data.PMStatus": { $ne: undefined },
+        },
+      },
+      ...addFieldsPipelineForAnnualData,
+      {
+        $unwind: "$monthWiseAllStatusArray",
+      },
+      {
+        $group: {
+          _id: {
+            ...groupId,
+            month: "$monthWiseAllStatusArray.currentMonth",
+            indexForSorting: "$monthWiseAllStatusArray.indexForSorting",
+          },
+          total_pmSchedule: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $ne: ["$monthWiseAllStatusArray.PMStatus", ""],
+                    },
+                    {
+                      $ne: [
+                        "$monthWiseAllStatusArray.currentMonthScheduleOrNotStatus",
+                        "",
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_completed: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$monthWiseAllStatusArray.PMStatus", "Completed"],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_done_with_delay: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [
+                        "$monthWiseAllStatusArray.keyOfTotalDoneWithDelayForAnnualChart",
+                        "Done with delay",
+                      ],
+                    },
+                    {
+                      $eq: [
+                        "$monthWiseAllStatusArray.currentMonthScheduleOrNotStatus",
+                        "",
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          total_Previous: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    {
+                      $eq: [
+                        "$monthWiseAllStatusArray.carriedPMStatus",
+                        "CarriedPM",
+                      ],
+                    },
+                    {
+                      $eq: [
+                        "$monthWiseAllStatusArray.currentMonthScheduleOrNotStatus",
+                        "",
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id._id",
+          annualData: {
+            $push: {
+              month: "$_id.month",
+              indexForSorting: "$_id.indexForSorting",
+              data: {
+                $trunc: [
+                  {
+                    $cond: [
+                      {
+                        $ne: [
+                          {
+                            $add: ["$total_pmSchedule", "$total_Previous"],
+                          },
+                          0,
+                        ],
+                      },
+                      {
+                        $divide: [
+                          {
+                            $multiply: [
+                              {
+                                $add: [
+                                  "$total_completed",
+                                  "$total_done_with_delay",
+                                ],
+                              },
+                              100,
+                            ],
+                          },
+                          {
+                            $add: ["$total_pmSchedule", "$total_Previous"],
+                          },
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                  2,
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          total_done_with_delay: 1,
+          total_completed: 1,
+          completedPer: 1,
+          annualData: {
+            $sortArray: {
+              input: "$annualData",
+              sortBy: { indexForSorting: 1 },
+            },
+          },
+        },
+      },
+    ]);
+
+    let finalData = [];
+    const conditionFunctionForDashboardLevel = {
+      $eq: ["$section.dashboardLevel", "Yes"],
+    };
+
+    if (req.query?.filter === "Section") {
+      const sectionOrSubSection = await SubSection.aggregate([
+        {
+          $match: {},
+        },
+        {
+          $lookup: {
+            from: "sections",
+            localField: "section_names",
+            foreignField: "_id",
+            as: "section",
+          },
+        },
+        {
+          $unwind: "$section",
+        },
+        {
+          $project: {
+            _id: {
+              $cond: [
+                conditionFunctionForDashboardLevel,
+                "$section._id",
+                "$_id",
+              ],
+            },
+            name: {
+              $cond: [
+                conditionFunctionForDashboardLevel,
+                "$section.section_name",
+                "$subSection_name",
+              ],
+            },
+            plant_names: "$section.plant_names",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              _id: "$_id",
+              name: "$name",
+              plant_names: "$plant_names",
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.plant_names",
+            details: {
+              $push: {
+                _id: "$_id._id",
+                name: "$_id.name",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "plants",
+            localField: "_id",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  plant_name: 1,
+                },
+              },
+            ],
+            as: "plant",
+          },
+        },
+        {
+          $unwind: "$plant",
+        },
+        {
+          $sort: {
+            "plant._id": 1,
+          },
+        },
+        {
+          $project: {
+            plant: 1,
+            details: {
+              $sortArray: {
+                input: "$details",
+                sortBy: { _id: 1 },
+              },
+            },
+          },
+        },
+      ]);
+
+      finalData = sectionOrSubSection?.map((item) => ({
+        plant_name: item?.plant?.plant_name,
+        details: item?.details?.map((item1) => {
+          let monthDataForSelectedSection = monthData?.find(
+            (item2) => item2?._id?.toString() === item1?._id?.toString()
+          );
+          let annualDataForSelectedSection = annualData?.find(
+            (item2) => item2?._id?.toString() === item1?._id?.toString()
+          );
+
+          return {
+            ...item1,
+            monthData: monthDataForSelectedSection,
+            annualData: annualDataForSelectedSection?.annualData?.map(
+              (monthWiseData) => monthWiseData?.data
+            ),
+          };
+        }),
+      }));
+    } else {
+      const cells = await Cell.aggregate([
+        {
+          $match: {},
+        },
+        {
+          $lookup: {
+            from: "sections",
+            localField: "section_names",
+            foreignField: "_id",
+            as: "section",
+          },
+        },
+        {
+          $unwind: "$section",
+        },
+        {
+          $lookup: {
+            from: "subsections",
+            localField: "subSection_names",
+            foreignField: "_id",
+            as: "subSection",
+          },
+        },
+        {
+          $unwind: "$subSection",
+        },
+        {
+          $project: {
+            toggleId: {
+              $cond: [
+                conditionFunctionForDashboardLevel,
+                "$section._id",
+                "$subSection._id",
+              ],
+            },
+            toggleName: {
+              $cond: [
+                conditionFunctionForDashboardLevel,
+                "$section.section_name",
+                "$subSection.subSection_name",
+              ],
+            },
+            plant_names: "$plant_names",
+            cell_name: 1,
+          },
+        },
+        {
+          $group: {
+            _id: {
+              plant_names: "$plant_names",
+              sectionOrSubSection: "$toggleId",
+              nameSectionOrSubSection: "$toggleName",
+            },
+            cells: {
+              $push: {
+                _id: "$_id",
+                cell_name: "$cell_name",
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.plant_names",
+            details: {
+              $push: {
+                sectionOrSubSection: "$_id.sectionOrSubSection",
+                nameSectionOrSubSection: "$_id.nameSectionOrSubSection",
+                cells: "$cells",
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "plants",
+            localField: "_id",
+            foreignField: "_id",
+            pipeline: [
+              {
+                $project: {
+                  plant_name: 1,
+                },
+              },
+            ],
+            as: "plant",
+          },
+        },
+        {
+          $unwind: "$plant",
+        },
+        {
+          $sort: {
+            "plant._id": 1,
+          },
+        },
+        {
+          $project: {
+            plant: 1,
+            details: {
+              $sortArray: {
+                input: "$details",
+                sortBy: { _id: 1 },
+              },
+            },
+          },
+        },
+      ]);
+
+      finalData = cells?.map((item) => ({
+        plant_name: item?.plant?.plant_name,
+        sectionOrSubSectionWiseData: item?.details?.map((item1) => ({
+          nameSectionOrSubSection: item1?.nameSectionOrSubSection,
+          details: item1?.cells?.map((item2) => {
+            // console.log(item2);
+
+            let monthDataForSelectedSection = monthData?.find(
+              (item3) => item3?._id?.toString() === item2?._id?.toString()
+            );
+            let annualDataForSelectedSection = annualData?.find(
+              (item3) => item3?._id?.toString() === item2?._id?.toString()
+            );
+
+            return {
+              name: item2?.cell_name,
+              monthData: monthDataForSelectedSection,
+              annualData: annualDataForSelectedSection?.annualData?.map(
+                (monthWiseData) => monthWiseData?.data
+              ),
+            };
+          }),
+        })),
+      }));
+    }
+
+    return res.status(201).json({
+      message: "Summery data get successfully!!!",
+      annualData,
+      finalData,
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
+    console.log(error);
+    res.status(500).json({
+      message: "Something went wrong...",
+      error,
+    });
+  }
+});
 
 router.post(
   "/postSectionToGetSubSectionForSummeryDashboard",
@@ -16262,6 +16903,7 @@ router.post(
 
       res.json({ subSectionInfo });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16289,6 +16931,7 @@ router.post(
         res.status(200).json({ msg: "uploaded successfully" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16318,6 +16961,7 @@ router.post(
         res.status(200).json({ msg: "uploaded successfully" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16342,6 +16986,7 @@ router.get(
         console.log("No");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16375,6 +17020,7 @@ router.post(
       // if (subSectionInfo) {
       // }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16398,6 +17044,7 @@ router.get(
         return res.status(400).json("Checksheet not copied!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
@@ -16568,7 +17215,7 @@ router.post(
                   },
                 },
                 total_pmTime: {
-                  $sum: keyForTotalTimeForSum,
+                  $sum: { $divide: [keyForTotalTimeForSum, 60] },
                 },
               },
             },
@@ -16604,6 +17251,7 @@ router.post(
         total_time_month_wise,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16716,7 +17364,7 @@ router.post(
                 },
               },
               total_pmTime: {
-                $sum: keyForTotalTimeForSum,
+                $sum: { $divide: [keyForTotalTimeForSum, 60] },
               },
             },
           },
@@ -16744,6 +17392,7 @@ router.post(
 
       res.json({ totalTimeMonthWiseForPerticularLine });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -16921,7 +17570,7 @@ router.post(
                   },
                 },
                 totalTimeManHours: {
-                  $sum: keyForTotalTimeManHoursForSum,
+                  $sum: { $divide: [keyForTotalTimeManHoursForSum, 60] },
                 },
               },
             },
@@ -16962,6 +17611,7 @@ router.post(
         totalTimeManHoursMonthWise,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -17109,6 +17759,7 @@ router.post(
 
       res.json({ totalTimeManHoursMonthWiseOfLineWise });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -17327,6 +17978,7 @@ router.post(
       // console.log(actualTotalTimeTakenOfTM)
       res.json({ actualTotalTimeTakenOfTM });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -17430,6 +18082,7 @@ router.post(
         res.status(422).send("Data sheet not uploaded ");
       }
     } catch (err) {
+      logger.error(err, { maintenanceType: maintenanceType?.[0] });
       console.log(err);
       // res.status(400).send("error")
     }
@@ -17459,6 +18112,7 @@ router.post("/deleteBackUpData", authenticate, async (req, res) => {
       return res.status(400).json("Backup data not deleted!!!");
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -17477,6 +18131,7 @@ router.post("/postDataSheetFileName", authenticate, async (req, res) => {
       res.status(201).json({ message: "File name posted" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     // console.log("2032", error)
     console.log("Filename not received");
   }
@@ -17487,6 +18142,7 @@ router.get("/downloadDataSheetFile", authenticate, async (req, res) => {
     // console.log(downloadDataSheetFileName)
     res.download(downloadDataSheetFileName);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Filename not received");
   }
 });
@@ -17522,6 +18178,12 @@ router.post(
             machine_code: machineId,
           },
         },
+        { $unwind: "$checkSheet_data" },
+        {
+          $match: {
+            "checkSheet_data.current_year": current_year,
+          },
+        },
         {
           $project: {
             machine_code: 1,
@@ -17534,10 +18196,11 @@ router.post(
             manufacturingDate: 1,
             isPM: 1,
             line_names: 1,
-            checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] },
+            checkSheet_data: 1,
           },
         },
       ]);
+
       machineLastData = await Machine.populate(machineLastData, {
         path: "line_names",
         populate: { path: "cell_names", model: "Cells" },
@@ -17594,6 +18257,7 @@ router.post(
       res.json({ selectedMachineSkipData });
       // }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -18094,6 +18758,7 @@ router.post(
         return res.status(400).json("Checksheet worked data not posted!!!");
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -18107,7 +18772,7 @@ router.post(
   async (req, res) => {
     try {
       const { updatedRow } = req.body;
-      // console.log(updatedRow)
+      console.log(updatedRow);
       if (!updatedRow) {
         return res.status(422).send("Employee number is not valid!!!");
       }
@@ -18137,27 +18802,89 @@ router.post(
 
         Mar: "",
       };
-      completionTargetDateArray[updatedRow.schedule_month] =
-        updatedRow.completionTargetDate;
-      let keyOfCompletiontargertDateOfSkipPM = `checkSheet_data.$[outer].completionTargetDate.${updatedRow.schedule_month}`;
-      const updateCompletionTargetDate = await Machine.updateOne(
+
+      let machineData = await Machine.aggregate([
         {
-          machine_code: updatedRow.machine_code,
-        },
-        {
-          $set: {
-            [keyOfCompletiontargertDateOfSkipPM]:
-              updatedRow.completionTargetDate,
+          $match: {
+            machine_code: updatedRow.machine_code,
           },
         },
         {
-          arrayFilters: [{ "outer.current_year": updatedRow.yearOfCheckSheet }],
-        }
-      );
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: {
+            "checkSheet_data.current_year": updatedRow.yearOfCheckSheet,
+          },
+        },
+        {
+          $project: {
+            machine_code: 1,
+            machine_name: 1,
+            machine_nickname: 1,
+            machine_sequence: 1,
+            installation_date: 1,
+            maker_name: 1,
+            maker_sr_no: 1,
+            manufacturingDate: 1,
+            isPM: 1,
+            line_names: 1,
+            checkSheet_data: 1,
+          },
+        },
+      ]);
+
+      completionTargetDateArray[updatedRow.schedule_month] =
+        updatedRow.completionTargetDate;
+      let keyOfCompletiontargertDateOfSkipPM = `checkSheet_data.$[outer].completionTargetDate.${updatedRow.schedule_month}`;
+      let keyOfCompletiontargertDateOfSkipPMWithAllMonth = `checkSheet_data.$[outer].completionTargetDate`;
+
+      let updateCompletionTargetDate;
+
+      console.log(machineData[0]?.checkSheet_data?.completionTargetDate);
+
+      if (machineData[0]?.checkSheet_data?.completionTargetDate) {
+        updateCompletionTargetDate = await Machine.updateOne(
+          {
+            machine_code: updatedRow.machine_code,
+          },
+          {
+            $set: {
+              [keyOfCompletiontargertDateOfSkipPM]:
+                updatedRow.completionTargetDate,
+            },
+          },
+          {
+            arrayFilters: [
+              { "outer.current_year": updatedRow.yearOfCheckSheet },
+            ],
+          }
+        );
+      } else {
+        updateCompletionTargetDate = await Machine.updateOne(
+          {
+            machine_code: updatedRow.machine_code,
+          },
+          {
+            $set: {
+              [keyOfCompletiontargertDateOfSkipPMWithAllMonth]:
+                completionTargetDateArray,
+            },
+          },
+          {
+            arrayFilters: [
+              { "outer.current_year": updatedRow.yearOfCheckSheet },
+            ],
+          }
+        );
+      }
+
+      console.log(updateCompletionTargetDate);
       if (updateCompletionTargetDate) {
         res.status(201).json({ message: "Completion date added" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       // console.log("2032", error)
       console.log("Filename not received");
     }
@@ -18216,25 +18943,25 @@ router.post(
               reasonForDelayOfTL,
               rejectedRemarksOfSkipPMMachines: "",
               skippedDataApprovalSender: {
-                senderTLNo: loggedUserData.tm_no,
-                senderTLName: loggedUserData.tm_name,
-                senderTLEmail: loggedUserData.email,
+                senderTLNo: loggedUserData?.tm_no,
+                senderTLName: loggedUserData?.tm_name,
+                senderTLEmail: loggedUserData?.email,
               },
               assignAndApprovedHOSlist: {
-                assignMTDHOSemail: mtd_hos_list.email,
-                assignMTDHOSname: mtd_hos_list.tm_name,
+                assignMTDHOSemail: mtd_hos_list?.email,
+                assignMTDHOSname: mtd_hos_list?.tm_name,
               },
               assignAndApprovedMTDHODlist: {
-                assignMTDHODname: mtd_hod_list.tm_name,
-                assignMTDHODemail: mtd_hod_list.email,
+                assignMTDHODname: mtd_hod_list?.tm_name,
+                assignMTDHODemail: mtd_hod_list?.email,
               },
               assignAndApprovedPRDHOSlist: {
                 assignPRDHOSname: prd_hos_list.tm_name,
                 assignPRDHOSemail: prd_hos_list.email,
               },
               assignAndApprovedPRDHODlist: {
-                assignPRDHODname: prd_hod_list.tm_name,
-                assignPRDHODemail: prd_hod_list.email,
+                assignPRDHODname: prd_hod_list?.tm_name,
+                assignPRDHODemail: prd_hod_list?.email,
               },
               approvalStatusOfMTDHOS: "Pending",
               approvalStatusOfMTDHOD: "Pending",
@@ -18248,25 +18975,25 @@ router.post(
           section_id: sectionInfo?._id,
           reasonForDelayOfTL,
           skippedDataApprovalSender: {
-            senderTLNo: loggedUserData.tm_no,
-            senderTLName: loggedUserData.tm_name,
-            senderTLEmail: loggedUserData.email,
+            senderTLNo: loggedUserData?.tm_no,
+            senderTLName: loggedUserData?.tm_name,
+            senderTLEmail: loggedUserData?.email,
           },
           assignAndApprovedHOSlist: {
-            assignMTDHOSemail: mtd_hos_list.email,
-            assignMTDHOSname: mtd_hos_list.tm_name,
+            assignMTDHOSemail: mtd_hos_list?.email,
+            assignMTDHOSname: mtd_hos_list?.tm_name,
           },
           assignAndApprovedMTDHODlist: {
-            assignMTDHODname: mtd_hod_list.tm_name,
-            assignMTDHODemail: mtd_hod_list.email,
+            assignMTDHODname: mtd_hod_list?.tm_name,
+            assignMTDHODemail: mtd_hod_list?.email,
           },
           assignAndApprovedPRDHOSlist: {
-            assignPRDHOSname: prd_hos_list.tm_name,
-            assignPRDHOSemail: prd_hos_list.email,
+            assignPRDHOSname: prd_hos_list?.tm_name,
+            assignPRDHOSemail: prd_hos_list?.email,
           },
           assignAndApprovedPRDHODlist: {
-            assignPRDHODname: prd_hod_list.tm_name,
-            assignPRDHODemail: prd_hod_list.email,
+            assignPRDHODname: prd_hod_list?.tm_name,
+            assignPRDHODemail: prd_hod_list?.email,
           },
           approvalStatusOfMTDHOS: "Pending",
           approvalStatusOfMTDHOD: "Pending",
@@ -18285,25 +19012,25 @@ router.post(
           subSection_id: subSectionsData?._id,
           reasonForDelayOfTL,
           skippedDataApprovalSender: {
-            senderTLNo: loggedUserData.tm_no,
-            senderTLName: loggedUserData.tm_name,
-            senderTLEmail: loggedUserData.email,
+            senderTLNo: loggedUserData?.tm_no,
+            senderTLName: loggedUserData?.tm_name,
+            senderTLEmail: loggedUserData?.email,
           },
           assignAndApprovedHOSlist: {
-            assignMTDHOSemail: mtd_hos_list.email,
-            assignMTDHOSname: mtd_hos_list.tm_name,
+            assignMTDHOSemail: mtd_hos_list?.email,
+            assignMTDHOSname: mtd_hos_list?.tm_name,
           },
           assignAndApprovedMTDHODlist: {
-            assignMTDHODname: mtd_hod_list.tm_name,
-            assignMTDHODemail: mtd_hod_list.email,
+            assignMTDHODname: mtd_hod_list?.tm_name,
+            assignMTDHODemail: mtd_hod_list?.email,
           },
           assignAndApprovedPRDHOSlist: {
-            assignPRDHOSname: prd_hos_list.tm_name,
-            assignPRDHOSemail: prd_hos_list.email,
+            assignPRDHOSname: prd_hos_list?.tm_name,
+            assignPRDHOSemail: prd_hos_list?.email,
           },
           assignAndApprovedPRDHODlist: {
-            assignPRDHODname: prd_hod_list.tm_name,
-            assignPRDHODemail: prd_hod_list.email,
+            assignPRDHODname: prd_hod_list?.tm_name,
+            assignPRDHODemail: prd_hod_list?.email,
           },
           approvalStatusOfMTDHOS: "Pending",
           approvalStatusOfMTDHOD: "Pending",
@@ -18316,10 +19043,10 @@ router.post(
       sendApprovalOfSkippedPM(
         loggedUserData.tm_no,
         loggedUserData.tm_name,
-        mtd_hos_list.email,
-        mtd_hod_list.email,
-        prd_hos_list.email,
-        prd_hod_list.email,
+        mtd_hos_list?.email,
+        mtd_hod_list?.email,
+        prd_hos_list?.email,
+        prd_hod_list?.email,
         approvalStatusOfMTDHOS,
         approvalStatusOfMTDHOD,
         approvalStatusOfPRDHOS,
@@ -18330,6 +19057,7 @@ router.post(
 
       res.status(201).json({ message: "Approval send" });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("2032", error);
       console.log("Filename not received");
     }
@@ -18363,6 +19091,7 @@ router.post(
 
       res.json({ getApprovalDataOfSkipPM: getApprovalDataOfSkipPM });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("User data not send or get!!!");
     }
   }
@@ -18419,7 +19148,7 @@ router.post(
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
             loggedUserData.tm_name,
-            skipApprovalStatusData.skippedDataApprovalSender.senderTLEmail,
+            skipApprovalStatusData.skippedDataApprovalSender?.senderTLEmail,
             skipApprovalStatusData.assignAndApprovedMTDHODlist
               .assignMTDHODemail,
             skipApprovalStatusData.assignAndApprovedPRDHOSlist
@@ -18653,6 +19382,7 @@ router.post(
         res.status(201).json({ message: "Skip PM approval status updated" });
       }
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       // console.log("2032", error)
       console.log("Filename not received");
     }
@@ -18862,6 +19592,7 @@ router.post(
         lineIdArray,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("2032", error);
       console.log("Filename not received");
     }
@@ -19092,6 +19823,7 @@ router.post(
         logHistoryAllPendingPMData,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("2032", error);
       console.log("data not received");
     }
@@ -19133,6 +19865,7 @@ router.post("/addRevisionContent", authenticate, async (req, res) => {
       res.status(201).json({ message: "Revision content added" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     // console.log("2032", error)
     console.log("Revision content not added");
   }
@@ -19158,6 +19891,7 @@ router.post("/deleteRevisionContentData", authenticate, async (req, res) => {
       }
     );
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     res.status(400).json("TableRow not updated!!!");
   }
 });
@@ -19598,6 +20332,7 @@ router.post("/postSectionToGetLineData", authenticate, async (req, res) => {
     // console.log(allSpareDetailsWithCategories)
     res.json({ lineData, allSpareDetailsWithCategories });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -19696,6 +20431,7 @@ router.post("/newOperatorDataEntry", async (req, res) => {
 
     // console.log(updatedMachine)
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -19764,6 +20500,7 @@ router.post("/annualPmScheduleApproval", async (req, res) => {
 
     res.status(200).json({ msg: "uploaded successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -19811,6 +20548,7 @@ router.post("/approveRequestForAnnualPmSchedule", async (req, res) => {
 
     res.status(200).json({ msg: "uploaded successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -19891,6 +20629,7 @@ router.post(
 
       res.status(200).json({ msg: "uploaded successfully" });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -19933,6 +20672,7 @@ router.post(
 
       res.status(200).json({ msg: "uploaded successfully" });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -20282,6 +21022,7 @@ router.post(
         totalMonthlyKaizenSpareConsumption,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -20591,6 +21332,7 @@ router.post(
         totalMonthlyKaizenSpareConsumption,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -20890,6 +21632,7 @@ router.post(
         lineWiseSpareCost,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -20921,6 +21664,7 @@ router.post("/submitRemarksAfterTLOrHosRejection", async (req, res) => {
 
     res.status(201).json({ message: "CheckSheet data updated successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -20942,8 +21686,9 @@ router.post("/deleteCategoryPoint", async (req, res) => {
       }
     );
 
-    res.status(201).json({ message: "CheckSheet data updated successfully" });
+    res.status(201).json({ message: "Spare entry deleted successfully" });
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("Data not valid or received !!!");
   }
@@ -21296,7 +22041,7 @@ router.post(
       );
       top20MachineSparePartConsumption = top20MachineSparePartConsumption
         .sort((a, b) => parseFloat(b.cost) - parseFloat(a.cost))
-        .slice(0, 21);
+        .slice(0, 20);
       res.json({
         subSectionsData,
         cellData,
@@ -21304,6 +22049,7 @@ router.post(
         top20MachineSparePartConsumption,
       });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User id not received!!!");
     }
@@ -21444,6 +22190,7 @@ router.post(
 
       res.json({ logHistoryAllData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("2032", error);
       console.log("Filename not received");
     }
@@ -21458,69 +22205,93 @@ router.post(
       const { section, selectedYear } = req.body;
 
       let logHistoryData, conditionVarForLogHistory;
+      let commonFilterForSectionLevel = {
+        reason_for_delay: conditionVarForLogHistory,
+        current_year: selectedYear,
+      };
+      conditionVarForLogHistory =
+        req.params.id === "simpleLogHistory" ? undefined : { $ne: undefined };
+
       if (typeof section !== "object") {
         const sectionInfo = await Section.findOne({
           section_id: section?.split("-")?.[0],
         }).populate({ path: "plant_names" });
 
-        conditionVarForLogHistory =
-          req.params.id === "simpleLogHistory" ? undefined : { $ne: undefined };
-
         if (sectionInfo?.dashboardLevel === "Yes") {
-          logHistoryData = await LogHistory.find({
-            reason_for_delay: conditionVarForLogHistory,
-            current_year: selectedYear,
+          commonFilterForSectionLevel = {
+            ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id":
               sectionInfo?.section_id,
-          });
+          };
         } else {
-          // req?.rootUser?.subSection_data
-
-          // console.log(
-          //     req?.rootUser?.subSection_data?.map((item, index) => item?.split("-")[0])
-          // )
-
-          logHistoryData = await LogHistory.find({
-            reason_for_delay: conditionVarForLogHistory,
-            current_year: selectedYear,
+          commonFilterForSectionLevel = {
+            ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id": {
               $in: req?.rootUser?.subSection_data?.map(
                 (item, index) => item?.split("-")?.[0]
               ),
             },
-          });
+          };
         }
-      } else {
-        conditionVarForLogHistory =
-          req.params.id === "simpleLogHistory" ? undefined : { $ne: undefined };
 
+        logHistoryData = await LogHistory.aggregate([
+          {
+            $match: {
+              ...commonFilterForSectionLevel,
+            },
+          },
+          {
+            $addFields: {
+              abnormality: {
+                $cond: {
+                  if: { $gt: [{ $type: "$abnormality_remarks" }, "missing"] },
+                  then: "Yes",
+                  else: "No",
+                },
+              },
+            },
+          },
+        ]);
+      } else {
         if (section?.dashboardLevel === "Yes") {
           const sectionInfo = await Section.findOne({
             _id: section?._id,
           }).populate({ path: "plant_names" });
 
-          logHistoryData = await LogHistory.find({
-            reason_for_delay: conditionVarForLogHistory,
-            current_year: selectedYear,
+          commonFilterForSectionLevel = {
+            ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id":
               sectionInfo?.section_id,
-          });
+          };
         } else {
           let subSectionInfo = await SubSection.findOne({
             _id: section?._id,
           });
-          logHistoryData = await LogHistory.find({
-            reason_for_delay: conditionVarForLogHistory,
-            current_year: selectedYear,
+          commonFilterForSectionLevel = {
+            ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id":
               subSectionInfo?.subSection_id,
-            // {
-            //     $in: req?.rootUser?.subSection_data?.map((item, index) => item?.split("-")?.[0])
-            // }
-          });
+          };
         }
+        logHistoryData = await LogHistory.aggregate([
+          {
+            $match: {
+              ...commonFilterForSectionLevel,
+            },
+          },
+          {
+            $addFields: {
+              abnormality: {
+                $cond: {
+                  if: { $gt: [{ $type: "$abnormality_remarks" }, "missing"] },
+                  then: "Yes",
+                  else: "No",
+                },
+              },
+            },
+          },
+        ]);
       }
-
       // console.log(
       //     logHistoryData
       // )
@@ -21529,6 +22300,7 @@ router.post(
 
       res.status(201).json({ logHistoryData });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
     }
@@ -21545,6 +22317,7 @@ router.get(
         path.join(__dirname, `../PMimages/${req?.params?.fileName}`)
       );
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("Filename not received");
     }
   }
@@ -21841,6 +22614,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
             serverIP: values.server_ip,
             emailPort: values.email_port,
             fromEmailId: values.email,
+            emailForSpareRequest: values.emailForSpareRequest,
           },
         }
       );
@@ -21850,6 +22624,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
         serverIP: values.server_ip,
         emailPort: values.email_port,
         fromEmailId: values.email,
+        emailForSpareRequest: values.emailForSpareRequest,
       });
       result = addNewEmailConf.save();
     }
@@ -21860,6 +22635,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
       res.status(422).json({ message: "Email configuration not added !!!" });
     }
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log(error);
     console.log("User id not received!!!");
   }
@@ -21873,6 +22649,7 @@ router.get("/fetchEmailConfigurationData", authenticate, async (req, res) => {
     });
     res.json(addEmailConf);
   } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Email data not send or get!!!");
   }
 });
@@ -21926,7 +22703,745 @@ router.post(
       }
       res.send({ supportingOperatorListForReportDashboard });
     } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
+    }
+  }
+);
+
+router.get(
+  "/getMachineWithSelectedYear/:selectedId",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const machine = await Machine.aggregate([
+        {
+          $match: {
+            _id: mongoose.Types.ObjectId(req.params?.selectedId),
+          },
+        },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: req.query,
+        },
+      ]);
+
+      res.status(201).json({
+        message: "Machine data get successfully",
+        machine: machine?.[0],
+      });
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.post(
+  "/submitDataOfTheEditedApproval/:selectedYear",
+  async (req, res, next) => {
+    try {
+      const { editedApprovalData } = req?.body;
+
+      let queryObjForUpdateFields = {},
+        queryObjForPushData = {};
+
+      // console.log(editedApprovalData);
+
+      let machineCheckSheetData = await Machine.aggregate([
+        {
+          $match: {
+            ...req?.query,
+          },
+        },
+        { $unwind: "$checkSheet_data" },
+        {
+          $match: {
+            "checkSheet_data.current_year": req?.params?.selectedYear,
+          },
+        },
+        {
+          $project: {
+            machine_code: 1,
+            machine_name: 1,
+            machine_nickname: 1,
+            machine_sequence: 1,
+            installation_date: 1,
+            maker_name: 1,
+            maker_sr_no: 1,
+            manufacturingDate: 1,
+            isPM: 1,
+            line_names: 1,
+            checkSheet_data: 1,
+          },
+        },
+      ]);
+
+      const updateAndPushApprovalDataOfImplementation = async (
+        userDepAndType
+      ) => {
+        let keyOfImplemetationUserApprovalStatus = `checkSheet_data.$[outer].implemetation_${userDepAndType.toLowerCase()}_approval_status.${
+          editedApprovalData?.selectedMonth
+        }`;
+        let keyOfImplementationApprovedByUserName = `checkSheet_data.$[outer].implementation_approved_by_${userDepAndType}.${editedApprovalData?.selectedMonth}`;
+        let keyOfImplementationApprovedDate = `checkSheet_data.$[outer].implementation_approved_${userDepAndType}_date.${editedApprovalData?.selectedMonth}`;
+        let keyOfImplementationAssignUserEmail = `checkSheet_data.$[outer].implementation_assign_${userDepAndType}.${editedApprovalData?.selectedMonth}`;
+        let keyOfImplementationAssignUserName = `checkSheet_data.$[outer].implementation_assign_${userDepAndType}_name.${editedApprovalData?.selectedMonth}`;
+        let keyOfImplementationAssignUserTmNo = `checkSheet_data.$[outer].implementation_assign_${userDepAndType}_tm_no.${editedApprovalData?.selectedMonth}`;
+
+        let arrayOfKeyForAddingMonthsKey = [
+          `implemetation_${userDepAndType.toLowerCase()}_approval_status`,
+          `implementation_approved_by_${userDepAndType}`,
+          `implementation_approved_${userDepAndType}_date`,
+          `implementation_assign_${userDepAndType}`,
+          `implementation_assign_${userDepAndType}_name`,
+          `implementation_assign_${userDepAndType}_tm_no`,
+        ];
+
+        for (
+          let index = 0;
+          index < arrayOfKeyForAddingMonthsKey?.length;
+          index++
+        ) {
+          let updateFieldWithAllMonthOrSix = {};
+
+          userDepAndType !== "MTD_HOD"
+            ? (updateFieldWithAllMonthOrSix = {
+                Apr: [],
+
+                May: [],
+
+                June: [],
+
+                July: [],
+
+                Aug: [],
+
+                Sep: [],
+
+                Oct: [],
+
+                Nov: [],
+
+                Dec: [],
+
+                Jan: [],
+
+                Feb: [],
+
+                Mar: [],
+              })
+            : (updateFieldWithAllMonthOrSix = {
+                Sep: [],
+
+                Mar: [],
+              });
+
+          // if (
+          //   Object.keys(
+          //     machineCheckSheetData?.[0]?.checkSheet_data?.[
+          //       arrayOfKeyForAddingMonthsKey?.[index]
+          //     ]
+          //   )?.length !== 12
+          // ) {
+          if (
+            machineCheckSheetData?.[0]?.checkSheet_data?.[
+              arrayOfKeyForAddingMonthsKey?.[index]
+            ] !== undefined &&
+            Object.keys(
+              machineCheckSheetData?.[0]?.checkSheet_data?.[
+                arrayOfKeyForAddingMonthsKey?.[index]
+              ]
+            )?.length !== 12
+          ) {
+            Object.keys(
+              machineCheckSheetData?.[0]?.checkSheet_data?.[
+                arrayOfKeyForAddingMonthsKey?.[index]
+              ]
+            )?.map((key) => {
+              updateFieldWithAllMonthOrSix[key] =
+                machineCheckSheetData?.[0]?.checkSheet_data?.[
+                  arrayOfKeyForAddingMonthsKey[index]
+                ]?.[key];
+            });
+          }
+          let keyForAddEmptyArrayofMonthsOfImplementationApprovalFields = `checkSheet_data.$[outer].${[
+            arrayOfKeyForAddingMonthsKey[index],
+          ]}`;
+          const updateFieldsWithAllMonthsData = await Machine.updateOne(
+            { ...req?.query },
+            {
+              $set: {
+                [keyForAddEmptyArrayofMonthsOfImplementationApprovalFields]:
+                  updateFieldWithAllMonthOrSix,
+              },
+            },
+            {
+              arrayFilters: [
+                {
+                  "outer.current_year": req?.params?.selectedYear,
+                },
+              ],
+            }
+          );
+          // }
+        }
+
+        let commonEditedFields = async () => {
+          // if (
+          //   machineCheckSheetData[0].checkSheet_data[
+          //     `implementation_approved_by_${userDepAndType}`
+          //   ] === undefined
+          // ) {
+          //   const updateImplementationData = await Machine.updateOne(
+          //     { ...req?.query },
+          //     {
+          //       $set: {
+          //         [keyForAddEmptyArrayOfMonthsOfApprovedBy]:
+          //           updateFieldWithAllMonthOrSix,
+          //         [keyForAddEmptyArrayOfMonthsOfApproveDate]:
+          //           updateFieldWithAllMonthOrSix,
+          //       },
+          //     },
+          //     {
+          //       arrayFilters: [
+          //         {
+          //           "outer.current_year": req?.params?.selectedYear,
+          //         },
+          //       ],
+          //     }
+          //   );
+          //   queryObjForUpdateFields = {
+          //     ...queryObjForUpdateFields,
+
+          //     [keyOfImplementationApprovedByUserName]:
+          //       editedApprovalData[`${userDepAndType.toLowerCase()}_list`]
+          //         ?.tm_name,
+
+          //     [keyOfImplementationApprovedDate]:
+          //       editedApprovalData[
+          //         `implementation_approved_${userDepAndType}_date`
+          //       ],
+          //   };
+          // }
+
+          machineCheckSheetData[0].checkSheet_data[
+            `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+          ][`${editedApprovalData?.selectedMonth}`][
+            machineCheckSheetData[0].checkSheet_data[
+              `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+            ][`${editedApprovalData?.selectedMonth}`].length - 1
+          ] = "Accepted";
+
+          machineCheckSheetData[0].checkSheet_data[
+            `implementation_assign_${userDepAndType}`
+          ][`${editedApprovalData?.selectedMonth}`][
+            machineCheckSheetData[0].checkSheet_data[
+              `implementation_assign_${userDepAndType}`
+            ][`${editedApprovalData?.selectedMonth}`].length - 1
+          ] = editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.email;
+
+          machineCheckSheetData[0].checkSheet_data[
+            `implementation_assign_${userDepAndType}_name`
+          ][`${editedApprovalData?.selectedMonth}`][
+            machineCheckSheetData[0].checkSheet_data[
+              `implementation_assign_${userDepAndType}_name`
+            ][`${editedApprovalData?.selectedMonth}`].length - 1
+          ] =
+            editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.tm_name;
+
+          machineCheckSheetData[0].checkSheet_data[
+            `implementation_assign_${userDepAndType}_tm_no`
+          ][`${editedApprovalData?.selectedMonth}`][
+            machineCheckSheetData[0].checkSheet_data[
+              `implementation_assign_${userDepAndType}_tm_no`
+            ][`${editedApprovalData?.selectedMonth}`].length - 1
+          ] = editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.tm_no;
+
+          //for adding in query
+          queryObjForUpdateFields = {
+            ...queryObjForUpdateFields,
+            [keyOfImplemetationUserApprovalStatus]:
+              machineCheckSheetData[0].checkSheet_data[
+                `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+              ][`${editedApprovalData?.selectedMonth}`],
+            [keyOfImplementationAssignUserEmail]:
+              machineCheckSheetData[0].checkSheet_data[
+                `implementation_assign_${userDepAndType}`
+              ][`${editedApprovalData?.selectedMonth}`],
+            [keyOfImplementationAssignUserName]:
+              machineCheckSheetData[0].checkSheet_data[
+                `implementation_assign_${userDepAndType}_name`
+              ][`${editedApprovalData?.selectedMonth}`],
+            [keyOfImplementationAssignUserTmNo]:
+              machineCheckSheetData[0].checkSheet_data[
+                `implementation_assign_${userDepAndType}_tm_no`
+              ][`${editedApprovalData?.selectedMonth}`],
+          };
+        };
+
+        let commonPushFields = async () => {
+          queryObjForPushData = {
+            ...queryObjForPushData,
+            [keyOfImplementationApprovedByUserName]:
+              editedApprovalData[`${userDepAndType.toLowerCase()}_list`]
+                ?.tm_name,
+            [keyOfImplementationApprovedDate]:
+              editedApprovalData[
+                `implementation_approved_${userDepAndType}_date`
+              ],
+          };
+        };
+
+        //if Accepted any approval
+        if (
+          machineCheckSheetData[0].checkSheet_data[
+            `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+          ]?.[`${editedApprovalData?.selectedMonth}`]?.[
+            machineCheckSheetData[0].checkSheet_data?.[
+              `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1
+          ] === "Accepted"
+        ) {
+          machineCheckSheetData[0].checkSheet_data[
+            `implementation_approved_by_${userDepAndType}`
+          ][`${editedApprovalData?.selectedMonth}`][
+            machineCheckSheetData[0].checkSheet_data[
+              `implementation_approved_by_${userDepAndType}`
+            ][`${editedApprovalData?.selectedMonth}`].length - 1 || 0
+          ] =
+            editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.tm_name;
+
+          machineCheckSheetData[0].checkSheet_data[
+            `implementation_approved_${userDepAndType}_date`
+          ][`${editedApprovalData?.selectedMonth}`][
+            machineCheckSheetData[0].checkSheet_data[
+              `implementation_approved_${userDepAndType}_date`
+            ][`${editedApprovalData?.selectedMonth}`].length - 1
+          ] =
+            editedApprovalData[
+              `implementation_approved_${userDepAndType}_date`
+            ];
+
+          await commonEditedFields();
+
+          //for adding in query
+          queryObjForUpdateFields = {
+            ...queryObjForUpdateFields,
+            [keyOfImplementationApprovedByUserName]:
+              machineCheckSheetData[0].checkSheet_data[
+                `implementation_approved_by_${userDepAndType}`
+              ][`${editedApprovalData?.selectedMonth}`],
+            [keyOfImplementationApprovedDate]:
+              machineCheckSheetData[0].checkSheet_data[
+                `implementation_approved_${userDepAndType}_date`
+              ][`${editedApprovalData?.selectedMonth}`],
+          };
+        }
+        //if Pending / Rejected any approval
+        else if (
+          machineCheckSheetData[0]?.checkSheet_data[
+            `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+          ]?.[`${editedApprovalData?.selectedMonth}`]?.[
+            machineCheckSheetData[0]?.checkSheet_data?.[
+              `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1
+          ] === "Pending" ||
+          machineCheckSheetData[0]?.checkSheet_data?.[
+            `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+          ]?.[`${editedApprovalData?.selectedMonth}`]?.[
+            machineCheckSheetData[0]?.checkSheet_data?.[
+              `implemetation_${userDepAndType.toLowerCase()}_approval_status`
+            ]?.[`${editedApprovalData?.selectedMonth}`]?.length - 1
+          ] === "Rejected"
+        ) {
+          await commonEditedFields();
+          await commonPushFields();
+        } else {
+          await commonPushFields();
+          queryObjForPushData = {
+            ...queryObjForPushData,
+            [keyOfImplementationAssignUserTmNo]:
+              editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.tm_no,
+            [keyOfImplementationAssignUserName]:
+              editedApprovalData[`${userDepAndType.toLowerCase()}_list`]
+                ?.tm_name,
+            [keyOfImplementationAssignUserEmail]:
+              editedApprovalData[`${userDepAndType.toLowerCase()}_list`]?.email,
+            [keyOfImplemetationUserApprovalStatus]: "Accepted",
+          };
+        }
+      };
+
+      if (editedApprovalData?.prd_tl_list?._id) {
+        await updateAndPushApprovalDataOfImplementation("PRD_TL");
+      }
+
+      if (editedApprovalData?.mtd_tl_list?._id) {
+        await updateAndPushApprovalDataOfImplementation("MTD_TL");
+      }
+
+      if (editedApprovalData?.mtd_hos_list?._id) {
+        await updateAndPushApprovalDataOfImplementation("MTD_HOS");
+      }
+
+      if (editedApprovalData?.mtd_hod_list?._id) {
+        await updateAndPushApprovalDataOfImplementation("MTD_HOD");
+      }
+
+      if (editedApprovalData?.PMworkedTMName?._id) {
+        let keyOfPMworkedTMName = `checkSheet_data.$[outer].PMworkedTMName.${editedApprovalData?.selectedMonth}`;
+        let keyOfImplemantationCompleted_tm_no = `checkSheet_data.$[outer].implemetation_completed_tm_no.${editedApprovalData?.selectedMonth}`;
+        let keyOfImplemantationCompleted_tm_name = `checkSheet_data.$[outer].implemetation_completed_tm_name.${editedApprovalData?.selectedMonth}`;
+        let keyOfImplemantationCompleted_date = `checkSheet_data.$[outer].implemetation_completed_date.${editedApprovalData?.selectedMonth}`;
+
+        let keyForAddEmptyArrayOfMonthsOfPMworkedTMName = `checkSheet_data.$[outer].PMworkedTMName`;
+        let keyForAddEmptyArrayOfMonthsOfImplemantationCompleted_tm_no = `checkSheet_data.$[outer].implemetation_completed_tm_no`;
+        let keyForAddEmptyArrayOfMonthsOfImplemantationCompleted_tm_name = `checkSheet_data.$[outer].implemetation_completed_tm_name`;
+        let keyForAddEmptyArrayOfMonthsOfImplemantationCompleted_date = `checkSheet_data.$[outer].implemetation_completed_date`;
+
+        let updateFieldWithAllMonthForPMworkedTMName = {
+          Apr: [],
+
+          May: [],
+
+          June: [],
+
+          July: [],
+
+          Aug: [],
+
+          Sep: [],
+
+          Oct: [],
+
+          Nov: [],
+
+          Dec: [],
+
+          Jan: [],
+
+          Feb: [],
+
+          Mar: [],
+        };
+
+        if (
+          // machineCheckSheetData?.[0]?.checkSheet_data?.PMworkedTMName?.[
+          //   `${editedApprovalData?.selectedMonth}`
+          // ]?.length >= 0
+
+          machineCheckSheetData?.[0]?.checkSheet_data?.PMworkedTMName !==
+          undefined
+        ) {
+          queryObjForUpdateFields = {
+            ...queryObjForUpdateFields,
+            [keyOfPMworkedTMName]: editedApprovalData?.PMworkedTMName?.tm_name,
+            [keyOfImplemantationCompleted_tm_no]:
+              editedApprovalData?.PMworkedTMName?.tm_no,
+            [keyOfImplemantationCompleted_tm_name]:
+              editedApprovalData?.PMworkedTMName?.tm_name,
+            [keyOfImplemantationCompleted_date]:
+              editedApprovalData?.implemetation_completed_date,
+          };
+        } else {
+          const updateImplementationData = await Machine.updateOne(
+            { ...req?.query },
+            {
+              $set: {
+                [keyForAddEmptyArrayOfMonthsOfPMworkedTMName]:
+                  updateFieldWithAllMonthForPMworkedTMName,
+                [keyForAddEmptyArrayOfMonthsOfImplemantationCompleted_tm_no]:
+                  updateFieldWithAllMonthForPMworkedTMName,
+                [keyForAddEmptyArrayOfMonthsOfImplemantationCompleted_tm_name]:
+                  updateFieldWithAllMonthForPMworkedTMName,
+                [keyForAddEmptyArrayOfMonthsOfImplemantationCompleted_date]:
+                  updateFieldWithAllMonthForPMworkedTMName,
+              },
+            },
+            {
+              arrayFilters: [
+                {
+                  "outer.current_year": req?.params?.selectedYear,
+                },
+              ],
+            }
+          );
+
+          queryObjForUpdateFields = {
+            ...queryObjForUpdateFields,
+            [keyOfPMworkedTMName]: editedApprovalData?.PMworkedTMName?.tm_name,
+            [keyOfImplemantationCompleted_tm_no]:
+              editedApprovalData?.PMworkedTMName?.tm_no,
+            [keyOfImplemantationCompleted_tm_name]:
+              editedApprovalData?.PMworkedTMName?.tm_name,
+            [keyOfImplemantationCompleted_date]:
+              editedApprovalData?.implemetation_completed_date,
+          };
+        }
+      }
+
+      const updateAfterAllApprovalOfImplementation = await Machine.updateOne(
+        { ...req?.query },
+        {
+          $set: {
+            ...queryObjForUpdateFields,
+          },
+          $push: {
+            ...queryObjForPushData,
+          },
+        },
+        {
+          arrayFilters: [
+            {
+              "outer.current_year": req?.params?.selectedYear,
+            },
+          ],
+          new: true,
+        }
+      );
+
+      res.status(201).json({
+        message: "Approval data updated successfully",
+        machine: updateAfterAllApprovalOfImplementation,
+      });
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
+      console.log(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/topMachinePmTimeMonitoringData/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      let queryPipelineForMontlyTimeMonitoring = [];
+
+      if (req?.query?.selectedMonth) {
+        queryPipelineForMontlyTimeMonitoring = [
+          {
+            $match: {
+              "totalPMTime.k": req?.query?.selectedMonth,
+            },
+          },
+        ];
+      }
+
+      const getTopMachinePmTimeMonitoringData = await Machine.aggregate([
+        { $match: req.queryObjForPM },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: {
+            "checkSheet_data.current_year": req.query?.selectedYear,
+          },
+        },
+        {
+          $addFields: {
+            totalPMTime: {
+              $objectToArray: "$checkSheet_data.totalPMTime",
+            },
+          },
+        },
+        {
+          $unwind: "$totalPMTime",
+        },
+        ...queryPipelineForMontlyTimeMonitoring,
+        {
+          $group: {
+            _id: "$machine_code",
+            machine_name: { $first: "$machine_name" },
+            totalSumOf_PM: {
+              $sum: truncValue({
+                $divide: ["$totalPMTime.v.totalWorkedPMTime", 60],
+              }),
+            },
+          },
+        },
+        {
+          $sort: { totalSumOf_PM: -1 },
+        },
+        {
+          $limit: req.query?.documentLimitInTheGraph * 1,
+        },
+        {
+          $group: {
+            _id: null,
+            labels: { $push: "$machine_name" },
+            data: { $push: "$totalSumOf_PM" },
+          },
+        },
+      ]);
+
+      return res.status(201).json({
+        message: "Top Machine Breakdown data get successfully",
+        topMachineTimeMonitoring: getTopMachinePmTimeMonitoringData?.[0],
+      });
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/yearlyTrendPmTimeMonitoringData/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  async (req, res, next) => {
+    try {
+      const selectedYear = req.query?.selectedYear?.split("-")?.[0];
+      const isValidYear = /^\d{4}$/.test(selectedYear);
+
+      let previousYear;
+      if (isValidYear) {
+        previousYear = (parseInt(selectedYear, 10) - 1).toString();
+      }
+
+      const getYearTrendPmTimeMonitoringData = await Machine.aggregate([
+        { $match: req.queryObjForPM },
+        {
+          $unwind: "$checkSheet_data",
+        },
+        {
+          $match: {
+            $or: [
+              {
+                "checkSheet_data.current_year": req.query?.selectedYear,
+              },
+              {
+                "checkSheet_data.current_year": `${previousYear}-${selectedYear}`,
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            totalPMTime: {
+              $objectToArray: "$checkSheet_data.totalPMTime",
+            },
+          },
+        },
+        {
+          $unwind: "$totalPMTime",
+        },
+        {
+          $group: {
+            _id: "$checkSheet_data.current_year",
+            totalSumOf_PM: {
+              $sum: truncValue({
+                $divide: ["$totalPMTime.v.totalWorkedPMTime", 60],
+              }),
+            },
+          },
+        },
+        {
+          $sort: { _id: 1 },
+        },
+        {
+          $group: {
+            _id: null,
+            labels: { $push: "$_id" },
+            data: { $push: "$totalSumOf_PM" },
+          },
+        },
+      ]);
+
+      return res.status(201).json({
+        message: "Top Machine Breakdown data get successfully",
+        yearTrendMachineTimeMonitoring: getYearTrendPmTimeMonitoringData?.[0],
+      });
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.patch(
+  "/updateCellAndLineIdInMachineWhileMovingMachine",
+  authenticate,
+  async (req, res, next) => {
+    try {
+      const { submittedData } = req.body;
+
+      const sequenceFind = await Machine.aggregate([
+        {
+          $match: {
+            line_names: mongoose.Types.ObjectId(submittedData?.line_id),
+          },
+        },
+        {
+          $sort: {
+            machine_sequence: -1,
+          },
+        },
+      ]).limit(1);
+
+      let updatedMachineSeq = 0;
+      if (sequenceFind?.length === 1) {
+        updatedMachineSeq = sequenceFind[0].machine_sequence + 1;
+      } else {
+        updatedMachineSeq = 1;
+      }
+
+      const updateSequence = await Machine.updateMany(
+        {
+          line_names: req?.query?.line_names,
+          machine_sequence: {
+            $gt: req?.query?.machine_sequence,
+          },
+        },
+        { $inc: { machine_sequence: -1 } }
+      );
+      const updateReqestSheetData = await RequestSheetOfBM.updateMany({machineRef: req?.query?._id},{
+        $set:{
+          lineRef: submittedData?.line_id,
+          cellRef: submittedData?.cell_id
+        }
+      },{new : true})
+
+      const updateNoLossReqestSheetData = await noLossBDData.updateMany({machineRef: req?.query?._id},{
+        $set:{
+          lineRef: submittedData?.line_id,
+          cellRef: submittedData?.cell_id
+        }
+      },{new : true})
+
+      const updateReqestSheetDataOfCM = await CM_RequestSheetData.updateMany({machineRef: req?.query?._id},{
+        $set:{
+          lineRef: submittedData?.line_id,
+          cellRef: submittedData?.cell_id
+        }
+      },{new : true})
+
+      const updateMachineLineAndCellId = await Machine.findOneAndUpdate(
+        { _id: req?.query?._id },
+        {
+          $set: {
+            line_names: submittedData?.line_id,
+            cell_names: submittedData?.cell_id,
+            machine_sequence: updatedMachineSeq,
+          },
+        }
+      );
+
+      if (updateMachineLineAndCellId) {
+        return res.status(201).json({
+          message: "Machine move successfully to another line/cell",
+        });
+      }
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
+      console.log(error);
+      res.status(500).json({ message: error?.message, error });
     }
   }
 );

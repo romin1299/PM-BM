@@ -8,19 +8,19 @@ function MyTable() {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
 
-  const { machine_code, generateType } = useParams();
+  const { machine_code, generateType, selectedYear } = useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [approvalListOfBM, setApprovalListOfBM] = useState([]);
 
   const [machineStatus, setMachineStatus] = useState({
     pmStatusData: "",
-    bmStatusData: ""
+    bmStatusData: "",
   });
 
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}`,
+        `/getMachineDetailsOnScanningRequest/?machine_code=${machine_code}&&current_year=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -37,14 +37,19 @@ function MyTable() {
           navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const { machine, requestSheetApprovalList, pmStatusData, bmStatusData } = await res.json();
+        const {
+          machine,
+          requestSheetApprovalList,
+          pmStatusData,
+          bmStatusData,
+        } = await res.json();
 
         setMachineDetails(machine);
         setApprovalListOfBM(requestSheetApprovalList);
-        setMachineStatus(
+        setMachineStatus({
+          bmStatusData,
           pmStatusData,
-          bmStatusData
-        )
+        });
       }
     } catch (error) {
       console.log(error);
@@ -56,11 +61,12 @@ function MyTable() {
   }, [machine_code]);
 
   return (
-    <>
-      <div style={{ overflow: "scroll" }}>
+    <div className="p-2">
+      <div id="request-sheet-target" className="border border-dark">
         {context?.tm_department === "PRD" && (
           <PRDRequestSheet
             selectedMachineDetails={selectedMachineDetails}
+            machineStatus={machineStatus}
             // approvalListOfBM={approvalListOfBM}
           />
         )}
@@ -71,7 +77,7 @@ function MyTable() {
         approvalListOfBM={approvalListOfBM}
       /> */}
       </div>
-    </>
+    </div>
   );
 }
 

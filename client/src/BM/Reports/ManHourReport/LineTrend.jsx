@@ -15,8 +15,12 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -30,6 +34,12 @@ ChartJS.register(
 );
 
 export const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -41,7 +51,6 @@ export const options = {
       display: false,
     },
   },
-  responsive: true,
   scales: {
     x: {
       stacked: true,
@@ -57,6 +66,9 @@ export const options = {
         minRotation: 90,
         // padding: 10,
         color: "black",
+        // font: {
+        //   size: 11,
+        // },
       },
     },
 
@@ -64,6 +76,9 @@ export const options = {
       stacked: true,
       position: "right",
 
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Percentage",
@@ -73,6 +88,9 @@ export const options = {
       },
     },
     y2: {
+      grid: {
+        display: false,
+      },
       stacked: true,
       title: {
         display: true,
@@ -90,6 +108,8 @@ const LineTrend = ({
   flagForTogglingFilter,
   selectedYear,
   selectedMonth,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
   const [labels, setLabels] = useState([]);
@@ -100,6 +120,30 @@ const LineTrend = ({
     totalSumOf_BM: [],
     percentage: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getLineTrendData = async () => {
     setLoading(true);
@@ -130,6 +174,69 @@ const LineTrend = ({
     setLoading(false);
   };
 
+  const header = [
+    "Line Names",
+    "Total Sum of PM",
+    "Total Sum of BM",
+    "Percentages",
+  ];
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [
+      //   [
+      //     lineTrendData?.lines,
+      //     lineTrendData?.totalSumOf_PM,
+      //     lineTrendData?.totalSumOf_BM,
+      //     lineTrendData?.percentage,
+      //   ],
+      // ];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [["Line Names"].concat(lineTrendData?.lines)?.toString() + "\n"],
+          [
+            ["PM Hour Trend"].concat(lineTrendData?.totalSumOf_PM)?.toString() +
+              "\n",
+          ],
+          [
+            ["BM Hour Trend"].concat(lineTrendData?.totalSumOf_BM)?.toString() +
+              "\n",
+          ],
+          [
+            ["Percentages"].concat(lineTrendData?.percentage)?.toString() +
+              "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          [
+            lineTrendData?.lines.join("\n"),
+            lineTrendData?.totalSumOf_PM.join("\n"),
+            lineTrendData?.totalSumOf_BM.join("\n"),
+            lineTrendData?.percentage.join("\n"),
+          ],
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `Line_trend_${selectedMonth}_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue && flagForTogglingFilter !== "based-on-line") {
       getLineTrendData();
@@ -144,7 +251,7 @@ const LineTrend = ({
         label: "%",
         data: lineTrendData?.percentage,
         borderColor: chartColors.percentLine,
-        borderWidth: 2,
+        //borderWidth: 2,
         fill: false,
         backgroundColor: chartColors.percentLine,
         // pointStyle: "rectRot",
@@ -159,6 +266,8 @@ const LineTrend = ({
         data: lineTrendData?.totalSumOf_BM,
         backgroundColor: chartColors.bmpm[0],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
         yAxisID: "y2",
       },
       {
@@ -168,6 +277,8 @@ const LineTrend = ({
         data: lineTrendData?.totalSumOf_PM,
         backgroundColor: chartColors.bmpm[1],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
         yAxisID: "y2",
       },
     ],
@@ -194,16 +305,46 @@ const LineTrend = ({
     }
   };
 
+  let isDataExists = isChartDataExist(data);
+
   return (
-    <Box className="cell p-3">
-      <ChartTitleBar title="Line Trend" />
-      {loading ? (
+    <>
+      <Box className="cell p-3">
+        <ChartTitleBar
+          title="Line Trend"
+          Toolbar={
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
+              />
+            </div>
+          }
+        />
+
+        {/* {loading ? (
         <Loading height={200} />
       ) : (
         <Chart options={options} data={data} />
-      )}
+      )} */}
+
+        <Box sx={{ height: { xs: "350px", md: "400px" } }}>
+          {loading ? (
+            <Loading height={"100%"} />
+          ) : !isDataExists ? (
+            <DataNotFound />
+          ) : (
+            <Chart options={options} data={data} />
+          )}
+        </Box>
+      </Box>
       {/* <button onClick={dummyAPI}>For Test</button> */}
-    </Box>
+    </>
+
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
     //   <Typography variant="h5" component="h4">
     //     Line Trend

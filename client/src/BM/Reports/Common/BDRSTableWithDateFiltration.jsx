@@ -7,13 +7,13 @@ import { Button, Paper } from "@mui/material";
 const BDRSTableWithDateFiltration = ({
   flagForTogglingFilter,
   selectedValue,
+  selectedYear,
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({});
-
   const [loading, setLoading] = React.useState(false);
   const [requestSheetData, setRequestSheetData] = React.useState([]);
 
@@ -47,10 +47,10 @@ const BDRSTableWithDateFiltration = ({
 
   return (
     <>
-      <Paper variant="outlined" sx={{ p: 2 }} className="mt-3 g-0">
+      <Paper variant="outlined" sx={{ p: 2 }} className="cell mt-3 g-0">
         <form
           onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedDate)}
-          className="pt-1 d-flex align-items-center justify-content-end"
+          className="mb-2 pt-1 d-flex align-items-center justify-content-end"
         >
           <input
             type="date"
@@ -82,6 +82,7 @@ const BDRSTableWithDateFiltration = ({
           loading={loading}
           requestSheetData={requestSheetData}
           downloadFileName={"Daily breakdown trend"}
+          selectedYear={selectedYear}
         />
       </Paper>
     </>

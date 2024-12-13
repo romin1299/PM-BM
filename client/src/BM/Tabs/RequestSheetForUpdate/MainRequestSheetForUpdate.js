@@ -23,7 +23,7 @@ function MyTable() {
   const getMachineDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineDetailsOnScanningRequest/${generateType}/?machine_code=${machine_code}&&current_year=${selectedYear}`,
+        `/getMachineDetailsOnScanningRequest/?machine_code=${machine_code}&&current_year=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -59,7 +59,6 @@ function MyTable() {
       console.log(error);
     }
   };
-
   const getRequestSheetDetails = async () => {
     try {
       const res = await fetch(
@@ -94,8 +93,8 @@ function MyTable() {
   }, [requestSheetID]);
 
   return (
-    <>
-      <div style={{ overflow: "scroll" }}>
+    <div className="p-2">
+      <div id="request-sheet-target" className="border border-dark">
         <PRDRequestSheetForUpdate
           // selectedMachineDetails={selectedMachineDetails}
           machineId={selectedMachineDetails?._id}
@@ -112,7 +111,7 @@ function MyTable() {
           supportingTMList={supportingTMList}
         />
       </div>
-    </>
+    </div>
   );
 }
 

@@ -9,6 +9,10 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 const sectionBoxStyle = {
   p: 1,
@@ -28,6 +32,10 @@ const sectionBodyBoxStyle = {
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     title: {
       display: false,
@@ -57,6 +65,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Nos",
@@ -64,6 +75,7 @@ export const options = {
       ticks: {
         color: "black",
       },
+      min: 1
     },
   },
 };
@@ -88,6 +100,7 @@ const MajorBDCount = ({
   currentTabViewName,
   sectionId,
   selectedYear,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState([]);
@@ -98,6 +111,30 @@ const MajorBDCount = ({
   });
 
   const { flagForTogglingFilter, selectedValue } = filterState;
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterState,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchChartData = async () => {
     setLoading(true);
@@ -136,6 +173,8 @@ const MajorBDCount = ({
         data: item?.data,
         backgroundColor: chartColors.sections[index],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       }));
 
       const targetData = res?.data?.bdTrendDataTarget;
@@ -145,13 +184,13 @@ const MajorBDCount = ({
       if (data) {
         setData(data);
         setChartData({
-          labels:  res?.data?.labels,
+          labels: res?.data?.labels,
           datasets: [
             {
               type: "line",
               label: "Target",
               data: targetData,
-              borderWidth: 2,
+              //borderWidth: 2,
               borderColor: chartColors.target2,
               backgroundColor: chartColors.target2,
               pointStyle: "rectRot",
@@ -184,6 +223,42 @@ const MajorBDCount = ({
     setLoading(false);
   };
 
+  const header = ["Labels", ...labels];
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [chartData].map((item) => [
+      //   item.datasets.map((a) => a.label).join("\n"),
+      //   item.datasets.map((a) => a.data).join("\n"),
+      // ]);
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          ["Months", ...labels]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
+        ];
+      } else {
+        bodyData = [
+          ...chartData?.datasets.map((dataset) => [
+            dataset.label,
+            ...dataset.data,
+          ]),
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(filterData, bodyData, fileType, header, "Major_Bd_Count");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     if (flagForTogglingFilter && selectedValue && selectedYear)
       fetchChartData();
@@ -194,6 +269,10 @@ const MajorBDCount = ({
       return accumulator + currentValue;
     }, 0);
   }
+
+  console.log("chartData:", chartData);
+
+  const isDataExists = isChartDataExist(chartData);
 
   return (
     <Box className="cell p-3 mt-3">
@@ -247,30 +326,44 @@ const MajorBDCount = ({
 
         <Col md={12} lg={6}>
           <Paper variant="outlined" className="cell p-3">
-            <Typography
+            {/* <Typography
               className="col"
               variant="h5"
               component="h5"
               sx={{ fontWeight: "500" }}
             >
               Sections
-            </Typography>
+            </Typography> */}
 
-            {loading ? (
-              <Loading height={200} />
-            ) : (
-              <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-                {chartData === undefined || chartData?.datasets?.length < 1 ? (
-                  <DataNotFound />
-                ) : (
-                  <Bar
-                    options={options}
-                    data={chartData}
-                    plugins={[ChartDataLabels]}
+            <ChartTitleBar
+              title="Sections"
+              Toolbar={
+                <div className="col-auto">
+                  <ChartDownloadMenu
+                    handleDownloadCSV={() => {
+                      handleDownload("csv");
+                    }}
+                    handleDownloadPDF={() => {
+                      handleDownload("pdf");
+                    }}
                   />
-                )}
-              </Box>
-            )}
+                </div>
+              }
+            />
+
+            <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+              {loading ? (
+                <Loading height={"100%"} />
+              ) : !isDataExists ? (
+                <DataNotFound />
+              ) : (
+                <Bar
+                  options={options}
+                  data={chartData}
+                  plugins={[ChartDataLabels]}
+                />
+              )}
+            </Box>
           </Paper>
         </Col>
       </Row>

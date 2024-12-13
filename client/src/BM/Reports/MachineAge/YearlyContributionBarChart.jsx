@@ -11,12 +11,21 @@ import {
 import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import Loading from "../../../components/Loading/Loading";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 const YearlyContributionBarChart = ({
   selectedValue,
   selectedYear,
   flagForTogglingFilter,
+  filterValues,
+  userDetails,
+  getDataForOtherComponentBasedOnMachineAgeGroupChange,
+  setGetDataForOtherComponentBasedOnMachineAgeGroupChange,
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -26,13 +35,39 @@ const YearlyContributionBarChart = ({
     Tooltip,
     Legend
   );
+  const [loading, setLoading] = React.useState(true);
 
   const [yearlyContributionData, setYearlyContributionData] = useState({
     label: [],
     data: [],
-  })
+  });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getYearContributionChartData = async () => {
+    setLoading(true);
     try {
       const res = await fetch(
         `/getMachineAgeYearwise/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
@@ -50,17 +85,64 @@ const YearlyContributionBarChart = ({
 
       if (res?.status === 201) {
         setYearlyContributionData(machineData?.[0]);
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(false);
       }
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
+  const header = ["Labels", "Hours"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [
+      //   [yearlyContributionData?.label, yearlyContributionData?.data],
+      // ];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [["Labels"].concat(yearlyContributionData?.label)?.toString() + "\n"],
+          [["Hours"].concat(yearlyContributionData?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [
+            yearlyContributionData?.label.join("\n"),
+            yearlyContributionData?.data.join("\n"),
+          ],
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `Machine_Age_Yearly_Contribution_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
   useEffect(() => {
-    if (selectedValue) {
+    setLoading(false);
+    if (selectedValue || getDataForOtherComponentBasedOnMachineAgeGroupChange) {
       getYearContributionChartData();
     }
-  }, [selectedValue, selectedYear]);
+  }, [
+    selectedValue,
+    selectedYear,
+    getDataForOtherComponentBasedOnMachineAgeGroupChange,
+  ]);
 
   // const dataset = {
   //   _id: null,
@@ -74,6 +156,10 @@ const YearlyContributionBarChart = ({
     maintainAspectRatio: false,
     maxBarThickness: 100,
     indexAxis: "y",
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       legend: {
         display: false,
@@ -114,9 +200,10 @@ const YearlyContributionBarChart = ({
     {
       label: "Top 20",
       data: yearlyContributionData?.data,
-      backgroundColor: chartColors[0],
-      borderColor: chartColors[7],
-      borderWidth: 1,
+      backgroundColor: chartColors.monthlyBDTrend,
+      // borderColor: chartColors[7],
+      //borderColor: "#312A7D",
+      //borderWidth: 2,
     },
   ];
 
@@ -125,12 +212,34 @@ const YearlyContributionBarChart = ({
     datasets,
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title={"Yearly Contribution"} />
+      <ChartTitleBar
+        title={"Yearly Contribution"}
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Bar options={options} data={data} />
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Bar options={options} data={data} />
+        )}
       </Box>
     </Box>
   );

@@ -40,86 +40,6 @@ const getLineWiseKpiStatusData = async (urlOptions) => {
   }
 };
 
-// implement data fetching logic here
-function fetchData() {
-  let prevDataType = [
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      bdHours: getRandomDataArray(12, 0, 150),
-      bdPercentage: getRandomDataArray(12, 0, 150),
-      mttrData: getRandomDataArray(12, 0, 150),
-      mtbfData: getRandomDataArray(12, 0, 150),
-    },
-  ];
-
-  let colorOptions = ["9ccc65", "9ccc65", "9ccc65", "ef5350"];
-  let generateData = [
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      allData: {
-        bdHours: getRandomDataArray(12, 0, 150),
-        bdPercentage: getRandomDataArray(12, 0, 150),
-        mttrData: getRandomDataArray(12, 0, 150),
-        mtbfData: getRandomDataArray(12, 0, 150),
-
-        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
-        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
-      },
-    },
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      allData: {
-        bdHours: getRandomDataArray(12, 0, 150),
-        bdPercentage: getRandomDataArray(12, 0, 150),
-        mttrData: getRandomDataArray(12, 0, 150),
-        mtbfData: getRandomDataArray(12, 0, 150),
-
-        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
-        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
-      },
-    },
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      allData: {
-        bdHours: getRandomDataArray(12, 0, 150),
-        bdPercentage: getRandomDataArray(12, 0, 150),
-        mttrData: getRandomDataArray(12, 0, 150),
-        mtbfData: getRandomDataArray(12, 0, 150),
-
-        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
-        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
-      },
-    },
-    {
-      lineName: "line1",
-      target: getRandomDataArray(12, 100, 120),
-      allData: {
-        bdHours: getRandomDataArray(12, 0, 150),
-        bdPercentage: getRandomDataArray(12, 0, 150),
-        mttrData: getRandomDataArray(12, 0, 150),
-        mtbfData: getRandomDataArray(12, 0, 150),
-
-        backgroundColorForBDHrs: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTTR: getRandomColorsArray(12, colorOptions),
-        backgroundColorForMTBF: getRandomColorsArray(12, colorOptions),
-        backgroundColorForBDPercentage: getRandomColorsArray(12, colorOptions),
-      },
-    },
-  ];
-
-  return generateData;
-}
-
 function convertResData(data) {
   // console.log("data:", data);
   const comboData = [
@@ -129,7 +49,7 @@ function convertResData(data) {
         {
           name: "BD Hours",
           labels: MONTH_LABELS,
-          values: data?.data,
+          values: data?.data.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -142,7 +62,7 @@ function convertResData(data) {
         {
           name: "Target",
           labels: MONTH_LABELS,
-          values: data?.target,
+          values: data?.target.replaceZeroWithNull(),
         },
       ],
       options: {
@@ -207,11 +127,13 @@ export async function genChartMatrix(pptx, dataArray) {
     // showValAxisTitle: false,
     valAxisTitle: "Hours",
     valAxisTitleFontSize: fontSize,
+    dataLabelFontSize: 7,
     legendFontSize: 7,
     catAxisLabelFontSize: fontSize,
     valAxisLabelFontSize: fontSize,
     showTitle: false,
     title: "BD Hours",
+    showValue: false,
   };
 
   function addTitle(slide, title, coordinates) {
@@ -321,7 +243,7 @@ export async function genChartMatrix(pptx, dataArray) {
 
   // dataArray.splice(0, noOfCols);
 
-  const slicedArray = await dataArray.slice(noOfCols, dataArray.length);
+  const slicedArray = await dataArray?.slice(noOfCols, dataArray.length);
 
   await genChartMatrix(pptx, slicedArray);
 }
@@ -346,8 +268,8 @@ export function genMatrix(noOfRows = 3, noOfCols = 3) {
     }
   }
 
-  console.log("Matrix========>");
-  console.table(matrix);
+  // console.log("Matrix========>");
+  // console.table(matrix);
 }
 
 export function calcEqualCols(length) {

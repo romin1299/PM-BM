@@ -13,6 +13,7 @@ import currentMonth from "../Dashboard/DashboardComponent/currentMonth";
 import { typography } from "@mui/system";
 
 import { postLineToGetAllMachineData } from "../../Integration/APIExports";
+import { CSVLink } from "react-csv";
 
 import axios from "axios";
 import FileDownload from "js-file-download";
@@ -21,84 +22,84 @@ import Footer from "../../components/Footer/Footer";
 const LogHistory = () => {
   let columns = [
     {
-      header: "Sr. No.",
-      sort: "true",
+      label: "S.N.",
+      key: "",
     },
     {
-      header: "Schedule Month",
-      sort: "true",
+      label: "Schedule Month",
+      key: "schedule_month",
     },
     {
-      header: "Cell/Product",
-      sort: "true",
+      label: "Cell/Product",
+      key: "cellInfo.cell_name",
     },
     {
-      header: "Line",
-      sort: "true",
+      label: "Line",
+      key: "lineInfo.line_name",
     },
     {
-      header: "Machine",
-      sort: "true",
+      label: "Machine",
+      key: "machineInfo.machine_name",
     },
     {
-      header: "M/c.No",
-      sort: "true",
+      label: "M/c.No",
+      key: "machineInfo.machine_Id",
     },
     {
-      header: "Inspection Point",
-      sort: "true",
+      label: "Inspection Point",
+      key: "inception_point",
     },
     {
-      header: "Date-Time",
-      sort: "true",
+      label: "Date-Time",
+      key: "date",
     },
     {
-      header: "Remarks",
-      sort: "true",
+      label: "Remarks",
+      key: "remarks",
     },
     {
-      header: "Abnormality",
-      sort: "true",
+      label: "Abnormality",
+      key: "abnormality",
     },
     {
-      header: "Abnormality Remarks",
-      sort: "true",
+      label: "Abnormality Remarks",
+      key: "abnormality_remarks",
     },
     {
-      header: "Abnormality Status",
-      sort: "true",
+      label: "Abnormality Status",
+      key: "abnormality_status",
     },
     {
-      header: "Action Details",
-      sort: "true",
+      label: "Action Details",
+      key: "actionDetailsOfAbnormalityClose",
     },
     {
-      header: "Target",
-      sort: "true",
+      label: "Target",
+      key: "target",
     },
     {
-      header: "Spare Used",
-      sort: "true",
+      label: "Spare Used",
+      key: "spare_used",
     },
     {
-      header: "P Name",
-      sort: "true",
+      label: "P Name",
+      key: "part_name",
     },
     {
-      header: "Part No",
-      sort: "true",
+      label: "Part No",
+      key: "part_no",
     },
     {
-      header: "Cost",
-      sort: "true",
+      label: "Cost",
+      key: "part_cost",
     },
     {
-      header: "Done By",
-      sort: "true",
+      label: "Done By",
+      key: "done_by",
     },
     {
-      header: "Photo",
-      sort: "true",
+      label: "Photo",
+      key: "",
     },
   ];
 
@@ -226,7 +227,7 @@ const LogHistory = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          section: selectedSection ,
+          section: selectedSection,
           selectedYear,
         }),
       });
@@ -259,7 +260,7 @@ const LogHistory = () => {
   // }, []);
 
   useEffect(() => {
-    setLoadingAnimationState(<LoadingAnimation />)
+    setLoadingAnimationState(<LoadingAnimation />);
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     } else {
@@ -448,18 +449,18 @@ const LogHistory = () => {
           {/* <Col sm={12} md={6} lg={2}></Col> */}
         </Row>
         <Row className="mt-3 my-3">
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
-              <b>Machine:</b>
+              <b>Machine:&nbsp;&nbsp;</b>
             </span>
             <select
               class="form-select form-select-sm"
               aria-label=".form-select-sm example"
-              // style={{ width: "100%" }}
+              // style={{ width: "50%" }}
               id="standard-select-currency"
               name="selectedMachine"
               value={selectedMachine ? selectedMachine : ""}
-              className="textField"
+              className="textField w-50"
               onChange={(e) => {
                 setSelectedMachine(e.target.value);
               }}
@@ -484,7 +485,7 @@ const LogHistory = () => {
 
           <Col sm={12} md={6} lg={3} className="mb-2">
             <span>
-              <b>Abnormality(Yes/No):</b>
+              <b>Abnormality(Yes/No):&nbsp;</b>
             </span>
             <select
               class="form-select form-select-sm"
@@ -493,7 +494,7 @@ const LogHistory = () => {
               id="standard-select-currency"
               name="abnormalityYesOrNo"
               value={abnormalityYesOrNo ? abnormalityYesOrNo : ""}
-              className="textField"
+              className="textField w-50"
               onChange={(e) => {
                 setAbnormalityYesOrNo(e.target.value);
               }}
@@ -513,7 +514,7 @@ const LogHistory = () => {
 
           <Col sm={12} md={6} lg={3} className="mb-2">
             <span>
-              <b>Spare(Yes/No):</b>
+              <b>Spare(Yes/No):&nbsp;&nbsp;</b>
             </span>
             <select
               class="form-select form-select-sm"
@@ -522,7 +523,7 @@ const LogHistory = () => {
               id="standard-select-currency"
               name="spareYesOrNo"
               value={spareYesOrNo ? spareYesOrNo : ""}
-              className="textField"
+              className="textField w-50"
               onChange={(e) => {
                 setSpareYesOrNo(e.target.value);
               }}
@@ -540,9 +541,9 @@ const LogHistory = () => {
             </select>
           </Col>
 
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={4} className="mb-2">
             <span>
-              <b>Abnormality(Open/Closed):</b>
+              <b>Abnormality(Open/Closed):&nbsp;</b>
             </span>
             <select
               class="form-select form-select-sm"
@@ -551,7 +552,7 @@ const LogHistory = () => {
               id="standard-select-currency"
               name="selectedAbnormalityStatus"
               value={selectedAbnormalityStatus ? selectedAbnormalityStatus : ""}
-              className="textField"
+              className="textField w-50"
               onChange={(e) => {
                 setSelectedAbnormalityStatus(e.target.value);
               }}
@@ -572,7 +573,21 @@ const LogHistory = () => {
       </Container>
       {logHistoryData?.length > 0 ? (
         <div>
-          <h4 style={{ padding: "1rem 0 0 1rem" }}>Log History</h4>
+          <div className="d-flex justify-content-between">
+            <h4 style={{ padding: "1rem 0 0 1rem" }}>Log History</h4>
+            <div className="m-3">
+              <CSVLink
+                headers={columns}
+                className="downloadCSV text-decoration-none"
+                data={logHistoryData ? logHistoryData : []}
+                filename={`PM_Log_History`}
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+                CSV
+              </CSVLink>
+            </div>
+          </div>
           <div className="container-fluid" style={{ overflowX: "auto" }}>
             <table className="ar-table pmSheetApprovalTableCol">
               <thead className="mt-5">
@@ -581,14 +596,14 @@ const LogHistory = () => {
                     <th
                       className={"ar-table-thead-header5 td-padding text-white"}
                       colSpan={
-                        tColumn.header === "Preparation"
+                        tColumn.label === "Preparation"
                           ? 3
-                          : tColumn.header === "Planning"
+                          : tColumn.label === "Planning"
                           ? 2
                           : 0
                       }
                     >
-                      {tColumn.header}
+                      {tColumn.label}
                     </th>
                   ))}
                 </tr>
@@ -642,13 +657,16 @@ const LogHistory = () => {
                       <td className="td-padding">{item?.date}</td>
                       <td className="td-padding">{item?.remarks}</td>
                       <td className="td-padding">
-                        {item?.abnormality_remarks ? "Yes" : "No"}
+                        {/* {item?.abnormality_remarks ? "Yes" : "No"} */}
+                        {item?.abnormality}
                       </td>
                       <td className="td-padding">
                         {item?.abnormality_remarks}
                       </td>
                       <td className="td-padding">{item?.abnormality_status}</td>
-                      <td className="td-padding">{item?.actionDetailsOfAbnormalityClose}</td>
+                      <td className="td-padding">
+                        {item?.actionDetailsOfAbnormalityClose}
+                      </td>
                       <td className="td-padding">{item?.target}</td>
                       <td className="td-padding">{item?.spare_used}</td>
                       <td className="td-padding">{item?.part_name}</td>

@@ -26,6 +26,12 @@ import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import { FaWpforms } from "react-icons/fa6";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+  BASE_URL,
+} from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const allusers = [
   "Admin",
@@ -34,31 +40,85 @@ const allusers = [
   "TL/HOSS",
   "Operator",
 ];
-
+console.log(process.env.REACT_APP_BASE_URL_FOR)
 const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
+
+// let menuItemsForDensoIndia = [];
+
+// if (NAME_OF_THE_COMPANY !== LIST_OF_COMPANY?.[0]) {
+//   menuItemsForDensoIndia = [
+//     {
+//       title: "Reports",
+//       icon: <AnalyticsIcon className="text-white" />,
+//       allowedRoles: reportAccess,
+//       subItems: [
+//         {
+//           title: "Production Line Wise",
+//           route: "/bm/report/productionLineWiseReport",
+//         },
+//         {
+//           title: "Man Hour",
+//           route: "/bm/report/man-hour",
+//         },
+//         {
+//           title: "Daily BD",
+//           route: "/bm/report/daily-breakdown-trend",
+//         },
+//         {
+//           title: "Monthly BD",
+//           route: "/bm/report/monthly-breakdown-trend",
+//         },
+//         {
+//           title: "Line Contibution BD",
+//           route: "/bm/report/line-contribution-breakdown-trend",
+//         },
+//         {
+//           title: "MTTR",
+//           route: "/bm/report/mttr",
+//         },
+//         {
+//           title: "MTBF",
+//           route: "/bm/report/mtbf",
+//         },
+//         {
+//           title: "TM MTTR Skill",
+//           route: "/bm/report/tm-mtr",
+//         },
+//         {
+//           title: "Top Machine Breakdown",
+//           route: "/bm/report/top-machine-breakdown",
+//         },
+//         {
+//           title: "Machine Age",
+//           route: "/bm/report/machine-age",
+//         },
+//       ],
+//     },
+//   ];
+// }
 
 export const menuItems = [
   {
     title: "Dashboard",
     icon: <DashboardIcon className="text-white" />,
     subItems: [
+      // {
+      //   title: "Plant Dashboard",
+      //   route: "/bm",
+      //   allowedRoles: allusers,
+      // },
+      // {
+      //   title: "Summary",
+      //   route: "/bm/summeryDashboard",
+      //   allowedRoles: allusers,
+      // },
       {
-        title: "Plant Dashboard",
+        title: "Request Sheet Progress Monitoring",
         route: "/bm",
-        allowedRoles: allusers,
-      },
-      {
-        title: "Summary",
-        route: "/bm/summeryDashboard",
-        allowedRoles: allusers,
-      },
-      {
-        title: "Request Sheets",
-        route: "/bm/requestListDashboard",
         allowedRoles: reportAccess,
       },
       {
-        title: "Request Sheet Monitoring",
+        title: "Request Sheet Status Monitoring",
         route: "/bm/requestSheetMonitoring",
         allowedRoles: reportAccess,
       },
@@ -86,7 +146,7 @@ export const menuItems = [
   // {
   //   title: "Request Sheets",
   //   icon: <AddTaskIcon className="text-white" />,
-  //   route: "/bm/requestListDashboard",
+  //   route: "/bm",
   //   allowedRoles: reportAccess,
   // },
   {
@@ -108,70 +168,39 @@ export const menuItems = [
     allowedRoles: ["Plant-Admin", "Section-Admin"],
   },
 
-  {
-    title: "Target Dashboard",
-    icon: <CrisisAlertIcon className="text-white" />,
-    route: "/bm/targetDashboard",
-    allowedRoles: ["Plant-Admin", "Section-Admin"],
-  },
+  // {
+  //   title: "Target Dashboard",
+  //   icon: <CrisisAlertIcon className="text-white" />,
+  //   route: "/bm/targetDashboard",
+  //   allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
+  //   allowedDepartments: ["MTD"],
+  // },
 
-  // ------- Reports Dashboards -------
+  //For DENSO-INDIA
+  // ...menuItemsForDensoIndia,
+
   {
-    title: "Reports",
-    icon: <AnalyticsIcon className="text-white" />,
-    allowedRoles: reportAccess,
-    subItems: [
-      {
-        title: "Production Line Wise",
-        route: "/bm/report/productionLineWiseReport",
-      },
-      {
-        title: "Man Hour Report",
-        route: "/bm/report/man-hour",
-      },
-      {
-        title: "Daily BD Report",
-        route: "/bm/report/daily-breakdown-trend",
-      },
-      {
-        title: "Monthly BD Report",
-        route: "/bm/report/monthly-breakdown-trend",
-      },
-      {
-        title: "Line Contibution BD Report",
-        route: "/bm/report/line-contribution-breakdown-trend",
-      },
-      {
-        title: "MTTR Report",
-        route: "/bm/report/mttr",
-      },
-      {
-        title: "MTBF Report",
-        route: "/bm/report/mtbf",
-      },
-      {
-        title: "TM MTTR Skill",
-        route: "/bm/report/tm-mtr",
-      },
-      {
-        title: "Top Machine Breakdown",
-        route: "/bm/report/top-machine-breakdown",
-      },
-      {
-        title: "Machine Age",
-        route: "/bm/report/machine-age",
-      },
-    ],
-  },
-  {
-    title: "No Loss",
+    title: "Other Loss",
     icon: <FaWpforms fontSize={22} className="text-white" />,
     route: "/bm/noLossDataOfBD",
     allowedRoles: allusers,
+    allowedDepartments: ["MTD"],
   },
   {
-    title: "Profile",
+    title: "Master Log",
+    icon: <LibraryBooksIcon className="text-white" />,
+    route: "/master-log",
+    allowedRoles: allusers,
+  },
+  {
+    icon: <MenuBookIcon className="text-white" />,
+    title: "User Manual",
+    route: `${process.env.REACT_APP_BASE_URL}/Denso BM User Manual_OSL14May2024.pdf`,
+    allowedRoles: allusers,
+  },
+  {
     icon: <AccountCircleIcon className="text-white" />,
+    title: "Profile",
     route: "/profile",
     allowedRoles: allusers,
   },
@@ -313,7 +342,7 @@ export const menuItems = [
   // {
   //   title: "Request-sheet dashboard",
   //   icon: <SummarizeIcon className="text-white" />,
-  //   route: "/bm/requestListDashboard",
+  //   route: "/bm",
   //   allowedRoles: ["TL/HOSS"],
   // },
 ];

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Col, Container } from "react-bootstrap";
 
@@ -13,10 +13,19 @@ import { Button, IconButton } from "@mui/material";
 import LaunchIcon from "@mui/icons-material/Launch";
 
 const MachineHistoryComponent = () => {
-  const { machine_code } = useParams();
+  const { machine_code, selectedYear } = useParams();
 
   const navigate = useNavigate();
   const { search } = useLocation();
+
+  const [selectedMachineDetails, setMachineDetails] = useState({
+    _id: "",
+    machine_code: "",
+    machine_name: "",
+    cell_names: {
+      cell_name: "",
+    },
+  });
 
   return (
     <Container fluid>
@@ -30,7 +39,8 @@ const MachineHistoryComponent = () => {
               sx={{ paddingInline: "1rem" }}
               onClick={() => {
                 navigate(
-                  `/machine-history/machine-document/${machine_code}/${search}`
+                  `/machine-history/machine-document/${machine_code}/${search}`,
+                  { state: { selectedMachineDetails } }
                 );
               }}
               endIcon={<LaunchIcon sx={{ pb: "2px" }} />}
@@ -41,8 +51,13 @@ const MachineHistoryComponent = () => {
         }
       />
       {/* <CustomHooksForBackNavigation /> */}
-      <MachineDetails machine_code={machine_code} search={search} />
-      <BreakdownTrend search={search} />
+      <MachineDetails
+        machine_code={machine_code}
+        search={search}
+        selectedMachineDetails={selectedMachineDetails}
+        setMachineDetails={setMachineDetails}
+      />
+      <BreakdownTrend machine_code={machine_code} selectedYear={selectedYear} search={search} />
     </Container>
   );
 };

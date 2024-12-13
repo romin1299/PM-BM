@@ -15,14 +15,17 @@ const ChartsToolbar = ({
   ACTION,
   monthFiltration,
   yearFiltration,
-
   sectionFiltration,
   subSectionFiltration,
   cellFiltration,
   lineFiltration,
   machineFiltration,
-
-  resetButtonFiltration
+  RSStatusArray,
+  RSStatusFiltration,
+  maintenanceTypeArrayForFilter,
+  maintenanceTypeFiltration,
+  resetButtonFiltration,
+  isWithLocalStorageForFiltration
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -102,19 +105,22 @@ const ChartsToolbar = ({
           ACTION={ACTION}
           monthFiltration={monthFiltration}
           machineFiltration={machineFiltration}
-          yearFiltration = {yearFiltration}
-
-          sectionFiltration = {sectionFiltration}
-          subSectionFiltration = {subSectionFiltration}
-          cellFiltration = {cellFiltration}
-          lineFiltration = {lineFiltration}
-        
-          resetButtonFiltration = {resetButtonFiltration}
+          yearFiltration={yearFiltration}
+          sectionFiltration={sectionFiltration}
+          subSectionFiltration={subSectionFiltration}
+          cellFiltration={cellFiltration}
+          lineFiltration={lineFiltration}
+          RSStatusArray={RSStatusArray}
+          RSStatusFiltration={RSStatusFiltration}
+          maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          maintenanceTypeFiltration={maintenanceTypeFiltration}
+          resetButtonFiltration={resetButtonFiltration}
+          isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
         />
       </Box>
 
-      <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-        {/* <ButtonGroup
+      {/*  <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+        <ButtonGroup
           size="small"
           disableElevation
           variant="outlined"
@@ -122,10 +128,10 @@ const ChartsToolbar = ({
         >
           <Button>Year</Button>
           <Button variant="contained">Month</Button>
-        </ButtonGroup> */}
-
-        {/* <DownloadMenu handleDownloadCSV={generatePPT} /> */}
-      </Box>
+        </ButtonGroup> 
+        
+         <DownloadMenu handleDownloadCSV={generatePPT} /> 
+      </Box> */}
     </Box>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useState, useReducer, useContext } from "react";
 
 import { Container, Row, Col } from "reactstrap";
 
@@ -9,17 +9,25 @@ import { Box, Divider, Typography } from "@mui/material";
 import { MonthDropdown } from "../ManHourReport/SubComponents/LineSelectionDropdown";
 import { FilterMenu } from "../MTTRReport/SubComponents/FilterMenu";
 import { DynamicFiltersMenu } from "./DynamicFiltersMenu";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
+import RoutingContext from "../../../context/routing/RoutingContext";
 
 const BDHoursVsCountComponent = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  filterValues,
+  userDetails,
   // selectedMonth,
 }) => {
+
   const [loading, setLoading] = React.useState(true);
   const [selectedMonth, setSelectedMonth] = useState();
+
+  const [documentLimitInTheGraph, setDocumentLimitInTheGraph] = useState(10);
 
   const initialState = {
     labels: [],
@@ -91,6 +99,30 @@ const BDHoursVsCountComponent = ({
     }
   };
 
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
+
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getBDhoursVsCountReportData = async ({ purpose, data }) => {
@@ -99,7 +131,7 @@ const BDHoursVsCountComponent = ({
     try {
       const res = await fetch(
         // `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/63317dbe1d1becfedab337e4/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
-        `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getBDhoursVsCountDataFunction/${purpose}/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}&&documentLimitInTheGraph=${documentLimitInTheGraph}`,
         {
           method: "POST",
           headers: {
@@ -129,6 +161,75 @@ const BDHoursVsCountComponent = ({
     setLoading(false);
   };
 
+  const header = ["Machines", "Hour Groups", "Hours", "Count Groups", "Count"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [
+      //   [
+      //     reduceState.BDHoursVsCountData?.labels,
+      //     reduceState.BDHoursVsCountData?.data,
+      //   ],
+      // ];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          // ["Filters", ...filterHeaders]?.toString() + "\n",
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          ["Machines", "", ...reduceState?.labels]?.toString() + "\n",
+
+          [
+            ["Hour Groups" + "\n"],
+            reduceState?.BDhours.map(
+              (lab) => [lab.groupId, lab.sumOfBDhours]?.toString() + "\n"
+            ),
+          ],
+
+          ["\n"],
+
+          [
+            ["Count Groups" + "\n"],
+            reduceState?.BDCount.map(
+              (lab) => [lab.groupId, lab.count]?.toString() + "\n"
+            ),
+          ],
+          ["\n"],
+          [
+            ["Total Count" + "\n"],
+            reduceState?.totalBDCount.map(
+              (lab) => [lab.groupId, lab.count]?.toString() + "\n"
+            ),
+          ],
+        ];
+      } else {
+        bodyData = [
+          // "BDHours",
+          [
+            reduceState?.labels.join("\n"),
+            reduceState?.BDhours.map((lab) => lab.groupId).join("\n"),
+            reduceState?.BDhours.map((data) => data.sumOfBDhours).join("\n"),
+            reduceState?.BDCount.map((lab) => lab.groupId).join("\n"),
+            reduceState?.BDCount.map((data) => data.count).join("\n"),
+          ],
+        ];
+      }
+
+      downloadFile(
+        undefined,
+        bodyData,
+        fileType,
+        header,
+        `Bd_Hours_Vs_Count_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   // console.log(reduceState);
 
   useEffect(() => {
@@ -145,23 +246,38 @@ const BDHoursVsCountComponent = ({
       <ChartTitleBar
         title="BD Hours Vs Count"
         Toolbar={
-          <Col className="col-auto d-flex gap-2">
-            {/* <DynamicFiltersMenu
+          <>
+            <Col className="col-auto d-flex gap-2">
+              {/* <DynamicFiltersMenu
               getBDhoursVsCountReportData={getBDhoursVsCountReportData}
               selectedValue={selectedValue}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
             /> */}
-            <MonthDropdown
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
-            />
-          </Col>
+              <MonthDropdown
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+              />
+            </Col>
+
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
+              />
+            </div>
+          </>
         }
       />
 
       <FilterComponent
         getBDhoursVsCountReportData={getBDhoursVsCountReportData}
+        documentLimitInTheGraph={documentLimitInTheGraph}
+        setDocumentLimitInTheGraph={setDocumentLimitInTheGraph}
         selectedValue={selectedValue}
         selectedYear={selectedYear}
         selectedMonth={selectedMonth}

@@ -12,11 +12,17 @@ import { Chart } from "react-chartjs-2";
 import { Box, Checkbox, FormControlLabel } from "@mui/material";
 import { Col } from "react-bootstrap";
 import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import DataNotFound from "../Common/DataNotFound";
 import axios from "axios";
 import TeamMembersDropdown from "./TeamMembersDropdown";
 import Loading from "../../../components/Loading/Loading";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+import { saveAs } from "file-saver";
+import downloadFile from "../../../util";
+import DownloadButton from "../Common/DownloadButton";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -30,6 +36,10 @@ ChartJS.register(
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -63,6 +73,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       position: "left",
       ticks: {
         color: "black",
@@ -82,12 +95,39 @@ const TMProgress = ({
   selectedYear,
   tmId,
   setTmId,
+  userDetails,
+  reduceState,
 }) => {
   const [loading, setLoading] = React.useState(true);
   // console.log("selectedValue:", selectedValue);
 
   const [data, setData] = React.useState(undefined);
   const [isAllTM, setIsAllTM] = React.useState(false);
+  const [tmName, setTMName] = React.useState("");
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    reduceState?.flagForTogglingFilter,
+    reduceState,
+    reduceState?.selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchChartData = async () => {
     setLoading(true);
@@ -123,6 +163,35 @@ const TMProgress = ({
     setLoading(false);
   };
 
+  const header = ["Labels"].concat(data?.labels);
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [[data?.labels, data?.data]];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems] + "\n",
+          ["\n"],
+          ["TM Name", tmName] + "\n",
+          ["\n"],
+          [["Labels"].concat(data?.labels)?.toString() + "\n"],
+          [["Hours"].concat(data?.data)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [["Hours"].concat(data?.data)];
+        filterData = ["Filters", ...arrayItems, "TM Name", tmName];
+      }
+
+      downloadFile(filterData, bodyData, fileType, header, "TM_Progress");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     if (selectedValue) fetchChartData();
   }, [selectedValue, tmId, selectedYear, timeFilter]);
@@ -137,7 +206,7 @@ const TMProgress = ({
         data: data?.data,
         backgroundColor: chartColors.count,
         borderColor: chartColors.count,
-        borderWidth: 2,
+        //borderWidth: 2,
         pointStyle: "circle",
         yAxisID: "y",
       },
@@ -176,7 +245,7 @@ const TMProgress = ({
   return (
     <Box className="cell p-3">
       <ChartTitleBar
-        title="TM Load"
+        title="TM Wise Skill Monitor"
         Toolbar={
           <>
             <Col className="col-auto">
@@ -185,25 +254,35 @@ const TMProgress = ({
                 setTmId={setTmId}
                 selectedValue={selectedValue}
                 flagForTogglingFilter={flagForTogglingFilter}
+                setName={setTMName}
               />
             </Col>
+
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
+              />
+            </div>
 
             {/* {AllTMCheckBox} */}
           </>
         }
       />
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {data === undefined ? (
-            <DataNotFound />
-          ) : (
-            <Chart options={options} data={chartData} />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : data === undefined ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={chartData} />
+        )}
+      </Box>
     </Box>
   );
 };

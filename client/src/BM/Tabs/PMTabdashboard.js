@@ -47,12 +47,12 @@ import CreationDashboardForTLHOSS from "../../pages/MTD_TL_HOSS/CreationDashboar
 import UserAssignTLHOSS from "../../pages/MTD_TL_HOSS/UserAssignTLHOSS";
 import SparePartUsageHistory from "../../pages/MTD_TL_HOSS/SparePartUsageHistory";
 import OperatorDataEntry from "../../pages/MTD_TL_HOSS/OperatorDataEntry";
-
+import AllSparePartsUsageHistory from "../../pages/MTD_TL_HOSS/AllSparePartsUsageHistory";
 //for Operator
 import CheckSheetForImplementation from "../../pages/Operator/CheckSheetForImplementation";
 import SkipPMWorkData from "../../pages/Reports/SkipPMWorkData";
 import CheckSheet from "../../pages/Dashboard/CheckSheet";
-
+import CheckApprovalSendOrNotMainDashboard from "../../pages/Dashboard/CheckApprovalSendOrNotMainDashboard";
 //implementation approval flow
 import PMSheetApprovalOfImplementationPhase from "../../pages/Section/Checksheet/PMSheetApprovalOfImplementationPhase";
 
@@ -83,7 +83,9 @@ import PlanningApprovalDashboard from "../../pages/Section/Checksheet/PlanningAp
 import ImplementationApprovalDashboard from "../../pages/Section/Checksheet/ImplementationApprovalDashboard";
 import Footer from "../../components/Footer/Footer";
 
-function App() {
+// import { RouteMap } from "../../Common/CommonRoutes/CommonRoutesContainer";
+
+function App({ commonRoutes }) {
   const [nav, setNav] = useState(false);
   const value = { nav, setNav };
 
@@ -98,6 +100,25 @@ function App() {
             // stickyNav={<RightNavbar />}
             content={
               <Routes>
+                {commonRoutes?.map((route) =>
+                  route?.children ? (
+                    <Route key={route.path} path={route.path}>
+                      {route?.children?.map((subRoute) => (
+                        <Route
+                          key={subRoute.path}
+                          path={subRoute.path}
+                          element={subRoute.element}
+                        />
+                      ))}
+                    </Route>
+                  ) : (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  )
+                )}
                 <Route path="/pm/adminDashboard" element={<AdminDashboard />} />
                 <Route path="/pm" element={<AdminCreationDashboard />} />
                 <Route path="/pm/profile" element={<Profile />} />
@@ -120,6 +141,25 @@ function App() {
             // stickyNav={<RightNavbar />}
             content={
               <Routes>
+                {commonRoutes?.map((route) =>
+                  route?.children ? (
+                    <Route key={route.path} path={route.path}>
+                      {route?.children?.map((subRoute) => (
+                        <Route
+                          key={subRoute.path}
+                          path={subRoute.path}
+                          element={subRoute.element}
+                        />
+                      ))}
+                    </Route>
+                  ) : (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  )
+                )}
                 <Route path="/pm" element={<OperatorDashboard />} />
                 <Route
                   path="/pm/creationDashboard"
@@ -179,7 +219,7 @@ function App() {
                   path="/pm/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
-                <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
+                {/* <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} /> */}
                 <Route
                   path="/pm/summeryDashboard"
                   element={<SummeryDashboard />}
@@ -191,7 +231,8 @@ function App() {
                 />
                 <Route
                   path="/pm/sparePartUsageHistory"
-                  element={<SparePartUsageHistory />}
+                  // element={<SparePartUsageHistory />}
+                  element={<AllSparePartsUsageHistory />}
                 />
                 <Route
                   path="/pm/backupTableData"
@@ -234,7 +275,29 @@ function App() {
             // stickyNav={<RightNavbar />}
             content={
               <Routes>
+                {commonRoutes?.map((route) =>
+                  route?.children ? (
+                    <Route key={route.path} path={route.path}>
+                      {route?.children?.map((subRoute) => (
+                        <Route
+                          key={subRoute.path}
+                          path={subRoute.path}
+                          element={subRoute.element}
+                        />
+                      ))}
+                    </Route>
+                  ) : (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  )
+                )}
                 <Route path="/pm" element={<OperatorDashboard />} />
+
+                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+
                 <Route
                   path="/pm/creationDashboard"
                   element={<CreationDashboardForSection />}
@@ -270,7 +333,7 @@ function App() {
                   path="/pm/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
-                <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
+                {/* <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} /> */}
                 <Route
                   path="/pm/summeryDashboard"
                   element={<SummeryDashboard />}
@@ -282,7 +345,8 @@ function App() {
                 />
                 <Route
                   path="/pm/sparePartUsageHistory"
-                  element={<SparePartUsageHistory />}
+                  // element={<SparePartUsageHistory />}
+                  element={<AllSparePartsUsageHistory />}
                 />
                 <Route
                   path="/pm/backupTableData"
@@ -351,14 +415,36 @@ function App() {
             // stickyNav={<RightNavbar />}
             content={
               <Routes>
+                {commonRoutes?.map((route) =>
+                  route?.children ? (
+                    <Route key={route.path} path={route.path}>
+                      {route?.children?.map((subRoute) => (
+                        <Route
+                          key={subRoute.path}
+                          path={subRoute.path}
+                          element={subRoute.element}
+                        />
+                      ))}
+                    </Route>
+                  ) : (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  )
+                )}
                 <Route path="/pm" element={<OperatorDashboard />} />
+                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+
                 <Route
                   path="/pm/machineWiseCheckSheetForImplemetation"
                   element={<CheckSheetForImplementation />}
                 />
                 <Route
                   path="/pm/sparePartUsageHistory"
-                  element={<SparePartUsageHistory />}
+                  // element={<SparePartUsageHistory />}
+                  element={<AllSparePartsUsageHistory />}
                 />
                 <Route path="/pm/profile" element={<Profile />} />
                 <Route
@@ -381,7 +467,7 @@ function App() {
                   path="/pm/summeryDashboard"
                   element={<SummeryDashboard />}
                 />
-                <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
+                {/* <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} /> */}
                 <Route path="/pm/logHistory" element={<LogHistory />} />
                 <Route
                   path="/pm/pendingPMLogHistory"
@@ -456,7 +542,28 @@ function App() {
             // stickyNav={<RightNavbar />}
             content={
               <Routes>
+                {commonRoutes?.map((route) =>
+                  route?.children ? (
+                    <Route key={route.path} path={route.path}>
+                      {route?.children?.map((subRoute) => (
+                        <Route
+                          key={subRoute.path}
+                          path={subRoute.path}
+                          element={subRoute.element}
+                        />
+                      ))}
+                    </Route>
+                  ) : (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  )
+                )}
                 <Route path="/pm" element={<OperatorDashboard />} />
+                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+
                 <Route
                   path="/pm/creationDashboard"
                   element={<CreationDashboardForTLHOSS />}
@@ -484,7 +591,8 @@ function App() {
                 )}
                 <Route
                   path="/pm/sparePartUsageHistory"
-                  element={<SparePartUsageHistory />}
+                  // element={<SparePartUsageHistory />}
+                  element={<AllSparePartsUsageHistory />}
                 />
 
                 <Route
@@ -518,7 +626,7 @@ function App() {
                   path="/pm/pmSheetApprovalOfImplementationPhase"
                   element={<PMSheetApprovalOfImplementationPhase />}
                 />
-                <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} />
+                {/* <Route path="/pm/viewCheckSheet" element={<ViewChecksheet />} /> */}
                 <Route
                   path="/pm/backupDataOfCheckSheet"
                   element={<BackupDataOfCheckSheet />}
@@ -553,7 +661,7 @@ function App() {
                   element={<PreparationApprovalDashboard />}
                 />
                 <Route
-                  path="/pm/pm/planningApproval"
+                  path="/pm/planningApproval"
                   element={<PlanningApprovalDashboard />}
                 />
                 <Route

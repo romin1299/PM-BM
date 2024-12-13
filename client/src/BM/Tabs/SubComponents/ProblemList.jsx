@@ -3,7 +3,13 @@ import { Button, Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
 
-const ProblemList = ({ problems, setProblems, clearErrors }) => {
+const ProblemList = ({
+  problems,
+  setProblems,
+  clearErrors,
+  handleOnchangeFlag,
+}) => {
+  // console.log(problems)
   const [newProblemText, setNewProblemText] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [editedProblem, setEditedProblem] = useState(null);
@@ -17,6 +23,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         problem: newProblemText,
       };
       setProblems([...problems, newProblem]);
+      handleOnchangeFlag && handleOnchangeFlag("problems_val_flag");
       clearErrors && clearErrors("problemValidation");
       setNewProblemText("");
       setIsAdding(false);
@@ -26,11 +33,12 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
   const updateProblem = (event) => {
     event.preventDefault();
 
-    if (editedProblem.problem.trim() !== "") {
-      const updatedProblems = problems.map((problem) =>
-        problem.id === editedProblem.id ? editedProblem : problem
+    if (editedProblem?.problem?.trim() !== "") {
+      const updatedProblems = problems?.map((problem) =>
+        problem?.id === editedProblem?.id ? editedProblem : problem
       );
       setProblems(updatedProblems);
+      handleOnchangeFlag && handleOnchangeFlag("problems_val_flag");
       setEditedProblem(null);
     }
   };
@@ -49,10 +57,11 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
   const deleteProblem = (event, problemId) => {
     event.preventDefault();
 
-    const updatedProblems = problems.filter(
-      (problem) => problem.id !== problemId
+    const updatedProblems = problems?.filter(
+      (problem) => problem?.id !== problemId
     );
     setProblems(updatedProblems);
+    handleOnchangeFlag && handleOnchangeFlag("problems_val_flag");
   };
 
   return (
@@ -83,9 +92,9 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         </Col>
       </Row>
 
-      {problems.map((problem, index) =>
-        editedProblem && editedProblem.id === problem.id ? (
-          <Row key={problem.id} className="m-0">
+      {problems?.map((problem, index) =>
+        editedProblem && editedProblem?.id === problem?.id ? (
+          <Row key={problem?.id} className="m-0">
             <Col
               lg={9}
               md={9}
@@ -97,7 +106,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
               </small>
               <input
                 type="text"
-                value={editedProblem.problem}
+                value={editedProblem?.problem}
                 onChange={(e) =>
                   setEditedProblem({
                     ...editedProblem,
@@ -123,7 +132,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
             </Col>
           </Row>
         ) : (
-          <Row key={problem.id} className="m-0">
+          <Row key={problem?.id} className="m-0">
             <Col
               lg={9}
               md={9}
@@ -132,13 +141,13 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
               style={{ fontSize: "14px" }}
             >
               <b>Problem {index + 1}: </b>
-              {problem.problem}
+              {problem?.problem}
             </Col>
             <Col
               lg={3}
               md={3}
               sm={3}
-              className="d-block border col-auto gap-1 p-1"
+              className="d-flex border col-auto gap-1 p-1 flex-wrap"
             >
               <button
                 class="bg-warning text-white border-0"
@@ -149,11 +158,10 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
               >
                 Edit
               </button>
-              <br />
               <button
                 class="bg-danger text-white border-0"
                 onClick={(event) => {
-                  deleteProblem(event, problem.id);
+                  deleteProblem(event, problem?.id);
                 }}
               >
                 Delete
@@ -172,7 +180,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
             className="border d-flex align-items-center gap-1"
             style={{ fontSize: "14px" }}
           >
-            <b>{`Problem ${problems.length + 1}: `}</b>
+            <b>{`Problem ${problems?.length + 1}: `}</b>
             <input
               type="text"
               value={newProblemText}
@@ -207,7 +215,7 @@ const ProblemList = ({ problems, setProblems, clearErrors }) => {
         </Row>
       )}
 
-      {Array.from({ length: 2 - problems.length }).map((_, index) => (
+      {Array.from({ length: 2 - problems?.length }).map((_, index) => (
         <Row key={index} className="m-0 p-1 border">
           <AddBoxIcon onClick={() => setIsAdding(true)} />
         </Row>

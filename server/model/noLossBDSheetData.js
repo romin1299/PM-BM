@@ -123,6 +123,10 @@ const noLossBDSheetDataSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Plants",
   },
+
+  attachedFilesForOtherLoss: {
+    type: [String]
+  }
 });
 
 const noLossBDData = new mongoose.model(

@@ -17,6 +17,11 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
 import { Button, Typography } from "@mui/material";
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import {
+  FREQUENCY_OF_CM,
+  CATEGORIES_OF_CM,
+} from "../../../CM/GlobalDataAccess/GlobalData";
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -58,20 +63,25 @@ function MyTable({
     defaultValues: {
       workEndedDateOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       spareWaitingTime: 0,
+      "cmBasicDataFilledByMTD_TL.targetDateOfCM": moment(new Date()).format(
+        "YYYY-MM-DDTHH:mm"
+      ),
+      "cmBasicDataFilledByMTD_TL.categories": "BM Reflection",
     },
   });
 
   var curr = new Date();
   var currentDate = curr.toISOString().substring(0, 10);
 
-  let timeDifferenceMinutes = moment(watch("workEndedDateOfBM"))
-    .tz("Asia/Kolkata")
-    .diff(
-      moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM).tz(
-        "Asia/Kolkata"
-      ),
-      "minutes"
-    );
+  let timeDifferenceMinutes =
+    moment(watch("workEndedDateOfBM"))
+      .tz("Asia/Kolkata")
+      .diff(
+        moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM).tz(
+          "Asia/Kolkata"
+        ),
+        "minutes"
+      ) - (watch("maintenanceTime") || 0);
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     try {
@@ -80,13 +90,15 @@ function MyTable({
       requestSheetData.breakDownTime = timeDifferenceMinutes;
       requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
       requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
-      requestSheetData.changedParts = parts?.map(({ _id, ...rest }) => ({
-        ...rest,
-      }));
+      // requestSheetData.changedParts = parts?.map(({ _id, ...rest }) => ({
+      //   ...rest,
+      // }));
+      requestSheetData.changedParts = parts;
       requestSheetData.supportingTM =
-        selectedSupportedTM?.length > 0
-          ? selectedSupportedTM?.map((obj) => obj?._id)
-          : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
+        // selectedSupportedTM?.length > 0
+        //   ?
+        selectedSupportedTM?.map((obj) => obj?._id);
+      // : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
       requestSheetData.partQualityCheckedByPRD =
         approvalListOfBM?.prdTL?.[
           requestSheetData?.partQualityCheckedByPRD
@@ -107,7 +119,7 @@ function MyTable({
         "attachedDataSheets",
         requestSheetData?.attachedDataSheets?.[0]
       );
-
+      console.log(requestSheetData);
       for (let i = 0; i < requestSheetData?.attachedDrawings?.length; i++) {
         formData.append(
           "attachedDrawings",
@@ -115,7 +127,6 @@ function MyTable({
         );
       }
       const { ...otherFields } = requestSheetData;
-      console.log(otherFields);
 
       formData.append("otherData", JSON.stringify(otherFields));
 
@@ -136,7 +147,7 @@ function MyTable({
           requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
           requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
         ) {
-          navigate("/bm/requestListDashboard", { replace: true });
+          navigate("/bm", { replace: true });
         } else {
           navigate("/bm/approval", { replace: true });
         }
@@ -163,12 +174,16 @@ function MyTable({
   const handleCustomErrors = () => {
     deleteDirtyFieldsWhichIsNotRequiredToValidate();
     //This validation for not submit/save value while send for approval
-    if (Object?.keys(dirtyFields)?.length > 0) {
-      WarningToast(
-        "Save/submit the change value before sending it for approval!!!"
-      );
-      return true;
-    }
+    // if (
+    //   Object?.keys(dirtyFields)?.length > 0 &&
+    //   (loggedUserDetails?.tm_department === "MTD" ||
+    //     loggedUserDetails?.user_type === "Operator")
+    // ) {
+    //   WarningToast(
+    //     "Save/submit the change value before sending it for approval!!!"
+    //   );
+    //   return true;
+    // }
     let flagCountForHandlingError = 0;
     if (
       requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
@@ -208,6 +223,7 @@ function MyTable({
       if (watch("analysisTime") === undefined) {
         setError(
           "analysisTime",
+
           {
             message: "This field is required !",
           },
@@ -221,6 +237,17 @@ function MyTable({
       if (watch("spareWaitingTime") === undefined) {
         setError(
           "spareWaitingTime",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
+      }
+      if (watch("maintenanceTime") === undefined) {
+        setError(
+          "maintenanceTime",
           {
             message: "This field is required !",
           },
@@ -278,6 +305,7 @@ function MyTable({
         parseInt(watch("analysisTime")) +
           parseInt(watch("spareWaitingTime")) +
           parseInt(watch("replacementTime")) +
+          // parseInt(watch("maintenanceTime")) +
           parseInt(watch("adjustmentTime")) +
           parseInt(watch("qualityCheckTime")) +
           parseInt(watch("breakTime")) !==
@@ -381,12 +409,18 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (!watch("dataSheetOfRequestSheet")) {
+      if (
+        !watch("dataSheetOfRequestSheet") &&
+        !requestSheetDataOfBM?.dataSheetOfRequestSheet
+        //    ||
+        // (timeDifferenceMinutes > 120 &&
+        //   requestSheetDataOfBM?.dataSheetOfRequestSheet === "Yes")
+      ) {
         setError("dataSheetOfRequestSheet", {
           message: "This field is required !",
         });
         flagCountForHandlingError++;
-        // console.log(flagCountForHandlingError);
+        // console.log(requestSheetDataOfBM?.dataSheetOfRequestSheet);
       }
 
       if (Object.keys(watch("categories"))?.length > 0) {
@@ -404,7 +438,8 @@ function MyTable({
       if (
         (timeDifferenceMinutes > 120 ||
           watch("dataSheetOfRequestSheet") === "Yes") &&
-        !requestSheetDataOfBM?.attachedDataSheets
+        !requestSheetDataOfBM?.attachedDataSheets &&
+        !watch("attachedDataSheets")
       ) {
         setError("attachedDataSheets", {
           message: "This field is required !",
@@ -413,7 +448,10 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (watch("drawingOfRequestSheet") === "Yes") {
+      if (
+        watch("drawingOfRequestSheet") === "Yes" &&
+        !requestSheetDataOfBM?.attachedDrawings
+      ) {
         setError("attachedDrawings", {
           message: "This field is required !",
         });
@@ -554,13 +592,13 @@ function MyTable({
         const data = await res.json();
         if (res.status === 201) {
           SuccessToast(data?.message);
+          newRequestSheetRegistration(assignApprovalList);
           if (
             requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
             requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
           ) {
-            assignApprovalList.submitDataWhileSendingApproval = true;
-            newRequestSheetRegistration(assignApprovalList);
-            navigate("/bm/requestListDashboard", { replace: true });
+            // assignApprovalList.submitDataWhileSendingApproval = true;
+            navigate("/bm", { replace: true });
           } else {
             navigate("/bm/approval", { replace: true });
           }
@@ -573,7 +611,9 @@ function MyTable({
     }
   };
 
-  const approveRequestSheetFromHigherAuthority = async () => {
+  const approveRequestSheetFromHigherAuthority = async (
+    updatedRequestSheetData
+  ) => {
     let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
     if (checkWhetherAnyErrorOccurredOrNot > 0) {
       return;
@@ -602,6 +642,8 @@ function MyTable({
           } else {
             WarningToast(data?.message);
           }
+          if (loggedUserDetails?.tm_department !== "PRD")
+            newRequestSheetRegistration(updatedRequestSheetData);
           navigate("/bm/approval", { replace: true });
         } else {
           WarningToast(data?.message);
@@ -656,6 +698,10 @@ function MyTable({
       setValue(
         "qualityCheckTime",
         requestSheetDataOfBM?.maintenanceReportFilledByMTD?.qualityCheckTime
+      );
+      setValue(
+        "maintenanceTime",
+        requestSheetDataOfBM?.maintenanceReportFilledByMTD?.maintenanceTime
       );
       setValue(
         "breakTime",
@@ -746,6 +792,8 @@ function MyTable({
           ?.actionAndCounterMeasureStep
       );
       setParts(requestSheetDataOfBM?.changedParts);
+
+      setSelectedSupportedTM(requestSheetDataOfBM?.supportingTM);
     }
   }, [requestSheetDataOfBM]);
 
@@ -762,15 +810,12 @@ function MyTable({
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
       {/* <fieldset disabled={loggedUserDetails?.tm_department === "PRD" && true}> */}
-      <Table bordered className="mb-5">
-        <thead>
-          <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
-        </thead>
-        <tbody>
-          <tr className="row m-2 mb-0" style={{ width: "100vw" }}>
-            <td class="col-lg-8 col-md-6 col-sm-12">
+      <Table className="mb-0">
+        <tbody className="m-1 border p-3">
+          <tr className="row m-0">
+            <td className="col-lg-8 col-md-6 col-sm-12">
               <h4 className="mt-0 d-flex align-items-center justify-content-center">
-                MAINTENANCE REPORT ( To be filled by MTD)
+                MAINTENANCE REPORT (To be filled by MTD)
               </h4>
             </td>
             <td className="mb-0 pb-0 pt-0 col-lg-4 col-md-6 col-sm-12">
@@ -806,6 +851,7 @@ function MyTable({
                       name={"MTD_TL"}
                       selectedMinor={selectedMinor}
                       selectedMajor={selectedMajor}
+                      maintenanceType={requestSheetDataOfBM?.maintenanceType}
                       approvalList={
                         selectedMachineDetails?.line_names?.cell_names
                           ?.subSection_names?.section_names?.plant_names
@@ -840,67 +886,66 @@ function MyTable({
             </td>
           </tr>
 
-          <tr className="row m-2 mt-0">
+          <tr className="row m-0">
             <td lg={12} md={12} sm={12}>
-              <div className="mb-2" style={{ width: "100vw" }}>
-                <Row className="m-0">
-                  <Col className="border border-left-0" lg={12} md={12} sm={12}>
-                    <Row className="d-flex align-items-center ">
-                      <Col
-                        lg={1}
-                        md={2}
-                        sm={6}
-                        className="d-flex align-items-center border border-right-0 border-top-0 border-bottom"
-                        style={{ height: "100px" }}
-                      >
-                        <small
-                          style={{ fontSize: "12px" }}
-                          className="text-center m-0 "
-                        >
-                          <b>WORK STARTED</b>
-                        </small>
-                      </Col>
-                      <Col
-                        className="border border-right-0 border-top-0 border-bottom"
-                        lg={2}
-                        md={3}
-                        sm={6}
-                        style={{ height: "100px" }}
-                      >
-                        <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
-                          <div className="text-center">
-                            <small className="mb-0 d-block">
-                              <b>DATE & TIME: </b>
-                              <br />
-                              <input
-                                type="datetime-local"
-                                // defaultValue={currentDate}
-                                // onChange={(e) => {
-                                //   setValue(
-                                //     "workStartedDateOfBM",
-                                //     e.target.value
-                                //   );
-                                //   clearErrors(
-                                //     "root.handleApprovalErrorFromServerSide"
-                                //   );
-                                // }}
-                                {...register("workStartedDateOfBM", {
-                                  // required: "Work start date is required",
-                                })}
-                              />
-                              {errors?.["workStartedDateOfBM"] && (
-                                <p className="text-error">
-                                  {errors?.["workStartedDateOfBM"]?.message}
-                                </p>
-                              )}
-                            </small>
-                          </div>{" "}
-                          {/* &nbsp;&nbsp;&nbsp;&nbsp;
+              <Row className="mx-0">
+                <Col
+                  lg={1}
+                  md={2}
+                  sm={6}
+                  className="d-flex align-items-center border  border-bottom"
+                  style={{ height: "100px" }}
+                >
+                  <small
+                    style={{ fontSize: "12px" }}
+                    className="text-center m-0 "
+                  >
+                    <b>WORK STARTED</b>
+                  </small>
+                </Col>
+                <Col
+                  className="border border-bottom"
+                  lg={2}
+                  md={4}
+                  sm={6}
+                  style={{ height: "100px" }}
+                >
+                  <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
+                    <div className="text-center">
+                      <small className="mb-0 d-block">
+                        <b>DATE & TIME: </b>
+                        <br />
+                        <input
+                          type="datetime-local"
+                          style={{ width: "165px" }}
+                          // defaultValue={currentDate}
+                          // onChange={(e) => {
+                          //   setValue(
+                          //     "workStartedDateOfBM",
+                          //     e.target.value
+                          //   );
+                          //   clearErrors(
+                          //     "root.handleApprovalErrorFromServerSide"
+                          //   );
+                          // }}
+                          {...register("workStartedDateOfBM", {
+                            // required: "Work start date is required",
+                          })}
+                        />
+                        {errors?.["workStartedDateOfBM"] && (
+                          <p className="text-error">
+                            {errors?.["workStartedDateOfBM"]?.message}
+                          </p>
+                        )}
+                      </small>
+                    </div>{" "}
+                    {/* &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
                             <p className="mb-0">
                               <b>TIME: </b>
 
                               <input
+                                disabled
                                 type="time"
                                 // defaultValue={currTime}
                                 {...register("workStartedTimeOfBM", {
@@ -915,67 +960,69 @@ function MyTable({
                               )}
                             </p>
                           </div> */}
-                        </div>
-                      </Col>
-                      <Col
-                        className="border border-right-0 border-top-0 border-bottom d-flex align-items-center"
-                        lg={1}
-                        md={2}
-                        sm={6}
-                        style={{ height: "100px" }}
-                      >
-                        <small
-                          style={{ fontSize: "12px" }}
-                          className="text-center m-0"
-                        >
-                          <b>WORK ENDED</b>
-                        </small>
-                      </Col>
-                      <Col
-                        className="border border-right-0 border-top-0 border-bottom-0"
-                        lg={2}
-                        md={3}
-                        sm={6}
-                        style={{ height: "100px" }}
-                      >
-                        <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
-                          <div className="text-center">
-                            <small className="mb-0 d-block">
-                              <b>DATE & TIME: </b>
-                              <br />
-                              <input
-                                type="datetime-local"
-                                defaultValue={currentDate}
-                                {...register("workEndedDateOfBM", {
-                                  // required: "Work Ended date is required",
-                                })}
-                                // onChange={(e) => {
-                                //   setValue("workEndedDateOfBM", e.target.value);
-                                //   clearErrors(
-                                //     "root.handleApprovalErrorFromServerSide"
-                                //   );
-                                // }}
-                                disabled={
-                                  requestSheetDataOfBM?.assignUser?._id !==
-                                    loggedUserDetails?._id &&
-                                  requestSheetDataOfBM?.handOverUser?._id !==
-                                    loggedUserDetails?._id &&
-                                  requestSheetDataOfBM?.approvalOfMTD_TL
-                                    ?._id !== loggedUserDetails?._id
-                                }
-                              />
-                              {errors?.["workEndedDateOfBM"] && (
-                                <p className="text-error">
-                                  {errors?.["workEndedDateOfBM"]?.message}
-                                </p>
-                              )}
-                            </small>
-                          </div>{" "}
-                          {/* &nbsp;&nbsp;&nbsp;&nbsp;
+                  </div>
+                </Col>
+                <Col
+                  className="border  border-bottom d-flex align-items-center"
+                  lg={1}
+                  md={2}
+                  sm={6}
+                  style={{ height: "100px" }}
+                >
+                  <small
+                    style={{ fontSize: "12px" }}
+                    className="text-center m-0"
+                  >
+                    <b>WORK ENDED</b>
+                  </small>
+                </Col>
+                <Col
+                  className="border"
+                  lg={2}
+                  md={3}
+                  sm={6}
+                  style={{ height: "100px" }}
+                >
+                  <div className="d-flex align-items-center justify-content-center mt-3 mb-2">
+                    <div className="text-center">
+                      <small className="mb-0 d-block">
+                        <b>DATE & TIME: </b>
+                        <br />
+                        <input
+                          type="datetime-local"
+                          style={{ width: "165px" }}
+                          defaultValue={currentDate}
+                          {...register("workEndedDateOfBM", {
+                            // required: "Work Ended date is required",
+                          })}
+                          // onChange={(e) => {
+                          //   setValue("workEndedDateOfBM", e.target.value);
+                          //   clearErrors(
+                          //     "root.handleApprovalErrorFromServerSide"
+                          //   );
+                          // }}
+                          disabled={
+                            requestSheetDataOfBM?.assignUser?._id !==
+                              loggedUserDetails?._id &&
+                            requestSheetDataOfBM?.handOverUser?._id !==
+                              loggedUserDetails?._id &&
+                            requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
+                              loggedUserDetails?._id
+                          }
+                        />
+                        {errors?.["workEndedDateOfBM"] && (
+                          <p className="text-error">
+                            {errors?.["workEndedDateOfBM"]?.message}
+                          </p>
+                        )}
+                      </small>
+                    </div>{" "}
+                    {/* &nbsp;&nbsp;&nbsp;&nbsp;
                           <div className="text-center">
                             <p className="mb-0">
                               <b>TIME: </b>
                               <input
+                                disabled
                                 type="time"
                                 // defaultValue={currTime}
                                 {...register("workEndedTimeOfBM", {
@@ -990,178 +1037,178 @@ function MyTable({
                               )}
                             </p>
                           </div> */}
-                        </div>
-                      </Col>
-                      <Col lg={3} md={6} sm={12} style={{ height: "100px" }}>
-                        <Row className="border border-top-0 border-left-0 border-right-0">
-                          <small className="mb-0 mt-1">
-                            <b>SECTION IN-CHARGE</b>
-                          </small>
-                          <br />
-                        </Row>
-                        <Row className="border border-top-0 border-left-0 border-right-0">
-                          <Col
-                            lg={6}
-                            md={6}
-                            className="d-block border border-bottom-0 border-top-0 border-left-0 border-bottom-0"
-                          >
-                            {(selectedMinor === "Yes" &&
-                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                                "MTD_HOSS".replace("_", " ")
-                              )) ||
-                            (selectedMajor === "Yes" &&
-                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                                "MTD_HOSS"?.replace("_", " ")
-                              )) ? (
-                              <small>
-                                <b>MTD HOSS</b>
-                              </small>
-                            ) : (
-                              ""
-                            )}
-                            {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
-                            requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
-                              "Accepted" &&
-                            requestSheetDataOfBM?.requestSheetStatus !==
-                              "Rejected" ? (
-                              <p>
-                                {
-                                  requestSheetDataOfBM?.approvalOfMTD_HOSS
-                                    ?.tm_name
-                                }
-                              </p>
-                            ) : (
-                              <DropdownElem
-                                name={"MTD_HOSS"}
-                                selectedMinor={selectedMinor}
-                                selectedMajor={selectedMajor}
-                                approvalList={
-                                  selectedMachineDetails?.line_names?.cell_names
-                                    ?.subSection_names?.section_names
-                                    ?.plant_names?.approvalListOfMinorAndMajor
-                                }
-                                displayOrNot={
-                                  requestSheetDataOfBM?.approvalOfMTD_TL
-                                    ?._id === loggedUserDetails?._id
-                                }
-                                options={approvalListOfBM?.mtdTL}
-                                register={register}
-                                errors={errors}
-                                // required={
-                                //   selectedMinor === "Yes" &&
-                                //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                                //     "MTD_HOSS".replace("_", " ")
-                                //   )
-                                //     ? true
-                                //     : selectedMajor === "Yes" &&
-                                //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                                //         "MTD_HOSS".replace("_", " ")
-                                //       )
-                                //     ? true
-                                //     : false
-                                // }
-                              />
-                            )}
-                          </Col>
-                          <Col
-                            lg={6}
-                            md={6}
-                            className="d-block border-0 border-bottom-0"
-                          >
-                            {selectedMajor === "Yes" &&
-                              selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                                "MTD_HOS"?.replace("_", " ")
-                              ) && <small>MTD HOS</small>}
-                            {requestSheetDataOfBM?.approvalOfMTD_HOS &&
-                            requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
-                              "Accepted" &&
-                            requestSheetDataOfBM?.requestSheetStatus !==
-                              "Rejected" ? (
-                              requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
-                            ) : (
-                              <DropdownElem
-                                name={"MTD_HOS"}
-                                selectedMinor={selectedMinor}
-                                selectedMajor={selectedMajor}
-                                approvalList={
-                                  selectedMachineDetails?.line_names?.cell_names
-                                    ?.subSection_names?.section_names
-                                    ?.plant_names?.approvalListOfMinorAndMajor
-                                }
-                                displayOrNot={
-                                  requestSheetDataOfBM?.approvalOfMTD_TL
-                                    ?._id === loggedUserDetails?._id
-                                }
-                                options={approvalListOfBM?.mtdHOS}
-                                register={register}
-                                errors={errors}
-                                // required={
-                                //   selectedMinor === "Yes" &&
-                                //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                                //     "MTD_HOS".replace("_", " ")
-                                //   )
-                                //     ? true
-                                //     : selectedMajor === "Yes" &&
-                                //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                                //         "MTD_HOS".replace("_", " ")
-                                //       )
-                                //     ? true
-                                //     : false
-                                // }
-                              />
-                            )}
-                          </Col>
-                        </Row>
-                      </Col>
-                      <Col
-                        lg={2}
-                        md={6}
-                        sm={12}
-                        className="border border-bottom-0 pb-2 "
-                        style={{ height: "100px" }}
-                      >
-                        {loggedUserDetails?.tm_department === "MTD" &&
-                        loggedUserDetails?.tm_grade === "HOS" &&
-                        timeDifferenceMinutes > 120 ? (
-                          <>
-                            <small className="mb-0">
-                              <b>FEEDBACK</b>
-                            </small>
-                            <br />
-                            <input
-                              type="text"
-                              className="widthwhy"
-                              id="feedbackMTD_HOS"
-                              name="feedbackMTD_HOS"
-                              // {...register("feedbackMTD_HOS", {
-                              //   required: "This field is required",
-                              // })}
-                              onChange={(e) => {
-                                setValue("feedbackMTD_HOS", e.target.value, {
-                                  shouldDirty: true,
-                                });
-                                clearErrors("feedbackMTD_HOS");
-                              }}
-                            />
+                  </div>
+                </Col>
 
-                            {errors?.["feedbackMTD_HOS"] && (
-                              <p className="text-error">
-                                {errors?.["feedbackMTD_HOS"]?.message}
-                              </p>
-                            )}
-                          </>
-                        ) : (
-                          ""
-                        )}
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-              </div>
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={12}
+                  style={{ height: "100px" }}
+                  className="border"
+                >
+                  <Row className="">
+                    <small className="mb-0 mt-1">
+                      <b>SECTION IN-CHARGE</b>
+                    </small>
+                    <br />
+                  </Row>
+                  <Row>
+                    <Col lg={6} md={6} className="d-block border">
+                      {(selectedMinor === "Yes" &&
+                        selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                          "MTD_HOSS".replace("_", " ")
+                        )) ||
+                      (selectedMajor === "Yes" &&
+                        selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                          "MTD_HOSS"?.replace("_", " ")
+                        )) ? (
+                        <small>
+                          <b>MTD HOSS</b>
+                        </small>
+                      ) : (
+                        ""
+                      )}
+                      {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
+                      requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
+                        "Accepted" &&
+                      requestSheetDataOfBM?.requestSheetStatus !==
+                        "Rejected" ? (
+                        <p>
+                          {requestSheetDataOfBM?.approvalOfMTD_HOSS?.tm_name}
+                        </p>
+                      ) : (
+                        <DropdownElem
+                          name={"MTD_HOSS"}
+                          selectedMinor={selectedMinor}
+                          selectedMajor={selectedMajor}
+                          maintenanceType={
+                            requestSheetDataOfBM?.maintenanceType
+                          }
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                          displayOrNot={
+                            requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                            loggedUserDetails?._id
+                          }
+                          options={approvalListOfBM?.mtdTL}
+                          register={register}
+                          errors={errors}
+                          // required={
+                          //   selectedMinor === "Yes" &&
+                          //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                          //     "MTD_HOSS".replace("_", " ")
+                          //   )
+                          //     ? true
+                          //     : selectedMajor === "Yes" &&
+                          //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                          //         "MTD_HOSS".replace("_", " ")
+                          //       )
+                          //     ? true
+                          //     : false
+                          // }
+                        />
+                      )}
+                    </Col>
+                    <Col lg={6} md={6} className="d-block border">
+                      {selectedMajor === "Yes" &&
+                        selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                          "MTD_HOS"?.replace("_", " ")
+                        ) && <b>MTD HOS</b>}
+                      {requestSheetDataOfBM?.approvalOfMTD_HOS &&
+                      requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
+                        "Accepted" &&
+                      requestSheetDataOfBM?.requestSheetStatus !==
+                        "Rejected" ? (
+                        requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
+                      ) : (
+                        <DropdownElem
+                          name={"MTD_HOS"}
+                          selectedMinor={selectedMinor}
+                          selectedMajor={selectedMajor}
+                          maintenanceType={
+                            requestSheetDataOfBM?.maintenanceType
+                          }
+                          approvalList={
+                            selectedMachineDetails?.line_names?.cell_names
+                              ?.subSection_names?.section_names?.plant_names
+                              ?.approvalListOfMinorAndMajor
+                          }
+                          displayOrNot={
+                            requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                            loggedUserDetails?._id
+                          }
+                          options={approvalListOfBM?.mtdHOS}
+                          register={register}
+                          errors={errors}
+                          // required={
+                          //   selectedMinor === "Yes" &&
+                          //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
+                          //     "MTD_HOS".replace("_", " ")
+                          //   )
+                          //     ? true
+                          //     : selectedMajor === "Yes" &&
+                          //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
+                          //         "MTD_HOS".replace("_", " ")
+                          //       )
+                          //     ? true
+                          //     : false
+                          // }
+                        />
+                      )}
+                    </Col>
+                  </Row>
+                </Col>
+
+                <Col
+                  lg={3}
+                  md={6}
+                  sm={12}
+                  className="border pb-2 "
+                  style={{ height: "100px" }}
+                >
+                  {loggedUserDetails?.tm_department === "MTD" &&
+                  loggedUserDetails?.tm_grade === "HOS" &&
+                  timeDifferenceMinutes > 120 ? (
+                    <>
+                      <small className="mb-0">
+                        <b>FEEDBACK</b>
+                      </small>
+                      <br />
+                      <input
+                        type="text"
+                        className="widthwhy"
+                        id="feedbackMTD_HOS"
+                        name="feedbackMTD_HOS"
+                        // {...register("feedbackMTD_HOS", {
+                        //   required: "This field is required",
+                        // })}
+                        onChange={(e) => {
+                          setValue("feedbackMTD_HOS", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("feedbackMTD_HOS");
+                        }}
+                      />
+
+                      {errors?.["feedbackMTD_HOS"] && (
+                        <p className="text-error">
+                          {errors?.["feedbackMTD_HOS"]?.message}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    ""
+                  )}
+                </Col>
+              </Row>
             </td>
 
             {/* <td className="mb-0 pb-0 pt-0 col-lg-4">
-              <div className="mb-2" style={{ width: "100vw" }}>
+              <div className="mb-2" >
                 <Row className="m-0">
                   <Col lg={6} md={6} sm={12} className="border">
                     <p className="mb-0">
@@ -1280,7 +1327,7 @@ function MyTable({
                           </p>
                           <input
                             type="text"
-                            class="mb-2"
+                            className="mb-2"
                             id="feedbackMTD_HOS"
                             name="feedbackMTD_HOS"
                             style={{ width: "60%" }}
@@ -1304,8 +1351,8 @@ function MyTable({
             </td> */}
           </tr>
 
-          <tr class="row m-2">
-            <td class="col-lg-4 col-md-6 col-sm-12 border-bottom">
+          <tr className="row m-0">
+            <td className="col-lg-5 col-md-6 col-sm-12 border-bottom">
               <ProblemList
                 problems={problems}
                 setProblems={setProblems}
@@ -1315,7 +1362,7 @@ function MyTable({
                 {...register("problemValidation", {
                   // required: "This field is required",
                 })}
-                class="visually-hidden"
+                className="visually-hidden"
               ></input>
               {errors?.["problemValidation"] && (
                 <p className="text-error">
@@ -1333,7 +1380,14 @@ function MyTable({
                   <small className="mb-0" style={{ fontSize: "12px" }}>
                     <b>BREAKDOWN</b>
                   </small>
-                  <p>{timeDifferenceMinutes || null}</p>
+                  <p>
+                    {
+                      // watch("maintenanceTime")
+                      //   ? timeDifferenceMinutes - watch("maintenanceTime") || null
+                      //   :
+                      timeDifferenceMinutes
+                    }
+                  </p>
                 </Col>
                 <Col
                   lg={3}
@@ -1440,7 +1494,33 @@ function MyTable({
                   md={6}
                   sm={6}
                   className="border text-center pb-2 pt-2"
-                ></Col>
+                >
+                  <small className="mb-0" style={{ fontSize: "12px" }}>
+                    <b>MAINTENANCE</b> <br /> <b>(No Loss)</b>
+                  </small>
+                  <input
+                    type="number"
+                    style={{ width: "100%" }}
+                    id="maintenance"
+                    name="maintenance"
+                    {...register("maintenanceTime", {
+                      // required: "This field is required",
+                    })}
+                    onChange={(e) => {
+                      setValue("maintenanceTime", e.target.value, {
+                        shouldDirty: true,
+                      });
+                      clearErrors("maintenanceTime");
+                      clearErrors("totalTimeValidation");
+                    }}
+                    // onChange={handlemaintenanceTime}
+                  />
+                  {errors?.["maintenanceTime"] && (
+                    <p className="text-error">
+                      {errors?.["maintenanceTime"]?.message}
+                    </p>
+                  )}
+                </Col>
                 <Col
                   lg={3}
                   md={6}
@@ -1545,7 +1625,7 @@ function MyTable({
                 {...register("totalTimeValidation", {
                   // required: "This field is required",
                 })}
-                class="visually-hidden"
+                className="visually-hidden"
               ></input>
               {errors?.["totalTimeValidation"] && (
                 <p className="text-error">
@@ -1623,7 +1703,7 @@ function MyTable({
                             label="REPEAT"
                             name="firstTimeOrRepeat"
                             type="radio"
-                            value="REPEAT"
+                            value="Repeat"
                             id="firstTimeOrRepeat"
                             {...register("firstTimeOrRepeat", {
                               // required: "This field is required",
@@ -1866,7 +1946,7 @@ function MyTable({
 
               {/* <ActionList actions={actions} setActions={setActions} /> */}
             </td>
-            <td class="col-lg-3 col-md-6 col-sm-12 border-bottom">
+            <td className="col-lg-3 col-md-6 col-sm-12 border-bottom">
               <Row className="m-0">
                 <Col className="border">
                   <small className="mb-0">
@@ -1970,7 +2050,7 @@ function MyTable({
               </Row>
             </td>
 
-            <td class="col-lg-4 col-md-12 col-sm-12  border-bottom">
+            <td className="col-lg-4 col-md-12 col-sm-12  border-bottom">
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -2129,7 +2209,8 @@ function MyTable({
                         </Typography>
                         <Button
                           target="_blank"
-                          href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
+                          href={`${process.env.REACT_APP_BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
                           disableElevation
                           size="small"
                           variant="contained"
@@ -2224,7 +2305,8 @@ function MyTable({
                           (image) => (
                             <a
                               target="_blank"
-                              href={`http://localhost:7000/${image}`}
+                              // href={`http://localhost:7000/${image}`}
+                              href={`${process.env.REACT_APP_BASE_URL}${image}`}
                               style={{
                                 width: "100%",
                                 display: "flex",
@@ -2234,7 +2316,8 @@ function MyTable({
                               }}
                             >
                               <img
-                                src={`http://localhost:7000/${image}`}
+                                // src={`http://localhost:7000/${image}`}
+                                src={`${process.env.REACT_APP_BASE_URL}/${image}`}
                                 style={{
                                   maxWidth: "100px",
                                   maxHeight: "100px",
@@ -2263,7 +2346,7 @@ function MyTable({
                           //   //     ? true
                           //   //     : false,
                           // })}
-                          accept="image/png, image/gif, image/jpeg"
+                          // accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
                             setValue("attachedDrawings", e.target.files, {
                               shouldDirty: true,
@@ -2286,8 +2369,8 @@ function MyTable({
             </td>
           </tr>
 
-          <tr class="row m-2">
-            <td class="col-lg-6 col-md-12 col-sm-12">
+          <tr className="row m-0">
+            <td className="col-lg-6 col-md-12 col-sm-12">
               <ActionList
                 actions={actions}
                 setActions={setActions}
@@ -2297,7 +2380,7 @@ function MyTable({
                 {...register("actionValidation", {
                   // required: "This field is required",
                 })}
-                class="visually-hidden"
+                className="visually-hidden"
               ></input>
               {errors?.["actionValidation"] && (
                 <p className="text-error">
@@ -2305,7 +2388,7 @@ function MyTable({
                 </p>
               )}
             </td>
-            <td class="col-lg-6 col-md-12 col-sm-12">
+            <td className="col-lg-6 col-md-12 col-sm-12">
               <Row className="m-0">
                 <Col className="border col-lg-12 col-md-12 col-sm-12">
                   <small>
@@ -2376,8 +2459,236 @@ function MyTable({
             </td>
           </tr>
 
-          <tr className="row">
-            <td className="col-lg-6 col-md-6">
+          <tr className="row m-0">
+            <td className="col-sm-12 col-md-6">
+              <Row className="m-0 border d-flex align-items-center">
+                <Col lg={5}>
+                  <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                    <b>Activity Of CM: </b>
+                  </p>
+                </Col>
+
+                <Col lg={7}>
+                  <div className="d-block align-items-center">
+                    {" "}
+                    <input
+                      type="text"
+                      id="cmBasicDataFilledByMTD_TL.activityOfCM"
+                      className="m-1 mb-2"
+                      style={{ width: "350px" }}
+                      {...register("cmBasicDataFilledByMTD_TL.activityOfCM", {
+                        // required: "Please enter activity",
+                      })}
+                      onChange={(e) => {
+                        setValue(
+                          "cmBasicDataFilledByMTD_TL.activityOfCM",
+                          e.target.value,
+                          {
+                            shouldDirty: true,
+                          }
+                        );
+                        clearErrors("cmBasicDataFilledByMTD_TL.activityOfCM");
+                      }}
+                    />
+                  </div>
+                  {errors?.cmBasicDataFilledByMTD_TL?.activityOfCM && (
+                    <p className="text-error">
+                      {errors?.cmBasicDataFilledByMTD_TL?.activityOfCM?.message}
+                    </p>
+                  )}
+                </Col>
+              </Row>
+
+              <Row className="m-0 border d-flex align-items-center">
+                <Col lg={5}>
+                  <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                    <b>Frequency: </b>
+                  </p>
+                </Col>
+                <Col lg={7}>
+                  {FREQUENCY_OF_CM?.map((value, idx) => (
+                    <div key={idx}>
+                      <Col>
+                        <input
+                          type="radio"
+                          id={`frequencyType_${idx}`}
+                          name="cmBasicDataFilledByMTD_TL.frequencyType"
+                          className="m-1 mb-2"
+                          value={value?.frequencyType}
+                          {...register(
+                            "cmBasicDataFilledByMTD_TL.frequencyType",
+                            {
+                              // required: "Please select frequency type",
+                            }
+                          )}
+                          onChange={(e) => {
+                            setValue(
+                              "cmBasicDataFilledByMTD_TL.frequencyType",
+                              e.target.value,
+                              {
+                                shouldDirty: true,
+                              }
+                            );
+                            clearErrors(
+                              "cmBasicDataFilledByMTD_TL.frequencyType"
+                            );
+                          }}
+                        />
+                        <label htmlFor={`frequencyType_${idx}`}>
+                          {value?.frequencyType}
+                        </label>
+                      </Col>
+
+                      {/* Render frequency values only if the frequencyType is Scheduled */}
+                      {watch("cmBasicDataFilledByMTD_TL.frequencyType") ===
+                        value?.frequencyType &&
+                        value?.frequencyType === "Scheduled" && (
+                          <Col className="d-flex justify-content-center align-items-center">
+                            {value?.frequencyValue?.length > 0 &&
+                              value?.frequencyValue?.map((type, idx1) => (
+                                <Col key={idx1}>
+                                  <input
+                                    type="radio"
+                                    id={`frequencyValue_${idx1}`}
+                                    name="cmBasicDataFilledByMTD_TL.frequencyValue"
+                                    className="m-1 mb-2"
+                                    value={type}
+                                    {...register(
+                                      "cmBasicDataFilledByMTD_TL.frequencyValue",
+                                      {
+                                        required: {
+                                          value:
+                                            watch(
+                                              "cmBasicDataFilledByMTD_TL.frequencyType"
+                                            ) === "Scheduled",
+                                          message:
+                                            "Please select frequency value",
+                                        },
+                                      }
+                                    )}
+                                  />
+                                  <label htmlFor={`frequencyValue_${idx1}`}>
+                                    {type}
+                                  </label>
+                                </Col>
+                              ))}
+
+                            {/* Error for frequency value (only for Scheduled) */}
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.frequencyValue && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.frequencyValue?.message
+                                }
+                              </p>
+                            )}
+                          </Col>
+                        )}
+                    </div>
+                  ))}
+
+                  {/* Error for frequency type */}
+                  {errors?.cmBasicDataFilledByMTD_TL?.frequencyType && (
+                    <p className="text-error">
+                      {
+                        errors?.cmBasicDataFilledByMTD_TL?.frequencyType
+                          ?.message
+                      }
+                    </p>
+                  )}
+                </Col>
+              </Row>
+            </td>
+            <td className="col-sm-12 col-md-6">
+              <Row className="m-0 border d-flex align-items-center">
+                <Col lg={5}>
+                  <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                    <b>Category of CM:</b>
+                  </p>
+                </Col>
+                <Col lg={7} className="d-flex justify-content-center">
+                  {CATEGORIES_OF_CM?.map((value, idx) => (
+                    <>
+                      <Col>
+                        <input
+                          type="radio"
+                          id="categories"
+                          name="cmBasicDataFilledByMTD_TL.categories"
+                          className="m-1 mb-2"
+                          value={value}
+                          // style={{ width: "350px" }}
+                          {...register("cmBasicDataFilledByMTD_TL.categories", {
+                            // required: "Please select category",
+                          })}
+                          onChange={(e) => {
+                            setValue(
+                              "cmBasicDataFilledByMTD_TL.categories",
+                              e.target.value,
+                              {
+                                shouldDirty: true,
+                              }
+                            );
+                            clearErrors("cmBasicDataFilledByMTD_TL.categories");
+                          }}
+                        />
+                        <label>{value}</label>
+                      </Col>
+                    </>
+                  ))}
+                  {errors?.cmBasicDataFilledByMTD_TL?.categories && (
+                    <p className="text-error">
+                      {errors?.cmBasicDataFilledByMTD_TL?.categories?.message}
+                    </p>
+                  )}
+                </Col>
+              </Row>
+
+              <Row className="m-0 border d-flex align-items-center">
+                <Col lg={5}>
+                  <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                    <b>Target Date for CM: </b>
+                  </p>
+                </Col>
+
+                <Col lg={7}>
+                  <div className="d-block align-items-center">
+                    {" "}
+                    <input
+                      type="datetime-local"
+                      id="targetDateOfCM"
+                      className="m-1 mb-2"
+                      name="cmBasicDataFilledByMTD_TL.targetDateOfCM"
+                      // style={{ width: "350px" }}
+                      {...register("cmBasicDataFilledByMTD_TL.targetDateOfCM", {
+                        // required: "Please select target date",
+                      })}
+                      // onInput={() => {
+                      //   clearErrors("cmBasicDataFilledByMTD_TL.targetDateOfCM");
+                      // }}
+                      onChange={(e) => {
+                        setValue("cmBasicDataFilledByMTD_TL.targetDateOfCM", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("cmBasicDataFilledByMTD_TL.targetDateOfCM");
+                      }}
+                    />
+                  </div>
+                  {errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM && (
+                    <p className="text-error">
+                      {
+                        errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM
+                          ?.message
+                      }
+                    </p>
+                  )}
+                </Col>
+              </Row>
+            </td>
+          </tr>
+
+          <tr className="row m-0">
+            <td className="col-sm-12 col-md-6">
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -2468,20 +2779,19 @@ function MyTable({
                 </Col>
               </Row>
             </td>
-            <td className="col-lg-6 col-md-6">
+            <td className="col-sm-12 col-md-6">
               {requestSheetDataOfBM?.plantRef?.categories?.map(
                 (categoryObj, idxOfCategory) => (
                   <>
                     <Row className="m-0">
-                      <Col lg={4} className="border p-2">
+                      <Col md={4} className="border p-2">
                         <p className="mb-0 d-flex align-items-center justify-content-start">
                           <b>{categoryObj?.name}</b>&nbsp;&nbsp;&nbsp;
                         </p>
                       </Col>
 
                       <Col
-                        lg={6}
-                        md={12}
+                        md={8}
                         className="border p-2 d-flex align-items-center"
                       >
                         <Form>
@@ -2536,18 +2846,22 @@ function MyTable({
           <tr>
             <td colSpan={16}>
               <Row>
-                <Col className="col-lg-auto">
-                  <Row className="ms-0 border">
-                    <b
+                <Col md={1}>
+                  <Row className="ms-0 border" style={{ height: "100%" }}>
+                    <Col
+                      className="d-flex flex-column align-items-center justify-content-center"
                       style={{
-                        writingMode: "vertical-rl",
-                        transform: "rotate(180deg)",
+                        // writingMode: "vertical-rl",
+                        transform: "rotate(270deg)",
                         whiteSpace: "normal",
+                        overflowWrap: "break-word",
                         fontSize: "12px",
+                        height: "100%",
                       }}
                     >
-                      CHANGED PARTS
-                    </b>
+                      <b>CHANGED</b>
+                      <b>PARTS</b>
+                    </Col>
                   </Row>
                 </Col>
                 <Col lg={11} md={11}>
@@ -2587,34 +2901,34 @@ function MyTable({
 
                 <Col lg={8} md={12} className="border">
                   <Row>
-                    <Col lg={8} md={8} className="text-center border p-1">
+                    <Col sm={12} className="text-center border p-1">
                       <b>CHECKED BY</b>
                     </Col>
                   </Row>
                   <Row>
-                    <Col lg={2} md={2} className="border p-1 text-center">
+                    <Col sm={3} className="border p-1 text-center">
                       <small>
                         <b>* GM-MTD</b>
                       </small>
                     </Col>
-                    <Col lg={2} md={2} className="border p-1 text-center">
+                    <Col sm={3} className="border p-1 text-center">
                       <small>
                         <b>* GM-PRD</b>
                       </small>
                     </Col>
-                    <Col lg={2} md={2} className="border p-1 text-center">
+                    <Col sm={3} className="border p-1 text-center">
                       <small>
                         <b>SECTION INCHARGE (PRD)</b>
                       </small>
                     </Col>
-                    <Col lg={2} md={2} className="border p-1 text-center">
+                    <Col sm={3} className="border p-1 text-center">
                       <small>
                         <b>TEAM LEADER (PRD)</b>
                       </small>
                     </Col>
                   </Row>
-                  <Row>
-                    <Col lg={2} md={2} className="border">
+                  <Row style={{ minHeight: "40px" }}>
+                    <Col sm={3} className="border">
                       <div className="p-1">
                         {/* {requestSheetDataOfBM?.approvalOfMTD_HOD?.length > 0 ? (
                           requestSheetDataOfBM?.approvalOfMTD_HOD?.[
@@ -2632,6 +2946,9 @@ function MyTable({
                             name={"MTD_HOD"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2661,7 +2978,7 @@ function MyTable({
                         )}
                       </div>
                     </Col>
-                    <Col lg={2} md={2} className="border">
+                    <Col sm={3} className="border">
                       <div className="p-1">
                         {/* {requestSheetDataOfBM?.approvalOfPRD_HOD?.length > 0 ? (
                           requestSheetDataOfBM?.approvalOfPRD_HOD?.[
@@ -2679,6 +2996,9 @@ function MyTable({
                             name={"PRD_HOD"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2708,7 +3028,7 @@ function MyTable({
                         )}
                       </div>
                     </Col>
-                    <Col lg={2} md={2} className="border">
+                    <Col sm={3} className="border">
                       <div className="p-1">
                         {/* {requestSheetDataOfBM?.approvalOfPRD_HOS?.length > 0 ? (
                           requestSheetDataOfBM?.approvalOfPRD_HOS?.[
@@ -2755,7 +3075,7 @@ function MyTable({
                         )}
                       </div>
                     </Col>
-                    <Col lg={2} md={2} className="border">
+                    <Col sm={3} className="border">
                       <div className="p-1">
                         {/* {requestSheetDataOfBM?.approvalOfPRD_TL?.length > 0 ? (
                           requestSheetDataOfBM?.approvalOfPRD_TL?.[
@@ -2773,6 +3093,9 @@ function MyTable({
                             name={"PRD_TL"}
                             selectedMinor={selectedMinor}
                             selectedMajor={selectedMajor}
+                            maintenanceType={
+                              requestSheetDataOfBM?.maintenanceType
+                            }
                             approvalList={
                               selectedMachineDetails?.line_names?.cell_names
                                 ?.subSection_names?.section_names?.plant_names
@@ -2807,128 +3130,142 @@ function MyTable({
               </Row>
             </td>
           </tr>
-        </tbody>
 
-        {/* for Assign user send for approval */}
-        {(requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
-          requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id) &&
-        (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-          requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
-          requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed" ||
-          requestSheetDataOfBM?.approvalStatusOfMTD_TL === "Rejected") ? (
-          <Row className="m-0 d-flex justify-content-between">
-            <Col lg={6} md={6} sm={12}>
-              <button
-                type="submit"
-                className="btn bg-success"
-                style={{ marginTop: "1rem" }}
-                onClick={handleSubmit(newRequestSheetRegistration)}
-              >
-                Save Changes
-              </button>
-              &nbsp;&nbsp;&nbsp;&nbsp;
-              <button
-                type="submit"
-                className="btn bg-warning"
-                style={{ marginTop: "1rem" }}
-                onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
-              >
-                Send For Approval
-              </button>
-            </Col>
-          </Row>
-        ) : (
-          ""
-        )}
+          <tr>
+            <td>
+              {/* for Assign user send for approval */}
+              {(requestSheetDataOfBM?.assignUser?._id ===
+                loggedUserDetails?._id ||
+                requestSheetDataOfBM?.handOverUser?._id ===
+                  loggedUserDetails?._id) &&
+              (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+                requestSheetDataOfBM?.requestSheetStatus ===
+                  "Work Order Pending" ||
+                requestSheetDataOfBM?.requestSheetStatus ===
+                  "Work Order Closed" ||
+                requestSheetDataOfBM?.approvalStatusOfMTD_TL === "Rejected") ? (
+                <Row className="m-0 d-flex justify-content-between">
+                  <Col lg={6} md={6} sm={12}>
+                    <button
+                      type="submit"
+                      className="btn bg-success"
+                      style={{ marginTop: "1rem" }}
+                      onClick={handleSubmit(newRequestSheetRegistration)}
+                    >
+                      Save Changes
+                    </button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button
+                      type="submit"
+                      className="btn bg-warning"
+                      style={{ marginTop: "1rem" }}
+                      onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
+                    >
+                      Send For Approval
+                    </button>
+                  </Col>
+                </Row>
+              ) : (
+                ""
+              )}
 
-        {/* for MTD TL send for approval or rejection */}
-        {requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-          loggedUserDetails?._id ||
-        ((requestSheetDataOfBM?.approvalStatusOfMTD_HOSS === "Rejected" ||
-          requestSheetDataOfBM?.approvalStatusOfMTD_HOS === "Rejected" ||
-          requestSheetDataOfBM?.approvalStatusOfPRD_TL === "Rejected" ||
-          requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
-          requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
-          requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected") &&
-          (requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id ||
-            requestSheetDataOfBM?.handOverUser?._id !==
-              loggedUserDetails?._id)) ? (
-          <>
-            <Row
-              className="m-1 d-flex justify-content-start"
-              style={{ width: "100vw" }}
-            >
-              <Col className="col-lg-6 col-md-6 m-1 p-0">
-                <button
-                  type="submit"
-                  className="btn bg-succ"
-                  style={{ marginTop: "1rem" }}
-                  // onClick={handleSubmit(newRequestSheetRegistration)}
-                >
-                  Save Changes
-                </button>
-              </Col>
-              <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
-                <Form>
-                  <p>Do you want to send for approval the request sheet?</p>
-                  <div className="d-flex">
-                    <Form.Check
-                      flex
-                      label="Yes"
-                      name="approvalOfRequestSheet"
-                      type="radio"
-                      value="Yes"
-                      id="approvalOfRequestSheet"
-                      onChange={(e) => {
-                        setValue("approvalOfRequestSheet", e.target.value);
-                        clearErrors("approvalOfRequestSheet");
-                      }}
-                    />{" "}
-                    &nbsp;&nbsp;
-                    <Form.Check
-                      flex
-                      label="No"
-                      name="approvalOfRequestSheet"
-                      type="radio"
-                      value="No"
-                      id="approvalOfRequestSheet"
-                      onChange={(e) => {
-                        setValue("approvalOfRequestSheet", e.target.value);
-                        clearErrors("approvalOfRequestSheet");
-                      }}
-                    />
-                  </div>
-                  {errors?.["approvalOfRequestSheet"] && (
-                    <p className="text-error">
-                      {errors?.["approvalOfRequestSheet"]?.message}
-                    </p>
-                  )}
-                  {watch("approvalOfRequestSheet") === "No" ? (
-                    <>
-                      <input
-                        type="text"
-                        name="rejectedRemarksOfRequestSheet"
-                        placeholder="Enter rejected remarks"
-                        className="p-1 m-1"
-                        onChange={(e) => {
-                          setValue(
-                            "rejectedRemarksOfRequestSheet",
-                            e.target.value
-                          );
-                          clearErrors("rejectedRemarksOfRequestSheet");
-                        }}
-                      />
-                      {errors?.["rejectedRemarksOfRequestSheet"] && (
-                        <p className="text-error">
-                          {errors?.["rejectedRemarksOfRequestSheet"]?.message}
+              {/* for MTD TL send for approval or rejection */}
+              {requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
+                loggedUserDetails?._id ||
+              ((requestSheetDataOfBM?.approvalStatusOfMTD_HOSS === "Rejected" ||
+                requestSheetDataOfBM?.approvalStatusOfMTD_HOS === "Rejected" ||
+                requestSheetDataOfBM?.approvalStatusOfPRD_TL === "Rejected" ||
+                requestSheetDataOfBM?.approvalStatusOfPRD_HOS === "Rejected" ||
+                requestSheetDataOfBM?.approvalStatusOfPRD_HOD === "Rejected" ||
+                requestSheetDataOfBM?.approvalStatusOfMTD_HOD === "Rejected") &&
+                (requestSheetDataOfBM?.assignUser?._id !==
+                  loggedUserDetails?._id ||
+                  requestSheetDataOfBM?.handOverUser?._id !==
+                    loggedUserDetails?._id)) ? (
+                <>
+                  <Row className="m-1 d-flex justify-content-start">
+                    <Col className="col-lg-6 col-md-6 m-1 p-0">
+                      <button
+                        type="submit"
+                        className="btn bg-succ"
+                        style={{ marginTop: "1rem" }}
+                        // onClick={handleSubmit(newRequestSheetRegistration)}
+                      >
+                        Save Changes
+                      </button>
+                    </Col>
+                    <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
+                      <Form>
+                        <p>
+                          Do you want to send for approval the request sheet?
                         </p>
-                      )}
-                    </>
-                  ) : (
-                    ""
-                  )}
-                  &nbsp;
-                  {/* <button
+                        <div className="d-flex">
+                          <Form.Check
+                            flex
+                            label="Yes"
+                            name="approvalOfRequestSheet"
+                            type="radio"
+                            value="Yes"
+                            id="approvalOfRequestSheet"
+                            onChange={(e) => {
+                              setValue(
+                                "approvalOfRequestSheet",
+                                e.target.value
+                              );
+                              clearErrors("approvalOfRequestSheet");
+                            }}
+                          />{" "}
+                          &nbsp;&nbsp;
+                          <Form.Check
+                            flex
+                            label="No"
+                            name="approvalOfRequestSheet"
+                            type="radio"
+                            value="No"
+                            id="approvalOfRequestSheet"
+                            onChange={(e) => {
+                              setValue(
+                                "approvalOfRequestSheet",
+                                e.target.value
+                              );
+                              clearErrors("approvalOfRequestSheet");
+                            }}
+                          />
+                        </div>
+                        {errors?.["approvalOfRequestSheet"] && (
+                          <p className="text-error">
+                            {errors?.["approvalOfRequestSheet"]?.message}
+                          </p>
+                        )}
+                        {watch("approvalOfRequestSheet") === "No" ? (
+                          <>
+                            <input
+                              type="text"
+                              name="rejectedRemarksOfRequestSheet"
+                              placeholder="Enter rejected remarks"
+                              className="p-1 m-1"
+                              onChange={(e) => {
+                                setValue(
+                                  "rejectedRemarksOfRequestSheet",
+                                  e.target.value
+                                );
+                                clearErrors("rejectedRemarksOfRequestSheet");
+                              }}
+                            />
+                            {errors?.["rejectedRemarksOfRequestSheet"] && (
+                              <p className="text-error">
+                                {
+                                  errors?.["rejectedRemarksOfRequestSheet"]
+                                    ?.message
+                                }
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          ""
+                        )}
+                        &nbsp;
+                        {/* <button
                     type="submit"
                     className="btn bg-dang"
                     onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
@@ -2937,133 +3274,138 @@ function MyTable({
                       ? "Reject"
                       : "Send for approval"}
                   </button> */}
-                  <button
-                    type="submit"
-                    className={
-                      watch("approvalOfRequestSheet") === "No"
-                        ? "btn bg-dang"
-                        : "btn bg-darkyellow mt-3"
-                    }
-                    onClick={handleSubmit(sendApprovalForRequestSheetOfBM)}
-                  >
-                    {watch("approvalOfRequestSheet") === "No"
-                      ? "Reject"
-                      : "Send for approval"}
-                  </button>
-                </Form>
-              </Col>
-            </Row>
-          </>
-        ) : (
-          ""
-        )}
-
-        {/* for higher authority approval */}
-        {requestSheetDataOfBM?.requestSheetStatus !== "Fill Sheet" &&
-        requestSheetDataOfBM?.requestSheetStatus !== "Work Order Pending" &&
-        requestSheetDataOfBM?.requestSheetStatus !== "Work Order Closed" &&
-        requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
-          loggedUserDetails?._id &&
-        requestSheetDataOfBM?.assignUser?._id !== loggedUserDetails?._id &&
-        requestSheetDataOfBM?.handOverUser?._id !== loggedUserDetails?._id ? (
-          // &&requestSheetDataOfBM?.assignUser?._id !==
-          //   requestSheetDataOfBM?.approvalOfMTD_TL?._id
-          <>
-            <Row
-              className="m-1 d-flex justify-content-start"
-              style={{ width: "100vw" }}
-            >
-              {loggedUserDetails?.tm_department === "MTD" && (
-                <Col className="col-lg-6 col-md-6 m-1 p-0">
-                  <button
-                    type="submit"
-                    className="btn bg-succ"
-                    style={{ marginTop: "1rem" }}
-                    onClick={handleSubmit(newRequestSheetRegistration)}
-                  >
-                    Save Changes
-                  </button>
-                </Col>
+                        <button
+                          type="submit"
+                          className={
+                            watch("approvalOfRequestSheet") === "No"
+                              ? "btn bg-dang"
+                              : "btn bg-warning mt-3"
+                          }
+                          onClick={handleSubmit(
+                            sendApprovalForRequestSheetOfBM
+                          )}
+                        >
+                          {watch("approvalOfRequestSheet") === "No"
+                            ? "Reject"
+                            : "Send for approval"}
+                        </button>
+                      </Form>
+                    </Col>
+                  </Row>
+                </>
+              ) : (
+                ""
               )}
 
-              <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
-                Kindly approve request-sheet.{" "}
-                <Form>
-                  <div className="d-flex">
-                    <Form.Check
-                      flex
-                      label="Yes"
-                      name="approvalOfRequestSheet"
-                      type="radio"
-                      value="Yes"
-                      id="approvalOfRequestSheet"
-                      {...register("approvalOfRequestSheet", {
-                        // required: "This field is required",
-                      })}
-                      // onChange={handleQuality}
-                    />{" "}
-                    &nbsp;
-                    <Form.Check
-                      flex
-                      label="No"
-                      name="approvalOfRequestSheet"
-                      type="radio"
-                      value="No"
-                      id="approvalOfRequestSheet"
-                      {...register("approvalOfRequestSheet", {
-                        // required: "This field is required",
-                      })}
-                      // onChange={handleQuality}
-                    />
-                  </div>
-                  {errors?.["approvalOfRequestSheet"] && (
-                    <p className="text-error">
-                      {errors?.["approvalOfRequestSheet"]?.message}
-                    </p>
-                  )}
-                  {watch("approvalOfRequestSheet") === "No" ? (
-                    <>
-                      <input
-                        type="text"
-                        name="rejectedRemarksOfRequestSheet"
-                        placeholder="Enter rejected remarks"
-                        className="p-1 m-1"
-                        {...register("rejectedRemarksOfRequestSheet", {
-                          // required: "Please fill this field",
-                        })}
-                      />
-                      {errors?.["rejectedRemarksOfRequestSheet"] && (
+              {/* for higher authority approval */}
+              {requestSheetDataOfBM?.requestSheetStatus !== "Fill Sheet" &&
+              requestSheetDataOfBM?.requestSheetStatus !==
+                "Work Order Pending" &&
+              requestSheetDataOfBM?.requestSheetStatus !==
+                "Work Order Closed" &&
+              requestSheetDataOfBM?.approvalOfMTD_TL?._id !==
+                loggedUserDetails?._id &&
+              requestSheetDataOfBM?.assignUser?._id !==
+                loggedUserDetails?._id &&
+              requestSheetDataOfBM?.handOverUser?._id !==
+                loggedUserDetails?._id ? (
+                // &&requestSheetDataOfBM?.assignUser?._id !==
+                //   requestSheetDataOfBM?.approvalOfMTD_TL?._id
+                <>
+                  <Row className="m-1 d-flex justify-content-start">
+                    {loggedUserDetails?.tm_department === "MTD" && (
+                      <Col className="col-lg-6 col-md-6 m-1 p-0">
+                        <button
+                          type="submit"
+                          className="btn bg-succ"
+                          style={{ marginTop: "1rem" }}
+                          onClick={handleSubmit(newRequestSheetRegistration)}
+                        >
+                          Save Changes
+                        </button>
+                      </Col>
+                    )}
+
+                    <Col className="col-lg-5 col-md-4 m-1 p-2 bg-lightyellow rounded">
+                      Kindly approve request-sheet.{" "}
+                      <div className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="approvalOfRequestSheet"
+                          type="radio"
+                          value="Yes"
+                          id="approvalOfRequestSheet"
+                          {...register("approvalOfRequestSheet", {
+                            // required: "This field is required",
+                          })}
+                          // onChange={handleQuality}
+                        />{" "}
+                        &nbsp;
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="approvalOfRequestSheet"
+                          type="radio"
+                          value="No"
+                          id="approvalOfRequestSheet"
+                          {...register("approvalOfRequestSheet", {
+                            // required: "This field is required",
+                          })}
+                          // onChange={handleQuality}
+                        />
+                      </div>
+                      {errors?.["approvalOfRequestSheet"] && (
                         <p className="text-error">
-                          {errors?.["rejectedRemarksOfRequestSheet"]?.message}
+                          {errors?.["approvalOfRequestSheet"]?.message}
                         </p>
                       )}
-                    </>
-                  ) : (
-                    ""
-                  )}
-                  &nbsp;
-                  <button
-                    type="submit"
-                    className="btn bg-darkyellow"
-                    onClick={handleSubmit(
-                      approveRequestSheetFromHigherAuthority
-                    )}
-                  >
-                    Submit
-                  </button>
-                </Form>
-              </Col>
-            </Row>
-          </>
-        ) : (
-          ""
-        )}
+                      {watch("approvalOfRequestSheet") === "No" ? (
+                        <>
+                          <input
+                            type="text"
+                            name="rejectedRemarksOfRequestSheet"
+                            placeholder="Enter rejected remarks"
+                            className="p-1 m-1"
+                            {...register("rejectedRemarksOfRequestSheet", {
+                              // required: "Please fill this field",
+                            })}
+                          />
+                          {errors?.["rejectedRemarksOfRequestSheet"] && (
+                            <p className="text-error">
+                              {
+                                errors?.["rejectedRemarksOfRequestSheet"]
+                                  ?.message
+                              }
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        ""
+                      )}
+                      &nbsp;
+                      <button
+                        type="submit"
+                        className="btn bg-warning"
+                        onClick={handleSubmit(
+                          approveRequestSheetFromHigherAuthority
+                        )}
+                      >
+                        Submit
+                      </button>
+                    </Col>
+                  </Row>
+                </>
+              ) : (
+                ""
+              )}
+            </td>
+          </tr>
+          <tr>
+            <b>FO/MTD/01/04/04</b>
+          </tr>
+        </tbody>
       </Table>
-      <br />
-      <br />
-      <br />
-      <br />
-      {/* </fieldset> */}
     </form>
   );
 }

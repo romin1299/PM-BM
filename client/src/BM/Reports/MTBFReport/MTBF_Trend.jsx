@@ -32,7 +32,7 @@ export const options = {
           yMin: 1,
           yMax: 1,
           borderColor: chartColors[3],
-          borderWidth: 2,
+          //borderWidth: 2,
         },
       },
     },
@@ -57,15 +57,15 @@ export const options = {
         display: true,
         text: "Months",
       },
-      ticks:{
-        color:'black',
-      }
+      ticks: {
+        color: "black",
+      },
     },
     y: {
       stacked: true,
-      ticks:{
-        color:'black',
-      }
+      ticks: {
+        color: "black",
+      },
     },
   },
 };

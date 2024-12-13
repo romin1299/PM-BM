@@ -90,6 +90,9 @@ const BDHoursTrendChart = ({
       },
       y: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         position: "left",
         ticks: {
           color: "black",
@@ -98,15 +101,18 @@ const BDHoursTrendChart = ({
           },
         },
       },
-      y2: {
-        position: "right",
-        ticks: {
-          color: "black",
-          font: {
-            size: labelsFontSize,
-          },
-        },
-      },
+      // y2: {
+      //   position: "right",
+      //   grid: {
+      //     display: false,
+      //   },
+      //   ticks: {
+      //     color: "black",
+      //     font: {
+      //       size: labelsFontSize,
+      //     },
+      //   },
+      // },
     },
   };
 

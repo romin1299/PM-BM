@@ -21,7 +21,7 @@ const TotalMonthWiseGraph = ({ context, selectedSectionOrSubSection }) => {
   const [loadingAnimationState, setLoadingAnimationState] = useState(
     <LoadingAnimation />
   );
-  console.log("by default section ---->", selectedSectionOrSubSection);
+  // console.log("by default section ---->", selectedSectionOrSubSection);
   // console.log(context)
   const label = [
     "",
@@ -335,7 +335,7 @@ const TotalMonthWiseGraph = ({ context, selectedSectionOrSubSection }) => {
       <Container fluid>
         <h4 className="mb-3">Total time month wise</h4>
         <Row className="pt-2 cell gy-2">
-          <Col sm={12} lg={6} md={12}>
+          <Col sm={12} lg={4} md={12}>
             <YearDropDown
               selectedYear={selectedYear}
               setSelectedYear={setSelectedYear}

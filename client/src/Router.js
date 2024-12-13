@@ -21,7 +21,7 @@ import { ToastContainer } from "react-toastify";
 function Router() {
   return (
     <>
-    <ToastContainer />
+      <ToastContainer style={{ width: "30rem" }} />
       <Routes>
         <Route
           path="/*"

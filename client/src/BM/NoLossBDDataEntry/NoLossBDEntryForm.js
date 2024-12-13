@@ -10,11 +10,6 @@ import ProblemList from "../Tabs/SubComponents/ProblemList";
 import ActionList from "../Tabs/SubComponents/ActionList";
 import Multiselect from "multiselect-react-dropdown";
 import ReportTitleBar from "../Reports/Common/ReportTitleBar";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
 import axios from "axios";
 import moment from "moment-timezone";
 import RoutingContext from "../../context/routing/RoutingContext";
@@ -28,9 +23,11 @@ const NoLossBDEntryForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
     watch,
     reset,
     control,
+    clearErrors,
     setValue,
   } = useForm({
     defaultValues: {
@@ -45,8 +42,9 @@ const NoLossBDEntryForm = () => {
   const [plantShiftsData, setPlantShiftsData] = useState([]);
   const [plantCategories, setPlantCategories] = useState([]);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  const [inc, setInc] = useState(1);
 
   const getListOfTheTLAndOperatorForNoLossBDEntryForm = async () => {
     try {
@@ -66,6 +64,7 @@ const NoLossBDEntryForm = () => {
         console.log("error", data?.message);
       } else {
         setSupportingTMList(data?.TLHOSS_and_TM_user_list);
+        setInc(data?.getNoLossNo);
       }
     } catch (error) {
       console.log(error);
@@ -77,7 +76,8 @@ const NoLossBDEntryForm = () => {
   }, []);
 
   const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month() + 1;
+  const currentMonth = moment().format("MMM");
+  const currentYear = moment().tz(timezone).year();
 
   let sheetIssuedTime = new Date().toLocaleString("en-US", {
     timeZone: "Asia/Kolkata",
@@ -88,21 +88,21 @@ const NoLossBDEntryForm = () => {
 
   const momentTime = moment(sheetIssuedTime, "HH:mm");
 
-  useEffect(() => {
-    const getCurrentShiftName = () => {
-      for (let shiftInfo of plantShiftsData) {
-        if (
-          momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-          momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-        )
-          return shiftInfo.shiftName;
-      }
+  // useEffect(() => {
+  //   const getCurrentShiftName = () => {
+  //     for (let shiftInfo of plantShiftsData) {
+  //       if (
+  //         momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+  //         momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+  //       )
+  //         return shiftInfo.shiftName;
+  //     }
 
-      return "";
-    };
+  //     return "";
+  //   };
 
-    setValue("shiftOfBM", getCurrentShiftName());
-  }, [plantShiftsData]);
+  //   setValue("shiftOfBM", getCurrentShiftName());
+  // }, [plantShiftsData]);
 
   useEffect(() => {
     const fetchShiftData = async () => {
@@ -127,29 +127,50 @@ const NoLossBDEntryForm = () => {
 
   const postNoLossBDFormData = async (noLossData) => {
     try {
+      if (
+        !reduceState?.selectedCell ||
+        !reduceState?.selectedLine ||
+        !reduceState?.selectedMachine
+      ) {
+        setError(
+          "selectedValue",
+          {
+            message: "Cell / Line/ Machine selection is required !",
+          },
+          { shouldFocus: true }
+        );
+      }
+      const formData = new FormData();
+      noLossData.problemsOfBM = problems;
+      noLossData.actionAndCounterMeasureStep = actions;
+      noLossData.selectedSupportedTM = selectedSupportedTM;
+      noLossData.breakDownTime =
+        moment(watch("workEndedDateOfBM"))
+          .tz("Asia/Kolkata")
+          .diff(
+            moment(watch("workStartedDateOfBM")).tz("Asia/Kolkata"),
+            "minutes"
+          ) || 0;
+      noLossData.selectedSection = reduceState?.selectedSection;
+      noLossData.selectedSubSection = reduceState?.selectedSubSection;
+      noLossData.selectedCell = reduceState?.selectedCell;
+      noLossData.selectedLine = reduceState?.selectedLine;
+      noLossData.selectedMachine = reduceState?.selectedMachine;
+      for (let i = 0; i < noLossData?.attachedFilesForOtherLoss?.length; i++) {
+        formData.append(
+          "attachedFilesForOtherLoss",
+          noLossData?.attachedFilesForOtherLoss[i]
+        );
+      }
+
+      formData.append("otherData", JSON.stringify({ ...noLossData }));
+
       const res = await fetch(`/postNewNoLossBDData`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          noLossData,
-          problemsOfBM: problems,
-          actionAndCounterMeasureStep: actions,
-          selectedSupportedTM,
-          breakDownTime:
-            moment(watch("workEndedDateOfBM"))
-              .tz("Asia/Kolkata")
-              .diff(
-                moment(watch("workStartedDateOfBM")).tz("Asia/Kolkata"),
-                "minutes"
-              ) || 0,
-          selectedSection: reduceState?.selectedSection,
-          selectedSubSection: reduceState?.selectedSubSection,
-          selectedCell: reduceState?.selectedCell,
-          selectedLine: reduceState?.selectedLine,
-          selectedMachine: reduceState?.selectedMachine,
-        }),
+        // headers: {
+        //   "Content-Type": "application/json",
+        // },
+        body: formData,
       });
 
       const data = await res.json();
@@ -160,6 +181,7 @@ const NoLossBDEntryForm = () => {
         setProblems([]);
         setActions([]);
         setSelectedSupportedTM([]);
+        setInc(inc + 1);
       } else {
         WarningToast(data?.message);
       }
@@ -168,9 +190,15 @@ const NoLossBDEntryForm = () => {
     }
   };
 
+  useEffect(() => {
+    if(reduceState?.selectedMachine !== ""){
+      clearErrors("selectedValue");
+    }
+  }, [reduceState?.selectedMachine])
+
   return (
     <Container fluid>
-      <ReportTitleBar title="No Loss BD Entry Form" />
+      <ReportTitleBar title="Other Loss BD Entry Form" />
 
       <form
         onSubmit={handleSubmit(postNoLossBDFormData)}
@@ -192,6 +220,9 @@ const NoLossBDEntryForm = () => {
               machineFiltration
             />
           </Col>
+          {errors?.selectedValue && (
+            <p className="text-error">{errors?.selectedValue?.message}</p>
+          )}
         </Row>
 
         <Row className="gx-0">
@@ -200,16 +231,17 @@ const NoLossBDEntryForm = () => {
               <b>NO-LOSS BD NO: </b>
             </small>
             <br />
-            <input
+            {/* <input
               type="text"
               name=""
               id=""
               className="w-100"
               style={{ maxWidth: "300px" }}
               {...register("noLossBDNo", {})}
-            />
+            /> */}
+            {currentYear}-{currentMonth}-{inc + 1 || 1}
             <br />
-            <small className="mb-0 d-block">
+            {/* <small className="mb-0 d-block">
               <b>DATE & TIME: </b>
               <br />
               <input
@@ -217,7 +249,7 @@ const NoLossBDEntryForm = () => {
                 {...register("DateOfNoLossBD", {})}
               />
             </small>
-            <br />
+            <br /> */}
             <small>
               <b>MAINT. TYPE</b>
             </small>
@@ -226,11 +258,11 @@ const NoLossBDEntryForm = () => {
                 <Form.Check
                   flex
                   style={{ fontSize: "12px" }}
-                  label="CM"
+                  label="CM Entry"
                   name="maintenanceType"
                   type="radio"
                   id={`inline-radio-1`}
-                  value="CM"
+                  value="CM Entry"
                   {...register("maintenanceType", {
                     required: "Please select maintenance type",
                   })}
@@ -293,6 +325,20 @@ const NoLossBDEntryForm = () => {
                     required: "Please select maintenance type",
                   })}
                 />
+                <Form.Check
+                  flex
+                  style={{ fontSize: "12px" }}
+                  label="TPM"
+                  type="radio"
+                  name="maintenanceType"
+                  id={`inline-radio-6`}
+                  value="TPM"
+                  // onChange={handleMaintenanceType}
+                  // checked={selectedMaintenanceType === "TPM"}
+                  {...register("maintenanceType", {
+                    required: "Please select maintenance type",
+                  })}
+                />
               </div>
               {errors?.["maintenanceType"] && (
                 <p className="text-error">
@@ -309,31 +355,32 @@ const NoLossBDEntryForm = () => {
             xl={3}
           >
             <Row className="gx-3 gy-2">
-              <Col className="col-auto">
-                <FormControl>
+              <Col className="col-auto d-flex align-items-center">
+                <Form>
                   <small>
                     <b>SHIFT</b>
                   </small>
-
-                  {watch("shiftOfBM") && (
-                    <RadioGroup
-                      row
-                      value={watch("shiftOfBM")}
-                      // value={"B"}
-                      aria-labelledby="demo-radio-buttons-group-label"
-                      name="radio-buttons-group"
-                    >
-                      {plantShiftsData?.map((shiftInfo) => (
-                        <FormControlLabel
-                          value={shiftInfo.shiftName}
-                          control={<Radio color="default" size="small" />}
-                          label={shiftInfo.shiftName}
-                          disabled={watch("shiftOfBM") !== shiftInfo.shiftName}
-                        />
-                      ))}
-                    </RadioGroup>
+                  {plantShiftsData?.map((shiftInfo) => (
+                    <Form.Check
+                      flex
+                      label={shiftInfo.shiftName}
+                      type="radio"
+                      value={shiftInfo.shiftName}
+                      name={`shiftOfBM`}
+                      // {...register(`shiftOfBM.${shiftInfo.shiftName}`)}
+                      onChange={(e) => {
+                        setValue(`shiftOfBM`, e.target.value, {
+                          shouldDirty: true,
+                        });
+                      }}
+                    />
+                  ))}
+                  {errors?.["shiftOfBM"] && (
+                    <p className="text-error">
+                      {errors?.["shiftOfBM"]?.message}
+                    </p>
                   )}
-                </FormControl>
+                </Form>
               </Col>
 
               <Col className="col-auto">
@@ -351,7 +398,7 @@ const NoLossBDEntryForm = () => {
                       id="actionTemporaryOrNot"
                       // onChange={handleactionTemporaryOrNot}
                       {...register("actionTemporaryOrNot", {
-                        // required: "This field is required",
+                        required: "This field is required",
                       })}
                     />{" "}
                     &nbsp;&nbsp;
@@ -364,7 +411,7 @@ const NoLossBDEntryForm = () => {
                       id="actionTemporaryOrNot"
                       // onChange={handleactionTemporaryOrNot}
                       {...register("actionTemporaryOrNot", {
-                        // required: "This field is required",
+                        required: "This field is required",
                       })}
                     />
                   </div>
@@ -384,9 +431,16 @@ const NoLossBDEntryForm = () => {
                   <br />
                   <input
                     type="datetime-local"
-                    {...register("workStartedDateOfBM", {})}
+                    {...register("workStartedDateOfBM", {
+                      required: "This field is required",
+                    })}
                   />
                 </small>
+                {errors?.["workStartedDateOfBM"] && (
+                  <p className="text-error">
+                    {errors?.["workStartedDateOfBM"]?.message}
+                  </p>
+                )}
               </Col>
               <Col className="col-auto">
                 <small className="mb-0 d-block">
@@ -394,9 +448,16 @@ const NoLossBDEntryForm = () => {
                   <br />
                   <input
                     type="datetime-local"
-                    {...register("workEndedDateOfBM", {})}
+                    {...register("workEndedDateOfBM", {
+                      required: "This field is required",
+                    })}
                   />
                 </small>
+                {errors?.["workEndedDateOfBM"] && (
+                  <p className="text-error">
+                    {errors?.["workEndedDateOfBM"]?.message}
+                  </p>
+                )}
               </Col>
             </Row>
 
@@ -555,6 +616,28 @@ const NoLossBDEntryForm = () => {
                     )}
                   />
                 </small>
+              </Col>
+              <Col lg={12}>
+                <small className="mb-0">
+                  <b>ATTACHED FILES</b>
+                </small>
+                <br />
+                <Form.Group controlId="formFileMultiple" className="mb-3">
+                  <Form.Control
+                    type="file"
+                    multiple
+                    // accept="image/png, image/gif, image/jpeg"
+                    onChange={(e) => {
+                      setValue("attachedFilesForOtherLoss", e.target.files, {
+                        shouldDirty: true,
+                      });
+                    }}
+                  />
+                  {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
+                        <p className="text-error">{"This field is required"}</p>
+                      )} */}
+                </Form.Group>
+                {/* {selectedAttendee} */}
               </Col>
             </Row>
           </Col>

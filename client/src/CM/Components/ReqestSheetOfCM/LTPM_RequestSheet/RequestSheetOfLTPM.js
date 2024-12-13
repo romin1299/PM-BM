@@ -1,0 +1,313 @@
+import React, { useState } from "react";
+import { Button, Modal, Container, Row, Col } from "react-bootstrap";
+
+const RequestSheetOfLTPM = ({}) => {
+  const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
+
+  const openCloseModalOfLTPM = () => {
+    setOpenCloseLTPM(!openCloseLTPM);
+  };
+
+  let yearsOfLTPM = [
+    {
+      yearHeader: new Date().getFullYear(),
+    },
+    {
+      yearHeader: new Date().getFullYear() + 1,
+    },
+    {
+      yearHeader: new Date().getFullYear() + 2,
+    },
+    {
+      yearHeader: new Date().getFullYear() + 3,
+    },
+    {
+      yearHeader: new Date().getFullYear() + 4,
+    },
+    {
+      yearHeader: new Date().getFullYear() + 5,
+    },
+  ];
+
+  let columns = [
+    {
+      header: "SN",
+      sort: "true",
+    },
+    {
+      header: "Machine No.",
+      sort: "true",
+    },
+    {
+      header: "Machine Name",
+      sort: "true",
+    },
+    {
+      header: "Inspection item",
+      sort: "true",
+    },
+    // {
+    //   header: "Inspection point",
+    //   sort: "true",
+    // },
+    // {
+    //   header: "Judgement criteria",
+    //   sort: "true",
+    // },
+    {
+      header: "Action",
+      sort: "true",
+    },
+    {
+      header: "Cycle",
+      sort: "true",
+    },
+    {
+      header: "Person in charge",
+      sort: "true",
+    },
+    // {
+    //   header: "PM Time (min)",
+    //   sort: "true",
+    // },
+    {
+      header: "",
+      sort: "true",
+    },
+    {
+      header: "Q1",
+      sort: "true",
+    },
+    {
+      header: "Q2",
+      sort: "true",
+    },
+    {
+      header: "Q3",
+      sort: "true",
+    },
+    {
+      header: "Q4",
+      sort: "true",
+    },
+    {
+      header: "Q1",
+      sort: "true",
+    },
+    {
+      header: "Q2",
+      sort: "true",
+    },
+    {
+      header: "Q3",
+      sort: "true",
+    },
+    {
+      header: "Q4",
+      sort: "true",
+    },
+    {
+      header: "Q1",
+      sort: "true",
+    },
+    {
+      header: "Q2",
+      sort: "true",
+    },
+    {
+      header: "Q3",
+      sort: "true",
+    },
+    {
+      header: "Q4 ",
+      sort: "true",
+    },
+  ];
+
+  return (
+    <>
+      <Button onClick={openCloseModalOfLTPM}>LTPM Open</Button>
+      <div className="modal-fullscreen">
+        <Modal
+          className="d-flex align-items-center justify-content-center"
+          show={openCloseLTPM}
+          fullscreen={true}
+          onHide={openCloseModalOfLTPM}
+          scrollable={true}
+          enforceFocus={false}
+        >
+          <Modal.Header>
+            <Modal.Title>
+              LONG TERM PREVENTIVE MAINTENANCE PLAN ( DURATION > 1 YEAR )
+            </Modal.Title>
+            <Button
+              variant="secondary"
+              onClick={openCloseModalOfLTPM}
+              className="btn-danger"
+            >
+              Close
+            </Button>
+          </Modal.Header>
+          <Modal.Body>
+            <div>
+              <Container fluid>
+                <Row>
+                  <Col lg={6} md={6} sm={12} />
+                  <Col lg={6} md={6} sm={12}>
+                    <table className="ar-table tableCol1 ">
+                      <thead>
+                        <tr>
+                          <th
+                            className="ar-table-thead-header1 text-center"
+                            // colSpan={2}
+                            //  rowSpan={5}
+                          >
+                            PLAN ACCEPTANCE
+                            <br />
+                            (By PRD Section-in-charge)
+                          </th>
+                          <th
+                            className="ar-table-thead-header1 text-center"
+                            // colSpan={2}
+                            //  rowSpan={5}
+                          >
+                            PLAN PREPARED
+                            <br />
+                            (By MTD Section-in-charge)
+                          </th>
+                        </tr>
+                        <tr>
+                          <th className="approvalName"></th>
+                          <th className="approvalName"></th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </Col>
+                </Row>
+              </Container>
+            </div>
+            <div>
+              <Container fluid>
+                <Row>
+                  <Col className="table-scrolling">
+                    <table className="ar-table tableCol">
+                      <thead>
+                        <tr>
+                          <th
+                            className="ar-table-thead-header1 headerPD"
+                            // colSpan={2}
+                            rowSpan={3}
+                          >
+                            <p>Section Name :</p>
+                            <br />
+                            <p>Line Name :</p>
+                          </th>
+                          <th
+                            className="ar-table-thead-header1 headerPD  align-items-center"
+                            colSpan={2}
+                            style={{ textAlign: "center" }}
+                            // rowSpan={2}
+                          >
+                            Approved by
+                            <br />
+                            (MTD HOS)
+                          </th>
+                          <th
+                            className="ar-table-thead-header1 headerPD"
+                            colSpan={2}
+                            style={{ textAlign: "center" }}
+                            // rowSpan={2}
+                          >
+                            Checked by
+                            <br />
+                            (MTD TL)
+                          </th>
+                          <th
+                            className="ar-table-thead-header1 headerPD"
+                            colSpan={2}
+                            style={{ textAlign: "center" }}
+                            // rowSpan={3}
+                          >
+                            Prepared by
+                            <br />
+                            (MTD TL)
+                          </th>
+                          {/* <th
+                            className="ar-table-thead-header1 headerPD"
+                            colSpan={2}
+                            style={{ textAlign: "center" }}
+                            // rowSpan={3}
+                          >
+                          </th> */}
+                          <th className="ar-table-thead-header1">
+                            Checked & Verify by
+                            <br />
+                            (MTD TL)
+                          </th>
+                          <td className="ar-table-col1"></td>
+                        </tr>
+                        <tr>
+                          <th
+                            className="approvalName"
+                            colSpan={2}
+                            rowSpan={5}
+                          ></th>
+                          <th
+                            className="approvalName"
+                            colSpan={2}
+                            rowSpan={5}
+                          ></th>
+                          <th
+                            className="approvalName"
+                            colSpan={2}
+                            rowSpan={5}
+                          ></th>
+                          {/* <th
+                            className="approvalName"
+                            colSpan={2}
+                            rowSpan={5}
+                          ></th> */}
+                          <th className="ar-table-thead-header1">
+                            Approved by
+                            <br />
+                            (MTD HOS)
+                          </th>
+                          <td className="ar-table-col1"></td>
+                        </tr>
+                      </thead>
+                      <thead>
+                        <tr>
+                          <th colSpan={8}></th>
+                          {yearsOfLTPM?.map((value, idx) => (
+                            <th className="ar-table-col1" colSpan={4}>{value?.yearHeader}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <thead className="mt-5">
+                        <tr>
+                          {columns.map((tColumn) => (
+                            <th
+                              className={
+                                tColumn.header === ""
+                                  ? "ar-table-thead-header3"
+                                  : "ar-table-thead-header"
+                              }
+                            >
+                              {tColumn.header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                    </table>
+                  </Col>
+                </Row>
+              </Container>
+            </div>
+          </Modal.Body>
+        </Modal>
+      </div>
+    </>
+  );
+};
+
+export default RequestSheetOfLTPM;

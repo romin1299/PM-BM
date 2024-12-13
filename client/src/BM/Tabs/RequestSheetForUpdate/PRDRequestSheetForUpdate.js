@@ -2,7 +2,7 @@
 // import Table from "react-bootstrap/Table";
 import React, { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import Radio from "@mui/material/Radio";
@@ -16,10 +16,11 @@ import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Tooltip, Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
+import { exportPDF } from "../../Utils/exportPDF/exportPDF";
 
 const list = [
   { key: "A", value: "A" },
@@ -31,7 +32,8 @@ const list = [
 function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType, requestSheetID } = useParams();
+  const { machine_code, generateType, requestSheetID, selectedYear } =
+    useParams();
   const {
     register,
     handleSubmit,
@@ -39,6 +41,8 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
     watch,
     reset,
     setValue,
+    setError,
+    clearErrors,
   } = useForm({
     defaultValues: {
       ...requestSheetDataOfBM,
@@ -97,7 +101,11 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
     // requestSheetData.qualityRelated = selectedQuality;
     // requestSheetData.shiftOfBM = selectedShift;
     const formData = new FormData();
-    const { ...otherFields } = requestSheetData;
+    let { ...otherFields } = requestSheetData;
+
+    otherFields.problemFaced = otherFields?.select_problemFaced
+      ? otherFields?.select_problemFaced
+      : otherFields?.problemFaced;
 
     formData.append("prdDataUpdatedByOtherUser", true);
     formData.append("otherData", JSON.stringify(otherFields));
@@ -125,7 +133,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
           requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
           requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
         ) {
-          navigate("/bm/requestListDashboard", { replace: true });
+          navigate("/bm", { replace: true });
         } else {
           navigate("/bm/approval", { replace: true });
         }
@@ -195,7 +203,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
       requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id ||
       requestSheetDataOfBM?.handOverUser?._id === loggedUserDetails?._id
     ) {
-      navigate("/bm/requestListDashboard", { replace: true });
+      navigate("/bm", { replace: true });
     } else {
       navigate("/bm/approval", { replace: true });
     }
@@ -212,14 +220,9 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
         </Col> */}
       </Row>
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
-        <Table className="m-2 mt-3">
-          <thead>
-            {/* <tr>
-              <th colSpan="4">Header with 4 Columns</th>
-            </tr> */}
-          </thead>
+        <Table>
           <tbody className="m-1 border p-3">
-            <tr class="row " style={{ width: "100vw" }}>
+            <tr class="">
               {/* <td width={100}>
               <img
                 src={denso_log}
@@ -229,53 +232,76 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                 alt="React Bootstrap logo"
               />
             </td> */}
-              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0">
-                <Row>
-                  <Col>
-                    <button className="btn bg-button m-2" onClick={handleBack}>
-                      Back
-                    </button>
-                    <button
-                      className="btn bg-button m-2"
-                      onClick={() => {
-                        navigate(`/machine-history/${machine_code}/?machineId=${machineId}`);
-                      }}
+              <td className="">
+                <Container fluid>
+                  <Row>
+                    <Col
+                      id="rs-top-btns"
+                      data-html2canvas-ignore="true"
+                      className="col-auto d-flex gap-2 align-items-center"
                     >
-                      Machine History
-                    </button>
-                  </Col>
-                  <Col>
-                    <h4 className="d-flex align-items-center justify-content-center">
-                      MAINTENANCE WORK REQUEST/REPORT
-                    </h4>
-                  </Col>
-                  <Col>
-                    <Box
-                      display="flex"
-                      justifyContent="end"
-                      gap={1}
-                      // sx={{ position: "absolute", top: "10px", right: "20px" }}
-                    >
-                      <MachineStatusBox
-                        title="PM Status"
-                        bodyText1={machineStatus?.pmStatusData?.PMStatus}
-                        bodyText2={machineStatus?.pmStatusData?.PMdate}
-                      />
-                      <MachineStatusBox
-                        title="BM"
-                        bodyText1={
-                          machineStatus?.bmStatusData?.count &&
-                          `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
-                        }
-                      />
-                      <MachineStatusBox title="CM" />
-                    </Box>
-                  </Col>
-                </Row>
+                      <button className="btn bg-button" onClick={handleBack}>
+                        Back
+                      </button>
+
+                      {/* <Tooltip title="Download Request Sheet" disableInteractive>
+                      <IconButton
+                        variant="contained"
+                        disableElevation
+                        onClick={handleBack}
+                      >
+                        <ArrowBackIcon />
+                      </IconButton>
+                    </Tooltip> */}
+                      <button
+                        className="btn bg-button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // navigate(
+                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                          // );
+                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,"_blank")
+                        }}
+                      >
+                       Machine Details
+                      </button>
+                    </Col>
+
+                    <Col className="d-flex align-items-center justify-content-center text-center">
+                      <h4>MAINTENANCE WORK REQUEST/REPORT</h4>
+                    </Col>
+
+                    <Col className="col-sm col-lg-auto">
+                      <Box
+                        display="flex"
+                        justifyContent="end"
+                        gap={1}
+                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                      >
+                        <MachineStatusBox
+                          title="PM Status"
+                          bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                          bodyText2={machineStatus?.pmStatusData?.PMdate}
+                        />
+                        <MachineStatusBox
+                          title="BM"
+                          bodyText1={
+                            machineStatus?.bmStatusData?.count &&
+                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
+                              1
+                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                          }
+                        />
+                        <MachineStatusBox title="CM" />
+                      </Box>
+                    </Col>
+                  </Row>
+                </Container>
               </td>
             </tr>
-            <tr className="row m-2" style={{ width: "100vw" }}>
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
+
+            <tr className="row m-2">
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   <b>MAINT. TYPE</b>
                 </small>
@@ -345,7 +371,8 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
+
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   {" "}
                   <b>PRIORITY CODE</b>
@@ -416,7 +443,8 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-8 col-md-4">
+
+              <td className="mb-0 pb-0 border col-12 col-md-6">
                 <div className="mb-2 border">
                   <Row className="m-0">
                     <Col className="border">
@@ -446,12 +474,15 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                               <br />
                               <input
                                 type="datetime-local"
+                                // min={moment(new Date() - 1)
+                                //   .subtract(1, "days")
+                                //   .format("YYYY-MM-DDTHH:mm")}
                                 {...register("problemOccurredDateAndTimeOfBM")}
                                 disabled={
-                                  (requestSheetDataOfBM?.assignUser?._id !==
-                                    loggedUserDetails?._id ||
-                                    requestSheetDataOfBM?.handOverUser?._id !==
-                                      loggedUserDetails?._id) &&
+                                  requestSheetDataOfBM?.assignUser?._id !==
+                                    loggedUserDetails?._id &&
+                                  requestSheetDataOfBM?.handOverUser?._id !==
+                                    loggedUserDetails?._id &&
                                   requestSheetDataOfBM?.approvalOfMTD_TL
                                     ?._id !== loggedUserDetails?._id
                                 }
@@ -492,11 +523,18 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                                 )}
                                 disabled
                               /> */}
-                              {moment(
-                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
-                              )
-                                .tz("Asia/Kolkata")
-                                .format("DD-MM-YYYY THH:mm")}
+                              <span
+                                style={{
+                                  minWidth: "200px",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {moment(
+                                  requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
+                                )
+                                  .tz("Asia/Kolkata")
+                                  .format("DD-MM-YYYY THH:mm")}
+                              </span>
                             </small>
                           </div>{" "}
                           {/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -518,7 +556,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                 </div>
               </td>
 
-              <td className="mb-0 pb-0 pt-0 col-lg-2 col-md-4">
+              <td className="border mb-0 col-12 col-md-2">
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -537,42 +575,42 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                   </p>
                 </Col>
               </Row> */}
-                <Row
-                  className="pt-0 mb-0 border col-lg-12 col-md-12 col-sm-12"
-                  style={{ marginLeft: "-8px" }}
-                >
-                  <Col className="pb-2 pt-1">
-                    <small className="mb-0">
-                      <b>DEPT./LINE</b>
-                    </small>
-                    <br />
-                    <small>
-                      {requestSheetDataOfBM?.cellRef?.cell_name}/
-                      {requestSheetDataOfBM?.lineRef?.line_name}
-                    </small>
-                  </Col>
-                </Row>
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
-                  <Col className="border pb-2">
-                    <small className="fs-6 mb-0">
-                      <b>TL [PRD]</b>
-                    </small>
-                    <br />
-                    <small>
-                      {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
-                    </small>
-                    {/* <input
+                <div className="border">
+                  <Row className="m-0">
+                    <Col className="border pb-2 pt-1">
+                      <small className="mb-0">
+                        <b>DEPT./LINE</b>
+                      </small>
+                      <br />
+                      <small>
+                        {requestSheetDataOfBM?.cellRef?.cell_name}/
+                        {requestSheetDataOfBM?.lineRef?.line_name}
+                      </small>
+                    </Col>
+                  </Row>
+                  <Row className="m-0">
+                    <Col className="border pt-2 pb-2">
+                      <small className="fs-6 mb-0">
+                        <b>TL [PRD]</b>
+                      </small>
+                      <br />
+                      <small>
+                        {requestSheetDataOfBM?.requestSheetCreatedBy?.tm_name}
+                      </small>
+                      {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
                   {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
-                  </Col>
-                </Row>
+                    </Col>
+                  </Row>
+                </div>
               </td>
             </tr>
-            <tr class="row">
+
+            <tr class="row m-2">
               <td className="border p-3 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>
@@ -596,22 +634,90 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
-                  <Col lg={5}>
-                    <input
-                      type="text"
-                      id="prob"
-                      name="problemFaced"
-                      className="m-1 mb-2"
-                      style={{ width: "350px" }}
+                  <Col lg={7}>
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        id="prob"
+                        name="problemFaced"
+                        className="m-1 mb-2"
+                        style={{ width: "350px" }}
+                        {...register("problemFaced", {
+                          required: "Please fill this field",
+                        })}
+                      />
+
+                      {errors?.["problemFaced"] && (
+                        <p className="text-error">
+                          {errors?.["problemFaced"]?.message}
+                        </p>
+                      )}
+
+                      {/* <Col lg={7}>
+                    <select
+                      name="problemfaced"
+                      id="problemfaced"
                       {...register("problemFaced", {
-                        required: "Please fill this field",
+                        // required: "Please fill this field",
                       })}
-                    />
-                    {/* {errors?.["problemFaced"] && (
-                      <p className="text-error">
-                        {errors?.["problemFaced"]?.message}
-                      </p>
-                    )} */}
+                    >
+                      <option selected disabled value="">
+                        Please select
+                      </option>
+                      {requestSheetDataOfBM?.machineRef?.machine_problems_faced?.map(
+                        (problem) => {
+                          return <option value="">{problem}</option>;
+                        }
+                      )}
+                    </select>
+                  </Col> */}
+
+                      <select {...register("select_problemFaced")}>
+                        <option selected disabled value="">
+                          Please select
+                        </option>
+
+                        {requestSheetDataOfBM?.machineRef?.machine_problems_faced?.map(
+                          (problem, index) => {
+                            return (
+                              <option key={index} value={problem}>
+                                {problem}
+                              </option>
+                            );
+                          }
+                        )}
+
+                        <option
+                          key={
+                            requestSheetDataOfBM?.machineRef
+                              ?.machine_problems_faced?.length
+                          }
+                        >
+                          Other
+                        </option>
+                      </select>
+
+                      {watch("select_problemFaced") === "Other" && (
+                        <>
+                          <input
+                            type="text"
+                            id="prob"
+                            name="problemFaced"
+                            className="m-1 mb-2"
+                            style={{ width: "350px" }}
+                            {...register("problemFaced", {
+                              required: "Please fill this field",
+                            })}
+                          />
+
+                          {errors?.["problemFaced"] && (
+                            <p className="text-error">
+                              {errors?.["problemFaced"]?.message}
+                            </p>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -862,28 +968,33 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                 </Row>
               </td>
             </tr>
-          </tbody>
 
-          {loggedUserDetails?.tm_department === "MTD" &&
-          requestSheetDataOfBM?.assignUser?._id === loggedUserDetails?._id &&
-          (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
-            requestSheetDataOfBM?.requestSheetStatus === "Work Order Pending" ||
-            requestSheetDataOfBM?.requestSheetStatus === "Work Order Closed") &&
-          requestSheetDataOfBM?.requestSheetStatus !== "Completed" ? (
-            <Row>
-              <Col>
-                <button
-                  type="submit"
-                  className="btn bg-warning"
-                  style={{ marginTop: "1rem" }}
-                >
-                  Update Filled PRD Data
-                </button>
-              </Col>
-            </Row>
-          ) : (
-            ""
-          )}
+            {(loggedUserDetails?.tm_department === "MTD" &&
+              requestSheetDataOfBM?.requestSheetStatus !== "Completed") ||
+            ((requestSheetDataOfBM?.assignUser?._id ===
+              loggedUserDetails?._id ||
+              requestSheetDataOfBM?.handOverUser?._id ===
+                loggedUserDetails?._id) &&
+              (requestSheetDataOfBM?.requestSheetStatus === "Fill Sheet" ||
+                requestSheetDataOfBM?.requestSheetStatus ===
+                  "Work Order Pending" ||
+                requestSheetDataOfBM?.requestSheetStatus ===
+                  "Work Order Closed")) ? (
+              <tr>
+                <td>
+                  <button
+                    type="submit"
+                    className="btn bg-warning"
+                    style={{ marginTop: "1rem" }}
+                  >
+                    Update Filled PRD Data
+                  </button>
+                </td>
+              </tr>
+            ) : (
+              ""
+            )}
+          </tbody>
         </Table>
       </form>
     </>

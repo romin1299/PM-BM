@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useContext } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 
@@ -15,14 +15,18 @@ import { Box } from "@mui/system";
 import BDRSTableWithDateFiltration from "../Common/BDRSTableWithDateFiltration";
 import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import AntDesignRSTableWithFiltration from "../Common/AntDesignRSTableWithFiltration";
 
 const TopMachineBD = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
 
   const [
     reduceStateForDefaultCellLineMachineFilter,
     reducerDispatchForDefaultCellLineMachineFilter,
-  ] = useReducer(reducer, initialState);
+  ] = useReducer(reducer, initialState());
+
+  const loggedUserDetails = useContext(RoutingContext);
 
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
@@ -64,6 +68,8 @@ const TopMachineBD = () => {
 
         <Box mt={2}>
           <TopMachineBDComponent
+            userDetails={loggedUserDetails}
+            filterValues={reduceState}
             selectedValue={reduceState?.selectedValue}
             flagForTogglingFilter={reduceState?.flagForTogglingFilter}
             selectedYear={reduceState?.selectedYear}
@@ -75,18 +81,30 @@ const TopMachineBD = () => {
         <ReportTitleBar
           title=""
           Toolbar={
-            <ChartsToolbar
-              baseUrlForFiltering={baseUrlForFilteringUsingDefaultValue}
-              reduceState={reduceStateForDefaultCellLineMachineFilter}
-              reducerDispatch={reducerDispatchForDefaultCellLineMachineFilter}
-              yearFiltration
-              sectionFiltration
-              subSectionFiltration
-              cellFiltration
-              lineFiltration
-              machineFiltration
-              resetButtonFiltration
-            />
+            <>
+              <ChartsToolbar
+                baseUrlForFiltering={baseUrlForFilteringUsingDefaultValue}
+                reduceState={reduceStateForDefaultCellLineMachineFilter}
+                reducerDispatch={reducerDispatchForDefaultCellLineMachineFilter}
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                machineFiltration
+                resetButtonFiltration
+              />
+              <Col className="col-auto">
+                <DownloadMenu
+                  handleDownloadPPTX={() => {
+                    exportPPTX(
+                      EXPORT_REPORT.TOP_MACHINE_BD_DEFAULT,
+                      reduceStateForDefaultCellLineMachineFilter
+                    );
+                  }}
+                />
+              </Col>
+            </>
           }
         />
 
@@ -108,7 +126,7 @@ const TopMachineBD = () => {
                 }
               />
             </Col>
-            <Col xxl={3} lg={6} md={12} className="mb-2">
+            <Col xxl={3} lg={3} md={12} className="mb-2">
               <MachineWiseMTTRAndMTBF
                 chartFor="MTTR"
                 selectedValue={
@@ -120,9 +138,11 @@ const TopMachineBD = () => {
                 selectedYear={
                   reduceStateForDefaultCellLineMachineFilter?.selectedYear
                 }
+                userDetails={loggedUserDetails}
+                filterValues={reduceState}
               />
             </Col>
-            <Col xxl={3} lg={6} md={12} className="mb-2">
+            <Col xxl={3} lg={3} md={12} className="mb-2">
               <MachineWiseMTTRAndMTBF
                 chartFor="MTBF"
                 selectedValue={
@@ -134,16 +154,21 @@ const TopMachineBD = () => {
                 selectedYear={
                   reduceStateForDefaultCellLineMachineFilter?.selectedYear
                 }
+                userDetails={loggedUserDetails}
+                filterValues={reduceStateForDefaultCellLineMachineFilter}
               />
             </Col>
           </Row>
           <Row>
-            <BDRSTableWithDateFiltration
+            <AntDesignRSTableWithFiltration
               flagForTogglingFilter={
                 reduceStateForDefaultCellLineMachineFilter?.flagForTogglingFilter
               }
               selectedValue={
                 reduceStateForDefaultCellLineMachineFilter?.selectedValue
+              }
+              selectedYear={
+                reduceStateForDefaultCellLineMachineFilter?.selectedYear
               }
             />
           </Row>

@@ -13,7 +13,7 @@ import "./TargetDashboard.scss";
 import ReportTitleBar from "../Reports/Common/ReportTitleBar";
 
 const TargetDashboard = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
 
   const {
@@ -240,6 +240,7 @@ const TargetDashboard = () => {
                           >
                             <input
                               type="number"
+                              step=".01"
                               className="target-table-input"
                               style={{ width: "100%", minWidth: "50px" }}
                               id={`${month?.key}`}

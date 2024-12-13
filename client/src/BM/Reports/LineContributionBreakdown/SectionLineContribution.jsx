@@ -18,10 +18,12 @@ import { Row, Col } from "react-bootstrap";
 import axios from "axios";
 import SectionCellSelectionDropdown from "./SectionCellSelectionDropdown";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import Loading from "../../../components/Loading/Loading";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -38,6 +40,10 @@ export const options = {
   responsive: true,
   maintainAspectRatio: false,
   maxBarThickness: 100,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -66,6 +72,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "% Contribution",
@@ -87,6 +96,9 @@ export const options = {
         display: true,
         text: "Breakdown Hours",
       },
+      grid: {
+        display: false,
+      },
       min: 0,
       // max: 50,
       stepSize: 5,
@@ -97,12 +109,36 @@ export const options = {
   },
 };
 
-const SectionContribution = ({ reduceState, reducerDispatch }) => {
+const SectionContribution = ({ reduceState, reducerDispatch, userDetails }) => {
   const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState({});
 
   const { selectedYear, selectedMonth, flagForTogglingFilter, selectedValue } =
     reduceState;
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    reduceState,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchChartData = async () => {
     setLoading(true);
@@ -127,6 +163,46 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
     setLoading(false);
   };
 
+  const header = ["Line Names", "Hours", "Percentages"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems] + "\n",
+          ["\n"],
+          [["Line Names"].concat(data?.lineNames)?.toString() + "\n"],
+          [["Hours"].concat(data?.bdHours)?.toString() + "\n"],
+          [["Percentages"].concat(data?.percentages)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [
+            data?.lineNames.join("\n"),
+            data?.bdHours.join("\n"),
+            data?.percentages.join("\n"),
+          ],
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `${
+          flagForTogglingFilter.split("-")?.[2]
+        }_Linewise_Contribution_${selectedMonth}_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     selectedValue && fetchChartData();
   }, [selectedValue, selectedYear, selectedMonth]);
@@ -143,7 +219,7 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
         label: "Breakdown Hrs",
         data: data?.bdHours,
         fill: false,
-        borderWidth: 2,
+        //borderWidth: 2,
         backgroundColor: chartColors.bdHoursLine,
         borderColor: chartColors.bdHoursLine,
         pointStyle: "rectRot",
@@ -158,14 +234,32 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
         backgroundColor: chartColors.barChart,
         borderRadius: 4,
         yAxisID: "y",
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
     ],
   };
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
+  const noData = data === undefined || Object.keys(data).length === 0;
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Section Contribution" Toolbar={null} />
+      <ChartTitleBar
+        title="Section Contribution"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       <Row>
         <ChartsToolbar
@@ -179,21 +273,19 @@ const SectionContribution = ({ reduceState, reducerDispatch }) => {
         />
       </Row>
 
-      {loading ? (
-        <Loading height={200} sx={{ mt: 2 }} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "400px" } }}>
-          {data === undefined || Object.keys(data).length === 0 ? (
-            <DataNotFound sx={{ mt: 2 }} />
-          ) : (
-            <Chart
-              options={options}
-              data={chartData}
-              plugins={[ChartDataLabels]}
-            />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : noData ? (
+          <DataNotFound sx={{ mt: 2 }} />
+        ) : (
+          <Chart
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
+        )}
+      </Box>
     </Box>
   );
 };

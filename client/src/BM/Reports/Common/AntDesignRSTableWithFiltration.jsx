@@ -12,7 +12,6 @@ const AntDesignRSTableWithFiltration = ({
   downloadFileName,
 }) => {
   const [loading, setLoading] = React.useState(true);
-
   const {
     register,
     handleSubmit,
@@ -118,27 +117,27 @@ const AntDesignRSTableWithFiltration = ({
             >
               Go
             </Button>
+
+            <Button
+              size="small"
+              disableElevation
+              className="bg-button"
+              variant="contained"
+              sx={{
+                ml: 1,
+                minWidth: "30px",
+                height: "30px",
+                paddingInline: "10px",
+              }}
+              onClick={() => {
+                reset();
+                getRequestSheetDataBasedOnFromAndToDateSelection();
+              }}
+            >
+              Reset
+            </Button>
           </form>
         </Row>
-        <Button
-          size="small"
-          disableElevation
-          className="bg-button"
-          variant="contained"
-          type="submit"
-          sx={{
-            ml: 1,
-            minWidth: "30px",
-            height: "30px",
-            paddingInline: "10px",
-          }}
-          onClick={() => {
-            reset();
-            getRequestSheetDataBasedOnFromAndToDateSelection();
-          }}
-        >
-          Reset
-        </Button>
 
         {loading ? (
           <Box mt={2}>
@@ -148,6 +147,7 @@ const AntDesignRSTableWithFiltration = ({
           <BDRequestSheetAntDesignTable
             requestSheetData={requestSheetDataForProductAndLineWise}
             downloadFileName={downloadFileName}
+            selectedYear={selectedYear}
           />
         )}
       </Paper>

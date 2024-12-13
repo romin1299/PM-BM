@@ -451,11 +451,6 @@ const AnnualPMSchedule = () => {
       setStateForSendingApprovalDashboard();
     }
 
-    console.log(
-      "411",
-      objOfAnnualPmScheduleApproval?.prdHos?.prdHosApprovalStatus
-    );
-
     // console.log(
     //   "------------------------------------->",
     //   objOfAnnualPmScheduleApproval?.mtdHos?.mtdHosApprovalStatus ===

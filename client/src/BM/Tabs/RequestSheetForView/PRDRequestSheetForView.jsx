@@ -2,7 +2,7 @@
 // import Table from "react-bootstrap/Table";
 import React, { useState, useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Row, Col, Form } from "react-bootstrap";
+import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import Radio from "@mui/material/Radio";
@@ -10,7 +10,9 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-import { Box } from "@mui/material";
+import { Box, Button, IconButton, Tooltip } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
@@ -20,13 +22,26 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
 
-function MyTable({ requestSheetDataOfBM, machineId }) {
+import { denso_logo } from "../../../modules/LoginModules";
+import { exportPDF } from "../../Utils/exportPDF/exportPDF";
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import ProblemModeHistory from "../../../Common/Machine/ProblemModeHistory";
+
+function MyTable({
+  requestSheetDataOfBM,
+  machineId,
+  machineStatus,
+  machine_code,
+  selectedYear,
+}) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
   // console.log("location.state.prevPath:", location?.state);
 
-  const { machine_code } = useParams();
+  // const { machine_code, selectedYear } = useParams();
+
+  const [problemModeCardModal, setProblemModeCardModal] = useState(false);
 
   const {
     register,
@@ -148,56 +163,158 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
     );
   };
 
+  const handleProblemModeHistoryCardState = () => {
+    setProblemModeCardModal((problemModeCardModal) => !problemModeCardModal);
+  };
+
   return (
     <>
       <ToastContainer />
-
-      <form className="p-2" onSubmit={() => {}}>
-        <Table className="mt-3">
+      {problemModeCardModal && (
+        <ProblemModeHistory
+          machineId={machineId}
+          machineCode={requestSheetDataOfBM?.machineRef?.machine_code}
+          problemMode={
+            requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.problemFaced
+          }
+          modelProp={{
+            show: problemModeCardModal,
+            onHide: () => handleProblemModeHistoryCardState(),
+          }}
+        />
+      )}
+      <form>
+        <Table>
           <tbody className="m-1 border p-3">
-            <tr className="row m-2">
-              <td className="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
-                <Row>
-                  <Col className="col-auto">
-                    <button className="btn bg-button m-2" onClick={handleBack}>
-                      Back
-                    </button>
-                    <button
-                      className="btn bg-button m-2"
-                      onClick={() => {
-                        navigate(
-                          `/machine-history/${machine_code}/?machineId=${machineId}`
-                        );
-                      }}
+            <tr className="">
+              <td className="">
+                <Container fluid>
+                  <Row>
+                    <Col
+                      id="rs-denso-logo"
+                      className="col-auto"
+                      style={{ display: "none" }}
                     >
-                      Machine History
-                    </button>
-                  </Col>
-                  <Col className="d-flex align-items-center justify-content-center text-center">
-                    <h4>MAINTENANCE WORK REQUEST/REPORT</h4>
-                  </Col>
-                  <Col className="col-sm col-lg-auto">
-                    <Box
-                      display="flex"
-                      justifyContent="end"
-                      gap={1}
-                      // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                      <div
+                        variant="pills"
+                        className="px-2 ps-4"
+                        style={{
+                          background: "#ffffff",
+                          display: "flex",
+                          alignItems: "center",
+                          // justifyContent: "center",
+                          height: "100%",
+                        }}
+                      >
+                        <img
+                          src={denso_logo}
+                          alt=""
+                          className="bg-white"
+                          style={{ width: "100px", background: "#ffffff" }}
+                        />
+                      </div>
+                    </Col>
+
+                    <Col
+                      id="rs-top-btns"
+                      data-html2canvas-ignore="true"
+                      className="col-auto d-flex gap-2 align-items-center"
                     >
-                      <MachineStatusBox
-                        title="PM Status"
-                        bodyText1="Completed"
-                        bodyText2="(13/10/2023)"
-                      />
-                      <MachineStatusBox title="BM" bodyText1="170 hrs/5 Nos" />
-                      <MachineStatusBox title="CM" />
-                    </Box>
-                  </Col>
-                </Row>
+                      {/* <button className="btn bg-button" onClick={handleBack}>
+                        Back
+                      </button> */}
+
+                      {/* <Tooltip title="Download Request Sheet" disableInteractive>
+                      <IconButton
+                        variant="contained"
+                        disableElevation
+                        onClick={handleBack}
+                      >
+                        <ArrowBackIcon />
+                      </IconButton>
+                    </Tooltip> */}
+
+                      <button
+                        className="btn bg-button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // navigate(
+                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                          // );
+                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,"_blank")
+                        }}
+                      >
+                       Machine Details
+                      </button>
+                      <Tooltip
+                        title="Download Request Sheet"
+                        disableInteractive
+                      >
+                        <Button
+                          variant="contained"
+                          disableElevation
+                          className="bg-button px-2"
+                          style={{ minWidth: "42px" }}
+                          onClick={() => {
+                            exportPDF(
+                              "request-sheet-target",
+                              requestSheetDataOfBM?.requestSheetNoOfBM,
+                              (document) => {
+                                document.getElementById(
+                                  "rs-denso-logo"
+                                ).style.display = "block";
+                              }
+                            );
+                          }}
+                        >
+                          <DownloadIcon />
+                        </Button>
+                      </Tooltip>
+                      <Button
+                        className="btn bg-warning"
+                        onClick={() => {
+                          handleProblemModeHistoryCardState();
+                        }}
+                      >
+                        Problem History
+                      </Button>
+                    </Col>
+
+                    <Col className="d-flex align-items-center justify-content-center text-center">
+                      <h4 className="m-0">MAINTENANCE WORK REQUEST/REPORT</h4>
+                    </Col>
+
+                    <Col className="col-sm col-lg-auto">
+                      <Box
+                        display="flex"
+                        justifyContent="end"
+                        gap={1}
+                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                      >
+                        <MachineStatusBox
+                          title="PM Status"
+                          bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                          bodyText2={machineStatus?.pmStatusData?.PMdate}
+                        />
+                        <MachineStatusBox
+                          title="BM"
+                          bodyText1={
+                            machineStatus?.bmStatusData?.count &&
+                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
+                              1
+                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                          }
+                        />
+                        <MachineStatusBox title="CM" />
+                      </Box>
+                    </Col>
+                  </Row>
+                </Container>
               </td>
             </tr>
 
             <tr className="row m-2">
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   <b>MAINT. TYPE</b>
                 </small>
@@ -206,14 +323,14 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
                 </div>
               </td>
 
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2">
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   <b>PRIORITY CODE</b>
                 </small>
                 <div className="value">{requestSheetDataOfBM.priorityCode}</div>
               </td>
 
-              <td className="mb-0 border col-lg-8 col-md-4">
+              <td className="mb-0 border col-12 col-md-6">
                 <div className="border">
                   <Row className="m-0">
                     <Col className="border">
@@ -315,7 +432,7 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
                 </div>
               </td>
 
-              <td className="border mb-0 col-lg-2 col-md-4">
+              <td className="border mb-0 col-12 col-md-2">
                 <div className="border">
                   <Row className="m-0">
                     <Col className="border pb-2 pt-1">
@@ -620,12 +737,30 @@ function MyTable({ requestSheetDataOfBM, machineId }) {
                         ?.map((obj) => obj?.tm_name)
                         ?.join(", ")}`}
                   </Col>
+                  <Col lg={12} className="border pb-2 pt-1">
+                    {requestSheetDataOfBM?.attachedImagesOrVideoByPRDUser?.map(
+                      (imageOrVideo, idx) => (
+                        <a
+                          target="_blank"
+                          // href={`http://localhost:7000/${image}`}
+                          href={`${process.env.REACT_APP_BASE_URL}${imageOrVideo}`}
+                          style={{
+                            width: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          {imageOrVideo}
+                        </a>
+                      )
+                    )}
+                  </Col>
                 </Row>
               </td>
             </tr>
           </tbody>
-
-          <div style={{ width: "100%", height: "50px" }}></div>
         </Table>
       </form>
     </>

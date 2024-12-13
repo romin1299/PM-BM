@@ -4,7 +4,7 @@ import {
   useState,
   MaterialTable,
   tableIcons,
-  useContext,
+  useReducer,
 } from "../../modules/PageModules";
 import { Navigate, useNavigate } from "react-router-dom";
 import "../../SCSS/MaterialTable.scss";
@@ -15,12 +15,22 @@ import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../Reports/ReportComponents/NotFound";
 import currentYear from "../Dashboard/DashboardComponent/currentYear";
 import YearDropDown from "../Dashboard/DashboardComponent/YearDropDown";
-import { Col } from "reactstrap";
-
+import { Row } from "react-bootstrap";
+import {
+  reducer,
+  initialState,
+} from "../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
+import ChartsToolbar from "../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 const SixMonthApprovalDashboard = () => {
   //----------------------------------------------------------------
   const navigate = useNavigate();
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [reduceState, reducerDispatch] = useReducer(
+    reducer,
+    initialState("Yes")
+  );
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   //----------------------------------------------------------------
   const [tableData, setTableData] = useState([]);
@@ -38,12 +48,12 @@ const SixMonthApprovalDashboard = () => {
     },
     {
       title: "Cell Name",
-      field: "line_names.cell_names.cell_name",
+      field: "cell_name",
       align: "center",
     },
     {
       title: "Line Name",
-      field: "line_names.line_name",
+      field: "line_name",
       align: "center",
     },
     {
@@ -60,17 +70,20 @@ const SixMonthApprovalDashboard = () => {
   ];
 
   const getSixMonthApprovalRequestData = async () => {
-    setTableData([])
+    setTableData([]);
     setRefKeyForAnimation(<LoadingAnimation />);
     try {
-      const res = await fetch(`/getSixMonthApprovalRequestData/${selectedYear}`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/getSixMonthApprovalRequestData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
 
@@ -83,19 +96,22 @@ const SixMonthApprovalDashboard = () => {
   };
 
   useEffect(() => {
-    getSixMonthApprovalRequestData();
-  }, [selectedYear]);
+    if (reduceState?.selectedValue) {
+      getSixMonthApprovalRequestData();
+    }
+  }, [reduceState?.selectedValue, reduceState?.selectedYear]);
 
   const actions = [
     {
       icon: () => <button className="btn-reset">Implementation</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
-        console.log(selectedRow);
-        navigate("/checksheetFormApproval", {
+        // console.log(selectedRow);
+        navigate("/pm/checksheetFormApproval", {
           state: {
             selectedRowForViewForm: selectedRow,
             dashboardID: "FromSixMonthApprovalDashboard",
+            selectedYear: reduceState?.selectedYear,
           },
         });
       },
@@ -120,22 +136,50 @@ const SixMonthApprovalDashboard = () => {
       position: "row",
     },
   ];
-
   return (
     <>
+      <Row className="m-2">
+        <ReportTitleBar
+          title="Six-Month Approval Dashboard"
+          Toolbar={
+            <>
+              <ChartsToolbar
+                baseUrlForFiltering={baseUrlForFiltering}
+                reduceState={reduceState}
+                reducerDispatch={reducerDispatch}
+                yearFiltration
+                sectionFiltration
+                subSectionFiltration
+                cellFiltration
+                lineFiltration
+                machineFiltration
+                resetButtonFiltration
+                isWithLocalStorageForFiltration="Yes"
+              />
+              {/* <Col className="col-auto">
+              <DownloadMenu
+                handleDownloadPPTX={() => {
+                  exportPPTX(EXPORT_REPORT.TOP_MACHINE_BREAKDOWN, reduceState);
+                }}
+              />
+            </Col> */}
+            </>
+          }
+        />
+      </Row>
       <div className="pageCard">
         <div className="creationDashboard">
-          <h4 style={{ padding: "1rem 0 0 1rem" }}>
+          {/* <h4 style={{ padding: "1rem 0 0 1rem" }}>
             Six-Month Approval Dashboard
-          </h4>
+          </h4> */}
 
           <div style={{ padding: "1rem" }}>
-            <Col className="col-4">
+            {/* <Col className="col-4">
               <YearDropDown
                 selectedYear={selectedYear}
                 setSelectedYear={setSelectedYear}
               />
-            </Col>
+            </Col> */}
             {tableData?.length > 0 ? (
               <MaterialTable
                 localization={{

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import moment from "moment";
 import PopupForAnnualPmScheduleReport from "../../../../Popups/PopupForAnnualPmScheduleReport";
 
 const SendApprovalComponent = ({
@@ -54,7 +54,7 @@ const SendApprovalComponent = ({
 
   const [stateForSendApprovalPopup, setStateForSendApprovalPopup] = useState();
 
-  // console.log("57 $$$$$$$$$$$$$$$$$$$$$$$$$$",objOfAnnualPmScheduleApproval);
+  // console.log("57 $$$$$$$$$$$$$$$$$$$$$$$$$$", refArrayForUserApproval);
   return (
     <>
       {stateForSendApprovalPopup}
@@ -68,7 +68,9 @@ const SendApprovalComponent = ({
         </th>
         {refArrayForUserApproval?.map((item, index) => (
           <td className="td-padding">
-            {index <= upToCurrentMonthIndex ? (
+            {index < upToCurrentMonthIndex ||
+            (moment().isSame(moment().endOf("month"), "day") &&
+              index === upToCurrentMonthIndex) ? (
               item?.checkedByTL ? (
                 ""
               ) : (

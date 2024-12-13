@@ -32,8 +32,9 @@ const list = [
 function MyTable({ selectedMachineDetails, machineStatus }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType } = useParams();
+  const { machine_code, generateType, selectedYear } = useParams();
   const context = useContext(RoutingContext);
+
   const {
     register,
     handleSubmit,
@@ -41,6 +42,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     watch,
     reset,
     setValue,
+    setError,
+    clearErrors,
   } = useForm({
     defaultValues: {
       problemOccurredDateAndTimeOfBM: moment(new Date()).format(
@@ -61,9 +64,13 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
       // }),
     },
   });
+
   const selectedRequestSheetData = useLocation();
 
   const [plantShiftsData, setPlantShiftsData] = useState([]);
+  // const [problemOccurredDateAndTimeOfBM, setProblemOccurredDateAndTimeOfBM] =
+  useState("");
+
   // const [selectedShift, setSelectedShift] = useState("");
   // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
   // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
@@ -92,16 +99,41 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     // requestSheetData.shiftOfBM = selectedShift;
 
     try {
+      if (errors?.["problemFaced"]) {
+        return;
+      }
+
+      const formData = new FormData();
+      const { ...otherFields } = requestSheetData;
+
+      otherFields.problemFaced =
+        (requestSheetData?.select_problemFaced &&
+        requestSheetData?.select_problemFaced === "Other"
+          ? requestSheetData?.problemFaced
+          : requestSheetData?.select_problemFaced) ||
+        requestSheetData?.problemFaced;
+
+      for (
+        let i = 0;
+        i < requestSheetData?.attachedImagesOrVideoByPRDUser?.length;
+        i++
+      ) {
+        formData.append(
+          "attachedImagesOrVideoByPRDUser",
+          requestSheetData?.attachedImagesOrVideoByPRDUser[i]
+        );
+      }
+
+      formData.append("otherData", JSON.stringify(otherFields));
+
       const res = await fetch(
         `/newRequestSheetRegistration/?machineRef=${machine_code}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...requestSheetData,
-          }),
+          // headers: {
+          //   "Content-Type": "application/json",
+          // },
+          body: formData,
         }
       );
 
@@ -113,7 +145,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
         // if (generateType === "scanned") {
         //   navigate("/", { replace: true });
         // } else {
-        navigate("/bm/requestListDashboard", { replace: true });
+        navigate("/bm", { replace: true });
         // }
       } else {
         WarningToast(data?.message);
@@ -133,23 +165,44 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     hour12: false,
   });
 
-  const momentTime = moment(sheetIssuedTime, "HH:mm");
+  // console.log("watch", defaultValues);
+  // const momentTime = moment(sheetIssuedTime, "HH:mm");
+  const problemOccurredDateAndTimeOfBM = watch(
+    "problemOccurredDateAndTimeOfBM"
+  );
+  const [date, time] = problemOccurredDateAndTimeOfBM.split("T");
+  const momentTime = moment(time, "HH:mm");
 
   useEffect(() => {
     const getCurrentShiftName = () => {
       for (let shiftInfo of plantShiftsData) {
-        if (
-          momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-          momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-        )
-          return shiftInfo.shiftName;
+        const startTime = moment(shiftInfo.shiftStartTime, "HH:mm");
+        const endTime = moment(shiftInfo.shiftEndTime, "HH:mm");
+
+        // if (
+        //   momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+        //   momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+        // )
+
+        if (endTime.isBefore(startTime)) {
+          if (
+            momentTime.isSameOrAfter(startTime) ||
+            momentTime.isSameOrBefore(endTime)
+          ) {
+            return shiftInfo.shiftName;
+          }
+        } else {
+          if (momentTime.isBetween(startTime, endTime)) {
+            return shiftInfo.shiftName;
+          }
+        }
       }
 
       return "";
     };
 
     setValue("shiftOfBM", getCurrentShiftName());
-  }, [plantShiftsData]);
+  }, [problemOccurredDateAndTimeOfBM, plantShiftsData]);
 
   React.useEffect(() => {
     const fetchShiftData = async () => {
@@ -172,26 +225,18 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   }, []);
 
   const handleBack = () => {
-    navigate("/bm/requestListDashboard", { replace: true });
+    navigate("/bm", { replace: true });
   };
+
+  const isEnable = selectedMachineDetails?.machine_problems_faced?.length > 0;
 
   return (
     <>
       <ToastContainer />
-      <Row>
-        {/* <Col>
-          <button className="btn bg-button m-2" onClick={handleBack}>
-            Back
-          </button>
-        </Col> */}
-      </Row>
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
-        <Table className="container-fluid m-2 mt-3">
-          <thead>
-            <tr>{/* <th colSpan="4">Header with 4 Columns</th> */}</tr>
-          </thead>
-          <tbody className="m-1 box-shadow p-3">
-            <tr className="row" style={{ width: "100vw" }}>
+        <Table className="m-0">
+          <tbody className="m-1 border p-3">
+            <tr class="">
               {/* <td width={100}>
               <img
                 src={denso_logo}
@@ -202,49 +247,71 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
               />
               
             </td> */}
-              <td class="col-lg-12 col-md-12 col-sm-12 border-bottom-0 position-relative">
-                <Row>
-                  <Col>
-                    <button className="btn bg-button m-2" onClick={handleBack}>
-                      Back
-                    </button>
-                  </Col>
-                  <Col>
-                    <h4 className="d-flex align-items-center justify-content-center">
-                      MAINTENANCE WORK REQUEST/REPORT
-                    </h4>
-                  </Col>
-                  <Col>
-                    <Box
-                      display="flex"
-                      justifyContent="end"
-                      gap={1}
-                      // sx={{ position: "absolute", top: "10px", right: "20px" }}
+
+              <td className="">
+                <Container fluid>
+                  <Row>
+                    <Col
+                      id="rs-top-btns"
+                      data-html2canvas-ignore="true"
+                      className="col-auto d-flex gap-2 align-items-center"
                     >
-                      <MachineStatusBox
-                        title="PM Status"
-                        bodyText1={machineStatus?.pmStatusData?.PMStatus}
-                        bodyText2={machineStatus?.pmStatusData?.PMdate}
-                      />
-                      <MachineStatusBox
-                        title="BM"
-                        bodyText1={
-                          machineStatus?.bmStatusData?.totalHours &&
-                          `${machineStatus?.bmStatusData?.totalHours} Hrs./${machineStatus?.bmStatusData?.count} Count`
-                        }
-                      />
-                      <MachineStatusBox title="CM" />
-                    </Box>
-                  </Col>
-                </Row>
+                      <button className="btn bg-button" onClick={handleBack}>
+                        Back
+                      </button>
+                      <button
+                        className="btn bg-button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // navigate(
+                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                          // );
+                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`,"_blank")
+                        }}
+                      >
+                       Machine Details
+                      </button>
+                    </Col>
+
+                    <Col className="d-flex align-items-center justify-content-center text-center">
+                      <h4 className="m-0">MAINTENANCE WORK REQUEST/REPORT</h4>
+                    </Col>
+
+                    <Col className="col-auto">
+                      <Box
+                        display="flex"
+                        justifyContent="end"
+                        gap={1}
+                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
+                      >
+                        <MachineStatusBox
+                          title="PM Status"
+                          bodyText1={machineStatus?.pmStatusData?.PMStatus}
+                          bodyText2={machineStatus?.pmStatusData?.PMdate}
+                        />
+                        <MachineStatusBox
+                          title="BM"
+                          bodyText1={
+                            machineStatus?.bmStatusData?.totalHours &&
+                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
+                              1
+                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
+                          }
+                        />
+                        <MachineStatusBox title="CM" />
+                      </Box>
+                    </Col>
+                  </Row>
+                </Container>
               </td>
             </tr>
-            <tr className="row m-2" style={{ width: "100vw" }}>
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2 col-sm-12">
+
+            <tr className="row m-2">
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   <b>MAINT. TYPE</b>
                 </small>
-                <Form>
+                <Form style={{ fontSize: "16px !important" }}>
                   <div key={`inline-radio`}>
                     <Form.Check
                       flex
@@ -310,7 +377,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-1 col-md-2 col-sm-12">
+
+              <td className="mb-0 pb-0 border col-6 col-md-2">
                 <small>
                   {" "}
                   <b>PRIORITY CODE</b>
@@ -381,7 +449,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                   )}
                 </Form>
               </td>
-              <td className="mb-0 pb-0 border col-lg-8 col-md-4 col-sm-12">
+
+              <td className="mb-0 pb-0 border col-12 col-md-6">
                 <div className="mb-2 border">
                   <Row className="m-0">
                     <Col className="border">
@@ -425,8 +494,16 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                               <br />
                               <input
                                 type="datetime-local"
+                                // min={moment(new Date() - 1)
+                                //   .subtract(1, "days")
+                                //   .format("YYYY-MM-DDTHH:mm")}
                                 {...register("problemOccurredDateAndTimeOfBM", {
                                   required: "RequestSheet date is required",
+                                  onChange: (event) =>
+                                    setValue(
+                                      "problemOccurredDateAndTimeOfBM",
+                                      event.target.value
+                                    ),
                                 })}
                               />
                               {errors?.["problemOccurredDateAndTimeOfBM"] && (
@@ -509,10 +586,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                 </div>
               </td>
 
-              <td
-                className="mb-0 pb-0 pt-0 col-lg-2 col-md-4 col-sm-12"
-                style={{ marginLeft: "-8px" }}
-              >
+              <td className="border mb-0 col-12 col-md-2">
                 {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
                 <Col className="border border-left-0">
                   <p className="mb-0">
@@ -531,41 +605,45 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                   </p>
                 </Col>
               </Row> */}
-                <Row className="pt-0 mb-0 ">
-                  <Col className="border pb-2 pt-1">
-                    <small className="mb-0">
-                      <b>DEPT./LINE</b>
-                    </small>
-                    <br />
-                    <small>
-                      {
-                        selectedMachineDetails?.line_names?.cell_names
-                          ?.cell_name
-                      }
-                      /{selectedMachineDetails?.line_names?.line_name}
-                    </small>
-                  </Col>
-                </Row>
-                <Row className="pt-0 mb-0 " style={{ marginLeft: "-8px" }}>
-                  <Col className="border pb-2">
-                    <small className="fs-6 mb-0">
-                      <b>TL [PRD]</b>
-                    </small>
-                    <br />
-                    <small>{context?.tm_name}</small>
-                    {/* <input
+                <div className="border">
+                  <Row className="m-0">
+                    <Col className="border pb-2 pt-1">
+                      <small className="mb-0">
+                        <b>DEPT./LINE</b>
+                      </small>
+                      <br />
+                      <small>
+                        {
+                          selectedMachineDetails?.line_names?.cell_names
+                            ?.cell_name
+                        }
+                        /{selectedMachineDetails?.line_names?.line_name}
+                      </small>
+                    </Col>
+                  </Row>
+
+                  <Row className="m-0">
+                    <Col className="border pb-2">
+                      <small className="fs-6 mb-0">
+                        <b>TL [PRD]</b>
+                      </small>
+                      <br />
+                      <small>{context?.tm_name}</small>
+                      {/* <input
                     style={{ width: "100%" }}
                     {...register("TLName", {
                       required: "Team Leader Name is required",
                     })}
                   />
                   {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
-                  </Col>
-                </Row>
+                    </Col>
+                  </Row>
+                </div>
               </td>
             </tr>
-            <tr class="row">
-              <td className="border p-3 col-lg-7 col-md-8 col-sm-12">
+
+            <tr class="row m-2">
+              <td className="border p-2 col-lg-8 col-md-7 col-sm-12">
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={4} md={6}>
                     <small className="mb-0">
@@ -588,24 +666,60 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       <b>PROBLEM FACED: </b>
                     </p>
                   </Col>
+
                   <Col lg={7}>
-                    <input
-                      type="text"
-                      id="prob"
-                      name="problemfaced"
-                      className="m-1 mb-2"
-                      style={{ width: "350px" }}
-                      {...register("problemFaced", {
-                        required: "Please fill this field",
-                      })}
-                    />
-                    {errors?.["problemFaced"] && (
+                    <div className="d-block align-items-center">
+                      {" "}
+                      {isEnable && (
+                        <>
+                          <select
+                            className="mb-1"
+                            {...register("select_problemFaced")}
+                            onInput={() => {
+                              clearErrors("error_problemFaced");
+                            }}
+                          >
+                            <option selected disabled value="">
+                              Please select
+                            </option>
+                            {selectedMachineDetails?.machine_problems_faced?.map(
+                              (problem, index) => {
+                                return <option key={index}>{problem}</option>;
+                              }
+                            )}
+                            <option
+                              key={
+                                selectedMachineDetails?.machine_problems_faced
+                                  ?.length
+                              }
+                            >
+                              Other
+                            </option>
+                          </select>
+                        </>
+                      )}
+                      {(!isEnable ||
+                        watch("select_problemFaced") === "Other") && (
+                        <input
+                          type="text"
+                          id="prob"
+                          className="m-1 mb-2"
+                          style={{ width: "350px" }}
+                          {...register("problemFaced")}
+                          onInput={() => {
+                            clearErrors("error_problemFaced");
+                          }}
+                        />
+                      )}
+                    </div>
+                    {errors?.["error_problemFaced"] && (
                       <p className="text-error">
-                        {errors?.["problemFaced"]?.message}
+                        {errors?.["error_problemFaced"]?.message}
                       </p>
                     )}
                   </Col>
                 </Row>
+
                 <Row className="m-0 border d-flex align-items-center">
                   <Col lg={5}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
@@ -769,7 +883,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                 </Row>
               </td>
 
-              <td className="border p-3 col-lg-4 col-md-12 col-sm-12">
+              <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <FormControl>
@@ -853,22 +967,59 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                     <br />
                     {/* {selectedAttendee} */}
                   </Col>
+                  <Col lg={12} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>ATTACHED VIDEO OR IMAGES</b>
+                    </small>
+                    <br />
+                    <Form.Group controlId="formFileMultiple" className="mb-3">
+                      <Form.Control
+                        type="file"
+                        multiple
+                        // accept="image/png, image/gif, image/jpeg"
+                        onChange={(e) => {
+                          setValue(
+                            "attachedImagesOrVideoByPRDUser",
+                            e.target.files,
+                            {
+                              shouldDirty: true,
+                            }
+                          );
+                          clearErrors("attachedImagesOrVideoByPRDUser");
+                        }}
+                      />
+                      {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
+                        <p className="text-error">{"This field is required"}</p>
+                      )} */}
+                    </Form.Group>
+                    {/* {selectedAttendee} */}
+                  </Col>
                 </Row>
               </td>
             </tr>
-          </tbody>
 
-          <Row>
-            <Col>
-              <button
-                type="submit"
-                className="btn bg-success"
-                style={{ marginTop: "1rem" }}
-              >
-                Submit Request-Sheet
-              </button>
-            </Col>
-          </Row>
+            <tr>
+              <td>
+                <button
+                  type="submit"
+                  className="btn bg-success"
+                  onClick={() => {
+                    if (
+                      !watch("problemFaced") &&
+                      !watch("select_problemFaced")
+                    ) {
+                      return setError("error_problemFaced", {
+                        type: "custom",
+                        message: "Please fill or select this field",
+                      });
+                    }
+                  }}
+                >
+                  Submit Request-Sheet
+                </button>
+              </td>
+            </tr>
+          </tbody>
         </Table>
       </form>
     </>

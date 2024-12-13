@@ -14,6 +14,7 @@ import { blueGrey } from "@mui/material/colors";
 import MuiDeleteDialog from "../../Customized/CustomizedShifts/MuiDeleteButtonAndDialog";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import "./TmMttrScoreCrudTable.scss";
+import HelpIcon from "@mui/icons-material/Help";
 
 const initialState = {
   score: "",
@@ -170,6 +171,11 @@ const TmMttrSkillScoreCrud = ({
   return (
     <Paper variant="outlined" sx={{ mt: 2 }}>
       <Box display="flex" justifyContent="end" p={1}>
+        <Tooltip title="Add Score as Decrement Order, for example: 4, 3, 2, 1.">
+          <IconButton>
+            <HelpIcon />
+          </IconButton>
+        </Tooltip>
         <Button
           color="primary"
           startIcon={<AddIcon />}
@@ -300,7 +306,6 @@ const TmSkillScoreTable = ({
   selectedSubSection,
   setHighestScore,
 }) => {
-
   const [skillScore, setSkillScore] = React.useState([
     { _id: "", score: 4, from: 0, to: 0 },
   ]);

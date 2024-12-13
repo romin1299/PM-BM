@@ -13,6 +13,8 @@ import { Box } from "@mui/material";
 import { chartColors } from "../../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "../../Common/ChartTitleBar";
 import Loading from "../../../../components/Loading/Loading";
+import DataNotFound from "../../Common/DataNotFound";
+import { isChartDataExist } from "../../../Utils/functions/isChartDataExist";
 
 const BarChart = ({
   title,
@@ -21,6 +23,8 @@ const BarChart = ({
   setValue,
   clearErrors,
   AppendToolComponents,
+  xAxisLabel,
+  hoverLabel
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -35,6 +39,10 @@ const BarChart = ({
     responsive: true,
     maintainAspectRatio: false,
     maxBarThickness: 100,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       legend: {
         display: false,
@@ -57,10 +65,13 @@ const BarChart = ({
         },
         title: {
           display: true,
-          text: "Machines",
+          text: xAxisLabel || "Machines",
         },
       },
       y: {
+        grid: {
+          display: false,
+        },
         title: {
           display: true,
           text: "Total Hours",
@@ -87,12 +98,17 @@ const BarChart = ({
   };
   const datasets = [
     {
-      label: "Top 20",
+      label: hoverLabel || "Data",
       data: dataset?.data,
-      backgroundColor: chartColors.barChart,
+      backgroundColor:
+        dataset?.data?.length === 2
+          ? ["#c2c933", "#0BB4CB"]
+          : chartColors.barChart,
       // borderColor: "#243552",
       // borderWidth: 1,
       borderRadius: 4,
+      //borderColor: "#312A7D",
+      //borderWidth: 2,
     },
   ];
 
@@ -101,17 +117,29 @@ const BarChart = ({
     datasets,
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title={title} Toolbar={AppendToolComponents} />
 
-      {loading ? (
+      {/* {loading ? (
         <Loading height={200} />
       ) : (
         <Box sx={{ height: { xs: "300px", md: "350px" } }}>
           <Bar options={options} data={data} />
         </Box>
-      )}
+      )} */}
+
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Bar options={options} data={data} />
+        )}
+      </Box>
     </Box>
   );
 };

@@ -1,29 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../../components/MatrialTableIcon";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-import DescriptionIcon from "@mui/icons-material/Description";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { Container, Row, Col } from "react-bootstrap";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
-import moment from "moment";
 import { useLocation, useNavigate } from "react-router-dom";
+import moment from "moment";
+import {
+  MaterialTableOptions,
+  MaterialTableSX,
+  MaterialTableStyle,
+} from "../../Utils/TableUtils/MaterialTableProps";
+import { Box } from "@material-ui/core";
+import MainRequestSheetForView from "../../Tabs/RequestSheetForView/MainRequestSheetForView";
 
 const BDRequestSheetTable = ({
   requestSheetData,
   downloadFileName,
   loading = false,
+  selectedYear,
+  filters = null,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   // console.log("location:", location);
+  const [selectedRow, setSelectedRow] = useState();
 
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+    useState(false);
+
+  const handleRequestSheetShowAndCloseState = () => {
+    setRequestSheetModalOpenClose(
+      (requestSheetModalOpenClose) => !requestSheetModalOpenClose
+    );
+  };
   const requestSheetHeader = [
     {
       title: "Sr. No.",
       render: (rowData) => `${rowData.tableData.id + 1}`,
-      width: "5%"
+      width: "5%",
     },
     {
       title: "Section",
@@ -59,7 +74,7 @@ const BDRequestSheetTable = ({
     },
     {
       title: "Loss Time",
-      field: "loss_time"
+      field: "loss_time",
     },
     {
       title: "Work Order Status",
@@ -77,117 +92,76 @@ const BDRequestSheetTable = ({
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        navigate(
-          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
-          {
-            state: {
-              prevPath: location?.pathname,
-              prevPathSearch: location?.search,
-            },
-          }
-        );
+        // navigate(
+        //   `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${selectedYear}`,
+        //   {
+        //     state: {
+        //       prevPath: location?.pathname,
+        //       prevPathSearch: location?.search,
+        //     },
+        //   }
+        // );
+        setSelectedRow(selectedRow);
+        handleRequestSheetShowAndCloseState();
       },
     }),
   ];
-
   return (
     <>
-      <MaterialTable
-        localization={{
-          header: {
-            actions: "Actions",
-          },
-          // toolbar: {
-          //   exportCSVName: "Export some Excel format",
-          //   exportPDFName: "Export as pdf!!"
-          // }
-        }}
-        isLoading={loading}
-        actions={requestSheetActions}
-        icons={tableIcons}
-        columns={requestSheetHeader}
-        data={requestSheetData}
-        // title="User Management"
-        // tableRef={this.tableRef.current.onQueryChange()}
-
-        editable={
-          {
-            // onRowAdd: (newRow) =>
-            //   new Promise((resolve, reject) => {
-            //     setTimeout(() => {
-            //       resolve();
-            //     }, 500);
-            //     //refreshPage();
-            //   }),
-            // onRowDelete: (selectedRow) =>
-            //   new Promise((resolve, reject) => {
-            //     setTimeout(() => {
-            //       resolve();
-            //     }, 500);
-            //   }),
-            // onRowUpdate: (updatedRow, oldRow) =>
-            //   new Promise(async (resolve, reject) => {
-            //     resolve();
-            //   }),
-          }
-        }
-        options={{
-          showTitle: false,
-          paging: false,
-          sorting: true,
-          search: true,
-          filtering: false,
-          exportButton: true,
-          exportAllData: true,
-          draggable: false,
-          actionsColumnIndex: -1,
-          pageSize: 10,
-          // pageSizeOptions: false,  //commented because showing warning in console: invalid prop
-          paginationType: "stepped",
-          addRowPosition: "first",
-          headerStyle: {
-            position: "sticky",
-            top: "0",
-            fontWeight: "bold",
-          },
-          maxBodyHeight: "70vh",
-          rowStyle: {
-            // fontStyle:'bold'
-
-            boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
-            // color:"rgba(255,255,255,0.8)",
-            borderRadius: "5px",
-            border: "1px solid rgba(255,255,255)",
-            WebkitBackdropFilter: "blur( 2px )",
-            background: "rgba(255,255,255,0.1)",
-            backdropFilter: "blur(5px)",
-          },
-          headerStyle: {
-            fontSize: "14px",
-            fontWeight: "bold",
-          },
-          exportMenu: [
-            {
-              label: "Export PDF",
-              exportFunc: (cols, data) =>
-                ExportPdf(
-                  cols,
-                  data,
-                  `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-                ),
+    {requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={selectedYear}
+          machine_code={selectedRow?.machineNo}
+          requestSheetID={selectedRow?._id}
+          modelProp={{
+            show: requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
+      <Box className="mt-1 cell p-0 border-0">
+        <MaterialTable
+          localization={{
+            header: {
+              actions: "Actions",
             },
-            {
-              label: "Export CSV",
-              exportFunc: (cols, data) =>
-                ExportCsv(
-                  cols,
-                  data,
-                  `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-                ),
-            },
-          ],
-        }}
-      />
+          }}
+          isLoading={loading}
+          actions={requestSheetActions}
+          icons={tableIcons}
+          columns={requestSheetHeader}
+          data={requestSheetData}
+          title={filters}
+          options={{
+            ...MaterialTableOptions,
+            showTitle: true,
+            pageSize: 5,
+            maxBodyHeight: "auto",
+            exportMenu: [
+              {
+                label: "Export PDF",
+                exportFunc: (cols, data) =>
+                  ExportPdf(
+                    cols,
+                    data,
+                    `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+                  ),
+              },
+              {
+                label: "Export CSV",
+                exportFunc: (cols, data) =>
+                  ExportCsv(
+                    cols,
+                    data,
+                    `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
+                  ),
+              },
+            ],
+          }}
+          style={MaterialTableStyle}
+          sx={MaterialTableSX}
+        />
+      </Box>
     </>
   );
 };

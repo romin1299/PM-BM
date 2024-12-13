@@ -15,6 +15,11 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Alert, AlertTitle } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+} from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 
 const LoginCard = ({ scannedMachineId, windowWidth }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +55,7 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
           password: values.password,
         }),
       });
-      const data = res.json();
+      const data = await res.json();
       if (res.status === 400 || res.status === 422 || !data) {
         setInvalid("Invalid credentials !");
 
@@ -58,12 +63,31 @@ const LoginCard = ({ scannedMachineId, windowWidth }) => {
       } else {
         // window.alert("Login Successful");
         if (scannedMachineId) {
-          //call request-sheet component
-          navigate(`/bm/request-sheet/scanned/${scannedMachineId}`);
+          if (data?.userLogin?.tm_department === "PRD") {
+            //call request-sheet component
+            navigate(
+              `/bm/request-sheet/scanned/${scannedMachineId}/${currentYear}`
+            );
+          } else if (data?.userLogin?.tm_department === "MTD") {
+            //For DENSO-HARYANA
+            navigate("/kpi", { replace: true });
+          } else {
+            navigate("/pm", { replace: true });
+          }
           // refreshPage();
         } else {
-          navigate("/pm", { replace: true });
-          // refreshPage();
+          if (
+            // NAME_OF_THE_COMPANY === LIST_OF_COMPANY?.[0] &&
+            data?.userLogin?.tm_department === "MTD" &&
+            data?.userLogin?.user_type !== "Operator"
+          ) {
+            //For DENSO-HARYANA
+            navigate("/kpi", { replace: true });
+          } else if (data?.userLogin?.tm_department === "PRD") {
+            navigate("/bm", { replace: true });
+          } else {
+            navigate("/pm", { replace: true });
+          }
         }
       }
     },

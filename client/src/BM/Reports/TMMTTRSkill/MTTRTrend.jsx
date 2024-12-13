@@ -14,10 +14,12 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
 import Loading from "../../../components/Loading/Loading";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import DownloadButton from "../Common/DownloadButton";
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +35,10 @@ export const options = {
   responsive: true,
   maintainAspectRatio: false,
   maxBarThickness: 100,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -62,6 +68,9 @@ export const options = {
       },
     },
     y: {
+      grid: {
+        display: false,
+      },
       stacked: true,
       title: {
         display: true,
@@ -74,7 +83,7 @@ export const options = {
   },
 };
 
-const TMLoad = ({ tm_names, data, loading = false }) => {
+const TMLoad = ({ tm_names, data, loading = false, onClickDownload }) => {
   const chartData = {
     labels: tm_names,
     datasets: [
@@ -86,6 +95,8 @@ const TMLoad = ({ tm_names, data, loading = false }) => {
         backgroundColor: chartColors.bmpm,
         borderRadius: 4,
         yAxisID: "y",
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
     ],
   };
@@ -105,21 +116,35 @@ const TMLoad = ({ tm_names, data, loading = false }) => {
   //   return <Chart options={options} data={data} />;
   // };
 
+  const isDataExists = isChartDataExist(chartData);
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="MTTR Trend" />
+      <ChartTitleBar
+        title="MTTR Trend"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                onClickDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                onClickDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {data?.length <= 0 ? (
-            <DataNotFound />
-          ) : (
-            <Chart options={options} data={chartData} />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={chartData} />
+        )}
+      </Box>
     </Box>
   );
 };

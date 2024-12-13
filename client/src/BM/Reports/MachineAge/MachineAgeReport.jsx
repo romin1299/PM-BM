@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { useContext, useReducer, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import ReportTitleBar from "../Common/ReportTitleBar";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
@@ -11,10 +11,16 @@ import MachineAgeGroupTable from "./MachineAgeGroupTable";
 import YearlyContributionBarChart from "./YearlyContributionBarChart";
 import StackedBarChart from "./StackedBarChart";
 import CategoryDoughnutChart from "./CategoryDoughnutChart";
-
+import RoutingContext from "../../../context/routing/RoutingContext";
 const MachineAgeReport = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  const loggedUserDetails = useContext(RoutingContext);
+
+  const [
+    getDataForOtherComponentBasedOnMachineAgeGroupChange,
+    setGetDataForOtherComponentBasedOnMachineAgeGroupChange,
+  ] = useState(false);
 
   const [groupData, setGroupData] = useState([
     { _id: "", group: 0, from: 0, to: 0 },
@@ -47,16 +53,42 @@ const MachineAgeReport = () => {
               {...reduceState}
               groupData={groupData}
               setGroupData={setGroupData}
+              setGetDataForOtherComponentBasedOnMachineAgeGroupChange={
+                setGetDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
             />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <YearlyContributionBarChart {...reduceState} />
+            <YearlyContributionBarChart
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
+              {...reduceState}
+              getDataForOtherComponentBasedOnMachineAgeGroupChange={
+                getDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
+              setGetDataForOtherComponentBasedOnMachineAgeGroupChange={
+                setGetDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
+            />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <StackedBarChart {...reduceState} />
+            <StackedBarChart
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
+              {...reduceState}
+              getDataForOtherComponentBasedOnMachineAgeGroupChange={
+                getDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
+            />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">
-            <CategoryDoughnutChart {...reduceState} groupData={groupData} />
+            <CategoryDoughnutChart
+              {...reduceState}
+              groupData={groupData}
+              getDataForOtherComponentBasedOnMachineAgeGroupChange={
+                getDataForOtherComponentBasedOnMachineAgeGroupChange
+              }
+            />
           </Col>
         </Row>
       </Container>

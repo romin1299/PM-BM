@@ -12,8 +12,12 @@ import {
 import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors, MONTH_LABELS } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -26,6 +30,12 @@ ChartJS.register(
 );
 
 export const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -37,7 +47,6 @@ export const options = {
       display: false,
     },
   },
-  responsive: true,
   scales: {
     x: {
       stacked: true,
@@ -54,6 +63,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Hours",
@@ -69,6 +81,8 @@ const ManHourTrend = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -76,6 +90,30 @@ const ManHourTrend = ({
     BMManHourTrend: [],
     PMManHourTrend: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getManHourTrendData = async () => {
     setLoading(true);
@@ -106,6 +144,53 @@ const ManHourTrend = ({
     setLoading(false);
   };
 
+  const header = ["Months"].concat(MONTH_LABELS);
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [
+      //   [manHourTrendData?.BMManHourTrend, manHourTrendData?.PMManHourTrend],
+      // ];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [["Months"].concat(MONTH_LABELS)?.toString() + "\n"],
+          [
+            ["PM Man-Hour Trend"]
+              .concat(manHourTrendData?.PMManHourTrend)
+              ?.toString() + "\n",
+          ],
+          [
+            ["BM Man-Hour Trend"]
+              .concat(manHourTrendData?.BMManHourTrend)
+              ?.toString() + "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          ["PM Man-Hour Trend"].concat(manHourTrendData?.PMManHourTrend),
+          ["BM Man-Hour Trend"].concat(manHourTrendData?.BMManHourTrend),
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `ManHour_Trend_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getManHourTrendData();
@@ -120,24 +205,49 @@ const ManHourTrend = ({
         data: manHourTrendData?.BMManHourTrend,
         backgroundColor: chartColors.bmpm[0],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
       {
         label: "PM",
         data: manHourTrendData?.PMManHourTrend,
         backgroundColor: chartColors.bmpm[1],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
     ],
   };
 
+  let isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Man-Hour Trend" />
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Bar options={options} data={data} />
-      )}
+      <ChartTitleBar
+        title="Man-Hour Trend"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
+
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
+        {loading ? (
+          <Loading />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Bar options={options} data={data} />
+        )}
+      </Box>
     </Box>
   );
 };

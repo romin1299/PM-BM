@@ -15,11 +15,14 @@ import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
 import FilterSwitchButtons from "./FilterSwitchButtons";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +36,10 @@ ChartJS.register(
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   maxBarThickness: 100,
   plugins: {
     legend: {
@@ -65,6 +72,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       position: "left",
       title: {
         display: true,
@@ -89,7 +99,11 @@ const MonthlyBDTrendChart = ({
   filter,
   setFilter,
   selectedYear,
+  userDetails,
   showFilterSwitch = false,
+
+  forKPI,
+  PropComponent,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -106,6 +120,30 @@ const MonthlyBDTrendChart = ({
     else if (currentTabViewName === "Section" && filter === "section")
       setFilter("cell");
   }, [currentTabViewName]);
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterState,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails?.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data?.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data?.split("-")?.[0],
+      userDetails?.section_data?.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchChartData = async () => {
     setLoading(true);
@@ -136,6 +174,7 @@ const MonthlyBDTrendChart = ({
       // console.log("monthly bd trend res:", res);
 
       const data = res?.data?.bdTrendData;
+
       const barDatasets = res?.data?.bdTrendData?.map((item, index) => ({
         type: "bar",
         stack: "bar-stacked",
@@ -143,6 +182,8 @@ const MonthlyBDTrendChart = ({
         data: item?.data,
         backgroundColor: chartColors.monthlyBDTrend[index],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       }));
 
       const targetData = res?.data?.bdTrendDataTarget;
@@ -156,7 +197,7 @@ const MonthlyBDTrendChart = ({
               type: "line",
               label: "Target",
               data: targetData,
-              borderWidth: 2,
+              //borderWidth: 2,
               borderColor: chartColors.target2,
               backgroundColor: chartColors.target2,
               pointStyle: "rectRot",
@@ -166,7 +207,7 @@ const MonthlyBDTrendChart = ({
         });
       }
     } catch (error) {
-      console.log("error:", error);
+      // console.log("error:", error);
       setChartData({
         labels: [],
         datasets: [],
@@ -176,6 +217,43 @@ const MonthlyBDTrendChart = ({
     setLoading(false);
   };
 
+  const header = ["Months", ...MONTH_LABELS];
+  const handleDownload = async (fileType) => {
+    try {
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          ["Months", ...MONTH_LABELS]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
+        ];
+      } else {
+        bodyData = [
+          ...chartData?.datasets.map((dataset) => [
+            dataset.label,
+            ...dataset.data,
+          ]),
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `Monthly_Bd_Trend_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   // console.log("chartData:", chartData);
 
   useEffect(() => {
@@ -183,42 +261,62 @@ const MonthlyBDTrendChart = ({
       fetchChartData();
   }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
 
+  const isDataExists = isChartDataExist(chartData);
+
+  // console.count("render");
+
   return (
     <Box className="container-fluid cell p-3">
       <ChartTitleBar
-        title="Monthly Breakdown Trend"
+        title={forKPI ? "Plant BD Status" : "Monthly Breakdown Trend"}
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}
+        // color="#D91616"
+        fontWeight={500}
         Toolbar={
-          showFilterSwitch && (
-            <Col className="col-auto">
-              <FilterSwitchButtons
-                filter={filter}
-                setFilter={setFilter}
-                filterState={filterState}
+          <>
+            {showFilterSwitch && (
+              <Col className={"col-auto"}>
+                {/* <Col className={forKPI ? "col-3" : "col-auto"}> */}
+                <FilterSwitchButtons
+                  filter={filter}
+                  setFilter={setFilter}
+                  filterState={filterState}
+                  forKPI={forKPI}
+                />
+              </Col>
+            )}
+            <div className={"col-auto"}>
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownload("csv");
+                }}
+                handleDownloadPDF={() => {
+                  handleDownload("pdf");
+                }}
               />
-            </Col>
-          )
+            </div>
+          </>
         }
       />
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {chartData === undefined || chartData?.datasets?.length < 1 ? (
-            <DataNotFound />
-          ) : (
-            <Chart
-              type="bar"
-              options={options}
-              data={chartData}
-              plugins={[ChartDataLabels]}
-            />
-          )}
-        </Box>
-      )}
+      {forKPI && PropComponent}
+
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart
+            type="bar"
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
+        )}
+      </Box>
     </Box>
   );
 };

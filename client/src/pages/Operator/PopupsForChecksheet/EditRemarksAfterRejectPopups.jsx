@@ -11,6 +11,7 @@ const EditRemarksAfterRejectPopups = ({
   machineData,
   senderApprovalMonth,
   functionToSetRefKey,
+  postMachineIdToGetAllDetailsOfMachine
 }) => {
   const tableData = machineData?.checkSheet_data?.checkSheet;
 
@@ -101,7 +102,8 @@ const EditRemarksAfterRejectPopups = ({
       } else {
         console.log("PM worked data save sucessfully...");
         close();
-        functionToSetRefKey();
+        // functionToSetRefKey();
+        postMachineIdToGetAllDetailsOfMachine()
       }
     },
   });
@@ -244,7 +246,8 @@ const EditRemarksAfterRejectPopups = ({
       } else {
         console.log("Remarks Added Successful");
         postNewLogHistory(updatedRow);
-        functionToSetRefKey();
+        postMachineIdToGetAllDetailsOfMachine()
+        // functionToSetRefKey();
       }
     } catch (error) {
       console.log(error);

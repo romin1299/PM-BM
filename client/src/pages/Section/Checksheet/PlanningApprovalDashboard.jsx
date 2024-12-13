@@ -235,10 +235,11 @@ const PlanningApprovalDashboard = () => {
         //     },
         //   });
         // } else {
-        navigate("/checksheetFormApproval", {
+        navigate("/pm/checksheetFormApproval", {
           state: {
             selectedRowForViewForm: selectedRow,
             dashboardID: "FromPlanningApprovalDashboard",
+            selectedYear: selectedRow?.checkSheet_data?.current_year,
           },
         });
         // }

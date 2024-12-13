@@ -6,6 +6,7 @@ import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 import { Col, Row } from "react-bootstrap";
+import { SuccessToast } from "../BM/Component/ShowTostify";
 
 function WorkOnImplementationPM({
   close,
@@ -20,8 +21,9 @@ function WorkOnImplementationPM({
   inceptionValueForLogHistory,
   machineAllData,
   refKeyForScheduleMonthInLogHistory,
+  remarksCompulsoryOrNot,
+  postMachineIdToGetAllDetailsOfMachine
 }) {
-
   const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
 
@@ -157,7 +159,7 @@ function WorkOnImplementationPM({
       // console.log(formData);
 
       axios
-        .post("/postImplementationWorkedData", formData)
+        .post("/postImplementationWorkedData/editDataAsFlowWise", formData)
         .then((res) => {
           if (res.status === 400 || res.status === 422) {
             window.alert("Invalid !");
@@ -166,7 +168,8 @@ function WorkOnImplementationPM({
             postNewLogHistory();
             // disabledButtonAfterPM(tableRowId, true);
             close();
-            functionToSetRefKey();
+            postMachineIdToGetAllDetailsOfMachine();
+            SuccessToast(`Row ${tableRowId} Implementation Data Updated !!!`)
             // window.location.reload();
             // navigate("/machineWiseCheckSheetForImplemetation");
           }
@@ -219,8 +222,10 @@ function WorkOnImplementationPM({
 
         {/* <button onClick={postNewLogHistory}>functionCall</button> */}
         <div>
-        <h4 style={{ textAlign: "left", color:"#dc3545"}}>Work on Implementation</h4>
-        <br />
+          <h4 style={{ textAlign: "left", color: "#dc3545" }}>
+            Work on Implementation
+          </h4>
+          <br />
           <form
             onSubmit={formik.handleSubmit}
             style={{ textAlign: "left" }}
@@ -294,16 +299,18 @@ function WorkOnImplementationPM({
 
             {formik.values.workedOnPM === "Yes" ? (
               <div>
-                <div className="mb-3">
-                  <span>Remarks: </span>
-                  <input
-                    type="text"
-                    // maxLength={5}
-                    // id={rData[0].value}
-                    name="remarksOfImplementation"
-                    onChange={formik.handleChange}
-                  />
-                </div>
+                {remarksCompulsoryOrNot === "Yes" && (
+                  <div className="mb-3">
+                    <span>Input Only Value: </span>
+                    <input
+                      type="text"
+                      // maxLength={5}
+                      // id={rData[0].value}
+                      name="remarksOfImplementation"
+                      onChange={formik.handleChange}
+                    />
+                  </div>
+                )}
                 <div className="mb-3">
                   <span>Photo Upload: </span>
                   <input

@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import denso_logo from "../static/images/logo3.png";
+import denso_logo from "../static/images/logo2.png";
 import halflogo from "../static/images/halflogo2.png";
 
 import { Link, useNavigate } from "react-router-dom";

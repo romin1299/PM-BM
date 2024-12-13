@@ -17,14 +17,18 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SummeryPopups from "../../Operator/PopupsForChecksheet/SummeryPopups";
 import Footer from "../../../components/Footer/Footer";
 import EastIcon from "@mui/icons-material/East";
+import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 
 import { jsPDF } from "jspdf";
+import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 function ViewChecksheet() {
   const context = useContext(RoutingContext);
   const selectedMachineCheckSheetData = useLocation();
   const [newTableData, setNewTableData] = useState([]);
   const [refKey, setRefKey] = useState("");
+
+  console.log(selectedMachineCheckSheetData);
 
   const [stateForPdfDownload, setStateForPdfDownload] =
     useState("table-scrolling");
@@ -75,7 +79,7 @@ function ViewChecksheet() {
 
   let machineAllData =
     selectedMachineCheckSheetData.state.selectedRowForViewForm;
-  console.log(machineAllData);
+  // console.log(machineAllData);
 
   let phaseStatus =
     selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data
@@ -300,7 +304,8 @@ function ViewChecksheet() {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"
+          key === "inspectionCompletionBy" ||
+          key === "remarksCompulsoryOrNot"
         ) {
           continue;
         }
@@ -532,7 +537,7 @@ function ViewChecksheet() {
         window.alert("Invalid credentials !");
       } else {
         console.log("Send request sucessfully...");
-        navigate("/checkSheetDashboard");
+        navigate("/pm/checkSheetDashboard");
         // if (values.email) {
         //   newPasswordLink(values.email);
         // }
@@ -567,7 +572,7 @@ function ViewChecksheet() {
         window.alert("Invalid credentials !");
       } else {
         console.log("Send request sucessfully...");
-        navigate("/checkSheetDashboard");
+        navigate("/pm/checkSheetDashboard");
         // refreshPage();
         // if (values.email) {
         //   newPasswordLink(values.email);
@@ -597,7 +602,7 @@ function ViewChecksheet() {
         window.alert("Invalid credentials !");
       } else {
         console.log("Send request sucessfully...");
-        navigate("/checkSheetDashboard");
+        navigate("/pm/checkSheetDashboard");
         // if (values.email) {
         //   newPasswordLink(values.email);
         // }
@@ -693,35 +698,35 @@ function ViewChecksheet() {
               <Col lg={6} md={6} sm={6}>
                 {" "}
                 {stateForPdfDownload !== "" ? (
-                  <div>
-                    <div className="col-5 mt-2">
+                  <div className="row mt-2 d-flex">
+                    <div className="col">
                       <button
                         onClick={
-                          () =>
-                            selectedMachineCheckSheetData?.state
-                              ?.dashboardID ===
-                            "FromImplementationApprovalDashboard"
-                              ? navigate("/implementationApproval")
-                              : selectedMachineCheckSheetData?.state
-                                  ?.dashboardID ===
-                                "FromPlanningApprovalDashboard"
-                              ? navigate("/planningApproval")
-                              : selectedMachineCheckSheetData?.state
-                                  ?.dashboardID ===
-                                "FromPreparationApprovalDashboard"
-                              ? navigate("/preparationApproval")
-                              : selectedMachineCheckSheetData?.state
-                                  ?.dashboardID ===
-                                "FromSixMonthApprovalDashboard"
-                              ? navigate("/sixMonthApprovalDashboard")
-                              : selectedMachineCheckSheetData?.state
-                                  ?.dashboardID ===
-                                "FromMachineWisePMReportDashboard"
-                              ? navigate("/machineWisePmMonthlyReport")
-                              : selectedMachineCheckSheetData?.state
-                                  ?.dashboardID === "FromChecksheetDashboard"
-                              ? navigate("/checkSheetDashboard")
-                              : navigate("/checkSheetDashboard")
+                          () => navigate(-1)
+                          // selectedMachineCheckSheetData?.state
+                          //   ?.dashboardID ===
+                          // "FromImplementationApprovalDashboard"
+                          //   ? navigate("/pm/implementationApproval")
+                          //   : selectedMachineCheckSheetData?.state
+                          //       ?.dashboardID ===
+                          //     "FromPlanningApprovalDashboard"
+                          //   ? navigate("/pm/planningApproval")
+                          //   : selectedMachineCheckSheetData?.state
+                          //       ?.dashboardID ===
+                          //     "FromPreparationApprovalDashboard"
+                          //   ? navigate("/pm/preparationApproval")
+                          //   : selectedMachineCheckSheetData?.state
+                          //       ?.dashboardID ===
+                          //     "FromSixMonthApprovalDashboard"
+                          //   ? navigate("/pm/sixMonthApprovalDashboard")
+                          //   : selectedMachineCheckSheetData?.state
+                          //       ?.dashboardID ===
+                          //     "FromMachineWisePMReportDashboard"
+                          //   ? navigate("/pm/machineWisePmMonthlyReport")
+                          //   : selectedMachineCheckSheetData?.state
+                          //       ?.dashboardID === "FromChecksheetDashboard"
+                          //   ? navigate("/pm/checkSheetDashboard")
+                          //   : navigate("/pm/checkSheetDashboard")
 
                           // context.tm_department === "MTD" &&
                           // context.user_type === "TL/HOSS"
@@ -745,11 +750,28 @@ function ViewChecksheet() {
                       >
                         <ArrowBackIcon />
                       </button>
-                      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                    </div>
+                    <div className="col">
                       <button className="btn-reset" onClick={handleDownload}>
                         Download
                       </button>
                     </div>
+                    {selectedMachineCheckSheetData.state.selectedRowForViewForm
+                      ?.checkSheet_data?.dataSheet ? (
+                      <div className="col">
+                        <a
+                          href={`${process.env.REACT_APP_BASE_URL}/${selectedMachineCheckSheetData.state.selectedRowForViewForm?.checkSheet_data?.dataSheet}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="btn-reset">
+                            <SimCardDownloadIcon /> Download DATA-SHEET
+                          </button>
+                        </a>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 ) : (
                   ""
@@ -802,7 +824,8 @@ function ViewChecksheet() {
                         // colSpan={2}
                         //  rowSpan={5}
                       >
-                        {machineAllData?.checkSheet_data?.plan_prepared_tm_name?.[
+                        {machineAllData?.checkSheet_data
+                          ?.plan_prepared_tm_name?.[
                           machineAllData?.checkSheet_data?.plan_prepared_tm_name
                             ?.length - 1
                         ]
@@ -890,14 +913,26 @@ function ViewChecksheet() {
                       </th>
                       {machineAllData?.checkSheet_data
                         ?.implementation_approved_by_MTD_TL
-                        ? Object.values(
+                        ? Object.entries(
                             machineAllData?.checkSheet_data
-                              ?.implementation_approved_by_MTD_TL
-                          )?.map((index) => (
-                            <td className="ar-table-col1">
-                              {index[index?.length - 1]}
-                            </td>
-                          ))
+                              ?.implemetation_mtd_tl_approval_status
+                          ).map(([month, statusArray]) =>
+                            statusArray[statusArray.length - 1] ===
+                            "Accepted" ? (
+                              <td className="ar-table-col1">
+                                {
+                                  machineAllData?.checkSheet_data
+                                    ?.implementation_assign_MTD_TL_name[month][
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_MTD_TL_name[month]
+                                      .length - 1
+                                  ]
+                                }
+                              </td>
+                            ) : (
+                              <td className="ar-table-col1"></td>
+                            )
+                          )
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
                           ))}
@@ -945,14 +980,27 @@ function ViewChecksheet() {
                       </th>
                       {machineAllData?.checkSheet_data
                         ?.implementation_approved_by_MTD_HOS
-                        ? Object.values(
+                        ? Object.entries(
                             machineAllData?.checkSheet_data
-                              ?.implementation_approved_by_MTD_HOS
-                          )?.map((index) => (
-                            <td className="ar-table-col1">
-                              {index[index.length - 1]}
-                            </td>
-                          ))
+                              ?.implemetation_mtd_hos_approval_status
+                          ).map(([month, statusArray]) =>
+                            statusArray[statusArray.length - 1] ===
+                            "Accepted" ? (
+                              <td className="ar-table-col1">
+                                {
+                                  machineAllData?.checkSheet_data
+                                    ?.implementation_assign_MTD_HOS_name[month][
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_MTD_HOS_name[
+                                      month
+                                    ].length - 1
+                                  ]
+                                }
+                              </td>
+                            ) : (
+                              <td className="ar-table-col1"></td>
+                            )
+                          )
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
                           ))}
@@ -964,12 +1012,24 @@ function ViewChecksheet() {
                         (MTD HOD)
                       </th>
                       <td className="ar-table-col1" colSpan={6}>
-                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Sep?.length - 1]}
-
+                        {
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_HOD?.Sep?.[
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_MTD_HOD?.Sep
+                              ?.length - 1
+                          ]
+                        }
                       </td>
                       <td className="ar-table-col1" colSpan={6}>
-                      {machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.[machineAllData?.checkSheet_data?.implementation_approved_by_MTD_HOD?.Mar?.length -1]}
-
+                        {
+                          machineAllData?.checkSheet_data
+                            ?.implementation_approved_by_MTD_HOD?.Mar?.[
+                            machineAllData?.checkSheet_data
+                              ?.implementation_approved_by_MTD_HOD?.Mar
+                              ?.length - 1
+                          ]
+                        }
                       </td>
                     </tr>
                   </thead>
@@ -1034,13 +1094,28 @@ function ViewChecksheet() {
                         (MTD TM's)
                       </th>
                       {machineAllData?.checkSheet_data?.PMworkedTMName
-                        ? Object.values(
-                            machineAllData?.checkSheet_data?.PMworkedTMName
-                          )?.map((index) => (
-                            <td className="ar-table-col1">
-                              {index.join(" ,")}
-                            </td>
-                          ))
+                        ? Object.keys({
+                            ...machineAllData?.checkSheet_data
+                              ?.implemetation_completed_tm_name,
+                            ...machineAllData?.checkSheet_data?.PMworkedTMName,
+                          }).map((month) => {
+                            const uniqueNames = [
+                              ...new Set([
+                                ...(machineAllData?.checkSheet_data
+                                  ?.implemetation_completed_tm_name[month] ||
+                                  []),
+                                ...(machineAllData?.checkSheet_data
+                                  ?.PMworkedTMName?.[month] || []),
+                              ]),
+                            ];
+                            return (
+                              <td key={month} className="ar-table-col1">
+                                {uniqueNames.length > 0
+                                  ? uniqueNames.join(" ,")
+                                  : "-"}
+                              </td>
+                            );
+                          })
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
                           ))}
@@ -1054,14 +1129,26 @@ function ViewChecksheet() {
                       </th>
                       {machineAllData?.checkSheet_data
                         ?.implementation_approved_by_PRD_TL
-                        ? Object.values(
+                        ? Object.entries(
                             machineAllData?.checkSheet_data
-                              ?.implementation_approved_by_PRD_TL
-                          )?.map((index) => (
-                            <td className="ar-table-col1">
-                              {index[index.length - 1]}
-                            </td>
-                          ))
+                              ?.implemetation_prd_tl_approval_status
+                          ).map(([month, statusArray]) =>
+                            statusArray[statusArray.length - 1] ===
+                            "Accepted" ? (
+                              <td className="ar-table-col1">
+                                {
+                                  machineAllData?.checkSheet_data
+                                    ?.implementation_assign_PRD_TL_name[month][
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_PRD_TL_name[month]
+                                      .length - 1
+                                  ]
+                                }
+                              </td>
+                            ) : (
+                              <td className="ar-table-col1"></td>
+                            )
+                          )
                         : refArrayForTDMapping.map((index) => (
                             <td className="ar-table-col1"></td>
                           ))}
@@ -1275,84 +1362,75 @@ function ViewChecksheet() {
                   </table>
                 </div>
                 <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                  <table>
+                    <tr>
+                      <td>
                         <table>
+                          <tr>[Notes of filing out checklist] (Category)</tr>
                           <tr>
                             <td>
-                              <table>
-                                <tr>
-                                  [Notes of filing out checklist] (Category)
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <span style={{ fontWeight: "bold" }}>
-                                      B
-                                    </span>
-                                    reakdown: Directly relates to failure aspect
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <span style={{ fontWeight: "bold" }}>
-                                      S
-                                    </span>
-                                    afety: Directly relates to safety aspect
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    {" "}
-                                    <span style={{ fontWeight: "bold" }}>
-                                      Q
-                                    </span>
-                                    uality: Directly relates to quality aspect
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>
-                                    <span style={{ fontWeight: "bold" }}>
-                                      P
-                                    </span>
-                                    ollution: Directly relates to pollution
-                                    aspect
-                                  </td>
-                                </tr>
-                              </table>
+                              <span style={{ fontWeight: "bold" }}>B</span>
+                              reakdown: Directly relates to failure aspect
                             </td>
-                            <td style={{ borderLeft: "2px solid black" }}></td>
+                          </tr>
+                          <tr>
                             <td>
-                              <table>
-                                <tr>(Person in charge)</tr>
-                                <tr>
-                                  <td>M: Maintenance personnel</td>
-                                </tr>
-                                <tr>
-                                  <td>O : Production personnel</td>
-                                </tr>
-                                <tr>
-                                  {" "}
-                                  <td>
-                                    <br />
-                                  </td>{" "}
-                                </tr>
-                                <tr>
-                                  {" "}
-                                  <td>
-                                    <br />
-                                  </td>
-                                </tr>
-                              </table>
+                              <span style={{ fontWeight: "bold" }}>S</span>
+                              afety: Directly relates to safety aspect
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              {" "}
+                              <span style={{ fontWeight: "bold" }}>Q</span>
+                              uality: Directly relates to quality aspect
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <span style={{ fontWeight: "bold" }}>P</span>
+                              ollution: Directly relates to pollution aspect
                             </td>
                           </tr>
                         </table>
-                      </Row>
-                      <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                        <Col>--> Planned</Col>
-                        <Col><EastIcon fontSize="small" /> Normal Condition</Col>
-                        <Col>--> * Abnormality</Col>
-                      </Row>
-                      <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                        <div style={{float: "left"}}>FO/MTD/02/04/04</div>
-                      </Row>
+                      </td>
+                      <td style={{ borderLeft: "2px solid black" }}></td>
+                      <td>
+                        <table>
+                          <tr>(Person in charge)</tr>
+                          <tr>
+                            <td>M: Maintenance personnel</td>
+                          </tr>
+                          <tr>
+                            <td>O : Production personnel</td>
+                          </tr>
+                          <tr>
+                            {" "}
+                            <td>
+                              <br />
+                            </td>{" "}
+                          </tr>
+                          <tr>
+                            {" "}
+                            <td>
+                              <br />
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </Row>
+                <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                  <Col>--> Planned</Col>
+                  <Col>
+                    <EastIcon fontSize="small" /> Normal Condition
+                  </Col>
+                  <Col>--> * Abnormality</Col>
+                </Row>
+                <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
+                  <div style={{ float: "left" }}>FO/MTD/02/04/04</div>
+                </Row>
               </Col>
               <Col>
                 {stateForPdfDownload !== "" ? (

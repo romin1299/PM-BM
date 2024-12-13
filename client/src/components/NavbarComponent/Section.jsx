@@ -9,6 +9,7 @@ import {
   AddTaskIcon,
   FactCheckIcon,
 } from "./ImportModules";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 import { useNavigate } from "react-router-dom";
 
@@ -30,6 +31,7 @@ import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
 import ArticleIcon from "@mui/icons-material/Article";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -37,6 +39,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import styled from "styled-components";
 
 import Logout from "../../Integration/Logout/Logout";
+import CancelScheduleSendIcon from "@mui/icons-material/CancelScheduleSend";
 
 import {
   Menu,
@@ -48,6 +51,11 @@ import {
   SidebarContent,
 } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
+
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+} from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -66,9 +74,9 @@ const Section = ({ userData, userDepartment }) => {
 
   const [collapsed, setCollapsed] = useState(true);
   const styles = {
-    sideBarHeight: {
-      height: "100vh",
-    },
+    // sideBarHeight: {
+    //   height: "110vh",
+    // },
     menuIcon: {
       float: "left",
       marginBottom: "1rem",
@@ -136,7 +144,7 @@ const Section = ({ userData, userDepartment }) => {
           </div>
         </div>
         <SidebarContent>
-          <Menu iconShape="square" style={styles.bg}>
+          <Menu iconShape="square" style={{ ...styles.bg, height: "75vh" }}>
             <SubMenu
               className="text-white"
               title="Dashboard"
@@ -224,7 +232,28 @@ const Section = ({ userData, userDepartment }) => {
                 </MenuItem>
               </SubMenu>
             ) : (
-              ""
+              <SubMenu
+                className="text-white"
+                title="Creation"
+                icon={<FaThList className="text-white" />}
+              >
+                <MenuItem
+                  className="text"
+                  icon={
+                    <PersonAddIcon
+                      className="text-white"
+                      style={{
+                        background: "#004B5B",
+                        borderRadius: "3px",
+                        padding: "2px",
+                      }}
+                    />
+                  }
+                >
+                  <NavLink to="/pm/userAssign"></NavLink>
+                  User Assign
+                </MenuItem>
+              </SubMenu>
             )}
 
             <SubMenu
@@ -513,6 +542,17 @@ const Section = ({ userData, userDepartment }) => {
               </MenuItem>
             </SubMenu>
 
+            <Menuitem
+              className="text-white"
+              icon={<CancelScheduleSendIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="User Manual"
+            >
+              <NavLink to={"/pm/checkApprovalSendOrNotMainDashboard"}></NavLink>
+              Approval Send Or Not
+            </Menuitem>
+
             {userDepartment === "MTD" ? (
               <Menuitem
                 className="text-white"
@@ -557,31 +597,44 @@ const Section = ({ userData, userDepartment }) => {
               <NavLink to="/pm/spareReportDashboard"></NavLink>
               Spare Report
             </Menuitem>
-          </Menu>
-          <Menu iconShape="square">
-          <MenuItem
-            className="text"
-            icon={
-              <LogoutIcon
-                className="text-white"
-                style={{ transform: "rotate(180deg)" }}
-              />
-            }
-            data-toggle="tooltip"
-            data-placement="right"
-            title="Logout"
-            onClick={() =>
-              Logout(userData).then((res) => {
-                if (res) {
-                  loggedOut();
+            <Menuitem
+              className="text-white"
+              icon={<MenuBookIcon className="text-white" />}
+              data-toggle="tooltip"
+              data-placement="right"
+              title="User Manual"
+            >
+              <NavLink
+                to={`${process.env.REACT_APP_BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
+                target="_blank"
+              ></NavLink>
+              User Manual
+            </Menuitem>
+            {/* <Menu iconShape="square"> */}
+              <MenuItem
+                className="text"
+                icon={
+                  <LogoutIcon
+                    className="text-white"
+                    style={{ transform: "rotate(180deg)" }}
+                  />
                 }
-              })
-            }
-          >
-            {" "}
-            Logout{" "}
-          </MenuItem>
-        </Menu>
+                data-toggle="tooltip"
+                data-placement="right"
+                title="Logout"
+                onClick={() =>
+                  Logout(userData).then((res) => {
+                    if (res) {
+                      loggedOut();
+                    }
+                  })
+                }
+              >
+                {" "}
+                Logout{" "}
+              </MenuItem>
+            {/* </Menu> */}
+          </Menu>
         </SidebarContent>
         {/* <SidebarFooter fixed="bottom">
           <Menu iconShape="square">

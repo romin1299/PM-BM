@@ -32,6 +32,9 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+
+  attachedImagesOrVideoByPRDUser: { type: [String] },
+
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },
     PRD_ObservationForProblem_5Why_1How: { type: String },
@@ -63,6 +66,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     adjustmentTime: { type: Number },
     qualityCheckTime: { type: Number },
     breakTime: { type: Number },
+    maintenanceTime: { type: Number },
 
     minorBD: { type: String },
     majorBD: { type: String },
@@ -455,6 +459,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   yokotenkai: {
     type: String,
+  },
+
+  CM_requestSheetRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "CM_RequestSheetData",
   },
 });
 

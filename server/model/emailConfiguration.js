@@ -12,6 +12,9 @@ const emailConfigurationSchema = mongoose.Schema({
     },
     fromEmailId: {
         type: String
+    },
+    emailForSpareRequest: {
+        type: String
     }
 })
 

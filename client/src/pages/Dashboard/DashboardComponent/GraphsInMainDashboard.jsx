@@ -198,8 +198,8 @@ const GraphsInMainDashboard = ({
       name: "Remaining(Current Month)",
       // colorClass: "table-danger",
       value:
-        (currentMonthGraphAndTableData?.sumVariableForTotalSchedule +
-        currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending) -
+        currentMonthGraphAndTableData?.sumVariableForTotalSchedule +
+        currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending -
         currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
         currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
     },
@@ -236,7 +236,7 @@ const GraphsInMainDashboard = ({
     value: currentMonthGraphAndTableData?.sumVariableForTotalSchedule,
   };
   return (
-    <div className="mx-2 mt-5">
+    <div className="mx-2 mt-2">
       {/* <Container className="d-flex justify-content-center align-items-center"></Container> */}
       <Row className="d-flex justify-content-center align-items">
         <div className="cell">

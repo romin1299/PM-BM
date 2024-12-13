@@ -1,180 +1,120 @@
 import React, { useState, useReducer, useEffect } from "react";
 import { Col, Container, Row } from "react-bootstrap";
-import { Box } from "@mui/material";
-
-import { Table, Input } from "antd";
+import { Box, Button } from "@mui/material";
 
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import ChartsToolbar from "../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
-
 import {
   initialState,
   reducer,
 } from "../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 
-const MasterLogMainDashboard = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+import MasterLogTable from "./MasterLogTable";
+import { useLocation } from "react-router-dom";
+import { MuiNavigateBack } from "../ButtonComponents/CustomHooksForBackNavigation";
+import { CSVLink } from "react-csv";
+
+const MasterLogInnerComponent = () => {
+  const [reduceState, reducerDispatch] = useReducer(
+    reducer,
+    initialState("Yes")
+  );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
-  const [masterLogData, setMasterLogData] = useState([]);
+  const [csvDataOfMasterLog, setCsvDataOfMasterLog] = useState([]);
 
   const columns = [
     {
-      title: "Month",
-      dataIndex: "month",
+      label: "Month",
+      key: "month",
     },
     {
-      title: "Date",
-      dataIndex: "date",
+      label: "Date",
+      key: "date",
     },
     {
-      title: "Cell",
-      dataIndex: "cell",
+      label: "Cell",
+      key: "cell",
     },
     {
-      title: "Line",
-      dataIndex: "line",
+      label: "Line",
+      key: "line",
     },
     {
-      title: "Machine",
-      dataIndex: "machine_name",
+      label: "Machine",
+      key: "machine_name",
     },
     {
-      title: "Machine No",
-      dataIndex: "machine_code",
+      label: "Machine No",
+      key: "machine_code",
     },
     {
-      title: "Shift",
-      dataIndex: "shift",
+      label: "Shift",
+      key: "shift",
     },
 
     {
-      title: "Category",
-      dataIndex: "maintenanceType",
+      label: "Category",
+      key: "maintenanceType",
     },
     {
-      title: "Time",
-      dataIndex: "time",
+      label: "Time",
+      key: "time",
     },
     {
-      title: "Problem",
-      dataIndex: "problem",
-      // key: "problem",
-      render: (_, { problem }) =>
-        problem?.length > 1 ? (
-          <ul>
-            {problem?.map((item) => (
-              <li>{item?.problem}</li>
-            ))}
-          </ul>
-        ) : (
-          problem?.[0]?.problem
-        ),
+      label: "Problem",
+      key: "problem",
     },
     {
-      title: "Cause",
-      dataIndex: "cause",
-      render: (_, { cause }) =>
-        cause ? (
-          Object?.values(cause)?.length > 1 ? (
-            <ul>
-              {Object?.values(cause)?.map((item) => (
-                <li>{item}</li>
-              ))}
-            </ul>
-          ) : (
-            Object?.values(cause)?.[0]
-          )
-        ) : (
-          ""
-        ),
+      label: "Cause Why1",
+      key: "cause.why1",
     },
     {
-      title: "Action",
-      dataIndex: "action",
-      render: (_, { action }) =>
-        action ? (
-          <ul>
-            {action?.map((item) => (
-              <li>{item?.action}</li>
-            ))}
-          </ul>
-        ) : (
-          ""
-        ),
+      label: "Cause Why2",
+      key: "cause.why2",
     },
     {
-      title: "CounterMeasure",
-      dataIndex: "counterMeasure",
+      label: "Cause Why3",
+      key: "cause.why3",
     },
     {
-      title: "Category",
-      dataIndex: "category",
-      render: (_, { category }) => (
-        <ul>
-          {category?.map((item) => (
-            <li>
-              {item?.category} - {item?.subCategory}
-            </li>
-          ))}
-        </ul>
-      ),
+      label: "Cause Why4",
+      key: "cause.why4",
     },
     {
-      title: "Is Action Temporary?",
-      dataIndex: "actionTemporaryOrNot",
+      label: "Cause Why5",
+      key: "cause.why5",
     },
     {
-      title: "Done By",
-      dataIndex: "doneBy",
-      render: (_, { doneBy }) =>
-        doneBy?.length > 1 ? (
-          <ul>
-            {doneBy?.map((item) => (
-              <li>{item?.tm_name}</li>
-            ))}
-          </ul>
-        ) : (
-          doneBy?.[0]?.tm_name
-        ),
+      label: "Action",
+      key: "action",
     },
     {
-      title: "Status",
-      dataIndex: "status",
+      label: "Counter Measure",
+      key: "counterMeasure",
+    },
+    {
+      label: "Problem Category",
+      key: "category[0].subCategory",
+    },
+    {
+      label: "Breakdown Category",
+      key: "category[1].subCategory",
+    },
+    {
+      label: "Is Action Temporary?",
+      key: "actionTemporaryOrNot",
+    },
+    {
+      label: "Done By",
+      key: "doneBy",
+    },
+    {
+      label: "Status",
+      key: "status",
     },
   ];
-  const getMasterLog = async () => {
-    try {
-      const res = await fetch(
-        `/common/masterLog/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
-
-      const { message, masterLogData } = await res.json();
-
-      if (res?.status === 201) {
-        setMasterLogData(masterLogData);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    if (reduceState?.selectedValue) getMasterLog();
-  }, [
-    reduceState?.selectedValue,
-    reduceState?.selectedYear,
-    reduceState?.selectedMonth,
-  ]);
-
+  console.log("this is csvDataOfMasterLog", csvDataOfMasterLog);
   return (
     <Container fluid>
       <Box>
@@ -194,8 +134,22 @@ const MasterLogMainDashboard = () => {
                     subSectionFiltration
                     cellFiltration
                     lineFiltration
+                    machineFiltration
                     resetButtonFiltration
+                    isWithLocalStorageForFiltration="Yes"
                   />
+                  <div className="col-auto">
+                    <CSVLink
+                      headers={columns}
+                      className="downloadCSV text-decoration-none"
+                      data={csvDataOfMasterLog ? csvDataOfMasterLog : []}
+                      filename={`Master_Log`}
+                      style={{ textDecoration: "none", color: "white" }}
+                    >
+                      {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+                      CSV
+                    </CSVLink>
+                  </div>
                 </>
               }
             />
@@ -203,17 +157,52 @@ const MasterLogMainDashboard = () => {
         </Row>
         <Row>
           <Col>
-            <Table
-              columns={columns}
-              dataSource={masterLogData}
-              scroll={{ x: 2000 }}
-              pagination={false}
+            <MasterLogTable
+              {...reduceState}
+              setCsvDataOfMasterLog={setCsvDataOfMasterLog}
             />
           </Col>
         </Row>
       </Box>
     </Container>
   );
+};
+const MasterLogMainDashboard = () => {
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+
+  // for (const [key, value] of searchParams.entries()) {
+  //   console.log(`${key}, ${value}`);
+  // }
+  // console.log(searchParams.get("machine"));
+
+  if (search) {
+    return (
+      <Container fluid>
+        <Box>
+          <Row>
+            <Col>
+              <ReportTitleBar
+                title="Master Log"
+                PreTools={<MuiNavigateBack />}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <MasterLogTable
+                flagForTogglingFilter="based-on-machine"
+                selectedValue={searchParams.get("machine")}
+                selectedYear={searchParams.get("selectedYear")}
+                selectedMonth={searchParams.get("selectedMonth")}
+              />
+            </Col>
+          </Row>
+        </Box>
+      </Container>
+    );
+  }
+  return <MasterLogInnerComponent />;
 };
 
 export default MasterLogMainDashboard;

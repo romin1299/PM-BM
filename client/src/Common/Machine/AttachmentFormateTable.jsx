@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import FileDownload from "js-file-download";
 
@@ -11,10 +11,17 @@ import AddNewAttachmentModal from "./AddNewAttachmentModal";
 import CustomHooksForBackNavigation, {
   MuiNavigateBack,
 } from "../ButtonComponents/CustomHooksForBackNavigation";
-import { Col, Container } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import { Box, Typography } from "@mui/material";
-
+import { Link, Paper } from "@material-ui/core";
+import {
+  MaterialTableOptions,
+  MaterialTableSX,
+  MaterialTableStyle,
+} from "../../BM/Utils/TableUtils/MaterialTableProps";
+import { MachineNameTypography } from "./MachineDocument";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 const pageInfo = {
   // "bm-history": {
   //   name: "BM History",
@@ -76,11 +83,13 @@ const pageInfo = {
 };
 
 const AttachmentFormateTable = () => {
+  const [attachmentDetails, setAttachmentDetails] = useState([]);
   let { page, machine_code } = useParams();
 
-  const pageDetails = pageInfo?.[page];
+  const { state } = useLocation();
+  const machineName = state?.selectedMachineDetails?.machine_name;
 
-  const [attachmentDetails, setAttachmentDetails] = useState([]);
+  const pageDetails = pageInfo?.[page];
 
   const [handleShowAddNewAttachmentModal, setHandleShowAddNewAttachmentModal] =
     useState(false);
@@ -90,7 +99,6 @@ const AttachmentFormateTable = () => {
       (handleShowAddNewAttachmentModal) => !handleShowAddNewAttachmentModal
     );
   };
-
   const handleDownloadDocument = async (_, selectedRow) => {
     const res = await axios({
       url: `/downloadAttachment/${pageDetails?.schemaVar}/${selectedRow?.attached_file}`,
@@ -161,44 +169,47 @@ const AttachmentFormateTable = () => {
       title: "Preview",
       field: "attached_file",
       render: (rowData) => {
-        const image = rowData.attached_file;
+        const { attached_file } = rowData;
         const path = `/${pageDetails?.schemaVar}/`;
+
+        // Check if the file type is an image
+        const isImage =
+          attached_file.match(/\.(jpeg|jpg|gif|png|ico)$/) != null;
 
         return (
           <Box
             display="flex"
-            justifyContent={"center"}
-            alignItems={"center"}
-            width={"100px"}
-            minHeight={"50px"}
-            overflow={"hidden"}
-            boxShadow={
-              "-2px -2px 4px 0px rgba(0, 0, 0, 0.06), 2px 2px 4px 0px rgba(0, 0, 0, 0.06), -2px -2px 4px 0px rgba(0, 0, 0, 0.06) inset"
-            }
+            justifyContent="center"
+            alignItems="center"
+            width="100px"
+            minHeight="50px"
+            overflow="hidden"
+            boxShadow="-2px -2px 4px 0px rgba(0, 0, 0, 0.06), 2px 2px 4px 0px rgba(0, 0, 0, 0.06), -2px -2px 4px 0px rgba(0, 0, 0, 0.06) inset"
             mt={1}
             mb={1}
           >
-            <a
+            <Link
               target="_blank"
-              href={`http://localhost:7000/${pageDetails?.schemaVar}/${image}`}
-              style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
+              href={`${process.env.REACT_APP_BASE_URL}${pageDetails?.schemaVar}/${attached_file}`}
+              underline="hover"
             >
-              <img
-                style={{
-                  maxWidth: "100px",
-                  maxHeight: "100px",
-                  borderRadius: "3px",
-                }}
-                src={path + rowData.attached_file}
-                alt=""
-              />
-            </a>
+              {/* Render image if it's an image file, otherwise display file type */}
+              {isImage ? (
+                <img
+                  style={{
+                    maxWidth: "100px",
+                    maxHeight: "100px",
+                    borderRadius: "3px",
+                  }}
+                  src={path + attached_file}
+                  alt=""
+                />
+              ) : (
+                <Typography variant="h6">
+                  {attached_file.split(".").pop().toUpperCase()}
+                </Typography>
+              )}
+            </Link>
           </Box>
         );
       },
@@ -220,42 +231,22 @@ const AttachmentFormateTable = () => {
     },
   ];
 
-  const MachineName = ({ machineCode }) => {
-    return (
-      <Col className="col-auto">
-        <Typography
-          noWrap
-          variant="h4"
-          component="h4"
-          fontSize={22}
-          fontWeight={600}
-        >
-          <Typography
-            noWrap
-            variant="body2"
-            component="div"
-            mb={"-8px"}
-            ml={"1px"}
-          >
-            Machine Code
-          </Typography>
-          {machineCode}
-        </Typography>
-      </Col>
-    );
-  };
-
   return (
     <Container fluid>
       <ReportTitleBar
         title={pageDetails?.name}
         PreTools={<MuiNavigateBack />}
-        Toolbar={<MachineName machineCode={machine_code} />}
+        Toolbar={
+          <MachineNameTypography
+            machineCode={machine_code}
+            machineName={machineName}
+          />
+        }
       />
 
       {/* <CustomHooksForBackNavigation /> */}
 
-      <div className="mt-3">
+      <Box className="mt-1 cell p-0 border-0">
         <MaterialTable
           localization={{
             header: {
@@ -276,60 +267,38 @@ const AttachmentFormateTable = () => {
               }),
           }}
           options={{
-            showTitle: false,
-            paging: false,
-            sorting: true,
-            search: true,
-            filtering: false,
-            exportButton: true,
-            exportAllData: true,
-            draggable: false,
-            actionsColumnIndex: -1,
-            pageSize: 10,
-            // pageSizeOptions: false,  //commented because showing warning in console: invalid prop
-            paginationType: "stepped",
-            addRowPosition: "first",
+            ...MaterialTableOptions,
+            pageSize: 5,
+
             headerStyle: {
               position: "sticky",
               top: "0",
               fontWeight: "bold",
               fontSize: "14px",
-            },
-            maxBodyHeight: "70vh",
-            rowStyle: {
-              // fontStyle:'bold'
+              marginTop: "10px",
 
-              boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
+              backgroundColor: "#0fa3b1", // 6eaebd33, "004b5b", "E3F2FD", f3f3f3
+              // color: "#fff", // 004b5b, 000, 000, 000
+            },
+            rowStyle: {
+              fontSize: 16,
+              fontFamily: "Roboto, Helvetica, Arial, sans-serif",
+
+              // boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.1 )",
               // color:"rgba(255,255,255,0.8)",
               borderRadius: "5px",
               border: "1px solid rgba(255,255,255)",
               WebkitBackdropFilter: "blur( 2px )",
               background: "rgba(255,255,255,0.1)",
-              backdropFilter: "blur(5px)",
             },
-            // exportMenu: [
-            //   {
-            //     label: "Export PDF",
-            //     exportFunc: (cols, data) =>
-            //       ExportPdf(
-            //         cols,
-            //         data,
-            //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-            //       ),
-            //   },
-            //   {
-            //     label: "Export CSV",
-            //     exportFunc: (cols, data) =>
-            //       ExportCsv(
-            //         cols,
-            //         data,
-            //         `${downloadFileName} ${moment().format("DD-MM-YYYY")}`
-            //       ),
-            //   },
-            // ],
+            // actionsCellStyle: {
+            //   backgroundColor: "#fefefe",
+            // },
           }}
+          style={MaterialTableStyle}
+          sx={MaterialTableSX}
         />
-      </div>
+      </Box>
 
       <AddNewAttachmentModal
         handleShowAddNewAttachmentModal={handleShowAddNewAttachmentModal}

@@ -15,8 +15,10 @@ import { Navigate, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { ToastContainer, toast } from "react-toastify";
 import Footer from "../../../components/Footer/Footer";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
-const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
+const MTDTLandHOSChecksheetCreationDashboard = ({}) => {
   const [tableData, setTableData] = useState([]);
   const [lineArray, setLineArray] = useState([]);
   const context = useContext(RoutingContext);
@@ -45,8 +47,8 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
     let line_name_array = [];
     selectedMachineData.state.lineData
       ? selectedMachineData.state.lineData.map((name) => {
-        line_name_array.push(`${name.line_id}-${name.line_name}`);
-      })
+          line_name_array.push(`${name.line_id}-${name.line_name}`);
+        })
       : (line_name_array = "");
     setLineArray(line_name_array);
   };
@@ -287,6 +289,33 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
       type: "numeric",
       validate: (row) => (row.PM_time || "").length !== 0,
     },
+    {
+      title: "Remarks Compulsory",
+      field: "remarksCompulsoryOrNot",
+      align: "center",
+      width: "5%",
+      editComponent: ({ value, onChange }) => {
+        const isChecked = value === "Yes";
+
+        const handleCheckboxChange = (e) => {
+          const newValue = e.target.checked ? "Yes" : "No";
+          onChange(newValue);
+        };
+
+        return (
+          <FormControlLabel
+            control={
+              <Checkbox
+                onChange={handleCheckboxChange}
+                inputProps={{ "aria-label": "controlled" }}
+                checked={isChecked}
+              />
+            }
+            label="Yes"
+          />
+        );
+      },
+    },
   ];
 
   const fetchSelectedMachineChecksheetTableData = async () => {
@@ -298,7 +327,9 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
         },
         body: JSON.stringify({
           machineId: selectedMachineData.state.selectedRow.machine_code,
-          yearOfCheckSheet: selectedMachineData.state.selectedRow?.checkSheet_data?.current_year
+          yearOfCheckSheet:
+            selectedMachineData.state.selectedRow?.checkSheet_data
+              ?.current_year,
         }),
       });
       const data = await res.json();
@@ -319,7 +350,6 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
       console.log(error);
     }
   };
-  
 
   const addNewChecksheetData = async (selectedRow) => {
     // console.log(selectedRow);
@@ -597,12 +627,13 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
           machineData[0]?.checkSheet_data
             ?.flagForNewRevisionContentDataAdded === true
         ) {
-          navigate("/checksheetFormApproval", {
+          navigate("/pm/checksheetFormApproval", {
             state: {
               selectedRowForViewForm: machineData[0],
               displyingApprovalFormate:
                 machineData[0]?.checkSheet_data
                   ?.flagForNewRevisionContentDataAdded,
+              selectedYear: machineData[0]?.checkSheet_data?.current_year,
             },
           });
         } else if (
@@ -615,18 +646,22 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
           notifyForRevisionContent();
         }
       } else {
-        navigate("/checksheetFormApproval", {
+        navigate("/pm/checksheetFormApproval", {
           state: {
             selectedRowForViewForm: machineData[0],
             displyingApprovalFormate:
               machineData[0]?.checkSheet_data
                 ?.flagForNewRevisionContentDataAdded,
+            selectedYear: machineData[0]?.checkSheet_data?.current_year,
           },
         });
       }
     } else {
-      navigate("/checksheetFormApproval", {
-        state: { selectedRowForViewForm: machineData[0] },
+      navigate("/pm/checksheetFormApproval", {
+        state: {
+          selectedRowForViewForm: machineData[0],
+          selectedYear: machineData[0]?.checkSheet_data?.current_year,
+        },
       });
     }
   };
@@ -655,12 +690,12 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
           <button
             onClick={() =>
               machineData[0]?.checkSheet_data?.checksheet_status ===
-                "Preparation"
-                ? navigate("/preparationApproval")
+              "Preparation"
+                ? navigate("/pm/preparationApproval")
                 : machineData[0]?.checkSheet_data?.checksheet_status ===
                   "Planning"
-                  ? navigate("/planningApproval")
-                  : navigate("/implementationApproval")
+                ? navigate("/pm/planningApproval")
+                : navigate("/pm/implementationApproval")
             }
             style={{
               border: "none",
@@ -809,7 +844,7 @@ const MTDTLandHOSChecksheetCreationDashboard = ({ }) => {
             </div>
           </div>
         </div>
-        {machineData[0]?.checkSheet_data?.revisionContentData?.length > 0  ? (
+        {machineData[0]?.checkSheet_data?.revisionContentData?.length > 0 ? (
           <div className="row m-3 p-3 border bg-white rounded">
             <div>
               <MaterialTable

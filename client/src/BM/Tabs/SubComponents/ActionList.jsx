@@ -3,7 +3,12 @@ import { Button, Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
 
-const ActionList = ({ actions, setActions, clearErrors }) => {
+const ActionList = ({
+  actions,
+  setActions,
+  clearErrors,
+  handleOnchangeFlag,
+}) => {
   const [newActionText, setNewActionText] = useState("");
   const [newActionStatus, setNewActionStatus] = useState("OK");
   const [isAdding, setIsAdding] = useState(false);
@@ -19,8 +24,8 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
         status: newActionStatus,
       };
       setActions([...actions, newAction]);
-
-      clearErrors && clearErrors("problemValidation");
+      handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
+      clearErrors && clearErrors("actionValidation");
       setNewActionText("");
       setNewActionStatus("NG");
       setIsAdding(false);
@@ -30,13 +35,14 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
   const editAction = (event, actionId, newText) => {
     event.preventDefault();
 
-    const updatedActions = actions.map((action) => {
+    const updatedActions = actions?.map((action) => {
       if (action.id === actionId) {
         return { ...action, action: newText };
       }
       return action;
     });
     setActions(updatedActions);
+    handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
     setEditedAction(null);
   };
 
@@ -48,8 +54,9 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
   const deleteAction = (event, actionId) => {
     event.preventDefault();
 
-    const updatedActions = actions.filter((action) => action.id !== actionId);
+    const updatedActions = actions?.filter((action) => action?.id !== actionId);
     setActions(updatedActions);
+    handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
   };
 
   const cancelAdd = (event) => {
@@ -61,13 +68,14 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
   };
 
   const handleStatusChange = (actionId, newStatus) => {
-    const updatedActions = actions.map((action) => {
+    const updatedActions = actions?.map((action) => {
       if (action.id === actionId) {
         return { ...action, status: newStatus };
       }
       return action;
     });
     setActions(updatedActions);
+    handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
   };
 
   return (
@@ -103,7 +111,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
         </Col>
       </Row>
 
-      {actions.map((action, index) => (
+      {actions?.map((action, index) => (
         <Row key={action.id} className="m-0">
           <Col
             lg={8}
@@ -158,7 +166,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
           <Col
             lg={2}
             md={2}
-            className="border col-auto d-block align-items-center gap-1 p-1"
+            className="d-flex border col-auto gap-1 p-1 flex-wrap"
           >
             {editedAction && editedAction.id === action.id ? (
               <>
@@ -189,7 +197,6 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
                 >
                   Edit
                 </button>
-                <br />
                 <button
                   class="bg-danger text-white border-0"
                   onClick={(event) => {
@@ -211,7 +218,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
             md={7}
             className="border col-auto d-flex align-items-center gap-1"
           >
-            <b>Action {actions.length + 1}: </b>
+            <b>Action {actions?.length + 1}: </b>
             <input
               type="text"
               value={newActionText}
@@ -277,7 +284,7 @@ const ActionList = ({ actions, setActions, clearErrors }) => {
         </Row>
       )}
 
-      {Array.from({ length: 2 - actions.length }).map((_, index) => (
+      {Array.from({ length: 2 - actions?.length }).map((_, index) => (
         <Row key={index} className="m-0 p-1 border">
           <AddBoxIcon onClick={() => setIsAdding(true)} />
         </Row>

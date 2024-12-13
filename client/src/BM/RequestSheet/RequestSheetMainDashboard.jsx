@@ -4,11 +4,12 @@ import { Container, Row, Col } from "react-bootstrap";
 import { cyan, deepPurple, green, indigo } from "@mui/material/colors";
 import { lightBlue, lightGreen, orange, red, teal } from "@mui/material/colors";
 
-import MaterialTable from "@material-table/core";
+import MaterialTable, { MTableToolbar } from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -25,6 +26,8 @@ import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
 import SummeryCard from "../HistoryCard/SummeryCard";
 import moment from "moment";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
+import { InputAdornment, TextField } from "@mui/material";
+
 import {
   Box,
   Button,
@@ -33,15 +36,30 @@ import {
   Chip,
   Tooltip,
   Typography,
+  Paper,
+  Switch,
 } from "@mui/material";
 import BMTitlebar from "../Component/BMTitlebar";
-import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
+import {
+  MaterialTableOptions,
+  MaterialTableSX,
+  MaterialTableStyle,
+} from "../Utils/TableUtils/MaterialTableProps";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import {
   initialState,
   reducer,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 // import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
+
+import SvgIcon from "@mui/material/SvgIcon";
+import { ReactComponent as HistoryIcon } from "../../static/svg/history.svg";
+import { ReactComponent as EditSheetIcon } from "../../static/svg/edit-sheet-2.svg";
+import EditSheetIconSVG from "../../static/svg/edit-sheet-2.svg";
+import EditIcon from "@mui/icons-material/Edit";
+import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
+import ContactMailIcon from "@mui/icons-material/ContactMail";
+import SparePartsRequestForm from "../SparePartsRequest/SparePartsRequestForm";
 
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
@@ -54,6 +72,17 @@ const RequestSheetMainDashboard = () => {
   const [selectedRow, setSelectedRow] = useState();
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const [summeryCardModal, setSummeryCardModal] = useState(false);
+  const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
+  const [sparePartsRequestModal, setSparePartsRequestModal] = useState(false);
+  const [greaterValue, setGreaterValue] = useState(
+    localStorage.getItem("greaterValue") 
+  );
+  const [lesserValue, setLesserValue] = useState(
+    localStorage.getItem("lesserValue")
+  );
+
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+    useState(false);
 
   const statusColorMap = {
     // Generated: "#9bcbdb",
@@ -86,19 +115,28 @@ const RequestSheetMainDashboard = () => {
     "Under MTD HOD Approval": teal[300],
     "Under PRD HOD Approval": teal[500],
     Completed: green["A700"],
+    Rejected: "#e05050",
   };
 
-  const statusArray = [
+  const RSStatusArray = [
     "Generated",
     "Assigned",
     "Work Order Open",
     "Work Order Pending",
     "Work Order Closed",
     "Fill Sheet",
+    "Rejected",
     "Under MTD TL approval",
     "Under MTD HOSS approval",
-    "Under MTD HOS approval",
+    "Under PRD TL Approval",
+    "Under PRD HOS Approval",
+    "Under MTD HOS Approval",
+    "Under MTD HOD Approval",
+    "Under PRD HOD Approval",
+    "Completed",
   ];
+
+  const maintenanceTypeArrayForFilter = ["PM", "BM", "CM", "TPM"];
 
   const initialStateForRequestSheetData = {
     requestSheetData: [],
@@ -150,15 +188,28 @@ const RequestSheetMainDashboard = () => {
   const [reduceStateForRequestSheetData, reducerDispatchForRequestSheetData] =
     useReducer(reducerForRequestSheetData, initialStateForRequestSheetData);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(
+    reducer,
+    initialState("Yes")
+  );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
   const getAllRequestSheetData = async () => {
     setLoading(true);
-
     try {
       const res = await fetch(
-        `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`,
+        `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${
+          reduceState?.selectedValue
+        }/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${
+          reduceState?.selectedMonth
+        }&&selectedRSStatus=${
+          reduceState?.selectedRSStatus
+        }&&selectedMaintenanceType=${
+          reduceState?.selectedMaintenanceType
+        }&&greaterValue=${greaterValue || 1000}&&lesserValue=${
+          lesserValue || 0
+        }`,
+
         {
           method: "GET",
           headers: {
@@ -198,6 +249,10 @@ const RequestSheetMainDashboard = () => {
 
     setLoading(false);
   };
+  useEffect(()=>{
+    localStorage.setItem("greaterValue", "")
+    localStorage.setItem("lesserValue", "")
+  },[])
 
   const updateRequestSheet = async (updatedRow) => {
     try {
@@ -244,12 +299,32 @@ const RequestSheetMainDashboard = () => {
         );
 
       if (res.status === 201) {
+        let countersObj = {
+          open_request_sheet_count:
+            reduceStateForRequestSheetData.counters?.open_request_sheet_count -
+            1,
+        };
+
+        if (selectedRow?.requestSheetStatus === "Completed") {
+          countersObj = {
+            closed_request_sheet_count:
+              reduceStateForRequestSheetData.counters
+                ?.closed_request_sheet_count - 1,
+          };
+        }
+
         reducerDispatchForRequestSheetData({
           type: ACTION.GET,
           requestSheetData: updatedRequestSheetData,
           TLHOSS_and_TM_user_list:
             reduceStateForRequestSheetData.TLHOSS_and_TM_user_list,
-          counters: reduceStateForRequestSheetData.counters,
+          counters: {
+            ...reduceStateForRequestSheetData.counters,
+            ...countersObj,
+            total_request_sheet_count:
+              reduceStateForRequestSheetData.counters
+                ?.total_request_sheet_count - 1,
+          },
           message,
         });
         // return updatedRequestSheetData;
@@ -267,11 +342,18 @@ const RequestSheetMainDashboard = () => {
     reduceState?.selectedValue,
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
+    reduceState?.selectedRSStatus,
+    reduceState?.selectedMaintenanceType,
   ]);
 
   const handleGenerateBMNavigation = async () => {
     navigate(`/bm/generateRequestSheetMainDashboard`);
   };
+
+  const handleSparePartsModelState = () =>
+    setSparePartsRequestModal(
+      (sparePartsRequestModal) => !sparePartsRequestModal
+    );
 
   // const conditionalBasedEditableFunctionForPRD = (_, row) => {
   //   if (
@@ -289,10 +371,10 @@ const RequestSheetMainDashboard = () => {
       (context?.tm_department === "MTD" ||
         row?.assignUserId === context?._id ||
         row?.handOverUserId === context?._id) &&
-      (row?.requestSheetStatus === statusArray[1] ||
-        row?.requestSheetStatus === statusArray[2] ||
-        row?.requestSheetStatus === statusArray[3] ||
-        row?.requestSheetStatus === statusArray[4])
+      (row?.requestSheetStatus === RSStatusArray[1] ||
+        row?.requestSheetStatus === RSStatusArray[2] ||
+        row?.requestSheetStatus === RSStatusArray[3] ||
+        row?.requestSheetStatus === RSStatusArray[4])
     ) {
       return true;
     }
@@ -325,6 +407,123 @@ const RequestSheetMainDashboard = () => {
     </select>
   );
 
+  let displayColumnBasedOnShowAndHide = [];
+
+  if (displayColumnOrNot)
+    displayColumnBasedOnShowAndHide = [
+      {
+        title: "Assign",
+        field: "assignUser",
+        // editable: context?.tm_department === "MTD" ? "always" : "never",
+        editable: (_, row) =>
+          context?.tm_department === "MTD" &&
+          row?.requestSheetStatus === RSStatusArray[0]
+            ? true
+            : false,
+        editComponent: ({ value, onChange, rowData }) =>
+          dropDownComponent({
+            value,
+            onChange,
+            defaultValue: rowData?.assignUserId,
+            dropDownArray:
+              reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+          }),
+        validate: (rowData) => {
+          return rowData.assignUser === undefined &&
+            rowData?.tableData?.editing === "update"
+            ? { isValid: false, helperText: "Assign user cannot be empty" }
+            : true;
+        },
+      },
+      {
+        title: "Handover To",
+        field: "handOverUser",
+        // editable: context?.tm_department === "MTD" ? "always" : "never",
+        editable: (col, row) =>
+          context?.tm_department === "MTD" &&
+          (row?.requestSheetStatus === RSStatusArray[1] ||
+            row?.requestSheetStatus === RSStatusArray[2] ||
+            row?.requestSheetStatus === RSStatusArray[3] ||
+            row?.requestSheetStatus === RSStatusArray[4])
+            ? true
+            : false,
+        editComponent: ({ value, onChange, rowData }) => {
+          return dropDownComponent({
+            value: value,
+            onChange,
+            defaultValue: rowData?.handOverUserId,
+            dropDownArray:
+              reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+          });
+        },
+      },
+      {
+        title: "Final Action",
+        field: "finalActivity",
+        editable: conditionalBasedEditableFunctionForMTD,
+        width: "20%",
+      },
+      {
+        title: "H/O Time Work End", //hand-over time
+        field: "handOverTime",
+        width: "10%",
+        headerStyle: {
+          width: 90,
+          minWidth: 90,
+        },
+        editable: conditionalBasedEditableFunctionForMTD,
+        editComponent: ({ value, onChange, rowData }) => {
+          return (
+            // <LocalizationProvider dateAdapter={AdapterDateFns}>
+            //   <MobileDateTimePicker
+            //     renderInput={(props) => (
+            //       <input className="text-field mt-0" value={value} {...props} />
+            //     )}
+            //     value={
+            //       value
+            //         ? typeof value === "object"
+            //           ? new Date(value)
+            //           : new Date(rowData?.handOverTimeForDefault)
+            //         : new Date()
+            //     }
+            //     format="dd/MM/yyyy HH:mm"
+            //     sx={{ width: "11rem" }}
+            //     onChange={(handOverTime) => {
+            //       onChange(handOverTime || new Date());
+            //       // onChange(handOverTime.toString());
+            //     }}
+            //     ampm={false}
+            //   />
+            // </LocalizationProvider>
+
+            <input
+              type="datetime-local"
+              style={{ width: "165px" }}
+              // defaultValue={moment(new Date()).format("YYYY-MM-DDTHH:mm")}
+              value={
+                value
+                  ? moment(value, "YYYY-MM-DDTHH:mm", true).isValid()
+                    ? value
+                    : moment(rowData?.handOverTimeForDefault).format(
+                        "YYYY-MM-DDTHH:mm"
+                      )
+                  : moment(new Date()).format("YYYY-MM-DDTHH:mm")
+              }
+              onChange={(e) => onChange(e.target.value)}
+            />
+          );
+        },
+        validate: (rowData) => rowData.handOverTime !== "",
+      },
+
+      {
+        title: "First Time/ Repeat",
+        field: "firstTimeOrRepeat",
+        width: "10%",
+        editable: false,
+      },
+    ];
+console.log("THis is ",reduceStateForRequestSheetData?.requestSheetData)
   const requestSheetHeader = [
     {
       title: "Sr. No.",
@@ -336,6 +535,7 @@ const RequestSheetMainDashboard = () => {
       title: "Request No",
       field: "requestSheetNoOfBM",
       editable: false,
+      width: displayColumnOrNot ? "5%" : "10%",
     },
     {
       title: "Product",
@@ -361,18 +561,30 @@ const RequestSheetMainDashboard = () => {
       title: "Problem",
       field: "problem",
       editable: false,
-      width: "20%",
+      width: "25%",
     },
     {
       title: "Date-time",
       field: "problemOccurredDateAndTimeOfBM",
       editable: false,
-      width: "10%",
+      width: "15%",
+    },
+    {
+      title: "Maintenance Type",
+      field: "maintenanceType",
+      editable: false,
+      width: "5%",
+      cellStyle: {
+        textAlign: "center",
+      },
     },
     {
       title: "R.S Status",
       field: "requestSheetStatus",
       editable: false,
+      cellStyle: {
+        textAlign: "center",
+      },
       render: (rowData) => (
         <button
           className="btn"
@@ -385,153 +597,14 @@ const RequestSheetMainDashboard = () => {
           {rowData.requestSheetStatus}
         </button>
       ),
+      width: "15%",
     },
-    {
-      title: "Assign",
-      field: "assignUser",
-      // editable: context?.tm_department === "MTD" ? "always" : "never",
-      editable: (_, row) =>
-        context?.tm_department === "MTD" &&
-        row?.requestSheetStatus === statusArray[0]
-          ? true
-          : false,
-      editComponent: ({ value, onChange, rowData }) =>
-        dropDownComponent({
-          value,
-          onChange,
-          defaultValue: rowData?.assignUserId,
-          dropDownArray:
-            reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
-        }),
-    },
-    {
-      title: "Handover To",
-      field: "handOverUser",
-      // editable: context?.tm_department === "MTD" ? "always" : "never",
-      editable: (col, row) =>
-        context?.tm_department === "MTD" &&
-        (row?.requestSheetStatus === statusArray[1] ||
-          row?.requestSheetStatus === statusArray[2] ||
-          row?.requestSheetStatus === statusArray[3] ||
-          row?.requestSheetStatus === statusArray[4])
-          ? true
-          : false,
-      editComponent: ({ value, onChange, rowData }) => {
-        return dropDownComponent({
-          value: value,
-          onChange,
-          defaultValue: rowData?.handOverUserId,
-          dropDownArray:
-            reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
-        });
-      },
-    },
-    {
-      title: "Final Action",
-      field: "finalActivity",
-      editable: conditionalBasedEditableFunctionForMTD,
-      width: "20%",
-      validate: (rowData) => rowData.finalActivity !== "",
-    },
-    // {
-    //   title: "MTD Quality Check",
-    //   field: "MTDUser",
-    //   editable: context?.tm_department === "MTD" ? "always" : "never",
-    //   editComponent: ({ value, onChange }) => (
-    //     <Multiselect
-    //       displayValue="tm_name"
-    //       className="col-9 "
-    //       options={reduceState?.MTD_or_PRD_user_list}
-    //       onSelect={async (selectedList) => {
-    //         await onChange(selectedList);
-    //       }}
-    //       onRemove={async (selectedList) => {
-    //         await onChange(selectedList);
-    //       }}
-    //       style={{
-    //         multiselectContainer: {
-    //           width: "15rem",
-    //         },
-    //       }}
-    //     />
-    //   ),
-    // },
-    {
-      title: "H/O Time Work End", //hand-over time
-      field: "handOverTime",
-      editable: conditionalBasedEditableFunctionForMTD,
-      editComponent: ({ value, onChange, rowData }) => {
-        return (
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <MobileDateTimePicker
-              renderInput={(props) => (
-                <input className="text-field mt-0" value={value} {...props} />
-              )}
-              value={
-                value
-                  ? typeof value === "object"
-                    ? new Date(value)
-                    : new Date(rowData?.handOverTimeForDefault)
-                  : new Date()
-              }
-              format="dd/MM/yyyy hh:mm"
-              sx={{ width: "11rem" }}
-              onChange={(handOverTime) => {
-                onChange(handOverTime || new Date());
-                // onChange(handOverTime.toString());
-              }}
-            />
-          </LocalizationProvider>
-        );
-      },
-      validate: (rowData) => rowData.handOverTime !== "",
-      width: "20%",
-    },
+    ...displayColumnBasedOnShowAndHide,
     {
       title: "Loss Time",
       field: "lossTime",
       editable: false,
     },
-    // {
-    //   title: "PRD Quality Check",
-    //   field: "PRDUser",
-    //   editable: conditionalBasedEditableFunctionForPRD,
-    //   editComponent: ({ value, onChange }) =>
-    //     dropDownComponent({
-    //       value,
-    //       onChange,
-    //       dropDownArray: reduceState?.MTD_or_PRD_user_list,
-    //     }),
-    //   // editComponent: ({ value, onChange }) => (
-    //   //   <RadioGroup
-    //   //     row
-    //   //     aria-labelledby="demo-row-radio-buttons-group-label"
-    //   //     name="row-radio-buttons-group"
-    //   //     style={{ marginTop: "0.2rem" }}
-    //   //   >
-    //   //     <div>
-    //   //       <input
-    //   //         type="radio"
-    //   //         name="PRDUser"
-    //   //         value="Yes"
-    //   //         onChange={(e) => onChange(e.target.value)}
-    //   //       />
-    //   //       <span for="html" className="m-2">
-    //   //         Yes
-    //   //       </span>
-    //   //       <input
-    //   //         type="radio"
-    //   //         name="PRDUser"
-    //   //         value="No"
-    //   //         onChange={(e) => onChange(e.target.value)}
-    //   //       />
-    //   //       <span for="html" className="m-2">
-    //   //         No
-    //   //       </span>
-    //   //     </div>
-    //   //   </RadioGroup>
-    //   // ),
-    // },
     {
       title: "W.O. Status",
       field: "work_order_status",
@@ -570,39 +643,39 @@ const RequestSheetMainDashboard = () => {
     setSummeryCardModal((summeryCardModal) => !summeryCardModal);
   };
 
-  const requestSheetActions = [
-    {
-      icon: () => <CreditCardIcon className="text-primary1" />,
-      tooltip: "History Card",
-      position: "row",
-      onClick: (event, selectedRow) => {
-        setSelectedRow(selectedRow);
-        handleMachineHistoryCardState();
-      },
-    },
+  const handleRequestSheetShowAndCloseState = () => {
+    setRequestSheetModalOpenClose(
+      (requestSheetModalOpenClose) => !requestSheetModalOpenClose
+    );
+  };
+
+  let requestSheetActions = [
+    // Edit Request Sheet
     (row) => ({
-      icon: () => (
-        <DescriptionIcon
-          className={
-            row?.work_order_status === "Open"
-              ? "text-secondary"
-              : "text-primary"
-          }
+      icon: (props) => (
+        <SvgIcon
+          component={EditSheetIcon}
+          sx={{
+            color: props.disabled ? "inherit" : "#FF6F00",
+          }}
+          inheritViewBox
         />
+
+        // <SvgIcon sx={{ color: "yellow" }}>
+        //   <EditSheetIcon color="green" />
+        // </SvgIcon>
+
+        // <DescriptionIcon />
       ),
-      tooltip: "Update",
+      tooltip: "Update Req-sheet",
       position: "row",
       disabled:
         (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        (row?.work_order_status === "Pending" ||
-          row?.work_order_status === "Closed")
+        RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)
           ? false
           : true,
-      hidden: row?.assignUserId === context?._id ? false : true,
-      onClick: (event, selectedRow) => {
-        console.log("selectedRow:", selectedRow);
-
+      onClick: (event, selectedRow) =>
         navigate(
           `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
           {
@@ -611,17 +684,88 @@ const RequestSheetMainDashboard = () => {
                 reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
             },
           }
-        );
-      },
+        ),
     }),
 
+    // Open Request Sheet for View
     (row) => ({
       icon: () => <VisibilityIcon className="text-primary" />,
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        handleRequestSheetShowAndCloseState();
+        // navigate(
+        //   `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
+        //   {
+        //     state: {
+        //       prevPath: location?.pathname,
+        //       prevPathSearch: location?.search,
+        //       supportingTM:
+        //         reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
+        //     },
+        //   }
+        // );
+      },
+    }),
+
+    // Open History card of selected machine for View
+    (row) => ({
+      icon: () => (
+        <HistoryIcon />
+
+        // <SvgIcon
+        //   component={HistoryIcon}
+        //   sx={{ color: "#FF6F00" }}
+        //   // viewBox="0 0 22 22"
+        //   inheritViewBox
+        // />
+      ),
+      tooltip: "History Card",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        handleMachineHistoryCardState();
+      },
+    }),
+
+    (rowData) => ({
+      icon: () => <EditIcon />,
+      tooltip: "Edit Action",
+      disabled: true,
+      hidden:
+        context?.tm_department !== "PRD" &&
+        RSStatusArray.slice(0, 6).includes(rowData?.requestSheetStatus),
+    }),
+
+    (row) => ({
+      icon: () => (
+        <ContactMailIcon />
+
+        // <SvgIcon
+        //   component={HistoryIcon}
+        //   sx={{ color: "#FF6F00" }}
+        //   // viewBox="0 0 22 22"
+        //   inheritViewBox
+        // />
+      ),
+      tooltip: "Spare Require Mail",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        handleSparePartsModelState();
+      },
+    }),
+  ];
+
+  if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
+    requestSheetActions?.push({
+      icon: () => <DriveFileRenameOutlineIcon className="text-primary" />,
+      tooltip: "Edit After All Approval",
+      position: "row",
+      onClick: (event, selectedRow) => {
         navigate(
-          `/bm/view/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}`,
+          `/bm/edit/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
           {
             state: {
               prevPath: location?.pathname,
@@ -632,29 +776,262 @@ const RequestSheetMainDashboard = () => {
           }
         );
       },
-    }),
-  ];
+    });
+  }
 
   const filtration = [
-    <Box m={2}>
-      <ChartsToolbar
-        baseUrlForFiltering={baseUrlForFiltering}
-        reduceState={reduceState}
-        reducerDispatch={reducerDispatch}
-        monthFiltration
-        yearFiltration
-        sectionFiltration
-        subSectionFiltration
-        cellFiltration
-        lineFiltration
-        resetButtonFiltration
-      />
-    </Box>,
+    <div className="d-flex">
+      <Box sx={{ mx: "10px", my: "10px" }}>
+        <ChartsToolbar
+          baseUrlForFiltering={baseUrlForFiltering}
+          reduceState={reduceState}
+          reducerDispatch={reducerDispatch}
+          monthFiltration
+          yearFiltration
+          sectionFiltration
+          subSectionFiltration
+          cellFiltration
+          lineFiltration
+          machineFiltration
+          RSStatusArray={RSStatusArray}
+          RSStatusFiltration
+          maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          maintenanceTypeFiltration
+          resetButtonFiltration
+          isWithLocalStorageForFiltration="Yes"
+        />
+      </Box>
+
+      <Box display="flex" alignItems="center">
+        <Tooltip title="Show/Hide Column">
+          <Switch
+            size="medium"
+            checked={displayColumnOrNot}
+            onClick={() =>
+              setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
+            }
+          />
+        </Tooltip>
+      </Box>
+
+      <Box
+        component="form"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+        }}
+      >
+        {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
+
+        <TextField
+          type="number"
+          id="outlined-basic"
+          // sx={{ width: "80px" }}
+          placeholder="From"
+          variant="outlined"
+          sx={{
+            // width: "12ch",
+            width: "5rem",
+            pl: 0,
+            "& .MuiOutlinedInput-root": { pl: 0 },
+            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
+          }}
+          InputProps={{
+            sx: { fontSize: 14 },
+            startAdornment: (
+              <InputAdornment position="start">&gt; &#61;</InputAdornment>
+            ),
+          }}
+          size="small"
+          onChange={(e) => {
+            setLesserValue(e.target.value);
+            localStorage.setItem("lesserValue", e.target.value);
+          }}
+          value={lesserValue}
+        />
+        <TextField
+          type="number"
+          id="outlined-basic"
+          // sx={{ width: "80px" }}
+          placeholder="To"
+          variant="outlined"
+          sx={{
+            // width: "12ch",
+            width: "5rem",
+            pl: 0,
+            "& .MuiOutlinedInput-root": { pl: 0 },
+            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
+          }}
+          InputProps={{
+            sx: { fontSize: 14 },
+            startAdornment: (
+              <InputAdornment position="start">&lt; &#61;</InputAdornment>
+            ),
+          }}
+          size="small"
+          onChange={(e) => {
+            setGreaterValue(e.target.value);
+            localStorage.setItem("greaterValue", e.target.value);
+          }}
+          value={greaterValue}
+        />
+        <Button
+          // size="small"
+          disableElevation
+          className="bg-button"
+          variant="contained"
+          sx={{
+            minWidth: "30px",
+            height: "32px",
+            paddingInline: "10px",
+          }}
+          onClick={getAllRequestSheetData}
+        >
+          Go
+        </Button>
+      </Box>
+    </div>,
   ];
+
   return (
     <>
       <Container fluid>
-        <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 g-0">
+        <Row className="cell py-2 px-3 mt-3 gap-2 g-0 align-items-center">
+          <Col className="d-flex align-items-center gap-2">
+            <Typography
+              noWrap
+              variant="h4"
+              component="h4"
+              fontSize={25}
+              fontWeight={600}
+              sx={{ mr: 3 }}
+            >
+              Request Sheet Progress Monitoring
+            </Typography>
+          </Col>
+
+          <Box display="flex" gap="16px" className="col-auto">
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={handleGenerateBMNavigation}
+              disabled={context?.tm_department !== "PRD"}
+              sx={{
+                fontWeight: 400,
+                bgcolor: "#004b5b",
+                "&:hover": { bgcolor: "#026378" },
+              }}
+            >
+              <AddCircleIcon sx={{ mr: "8px" }} />
+              Generate Request-Sheet
+            </Button>
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={handleSummeryCardState}
+              className={`bg-button d-inline`}
+              sx={{ fontWeight: 400 }}
+            >
+              Summary
+            </Button>
+          </Box>
+        </Row>
+
+        <Box display="flex" gap="16px" className="mt-3 cell p-2 overflow-auto">
+          {[
+            {
+              title: "Total Requests",
+              value:
+                reduceStateForRequestSheetData?.counters
+                  ?.total_request_sheet_count || 0,
+              backgroundColor: "#c7defb",
+            },
+            {
+              title: "Open Requests",
+              value:
+                reduceStateForRequestSheetData?.counters
+                  ?.open_request_sheet_count || 0,
+              backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
+            },
+            {
+              title: "Closed Requests",
+              value:
+                reduceStateForRequestSheetData?.counters
+                  ?.closed_request_sheet_count || 0,
+              backgroundColor: "#c6efce",
+            },
+          ].map((item) => (
+            <Box className="col-auto">
+              <Paper
+                variant="outlined"
+                sx={{
+                  backgroundColor: item.backgroundColor,
+                  // maxWidth: "100px",
+                  p: "4px",
+                  px: "10px",
+                  borderRadius: "8px",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  component="div"
+                  textAlign="center"
+                  // width={120}
+                  fontWeight={500}
+                  // color={"#15005c"}
+                  // pt={"4px"}
+                  // mb={"2px"}
+                >
+                  {item.title}
+                </Typography>
+
+                <Typography
+                  variant="h5"
+                  component="h5"
+                  textAlign="center"
+                  fontWeight={600}
+                  // pb={"4px"}
+                >
+                  {item.value}
+                </Typography>
+              </Paper>
+            </Box>
+          ))}
+        </Box>
+
+        {/* Btns with new styles with mui Box */}
+        {/* <Row className="mt-3 gx-3 justify-content-end">
+          <Col className="col-auto">
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={handleGenerateBMNavigation}
+              className={
+                context?.tm_department !== "PRD"
+                  ? `bg-button d-inline`
+                  : "d-none"
+              }
+              sx={{ fontWeight: 400 }}
+            >
+              <AddCircleIcon sx={{ mr: "8px" }} />
+              Generate Request-Sheet
+            </Button>
+          </Col>
+          <Col className="col-auto">
+            <Button
+              variant="contained"
+              disableElevation
+              onClick={handleSummeryCardState}
+              className={`bg-button d-inline`}
+              sx={{ fontWeight: 400 }}
+            >
+              Summary
+            </Button>
+          </Col>
+        </Row> */}
+
+        {/* <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 g-0">
           <Col lg={4} md={4}>
             <Typography
               noWrap
@@ -664,7 +1041,7 @@ const RequestSheetMainDashboard = () => {
               fontWeight={600}
               // sx={{ mr: 3 }}
             >
-              Request-Sheet Work Order
+              Request-Sheet Dashboard
             </Typography>
           </Col>
           <Col md={{ span: 4, offset: 4 }}>
@@ -739,7 +1116,7 @@ const RequestSheetMainDashboard = () => {
                   : "d-none"
               }
             >
-              <AddCircleIcon /> &nbsp; Generate New Request-Sheet
+              <AddCircleIcon /> &nbsp; Generate Request-Sheet
             </button>
           </Col>
           <Col className="col-auto">
@@ -755,83 +1132,119 @@ const RequestSheetMainDashboard = () => {
               Summary
             </button>
           </Col>
-        </Row>
+        </Row> */}
 
         {/* <Row>
           <NewRequestSheetRegistration />
         </Row> */}
 
-        <Row>
-          <Col>
-            <MaterialTable
-              localization={{
-                header: {
-                  actions: "Actions",
+        <Box className="mt-1 cell p-0 border-0">
+          <MaterialTable
+            localization={{
+              header: {
+                actions: "Actions",
+              },
+              // toolbar: {
+              //   exportCSVName: "Export some Excel format",
+              //   exportPDFName: "Export as pdf!!"
+              // }
+            }}
+            isLoading={loading}
+            actions={requestSheetActions}
+            icons={tableIcons}
+            columns={requestSheetHeader}
+            data={reduceStateForRequestSheetData?.requestSheetData}
+            title={filtration}
+            // tableRef={this.tableRef.current.onQueryChange()}
+
+            editable={{
+              // onRowAdd: (newRow) =>
+              //   new Promise((resolve, reject) => {
+              //     setTimeout(() => {
+              //       resolve();
+              //     }, 500);
+              //     //refreshPage();
+              //   }),
+
+              isDeleteHidden: (rowData) =>
+                context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
+                "Yes",
+
+              isEditHidden: (rowData) =>
+                (rowData?.requestSheetStatus !== RSStatusArray[0] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[1] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[2] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[3] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[4] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[5]) ||
+                context?.tm_department === "PRD",
+
+              onRowDelete: (selectedRow) =>
+                new Promise(async (resolve, reject) => {
+                  // setTimeout(() => {
+                  await deleteRequestSheet(selectedRow);
+                  resolve();
+                  // }, 500);
+                }),
+
+              onRowUpdate: (updatedRow, oldRow) =>
+                new Promise(async (resolve, reject) => {
+                  await updateRequestSheet(updatedRow);
+                  resolve();
+                }),
+            }}
+            // components={{
+            //   Toolbar: (props) => (
+            //     <div
+            //       style={{
+            //         display: "flex",
+            //         justifyContent: "space-between",
+            //         alignItems: "center",
+            //       }}
+            //     >
+            //       {filtration}
+            //       <div style={{ width: "13rem" }}>
+            //         <MTableToolbar {...props} />
+            //       </div>
+            //     </div>
+            //   ),
+            // }}
+            options={{
+              ...MaterialTableOptions,
+              pageSize:
+                reduceStateForRequestSheetData?.requestSheetData?.length > 10
+                  ? 10
+                  : reduceStateForRequestSheetData?.requestSheetData?.length,
+              maxBodyHeight: "auto",
+              showTitle: true,
+              // actionsCellStyle: {
+              //   direction: "rtl",
+              // },
+              exportMenu: [
+                {
+                  label: "Export PDF",
+                  exportFunc: (cols, data) =>
+                    ExportPdf(
+                      cols,
+                      data,
+                      `All requestSheet ${moment().format("DD-MM-YYYY")}`
+                    ),
                 },
-                // toolbar: {
-                //   exportCSVName: "Export some Excel format",
-                //   exportPDFName: "Export as pdf!!"
-                // }
-              }}
-              isLoading={loading}
-              actions={requestSheetActions}
-              icons={tableIcons}
-              columns={requestSheetHeader}
-              data={reduceStateForRequestSheetData?.requestSheetData}
-              title={filtration}
-              // tableRef={this.tableRef.current.onQueryChange()}
-
-              editable={{
-                // onRowAdd: (newRow) =>
-                //   new Promise((resolve, reject) => {
-                //     setTimeout(() => {
-                //       resolve();
-                //     }, 500);
-                //     //refreshPage();
-                //   }),
-
-                onRowDelete: (selectedRow) =>
-                  new Promise(async (resolve, reject) => {
-                    // setTimeout(() => {
-                    await deleteRequestSheet(selectedRow);
-                    resolve();
-                    // }, 500);
-                  }),
-
-                onRowUpdate: (updatedRow, oldRow) =>
-                  new Promise(async (resolve, reject) => {
-                    await updateRequestSheet(updatedRow);
-                    resolve();
-                  }),
-              }}
-              options={{
-                ...MaterialTableOptions,
-                maxBodyHeight: "auto",
-                showTitle: true,
-                exportMenu: [
-                  {
-                    label: "Export PDF",
-                    exportFunc: (cols, data) =>
-                      ExportPdf(
-                        cols,
-                        data,
-                        `All requestSheet ${moment().format("DD-MM-YYYY")}`
-                      ),
-                  },
-                  {
-                    label: "Export CSV",
-                    exportFunc: (cols, data) =>
-                      ExportCsv(
-                        cols,
-                        data,
-                        `All requestSheet ${moment().format("DD-MM-YYYY")}`
-                      ),
-                  },
-                ],
-              }}
-            />
-          </Col>
-        </Row>
+                {
+                  label: "Export CSV",
+                  exportFunc: (cols, data) =>
+                    ExportCsv(
+                      cols,
+                      data,
+                      `All requestSheet ${moment().format("DD-MM-YYYY")}`
+                    ),
+                },
+              ],
+            }}
+            style={MaterialTableStyle}
+            sx={MaterialTableSX}
+          />
+        </Box>
       </Container>
 
       {machineHistoryCardModal && (
@@ -864,6 +1277,28 @@ const RequestSheetMainDashboard = () => {
             }}
           />
         )}
+
+      {requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={reduceState?.selectedYear}
+          machine_code={selectedRow?.machineNo}
+          requestSheetID={selectedRow?._id}
+          modelProp={{
+            show: requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
+
+      {sparePartsRequestModal && (
+        <SparePartsRequestForm
+          selectedRow={selectedRow}
+          modelProp={{
+            show: sparePartsRequestModal,
+            onHide: handleSparePartsModelState,
+          }}
+        />
+      )}
     </>
   );
 };

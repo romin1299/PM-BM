@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, useContext } from "react";
 import { Container, Row, Col } from "reactstrap";
 
 import DailyBDTrendChart from "../DailyBreakdownTrend/DailyBDTrendChart";
@@ -27,13 +27,16 @@ import {
   EXPORT_REPORT,
   exportPPTX,
 } from "../../Utils/ExportPPTX/exportPPTX.js";
+import RoutingContext from "../../../context/routing/RoutingContext.js";
 
 const ProductionLineWiseReport = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
 
   const [dailyBDSelectedMonth, setDailyBDSelectedMonth] =
     useState(currentMonth);
+
+  const loggedUserDetails = useContext(RoutingContext);
 
   return (
     <Container fluid>
@@ -71,75 +74,94 @@ const ProductionLineWiseReport = () => {
           }
         />
 
-        <DailyBDTrendChart
-          selectedValue={reduceState?.selectedValue}
-          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-          selectedYear={reduceState?.selectedYear}
-          dailyBDSelectedMonth={dailyBDSelectedMonth}
-          setDailyBDSelectedMonth={setDailyBDSelectedMonth}
-        />
+        {["based-on-cell", "based-on-line"]?.includes(
+          reduceState?.flagForTogglingFilter
+        ) && (
+          <>
+            <DailyBDTrendChart
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
+              selectedValue={reduceState?.selectedValue}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              dailyBDSelectedMonth={dailyBDSelectedMonth}
+              setDailyBDSelectedMonth={setDailyBDSelectedMonth}
+            />
 
-        <BDRSTableWithDateFiltration
-          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-          selectedValue={reduceState?.selectedValue}
-        />
+            <BDRSTableWithDateFiltration
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedValue={reduceState?.selectedValue}
+              selectedYear={reduceState?.selectedYear}
+            />
 
-        <Row className="mt-3 g-2">
-          <Col xxl={3} lg={6} md={6}>
-            <BDhours
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-            />
-          </Col>
-          <Col xxl={3} lg={6} md={6}>
-            <MTTRComponent
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-            />
-          </Col>
-          <Col xxl={3} lg={6} md={6}>
-            <MTBFComponent
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-            />
-          </Col>
-          <Col xxl={3} lg={6} md={6}>
-            <BDPercentageChart
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-            />
-          </Col>
-        </Row>
+            <Row className="mt-3 g-2">
+              <Col xxl={3} xs={12} lg={3} md={6}>
+                <BDhours
+                  userDetails={loggedUserDetails}
+                  filterValues={reduceState}
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                />
+              </Col>
+              <Col xxl={3} xs={12} lg={3} md={6}>
+                <MTTRComponent
+                  userDetails={loggedUserDetails}
+                  filterValues={reduceState}
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                />
+              </Col>
+              <Col xxl={3} xs={12} lg={3} md={6}>
+                <MTBFComponent
+                  userDetails={loggedUserDetails}
+                  filterValues={reduceState}
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                />
+              </Col>
+              <Col xxl={3} xs={12} lg={3} md={6}>
+                <BDPercentageChart
+                  userDetails={loggedUserDetails}
+                  filterValues={reduceState}
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                />
+              </Col>
+            </Row>
 
-        <Row className="mt-1 g-2">
-          <Col lg={6} md={12}>
-            <BDHoursVsCountComponent
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-              selectedMonth={reduceState?.selectedMonth}
-            />
-          </Col>
-          <Col lg={6} md={12}>
-            <CategoryPieCharts
-              selectedValue={reduceState?.selectedValue}
-              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-              selectedYear={reduceState?.selectedYear}
-              selectedMonth={reduceState?.selectedMonth}
-            />
-          </Col>
-        </Row>
+            <Row className="mt-1 g-2">
+              <Col xl={6} md={12}>
+                <BDHoursVsCountComponent
+                  userDetails={loggedUserDetails}
+                  filterValues={reduceState}
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                  selectedMonth={reduceState?.selectedMonth}
+                />
+              </Col>
+              <Col xl={6} md={12}>
+                <CategoryPieCharts
+                  selectedValue={reduceState?.selectedValue}
+                  flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+                  selectedYear={reduceState?.selectedYear}
+                  selectedMonth={reduceState?.selectedMonth}
+                />
+              </Col>
+            </Row>
 
-        <AntDesignRSTableWithFiltration
-          selectedValue={reduceState?.selectedValue}
-          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
-          selectedYear={reduceState?.selectedYear}
-          downloadFileName="Product/Line wise KPI"
-        />
+            <AntDesignRSTableWithFiltration
+              selectedValue={reduceState?.selectedValue}
+              flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+              selectedYear={reduceState?.selectedYear}
+              downloadFileName="Product/Line wise KPI"
+            />
+          </>
+        )}
       </Box>
     </Container>
   );

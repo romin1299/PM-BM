@@ -3,7 +3,7 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import "./index.css";
 import SortIcon from "@mui/icons-material/Sort";
 // import "./tableColor.scss"
-
+import { Tooltip, Switch } from "@mui/material";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import NotFound from "../../Reports/ReportComponents/NotFound";
 import Footer from "../../../components/Footer/Footer";
@@ -11,11 +11,13 @@ import { Row, Col } from "react-bootstrap";
 import currentYear from "../../Dashboard/DashboardComponent/currentYear";
 import { postLineToGetAllMachineData } from "../../../Integration/APIExports";
 import YearDropDown from "../../Dashboard/DashboardComponent/YearDropDown";
+import DisplayTotalAcceptedAndApproveOnApprovalLog from "../../../Popups/DisplayTotalAcceptedAndApproveOnApprovalLog";
 
 function PMSheetApprovalOfImplementationPhase() {
   const context = useContext(RoutingContext);
 
   const [tableData, setTableData] = useState([]);
+  const [displayPendingOrNot, setDisplayPendingOrNot] = useState(false);
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
@@ -31,6 +33,14 @@ function PMSheetApprovalOfImplementationPhase() {
     useState(0);
 
   const [allLineData, setAllLineData] = useState([]);
+
+  const [
+    acceptedAndApproveTotalCountOfImplementation,
+    setAcceptedAndApproveTotalCountOfImplementation,
+  ] = useState([]);
+
+  const [displayAndCloseCountModal, setDisplayAndCloseCountModal] =
+    useState(false);
 
   const [selectedLine, setSelectedLine] = useState();
   const [selectedMachine, setSelectedMachine] = useState();
@@ -242,22 +252,30 @@ function PMSheetApprovalOfImplementationPhase() {
     setTableData([]);
     setStateForAnimationAndNotFound(<LoadingAnimation />);
     try {
-      const res = await fetch("/postSectionToGetPMSheetApprovalData", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          section: sectionData,
-          selectedYear,
-        }),
-      });
+      const res = await fetch(
+        `/postSectionToGetPMSheetApprovalData/implementationPhaseApprovalLog/?lineId=${selectedLine}&&machine_code=${selectedMachine}&&pendingFilterValue=${displayPendingOrNot}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            section: sectionData,
+            selectedYear,
+            selectedMonth,
+          }),
+        }
+      );
       const data = await res.json();
 
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        setTableData(data.machineDataOfPrepAndPlanApproval);
+        setTableData(data.approvalLogOfPM);
+        setAcceptedAndApproveTotalCountOfImplementation(
+          data?.countOfAcceptedAndTotalApprovalOfUsers
+        );
+        setAllLineData(data?.lineData);
         setStateForAnimationAndNotFound(<NotFound />);
       }
     } catch (error) {
@@ -265,25 +283,42 @@ function PMSheetApprovalOfImplementationPhase() {
     }
   };
 
-  useEffect(() => {
-    if (context?.user_type !== "Plant-Admin") {
-      postSectionToGetAllDataForMainDashboard();
-    }
-  }, [refKey, selectedYear]);
+  // useEffect(() => {
+  //   if (context?.user_type !== "Plant-Admin") {
+  //     postSectionToGetAllDataForMainDashboard();
+  //   }
+  // }, [refKey, selectedYear]);
 
   useEffect(() => {
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     }
-  }, [selectedYear]);
+  }, [selectedYear, displayPendingOrNot]);
 
   useEffect(() => {
-    if (context?.user_type === "Plant-Admin") {
+    if (context?.user_type === "Plant-Admin" && selectedSectionOrSubSection) {
       postSectionToGetPMSheetApprovalData(
         sectionOrSubSectionDropdownList?.[selectedSectionOrSubSection]
       );
+    } else {
+      postSectionToGetPMSheetApprovalData(context.section_data);
     }
-  }, [selectedSectionOrSubSection, selectedYear]);
+  }, [
+    selectedSectionOrSubSection,
+    selectedYear,
+    selectedLine,
+    selectedMachine,
+    selectedMonth,
+    refKey,
+    displayPendingOrNot,
+  ]);
+
+  const handleDisplayAcceptedAndApproveCount = () =>
+    setDisplayAndCloseCountModal(
+      (displayAndCloseCountModal) => !displayAndCloseCountModal
+    );
+
+  console.log(tableData);
 
   // const postSectionToGetAllDataForMainDashboard12 = async () => {
   //   // setSubSection(undefined);
@@ -315,16 +350,22 @@ function PMSheetApprovalOfImplementationPhase() {
       {/* <button onClick={postSectionToGetAllDataForMainDashboard12}>
         Click me
       </button> */}
-      <Row className="p-2 mt-3">
+      {/* <Row className="p-2 mt-3">
         <Col sm={12} md={6} lg={3}>
           <YearDropDown
             selectedYear={selectedYear}
             setSelectedYear={setSelectedYear}
           />
         </Col>
-      </Row>
+      </Row> */}
       {context?.user_type === "Plant-Admin" && context?.tm_grade === "HOD" ? (
         <Row className="p-2">
+          <Col sm={12} md={6} lg={2}>
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
+          </Col>
           <Col sm={12} lg={3}>
             <span>
               <b>Section:&nbsp; &nbsp;</b>
@@ -353,9 +394,25 @@ function PMSheetApprovalOfImplementationPhase() {
               })}
             </select>
           </Col>
+          <Col sm={6} md={6} lg={2}>
+            <span>
+              <b>All/Pending:</b>
+            </span>
+            <Tooltip title="Show pending data">
+              <Switch
+                size="medium"
+                checked={displayPendingOrNot}
+                onClick={() =>
+                  setDisplayPendingOrNot(
+                    (displayPendingOrNot) => !displayPendingOrNot
+                  )
+                }
+              />
+            </Tooltip>
+          </Col>
           <Col sm={12} lg={3}>
             <button
-              class="btn-primary1 w-50"
+              class="btn-primary1"
               onClick={() => window.location.reload()}
             >
               Reset
@@ -364,7 +421,13 @@ function PMSheetApprovalOfImplementationPhase() {
         </Row>
       ) : (
         <Row className="p-2">
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={2}>
+            <YearDropDown
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+            />
+          </Col>
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
               <b>Line:</b>
             </span>{" "}
@@ -413,7 +476,7 @@ function PMSheetApprovalOfImplementationPhase() {
             </div> */}
           </Col>
 
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
               <b>Machine:</b>
             </span>{" "}
@@ -465,7 +528,7 @@ function PMSheetApprovalOfImplementationPhase() {
               </p>
             </div> */}
           </Col>
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={12} md={6} lg={2} className="mb-2">
             <span>
               <b>Month:</b>
             </span>
@@ -493,10 +556,25 @@ function PMSheetApprovalOfImplementationPhase() {
               })}
             </select>
           </Col>
-
-          <Col sm={12} md={6} lg={3} className="mb-2">
+          <Col sm={6} md={6} lg={2} className="mb-2">
+            <span>
+              <b>All/Pending:</b>
+            </span>
+            <Tooltip title="Show pending data">
+              <Switch
+                size="medium"
+                checked={displayPendingOrNot}
+                onClick={() =>
+                  setDisplayPendingOrNot(
+                    (displayPendingOrNot) => !displayPendingOrNot
+                  )
+                }
+              />
+            </Tooltip>
+          </Col>
+          <Col sm={12} md={6} lg={2} className="mb-2 d-flex">
             <button
-              class="btn-primary1 w-25"
+              class="btn-primary1"
               onClick={() => {
                 window.location.reload();
               }}
@@ -508,7 +586,20 @@ function PMSheetApprovalOfImplementationPhase() {
       )}
       {tableData?.length > 0 ? (
         <div className="container-fluid" style={{ overflow: "auto" }}>
-          <h4 style={{ padding: "1rem 0 0 0" }}>PM Plan vs Actual Approval</h4>
+          <div className="d-flex justify-content-between">
+            <div>
+              <h4>PM Plan vs Actual Approval</h4>
+            </div>
+            <div>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleDisplayAcceptedAndApproveCount}
+              >
+                Show Approved / Total Approval
+              </button>
+            </div>
+          </div>
 
           <table className="ar-table PMSheetApprovalOfImplementationPhaseTableCol container-fluid">
             <thead className="mt-5">
@@ -553,186 +644,195 @@ function PMSheetApprovalOfImplementationPhase() {
             </thead>
             <tbody>
               {financialYearWiseMonthKeyArray?.map((monthKey) =>
-                tableData?.map((index) =>
-                  index?.checkSheet_data?.implementation_assign_PRD_TL?.[
-                    monthKey
-                  ].length > 0 ||
-                  index?.checkSheet_data
-                    ?.implemetation_mtd_hod_approval_status?.[monthKey]
-                    ?.length > 0 ? (
-                    (selectedLine
-                      ? index?.line_names._id === selectedLine
-                      : true) &&
-                    (selectedMachine
-                      ? index?.machine_code === selectedMachine
-                      : true) &&
-                    (selectedMonth ? monthKey === selectedMonth : true) ? (
-                      <tr className="ar-table-thead-header4 tableRowColor">
-                        <td className="td-padding">
-                          {index.line_names.line_name}
-                        </td>
-                        <td className="td-padding">{index.machine_code}</td>
-                        <td className="td-padding">{index.machine_name}</td>
-                        <td className="td-padding">{monthKey}</td>
+                tableData?.map((index) => {
+                  const hasData =
+                    index?.checkSheet_data?.implementation_assign_PRD_TL?.[
+                      monthKey
+                    ]?.length > 0 ||
+                    index?.checkSheet_data
+                      ?.implemetation_mtd_hod_approval_status?.[monthKey]
+                      ?.length > 0;
 
-                        <td className="td-padding">
-                          {/* {index.sender_tm_name[idx]}
-                    <br />
-                    {index.preparation_TL_date[idx]
-                      } */}
-                          {index?.checkSheet_data?.implemetation_completed_tm_name?.[
-                            monthKey
-                          ]?.map((value, idx) => (
-                            <p>
-                              {value}-
-                              {
-                                index?.checkSheet_data
-                                  ?.implemetation_completed_date?.[monthKey]?.[
-                                  idx
-                                ]
-                              }
-                            </p>
-                          ))}
-                        </td>
-                        {/* PRD Approval */}
-                        <td className="td-padding">
-                          {index?.checkSheet_data?.implemetation_prd_tl_approval_status?.[
-                            monthKey
-                          ]?.map((value, idx) => (
-                            <p>
-                              <b>{value}</b>-
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_assign_PRD_TL_name?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_approved_PRD_TL_date?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -{" "}
-                              {`Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
-                            </p>
-                          ))}
-                        </td>
-                        {/* MTD TL approval */}
-                        <td className="td-padding">
-                          {index?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
-                            monthKey
-                          ]?.map((value, idx) => (
-                            <p>
-                              <b>{value}</b>-
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_assign_MTD_TL_name?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_approved_MTD_TL_date?.[
-                                  monthKey
-                                ]?.[idx]
-                              }{" "}
-                              -{" "}
-                              {value === "Rejected"
-                                ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
-                                : ""}
-                            </p>
-                          ))}
-                        </td>
-                        {/* MTD HOS approval */}
-                        <td className="td-padding">
-                          {index?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
-                            monthKey
-                          ]?.map((value, idx) => (
-                            <p>
-                              <b>{value}</b>-
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_assign_MTD_HOS_name?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -
-                              {
-                                index?.checkSheet_data
-                                  ?.implementation_approved_MTD_HOS_date?.[
-                                  monthKey
-                                ]?.[idx]
-                              }
-                              -{" "}
-                              {value === "Rejected"
-                                ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
-                                : ""}
-                            </p>
-                          ))}
-                        </td>
-                        {/* {console.log(index?.checkSheet_data)}
-                      
-                      */}
+                  if (!hasData) return null;
 
-                        {index?.checkSheet_data
-                          ?.implemetation_mtd_hod_approval_status?.[monthKey]
-                          ?.length > 0 ? (
-                          <td className="td-padding">
-                            {" "}
-                            <p>
-                              <b>
-                                {
+                  const hasPendingPRD =
+                    index?.checkSheet_data?.implemetation_prd_tl_approval_status?.[
+                      monthKey
+                    ]?.includes("Pending");
+                  const hasPendingMTD =
+                    index?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
+                      monthKey
+                    ]?.includes("Pending");
+                  const hasPendingHOS =
+                    index?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+                      monthKey
+                    ]?.includes("Pending");
+
+                  const shouldDisplayRow = displayPendingOrNot
+                    ? hasPendingPRD || hasPendingMTD || hasPendingHOS
+                    : true;
+
+                  if (!shouldDisplayRow) return null;
+
+                  return (selectedMonth ? monthKey === selectedMonth : true) ? (
+                    <tr className="ar-table-thead-header4 tableRowColor">
+                      <td className="td-padding">
+                        {index.line_names.line_name}
+                      </td>
+                      <td className="td-padding">{index.machine_code}</td>
+                      <td className="td-padding">{index.machine_name}</td>
+                      <td className="td-padding">{monthKey}</td>
+
+                      <td className="td-padding">
+                        {index?.checkSheet_data?.implemetation_completed_tm_name?.[
+                          monthKey
+                        ]?.map((value, idx) => (
+                          <p key={idx}>
+                            {value}-
+                            {
+                              index?.checkSheet_data
+                                ?.implemetation_completed_date?.[monthKey]?.[
+                                idx
+                              ]
+                            }
+                          </p>
+                        ))}
+                      </td>
+
+                      {/* PRD Approval */}
+                      <td className="td-padding">
+                        {index?.checkSheet_data?.implemetation_prd_tl_approval_status?.[
+                          monthKey
+                        ]?.map((value, idx) => (
+                          <p key={idx}>
+                            <b>{value}</b>-
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_assign_PRD_TL_name?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_PRD_TL_date?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
+                              : `Remarks: ${index?.checkSheet_data?.implemetation_quality_remarks?.[monthKey]?.[idx]}`}
+                          </p>
+                        ))}
+                      </td>
+
+                      {/* MTD TL Approval */}
+                      <td className="td-padding">
+                        {index?.checkSheet_data?.implemetation_mtd_tl_approval_status?.[
+                          monthKey
+                        ]?.map((value, idx) => (
+                          <p key={idx}>
+                            <b>{value}</b>-
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_assign_MTD_TL_name?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_MTD_TL_date?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
+                              : ""}
+                          </p>
+                        ))}
+                      </td>
+
+                      {/* MTD HOS Approval */}
+                      <td className="td-padding">
+                        {index?.checkSheet_data?.implemetation_mtd_hos_approval_status?.[
+                          monthKey
+                        ]?.map((value, idx) => (
+                          <p key={idx}>
+                            <b>{value}</b>-
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_assign_MTD_HOS_name?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_MTD_HOS_date?.[
+                                monthKey
+                              ]?.[idx]
+                            }
+                            -{" "}
+                            {value === "Rejected"
+                              ? `Remarks: ${index?.checkSheet_data?.implementation_rejected_remarks?.[monthKey]?.[idx]}`
+                              : ""}
+                          </p>
+                        ))}
+                      </td>
+
+                      {index?.checkSheet_data
+                        ?.implemetation_mtd_hod_approval_status?.[monthKey]
+                        ?.length > 0 ? (
+                        <td className="td-padding">
+                          <p>
+                            <b>
+                              {
+                                index?.checkSheet_data
+                                  ?.implemetation_mtd_hod_approval_status?.[
+                                  monthKey
+                                ]?.[
                                   index?.checkSheet_data
                                     ?.implemetation_mtd_hod_approval_status?.[
                                     monthKey
-                                  ]?.[
-                                    index?.checkSheet_data
-                                      ?.implemetation_mtd_hod_approval_status?.[
-                                      monthKey
-                                    ] - 1
-                                  ]
-                                }
-                              </b>
-                              -
-                              {
+                                  ].length - 1
+                                ]
+                              }
+                            </b>
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_MTD_HOD_date?.[
+                                monthKey
+                              ]?.[
                                 index?.checkSheet_data
                                   ?.implementation_approved_MTD_HOD_date?.[
                                   monthKey
-                                ]?.[
-                                  index?.checkSheet_data
-                                    ?.implementation_approved_MTD_HOD_date?.[
-                                    monthKey
-                                  ] - 1
-                                ]
-                              }
-                              -
-                              {
+                                ].length - 1
+                              ]
+                            }
+                            -
+                            {
+                              index?.checkSheet_data
+                                ?.implementation_approved_by_MTD_HOD?.[
+                                monthKey
+                              ]?.[
                                 index?.checkSheet_data
                                   ?.implementation_approved_by_MTD_HOD?.[
                                   monthKey
-                                ]?.[
-                                  index?.checkSheet_data
-                                    ?.implementation_approved_by_MTD_HOD?.[
-                                    monthKey
-                                  ] - 1
-                                ]
-                              }
-                            </p>
-                          </td>
-                        ) : (
-                          <td className="td-padding"></td>
-                        )}
-                      </tr>
-                    ) : (
-                      ""
-                    )
-                  ) : (
-                    ""
-                  )
-                )
+                                ].length - 1
+                              ]
+                            }
+                          </p>
+                        </td>
+                      ) : (
+                        <td className="td-padding"></td>
+                      )}
+                    </tr>
+                  ) : null;
+                })
               )}
             </tbody>
           </table>
@@ -750,6 +850,18 @@ function PMSheetApprovalOfImplementationPhase() {
       <br />
       <br />
       <Footer />
+
+      {displayAndCloseCountModal && (
+        <DisplayTotalAcceptedAndApproveOnApprovalLog
+          acceptedAndApproveTotalCount={
+            acceptedAndApproveTotalCountOfImplementation
+          }
+          modelProp={{
+            show: displayAndCloseCountModal,
+            onHide: handleDisplayAcceptedAndApproveCount,
+          }}
+        />
+      )}
     </>
   );
 }

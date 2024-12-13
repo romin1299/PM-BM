@@ -4,11 +4,20 @@ import { Box, Divider, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Col, Row } from "react-bootstrap";
 import { CountFilters } from "./DailyBDTrendChart";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 export const options = {
   maintainAspectRatio: false,
   responsive: true,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -54,6 +63,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Total Hours",
@@ -64,6 +76,9 @@ export const options = {
     },
     y1: {
       position: "right", // Align the y-axis to the right
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Cummulative Avg Hrs",
@@ -90,32 +105,59 @@ const labels = [
   "Mar",
 ];
 
-const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
+const MTTRChart = ({
+  flagForTogglingFilter,
+  selectedValue,
+  selectedYear,
+  filterValues,
+  userDetails,
+}) => {
+  const [loading, setLoading] = React.useState(true);
   const [mttrData, setMttrData] = useState({
     bdTrendData: [{ label: "", data: [] }],
     averageData: [],
   });
 
-  const getMTTRData = async () => {
-    let urlString = "";
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
 
-    if (flagForTogglingFilter === "based-on-plant") {
-      urlString = "mttrForPlant";
-    } else if (
-      flagForTogglingFilter === "based-on-section" ||
-      flagForTogglingFilter === "based-on-subSection"
-    ) {
-      urlString = "mttrForSection";
-    } else if (flagForTogglingFilter === "based-on-cell") {
-      urlString = "mttrForCell";
-    }
-     else if (flagForTogglingFilter === "based-on-line") {
-      urlString = "mttrForLine";
-    }
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
+
+  let filterMaker = {
+    plant: "Plant",
+    section: "Section",
+    subSection: "Section",
+    cell: "Cell",
+    line: "Line",
+  };
+
+  const getMTTRData = async () => {
+    setLoading(true);
+    let [, , currFilterState] = flagForTogglingFilter?.split("-");
+    let filterFlag = filterMaker[currFilterState];
 
     try {
       const res = await fetch(
-        `/${urlString}/kpiFromDatabase/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        `/mttrFor${filterFlag}/kpiFromDatabase/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -136,10 +178,60 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
       }
     } catch (error) {
       console.log(error);
+      setMttrData({
+        bdTrendData: [{ label: "", data: [] }],
+        averageData: [],
+      });
+    }
+
+    setLoading(false);
+  };
+
+  const header = ["Months"].concat(labels);
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [
+      //   [
+      //     mttrData?.bdTrendData[0]?.label,
+      //     mttrData?.bdTrendData[0]?.data,
+      //     mttrData?.averageData,
+      //   ],
+      // ];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [["Months"].concat(labels)?.toString() + "\n"],
+          [["Hours"].concat(mttrData?.bdTrendData[0]?.data)?.toString() + "\n"],
+          [["Average Hours"].concat(mttrData?.averageData)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          ["Hours"].concat(mttrData?.bdTrendData[0]?.data),
+          ["Average Hours"].concat(mttrData?.averageData),
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `MTTR_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
     }
   };
 
   useEffect(() => {
+    setLoading(false);
     if (selectedValue) getMTTRData();
   }, [selectedValue, selectedYear]);
 
@@ -151,7 +243,7 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
         label: "Average",
         data: mttrData?.averageData,
         borderColor: chartColors.blue[1],
-        borderWidth: 2,
+        //borderWidth: 2,
         backgroundColor: chartColors.blue[1],
         pointStyle: "rectRot",
         yAxisID: "y1",
@@ -162,82 +254,42 @@ const MTTRChart = ({ flagForTogglingFilter, selectedValue, selectedYear }) => {
         label: item?.label,
         data: item?.data,
         backgroundColor: chartColors.monthlyBDTrend[index],
-        borderColor: chartColors.monthlyBDTrend[index],
         borderRadius: 4,
         pointStyle: "rect",
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       })),
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "FP",
-      //   data: [3, 15, 10, 8, 12, 18, 20, 25, 30, 5, 15, 10],
-      //   backgroundColor: chartColors.yellow[1],
-      //   borderColor: chartColors.yellow[1],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "INJ",
-      //   data: [20, 8, 15, 10, 5, 18, 12, 25, 30, 3, 10, 15],
-      //   backgroundColor: chartColors.aqua[3],
-      //   borderColor: chartColors.aqua[3],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "VCT",
-      //   data: [10, 15, 20, 8, 5, 25, 18, 30, 12, 3, 15, 10],
-      //   backgroundColor: chartColors.purple[4],
-      //   borderColor: chartColors.purple[4],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "O2",
-      //   data: [15, 10, 8, 20, 18, 5, 12, 25, 30, 3, 15, 10],
-      //   backgroundColor: chartColors.green[3],
-      //   borderColor: chartColors.green[3],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "ETB",
-      //   data: [8, 15, 10, 5, 18, 20, 25, 30, 12, 3, 15, 10],
-      //   backgroundColor: chartColors.magenta[2],
-      //   borderColor: chartColors.magenta[2],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "VCT PARTS",
-      //   data: [10, 5, 20, 8, 12, 15, 18, 30, 3, 25, 15, 10],
-      //   backgroundColor: chartColors.blue[3],
-      //   borderColor: chartColors.blue[3],
-      //   pointStyle: "rect",
-      // },
-      // {
-      //   type: "bar",
-      //   stack: "bar-stacked",
-      //   label: "FP PARTS",
-      //   data: [5, 15, 10, 8, 12, 18, 20, 25, 30, 3, 15, 10],
-      //   backgroundColor: chartColors.brown[1],
-      //   borderColor: chartColors.brown[1],
-      //   pointStyle: "rect",
-      // },
     ],
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3 mb-3">
-      <ChartTitleBar title="Mean Time to Repair (MTTR)" />
+      <ChartTitleBar
+        title="Mean Time to Repair (MTTR)"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
-      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-        <Chart data={data} options={options} />
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart data={data} options={options} />
+        )}
       </Box>
     </Box>
   );

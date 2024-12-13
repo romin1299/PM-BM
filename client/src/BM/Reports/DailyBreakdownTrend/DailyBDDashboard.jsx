@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useContext } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import DailyBDTrendChart from "./DailyBDTrendChart";
@@ -18,7 +18,7 @@ import currentMonth from "../../../pages/Dashboard/DashboardComponent/currentMon
 
 import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
-
+import RoutingContext from "../../../context/routing/RoutingContext";
 import BDHoursAndCountStatus from "./BDHoursAndCountStatus";
 
 const DailyBTDashboard = () => {
@@ -28,11 +28,12 @@ const DailyBTDashboard = () => {
   // const [selectedYear, setSelectedYear] = React.useState("");
   const currentTabViewName = currentTabView === 0 ? "Plant" : "Section";
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/plant-level-filtration";
 
   const [dailyBDSelectedMonth, setDailyBDSelectedMonth] =
     useState(currentMonth);
+  const loggedUserDetails = useContext(RoutingContext);
 
   return (
     <Container fluid>
@@ -68,12 +69,14 @@ const DailyBTDashboard = () => {
           }
         />
 
-        <Row className="gx-3 mt-1">
+        <Row className="gx-3 mt-3">
           <BDHoursAndCountStatus {...reduceState} />
         </Row>
 
-        <Box className="mb-3 mt-3">
+        <Box className="mb-3 mt-0">
           <DailyBDTrendChart
+            userDetails={loggedUserDetails}
+            filterValues={reduceState}
             {...reduceState}
             dailyBDSelectedMonth={dailyBDSelectedMonth}
             setDailyBDSelectedMonth={setDailyBDSelectedMonth}
@@ -83,6 +86,7 @@ const DailyBTDashboard = () => {
         <BDRSTableWithDateFiltration
           flagForTogglingFilter={reduceState?.flagForTogglingFilter}
           selectedValue={reduceState?.selectedValue}
+          selectedYear={reduceState?.selectedYear}
         />
 
         <Row className="mb-3 gx-3 mt-3">
@@ -139,6 +143,7 @@ const DailyBTDashboard = () => {
 
             <MonthlyBDTrendChart
               filterState={reduceState}
+              userDetails={loggedUserDetails}
               filter={filter}
               setFilter={setFilter}
               currentTabViewName={currentTabViewName}
@@ -148,7 +153,11 @@ const DailyBTDashboard = () => {
             />
           </Col>
           <Col md={12} lg={6}>
-            <MTTRChart {...reduceState} />
+            <MTTRChart
+              userDetails={loggedUserDetails}
+              filterValues={reduceState}
+              {...reduceState}
+            />
           </Col>
         </Row>
       </Box>

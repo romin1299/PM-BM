@@ -5,7 +5,7 @@ import BDHoursTrendChart from "./BDHoursTrendChart";
 import { Box, Button, Divider, Paper, Typography } from "@mui/material";
 import { roundValue } from "../Utils/math/roundValue";
 
-const CellInfoBox = ({ title, value }) => (
+const CellInfoBoxOld = ({ title, value }) => (
   <Box
     className="row"
     sx={{
@@ -52,6 +52,52 @@ const CellInfoBox = ({ title, value }) => (
   </Box>
 );
 
+const CellInfoBox = ({ title, value }) => (
+  <Row className="gx-1">
+    <Col className="col col-sm-5">
+      <Paper
+        variant="outlined"
+        sx={{
+          height: "100%",
+          borderRadius: "2px",
+          borderColor: "#3f51724d",
+          bgcolor: "#90b6ff4d",
+        }}
+      >
+        <Typography
+          variant="body2"
+          component="div"
+          fontWeight={500}
+          sx={{ p: "1px 8px" }}
+        >
+          {title}
+        </Typography>
+      </Paper>
+    </Col>
+
+    <Col className="col col-sm-7">
+      <Paper
+        variant="outlined"
+        sx={{
+          height: "100%",
+          borderRadius: "2px",
+          borderColor: "#3f51724d",
+          bgcolor: "#90b6ff4d",
+        }}
+      >
+        <Typography
+          variant="body2"
+          component="div"
+          fontWeight={500}
+          sx={{ p: "1px 8px" }}
+        >
+          {value}
+        </Typography>
+      </Paper>
+    </Col>
+  </Row>
+);
+
 const CellSummaryCard = ({ summeryCardData, item }) => {
   const infoItems = [
     { name: "BD Hour", key: "bdHours" },
@@ -83,10 +129,13 @@ const CellSummaryCard = ({ summeryCardData, item }) => {
         {item?.cell_name}
       </Typography>
 
-      <Paper
-        className="container-fluid mb-2"
-        variant="outlined"
-        sx={{ pt: "2px", pb: "2px", backgroundColor: "#e8fbeb" }}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "4px",
+          mb: 1,
+        }}
       >
         {infoItems.map((info, index) => (
           <CellInfoBox
@@ -100,7 +149,7 @@ const CellSummaryCard = ({ summeryCardData, item }) => {
             pmStatus?.totalCount || 0
           }`}
         />
-      </Paper>
+      </Box>
 
       {/* <Box variant="outlined" className="mb-2 p-1">
         <Typography textAlign="center" component="div" fontSize={14}>
@@ -117,6 +166,7 @@ const CellSummaryCard = ({ summeryCardData, item }) => {
           }}
           chartHeight={{ xs: "200px", md: "250px" }}
           labelsFontSize="10px"
+          axisLabelsFontSize="12px"
         />
       ) : (
         <Box
@@ -225,7 +275,7 @@ const SummeryCardModal = ({
     getSummaryCard();
   }, []);
 
-  console.log("summeryCardData:", summeryCardData);
+  console.log("modelProp:", modelProp);
 
   return (
     <Modal
@@ -251,7 +301,7 @@ const SummeryCardModal = ({
 
         <Row className="flex-nowrap overflow-auto gx-3 pt-3 pb-3">
           {summeryCardData?.cells?.map((item) => (
-            <Col style={{ minWidth: "260px", maxWidth:"380px" }}>
+            <Col style={{ minWidth: "260px", maxWidth: "380px" }}>
               <CellSummaryCard summeryCardData={summeryCardData} item={item} />
             </Col>
           ))}
@@ -264,6 +314,7 @@ const SummeryCardModal = ({
           variant="contained"
           disableElevation
           className="bg-button"
+          onClick={() => modelProp.onHide()}
         >
           Close
         </Button>

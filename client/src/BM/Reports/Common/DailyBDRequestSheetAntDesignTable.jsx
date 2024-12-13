@@ -1,15 +1,32 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
-import { Table, Input } from "antd";
+import { Table, Input, ConfigProvider } from "antd";
 import { Row, Col } from "react-bootstrap";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useLocation, useNavigate } from "react-router-dom";
+import MainRequestSheetForView from "../../Tabs/RequestSheetForView/MainRequestSheetForView";
 const Search = Input.Search;
 
 const BDRequestSheetAntDesignTable = ({
   requestSheetData,
   downloadFileName,
+  selectedYear,
 }) => {
   const [searchResult, setSearchResult] = useState([]);
 
+  const [selectedRow, setSelectedRow] = useState();
+
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+    useState(false);
+
+  const handleRequestSheetShowAndCloseState = () => {
+    setRequestSheetModalOpenClose(
+      (requestSheetModalOpenClose) => !requestSheetModalOpenClose
+    );
+  };
+
+  const navigate = useNavigate();
+  const location = useLocation();
   // let SrNo = 0;
   const requestSheetHeader = [
     // {
@@ -64,6 +81,33 @@ const BDRequestSheetAntDesignTable = ({
       title: "R.S Status",
       dataIndex: "requestSheetStatus",
     },
+    {
+      title: "View",
+      dataIndex: "",
+      width: 66,
+
+      render: (value) => (
+        <VisibilityIcon
+          className="text-primary"
+          role="button"
+          onClick={async () =>
+            // navigate(
+            //   `/bm/view/request-sheet/${value?.machineNo}/${value?._id}/${selectedYear}`,
+            //   {
+            //     state: {
+            //       prevPath: location?.pathname,
+            //       prevPathSearch: location?.search,
+            //     },
+            //   }
+            // )
+            {
+              setSelectedRow(value);
+              handleRequestSheetShowAndCloseState();
+            }
+          }
+        />
+      ),
+    },
   ];
 
   const onChange = (pagination, filters, sorter, extra) => {
@@ -74,22 +118,39 @@ const BDRequestSheetAntDesignTable = ({
     let searchResultFind = requestSheetData.filter((obj) => {
       return (
         obj?.sectionName?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
-        obj?.requestSheetNoOfBM?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
+        obj?.requestSheetNoOfBM
+          ?.toLowerCase()
+          ?.startsWith(value?.toLowerCase()) ||
         obj?.cell?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
         obj?.line?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
         obj?.machineNo?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
         obj?.machineName?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
         obj?.problem?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
-        obj?.problemOccurredDateAndTimeOfBM?.toLowerCase()?.startsWith(value?.toLowerCase())||
-        obj?.work_order_status?.toLowerCase()?.startsWith(value?.toLowerCase()) ||
+        obj?.problemOccurredDateAndTimeOfBM
+          ?.toLowerCase()
+          ?.startsWith(value?.toLowerCase()) ||
+        obj?.work_order_status
+          ?.toLowerCase()
+          ?.startsWith(value?.toLowerCase()) ||
         obj?.requestSheetStatus?.toLowerCase()?.startsWith(value?.toLowerCase())
-      )
+      );
     });
     setSearchResult(searchResultFind);
   };
 
   return (
     <>
+      {requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={selectedYear}
+          machine_code={selectedRow?.machineNo}
+          requestSheetID={selectedRow?._id}
+          modelProp={{
+            show: requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
       <Row className="p-1">
         <Col></Col>
         <Col xs={6}></Col>
@@ -101,14 +162,32 @@ const BDRequestSheetAntDesignTable = ({
           />
         </Col>
       </Row>
-      <Table
-        columns={requestSheetHeader}
-        dataSource={searchResult?.length > 0 ? searchResult : requestSheetData}
-        onChange={onChange}
-        // width={"100%"}
-        scroll={{ x: 2000 }}
-        pagination={false}
-      />
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "#0fa3b1",
+              fontWeightStrong: 700,
+              borderColor: "#9f9f9f",
+              fontSize: 18,
+              fontSizeIcon: 15,
+              opacityLoading: 2.65,
+            },
+          },
+        }}
+      >
+        <Table
+          columns={requestSheetHeader}
+          dataSource={
+            searchResult?.length > 0 ? searchResult : requestSheetData
+          }
+          onChange={onChange}
+          // width={"100%"}
+          scroll={{ x: 2000 }}
+          pagination={false}
+          bordered
+        />
+      </ConfigProvider>
     </>
   );
 };

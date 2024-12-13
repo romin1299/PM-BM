@@ -15,10 +15,13 @@ import ChartDataLabels from "chartjs-plugin-datalabels";
 import { MONTH_LABELS, chartColors } from "../../Utils/ChartUtils/chartEnums";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import { getRandomDataArray } from "../../Utils/math/generateRandomValues";
 import Loading from "../../../components/Loading/Loading";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +36,10 @@ export const options = {
   maintainAspectRatio: false,
   responsive: true,
   maxBarThickness: 100,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -58,6 +65,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       position: "left",
       ticks: {
         color: "black",
@@ -73,6 +83,7 @@ const YearlyTrendChart = ({
   filter,
   setFilter,
   selectedYear,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -82,6 +93,30 @@ const YearlyTrendChart = ({
   });
 
   const { flagForTogglingFilter, selectedValue } = filterState;
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterState,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   React.useEffect(() => {
     if (currentTabViewName === "Plant" && filter === "cell")
@@ -126,6 +161,8 @@ const YearlyTrendChart = ({
         data: item?.data,
         backgroundColor: chartColors.monthlyBDTrend[index],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       }));
       const targetData = res?.data?.bdTrendDataTarget;
       // const targetData = getRandomDataArray(2, 5, 8);
@@ -138,7 +175,7 @@ const YearlyTrendChart = ({
               type: "line",
               label: "Target",
               data: targetData,
-              borderWidth: 2,
+              //borderWidth: 2,
               borderColor: chartColors.target2,
               backgroundColor: chartColors.target2,
               pointStyle: "rectRot",
@@ -158,12 +195,50 @@ const YearlyTrendChart = ({
     setLoading(false);
   };
 
+  const header = ["Years", ...chartData.labels];
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [chartData].map((item) => [item.labels, item.datasets]);
+      // const bodyData = [chartData].map((item) => [
+      //   item.datasets.map((a) => a.label).join("\n"),
+      //   item.datasets.map((a) => a.data).join("\n"),
+      // ]);
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          ["Years", chartData.labels]?.toString() + "\n",
+          ...chartData?.datasets.map(
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+          ),
+        ];
+      } else {
+        bodyData = [
+          ...chartData?.datasets.map((dataset) => [
+            dataset.label,
+            ...dataset.data,
+          ]),
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(filterData, bodyData, fileType, header, "Yearly_Bd_Trend");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     if (flagForTogglingFilter && selectedValue && selectedYear && filter)
       fetchChartData();
   }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
 
   // console.log('chartData:', chartData)
+  const isDataExists = isChartDataExist(chartData);
 
   return (
     <Box className="cell p-3">
@@ -172,24 +247,34 @@ const YearlyTrendChart = ({
         // titleProps={{
         //   sx: { fontWeight: "500" },
         // }}
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
       />
 
-      {loading ? (
-        <Loading g height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {chartData === undefined || chartData?.datasets?.length < 1 ? (
-            <DataNotFound />
-          ) : (
-            <Chart
-              type="bar"
-              options={options}
-              data={chartData}
-              plugins={[ChartDataLabels]}
-            />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart
+            type="bar"
+            options={options}
+            data={chartData}
+            plugins={[ChartDataLabels]}
+          />
+        )}
+      </Box>
     </Box>
   );
 };

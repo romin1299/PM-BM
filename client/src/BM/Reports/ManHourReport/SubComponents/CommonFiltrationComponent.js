@@ -1,34 +1,101 @@
-export const initialState = {
-  selectedValue: "",
-  flagForTogglingFilter: "",
+export const initialState = (isWithLocalStorageForFiltration) => {
+  if (isWithLocalStorageForFiltration === "Yes")
+  return {
+    selectedValue: localStorage.getItem("selectedValue") || "",
+    flagForTogglingFilter: localStorage.getItem("flagForTogglingFilter") || "",
 
-  selectedValueForLineAnTMLoadGraph: "",
-  togglingFilterFlagForLineAnTMLoadGraph: "",
+    selectedValueForLineAnTMLoadGraph:
+      localStorage.getItem("selectedValueForLineAnTMLoadGraph") || "",
+    togglingFilterFlagForLineAnTMLoadGraph:
+      localStorage.getItem("togglingFilterFlagForLineAnTMLoadGraph") || "",
 
-  selectedSection: "",
-  sections: [],
+    selectedSection: localStorage.getItem("selectedSection") || "",
+    sections:
+      (localStorage.getItem("sections") &&
+        typeof JSON.parse(localStorage.getItem("sections")) === "object" &&
+        JSON.parse(localStorage.getItem("sections"))) ||
+      [],
 
-  selectedSubSection: "",
-  subSections: [],
+    selectedSubSection: localStorage.getItem("selectedSubSection") || "",
+    subSections:
+      (localStorage.getItem("subSections") &&
+        typeof JSON.parse(localStorage.getItem("subSections")) === "object" &&
+        JSON.parse(localStorage.getItem("subSections"))) ||
+      [],
 
-  selectedCell: "",
-  cells: [],
+    selectedCell: localStorage.getItem("selectedCell") || "",
+    cells:
+      (localStorage.getItem("cells") &&
+        typeof JSON.parse(localStorage.getItem("cells")) === "object" &&
+        JSON.parse(localStorage.getItem("cells"))) ||
+      [],
 
-  selectedLine: "",
-  lines: [],
+    selectedLine: localStorage.getItem("selectedLine") || "",
+    lines:
+      (localStorage.getItem("lines") &&
+        typeof JSON.parse(localStorage.getItem("lines")) === "object" &&
+        JSON.parse(localStorage.getItem("lines"))) ||
+      [],
 
-  selectedMachine: "",
-  machines: [],
+    selectedMachine: localStorage.getItem("selectedMachine") || "",
+    machines:
+      (localStorage.getItem("machines") &&
+        typeof JSON.parse(localStorage.getItem("machines")) === "object" &&
+        JSON.parse(localStorage.getItem("machines"))) ||
+      [],
 
-  selectedYear:
-    new Date().getMonth() < 3
-      ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-      : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
-  selectedMonth: "",
+    selectedRSStatus: localStorage.getItem("selectedRSStatus") || "",
 
-  message: "",
-  isLoading: true,
-  isError: false,
+    selectedMaintenanceType:
+      localStorage.getItem("selectedMaintenanceType") || "",
+
+    selectedMonth: localStorage.getItem("selectedMonth") || "",
+    selectedYear:
+      localStorage.getItem("selectedYear") ||
+      (new Date().getMonth() < 3
+        ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+        : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`),
+
+    message: "",
+    isLoading: true,
+    isError: false,
+  };
+  return {
+    selectedValue: "",
+    flagForTogglingFilter: "",
+
+    selectedValueForLineAnTMLoadGraph: "",
+    togglingFilterFlagForLineAnTMLoadGraph: "",
+
+    selectedSection: "",
+    sections: [],
+
+    selectedSubSection: "",
+    subSections: [],
+
+    selectedCell: "",
+    cells: [],
+
+    selectedLine: "",
+    lines: [],
+
+    selectedMachine: "",
+    machines: [],
+
+    selectedRSStatus: "",
+
+    selectedMaintenanceType: "",
+
+    selectedMonth: "",
+    selectedYear:
+      new Date().getMonth() < 3
+        ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+        : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+
+    message: "",
+    isLoading: true,
+    isError: false,
+  };
 };
 
 export const ACTION = {
@@ -44,6 +111,7 @@ export const ACTION = {
   HANDLE_SELECT_MACHINE: "handle-selected-machine",
   HANDLE_SELECT_YEAR: "handle-selected-year",
   HANDLE_SELECT_MONTH: "handle-selected-month",
+  HANDLE_SELECT_STATUS: "handle-selected-status",
 };
 
 export const getFiltrationValue = async ({ url }) => {
@@ -68,6 +136,35 @@ export const getFiltrationValue = async ({ url }) => {
 export const reducer = (state, action) => {
   switch (action?.type) {
     case ACTION?.GET_DATA:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedValue);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem(
+          "selectedValueForLineAnTMLoadGraph",
+          action?.selectedValue
+        );
+        localStorage.setItem(
+          "togglingFilterFlagForLineAnTMLoadGraph",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem("selectedSection", action?.selectedSection);
+        localStorage.setItem("sections", JSON.stringify(action?.sections));
+        localStorage.setItem("selectedSubSection", action?.selectedSubSection);
+        localStorage.setItem(
+          "subSections",
+          JSON.stringify(action?.subSections)
+        );
+        localStorage.setItem("selectedCell", action?.selectedCell);
+        localStorage.setItem("cells", JSON.stringify(action?.cells));
+        localStorage.setItem("selectedLine", action?.selectedLine);
+        localStorage.setItem("lines", JSON.stringify(action?.lines));
+        localStorage.setItem("selectedMachine", action?.selectedMachine);
+        localStorage.setItem("machines", JSON.stringify(action?.machines));
+      }
+
       return {
         ...state,
         isLoading: false,
@@ -92,6 +189,35 @@ export const reducer = (state, action) => {
       };
 
     case ACTION?.GET_DATA_BASED_ON_SECTION:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedValue);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem(
+          "selectedValueForLineAnTMLoadGraph",
+          action?.selectedValue
+        );
+        localStorage.setItem(
+          "togglingFilterFlagForLineAnTMLoadGraph",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem("selectedSection", action?.selectedSection);
+
+        localStorage.setItem("selectedSubSection", action?.selectedSubSection);
+        localStorage.setItem(
+          "subSections",
+          JSON.stringify(action?.subSections)
+        );
+        localStorage.setItem("selectedCell", action?.selectedCell);
+        localStorage.setItem("cells", JSON.stringify(action?.cells));
+        localStorage.setItem("selectedLine", action?.selectedLine);
+        localStorage.setItem("lines", JSON.stringify(action?.lines));
+        localStorage.setItem("selectedMachine", action?.selectedMachine);
+        localStorage.setItem("machines", JSON.stringify(action?.machines));
+      }
+
       return {
         ...state,
         isLoading: false,
@@ -124,6 +250,22 @@ export const reducer = (state, action) => {
       //     flagForTogglingFilter: action?.flagForTogglingFilter,
       //   };
       // }
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedValue);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+
+        localStorage.setItem("selectedSubSection", action?.selectedSubSection);
+        localStorage.setItem("selectedCell", action?.selectedCell);
+        localStorage.setItem("cells", JSON.stringify(action?.cells));
+        localStorage.setItem("selectedLine", action?.selectedLine);
+        localStorage.setItem("lines", JSON.stringify(action?.lines));
+        localStorage.setItem("selectedMachine", action?.selectedMachine);
+        localStorage.setItem("machines", JSON.stringify(action?.machines));
+      }
+
       return {
         ...state,
         isLoading: false,
@@ -143,6 +285,20 @@ export const reducer = (state, action) => {
       };
 
     case ACTION?.GET_DATA_BASED_ON_CELL:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedValue);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+
+        localStorage.setItem("selectedCell", action?.selectedCell);
+        localStorage.setItem("selectedLine", action?.selectedLine);
+        localStorage.setItem("lines", JSON.stringify(action?.lines));
+        localStorage.setItem("selectedMachine", action?.selectedMachine);
+        localStorage.setItem("machines", JSON.stringify(action?.machines));
+      }
+
       return {
         ...state,
         isLoading: false,
@@ -160,6 +316,17 @@ export const reducer = (state, action) => {
       };
 
     case ACTION?.GET_DATA_BASED_ON_LINE:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedValue);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem("selectedLine", action?.selectedLine);
+        localStorage.setItem("selectedMachine", action?.selectedMachine);
+        localStorage.setItem("machines", JSON.stringify(action?.machines));
+      }
+
       return {
         ...state,
         isLoading: false,
@@ -175,6 +342,32 @@ export const reducer = (state, action) => {
       };
 
     case ACTION?.HANDLE_SELECT_SECTION:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedSection);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem(
+          "selectedValueForLineAnTMLoadGraph",
+          action?.selectedSection
+        );
+        localStorage.setItem(
+          "togglingFilterFlagForLineAnTMLoadGraph",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem("selectedSection", action?.selectedSection);
+
+        localStorage.removeItem("selectedSubSection");
+        localStorage.removeItem("subSections");
+        localStorage.removeItem("selectedCell");
+        localStorage.removeItem("cells");
+        localStorage.removeItem("selectedLine");
+        localStorage.removeItem("lines");
+        localStorage.removeItem("selectedMachine");
+        localStorage.removeItem("machines");
+      }
+
       return {
         ...state,
 
@@ -196,6 +389,31 @@ export const reducer = (state, action) => {
       };
 
     case ACTION?.HANDLE_SELECT_SUBSECTION:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedSubSection);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem(
+          "selectedValueForLineAnTMLoadGraph",
+          action?.selectedSubSection
+        );
+        localStorage.setItem(
+          "togglingFilterFlagForLineAnTMLoadGraph",
+          action?.flagForTogglingFilter
+        );
+
+        localStorage.setItem("selectedSubSection", action?.selectedSubSection);
+
+        localStorage.removeItem("selectedCell");
+        localStorage.removeItem("cells");
+        localStorage.removeItem("selectedLine");
+        localStorage.removeItem("lines");
+        localStorage.removeItem("selectedMachine");
+        localStorage.removeItem("machines");
+      }
+
       return {
         ...state,
 
@@ -215,6 +433,24 @@ export const reducer = (state, action) => {
       };
 
     case ACTION?.HANDLE_SELECT_CELL:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedCell);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+        localStorage.setItem(
+          "selectedValueForLineAnTMLoadGraph",
+          action?.selectedCell
+        );
+        localStorage.setItem(
+          "togglingFilterFlagForLineAnTMLoadGraph",
+          action?.flagForTogglingFilter
+        );
+
+        localStorage.setItem("selectedCell", action?.selectedCell);
+      }
+
       return {
         ...state,
 
@@ -225,13 +461,23 @@ export const reducer = (state, action) => {
         togglingFilterFlagForLineAnTMLoadGraph: action?.flagForTogglingFilter,
 
         selectedCell: action?.selectedCell,
-        lines: action?.lines || [],
-        selectedLine: action?.selectedLine || "",
-        selectedMachine: action?.selectedMachine || "",
-        machines: action?.machines || [],
+        // lines: action?.lines || [],
+        // selectedLine: action?.selectedLine || "",
+        // selectedMachine: action?.selectedMachine || "",
+        // machines: action?.machines || [],
       };
 
     case ACTION?.HANDLE_SELECT_LINE:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedLine);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+
+        localStorage.setItem("selectedLine", action?.selectedLine);
+      }
+
       return {
         ...state,
 
@@ -239,11 +485,21 @@ export const reducer = (state, action) => {
         selectedValue: action?.selectedLine,
 
         selectedLine: action?.selectedLine || "",
-        selectedMachine: action?.selectedMachine || "",
-        machines: action?.machines || [],
+        // selectedMachine: action?.selectedMachine || "",
+        // machines: action?.machines || [],
       };
 
     case ACTION?.HANDLE_SELECT_MACHINE:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedValue", action?.selectedMachine);
+        localStorage.setItem(
+          "flagForTogglingFilter",
+          action?.flagForTogglingFilter
+        );
+
+        localStorage.setItem("selectedMachine", action?.selectedMachine);
+      }
+
       return {
         ...state,
 
@@ -254,16 +510,52 @@ export const reducer = (state, action) => {
       };
 
     case ACTION?.HANDLE_SELECT_YEAR:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedYear", action?.selectedYear);
+        localStorage.removeItem("selectedMonth");
+        localStorage.removeItem("selectedRSStatus");
+        localStorage.removeItem("selectedMaintenanceType");
+      }
+
       return {
         ...state,
         selectedYear: action?.selectedYear,
         selectedMonth: "",
+        selectedRSStatus: "",
+        selectedMaintenanceType: "",
       };
 
     case ACTION?.HANDLE_SELECT_MONTH:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedMonth", action?.selectedMonth);
+      }
+
       return {
         ...state,
         selectedMonth: action?.selectedMonth,
+      };
+
+    case ACTION?.HANDLE_SELECT_STATUS:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedRSStatus", action?.selectedRSStatus);
+      }
+
+      return {
+        ...state,
+        selectedRSStatus: action?.selectedRSStatus,
+      };
+
+    case ACTION?.HANDLE_SELECT_MAINTENANCE_TYPE:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem(
+          "selectedMaintenanceType",
+          action?.selectedMaintenanceType
+        );
+      }
+
+      return {
+        ...state,
+        selectedMaintenanceType: action?.selectedMaintenanceType,
       };
 
     default:

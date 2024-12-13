@@ -40,78 +40,105 @@ import TargetDashboard from "./TargetOfBD/TargetDashboard";
 import MachineSummaryComponent from "../Common/Machine/MachineHistoryComponent";
 
 import NoLossBDEntryForm from "./NoLossBDDataEntry/NoLossBDEntryForm";
+import ViewNoLossBDEntryForm from "./NoLossBDDataEntry/ViewNoLossBDEntryForm";
+import UpdateRequestSheetForAnyStatus from "./Tabs/UpdateRequestSheetForAnyStatus/UpdateRequestSheetForAnyStatus";
+
+import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
+import { menuItems } from "./BMSidebar/menuItems";
+
+import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
+import {
+  NAME_OF_THE_COMPANY,
+  LIST_OF_COMPANY,
+} from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 function BM_Routes({ commonRoutes }) {
-  const reportRoutes = [
-    ...commonRoutes,
-    {
-      path: "/bm/report/productionLineWiseReport",
-      element: <ProductionLineWiseReport />,
-    },
-    { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
-    {
-      path: "/bm/report/daily-breakdown-trend",
-      element: <DailyBTDashboard />,
-    },
-    {
-      path: "/bm/report/monthly-breakdown-trend",
-      element: <MonthlyBDTDashboard />,
-    },
-    // {
-    //   path: "/bm/report/mttr-report",
-    //   element: <MTTRReportDashboard />,
-    // },
-    // {
-    //   path: "/bm/report/mtbf-report",
-    //   element: <MTBFReportDashboard />,
-    // },
-    {
-      path: "/bm/report/line-contribution-breakdown-trend",
-      element: <LineContributionBD />,
-    },
-    {
-      path: "/bm/report/tm-mtr",
-      element: <TMMTR />,
-    },
-    {
-      path: "/bm/report/mttr",
-      element: <MTTRReportDashboard />,
-    },
-    {
-      path: "/bm/report/mtbf",
-      element: <MTBFReportDashboard />,
-    },
-    {
-      path: "/bm/report/top-machine-breakdown",
-      element: <TopMachineBD />,
-    },
-    {
-      path: "/bm/report/machine-age",
-      element: <MachineAgeReport />,
-    },
-  ];
+  let reportRoutes = [];
+  // if (NAME_OF_THE_COMPANY !== LIST_OF_COMPANY?.[0]) {
+  //   // For DENSO-INDIA
+  //   reportRoutes = [
+  //     ...commonRoutes,
+  //     {
+  //       path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+  //       element: <UpdateRequestSheetForAnyStatus />,
+  //     },
+  //     {
+  //       path: "/bm/report/productionLineWiseReport",
+  //       element: <ProductionLineWiseReport />,
+  //     },
+  //     { path: "/bm/report/man-hour", element: <ManHourDashboard /> },
+  //     {
+  //       path: "/bm/report/daily-breakdown-trend",
+  //       element: <DailyBTDashboard />,
+  //     },
+  //     {
+  //       path: "/bm/report/monthly-breakdown-trend",
+  //       element: <MonthlyBDTDashboard />,
+  //     },
+  //     // {
+  //     //   path: "/bm/report/mttr-report",
+  //     //   element: <MTTRReportDashboard />,
+  //     // },
+  //     // {
+  //     //   path: "/bm/report/mtbf-report",
+  //     //   element: <MTBFReportDashboard />,
+  //     // },
+  //     {
+  //       path: "/bm/report/line-contribution-breakdown-trend",
+  //       element: <LineContributionBD />,
+  //     },
+  //     {
+  //       path: "/bm/report/tm-mtr",
+  //       element: <TMMTR />,
+  //     },
+  //     {
+  //       path: "/bm/report/mttr",
+  //       element: <MTTRReportDashboard />,
+  //     },
+  //     {
+  //       path: "/bm/report/mtbf",
+  //       element: <MTBFReportDashboard />,
+  //     },
+  //     {
+  //       path: "/bm/report/top-machine-breakdown",
+  //       element: <TopMachineBD />,
+  //     },
+  //     {
+  //       path: "/bm/report/machine-age",
+  //       element: <MachineAgeReport />,
+  //     },
+  //   ];
+  // } else {
+    //For DENSO-HARYANA
+    reportRoutes = commonRoutes;
+
+    reportRoutes.push({
+      path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+      element: <UpdateRequestSheetForAnyStatus />,
+    });
+  // }
 
   // Define an array of routes for each user type
   const userRoutes = [
     {
       user_type: "Admin",
       routes: [
-        {
-          path: "/bm",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Plant Dashboard" />
-            </div>
-          ),
-        },
-        {
-          path: "/bm/summeryDashboard",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Summary Dashboard" />
-            </div>
-          ),
-        },
+        // {
+        //   path: "/bm",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Plant Dashboard" />
+        //     </div>
+        //   ),
+        // },
+        // {
+        //   path: "/bm/summeryDashboard",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Summary Dashboard" />
+        //     </div>
+        //   ),
+        // },
         {
           path: "/bm/admin-creation-dashboard",
           element: <AdminCreationDashboard />,
@@ -133,26 +160,23 @@ function BM_Routes({ commonRoutes }) {
     {
       user_type: "Plant-Admin",
       routes: [
-        {
-          path: "/bm",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Plant Dashboard" />
-            </div>
-          ),
-        },
-        {
-          path: "/bm/summeryDashboard",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Summary Dashboard" />
-            </div>
-          ),
-        },
-        {
-          path: "/bm/operator-dashboard",
-          element: <OperatorDashboard />,
-        },
+        // {
+        //   path: "/bm",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Plant Dashboard" />
+        //     </div>
+        //   ),
+        // },
+        // {
+        //   path: "/bm/summeryDashboard",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Summary Dashboard" />
+        //     </div>
+        //   ),
+        // },
+        //
         {
           path: "/bm/approval",
           element: <ApprovalDashboardOfRequestSheet />,
@@ -162,7 +186,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetMonitoring />,
         },
         {
-          path: "/bm/requestListDashboard",
+          path: "/bm",
           element: <RequestSheetMainDashboard />,
         },
         {
@@ -170,7 +194,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetUpdate />,
         },
         {
-          path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetView />,
         },
         {
@@ -185,10 +209,10 @@ function BM_Routes({ commonRoutes }) {
           path: "/bm/targetDashboard",
           element: <TargetDashboard />,
         },
-        // {
-        //   path: "/bm/profile",
-        //   element: <Profile />,
-        // },
+        {
+          path: "/bm/noLossDataOfBD",
+          element: <NoLossBDEntryForm />,
+        },
 
         ...reportRoutes,
       ],
@@ -196,32 +220,29 @@ function BM_Routes({ commonRoutes }) {
     {
       user_type: "Section-Admin",
       routes: [
-        {
-          path: "/bm",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Plant Dashboard" />
-            </div>
-          ),
-        },
-        {
-          path: "/bm/summeryDashboard",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Summary Dashboard" />
-            </div>
-          ),
-        },
-        {
-          path: "/bm/operator-dashboard",
-          element: <OperatorDashboard />,
-        },
+        // {
+        //   path: "/bm",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Plant Dashboard" />
+        //     </div>
+        //   ),
+        // },
+        // {
+        //   path: "/bm/summeryDashboard",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Summary Dashboard" />
+        //     </div>
+        //   ),
+        // },
+        //
         {
           path: "/bm/requestSheetMonitoring",
           element: <RequestSheetMonitoring />,
         },
         {
-          path: "/bm/requestListDashboard",
+          path: "/bm",
           element: <RequestSheetMainDashboard />,
         },
         {
@@ -233,7 +254,7 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetUpdate />,
         },
         {
-          path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetView />,
         },
         {
@@ -247,66 +268,6 @@ function BM_Routes({ commonRoutes }) {
         {
           path: "/bm/targetDashboard",
           element: <TargetDashboard />,
-        },
-        // {
-        //   path: "/bm/profile",
-        //   element: <Profile />,
-        // },
-
-        ...reportRoutes,
-      ],
-    },
-    {
-      user_type: "TL/HOSS",
-      routes: [
-        {
-          path: "/bm",
-          element: (
-            <div className="container-fluid">
-              {/* <BMTabDashboard /> */}
-              <BMTitlebar title="Plant Dashboard" />
-            </div>
-          ),
-        },
-        {
-          path: "/bm/summeryDashboard",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Summary Dashboard" />
-            </div>
-          ),
-        },
-        {
-          path: "/bm/requestSheetMonitoring",
-          element: <RequestSheetMonitoring />,
-        },
-        {
-          path: "/bm/requestListDashboard",
-          element: <RequestSheetMainDashboard />,
-        },
-        {
-          path: "/bm/generateRequestSheetMainDashboard",
-          element: <GenerateRequestSheetMainDashboard />,
-        },
-        {
-          path: "/bm/request-sheet/:generateType/:machine_code",
-          element: <RequestSheet />,
-        },
-        {
-          path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
-          element: <RequestSheetUpdate />,
-        },
-        {
-          path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
-          element: <RequestSheetView />,
-        },
-        {
-          path: "/bm/approval",
-          element: <ApprovalDashboardOfRequestSheet />,
-        },
-        {
-          path: "/bm/approvalLogs",
-          element: <ApprovalLogs />,
         },
         {
           path: "/bm/noLossDataOfBD",
@@ -321,30 +282,31 @@ function BM_Routes({ commonRoutes }) {
       ],
     },
     {
-      user_type: "Operator",
+      user_type: "TL/HOSS",
       routes: [
-        {
-          path: "/bm",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Plant Dashboard" />
-            </div>
-          ),
-        },
-        {
-          path: "/bm/summeryDashboard",
-          element: (
-            <div className="container-fluid">
-              <BMTitlebar title="Summary Dashboard" />
-            </div>
-          ),
-        },
+        // {
+        //   path: "/bm",
+        //   element: (
+        //     <div className="container-fluid">
+        //       {/* <BMTabDashboard /> */}
+        //       <BMTitlebar title="Plant Dashboard" />
+        //     </div>
+        //   ),
+        // },
+        // {
+        //   path: "/bm/summeryDashboard",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Summary Dashboard" />
+        //     </div>
+        //   ),
+        // },
         {
           path: "/bm/requestSheetMonitoring",
           element: <RequestSheetMonitoring />,
         },
         {
-          path: "/bm/requestListDashboard",
+          path: "/bm",
           element: <RequestSheetMainDashboard />,
         },
         {
@@ -352,7 +314,7 @@ function BM_Routes({ commonRoutes }) {
           element: <GenerateRequestSheetMainDashboard />,
         },
         {
-          path: "/bm/request-sheet/:generateType/:machine_code",
+          path: "/bm/request-sheet/:generateType/:machine_code/:selectedYear",
           element: <RequestSheet />,
         },
         {
@@ -360,7 +322,74 @@ function BM_Routes({ commonRoutes }) {
           element: <RequestSheetUpdate />,
         },
         {
-          path: "/bm/view/request-sheet/:machine_code/:requestSheetID",
+          path: "/bm/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+          element: <RequestSheetView />,
+        },
+        {
+          path: "/bm/approval",
+          element: <ApprovalDashboardOfRequestSheet />,
+        },
+        {
+          path: "/bm/approvalLogs",
+          element: <ApprovalLogs />,
+        },
+        {
+          path: "/bm/noLossDataOfBD",
+          element: <NoLossBDEntryForm />,
+        },
+        {
+          path: "/bm/targetDashboard",
+          element: <TargetDashboard />,
+        },
+        // {
+        //   path: "/bm/profile",
+        //   element: <Profile />,
+        // },
+
+        ...reportRoutes,
+      ],
+    },
+    {
+      user_type: "Operator",
+      routes: [
+        // {
+        //   path: "/bm",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Plant Dashboard" />
+        //     </div>
+        //   ),
+        // },
+        // {
+        //   path: "/bm/summeryDashboard",
+        //   element: (
+        //     <div className="container-fluid">
+        //       <BMTitlebar title="Summary Dashboard" />
+        //     </div>
+        //   ),
+        // },
+        {
+          path: "/bm/requestSheetMonitoring",
+          element: <RequestSheetMonitoring />,
+        },
+        {
+          path: "/bm",
+          element: <RequestSheetMainDashboard />,
+        },
+        {
+          path: "/bm/generateRequestSheetMainDashboard",
+          element: <GenerateRequestSheetMainDashboard />,
+        },
+        {
+          path: "/bm/request-sheet/:generateType/:machine_code/:selectedYear",
+          element: <RequestSheet />,
+        },
+        {
+          path: "/bm/update/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+          element: <RequestSheetUpdate />,
+        },
+        {
+          path: "/bm/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
           element: <RequestSheetView />,
         },
         // {
@@ -371,57 +400,71 @@ function BM_Routes({ commonRoutes }) {
           path: "/bm/approvalLogs",
           element: <ApprovalLogs />,
         },
+        {
+          path: "/bm/noLossDataOfBD",
+          element: <NoLossBDEntryForm />,
+        },
 
         ...reportRoutes,
       ],
     },
   ];
 
-  const [nav, setNav] = useState(false);
-  const value = { nav, setNav };
-
   const context = useContext(RoutingContext);
-  // console.log("context:", context);
 
   const filteredRoutes = userRoutes?.find(
     (userRoute) => userRoute?.user_type === context?.user_type
   );
 
-  return (
-    <div className="App">
-      {/* <NavContext.Provider value={value}> */}
-      <BMSidebar userData={context} />
-
-      {/* Render main container based on the user's routes */}
-      <Container
-        // stickyNav={<RightNavbar />}
-        content={
-          <Routes>
-            {filteredRoutes?.routes?.map((route) =>
-              route?.subRoutes ? (
-                route?.subRoutes?.map((subRoute) => (
-                  <Route key={route.path} path={route.path}>
-                    <Route
-                      key={subRoute.path}
-                      path={subRoute.path}
-                      element={subRoute.element}
-                    />
-                  </Route>
-                ))
-              ) : (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={route.element}
-                />
-              )
-            )}
-          </Routes>
-        }
-      />
-      {/* </NavContext.Provider> */}
-    </div>
+  // Inside the BMSidebar component, after defining the menuItems array
+  const filteredItems = filteredMenuItems(
+    menuItems,
+    context?.user_type,
+    context?.tm_department
   );
+  console.log("this is rfgr",filteredRoutes)
+  return (
+    <CommonRoutesContainer
+      routes={filteredRoutes?.routes}
+      sideBarProp={{ userData: context, filteredItems }}
+    />
+  );
+
+  // return (
+  //   <div className="App">
+  //     {/* <NavContext.Provider value={value}> */}
+  //     <BMSidebar userData={context} filteredItems={filteredItems} />
+
+  //     {/* Render main container based on the user's routes */}
+  //     <Container
+  //       // stickyNav={<RightNavbar />}
+  //       content={
+  //         <Routes>
+  //           {filteredRoutes?.routes?.map((route) =>
+  //             route?.subRoutes ? (
+  //               route?.subRoutes?.map((subRoute) => (
+  //                 <Route key={route.path} path={route.path}>
+  //                   <Route
+  //                     key={subRoute.path}
+  //                     path={subRoute.path}
+  //                     element={subRoute.element}
+  //                   />
+  //                 </Route>
+  //               ))
+  //             ) : (
+  //               <Route
+  //                 key={route.path}
+  //                 path={route.path}
+  //                 element={route.element}
+  //               />
+  //             )
+  //           )}
+  //         </Routes>
+  //       }
+  //     />
+  //     {/* </NavContext.Provider> */}
+  //   </div>
+  // );
 }
 
 export default BM_Routes;

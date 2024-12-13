@@ -4,7 +4,6 @@ import { Box, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Row, Col } from "react-bootstrap";
 
-
 export const options = {
   plugins: {
     legend: {
@@ -39,7 +38,7 @@ export const options = {
         text: "Months",
       },
       ticks: {
-        color:'black',
+        color: "black",
       },
     },
     y: {
@@ -49,8 +48,8 @@ export const options = {
         text: "Hours",
       },
       ticks: {
-        color: 'black'
-    },
+        color: "black",
+      },
     },
   },
 };
@@ -77,10 +76,10 @@ export const initialData = {
       type: "line",
       label: "Target",
       data: [120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120],
-      borderWidth: 2,
+      //borderWidth: 2,
       borderColor: chartColors.targetBorder,
       backgroundColor: chartColors.target,
-      pointStyle: 'rectRot',
+      pointStyle: "rectRot",
     },
     {
       type: "bar",
@@ -89,7 +88,7 @@ export const initialData = {
       borderColor: chartColors.yellow[1],
       data: [45, 58, 32, 50, 22, 60, 55, 30, 40, 55, 48, 58], // Random data less than 60
       backgroundColor: chartColors.yellow[1],
-      pointStyle:'rect'
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -98,7 +97,7 @@ export const initialData = {
       borderColor: chartColors.red[0],
       data: [90, 105, 110, 80, 95, 100, 75, 115, 120, 90, 100, 110], // Random data less than 120
       backgroundColor: chartColors.red[0],
-      pointStyle:'rect'
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -107,7 +106,7 @@ export const initialData = {
       borderColor: chartColors.aqua[3],
       data: [130, 140, 125, 155, 130, 145, 160, 135, 150, 170, 180, 160], // Random data greater than 120
       backgroundColor: chartColors.aqua[3],
-      pointStyle:'rect'
+      pointStyle: "rect",
     },
   ],
 };
@@ -124,7 +123,6 @@ const MonthlyPlanVsActualChart = () => {
         >
           Monthly Plan Vs Actual
         </Typography>
-        
       </Row>
       <Chart data={initialData} options={options} />
     </Box>

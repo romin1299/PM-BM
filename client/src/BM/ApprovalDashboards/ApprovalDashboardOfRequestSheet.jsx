@@ -7,7 +7,11 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import RoutingContext from "../../context/routing/RoutingContext";
 import { useNavigate } from "react-router-dom";
 import BMTitlebar from "../Component/BMTitlebar";
-import { MaterialTableOptions } from "../Utils/TableUtils/MaterialTableProps";
+import {
+  MaterialTableOptions,
+  MaterialTableSX,
+  MaterialTableStyle,
+} from "../Utils/TableUtils/MaterialTableProps";
 
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 
@@ -17,6 +21,8 @@ import {
   reducer,
   initialState,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import { ExportCsv, ExportPdf } from "@material-table/exporters";
+import moment from "moment";
 
 const ApprovalDashboardOfRequestSheet = () => {
   const [loading, setLoading] = React.useState(true);
@@ -27,9 +33,11 @@ const ApprovalDashboardOfRequestSheet = () => {
   const [approvalRequestSheetDataOfBM, setApprovalRequestSheetDataOfBM] =
     useState([]);
 
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(
+    reducer,
+    initialState("Yes")
+  );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-
   const approvalDashboardHeader = [
     {
       title: "Sr. No.",
@@ -101,14 +109,14 @@ const ApprovalDashboardOfRequestSheet = () => {
   ];
 
   const requestSheetApprovalAction = [
-    {
-      icon: () => <CreditCardIcon className="text-primary1" />,
-      tooltip: "History Card",
-      position: "row",
-      onClick: (event, selectedRow) => {
-        console.log("----------", selectedRow);
-      },
-    },
+    // {
+    //   icon: () => <CreditCardIcon className="text-primary1" />,
+    //   tooltip: "History Card",
+    //   position: "row",
+    //   onClick: (event, selectedRow) => {
+    //     console.log("----------", selectedRow);
+    //   },
+    // },
     (row) => ({
       icon: () => <DescriptionIcon className="text-primary" />,
       tooltip: "Update Action",
@@ -195,10 +203,11 @@ const ApprovalDashboardOfRequestSheet = () => {
               cellFiltration
               lineFiltration
               resetButtonFiltration
+              isWithLocalStorageForFiltration="Yes"
             />
           }
         />
-        <Row className="cell p-2 mt-3 gap-2 g-0">
+        <Row className="mt-3 gap-2 g-0">
           <MonthlyGeneratedAndCompletedCount
             selectedValue={reduceState?.selectedValue}
             flagForTogglingFilter={reduceState?.flagForTogglingFilter}
@@ -235,7 +244,36 @@ const ApprovalDashboardOfRequestSheet = () => {
                   // }),
                 }
               }
-              options={MaterialTableOptions}
+              options={{
+                ...MaterialTableOptions,
+                pageSize: 5,
+                exportMenu: [
+                  {
+                    label: "Export PDF",
+                    exportFunc: (cols, data) =>
+                      ExportPdf(
+                        cols,
+                        data,
+                        `Approval List of Request-Sheet ${moment().format(
+                          "DD-MM-YYYY"
+                        )}`
+                      ),
+                  },
+                  {
+                    label: "Export CSV",
+                    exportFunc: (cols, data) =>
+                      ExportCsv(
+                        cols,
+                        data,
+                        `Approval List of Request-Sheet ${moment().format(
+                          "DD-MM-YYYY"
+                        )}`
+                      ),
+                  },
+                ],
+              }}
+              style={MaterialTableStyle}
+              sx={MaterialTableSX}
             />
           </Col>
         </Row>

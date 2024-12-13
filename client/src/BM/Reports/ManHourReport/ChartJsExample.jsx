@@ -11,8 +11,12 @@ import {
 import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -24,6 +28,12 @@ ChartJS.register(
 );
 
 export const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -35,7 +45,6 @@ export const options = {
       display: false,
     },
   },
-  responsive: true,
   scales: {
     x: {
       stacked: true,
@@ -55,6 +64,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       ticks: {
         color: "black",
       },
@@ -85,6 +97,8 @@ const ChartToPPTExample = ({
   selectedValue,
   flagForTogglingFilter,
   selectedYear,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -92,6 +106,30 @@ const ChartToPPTExample = ({
     BMHourTrend: [],
     PMHourTrend: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getHourTrendData = async () => {
     setLoading(true);
@@ -122,6 +160,52 @@ const ChartToPPTExample = ({
     setLoading(false);
   };
 
+  const header = ["Months"].concat(serverResLabels);
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [
+      //   [HourTrendData?.PMHourTrend, HourTrendData?.BMHourTrend],
+      // ];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+
+          [["Months"].concat(serverResLabels)?.toString() + "\n"],
+          [
+            ["PM Hour Trend"].concat(HourTrendData?.PMHourTrend)?.toString() +
+              "\n",
+          ],
+          [
+            ["BM Hour Trend"].concat(HourTrendData?.BMHourTrend)?.toString() +
+              "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          ["PM Hour Trend"].concat(HourTrendData?.PMHourTrend),
+          ["BM Hour Trend"].concat(HourTrendData?.BMHourTrend),
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `Hour_Trend_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue && flagForTogglingFilter) {
       getHourTrendData();
@@ -136,12 +220,16 @@ const ChartToPPTExample = ({
         data: HourTrendData?.BMHourTrend,
         backgroundColor: chartColors.bmpm[0],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
       {
         label: "PM",
         data: HourTrendData?.PMHourTrend,
         backgroundColor: chartColors.bmpm[1],
         borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
     ],
 
@@ -151,14 +239,35 @@ const ChartToPPTExample = ({
     // })),
   };
 
+  let isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Hour Trend" />
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Bar options={options} data={data} />
-      )}
+      <ChartTitleBar
+        title="Hour Trend"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
+
+      <Box sx={{ height: { xs: "250px", md: "300px" } }}>
+        {loading ? (
+          <Loading />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Bar options={options} data={data} />
+        )}
+      </Box>
     </Box>
   );
 };

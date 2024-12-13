@@ -16,6 +16,8 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 import Footer from "../../../../components/Footer/Footer";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 function PlanningPhaseTable() {
   const [tableData, setTableData] = useState([]);
@@ -54,10 +56,11 @@ function PlanningPhaseTable() {
           machineData[0]?.checkSheet_data
             ?.flagForNewRevisionContentDataAdded === true
         ) {
-          navigate("/checkSheetForm", {
+          navigate("/pm/checkSheetForm", {
             state: {
               selectedRowForViewForm: machineData[0],
               planningApprovalShow: planningApprovalShow,
+              selectedYear: machineData[0]?.checkSheet_data?.current_year,
             },
           });
         } else if (
@@ -70,18 +73,20 @@ function PlanningPhaseTable() {
           notifyForRevisionContent();
         }
       } else {
-        navigate("/checkSheetForm", {
+        navigate("/pm/checkSheetForm", {
           state: {
             selectedRowForViewForm: machineData[0],
             planningApprovalShow: planningApprovalShow,
+            selectedYear: machineData[0]?.checkSheet_data?.current_year,
           },
         });
       }
     } else {
-      navigate("/checkSheetForm", {
+      navigate("/pm/checkSheetForm", {
         state: {
           selectedRowForViewForm: machineData[0],
           planningApprovalShow: planningApprovalShow,
+          selectedYear: machineData[0]?.checkSheet_data?.current_year,
         },
       });
     }
@@ -360,6 +365,34 @@ function PlanningPhaseTable() {
       ),
       width: "5%",
     },
+    {
+      title: "Remarks Compulsory",
+      field: "remarksCompulsoryOrNot",
+      align: "center",
+      width: "5%",
+      editable: false,
+      editComponent: ({ value, onChange }) => {
+        const isChecked = value === "Yes";
+
+        const handleCheckboxChange = (e) => {
+          const newValue = e.target.checked ? "Yes" : "No";
+          onChange(newValue);
+        };
+
+        return (
+          <FormControlLabel
+            control={
+              <Checkbox
+                onChange={handleCheckboxChange}
+                inputProps={{ "aria-label": "controlled" }}
+                checked={isChecked}
+              />
+            }
+            label="Yes"
+          />
+        );
+      },
+    },
   ];
 
   const planningPhaseDataForCSV = [
@@ -532,7 +565,7 @@ function PlanningPhaseTable() {
       <div style={{ margin: "0.5rem" }}>
         <div className="pageCard">
           <button
-            onClick={() => navigate("/checkSheetDashboard")}
+            onClick={() => navigate("/pm/checkSheetDashboard")}
             style={{
               border: "none",
               background: "white",

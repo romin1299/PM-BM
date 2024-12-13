@@ -174,8 +174,11 @@ const ImplementationApprovalDashboard = () => {
         icon: () => <button className="btn-reset">Implementation</button>,
         // tooltip: <h1>I am a tooltip</h1>,
         onClick: (event, selectedRow) => {
-          navigate("/checksheetFormApproval", {
-            state: { selectedRowForViewForm: selectedRow },
+          navigate("/pm/checksheetFormApproval", {
+            state: {
+              selectedRowForViewForm: selectedRow,
+              selectedYear: selectedYear,
+            },
           });
         },
         disabled: false, // Set disabled to false by default for all actions

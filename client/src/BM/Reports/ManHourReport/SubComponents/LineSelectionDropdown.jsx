@@ -69,11 +69,17 @@ export default function LineSelectionDropdown({
   machines,
   selectedYear,
   selectedMonth,
+  RSStatusArray,
+  maintenanceTypeArrayForFilter,
 
   reducerDispatch,
   baseUrlForFiltering,
   monthFiltration,
   yearFiltration,
+  RSStatusFiltration,
+  selectedRSStatus,
+  maintenanceTypeFiltration,
+  selectedMaintenanceType,
 
   sectionFiltration,
   subSectionFiltration,
@@ -82,6 +88,7 @@ export default function LineSelectionDropdown({
   machineFiltration,
 
   resetButtonFiltration,
+  isWithLocalStorageForFiltration,
 }) {
   const context = useContext(RoutingContext);
 
@@ -135,6 +142,7 @@ export default function LineSelectionDropdown({
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_SECTION,
 
+          isWithLocalStorageForFiltration,
           flagForTogglingFilter,
           selectedValue,
 
@@ -182,6 +190,7 @@ export default function LineSelectionDropdown({
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_SUBSECTION,
 
+          isWithLocalStorageForFiltration,
           selectedValue,
           flagForTogglingFilter,
 
@@ -222,6 +231,8 @@ export default function LineSelectionDropdown({
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_CELL,
+
+          isWithLocalStorageForFiltration,
           flagForTogglingFilter,
           selectedValue,
 
@@ -259,6 +270,8 @@ export default function LineSelectionDropdown({
       if (res?.status === 201) {
         reducerDispatch({
           type: ACTION.GET_DATA_BASED_ON_LINE,
+
+          isWithLocalStorageForFiltration,
           flagForTogglingFilter,
           selectedValue,
 
@@ -295,12 +308,14 @@ export default function LineSelectionDropdown({
       lines,
       selectedMachine,
       machines,
+      selectedRSStatus,
     } = data;
 
     if (res?.status === 201) {
       reducerDispatch({
         type: ACTION.GET_DATA,
 
+        isWithLocalStorageForFiltration,
         flagForTogglingFilter,
         selectedValue,
 
@@ -315,12 +330,20 @@ export default function LineSelectionDropdown({
         selectedMachine,
         machines,
         message,
+        selectedRSStatus,
       });
     }
   };
 
   useEffect(() => {
-    getFiltrationValueByDefault();
+    if (
+      !localStorage.getItem("selectedValue") &&
+      isWithLocalStorageForFiltration
+    ) {
+      getFiltrationValueByDefault();
+    } else if (!isWithLocalStorageForFiltration) {
+      getFiltrationValueByDefault();
+    }
   }, []);
 
   return (
@@ -337,6 +360,7 @@ export default function LineSelectionDropdown({
               onChange={(e) => {
                 reducerDispatch({
                   type: ACTION.HANDLE_SELECT_SECTION,
+                  isWithLocalStorageForFiltration,
                   flagForTogglingFilter: "based-on-section",
                   selectedSection: e.target.value,
                 });
@@ -379,6 +403,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_SUBSECTION,
+                isWithLocalStorageForFiltration,
                 flagForTogglingFilter: "based-on-subSection",
                 selectedSubSection: e.target.value,
               });
@@ -426,6 +451,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_CELL,
+                isWithLocalStorageForFiltration,
                 flagForTogglingFilter: "based-on-cell",
                 selectedCell: e.target.value,
               });
@@ -469,6 +495,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_LINE,
+                isWithLocalStorageForFiltration,
                 flagForTogglingFilter: "based-on-line",
                 selectedLine: e.target.value,
               });
@@ -476,7 +503,7 @@ export default function LineSelectionDropdown({
             }}
             input={<OutlinedInput />}
             sx={{
-              width: 130,
+              width: 180,
               "& .MuiSelect-select": {
                 paddingTop: "5px",
                 paddingBottom: "5px",
@@ -512,13 +539,14 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_MACHINE,
+                isWithLocalStorageForFiltration,
                 flagForTogglingFilter: "based-on-machine",
                 selectedMachine: e.target.value,
               });
             }}
             input={<OutlinedInput />}
             sx={{
-              width: 130,
+              width: 180,
               "& .MuiSelect-select": {
                 paddingTop: "5px",
                 paddingBottom: "5px",
@@ -554,6 +582,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_YEAR,
+                isWithLocalStorageForFiltration,
                 selectedYear: e.target.value,
               });
             }}
@@ -597,6 +626,7 @@ export default function LineSelectionDropdown({
             onChange={(e) => {
               reducerDispatch({
                 type: ACTION.HANDLE_SELECT_MONTH,
+                isWithLocalStorageForFiltration,
                 selectedMonth: e.target.value,
               });
             }}
@@ -634,6 +664,98 @@ export default function LineSelectionDropdown({
         )}
       </FormControl>
 
+      <FormControl size="small">
+        {RSStatusFiltration && (
+          <Select
+            displayEmpty
+            value={selectedRSStatus}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_STATUS,
+                isWithLocalStorageForFiltration,
+                selectedRSStatus: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "Req. Sheet Status";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {RSStatusArray?.map((item) => (
+              <MenuItem
+                key={item}
+                value={item}
+                style={getStyleForSelectedValue(
+                  item,
+                  selectedRSStatus,
+                  "for-array-value"
+                )}
+              >
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
+      <FormControl size="small">
+        {maintenanceTypeFiltration && (
+          <Select
+            displayEmpty
+            value={selectedMaintenanceType}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_MAINTENANCE_TYPE,
+                isWithLocalStorageForFiltration,
+                selectedMaintenanceType: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "Maintenance Type";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {maintenanceTypeArrayForFilter?.map((item) => (
+              <MenuItem
+                key={item}
+                value={item}
+                style={getStyleForSelectedValue(
+                  item,
+                  selectedMaintenanceType,
+                  "for-array-value"
+                )}
+              >
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
       {resetButtonFiltration && (
         <Button
           // className="btn bg-button"
@@ -649,6 +771,7 @@ export default function LineSelectionDropdown({
 
             await reducerDispatch({
               type: ACTION.HANDLE_SELECT_YEAR,
+              isWithLocalStorageForFiltration,
               selectedYear,
             });
 
@@ -724,7 +847,11 @@ export const YearDropdown = ({ selectedYear, setSelectedYear }) => {
   );
 };
 
-export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {
+export const MonthDropdown = ({
+  selectedMonth,
+  setSelectedMonth,
+  selectProps,
+}) => {
   const theme = useTheme();
 
   const getStyleForSelectedValue = async (item, selectedItem) => {
@@ -752,6 +879,7 @@ export const MonthDropdown = ({ selectedMonth, setSelectedMonth }) => {
             paddingBottom: "5px",
           },
         }}
+        {...selectProps}
         renderValue={(value) => {
           if (value) {
             return value;

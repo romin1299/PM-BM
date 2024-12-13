@@ -1,0 +1,1277 @@
+2024-07-11T09:35:25.411Z | undefined | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\middleware\authenticate.js:20:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-07-11T09:35:25.436Z | undefined | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\middleware\authenticate.js:20:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-07-11T09:35:25.764Z | undefined | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\middleware\authenticate.js:20:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-07-11T09:35:25.769Z | undefined | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\middleware\authenticate.js:20:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-07-11T09:56:24.807Z | undefined | Only .png, .jpg and .jpeg format allowed!
+		Error: Only .png, .jpg and .jpeg format allowed!
+    at fileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\auth.js:72:18)
+    at wrappedFileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\index.js:44:7)
+    at Multipart.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:107:7)
+    at Multipart.emit (node:events:519:28)
+    at HeaderParser.cb (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:358:14)
+    at HeaderParser.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:162:20)
+    at SBMH.ssCb [as _cb] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:394:37)
+    at feed (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:248:10)
+    at SBMH.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:104:16)
+    at Multipart._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:567:19)
+2024-07-11T09:57:34.299Z | PM | Only .png, .jpg and .jpeg format allowed!
+		Error: Only .png, .jpg and .jpeg format allowed!
+    at fileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\auth.js:72:18)
+    at wrappedFileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\index.js:44:7)
+    at Multipart.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:107:7)
+    at Multipart.emit (node:events:519:28)
+    at HeaderParser.cb (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:358:14)
+    at HeaderParser.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:162:20)
+    at SBMH.ssCb [as _cb] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:394:37)
+    at feed (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:219:14)
+    at SBMH.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:104:16)
+    at Multipart._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:567:19)
+2024-07-11T15:31 | PM | Only .png, .jpg and .jpeg format allowed!
+		Error: Only .png, .jpg and .jpeg format allowed!
+    at fileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\auth.js:72:18)
+    at wrappedFileFilter (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\index.js:44:7)
+    at Multipart.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\multer\lib\make-middleware.js:107:7)
+    at Multipart.emit (node:events:519:28)
+    at HeaderParser.cb (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:358:14)
+    at HeaderParser.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:162:20)
+    at SBMH.ssCb [as _cb] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:394:37)
+    at feed (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:219:14)
+    at SBMH.push (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\streamsearch\lib\sbmh.js:104:16)
+    at Multipart._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\busboy\lib\types\multipart.js:567:19)
+2024-08-23T18:05 | BM | req.queryPipeline is not iterable
+		TypeError: req.queryPipeline is not iterable
+    at findRequestSheetMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:772:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:2056:7)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1787:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1777:5)
+2024-08-23T18:05 | BM | req.queryPipeline is not iterable
+		TypeError: req.queryPipeline is not iterable
+    at findRequestSheetMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:772:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:2056:7)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1787:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1777:5)
+2024-08-23T18:05 | BM | req.queryPipeline is not iterable
+		TypeError: req.queryPipeline is not iterable
+    at findRequestSheetMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:772:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:2056:7)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1787:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1777:5)
+2024-08-23T18:05 | BM | req.queryPipeline is not iterable
+		TypeError: req.queryPipeline is not iterable
+    at findRequestSheetMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:772:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:2056:7)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1787:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1777:5)
+2024-08-23T18:07 | BM | queryObj is not defined
+		ReferenceError: queryObj is not defined
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1990:9)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1787:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:1777:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+2024-08-24T12:40 | PM | The field 'machine_name' must be an accumulator object
+		MongoServerError: The field 'machine_name' must be an accumulator object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-24T13:26 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at cellMonthlyBdTrendForSectionMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9854:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-24T13:40 | PM | Cannot read properties of null (reading 'toString')
+		TypeError: Cannot read properties of null (reading 'toString')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16547:34
+    at Array.find (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16546:56
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16545:33
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16543:40
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-24T13:40 | PM | Cannot read properties of null (reading 'toString')
+		TypeError: Cannot read properties of null (reading 'toString')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16550:34
+    at Array.find (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16549:58
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16545:33
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16543:40
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-24T13:40 | PM | Cannot read properties of null (reading 'toString')
+		TypeError: Cannot read properties of null (reading 'toString')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16547:34
+    at Array.find (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16546:56
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16545:33
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16543:40
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-24T13:40 | PM | Cannot read properties of null (reading 'toString')
+		TypeError: Cannot read properties of null (reading 'toString')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16550:34
+    at Array.find (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16549:58
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16545:33
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16543:40
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-24T13:45 | PM | Cannot read properties of null (reading 'toString')
+		TypeError: Cannot read properties of null (reading 'toString')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16680:36
+    at Array.find (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16679:58
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16676:34
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16674:53
+    at Array.map (<anonymous>)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:16672:26
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-24T14:44 | PM | Cast to ObjectId failed for value "false" (type boolean) at path "_id" for model "Users"
+		CastError: Cast to ObjectId failed for value "false" (type boolean) at path "_id" for model "Users"
+    at model.Query.exec (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-24T14:44 | PM | Cast to ObjectId failed for value "false" (type boolean) at path "_id" for model "Users"
+		CastError: Cast to ObjectId failed for value "false" (type boolean) at path "_id" for model "Users"
+    at model.Query.exec (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-27T13:09 | PM | Invalid $addFields :: caused by :: Unrecognized expression '$nin'
+		MongoServerError: Invalid $addFields :: caused by :: Unrecognized expression '$nin'
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-27T13:09 | PM | Invalid $addFields :: caused by :: Unrecognized expression '$nin'
+		MongoServerError: Invalid $addFields :: caused by :: Unrecognized expression '$nin'
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-27T18:06 | PM | countOfAcceptedAndTotalApprovalOfUser is not defined
+		ReferenceError: countOfAcceptedAndTotalApprovalOfUser is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:3316:9
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-27T18:06 | PM | countOfAcceptedAndTotalApprovalOfUser is not defined
+		ReferenceError: countOfAcceptedAndTotalApprovalOfUser is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:3316:9
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-28T12:22 | PM | Invalid $addFields :: caused by :: an expression specification must contain exactly one field, the name of the expression. Found 2 fields in { machine_code: "$machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } }, while parsing object { userWithStatusInfo: { machine_code: "$machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } } }
+		MongoServerError: Invalid $addFields :: caused by :: an expression specification must contain exactly one field, the name of the expression. Found 2 fields in { machine_code: "$machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } }, while parsing object { userWithStatusInfo: { machine_code: "$machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } } }
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T12:22 | PM | Invalid $addFields :: caused by :: an expression specification must contain exactly one field, the name of the expression. Found 2 fields in { machine_code: "$machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } }, while parsing object { userWithStatusInfo: { machine_code: "$machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } } }
+		MongoServerError: Invalid $addFields :: caused by :: an expression specification must contain exactly one field, the name of the expression. Found 2 fields in { machine_code: "$machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } }, while parsing object { userWithStatusInfo: { machine_code: "$machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } } }
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T12:23 | PM | Invalid $addFields :: caused by :: an expression specification must contain exactly one field, the name of the expression. Found 2 fields in { machine_code: "machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } }, while parsing object { userWithStatusInfo: { machine_code: "machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } } }
+		MongoServerError: Invalid $addFields :: caused by :: an expression specification must contain exactly one field, the name of the expression. Found 2 fields in { machine_code: "machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } }, while parsing object { userWithStatusInfo: { machine_code: "machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } } }
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T12:23 | PM | Invalid $addFields :: caused by :: an expression specification must contain exactly one field, the name of the expression. Found 2 fields in { machine_code: "machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } }, while parsing object { userWithStatusInfo: { machine_code: "machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } } }
+		MongoServerError: Invalid $addFields :: caused by :: an expression specification must contain exactly one field, the name of the expression. Found 2 fields in { machine_code: "machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } }, while parsing object { userWithStatusInfo: { machine_code: "machine_code", $filter: { input: [ { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_prd_tl_approval_status" }, as: "prdStatusArray", in: { userType: "PRD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_PRD_TL_name" }, as: "prdName", cond: { $eq: [ "$$prdStatusArray.k", "$$prdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$prdStatusArray.v", -1 ] }, month: "$$prdStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_tl_approval_status" }, as: "mtdTlStatusArray", in: { userType: "MTD TL/HOSS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_TL_name" }, as: "mtdName", cond: { $eq: [ "$$mtdTlStatusArray.k", "$$mtdName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdTlStatusArray.v", -1 ] }, month: "$$mtdTlStatusArray.k" } } }, { $map: { input: { $objectToArray: "$checkSheet_data.implemetation_mtd_hos_approval_status" }, as: "mtdHosStatusArray", in: { userType: "MTD HOS", userName: { $arrayElemAt: [ { $getField: { field: "v", input: { $arrayElemAt: [ { $filter: { input: { $objectToArray: "$checkSheet_data.implementation_assign_MTD_HOS_name" }, as: "mtdHosName", cond: { $eq: [ "$$mtdHosStatusArray.k", "$$mtdHosName.k" ] } } }, 0 ] } } }, -1 ] }, status: { $arrayElemAt: [ "$$mtdHosStatusArray.v", -1 ] }, month: "$$mtdHosStatusArray.k" } } } ], as: "user", cond: { $not: { $in: [ "$$user.userName", [ null, null, "" ] ] } } } } }
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T13:57 | PM | Use of undefined variable: status
+		MongoServerError: Use of undefined variable: status
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T13:57 | PM | Use of undefined variable: status
+		MongoServerError: Use of undefined variable: status
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T13:59 | PM | PlanExecutor error during aggregation :: caused by :: $in requires an array as a second argument, found: string
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $in requires an array as a second argument, found: string
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T13:59 | PM | PlanExecutor error during aggregation :: caused by :: $in requires an array as a second argument, found: string
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $in requires an array as a second argument, found: string
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T16:56 | PM | FieldPath field names may not start with '$'. Consider using $getField or $setField.
+		MongoServerError: FieldPath field names may not start with '$'. Consider using $getField or $setField.
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T16:56 | PM | FieldPath field names may not start with '$'. Consider using $getField or $setField.
+		MongoServerError: FieldPath field names may not start with '$'. Consider using $getField or $setField.
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T17:44 | PM | unknown top level operator: $nin. If you have a field name that starts with a '$' symbol, consider using $getField or $setField.
+		MongoServerError: unknown top level operator: $nin. If you have a field name that starts with a '$' symbol, consider using $getField or $setField.
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-28T17:44 | PM | unknown top level operator: $nin. If you have a field name that starts with a '$' symbol, consider using $getField or $setField.
+		MongoServerError: unknown top level operator: $nin. If you have a field name that starts with a '$' symbol, consider using $getField or $setField.
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-29T09:55 | PM | PlanExecutor error during aggregation :: caused by :: $first's argument must be an array, but is string
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $first's argument must be an array, but is string
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-29T09:55 | PM | PlanExecutor error during aggregation :: caused by :: $first's argument must be an array, but is string
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $first's argument must be an array, but is string
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-29T10:37 | PM | approvalData is not defined
+		ReferenceError: approvalData is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:3273:21
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-29T10:37 | PM | approvalData is not defined
+		ReferenceError: approvalData is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:3273:21
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-29T10:37 | PM | The field name '$sum' cannot be an operator name
+		MongoServerError: The field name '$sum' cannot be an operator name
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-29T10:37 | PM | The field name '$sum' cannot be an operator name
+		MongoServerError: The field name '$sum' cannot be an operator name
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-08-29T14:41 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at cellMonthlyBdTrendForSectionMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9854:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-30T14:29 | PM | Cannot read properties of undefined (reading 'checkSheet_data')
+		TypeError: Cannot read properties of undefined (reading 'checkSheet_data')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:6832:28
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-30T14:29 | PM | Cannot read properties of undefined (reading 'checkSheet_data')
+		TypeError: Cannot read properties of undefined (reading 'checkSheet_data')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:6832:28
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-30T14:31 | PM | Cannot read properties of undefined (reading 'checkSheet_data')
+		TypeError: Cannot read properties of undefined (reading 'checkSheet_data')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:6959:28
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-08-30T14:32 | PM | Cannot read properties of undefined (reading 'checkSheet_data')
+		TypeError: Cannot read properties of undefined (reading 'checkSheet_data')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:7067:28
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-02T13:01 | PM | completed is not defined
+		ReferenceError: completed is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:13315:35
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-02T13:10 | PM | unknown group operator '$trunc'
+		MongoServerError: unknown group operator '$trunc'
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T14:56 | PM | machine_code is not defined
+		ReferenceError: machine_code is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:13340:20
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-02T16:04 | PM | PlanExecutor error during aggregation :: caused by :: input to $filter must be an array not object
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: input to $filter must be an array not object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T16:06 | PM | PlanExecutor error during aggregation :: caused by :: input to $filter must be an array not object
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: input to $filter must be an array not object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T16:23 | PM | The field 'mahine_code' must be an accumulator object
+		MongoServerError: The field 'mahine_code' must be an accumulator object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T16:24 | PM | The field 'machine_code' must be an accumulator object
+		MongoServerError: The field 'machine_code' must be an accumulator object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T16:36 | PM | PlanExecutor error during aggregation :: caused by :: $push used too much memory and cannot spill to disk. Memory limit: 104857600 bytes
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $push used too much memory and cannot spill to disk. Memory limit: 104857600 bytes
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T16:40 | PM | The field 'machine_code' must be an accumulator object
+		MongoServerError: The field 'machine_code' must be an accumulator object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T16:47 | PM | PlanExecutor error during aggregation :: caused by :: $addToSet used too much memory and cannot spill to disk. Memory limit: 104857600 bytes
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $addToSet used too much memory and cannot spill to disk. Memory limit: 104857600 bytes
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T17:33 | PM | The field 'completed' must be an accumulator object
+		MongoServerError: The field 'completed' must be an accumulator object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T17:36 | PM | The field 'completed' must be an accumulator object
+		MongoServerError: The field 'completed' must be an accumulator object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T17:52 | PM | Unrecognized expression '$addToSet'
+		MongoServerError: Unrecognized expression '$addToSet'
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T17:53 | PM | Unrecognized expression '$addToSet'
+		MongoServerError: Unrecognized expression '$addToSet'
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-02T17:59 | PM | PlanExecutor error during aggregation :: caused by :: $addToSet used too much memory and cannot spill to disk. Memory limit: 104857600 bytes
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $addToSet used too much memory and cannot spill to disk. Memory limit: 104857600 bytes
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2024-09-03T09:47 | PM | GetAllPlanAndCompletedHours is not defined
+		ReferenceError: GetAllPlanAndCompletedHours is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:13543:38
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-03T09:57 | PM | cosnole is not defined
+		ReferenceError: cosnole is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:13363:9
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-03T10:56 | PM | cosnole is not defined
+		ReferenceError: cosnole is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22239:9
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-03T10:56 | PM | cosnole is not defined
+		ReferenceError: cosnole is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:22239:9
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-05T10:58 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at cellMonthlyBdTrendForSectionMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9854:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-04T15:14 | PM | RequestSheetOfBM.findManyAndUpdate is not a function
+		TypeError: RequestSheetOfBM.findManyAndUpdate is not a function
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\auth.js:23405:60
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-04T18:00 | BM | Cannot access 'condForLesserValue' before initialization
+		ReferenceError: Cannot access 'condForLesserValue' before initialization
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:2020:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1785:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1775:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+2024-09-04T18:00 | BM | Cannot access 'condForLesserValue' before initialization
+		ReferenceError: Cannot access 'condForLesserValue' before initialization
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:2020:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1785:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1775:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+2024-09-04T18:01 | BM | Cannot access 'condForLesserValue' before initialization
+		ReferenceError: Cannot access 'condForLesserValue' before initialization
+    at router.get.RequestSheetOfBM.aggregate.$group._id (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:2020:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1785:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1775:5)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+2024-09-06T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-06T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-06T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-06T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2024-09-06T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2024-09-06T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2024-09-06T17:39 | KPI | Invalid select: select only takes 1 argument
+		Error: Invalid select: select only takes 1 argument
+    at model.Query.select (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:1100:11)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:75:8
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-06T17:39 | KPI | Invalid select: select only takes 1 argument
+		Error: Invalid select: select only takes 1 argument
+    at model.Query.select (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:1100:11)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:75:8
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:5:3
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:34:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-06T17:49 | KPI | successResponse is not defined
+		ReferenceError: successResponse is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:78:7
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-06T17:49 | KPI | successResponse is not defined
+		ReferenceError: successResponse is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:78:7
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-06T13:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:56 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:59 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T13:59 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T14:00 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T14:00 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T14:00 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-06T14:00 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-10T10:36 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9599:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T10:36 | BM | Cannot read properties of undefined (reading 'lessThanOne')
+		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
+    at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9223:46)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T10:40 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9599:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T10:40 | BM | Cannot read properties of undefined (reading 'lessThanOne')
+		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
+    at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9223:46)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T10:47 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9599:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T10:47 | BM | Cannot read properties of undefined (reading 'lessThanOne')
+		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
+    at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9223:46)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T10:52 | PM | updateChecksheetRow is not defined
+		ReferenceError: updateChecksheetRow is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:4688:19
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T10:58 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9599:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T10:58 | BM | Cannot read properties of undefined (reading 'lessThanOne')
+		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
+    at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9223:46)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T11:00 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9599:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T11:00 | BM | Cannot read properties of undefined (reading 'lessThanOne')
+		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
+    at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9223:46)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T11:15 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9599:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T11:15 | BM | Cannot read properties of undefined (reading 'lessThanOne')
+		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
+    at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9223:46)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T11:16 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9599:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T11:16 | BM | Cannot read properties of undefined (reading 'lessThanOne')
+		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
+    at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9223:46)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T11:16 | BM | Cannot read properties of undefined (reading 'data')
+		TypeError: Cannot read properties of undefined (reading 'data')
+    at sectionMonthlyBdTrendForPlantMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9599:36)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-10T11:16 | BM | Cannot read properties of undefined (reading 'lessThanOne')
+		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
+    at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9223:46)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-09-09T17:38 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-09T17:38 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-09T17:38 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-09T17:38 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T09:45 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T09:45 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T09:45 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T09:45 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T10:37 | BM | Cannot read properties of undefined (reading 'replace')
+		TypeError: Cannot read properties of undefined (reading 'replace')
+    at router.patch.bodyContent.key.key (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1311:49)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-10T11:42 | BM | RequestSheetOfBM validation failed: requestSheetNoOfBM: Cast to string failed for value "Promise { undefined }" (type Promise) at path "requestSheetNoOfBM"
+		ValidationError: RequestSheetOfBM validation failed: requestSheetNoOfBM: Cast to string failed for value "Promise { undefined }" (type Promise) at path "requestSheetNoOfBM"
+    at Document.invalidate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1463:12)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1146:16)
+    at model.Document (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:166:12)
+    at model.Model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:121:12)
+    at new model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:5048:15)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:593:26
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-10T15:09 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T15:09 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T15:09 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T15:09 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T15:39 | BM | Cannot read properties of undefined (reading 'replace')
+		TypeError: Cannot read properties of undefined (reading 'replace')
+    at router.patch.bodyContent.key.key (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\controller\bmController.js:1359:49)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at param (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:365:14)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at param (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:365:14)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-10T17:40 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-11T15:06 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-11T15:06 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-11T15:06 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-11T15:06 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+2024-09-16T17:31 | BM | CM_RequestSheetData validation failed: requestSheetNoOfCM: Cast to string failed for value "Promise { <pending> }" (type Promise) at path "requestSheetNoOfCM"
+		ValidationError: CM_RequestSheetData validation failed: requestSheetNoOfCM: Cast to string failed for value "Promise { <pending> }" (type Promise) at path "requestSheetNoOfCM"
+    at Document.invalidate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1463:12)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1146:16)
+    at model.Document (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:166:12)
+    at model.Model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:121:12)
+    at new model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:5048:15)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3196:22
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3231:7
+    at Array.forEach (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3230:15
+2024-09-16T17:31 | BM | CM_RequestSheetData validation failed: requestSheetNoOfCM: Cast to string failed for value "Promise { <pending> }" (type Promise) at path "requestSheetNoOfCM"
+		ValidationError: CM_RequestSheetData validation failed: requestSheetNoOfCM: Cast to string failed for value "Promise { <pending> }" (type Promise) at path "requestSheetNoOfCM"
+    at Document.invalidate (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1463:12)
+    at model.$set (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:1146:16)
+    at model.Document (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\document.js:166:12)
+    at model.Model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:121:12)
+    at new model (D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:5048:15)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3196:22
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3231:7
+    at Array.forEach (<anonymous>)
+    at D:\Devansh\Live Projects\Denso_PM_BM\denso_pm_bm\server\node_modules\mongoose\lib\model.js:3230:15

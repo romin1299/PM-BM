@@ -15,8 +15,12 @@ import {
   Legend,
   PointElement,
 } from "chart.js";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -29,6 +33,12 @@ ChartJS.register(
 );
 
 export const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -40,7 +50,6 @@ export const options = {
       display: false,
     },
   },
-  responsive: true,
   scales: {
     x: {
       stacked: true,
@@ -62,6 +71,9 @@ export const options = {
       stacked: true,
       position: "right",
 
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Percentage",
@@ -72,6 +84,9 @@ export const options = {
     },
     y2: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Hours",
@@ -91,7 +106,7 @@ export const options = {
 //       label: "Dataset 1",
 //       data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
 //       borderColor: chartColors.percentLine,
-//       borderWidth: 2,
+//       //borderWidth: 2,
 //       fill: false,
 //       backgroundColor: chartColors.percentLine,
 //       pointBorderColor: chartColors.percentLine,
@@ -124,6 +139,9 @@ const TMLoad = ({
   flagForTogglingFilter,
   selectedYear,
   selectedMonth,
+  chartTitle,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
 
@@ -133,6 +151,29 @@ const TMLoad = ({
     totalSumOf_BM: [],
     percentage: [],
   });
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+  if (userDetails?.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data?.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data?.split("-")?.[0],
+      userDetails?.section_data?.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const getTmLoadData = async () => {
     setLoading(true);
@@ -163,6 +204,71 @@ const TMLoad = ({
     setLoading(false);
   };
 
+  const header = [
+    "TM Names",
+    "Total Sum of PM",
+    "Total Sum of BM",
+    "Percentages",
+  ];
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [
+      //   [
+      //     tmLoadData?.tm_names,
+      //     tmLoadData?.totalSumOf_PM,
+      //     tmLoadData?.totalSumOf_BM,
+      //     tmLoadData?.percentage,
+      //   ],
+      // ];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [["Line Names"].concat(tmLoadData?.tm_names)?.toString() + "\n"],
+          [
+            ["PM Hour Trend"].concat(tmLoadData?.totalSumOf_PM)?.toString() +
+              "\n",
+          ],
+          [
+            ["BM Hour Trend"].concat(tmLoadData?.totalSumOf_BM)?.toString() +
+              "\n",
+          ],
+          [["Percentages"].concat(tmLoadData?.percentage)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          ["PM Hour Trend"].concat(tmLoadData?.totalSumOf_PM),
+          ["BM Hour Trend"].concat(tmLoadData?.totalSumOf_BM),
+        ];
+
+        bodyData = [
+          [
+            tmLoadData?.tm_names.join("\n"),
+            tmLoadData?.totalSumOf_PM.join("\n"),
+            tmLoadData?.totalSumOf_BM.join("\n"),
+            tmLoadData?.percentage.join("\n"),
+          ],
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `TM_Load_${selectedMonth}_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue && flagForTogglingFilter !== "based-on-line") {
       getTmLoadData();
@@ -177,7 +283,7 @@ const TMLoad = ({
         label: "%",
         data: tmLoadData?.percentage,
         borderColor: chartColors.percentLine,
-        borderWidth: 2,
+        //borderWidth: 2,
         pointRadius: 3,
         fill: false,
         backgroundColor: chartColors.percentLine,
@@ -192,6 +298,8 @@ const TMLoad = ({
         backgroundColor: chartColors.bmpm[0],
         borderRadius: 4,
         yAxisID: "y2",
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
       {
         type: "bar",
@@ -201,18 +309,41 @@ const TMLoad = ({
         backgroundColor: chartColors.bmpm[1],
         borderRadius: 4,
         yAxisID: "y2",
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
     ],
   };
 
+  let isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="TM Load" />
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Chart options={options} data={data} />
-      )}
+      <ChartTitleBar
+        title={chartTitle}
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
+
+      <Box sx={{ height: { xs: "350px", md: "400px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart options={options} data={data} />
+        )}
+      </Box>
     </Box>
     // <Paper elevation={0} variant="outlined" sx={{ p: 2 }}>
     //   <Typography variant="h5" component="h4">

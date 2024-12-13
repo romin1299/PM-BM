@@ -66,11 +66,16 @@ const UserWisePendingCount = ({
       >
         <Table bordered hover className="m-0">
           <thead>
-            <tr>
+            <tr style={{ background: "#0fa3b1" }}>
               <th>User Type</th>
               <th>TM Name</th>
               {allMonths?.map((item, index) => (
-                <th key={index}>{item}</th>
+                <th
+                  key={index}
+                  style={{ background: "#0fa3b1", textAlign: "center" }}
+                >
+                  {item}
+                </th>
               ))}
             </tr>
           </thead>
@@ -87,7 +92,9 @@ const UserWisePendingCount = ({
                     <td>{item1?.userName}</td>
 
                     {item1?.array?.map((item2, index) => (
-                      <td key={index}>{item2?.count}</td>
+                      <td key={index} style={{ textAlign: "center" }}>
+                        {item2?.count}
+                      </td>
                     ))}
                   </tr>
                 ))}

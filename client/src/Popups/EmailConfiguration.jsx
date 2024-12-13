@@ -8,10 +8,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function EmailConfiguration({ close }) {
-
   const [emailConfigurationData, setEmailConfigurationData] = useState([]);
   const [refKey2, setRefKey2] = useState(0);
-
 
   const validationSchema = yup.object({
     server_ip: yup.string().required("Please enter server IP"),
@@ -41,9 +39,25 @@ function EmailConfiguration({ close }) {
       server_ip: "",
       email_port: "",
       email: "",
+      emailForSpareRequest: "",
     },
-    validationSchema: validationSchema,
+    // validationSchema: validationSchema,
     onSubmit: async (values) => {
+      values.server_ip =
+        values?.server_ip === ""
+          ? emailConfigurationData?.serverIP
+          : values?.server_ip;
+      values.email_port =
+        values?.email_port === ""
+          ? emailConfigurationData?.emailPort
+          : values?.email_port;
+      values.email =
+        values?.email === "" ? emailConfigurationData?.fromEmailId : values?.email;
+      values.emailForSpareRequest =
+        values?.emailForSpareRequest === ""
+          ? emailConfigurationData?.emailForSpareRequest
+          : values?.emailForSpareRequest;
+
       const res = await fetch("/postEmailConfiguration", {
         method: "POST",
         headers: {
@@ -55,12 +69,11 @@ function EmailConfiguration({ close }) {
       });
       const data = await res.json();
       if (res.status === 400 || res.status === 422 || !data) {
-        window.alert("Email configuraion not added !");
+        window.alert("Email configuration not added !");
       } else {
         console.log("Email configuration added...");
-        notifyForEmailConfiguration()
+        notifyForEmailConfiguration();
         // close();
-
       }
     },
   });
@@ -77,20 +90,19 @@ function EmailConfiguration({ close }) {
       });
 
       const data = await res.json();
-      setRefKey2((refKey2) => refKey2 + 1);
-      setEmailConfigurationData(data)
-      
+      // setRefKey2((refKey2) => refKey2 + 1);
+      setEmailConfigurationData(data);
     } catch (error) {
       console.log(error);
     }
   };
   useEffect(() => {
     fetchEmailConfigurationData();
-  }, [refKey2]);
+  }, []);
 
   return (
     <>
-      <ToastContainer style={{ width: "30rem" }} />
+      {/* <ToastContainer style={{ width: "30rem" }} /> */}
 
       <div id="main_div_reg4">
         <span onClick={close} className="close">
@@ -111,7 +123,9 @@ function EmailConfiguration({ close }) {
                 id="outlined-number"
                 name="server_ip"
                 className="textField"
-                // value={formik.values.server_ip}
+                // value={
+                //   formik.values.server_ip || emailConfigurationData?.serverIP
+                // }
                 onChange={formik.handleChange}
                 autoComplete="off"
                 // label="Number"
@@ -133,7 +147,9 @@ function EmailConfiguration({ close }) {
                 id="outlined-number"
                 name="email_port"
                 className="textField"
-                // value={formik.values.email_port}
+                // value={
+                //   formik.values.email_port || emailConfigurationData?.emailPort
+                // }
                 onChange={formik.handleChange}
                 autoComplete="off"
                 // label="Number"
@@ -158,7 +174,9 @@ function EmailConfiguration({ close }) {
                 id="outlined-number"
                 name="email"
                 className="textField"
-                // value={formik.values.email}
+                // value={
+                //   formik.values.email || emailConfigurationData?.fromEmailId
+                // }
                 onChange={formik.handleChange}
                 autoComplete="off"
                 // label="Number"
@@ -170,6 +188,36 @@ function EmailConfiguration({ close }) {
                 }}
                 error={formik.touched.email && Boolean(formik.errors.email)}
                 helperText={formik.touched.email && formik.errors.email}
+              />
+            </div>
+
+            <div className="pwd-container">
+              <span>TO Email Address For Spare Order Request: </span>
+              <TextField
+                id="outlined-number"
+                name="emailForSpareRequest"
+                className="textField"
+                // value={
+                //   formik.values.emailForSpareRequest ||
+                //   emailConfigurationData?.emailForSpareRequest
+                // }
+                onChange={formik.handleChange}
+                autoComplete="off"
+                // label="Number"
+                placeholder={emailConfigurationData?.emailForSpareRequest}
+                type="email"
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                error={
+                  formik.touched.emailForSpareRequest &&
+                  Boolean(formik.errors.emailForSpareRequest)
+                }
+                helperText={
+                  formik.touched.emailForSpareRequest &&
+                  formik.errors.emailForSpareRequest
+                }
               />
             </div>
 

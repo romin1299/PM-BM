@@ -10,6 +10,8 @@ import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import DataNotFound from "../Common/DataNotFound";
 import ChartTitleBar from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DownloadButton from "../Common/DownloadButton";
+import downloadFile from "../../../util";
 
 const ChartCard = ({ category }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -49,7 +51,7 @@ const ChartCard = ({ category }) => {
   };
 
   return (
-    <Box variant="outlined" className="cell">
+    <Box variant="outlined" className="cell" sx={{ height: "420px" }}>
       <div className="p-3 pb-0">
         <ChartTitleBar title={`${category?.category}`} />
       </div>
@@ -119,8 +121,20 @@ const BDCategoryAndFactor = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  // const handleDownload = async (fileType) => {
+  //   try {
+  //     const bodyData = [categories].map((item) => [item.labels, item.data]);
+
+  //     downloadFile(bodyData, fileType, header, "sample");
+  //   } catch (error) {
+  //     console.error("Error downloading data:", error);
+  //   }
+  // };
+
   useEffect(() => {
-    if (selectedValue) {
+    if (selectedValue && flagForTogglingFilter === "based-on-machine") {
       BDCategoryAndFactor();
     }
   }, [selectedValue, selectedYear, selectedMonth]);

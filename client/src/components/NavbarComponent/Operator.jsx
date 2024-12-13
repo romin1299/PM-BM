@@ -55,6 +55,9 @@ import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import CancelScheduleSendIcon from "@mui/icons-material/CancelScheduleSend";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -74,7 +77,7 @@ const Operator = ({ userData }) => {
   const [collapsed, setCollapsed] = useState(true);
   const styles = {
     sideBarHeight: {
-      height: "100vh",
+      height: "110vh",
     },
     menuIcon: {
       float: "left",
@@ -142,7 +145,7 @@ const Operator = ({ userData }) => {
         </div>
       </div>
       <SidebarContent>
-        <Menu iconShape="square" style={styles.bg}>
+        <Menu iconShape="square" style={{ ...styles.bg, height: "75vh" }}>
           <SubMenu
             className="text-white"
             title="Dashboard"
@@ -384,6 +387,17 @@ const Operator = ({ userData }) => {
 
           <Menuitem
             className="text-white"
+            icon={<CancelScheduleSendIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="User Manual"
+          >
+            <NavLink to={"/pm/checkApprovalSendOrNotMainDashboard"}></NavLink>
+            Approval Send Or Not
+          </Menuitem>
+
+          <Menuitem
+            className="text-white"
             icon={<CloudDownloadIcon className="text-white" />}
             data-toggle="tooltip"
             data-placement="right"
@@ -433,6 +447,19 @@ const Operator = ({ userData }) => {
           >
             <NavLink to="/pm/spareReportDashboard"></NavLink>
             Spare Report
+          </Menuitem>
+          <Menuitem
+            className="text-white"
+            icon={<MenuBookIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="User Manual"
+          >
+            <NavLink
+              to={`${process.env.REACT_APP_BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
+              target="_blank"
+            ></NavLink>
+            User Manual
           </Menuitem>
         </Menu>
         <Menu iconShape="square">

@@ -67,6 +67,9 @@ import OfflinePinIcon from "@mui/icons-material/OfflinePin";
 import StorageIcon from "@mui/icons-material/Storage";
 import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
 import ArticleIcon from "@mui/icons-material/Article";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import CancelScheduleSendIcon from "@mui/icons-material/CancelScheduleSend";
 
 const Menuitem = styled(MenuItem)`
   :hover {
@@ -156,7 +159,7 @@ const TL = ({ userData, userDepartment }) => {
         </div>
       </div>
       <SidebarContent>
-        <Menu iconShape="square" style={styles.bg}>
+        <Menu iconShape="square" style={{ ...styles.bg, height: "75vh" }}>
           <SubMenu
             className="text-white"
             title="Dashboard"
@@ -323,7 +326,7 @@ const TL = ({ userData, userDepartment }) => {
                     }}
                   />
                 }
-                href="/pm/planningApproval"
+                href="/planningApproval"
               >
                 <NavLink to="/pm/planningApproval"></NavLink>
                 Planning Approval
@@ -536,6 +539,17 @@ const TL = ({ userData, userDepartment }) => {
 
           <Menuitem
             className="text-white"
+            icon={<CancelScheduleSendIcon className="text-white" />}
+            data-toggle="tooltip"
+            data-placement="right"
+            title="User Manual"
+          >
+            <NavLink to={"/pm/checkApprovalSendOrNotMainDashboard"}></NavLink>
+            Approval Send Or Not
+          </Menuitem>
+
+          <Menuitem
+            className="text-white"
             icon={<PendingActionsIcon className="text-white" />}
             data-toggle="tooltip"
             data-placement="right"
@@ -578,16 +592,18 @@ const TL = ({ userData, userDepartment }) => {
             <NavLink to="/pm/spareReportDashboard"></NavLink>
             Spare Report
           </Menuitem>
-
           <Menuitem
             className="text-white"
-            icon={<SummarizeIcon className="text-white" />}
+            icon={<MenuBookIcon className="text-white" />}
             data-toggle="tooltip"
             data-placement="right"
-            title="Spare Report"
+            title="User Manual"
           >
-            <NavLink to="/pm/generateRequestSheetMainDashboard"></NavLink>
-            GenerateRequestSheetMainDashboard
+            <NavLink
+              to={`${process.env.REACT_APP_BASE_URL}/Denso PM User Manual_OSL16Oct2023.pdf`}
+              target="_blank"
+            ></NavLink>
+            User Manual
           </Menuitem>
         </Menu>
         <Menu iconShape="square">

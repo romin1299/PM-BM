@@ -53,7 +53,7 @@ export const options = {
         maxRotation: 90,
         minRotation: 90,
         // padding: 10,
-        color:'black',
+        color: "black",
       },
     },
     y: {
@@ -63,8 +63,8 @@ export const options = {
         text: "Hours",
       },
       ticks: {
-        color: 'black'
-    },
+        color: "black",
+      },
     },
   },
 };
@@ -92,7 +92,7 @@ export const data = {
       label: "Dataset 1",
       data: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
       borderColor: chartColors.blue[1],
-      borderWidth: 2,
+      //borderWidth: 2,
       fill: false,
       backgroundColor: chartColors.blue[1],
       pointBorderColor: chartColors.blue[1],
@@ -105,7 +105,7 @@ export const data = {
       backgroundColor: chartColors.brown[0],
       borderColor: chartColors.brown[0],
       borderWidth: 0,
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
     {
       type: "bar",
@@ -115,7 +115,7 @@ export const data = {
       backgroundColor: chartColors.red[0],
       borderColor: chartColors.red[0],
       borderWidth: 0,
-      pointStyle:'rect',
+      pointStyle: "rect",
     },
   ],
 };
@@ -124,12 +124,8 @@ const MTTRTrend = () => {
   return (
     <Box className="cell p-3">
       <Row style={{ marginBottom: "1rem" }}>
-        <Typography
-          className="col"
-          variant="h5"
-          component="h5"
-        >
-         MTTR Trend
+        <Typography className="col" variant="h5" component="h5">
+          MTTR Trend
         </Typography>
 
         <Col className="col-auto d-flex">

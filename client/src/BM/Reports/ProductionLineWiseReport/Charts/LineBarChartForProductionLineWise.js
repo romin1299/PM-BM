@@ -8,6 +8,8 @@ const LineBarChartForProductionLineWise = ({
   xAxisVerticleTicks,
 }) => {
   const options = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         align: "end",
@@ -21,7 +23,6 @@ const LineBarChartForProductionLineWise = ({
       },
       datalabels: barDatalabels,
     },
-    responsive: true,
     interaction: {
       mode: "index",
       intersect: false,
@@ -29,6 +30,9 @@ const LineBarChartForProductionLineWise = ({
     scales: {
       x: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         ticks: {
           maxRotation: 90,
           minRotation: 90,
@@ -39,6 +43,9 @@ const LineBarChartForProductionLineWise = ({
       },
       y: {
         stacked: true,
+        grid: {
+          display: false,
+        },
       },
     },
 
@@ -63,7 +70,7 @@ const LineBarChartForProductionLineWise = ({
         type: "line",
         label: "Target",
         borderColor: "rgb(75, 192, 192)",
-        borderWidth: 2,
+        //borderWidth: 2,
         fill: false,
         data: ReportData?.target,
       },
@@ -72,13 +79,20 @@ const LineBarChartForProductionLineWise = ({
         label: "Hours",
         backgroundColor: ReportData?.backgroundColor,
         data: ReportData?.data,
-        borderColor: "white",
-        borderWidth: 2,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
         stack: "s-1",
       },
     ],
   };
-  return <Chart type="bar" data={data} options={options} plugins={[ChartDataLabels]}/>;
+  return (
+    <Chart
+      type="bar"
+      data={data}
+      options={options}
+      plugins={[ChartDataLabels]}
+    />
+  );
 };
 
 export default LineBarChartForProductionLineWise;

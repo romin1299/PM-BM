@@ -1,10 +1,11 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useState, useContext } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import PlantLineContribution from "./PlantLineContribution";
 import SectionLineContribution from "./SectionLineContribution";
 import { Box, Paper, Typography } from "@mui/material";
 import ChartsToolbar from "../ManHourReport/SubComponents/ChartsToolbar";
 import YearMonthDropdown from "./YearMonthDropdown";
+import RoutingContext from "../../../context/routing/RoutingContext";
 
 import {
   initialState,
@@ -15,7 +16,10 @@ import DownloadMenu from "../ManHourReport/SubComponents/DownloadMenu";
 import { EXPORT_REPORT, exportPPTX } from "../../Utils/ExportPPTX/exportPPTX";
 
 const LineContributionMain = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
+  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
+  const loggedUserDetails = useContext(RoutingContext);
+
+ 
 
   return (
     <Container fluid style={{ paddingBottom: "3rem" }}>
@@ -42,11 +46,16 @@ const LineContributionMain = () => {
 
         <Row className="mt-3">
           <Col lg={12}>
-            <PlantLineContribution {...reduceState} />
+            <PlantLineContribution
+              userDetails={loggedUserDetails}
+              reduceState={reduceState}
+              {...reduceState}
+            />
           </Col>
 
           <Col lg={12}>
             <SectionLineContribution
+              userDetails={loggedUserDetails}
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
             />

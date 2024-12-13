@@ -56,9 +56,14 @@ const MonthlyGeneratedAndCompletedCount = ({
         <Table bordered hover className="m-0">
           <thead>
             <tr>
-              <th>Status</th>
+              <th style={{ background: "#0fa3b1" }}>Status</th>
               {allMonths?.map((item, index) => (
-                <th key={index}>{item}</th>
+                <th
+                  style={{ background: "#0fa3b1", textAlign: "center" }}
+                  key={index}
+                >
+                  {item}
+                </th>
               ))}
             </tr>
           </thead>
@@ -66,9 +71,11 @@ const MonthlyGeneratedAndCompletedCount = ({
           {monthlyCountData?.map((item, index) => (
             <tbody key={index}>
               <tr>
-                <th>{item?.label}</th>
+                <th style={{ background: "#b5e2fa" }}>{item?.label}</th>
                 {item?.data?.map((item, index) => (
-                  <td key={index}>{item}</td>
+                  <td key={index} style={{ textAlign: "center" }}>
+                    {item}
+                  </td>
                 ))}
               </tr>
             </tbody>

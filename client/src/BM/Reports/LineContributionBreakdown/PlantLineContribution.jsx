@@ -16,9 +16,11 @@ import {
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import axios from "axios";
 import DataNotFound from "../Common/DataNotFound";
-import ChartTitleBar from "../Common/ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import { commonDatalabels } from "../../Utils/ChartUtils/chartOptions";
 import Loading from "../../../components/Loading/Loading";
+import downloadFile from "../../../util";
+import findFilters from "../../../filterNames";
 
 ChartJS.register(
   CategoryScale,
@@ -35,6 +37,10 @@ export const options = {
   responsive: true,
   maintainAspectRatio: false,
   maxBarThickness: 100,
+  interaction: {
+    mode: "index",
+    intersect: false,
+  },
   plugins: {
     legend: {
       align: "end",
@@ -67,6 +73,9 @@ export const options = {
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "% Contribution",
@@ -88,6 +97,9 @@ export const options = {
         display: true,
         text: "Breakdown Hours",
       },
+      grid: {
+        display: false,
+      },
       min: 0,
       // max: 50,
       stepSize: 5,
@@ -98,9 +110,38 @@ export const options = {
   },
 };
 
-const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
+const PlantLineContribution = ({
+  selectedYear,
+  selectedMonth,
+  reduceState,
+  userDetails,
+}) => {
   const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState({});
+
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    reduceState.flagForTogglingFilter,
+    reduceState,
+    reduceState.selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
 
   const fetchPlantId = async ({ url }) => {
     try {
@@ -147,6 +188,45 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
     setLoading(false);
   };
 
+  const header = ["Line Names", "Hours", "Percentages"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [[data?.lineNames, data?.bdHours, data?.percentages]];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems] + "\n",
+          ["\n"],
+          [["Line Names"].concat(data?.lineNames)?.toString() + "\n"],
+          [["Hours"].concat(data?.bdHours)?.toString() + "\n"],
+          [["Percentages"].concat(data?.percentages)?.toString() + "\n"],
+        ];
+      } else {
+        bodyData = [
+          [
+            data?.lineNames.join("\n"),
+            data?.bdHours.join("\n"),
+            data?.percentages.join("\n"),
+          ],
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `Plant_Linewise_Contribution_${selectedMonth}_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   React.useEffect(() => {
     fetchChartData();
   }, [selectedYear, selectedMonth]);
@@ -159,7 +239,7 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         label: "Breakdown Hrs",
         data: data?.bdHours,
         fill: false,
-        borderWidth: 2,
+        //borderWidth: 2,
         borderColor: chartColors.bdHoursLine,
         backgroundColor: chartColors.bdHoursLine,
         pointStyle: "rectRot",
@@ -174,6 +254,8 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
         backgroundColor: chartColors.barChart,
         borderRadius: 4,
         yAxisID: "y",
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
       },
     ],
   };
@@ -182,25 +264,35 @@ const PlantLineContribution = ({ selectedYear, selectedMonth }) => {
   //   console.log("plant data:", data);
   // }, [data]);
 
+  const noData = data === undefined || Object.keys(data).length === 0;
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title="Plant Contribution" />
-
-      {loading ? (
-        <Loading height={300} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "400px" } }}>
-          {data === undefined || Object.keys(data).length === 0 ? (
-            <DataNotFound />
-          ) : (
-            <Chart
-              options={options}
-              data={chartData}
-              plugins={[ChartDataLabels]}
+      <ChartTitleBar
+        title="Plant Contribution"
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                handleDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                handleDownload("pdf");
+              }}
             />
-          )}
-        </Box>
-      )}
+          </div>
+        }
+      />
+
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : noData ? (
+          <DataNotFound />
+        ) : (
+          <Chart data={chartData} options={options} />
+        )}
+      </Box>
     </Box>
   );
 };

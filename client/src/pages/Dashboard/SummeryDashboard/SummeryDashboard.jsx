@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from "react";
 
-import { Row, Button, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
 import SummeryDashboardCard from "./SummeryDashboardCard";
 import NotFound from "../../Reports/ReportComponents/NotFound";
 import { Navigate, useNavigate } from "react-router-dom";
-
-import {
-  fetchPlantInfo,
-  postPlantToGetSectionInfo,
-  postSectionToGetSubSectionInfo,
-} from "../../../Integration/APIExports";
 
 import currentYear from "../DashboardComponent/currentYear";
 import YearDropDown from "../DashboardComponent/YearDropDown";
@@ -19,43 +13,60 @@ import currentMonth from "../DashboardComponent/currentMonth";
 import LoadingAnimation from "../../Reports/ReportComponents/LoadingAnimation";
 import Footer from "../../../components/Footer/Footer";
 
-const SummeryDashboard = () => {
-  const [plantInfo, setPlantInfo] = useState([]);
-  const [sectionInfo, setSectionInfo] = useState([]);
-  const [subSectionInfo, setSubSectionInfo] = useState([]);
+import { Button, ButtonGroup } from "@mui/material";
 
+const SummeryDashboard = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [stateForAnimationAndNotFound, setStateForAnimationAndNotFound] =
     useState(<LoadingAnimation />);
 
+  const [summaryCardData, setSummaryCardData] = useState([]);
+  const [filter, setFilter] = useState("Section");
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setSectionInfo([])
-    setStateForAnimationAndNotFound(<LoadingAnimation/>)
-    fetchPlantInfo().then((result) => {
-      setPlantInfo(result?.plantLists);
-      postPlantToGetSectionInfo(
-        result?.plantLists,
-        selectedYear,
-        selectedMonth
-      ).then((result1) => {
-        setSectionInfo(result1?.monthlyChartDataOfSummery);
-        setStateForAnimationAndNotFound(<NotFound/>)
-        // postSectionToGetSubSectionInfo(result1?.SectionInfo).then((result3) => {
-        //   console.log(result3);
-        //   setSubSectionInfo(result3.subSectionInfo);
-        // });
-      });
-    });
-  }, [selectedYear, selectedMonth]);
-  // let cartTitle1 = ["PowerTrain"];
-  // console.log(plantInfo)
-  // console.log(sectionInfo);
-  const backAtMainDashboard = () => {
-    navigate("/");
+  const fetchAllSummeryData = async () => {
+    try {
+      setStateForAnimationAndNotFound(<LoadingAnimation />);
+      const res = await fetch(
+        `/fetchAllSummeryData/?filter=${filter}&&selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+
+      if (res.status === 201) {
+        setSummaryCardData(data?.finalData);
+      }
+
+      setStateForAnimationAndNotFound(<NotFound />);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  useEffect(() => {
+    fetchAllSummeryData();
+  }, [selectedYear, selectedMonth, filter]);
+
+  const SummaryCardMapping = ({ array }) => (
+    <Row className=" gy-4">
+      {array?.map((item1) => (
+        <SummeryDashboardCard
+          cartTitle={item1.name}
+          data={item1}
+          filter={filter}
+        />
+      ))}
+    </Row>
+  );
 
   return (
     <div className="container-fluid">
@@ -84,8 +95,73 @@ const SummeryDashboard = () => {
               setSelectedMonth={setSelectedMonth}
             />
           </Col>
+          <Col className="d-flex justify-content-end">
+            <ButtonGroup
+              size="small"
+              disableElevation
+              variant="outlined"
+              aria-label="outlined button group"
+            >
+              {["Section", "Cell"]?.map((item, index) => (
+                <Button
+                  key={index}
+                  variant={filter === item ? "contained" : "outlined"}
+                  value={item}
+                  onClick={(event) => {
+                    setFilter(event.target.value);
+                  }}
+                >
+                  {item}
+                </Button>
+              ))}
+            </ButtonGroup>
+          </Col>
         </Row>
-        {plantInfo?.map((item) => (
+
+        {summaryCardData?.length > 0 ? (
+          summaryCardData?.map((item) => (
+            <div>
+              <div class="shadow-sm cardCssForSubtitle card1 text-danger d-flex align-items-center">
+                <h4 style={{ marginBottom: "0rem", color: "rgb(220, 53, 69)" }}>
+                  {item.plant_name}
+                </h4>
+              </div>
+
+              {filter === "Section" ? (
+                <SummaryCardMapping array={item?.details} />
+              ) : (
+                item?.sectionOrSubSectionWiseData?.map((item1) => (
+                  <>
+                    <div
+                      class="shadow-sm cardCssForSubtitle card1 text-danger d-flex align-items-center"
+                      style={{
+                        marginTop: "20px",
+                        marginBottom: "20px",
+                      }}
+                    >
+                      <h5
+                        style={{
+                          marginBottom: "0rem",
+                          color: "rgb(220, 53, 69)",
+                        }}
+                      >
+                        {item1.nameSectionOrSubSection}
+                      </h5>
+                    </div>
+
+                    <SummaryCardMapping array={item1?.details} />
+                  </>
+                ))
+              )}
+            </div>
+          ))
+        ) : (
+          <Col className="col-lg-3 col-md-12 col-sm-12 p-5 d-flex justify-content-center d-flex align-items-center">
+            {stateForAnimationAndNotFound}
+          </Col>
+        )}
+
+        {/* {plantInfo?.map((item) => (
           <div>
             <div class="shadow-sm cardCssForSubtitle card1 text-danger d-flex align-items-center">
               <h4 style={{ marginBottom: "0rem", color: "rgb(220, 53, 69)" }}>
@@ -109,26 +185,9 @@ const SummeryDashboard = () => {
                   {stateForAnimationAndNotFound}
                 </Col>
               )}
-
-              {/* {sectionInfo.map((item1) =>
-                item._id === item1.plant_names
-                  ? item1.dashboardLevel === "No"
-                    ? subSectionInfo.map((item2) =>
-                        item2.section_names === item1._id ? (
-                          <SummeryDashboardCard
-                            cartTitle={item2.subSection_name}
-                            data={item2}
-                          />
-                        ) : (
-                          ""
-                        )
-                      )
-                    : ""
-                  : ""
-              )} */}
             </Row>
           </div>
-        ))}
+        ))} */}
       </div>
       <br />
       <br />

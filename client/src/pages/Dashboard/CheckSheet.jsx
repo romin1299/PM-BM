@@ -16,8 +16,10 @@ import { Container, Row, Col } from "react-bootstrap";
 import EastIcon from "@mui/icons-material/East";
 import SummeryPopups from "../Operator/PopupsForChecksheet/SummeryPopups";
 import Footer from "../../components/Footer/Footer";
+import SimCardDownloadIcon from "@mui/icons-material/SimCardDownload";
 
 import { jsPDF } from "jspdf";
+import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
   const context = useContext(RoutingContext);
@@ -218,7 +220,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
           key === "reasonForDelayWhenSkip" ||
           key === "isAdded" ||
           key === "isEdited" ||
-          key === "inspectionCompletionBy"
+          key === "inspectionCompletionBy" ||
+          key === "remarksCompulsoryOrNot"
         ) {
           continue;
         }
@@ -511,21 +514,37 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
             </Button>
           </Modal.Header>
           <Modal.Body>
-            <div className="row">
-              <div className="col-11"></div>
-            </div>
-            <button className="btn-reset" onClick={handleDownload}>
-              Download
-            </button>
-
-            <br />
-
             <div id="doc-target">
               <div>
                 <Container fluid>
                   <Row>
                     <Col lg={6} md={6} sm={6}>
                       {" "}
+                      <div className="row d-flex gx-1">
+                        <div className="col">
+                          <button
+                            className="btn-reset"
+                            onClick={handleDownload}
+                          >
+                            Download
+                          </button>
+                        </div>
+                        {machineAllData?.checkSheet_data?.dataSheet ? (
+                          <div className="col">
+                            <a
+                              href={`${process.env.REACT_APP_BASE_URL}/${machineData?.checkSheet_data?.dataSheet}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <button className="btn-reset">
+                                <SimCardDownloadIcon /> Download DATA-SHEET
+                              </button>
+                            </a>
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
                     </Col>
                     <Col lg={6} md={6} sm={6}>
                       <table className="ar-table tableCol1">
@@ -664,14 +683,29 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                             </th>
                             {machineAllData?.checkSheet_data
                               ?.implementation_approved_by_MTD_TL
-                              ? Object.values(
+                              ? Object.entries(
                                   machineAllData?.checkSheet_data
-                                    ?.implementation_approved_by_MTD_TL
-                                ).map((index) => (
-                                  <td className="ar-table-col1">
-                                    {index[index.length - 1]}
-                                  </td>
-                                ))
+                                    ?.implemetation_mtd_tl_approval_status
+                                ).map(([month, statusArray]) =>
+                                  statusArray[statusArray.length - 1] ===
+                                  "Accepted" ? (
+                                    <td className="ar-table-col1">
+                                      {
+                                        machineAllData?.checkSheet_data
+                                          ?.implementation_assign_MTD_TL_name[
+                                          month
+                                        ][
+                                          machineAllData?.checkSheet_data
+                                            ?.implementation_assign_MTD_TL_name[
+                                            month
+                                          ].length - 1
+                                        ]
+                                      }
+                                    </td>
+                                  ) : (
+                                    <td className="ar-table-col1"></td>
+                                  )
+                                )
                               : refArrayForTDMapping.map((index) => (
                                   <td className="ar-table-col1"></td>
                                 ))}
@@ -733,14 +767,29 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                             </th>
                             {machineAllData?.checkSheet_data
                               ?.implementation_approved_by_MTD_HOS
-                              ? Object.values(
+                              ? Object.entries(
                                   machineAllData?.checkSheet_data
-                                    ?.implementation_approved_by_MTD_HOS
-                                ).map((index) => (
-                                  <td className="ar-table-col1">
-                                    {index[index.length - 1]}
-                                  </td>
-                                ))
+                                    ?.implemetation_mtd_hos_approval_status
+                                ).map(([month, statusArray]) =>
+                                  statusArray[statusArray.length - 1] ===
+                                  "Accepted" ? (
+                                    <td className="ar-table-col1">
+                                      {
+                                        machineAllData?.checkSheet_data
+                                          ?.implementation_assign_MTD_HOS_name[
+                                          month
+                                        ][
+                                          machineAllData?.checkSheet_data
+                                            ?.implementation_assign_MTD_HOS_name[
+                                            month
+                                          ].length - 1
+                                        ]
+                                      }
+                                    </td>
+                                  ) : (
+                                    <td className="ar-table-col1"></td>
+                                  )
+                                )
                               : refArrayForTDMapping.map((index) => (
                                   <td className="ar-table-col1"></td>
                                 ))}
@@ -878,8 +927,8 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                                       colData.value.length === 1 &&
                                       colData.key ===
                                         monthForCompareSystemMonth &&
-                                        rData[10]?.["key"] !== "isDeleted" &&
-                                        rData[10]?.["value"] !== true ? (
+                                      rData[10]?.["key"] !== "isDeleted" &&
+                                      rData[10]?.["value"] !== true ? (
                                         <>
                                           {" "}
                                           <div style={{ fontWeight: "900" }}>
@@ -1005,14 +1054,30 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                               (MTD TM's)
                             </th>
                             {machineAllData?.checkSheet_data?.PMworkedTMName
-                              ? Object.values(
-                                  machineAllData?.checkSheet_data
-                                    ?.PMworkedTMName
-                                ).map((index) => (
-                                  <td className="ar-table-col1">
-                                    {index.join(" ,")}
-                                  </td>
-                                ))
+                              ? Object.keys({
+                                  ...machineAllData?.checkSheet_data
+                                    ?.implemetation_completed_tm_name,
+                                  ...machineAllData?.checkSheet_data
+                                    ?.PMworkedTMName,
+                                }).map((month) => {
+                                  const uniqueNames = [
+                                    ...new Set([
+                                      ...(machineAllData?.checkSheet_data
+                                        ?.implemetation_completed_tm_name[
+                                        month
+                                      ] || []),
+                                      ...(machineAllData?.checkSheet_data
+                                        ?.PMworkedTMName?.[month] || []),
+                                    ]),
+                                  ];
+                                  return (
+                                    <td key={month} className="ar-table-col1">
+                                      {uniqueNames.length > 0
+                                        ? uniqueNames.join(" ,")
+                                        : "-"}
+                                    </td>
+                                  );
+                                })
                               : refArrayForTDMapping.map((index) => (
                                   <td className="ar-table-col1"></td>
                                 ))}
@@ -1026,14 +1091,29 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
                             </th>
                             {machineAllData?.checkSheet_data
                               ?.implementation_approved_by_PRD_TL
-                              ? Object.values(
+                              ? Object.entries(
                                   machineAllData?.checkSheet_data
-                                    ?.implementation_approved_by_PRD_TL
-                                ).map((index) => (
-                                  <td className="ar-table-col1">
-                                    {index[index.length - 1]}
-                                  </td>
-                                ))
+                                    ?.implemetation_prd_tl_approval_status
+                                ).map(([month, statusArray]) =>
+                                  statusArray[statusArray.length - 1] ===
+                                  "Accepted" ? (
+                                    <td className="ar-table-col1">
+                                      {
+                                        machineAllData?.checkSheet_data
+                                          ?.implementation_assign_PRD_TL_name[
+                                          month
+                                        ][
+                                          machineAllData?.checkSheet_data
+                                            ?.implementation_assign_PRD_TL_name[
+                                            month
+                                          ].length - 1
+                                        ]
+                                      }
+                                    </td>
+                                  ) : (
+                                    <td className="ar-table-col1"></td>
+                                  )
+                                )
                               : refArrayForTDMapping.map((index) => (
                                   <td className="ar-table-col1"></td>
                                 ))}

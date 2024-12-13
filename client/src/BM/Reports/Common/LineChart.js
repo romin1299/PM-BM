@@ -15,6 +15,8 @@ import { Col, Row } from "react-bootstrap";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import ChartTitleBar from "./ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "./DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 const LineChart = ({
   title,
@@ -23,6 +25,7 @@ const LineChart = ({
   setValue,
   clearErrors,
   AppendToolComponents,
+  reset,
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -37,6 +40,10 @@ const LineChart = ({
     responsive: true,
     maintainAspectRatio: false,
     maxBarThickness: 100,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       // annotation: {
       //   annotations: {
@@ -46,7 +53,7 @@ const LineChart = ({
       //       yMin: 1,
       //       yMax: 1,
       //       borderColor: chartColors[3],
-      //       borderWidth: 2,
+      //       //borderWidth: 2,
       //     },
       //   },
       // },
@@ -79,6 +86,9 @@ const LineChart = ({
       },
       y2: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         title: {
           display: true,
           text: "Hours",
@@ -120,7 +130,7 @@ const LineChart = ({
       data: dataset?.data,
       backgroundColor: chartColors.target,
       borderColor: chartColors.targetBorder,
-      borderWidth: 2,
+      //borderWidth: 2,
       fill: false,
       yAxisID: "y2",
     },
@@ -131,17 +141,21 @@ const LineChart = ({
     datasets,
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
       <ChartTitleBar title={title} Toolbar={AppendToolComponents} />
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+      <Box sx={{ height: { xs: "300px", md: "350px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
           <Line options={options} data={data} />
-        </Box>
-      )}
+        )}
+      </Box>
     </Box>
   );
 };

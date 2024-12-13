@@ -9,6 +9,8 @@ import DataNotFound from "../Common/DataNotFound";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Loading from "../../../components/Loading/Loading";
 import ChartTitleBar from "../Common/ChartTitleBar";
+import downloadFile from "../../../util";
+import DownloadButton from "../Common/DownloadButton";
 
 const ChartCard = ({ category }) => {
   ChartJS.register(ArcElement, Tooltip, Legend);
@@ -29,7 +31,7 @@ const ChartCard = ({ category }) => {
           })`;
         },
         font: { size: 12 },
-        // color: chartColors.categoryPieFont,
+        color: "white",
       },
     },
   };
@@ -39,10 +41,26 @@ const ChartCard = ({ category }) => {
     datasets: [
       {
         label: "Hour",
+        // data: [5, 5, 5, 5, 5, 5, 5, 5, 5],
         data: category?.bdTime,
-        backgroundColor: category?.subcategories?.map(
-          (item, i) => chartColors.categoryPie[i]
-        ),
+        backgroundColor: [
+          "#a2ad00",
+          "#0ca4be",
+          "#cc3e6d",
+          "#bd38d4",
+          "#197bdd",
+          "#dd4343",
+          "#4e60c5",
+          "#d4ad36",
+          "#bd7878",
+        ],
+        // backgroundColor: category?.subcategories?.map(
+        // backgroundColor: category?.subcategories?.map(
+        //   (item, i) => chartColors.categoryPie[i]
+        // ),
+        // hoverBackgroundColor: category?.subcategories?.map(
+        //   (item, i) => chartColors.categoryPie[i]
+        // ),
         // borderColor: chartColors.tmSkillPie,
         borderWidth: 1,
       },
@@ -53,15 +71,15 @@ const ChartCard = ({ category }) => {
     <Box className="cell p-3">
       {/* <ChartTitleBar title="BD Hours Vs Count" /> */}
       <Typography variant="body1" style={{ fontSize: "1rem" }}>
-        {category?.category} Category
+        {category?.category}
       </Typography>
 
       <Divider sx={{ mt: 1, mb: 2, borderColor: "gray" }} />
 
       <Box
-        className="ratio ratio-1x1"
-        // sx={{ height: { xs: "300px", md: "350px" } }}
-        sx={{ maxHeight: "350px" }}
+        className="d-flex align-items-center justify-content-center"
+        sx={{ height: {  md: "355px" } }}
+        // sx={{ maxHeight: "350px" }}
       >
         {category?.bdCount === undefined ? (
           <DataNotFound />
@@ -108,6 +126,29 @@ const CategoryPieCharts = ({
     }
 
     setLoading(false);
+  };
+
+  const header = [
+    "Category",
+    "Sub-Categories",
+    "Breakdown Time",
+    "Breakdown Count",
+  ];
+
+  const handleDownload = async (fileType) => {
+    try {
+      // console.log("fdfd", categories);
+      const bodyData = categories.map((item) => [
+        item.category,
+        item.subcategories,
+        item.bdTime,
+        item.bdCount,
+      ]);
+
+      downloadFile(bodyData, fileType, header, "sample");
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
   };
 
   useEffect(() => {

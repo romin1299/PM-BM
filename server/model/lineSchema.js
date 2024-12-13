@@ -99,6 +99,10 @@ const lineSchema = new mongoose.Schema({
   requestSheetNos: {
     type: Number,
   },
+
+  requestSheetNoOfCM: {
+    type: Number,
+  },
 });
 
 const Line = new mongoose.model("Lines", lineSchema);

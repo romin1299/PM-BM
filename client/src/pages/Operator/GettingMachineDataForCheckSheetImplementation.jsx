@@ -30,29 +30,32 @@ const GettingMachineDataForCheckSheetImplementation = ({
   // console.log(show);
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
-      const res = await fetch("/postMachineIdToGetAllDetailsOfMachine", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          machineID: machineData,
-          selectedYear,
-        }),
-      });
+      const res = await fetch(
+        `/postMachineIdToGetAllDetailsOfMachine/?selectedYear=${selectedYear}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            machine_code: machineData?.machine_code,
+          }),
+        }
+      );
       const data = await res.json();
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-
         // setMachineDataState(data.machineData);
         loggedUserType === "Operator"
           ? setImplementationPhaseCheckSheet(
               <CheckSheetForImplementation
-                machineData={data?.machineLastData}
+                // machineData={data?.machineLastData}
+                machine_code={machineData?.machine_code}
+                selectedYear={selectedYear}
                 lineName={lineName}
                 closeCheckSheet={closeCheckSheet}
-                functionToSetRefKey={functionToSetRefKey}
+                // functionToSetRefKey={functionToSetRefKey}
                 handleClose={handleClose}
                 show={showCheckSheet}
               />
@@ -112,7 +115,7 @@ const GettingMachineDataForCheckSheetImplementation = ({
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 };

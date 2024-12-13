@@ -39,7 +39,7 @@ export const options = {
           yMin: 1,
           yMax: 1,
           borderColor: chartColors[3],
-          borderWidth: 2,
+          //borderWidth: 2,
         },
       },
     },
@@ -70,19 +70,22 @@ export const options = {
         minRotation: 90,
         // padding: 10,
       },
-      ticks:{
-        color:'black',
-      }
+      ticks: {
+        color: "black",
+      },
     },
     y: {
       stacked: true,
+      grid: {
+        display: false,
+      },
       title: {
         display: true,
         text: "Hours",
       },
-      ticks:{
-        color:'black',
-      }
+      ticks: {
+        color: "black",
+      },
     },
   },
 };
@@ -111,7 +114,7 @@ export const data = {
       label: "BM",
       data: [2.5, 2.4, 2.3, 2.3, 2.1, 2.0, 1.5, 1.3, 1, 1, 0.5, 0.5],
       backgroundColor: chartColors.blue[3],
-      tension: 0.1
+      tension: 0.1,
     },
   ],
 };

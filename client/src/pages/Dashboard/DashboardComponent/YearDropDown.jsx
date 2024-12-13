@@ -24,13 +24,13 @@ const YearDropDown = ({ selectedYear, setSelectedYear }) => {
         <b>Year:&nbsp; &nbsp;</b>
       </span>
       <select
-        class="form-select form-select-sm"
+        // class="form-select form-select-sm"
         aria-label=".form-select-sm example"
         style={{ width: "63%" }}
         id="standard-select-currency"
         name="selectedPlant"
         value={selectedYear ? selectedYear : current_year}
-        className="textField"
+        // className="textField"
         onChange={(e) => {
           setSelectedYear(e.target.value);
         }}

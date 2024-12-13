@@ -6,6 +6,9 @@ import { Container, Row, Col } from "react-bootstrap";
 import BarChart from "./Chart/BarChart";
 import BDRequestSheetTable from "../Common/DailyBDRequestSheetTable";
 import { Box, Button, InputAdornment, TextField } from "@mui/material";
+import downloadFile from "../../../util";
+import { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import findFilters from "../../../filterNames";
 
 const MTBFMachineTrend = ({
   selectedValue,
@@ -14,6 +17,8 @@ const MTBFMachineTrend = ({
   selectedMonth,
   documentLimitInTheGraph,
   setDocumentLimitInTheGraph,
+  filterValues,
+  userDetails,
 }) => {
   const [loading, setLoading] = React.useState(true);
   const {
@@ -24,13 +29,15 @@ const MTBFMachineTrend = ({
     setValue,
     clearErrors,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: {
       selectedMachine: {
         _id: "",
         machine_code: "",
       },
-      selectedDate: "",
+      selectedToDate: "",
+      selectedFromDate: "",
     },
   });
 
@@ -79,6 +86,30 @@ const MTBFMachineTrend = ({
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
+
   const getMachineWiseMTBFTrendDataData = async () => {
     setLoading(true);
 
@@ -111,6 +142,57 @@ const MTBFMachineTrend = ({
     setLoading(false);
   };
 
+  const header = ["Labels", "Data"];
+
+  const handleDownload = async (fileType) => {
+    try {
+      // const bodyData = [
+      //   [
+      //     reduceState.MachineWiseMTBFTrendData?.labels,
+      //     reduceState.MachineWiseMTBFTrendData?.data,
+      //   ],
+      // ];
+
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [
+            ["Line Names"]
+              .concat(reduceState.MachineWiseMTBFTrendData?.labels)
+              ?.toString() + "\n",
+          ],
+          [
+            ["Hours"]
+              .concat(reduceState.MachineWiseMTBFTrendData?.data)
+              ?.toString() + "\n",
+          ],
+        ];
+      } else {
+        bodyData = [
+          [
+            reduceState.MachineWiseMTBFTrendData?.labels.join("\n"),
+            reduceState.MachineWiseMTBFTrendData?.data.join("\n"),
+          ],
+        ];
+        filterData = ["Filters", ...arrayItems];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `MTBF_MachineTrend_${selectedMonth}_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getMachineWiseMTBFTrendDataData();
@@ -126,7 +208,9 @@ const MTBFMachineTrend = ({
         });
       }
       const res = await fetch(
-        `/getRequestSheetDataBasedOnSelectedMachine/${data?.selectedMachine?._id}/${data?.selectedDate}`,
+        `/getRequestSheetDataBasedOnSelectedMachine/${
+          data?.selectedMachine?._id || data
+        }/${data?.selectedToDate}/${data?.selectedFromDate}`,
         {
           method: "GET",
           headers: {
@@ -152,53 +236,75 @@ const MTBFMachineTrend = ({
   };
 
   const TopDataFilterInput = (
-    <Col className="col-auto">
-      <Box
-        component="form"
-        sx={{ display: "flex", alignItems: "center", gap: "10px" }}
-      >
-        {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
-        <TextField
-          type="number"
-          id="outlined-basic"
-          // sx={{ width: "80px" }}
-          variant="outlined"
-          sx={{
-            // width: "12ch",
-            width: "6rem",
-            pl: 0,
-            "& .MuiOutlinedInput-root": { pl: 0 },
-            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
-          }}
-          InputProps={{
-            sx: { fontSize: 14 },
-            startAdornment: (
-              <InputAdornment position="start">TOP</InputAdornment>
-            ),
-          }}
-          size="small"
-          onChange={(e) => {
-            setDocumentLimitInTheGraph(e.target.value);
-          }}
-          value={documentLimitInTheGraph}
-        />
-        <Button
-          // size="small"
-          disableElevation
-          className="bg-button"
-          variant="contained"
-          sx={{
-            minWidth: "30px",
-            height: "32px",
-            paddingInline: "10px",
-          }}
-          onClick={getMachineWiseMTBFTrendDataData}
+    <>
+      <Col className="col-auto">
+        <Box
+          component="form"
+          sx={{ display: "flex", alignItems: "center", gap: "10px" }}
         >
-          Go
-        </Button>
-      </Box>
-    </Col>
+          {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
+          <TextField
+            type="number"
+            id="outlined-basic"
+            // sx={{ width: "80px" }}
+            variant="outlined"
+            sx={{
+              // width: "12ch",
+              width: "6rem",
+              pl: 0,
+              "& .MuiOutlinedInput-root": { pl: 0 },
+              "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
+            }}
+            InputProps={{
+              sx: { fontSize: 14 },
+              startAdornment: (
+                <InputAdornment position="start">TOP</InputAdornment>
+              ),
+            }}
+            size="small"
+            onChange={(e) => {
+              setDocumentLimitInTheGraph(e.target.value);
+            }}
+            value={documentLimitInTheGraph}
+          />
+          <Button
+            // size="small"
+            disableElevation
+            className="bg-button"
+            variant="contained"
+            sx={{
+              minWidth: "30px",
+              height: "32px",
+              paddingInline: "10px",
+            }}
+            onClick={getMachineWiseMTBFTrendDataData}
+          >
+            Go
+          </Button>
+        </Box>
+      </Col>
+
+      <div className="col-auto">
+        <ChartDownloadMenu
+          handleDownloadCSV={() => {
+            handleDownload("csv");
+          }}
+          handleDownloadPDF={() => {
+            handleDownload("pdf");
+          }}
+        />
+      </div>
+    </>
   );
+
+  useEffect(() => {
+    if (
+      watch("selectedMachine.machine_code") !== "" ||
+      watch("selectedMachine.machine_code" !== undefined)
+    ) {
+      getRequestSheetDataBasedOnSelectedMachine(watch("selectedMachine._id"));
+    }
+  }, [watch("selectedMachine.machine_code")]);
 
   return (
     <Container fluid>
@@ -230,6 +336,7 @@ const MTBFMachineTrend = ({
           setValue={setValue}
           clearErrors={clearErrors}
           AppendToolComponents={TopDataFilterInput}
+          onClickDownload={handleDownload}
         />
       </Row>
 
@@ -237,7 +344,7 @@ const MTBFMachineTrend = ({
         <Col className="cell p-3">
           <form
             onSubmit={handleSubmit(getRequestSheetDataBasedOnSelectedMachine)}
-            className="pt-1 d-flex align-items-center justify-content-end gap-2"
+            className="mb-2 pt-1 d-flex align-items-center justify-content-end gap-2"
           >
             {errors?.["selectedMachine"] && (
               <p className="text-error">
@@ -246,20 +353,40 @@ const MTBFMachineTrend = ({
             )}
             {watch("selectedMachine.machine_code")}
 
-            <input
-              type="date"
-              {...register("selectedDate", {
-                required: "Please select date",
-              })}
-            />
-            {errors?.["selectedDate"] && (
-              <p className="text-error">{errors?.["selectedDate"]?.message}</p>
-            )}
-
-            {/* <button type="submit" className="btn bg-button ">
-              Go
-            </button> */}
-
+            <div>
+              <span className="m-1">
+                <b>From Date:</b>
+              </span>
+              <input
+                type="date"
+                {...register("selectedFromDate", {
+                  required: "Please select date",
+                })}
+              />
+              <br />
+              {errors?.["selectedFromDate"] && (
+                <p className="text-error">
+                  {errors?.["selectedFromDate"]?.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <span className="m-1">
+                <b>To Date:</b>
+              </span>
+              <input
+                type="date"
+                {...register("selectedToDate", {
+                  required: "Please select date",
+                })}
+              />
+              <br />
+              {errors?.["selectedToDate"] && (
+                <p className="text-error">
+                  {errors?.["selectedToDate"]?.message}
+                </p>
+              )}
+            </div>
             <Button
               size="small"
               disableElevation
@@ -267,6 +394,7 @@ const MTBFMachineTrend = ({
               variant="contained"
               type="submit"
               sx={{
+                ml: 1,
                 minWidth: "30px",
                 height: "30px",
                 paddingInline: "10px",
@@ -274,11 +402,31 @@ const MTBFMachineTrend = ({
             >
               Go
             </Button>
+
+            <Button
+              size="small"
+              disableElevation
+              className="bg-button"
+              variant="contained"
+              sx={{
+                ml: 1,
+                minWidth: "30px",
+                height: "30px",
+                paddingInline: "10px",
+              }}
+              onClick={() => {
+                reduceState.requestSheetData = [];
+                reset();
+              }}
+            >
+              Reset
+            </Button>
           </form>
 
           <BDRequestSheetTable
             requestSheetData={reduceState?.requestSheetData}
             downloadFileName={"MTBF Report"}
+            selectedYear={selectedYear}
           />
         </Col>
       </Row>

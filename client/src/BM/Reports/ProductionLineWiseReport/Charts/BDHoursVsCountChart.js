@@ -16,6 +16,9 @@ import { Box } from "@mui/material";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { barDatalabels } from "../../../Utils/ChartUtils/chartOptions";
 import { chartColors } from "../../../Utils/ChartUtils/chartEnums";
+import DataNotFound from "../../Common/DataNotFound";
+import Loading from "../../../../components/Loading/Loading";
+import { isChartDataExist } from "../../../Utils/functions/isChartDataExist";
 
 const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
   ChartJS.register(
@@ -72,6 +75,9 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       },
       y1: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         position: "right",
         title: {
           display: true,
@@ -80,6 +86,9 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
       },
       y2: {
         stacked: true,
+        grid: {
+          display: false,
+        },
         position: "left",
         title: {
           display: true,
@@ -89,8 +98,6 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
     },
   };
 
-  let colorArray1 = ["red", "green"];
-
   const data = {
     labels,
     datasets: [
@@ -99,7 +106,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         label: `Count ${item?.groupId}`,
         backgroundColor: chartColors.machineChartCounts[index],
         borderColor: chartColors.machineChartCounts[index],
-        borderWidth: 2,
+        //borderWidth: 2,
         fill: false,
         data: item?.count,
         yAxisID: "y1",
@@ -110,7 +117,7 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         label: `Count ${item?.groupId}`,
         backgroundColor: chartColors.machineChartCounts[index],
         borderColor: chartColors.machineChartCounts[index],
-        borderWidth: 2,
+        //borderWidth: 2,
         fill: false,
         data: item?.count,
         yAxisID: "y1",
@@ -122,21 +129,28 @@ const BDHoursVsCountChart = ({ labels, totalBDCount, BDCount, BDhours }) => {
         stack: "same-bar-stack",
         label: `Hours ${item?.groupId}`,
         data: item?.sumOfBDhours,
-        borderColor: "white",
-        borderWidth: 2,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
         yAxisID: "y2",
         borderRadius: 4,
       })),
     ],
   };
+
+  const isDataExists = isChartDataExist(data);
+
   return (
-    <Box sx={{ height: { xs: "300px", md: "350px" }, mt: 1 }}>
-      <Chart
-        type="bar"
-        data={data}
-        options={options}
-        plugins={[ChartDataLabels]}
-      />
+    <Box sx={{ height: { xs: "300px", md: "300px", lg: "300px" }, mt: 1 }}>
+      {!isDataExists ? (
+        <DataNotFound />
+      ) : (
+        <Chart
+          type="bar"
+          data={data}
+          options={options}
+          plugins={[ChartDataLabels]}
+        />
+      )}
     </Box>
   );
 };

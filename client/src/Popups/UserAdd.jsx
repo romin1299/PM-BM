@@ -14,6 +14,7 @@ import {
   FormControl,
 } from "@material-ui/core";
 // import Context from "@mui/base/TabsUnstyled/TabsContext";
+import { LIST_OF_COMPANY, NAME_OF_THE_COMPANY } from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const UserAdd = () => {
   const context = useContext(RoutingContext);
@@ -33,8 +34,6 @@ const UserAdd = () => {
   const [sections, setsections] = useState();
   const [subsections, setsubsections] = useState([]);
   const [cells, setcells] = useState([]);
-
-  console.log(context);
 
   //for dropdown list
   const [sectionList, setSectionList] = useState([]);
@@ -105,16 +104,17 @@ const UserAdd = () => {
     //   context.user_type === "Section-Admin"
     //     ? yup.string().required("Please select user type")
     //     : "",
-    email: yup.string().when(["user_type"], {
-      is: () =>
-        formik.values.user_type === "TL/HOSS" ||
-        context.user_type === "Admin" ||
-        context.user_type === "Plant-Admin",
-      then: yup
-        .string("Enter your email")
-        .email("Enter a valid email")
-        .required("Email is required"),
-    }),
+    // email: yup.string().when(["user_type"], {
+    //   is: () =>
+    //     LIST_OF_COMPANY?.[0] === NAME_OF_THE_COMPANY &&
+    //     (formik.values.user_type === "TL/HOSS" ||
+    //       context.user_type === "Admin" ||
+    //       context.user_type === "Plant-Admin"),
+    //   then: yup
+    //     .string("Enter your email")
+    //     .email("Enter a valid email")
+    //     .required("Email is required"),
+    // }),
     tm_department: yup.string().when([], {
       is: () => context.user_type === "Section-Admin",
       then: yup
@@ -155,16 +155,18 @@ const UserAdd = () => {
       cell_data: "",
       contact_no: "",
       address: "",
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      console.log("________");
       const res = await fetch("/postUserAssign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tm_name: values.tm_name,
           tm_no: values.tm_no,
+          isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
+            values?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
           user_type: values.user_type
             ? values.user_type
             : context.user_type === "Admin"
@@ -425,6 +427,49 @@ const UserAdd = () => {
                 helperText={formik.touched.tm_no && formik.errors.tm_no}
               />
             </div>
+
+            <div className="pwd-container">
+              <span>Want to authorized this user to update RequestSheet:</span>
+              <div>
+                <div>
+                  <input
+                    type="radio"
+                    name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+                    id="outlined-number"
+                    value={"Yes"}
+                    onChange={formik.handleChange}
+                  />
+                  <span
+                    style={{
+                      paddingLeft: "0.5rem",
+                      fontWeight: "550",
+                      color: "black",
+                    }}
+                  >
+                    Yes
+                  </span>
+
+                  <input
+                    type="radio"
+                    name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+                    id="outlined-number"
+                    value={"No"}
+                    onChange={formik.handleChange}
+                    defaultChecked
+                  />
+                  <span
+                    style={{
+                      paddingLeft: "0.5rem",
+                      fontWeight: "550",
+                      color: "black",
+                    }}
+                  >
+                    No
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* NOTE :  change user_type to user_type & Section to Section-Admin*/}
             {context.user_type === "Section-Admin" ? (
               <div>
@@ -1178,8 +1223,8 @@ const UserAdd = () => {
                   InputLabelProps={{
                     shrink: true,
                   }}
-                  error={formik.touched.email && Boolean(formik.errors.email)}
-                  helperText={formik.touched.email && formik.errors.email}
+                  // error={formik.touched.email && Boolean(formik.errors.email)}
+                  // helperText={formik.touched.email && formik.errors.email}
                 />
               </div>
             )}

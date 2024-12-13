@@ -3,8 +3,19 @@ import LineBarChartForProductionLineWise from "./Charts/LineBarChartForProductio
 
 import SmallChartCardComponent from "./SmallChartCardComponent";
 import Loading from "../../../components/Loading/Loading";
+import DataNotFound from "../Common/DataNotFound";
+import { Box } from "@mui/material";
+import downloadFile from "../../../util";
+import { ChartDownloadMenu } from "../Common/ChartTitleBar";
+import findFilters from "../../../filterNames";
 
-const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
+const BDhours = ({
+  selectedValue,
+  flagForTogglingFilter,
+  selectedYear,
+  filterValues,
+  userDetails,
+}) => {
   const [loading, setLoading] = React.useState(true);
   const initialState = {
     BDHours: {
@@ -39,6 +50,30 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
+  const { filteredValuesWithHOD, filteredValues } = findFilters(
+    flagForTogglingFilter,
+    filterValues,
+    selectedValue
+  );
+
+  let arrayItems;
+  let filterHeaders;
+
+  if (userDetails.tm_grade === "HOD") {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      ...filteredValuesWithHOD,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  } else {
+    arrayItems = [
+      userDetails?.plant_data.split("-")?.[0],
+      userDetails?.section_data.split("-")?.[1],
+      ...filteredValues,
+    ];
+    // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
+  }
+
   const getBDHours = async () => {
     setLoading(true);
 
@@ -72,19 +107,74 @@ const BDhours = ({ selectedValue, flagForTogglingFilter, selectedYear }) => {
     setLoading(false);
   };
 
+  const header = ["Months"].concat(reduceState.BDHours?.labels);
+
+  const handleDownload = async (fileType) => {
+    try {
+      let bodyData = [];
+      let filterData = [];
+
+      if (fileType === "csv") {
+        bodyData = [
+          ["Filters", ...arrayItems]?.toString() + "\n",
+          ["\n"],
+          [["Months"].concat(reduceState.BDHours?.labels)?.toString() + "\n"],
+          [["Hours"].concat(reduceState.BDHours?.data)?.toString() + "\n"],
+          // [reduceState.BDHours?.labels, reduceState.BDHours?.data],
+        ];
+      } else {
+        filterData = ["Filters", ...arrayItems];
+
+        bodyData = [["Hours"].concat(reduceState.BDHours?.data)];
+      }
+
+      downloadFile(
+        filterData,
+        bodyData,
+        fileType,
+        header,
+        `BD_Hours_${selectedYear}`
+      );
+    } catch (error) {
+      console.error("Error downloading data:", error);
+    }
+  };
+
   useEffect(() => {
     if (selectedValue) {
       getBDHours();
     }
   }, [selectedValue, selectedYear]);
 
+  let isDataExists = reduceState?.BDHours?.data?.length > 0 || false;
+
   return (
-    <SmallChartCardComponent title="BD Hours">
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <LineBarChartForProductionLineWise ReportData={reduceState?.BDHours} />
-      )}
+    <SmallChartCardComponent
+      title="BD Hours"
+      Toolbar={
+        <div className="col-auto">
+          <ChartDownloadMenu
+            handleDownloadCSV={() => {
+              handleDownload("csv");
+            }}
+            handleDownloadPDF={() => {
+              handleDownload("pdf");
+            }}
+          />
+        </div>
+      }
+    >
+      <Box sx={{ height: { xs: "200px" } }}>
+        {loading ? (
+          <Loading />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <LineBarChartForProductionLineWise
+            ReportData={reduceState?.BDHours}
+          />
+        )}
+      </Box>
     </SmallChartCardComponent>
   );
 };

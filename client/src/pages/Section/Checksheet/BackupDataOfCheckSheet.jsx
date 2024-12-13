@@ -163,7 +163,7 @@ const BackupDataOfCheckSheet = () => {
       icon: () => <button className="btn-primary1">View</button>,
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
-        navigate("/backupTableData", {
+        navigate("/pm/backupTableData", {
           state: { selectedRowForViewForm: selectedRow },
         });
       },

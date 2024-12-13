@@ -12,9 +12,10 @@ import {
 import { Chart } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "./ChartTitleBar";
+import ChartTitleBar, { ChartDownloadMenu } from "./ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "./DataNotFound";
+import { isChartDataExist } from "../../Utils/functions/isChartDataExist";
 
 const LineBarChart = ({
   title,
@@ -24,6 +25,7 @@ const LineBarChart = ({
   y2AxisTitle,
   loading = false,
   dataset,
+  onClickDownload,
 }) => {
   ChartJS.register(
     CategoryScale,
@@ -79,6 +81,10 @@ const LineBarChart = ({
     responsive: true,
     maintainAspectRatio: false,
     maxBarThickness: 100,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     plugins: {
       // annotation: {
       //   annotations: {
@@ -88,7 +94,7 @@ const LineBarChart = ({
       //       yMin: 1,
       //       yMax: 1,
       //       borderColor: chartColors[3],
-      //       borderWidth: 2,
+      //       //borderWidth: 2,
       //     },
       //   },
       // },
@@ -112,12 +118,19 @@ const LineBarChart = ({
           display: xAxisTitle ? true : false,
           text: xAxisTitle,
         },
+        ticks: {
+          maxRotation: 90,
+          minRotation: 90,
+        },
       },
       y1: {
         stacked: true,
         title: {
           display: y1AxisTitle ? true : false,
           text: y1AxisTitle,
+        },
+        grid: {
+          display: false,
         },
       },
       // y2: {
@@ -143,7 +156,7 @@ const LineBarChart = ({
         data: dataset?.target,
         borderColor: chartColors.targetBorder,
         backgroundColor: chartColors.target,
-        borderWidth: 2,
+        //borderWidth: 2,
         fill: false,
         pointStyle: "rectRot",
         yAxisID: "y1",
@@ -161,6 +174,8 @@ const LineBarChart = ({
       yAxisID: "y1",
       backgroundColor: chartColors.barLineChart,
       borderRadius: 4,
+      //borderColor: "#312A7D",
+      //borderWidth: 2,
     },
   ];
 
@@ -169,25 +184,39 @@ const LineBarChart = ({
     datasets,
   };
 
+  const isDataExists = isChartDataExist(data);
+
   return (
     <Box className="cell p-3">
-      <ChartTitleBar title={title} />
+      <ChartTitleBar
+        title={title}
+        Toolbar={
+          <div className="col-auto">
+            <ChartDownloadMenu
+              handleDownloadCSV={() => {
+                onClickDownload("csv");
+              }}
+              handleDownloadPDF={() => {
+                onClickDownload("pdf");
+              }}
+            />
+          </div>
+        }
+      />
 
       {/* <div style={{ width: "100%", height: "300px" }}>
         <Chart data={data} options={options} />
       </div> */}
 
-      {loading ? (
-        <Loading height={200} />
-      ) : (
-        <Box sx={{ height: { xs: "300px", md: "350px" } }}>
-          {datasets?.[0].data === undefined ? (
-            <DataNotFound />
-          ) : (
-            <Chart data={data} options={options} />
-          )}
-        </Box>
-      )}
+      <Box sx={{ height: { xs: "300px", md: "330px" } }}>
+        {loading ? (
+          <Loading height={"100%"} />
+        ) : !isDataExists ? (
+          <DataNotFound />
+        ) : (
+          <Chart data={data} options={options} />
+        )}
+      </Box>
     </Box>
   );
 };

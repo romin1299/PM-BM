@@ -2,6 +2,7 @@ import React, { useEffect, useReducer } from "react";
 
 import { Container, Row, Col } from "reactstrap";
 import { useNavigate } from "react-router-dom";
+import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 
 const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
   return (
@@ -154,11 +155,19 @@ const GenerateRequestSheetMainDashboard = () => {
   }, [reduceState?.selectedSubSection]);
 
   const handleBack = () => {
-    navigate("/bm/requestListDashboard");
+    localStorage.getItem("activeKey") === "bm"
+      ? navigate("/bm")
+      : navigate("/cm");
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
-    navigate(`/bm/request-sheet/manual/${machine_code}`);
+    const urlForSelectMachineForOpenRequestSheet =
+      localStorage.getItem("activeKey") === "bm"
+        ? "/bm/request-sheet/manual"
+        : "/cm/request-sheet";
+    navigate(
+      `${urlForSelectMachineForOpenRequestSheet}/${machine_code}/${currentYear}`
+    );
   };
 
   if (reduceState?.dashboardLevel === "Yes") {

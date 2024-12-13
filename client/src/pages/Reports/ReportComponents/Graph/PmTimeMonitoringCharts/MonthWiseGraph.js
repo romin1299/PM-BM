@@ -141,7 +141,7 @@ const MonthWiseGraph = ({ xValue, yValue }) => {
     labels: xValue,
     datasets: [
       {
-        label: "Minutes",
+        label: "Hours",
         data: yValue,
         backgroundColor: colorArr.map((color) => color),
         borderWidth: 1,

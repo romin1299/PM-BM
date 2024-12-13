@@ -90,7 +90,7 @@ const TotalTimeManHourMonthWise = ({
       if (res.status === 400 || res.status === 422 || !data) {
         console.log("Invalid");
       } else {
-        console.log(data);
+        // console.log(data);
         setAllDataSectionWise(data);
         setGraphData(data?.totalTimeManHoursMonthWise);
         let downloadData = [];
