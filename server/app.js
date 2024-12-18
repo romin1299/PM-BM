@@ -2,11 +2,6 @@ const dotenv = require("dotenv");
 const express = require("express");
 const app = express();
 const path = require("path");
-const fs = require("fs");
-const https = require("https");
-const moment = require("moment");
-
-const Line = require("./model/lineSchema");
 
 dotenv.config({ path: "./config.env" });
 

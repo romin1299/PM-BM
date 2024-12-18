@@ -376,28 +376,16 @@ const ExistinngMachineReqSheetForOperator = ({
       }
 
       if (requestSheetDataOfCM?.mtdHOS) {
-        // otherFields.commonDataFilledByAssignUser[
-        //   yearIndex
-        // ].quarterlyDataOfTheCM[quarterIndex]["approvalOfMTD_HOS"] =
-        //   MTDHOSList?.[requestSheetDataOfCM.mtdHOS];
         otherFields["approvalOfMTD_HOS"] =
           MTDHOSList?.[requestSheetDataOfCM?.mtdHOS];
       }
 
       if (requestSheetDataOfCM?.mtdTL) {
-        // otherFields.commonDataFilledByAssignUser[
-        //   yearIndex
-        // ].quarterlyDataOfTheCM[quarterIndex]["approvalOfMTD_TL"] =
-        //   MTDTLList?.[requestSheetDataOfCM.mtdTL];
         otherFields["approvalOfMTD_TL"] =
           MTDTLList?.[requestSheetDataOfCM.mtdTL];
       }
 
       if (requestSheetDataOfCM?.prdTL) {
-        // otherFields.commonDataFilledByAssignUser[
-        //   yearIndex
-        // ].quarterlyDataOfTheCM[quarterIndex]["approvalOfPRD_TL"] =
-        //   PRDTLList?.[requestSheetDataOfCM.prdTL];
         otherFields["approvalOfPRD_TL"] =
           PRDTLList?.[requestSheetDataOfCM?.prdTL];
       }

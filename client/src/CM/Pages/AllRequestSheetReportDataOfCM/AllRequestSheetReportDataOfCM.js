@@ -128,36 +128,34 @@ const AllRequestSheetReportDataOfCM = () => {
     },
     {
       title: "Planned Date",
-      // field: "plannedDateAndTimeOfCM",
-      render: (rowData) => {
-        return rowData?.commonDataFilledByAssignUser?.map((item) => {
-          return `${moment(item?.plannedDateAndTimeOfCM).format(
-            "DD-MM-YYYY"
-          )}, `;
-        });
-      },
+      field: "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
+      // render: (rowData) => {
+      //   return rowData?.commonDataFilledByAssignUser?.map((item) => {
+      //     return `${moment(item?.plannedDateAndTimeOfCM).format(
+      //       "DD-MM-YYYY"
+      //     )}, `;
+      //   });
+      // },
       type: "date",
       editable: false,
     },
     {
       title: "Assigned To",
       render: (rowData) => {
-        // return rowData?.assigned_users?.length > 0
-        //   ? rowData?.assigned_users?.map((user) => user?.tm_name).join(", ")
-        //   : "Not Assigned";
-        return rowData?.commonDataFilledByAssignUser?.map((year) => {
-          return year?.quarterlyDataOfTheCM?.map((quarter) => {
-            if (
-              quarter?.assignUserForCM?.length > 0 &&
-              quarter?.statusOfPlannedCM === "Planned"
-            ) {
-              const assigned_users = quarter?.assignUserForCM?.map((users) => {
+        if (
+          rowData?.current_commonDataFilledByAssignUser?.assignUserForCM
+            ?.length > 0 &&
+          rowData?.current_commonDataFilledByAssignUser?.statusOfPlannedCM ===
+            "Planned"
+        ) {
+          const assigned_users =
+            rowData?.current_commonDataFilledByAssignUser?.assignUserForCM?.map(
+              (users) => {
                 return `${users?.tm_name}, `;
-              });
-              return assigned_users;
-            }
-          });
-        });
+              }
+            );
+          return assigned_users;
+        }
       },
     },
   ];
@@ -188,15 +186,17 @@ const AllRequestSheetReportDataOfCM = () => {
           component={EditSheetIcon}
           sx={{
             color:
-              (row?.commonDataFilledByAssignUser?.some((user) =>
-                user?.quarterlyDataOfTheCM?.some((quarter) =>
-                  quarter?.assignUserForCM?.some((u) => u._id === context?._id)
-                )
-              ) === true &&
-                (row?.requestSheetStatusOfCM === "Generated" ||
-                  row?.requestSheetStatusOfCM === "Fill Sheet" ||
-                  row?.requestSheetStatusOfCM === "Rejected")) ||
-              (row?.assigned_users?.length === 0 &&
+              (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.some(
+                (u) => u._id === context?._id
+              ) &&
+                (row?.current_commonDataFilledByAssignUser
+                  ?.requestSheetStatusOfCM === "Generated" ||
+                  row?.current_commonDataFilledByAssignUser
+                    ?.requestSheetStatusOfCM === "Fill Sheet" ||
+                  row?.current_commonDataFilledByAssignUser
+                    ?.requestSheetStatusOfCM === "Rejected")) ||
+              (row?.current_commonDataFilledByAssignUser?.assignUserForCM
+                ?.length === 0 &&
                 context?.user_type === "TL/HOSS")
                 ? "#FF6F00"
                 : "",
@@ -206,18 +206,21 @@ const AllRequestSheetReportDataOfCM = () => {
       tooltip: "Update Req-sheet",
       position: "row",
       // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
-      // disabled:
-      //   (row?.commonDataFilledByAssignUser?.some((user) =>
-      //     user?.quarterlyDataOfTheCM?.some((quarter) =>
-      //       quarter?.assignUserForCM?.some((u) => u._id === context?._id)
-      //     )
-      //   ) === true &&
-      //     (row?.requestSheetStatusOfCM === "Generated" ||
-      //       row?.requestSheetStatusOfCM === "Fill Sheet" ||
-      //       row?.requestSheetStatusOfCM === "Rejected")) ||
-      //   (row?.assigned_users?.length === 0 && context?.user_type === "TL/HOSS")
-      //     ? false
-      //     : true,
+      disabled:
+        (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.length ===
+          0 &&
+          context?.user_type === "TL/HOSS") ||
+        (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.some(
+          (u) => u._id === context?._id
+        ) &&
+          (row?.current_commonDataFilledByAssignUser?.requestSheetStatusOfCM ===
+            "Generated" ||
+            row?.current_commonDataFilledByAssignUser
+              ?.requestSheetStatusOfCM === "Fill Sheet" ||
+            row?.current_commonDataFilledByAssignUser
+              ?.requestSheetStatusOfCM === "Rejected"))
+          ? false
+          : true,
       // disabled:
       //   row?.assignUserId === context?._id &&
       //   (row?.work_order_status === "Pending" ||

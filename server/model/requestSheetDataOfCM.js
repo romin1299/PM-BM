@@ -74,9 +74,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
 
   commonDataFilledByAssignUser: [
     {
-      plannedDateAndTimeOfCM: {
-        type: Date,
-      },
       preAggregationTimeStampOfRequestSheet: {
         requestSheet_year: {
           type: String,
@@ -90,6 +87,10 @@ const requestSheetOfCMSchema = new mongoose.Schema({
         {
           requestSheet_quarter: {
             type: String,
+          },
+
+          plannedDateAndTimeOfCM: {
+            type: Date,
           },
           //Spare parts related fields
           sparePartUsedOrNot: { type: String },
@@ -174,6 +175,15 @@ const requestSheetOfCMSchema = new mongoose.Schema({
               type: String,
             },
           },
+
+          attachedFileByAssignedUser: {
+            type: String,
+          },
+
+          requestSheetStatusOfCM: {
+            type: String,
+            default: "Generated",
+          },
         },
       ],
     },
@@ -207,9 +217,9 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     ref: "Plants",
   },
 
-  requestSheetStatusOfCM: {
-    type: String,
-    default: "Generated",
+  plantToMachineHierarchyRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PlantToMachineHierarchy",
   },
 });
 

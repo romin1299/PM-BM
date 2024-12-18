@@ -99,9 +99,7 @@ const ExistingMachineReqSheetWithData = ({
 
   const getModalOpenForReqSheet = async (event) => {
     try {
-      const response = await axios.get(
-        `/getReqSheetDataByID/?_id=${selectedRowRequestSheetId}`
-      );
+      const response = await axios.get(`/getReqSheetDataByID/${selectedRowRequestSheetId}`);
       if (response.status === 200) {
         setCmSelectedSheetForView(response?.data?.requestSheet);
         reset(response?.data?.requestSheet);

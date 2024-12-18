@@ -20,6 +20,7 @@ const NoLossBD = require("../model/noLossBDSheetData");
 const HandlingActions = require("../model/handlingActions");
 const Plant = require("../model/plantSchema");
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
+const PlantToMachineHierarchy = require("../model/plantToMachineHierarchySchema");
 
 const authenticate = require("../middleware/authenticate");
 const logger = require("../utils/LoggingController/loggers");
@@ -61,7 +62,7 @@ let currentYear =
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
-const successResponse = (res, message, data) => {
+const successResponse = (res, message = "", data = {}) => {
   try {
     res.status(201).json({
       message,
@@ -150,21 +151,14 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
 
     let queryObj = {
       plant_data: req?.rootUser?.plant_data,
+      section_data: req?.rootUser?.section_data,
     };
 
-    if (req?.rootUser?.tm_grade !== "HOD") {
-      if (section.dashboardLevel === "Yes") {
-        queryObj = {
-          ...queryObj,
-          section_data: req?.rootUser?.section_data,
-        };
-      } else {
-        queryObj = {
-          ...queryObj,
-          section_data: req?.rootUser?.section_data,
-          subSection_data: { $in: req?.rootUser?.subSection_data },
-        };
-      }
+    if (req?.rootUser?.tm_grade !== "HOD" && section?.dashboardLevel === "No") {
+      queryObj = {
+        ...queryObj,
+        subSection_data: { $in: req?.rootUser?.subSection_data },
+      };
     }
 
     req.queryObj = queryObj;
@@ -175,6 +169,40 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
   }
 };
 
+const findMachineDataWithParentHierarchy = tryCatchHandler(
+  async (req, res, next) => {
+    const machine = await Machine.findOne({
+      _id: req.query?.machineRef,
+    })
+      .populate({
+        path: "line_names",
+        populate: {
+          path: "cell_names",
+          populate: {
+            path: "subSection_names",
+            populate: {
+              path: "section_names",
+              populate: {
+                path: "plant_names",
+                model: "Plants",
+              },
+            },
+          },
+        },
+      })
+      .select(["machine_code", "machine_name", "machine_nickname"])
+      .exec();
+
+    if (!machine) {
+      return res.status(400).json({
+        message: "Machine data doesn't exist",
+      });
+    }
+
+    req.machine = machine;
+    return next();
+  }
+);
 router.get(
   "/getMachineDetailsForRequestSheetOfCM",
   authenticate,
@@ -209,7 +237,11 @@ router.get(
   })
 );
 
-const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue, assignUserForCM) => {
+const quarterlyDataAdd = (
+  plannedDateAndTimeOfCM,
+  frequencyValue,
+  assignUserForCM
+) => {
   const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
   const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM); // Get the starting quarter
   const plannedQuarterIndex = QUARTERS.indexOf(plannedQuarter);
@@ -273,11 +305,13 @@ const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue, assignUserForC
         isPlanned = true;
       }
 
-      yearlyDataObject?.quarterlyDataOfTheCM?.push({
-        requestSheet_quarter: quarter,
-        statusOfPlannedCM: isPlanned ? "Planned" : "Not Planned",
-        assignUserForCM
-      });
+      if (isPlanned) {
+        yearlyDataObject?.quarterlyDataOfTheCM?.push({
+          requestSheet_quarter: quarter,
+          statusOfPlannedCM: "Planned",
+          assignUserForCM,
+        });
+      }
     }
 
     plannedData?.push(yearlyDataObject);
@@ -286,94 +320,85 @@ const quarterlyDataAdd = (plannedDateAndTimeOfCM, frequencyValue, assignUserForC
   return plannedData;
 };
 
+const findPlantToMachineHierarchyObj = tryCatchHandler(
+  async (req, res, next) => {
+    let hierarchy = await PlantToMachineHierarchy.findOne({
+      "machine._id": req?.machine?._id,
+    });
+
+    if (!hierarchy) {
+      hierarchy = new PlantToMachineHierarchy({
+        machine: req?.machine,
+        line: req?.machine?.line_names,
+        cell: req?.machine?.line_names?.cell_names,
+        subSection: req?.machine?.line_names?.cell_names?.subSection_names,
+        section:
+          req?.machine?.line_names?.cell_names?.subSection_names?.section_names,
+        plant:
+          req?.machine?.line_names?.cell_names?.subSection_names?.section_names
+            ?.plant_names,
+      });
+
+      await hierarchy.save();
+    }
+
+    req.plantToMachineHierarchyRef = hierarchy?._id;
+    return next();
+  }
+);
+
 router.post(
   "/newRequestSheetRegistrationOfCM",
   authenticate,
-  // dashboardLevelUserCheckMiddleware,
   uploadDataSheetsOfBD.fields([
     { name: "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", maxCount: 10 },
   ]),
+  findMachineDataWithParentHierarchy,
+  findPlantToMachineHierarchyObj,
   async (req, res, next) => {
-    // const dataSheet = req.files;
-
-    const machine = await Machine.findOne({
-      _id: req.query?.machineRef,
-    })
-      .populate({
-        path: "line_names",
-        populate: {
-          path: "cell_names",
-          populate: {
-            path: "subSection_names",
-            populate: {
-              path: "section_names",
-              populate: {
-                path: "plant_names",
-                model: "Plants",
-              },
-            },
-          },
-        },
-      })
-      .exec();
-
     const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
-    if (machine) {
-      const _idObject = {
-        machineRef: machine._id,
-        lineRef: machine.line_names._id,
-        cellRef: machine.line_names.cell_names._id,
-        subSectionRef: machine.line_names.cell_names.subSection_names._id,
+    let _idObject = {};
+
+    if (req?.machine) {
+      _idObject = {
+        machineRef: req?.machine._id,
+        lineRef: req?.machine.line_names._id,
+        cellRef: req?.machine.line_names.cell_names._id,
+        subSectionRef: req?.machine.line_names.cell_names.subSection_names._id,
         sectionRef:
-          machine.line_names.cell_names.subSection_names.section_names._id,
+          req?.machine.line_names.cell_names.subSection_names.section_names._id,
         plantRef:
-          machine.line_names.cell_names.subSection_names.section_names
+          req?.machine.line_names.cell_names.subSection_names.section_names
             .plant_names._id,
       };
-
-      const requestSheetNoOfCM = await globalReqSheetNo(
-        req.query?.machineRef,
-        "CM"
-      );
-      let requestSheetOfCM = new RequestSheetOfCM({
-        requestSheetNoOfCM,
-        ...req.query,
-        ..._idObject,
-        requestSheetCreatedBy: req?.rootUser,
-        shiftOfCM: requestSheetDataFilledByMTDUserForCM?.shiftOfBM,
-        ...requestSheetDataFilledByMTDUserForCM,
-        partSuggestionByMTDTL:
-          requestSheetDataFilledByMTDUserForCM?.partSuggestionByMTDTL,
-      });
-
-      const result = await requestSheetOfCM.save();
-
-      const quarterlyData = quarterlyDataAdd(
-        requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
-        requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-          ?.frequencyValue,
-        requestSheetDataFilledByMTDUserForCM?.assignUserForCM
-      );
-
-      const updateCommonDataFilledByAssignUser =
-        await RequestSheetOfCM.findOneAndUpdate(
-          {
-            _id: result._id,
-          },
-          {
-            $push: {
-              commonDataFilledByAssignUser: {
-                $each: quarterlyData,
-              },
-            },
-          },
-          { new: true }
-        );
-
-      successResponse(res, "CM Request-sheet generated successfully", {
-        updateCommonDataFilledByAssignUser,
-      });
     }
+
+    const requestSheetNoOfCM = await globalReqSheetNo(
+      req.query?.machineRef,
+      "CM"
+    );
+
+    const commonDataFilledByAssignUser = quarterlyDataAdd(
+      requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+        ?.frequencyValue,
+      requestSheetDataFilledByMTDUserForCM?.assignUserForCM
+    );
+
+    let requestSheetOfCM = new RequestSheetOfCM({
+      requestSheetNoOfCM,
+      ..._idObject,
+      plantToMachineHierarchyRef: req?.plantToMachineHierarchyRef,
+      requestSheetCreatedBy: req?.rootUser,
+      shiftOfCM: requestSheetDataFilledByMTDUserForCM?.shiftOfBM,
+      ...requestSheetDataFilledByMTDUserForCM,
+      partSuggestionByMTDTL:
+        requestSheetDataFilledByMTDUserForCM?.partSuggestionByMTDTL,
+      commonDataFilledByAssignUser,
+    });
+
+    await requestSheetOfCM.save();
+    successResponse(res, "CM Request-sheet generated successfully");
   }
 );
 
@@ -413,47 +438,6 @@ router.patch(
     });
   }
 );
-router.patch(
-  "/dummy/:id",
-  authenticate,
-  uploadDataSheetsOfBD.fields([
-    { name: "attachedFilesByAssignedUser", maxCount: 10 },
-  ]),
-  async (req, res, next) => {
-    // console.log(req.params.id);
-    // console.log("object");
-    // res.status(200).json({
-    //   message: "CM Request-sheet updated successfully",
-    //   data: req.params.id,
-    // })
-    const id = req.params.id;
-    const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
-    if (
-      req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
-      req.files?.attachedFilesByAssignedUser
-    ) {
-      requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
-        req.files?.attachedFilesByAssignedUser?.[0]?.filename;
-    }
-    if (
-      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-        ?.frequencyType === "One-time"
-    ) {
-      requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
-        "";
-    }
-    // console.log(requestSheetDataFilledByMTDUserForCM);
-    const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
-      { _id: id },
-      { ...requestSheetDataFilledByMTDUserForCM },
-      { new: true }
-    );
-    res.status(200).json({
-      message: "CM Request-sheet updated successfully",
-      data: updatedRequestSheetOfCM,
-    });
-  }
-);
 
 router.patch(
   "/sendApprovalForRequestSheetOfCM/:reqId/:machineRef",
@@ -464,218 +448,141 @@ router.patch(
   ]),
   async (req, res, next) => {
     try {
+      let commonApprovalStatusObj = {
+        approvalStatus: "Pending",
+        approvalDateAndTime: "",
+      };
+
+      let commonKey =
+        "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter]";
+
+      let allKeys = {
+        attachedFileByAssignedUser: `${commonKey}.attachedFileByAssignedUser`,
+        requestSheetStatusOfCM: `${commonKey}.requestSheetStatusOfCM`,
+        getDataForApprovalDashboard: `${commonKey}.getDataForApprovalDashboard`,
+
+        approvalOfMTD_HOS: `${commonKey}.approvalOfMTD_HOS`,
+        approvalOfMTD_TL: `${commonKey}.approvalOfMTD_TL`,
+        approvalOfPRD_TL: `${commonKey}.approvalOfPRD_TL`,
+
+        workDetails: `${commonKey}.workDetails`,
+        changedParts: `${commonKey}.changedParts`,
+        actionAndCounterMeasureStep: `${commonKey}.actionAndCounterMeasureStep`,
+      };
+
       const requestSheetDataFilledByMTDUserForCM = JSON.parse(
         req.body.otherData
       );
+
+      let updateObj = {
+        $push: {
+          [allKeys?.approvalOfMTD_HOS]: {
+            ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS,
+            ...commonApprovalStatusObj,
+            approvalDateAndTime: new Date(),
+          },
+        },
+      };
+
       if (
         req.files?.attachedFileByAssignedUser?.[0]?.filename ||
         req.files?.attachedFileByAssignedUser
       ) {
         requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
           req.files?.attachedFileByAssignedUser?.[0]?.filename;
-      }
 
-      let commonApprovalStatusObj = {
-        approvalStatus: "Pending",
-        approvalDateAndTime: "",
-      };
-      // console.log("approval: ",requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM)
-      let updateObj = {
-        $push: {
-          approvalOfMTD_HOS: {
-            ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS,
-            ...commonApprovalStatusObj,
-          },
-        },
-      };
+        updateObj.$set = {
+          [allKeys?.attachedFileByAssignedUser]:
+            req.files?.attachedFileByAssignedUser?.[0]?.filename,
+        };
+      }
 
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
-          approvalOfMTD_TL: {
+          [allKeys?.approvalOfMTD_TL]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL,
             ...commonApprovalStatusObj,
           },
         };
         updateObj.$set = {
           ...updateObj.$set,
-          requestSheetStatusOfCM: "Under MTD TL/HOSS Approval",
-          "getDataForApprovalDashboard.Id":
-            requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
-          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD TL/HOSS",
+          [allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
+          [allKeys?.getDataForApprovalDashboard]: {
+            Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
+            departmentAndGradeOfUser: "MTD TL/HOSS",
+          },
         };
       } else {
         updateObj.$set = {
           ...updateObj.$set,
-          requestSheetStatusOfCM: "Under MTD HOS Approval",
-          "getDataForApprovalDashboard.Id":
-            requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
-          "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
-          approvalDateAndTimeOfMTD_TL: new Date(),
+          [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
+          [allKeys?.getDataForApprovalDashboard]: {
+            Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
+            departmentAndGradeOfUser: "MTD HOS",
+          },
+
+          // requestSheetStatusOfCM: "Under MTD HOS Approval",
+          // "getDataForApprovalDashboard.Id":
+          //   requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
+          // "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
+          // approvalDateAndTimeOfMTD_TL: new Date(),
         };
       }
 
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
-          approvalOfPRD_TL: {
+          [allKeys?.approvalOfPRD_TL]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL,
             ...commonApprovalStatusObj,
           },
         };
       }
-      updateObj = {
-        ...updateObj,
-        workDetails: requestSheetDataFilledByMTDUserForCM?.workDetails,
-        changedParts: requestSheetDataFilledByMTDUserForCM?.changedParts,
-        actionAndCounterMeasureStep:
+      updateObj.$set = {
+        ...updateObj.$set,
+        [allKeys?.workDetails]:
+          requestSheetDataFilledByMTDUserForCM?.workDetails,
+        [allKeys?.changedParts]:
+          requestSheetDataFilledByMTDUserForCM?.changedParts,
+        [allKeys?.actionAndCounterMeasureStep]:
           requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
       };
-      console.log(updateObj);
-      // console.log(requestSheetDataFilledByMTDUserForCM?.commonDataFilledByAssignUser[0].quarterlyDataOfTheCM);
-      // const updateAssignApprovalOfMTD_TL =
-      //   await RequestSheetOfCM.findOneAndUpdate(
-      //     {
-      //       _id: mongoose.Types.ObjectId(req.params?.reqId),
-      //     },
-      //     // {
-      //     //   $set: {
-      //     //     ...requestSheetDataFilledByMTDUserForCM,
-      //     //     ...conditionalStatusChangesForReqSheet,
-      //     //     ...approvalObj,
-      //     //   },
-      //     //   $push: pushObj,
-      //     // },
-      //     updateObj,
-      //     { new: true }
-      //   );
-      // if (updateAssignApprovalOfMTD_TL) {
-      //   return res.status(201).json({
-      //     message: `Request-sheet approval send !!`,
-      //     updateAssignApprovalOfMTD_TL,
-      //   });
-      // }
+
+      const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
+        {
+          _id: mongoose.Types.ObjectId(req.params?.reqId),
+        },
+        updateObj,
+        {
+          arrayFilters: [
+            {
+              "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                currentYear,
+            },
+            { "quarterFilter.requestSheet_quarter": getFinancialQuarter() },
+          ],
+          new: true,
+        }
+      );
+      return res.status(201).json({
+        message: `Request-sheet approval send !!`,
+        requestSheetOfCM,
+      });
     } catch (error) {
       console.log(error);
     }
   }
 );
 
-// const filterMiddleware = async (req, res, next) => {
-//   try {
-//     let queryObj = {},
-//       queryObjForPM = {};
-
-//     if (req.query?.selectedYear) {
-//       queryObj = {
-//         ...queryObj,
-//         "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-//           req.query?.selectedYear,
-//       };
-//     }
-
-//     if (req.query?.selectedMonth) {
-//       queryObj = {
-//         ...queryObj,
-//         "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-//           req.query?.selectedMonth,
-//       };
-//     }
-
-//     if (req.query?.selectedRSStatus) {
-//       queryObj = {
-//         ...queryObj,
-//         requestSheetStatus: req.query?.selectedRSStatus,
-//       };
-//     }
-
-//     if (req.params?.filter === "based-on-plant") {
-//       queryObj = {
-//         ...queryObj,
-//         plantRef: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-
-//       queryObjForPM = {
-//         plant_names: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-//     } else if (req.params?.filter === "based-on-section") {
-//       queryObj = {
-//         ...queryObj,
-//         sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-
-//       queryObjForPM = {
-//         section_names: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-//     } else if (req.params?.filter === "based-on-subSection") {
-//       queryObj = {
-//         ...queryObj,
-//         subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-
-//       queryObjForPM = {
-//         subSection_names: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-//     } else if (req.params?.filter === "based-on-cell") {
-//       queryObj = {
-//         ...queryObj,
-//         cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
-//         // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-//       };
-
-//       queryObjForPM = {
-//         cell_names: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-//     } else if (req.params?.filter === "based-on-line") {
-//       queryObj = {
-//         ...queryObj,
-//         lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-//         // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-//       };
-
-//       queryObjForPM = {
-//         line_names: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-//     } else if (req.params?.filter === "based-on-machine") {
-//       queryObj = {
-//         ...queryObj,
-//         machineRef: mongoose.Types.ObjectId(req.params?.selectedId),
-//         // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
-//       };
-
-//       queryObjForPM = {
-//         _id: mongoose.Types.ObjectId(req.params?.selectedId),
-//       };
-//     }
-
-//     req.queryObj = queryObj;
-//     req.queryObjForPM = queryObjForPM;
-//     next();
-//   } catch (error) {
-//     logger.error(error, { maintenanceType: maintenanceType?.[1] });
-//     res.status(500).json({ message: error?.message, error });
-//   }
-// };
-
 const getRequestSheetData = async (req, res, next) => {
   try {
-    // filterMiddleware(req, res, next);
-    // console.log(req.queryObj);
     let queryObjForGetRequestSheetData = {};
-    // delete req?.queryObj?.maintenanceType;
-    if (req.query?._id) {
+    if (req.query?.selectedId) {
       queryObjForGetRequestSheetData = {
-        _id: mongoose.Types.ObjectId(req.query?._id),
+        _id: mongoose.Types.ObjectId(req.query?.selectedId),
       };
     }
-
-    //get data for sending email for higher authority
-    if (req?.params?.reqId) {
-      queryObjForGetRequestSheetData = {
-        _id: mongoose.Types.ObjectId(req.params?.reqId),
-      };
-    }
-
     if (req.query?.getDataForApprovalDashboardId) {
       queryObjForGetRequestSheetData = {
         "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
@@ -690,405 +597,12 @@ const getRequestSheetData = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: "machinesalldatas",
-          localField: "machineRef",
+          from: "planttomachinehierarchies",
+          localField: "plantToMachineHierarchyRef",
           foreignField: "_id",
-          as: "machines",
-        },
-      },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "lineRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       line_name: 1,
-          //     },
-          //   },
-          // ],
-          as: "lines",
-        },
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "cellRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       cell_name: 1,
-          //     },
-          //   },
-          // ],
-          as: "cells",
-        },
-      },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "assignUserForCM",
-      //     foreignField: "_id",
-      //     pipeline: [
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "assigned_users",
-      //   },
-      // },
-      {
-        $lookup: {
-          from: "subSections",
-          localField: "subSectionRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       subSection_name: 1,
-          //     },
-          //   },
-          // ],
-          as: "subSections",
-        },
-      },
-      {
-        $lookup: {
-          from: "sections",
-          localField: "sectionRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       section_name: 1,
-          //     },
-          //   },
-          // ],
-          as: "sections",
-        },
-      },
-      {
-        $lookup: {
-          from: "plants",
-          localField: "plantRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       plant_name: 1,
-          //     },
-          //   },
-          // ],
           as: "plants",
         },
       },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "assignUserForCM",
-      //     foreignField: "_id",
-      //     pipeline: [
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "namesOperators",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "requestSheetCreatedBy",
-      //     foreignField: "_id",
-      //     pipeline: [
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "requestSheetCreatedBy",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     // localField: "approvalOfMTD_TL",
-      //     // foreignField: "_id",
-      //     let: {
-      //       id: {
-      //         $arrayElemAt: ["$approvalOfMTD_TL", -1],
-      //       },
-      //     },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $eq: [
-      //               "$_id",
-      //               "$$id",
-      //               // {
-      //               //   $toObjectId: "$$id",
-      //               // },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "approvalOfMTD_TL",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     // localField: "approvalOfMTD_HOSS",
-      //     // foreignField: "_id",
-      //     let: {
-      //       id: {
-      //         $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
-      //       },
-      //     },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $eq: [
-      //               "$_id",
-      //               {
-      //                 $toObjectId: "$$id",
-      //               },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "approvalOfMTD_HOSS",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     // localField: "approvalOfMTD_HOS",
-      //     // foreignField: "_id",
-      //     let: {
-      //       id: {
-      //         $arrayElemAt: ["$approvalOfMTD_HOS", -1],
-      //       },
-      //     },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $eq: [
-      //               "$_id",
-      //               {
-      //                 $toObjectId: "$$id",
-      //               },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "approvalOfMTD_HOS",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     // localField: "approvalOfPRD_TL",
-      //     // foreignField: "_id",
-      //     let: {
-      //       id: {
-      //         $arrayElemAt: ["$approvalOfPRD_TL", -1],
-      //       },
-      //     },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $eq: [
-      //               "$_id",
-      //               {
-      //                 $toObjectId: "$$id",
-      //               },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "approvalOfPRD_TL",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     // localField: "approvalOfPRD_HOS",
-      //     // foreignField: "_id",
-      //     let: {
-      //       id: {
-      //         $arrayElemAt: ["$approvalOfPRD_HOS", -1],
-      //       },
-      //     },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $eq: [
-      //               "$_id",
-      //               {
-      //                 $toObjectId: "$$id",
-      //               },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "approvalOfPRD_HOS",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     // localField: "approvalOfPRD_HOD",
-      //     // foreignField: "_id",
-      //     let: {
-      //       id: {
-      //         $arrayElemAt: ["$approvalOfPRD_HOD", -1],
-      //       },
-      //     },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $eq: [
-      //               "$_id",
-      //               {
-      //                 $toObjectId: "$$id",
-      //               },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "approvalOfPRD_HOD",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     // localField: "approvalOfMTD_HOD",
-      //     // foreignField: "_id",
-      //     let: {
-      //       id: {
-      //         $arrayElemAt: ["$approvalOfMTD_HOD", -1],
-      //       },
-      //     },
-      //     pipeline: [
-      //       {
-      //         $match: {
-      //           $expr: {
-      //             $eq: [
-      //               "$_id",
-      //               {
-      //                 $toObjectId: "$$id",
-      //               },
-      //             ],
-      //           },
-      //         },
-      //       },
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "approvalOfMTD_HOD",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "supportingTM",
-      //     foreignField: "_id",
-      //     pipeline: [
-      //       {
-      //         $project: {
-      //           user_type: 1,
-      //           tm_no: 1,
-      //           tm_name: 1,
-      //           email: 1,
-      //         },
-      //       },
-      //     ],
-      //     as: "supportingTM",
-      //   },
-      // },
       {
         $sort: {
           _id: -1,
@@ -1108,10 +622,24 @@ const getRequestSheetData = async (req, res, next) => {
           requestSheetCreatedBy: 1,
 
           //only for material table purpose
-          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-          line: { $arrayElemAt: ["$lines.line_name", 0] },
-          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+          cell: {
+            $arrayElemAt: ["$planttomachinehierarchies.cell.cell_name", 0],
+          },
+          line: {
+            $arrayElemAt: ["$planttomachinehierarchies.line.line_name", 0],
+          },
+          machineNo: {
+            $arrayElemAt: [
+              "$planttomachinehierarchies.machine.machine_code",
+              0,
+            ],
+          },
+          machineName: {
+            $arrayElemAt: [
+              "$planttomachinehierarchies.machine.machine_name",
+              0,
+            ],
+          },
           plannedDateAndTimeOfCMForTable: {
             $dateToString: {
               format: "%d-%m-%Y T%H:%M",
@@ -1119,105 +647,15 @@ const getRequestSheetData = async (req, res, next) => {
               timezone: timezone,
             },
           },
-          // assignUser: {
-          //   $arrayElemAt: ["$namesOperators", 0],
-          // },
-
-          // approvalOfMTD_SL: {
-          //   $arrayElemAt: ["$approvalOfMTD_SL", 0],
-          // },
           finalActivity: 1,
           work_order_status: 1,
           rejectedRemarksOfRequestSheet: 1,
           feedbackMTD_HOS: 1,
           qualityConfirmed: 1,
 
-          // approvalOfMTD_TL: {
-          //   $arrayElemAt: ["$approvalOfMTD_TL", -1],
-          // },
-          // approvalStatusOfMTD_TL: {
-          //   $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
-          // },
-          // approvalDateAndTimeOfMTD_TL: {
-          //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
-          // },
-
-          // approvalOfMTD_HOSS: {
-          //   $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
-          // },
-          // approvalStatusOfMTD_HOSS: {
-          //   $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
-          // },
-          // approvalDateAndTimeOfMTD_HOSS: {
-          //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
-          // },
-
-          // approvalOfMTD_HOS: {
-          //   $arrayElemAt: ["$approvalOfMTD_HOS", -1],
-          // },
-          // approvalStatusOfMTD_HOS: {
-          //   $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-          // },
-          // approvalDateAndTimeOfMTD_HOS: {
-          //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-          // },
-
-          // approvalOfPRD_TL: {
-          //   $arrayElemAt: ["$approvalOfPRD_TL", -1],
-          // },
-          // approvalStatusOfPRD_TL: {
-          //   $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
-          // },
-          // approvalDateAndTimeOfPRD_TL: {
-          //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
-          // },
-
-          // approvalOfPRD_HOS: {
-          //   $arrayElemAt: ["$approvalOfPRD_HOS", -1],
-          // },
-          // approvalStatusOfPRD_HOS: {
-          //   $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
-          // },
-          // approvalDateAndTimeOfPRD_HOS: {
-          //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
-          // },
-
-          // approvalOfPRD_HOD: {
-          //   $arrayElemAt: ["$approvalOfPRD_HOD", -1],
-          // },
-          // approvalStatusOfPRD_HOD: {
-          //   $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-          // },
-          // approvalDateAndTimeOfPRD_HOD: {
-          //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-          // },
-
-          // approvalOfMTD_HOD: {
-          //   $arrayElemAt: ["$approvalOfMTD_HOD", -1],
-          // },
-          // approvalStatusOfMTD_HOD: {
-          //   $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
-          // },
-          // approvalDateAndTimeOfMTD_HOD: {
-          //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
-          // },
-
-          // partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
-          // partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
-
-          // dataSheetOfBM: 1,
-          // drawingOfBM: 1,
-          // sparePartUsedOrNot: 1,
           changedParts: 1,
           workDetails: 1,
           actionAndCounterMeasureStep: 1,
-
-          machineRef: { $arrayElemAt: ["$machines", 0] },
-          lineRef: { $arrayElemAt: ["$lines", 0] },
-          cellRef: { $arrayElemAt: ["$cells", 0] },
-          subSectionRef: { $arrayElemAt: ["$subSections", 0] },
-          sectionRef: { $arrayElemAt: ["$sections", 0] },
-          plantRef: { $arrayElemAt: ["$plants", 0] },
 
           requestSheetStatusOfCM: 1,
           getDataForApprovalDashboard: 1,
@@ -1238,7 +676,6 @@ const getRequestSheetData = async (req, res, next) => {
     req.requestSheetData = requestSheetData;
     if (requestSheetData?.length === 0) {
       return res.status(400).json({
-        // pipeline: req.pipeline,
         message: "No data to display",
       });
     }
@@ -1272,6 +709,12 @@ router.get(
     }
   }
 );
+
+// *************************************************************************************
+
+// ---------------------- REMAINING
+
+// *************************************************************************************
 router.get(
   "/getAllCmReqSheet/:filter/:selectedId",
   authenticate,
@@ -1303,153 +746,15 @@ router.get(
         ...queryPipeline,
         {
           $lookup: {
-            from: "lines",
-            localField: "lineRef",
+            from: "planttomachinehierarchies",
+            localField: "plantToMachineHierarchyRef",
             foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  line_name: 1,
-                },
-              },
-            ],
-            as: "lines",
+            as: "plantToMachineHierarchyRef",
           },
         },
         {
-          $lookup: {
-            from: "machinesalldatas",
-            localField: "machineRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  machine_name: 1,
-                  machine_code: 1,
-                },
-              },
-            ],
-            as: "machines",
-          },
+          $unwind: "$plantToMachineHierarchyRef",
         },
-        // {
-        //   $lookup: {
-        //     from: "users",
-        //     localField: "assignUserForCM",
-        //     foreignField: "_id",
-        //     pipeline: [
-        //       {
-        //         $project: {
-        //           user_type: 1,
-        //           tm_no: 1,
-        //           tm_name: 1,
-        //           email: 1,
-        //         },
-        //       },
-        //     ],
-        //     as: "assigned_users",
-        //   },
-        // },
-        {
-          $lookup: {
-            from: "cells",
-            localField: "cellRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  cell_name: 1,
-                },
-              },
-            ],
-            as: "cells",
-          },
-        },
-        {
-          $lookup: {
-            from: "sections",
-            localField: "sectionRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  section_name: 1,
-                },
-              },
-            ],
-            as: "sections",
-          },
-        },
-        {
-          $lookup: {
-            from: "plants",
-            localField: "plantRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  plant_name: 1,
-                },
-              },
-            ],
-            as: "plants",
-          },
-        },
-        {
-          $lookup: {
-            from: "subSections",
-            localField: "subSectionRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  subSection_name: 1,
-                },
-              },
-            ],
-            as: "subSections",
-          },
-        },
-        // {
-        //   $lookup: {
-        //     from: "users",
-        //     localField: "assignUserForCM",
-        //     foreignField: "_id",
-        //     pipeline: [
-        //       {
-        //         $project: {
-        //           user_type: 1,
-        //           tm_no: 1,
-        //           tm_name: 1,
-        //           email: 1,
-        //         },
-        //       },
-        //     ],
-        //     as: "namesOperators",
-        //   },
-        // },
-        // {
-        //   $unwind: {
-        //     path: "$workDetails",
-        //   },
-        // },
-        // {
-        //   $lookup: {
-        //     from: "users",
-        //     localField: "workDetails.tmName",
-        //     foreignField: "_id",
-        //     pipeline: [
-        //       {
-        //         $project: {
-        //           tm_no: 1,
-        //           tm_name: 1,
-        //         },
-        //       },
-        //     ],
-        //     as: "workDoneBy",
-        //   },
-        // },
-
         {
           $project: {
             requestSheetNoOfCM: 1,
@@ -1464,14 +769,54 @@ router.get(
             partSuggestionByMTDTL: 1,
             qualityRelated: 1,
             commonDataFilledByAssignUser: 1,
+            current_commonDataFilledByAssignUser: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: {
+                      $getField: {
+                        field: "quarterlyDataOfTheCM",
+                        input: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: "$commonDataFilledByAssignUser",
+                                as: "yearWiseData",
+                                cond: {
+                                  $eq: [
+                                    "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                                    req?.query?.selectedYear,
+                                  ],
+                                },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                    },
+                    as: "quarterWiseData",
+                    cond: {
+                      $eq: [
+                        "$$quarterWiseData.requestSheet_quarter",
+                        //need to change this quarter when user select previous year filter
+                        getFinancialQuarter(),
+                      ],
+                    },
+                  },
+                },
+                0,
+              ],
+            },
             preAggregationTimeStampOfRequestSheet: 1,
             requestSheetCreatedBy: 1,
 
             //only for material table purpose
-            cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-            line: { $arrayElemAt: ["$lines.line_name", 0] },
-            machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-            machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+            cell: "$plantToMachineHierarchyRef.cell.cell_name",
+            line: "$plantToMachineHierarchyRef.line.line_name",
+            machineNo: "$plantToMachineHierarchyRef.machine.machine_code",
+            machineName: "$plantToMachineHierarchyRef.machine.machine_name",
+
             plannedDateAndTimeOfCMForTable: {
               $dateToString: {
                 format: "%d-%m-%Y T%H:%M",
@@ -1480,102 +825,22 @@ router.get(
               },
             },
             assigned_users: "$assignUserForCM",
-
-            // approvalOfMTD_SL: {
-            //   $arrayElemAt: ["$approvalOfMTD_SL", 0],
-            // },
             finalActivity: 1,
             work_order_status: 1,
             rejectedRemarksOfRequestSheet: 1,
             feedbackMTD_HOS: 1,
             qualityConfirmed: 1,
 
-            // approvalOfMTD_TL: {
-            //   $arrayElemAt: ["$approvalOfMTD_TL", -1],
-            // },
-            // approvalStatusOfMTD_TL: {
-            //   $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
-            // },
-            // approvalDateAndTimeOfMTD_TL: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
-            // },
-
-            // approvalOfMTD_HOSS: {
-            //   $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
-            // },
-            // approvalStatusOfMTD_HOSS: {
-            //   $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
-            // },
-            // approvalDateAndTimeOfMTD_HOSS: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
-            // },
-
-            // approvalOfMTD_HOS: {
-            //   $arrayElemAt: ["$approvalOfMTD_HOS", -1],
-            // },
-            // approvalStatusOfMTD_HOS: {
-            //   $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-            // },
-            // approvalDateAndTimeOfMTD_HOS: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-            // },
-
-            // approvalOfPRD_TL: {
-            //   $arrayElemAt: ["$approvalOfPRD_TL", -1],
-            // },
-            // approvalStatusOfPRD_TL: {
-            //   $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
-            // },
-            // approvalDateAndTimeOfPRD_TL: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
-            // },
-
-            // approvalOfPRD_HOS: {
-            //   $arrayElemAt: ["$approvalOfPRD_HOS", -1],
-            // },
-            // approvalStatusOfPRD_HOS: {
-            //   $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
-            // },
-            // approvalDateAndTimeOfPRD_HOS: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
-            // },
-
-            // approvalOfPRD_HOD: {
-            //   $arrayElemAt: ["$approvalOfPRD_HOD", -1],
-            // },
-            // approvalStatusOfPRD_HOD: {
-            //   $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-            // },
-            // approvalDateAndTimeOfPRD_HOD: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-            // },
-
-            // approvalOfMTD_HOD: {
-            //   $arrayElemAt: ["$approvalOfMTD_HOD", -1],
-            // },
-            // approvalStatusOfMTD_HOD: {
-            //   $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
-            // },
-            // approvalDateAndTimeOfMTD_HOD: {
-            //   $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
-            // },
-
-            // partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
-            // partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
-
-            // dataSheetOfBM: 1,
-            // drawingOfBM: 1,
-            // sparePartUsedOrNot: 1,
             changedParts: 1,
             workDetails: 1,
             actionAndCounterMeasureStep: 1,
 
-            machineRef: { $arrayElemAt: ["$machines", 0] },
-            lineRef: { $arrayElemAt: ["$lines", 0] },
-            cellRef: { $arrayElemAt: ["$cells", 0] },
-            subSectionRef: { $arrayElemAt: ["$subSections", 0] },
-            sectionRef: { $arrayElemAt: ["$sections", 0] },
-            plantRef: { $arrayElemAt: ["$plants", 0] },
+            // machineRef: { $arrayElemAt: ["$machines", 0] },
+            // lineRef: { $arrayElemAt: ["$lines", 0] },
+            // cellRef: { $arrayElemAt: ["$cells", 0] },
+            // subSectionRef: { $arrayElemAt: ["$subSections", 0] },
+            // sectionRef: { $arrayElemAt: ["$sections", 0] },
+            // plantRef: { $arrayElemAt: ["$plants", 0] },
 
             requestSheetStatusOfCM: 1,
             getDataForApprovalDashboard: 1,
@@ -1591,12 +856,6 @@ router.get(
             yokotenkai: 1,
           },
         },
-        // {
-        //   $group: {
-        //     _id: "$_id",
-        //     workDetails: { $push: "$workDetails" },
-        //   },
-        // },
         {
           $sort: {
             _id: -1,
@@ -1654,283 +913,11 @@ router.get(
 
 // For Calendar Modal
 router.get(
-  "/getReqSheetDataByID",
+  "/getReqSheetDataByID/:selectedId",
   authenticate,
   getRequestSheetData,
   async (req, res) => {
     try {
-      // const { id } = req.params;
-      // const requestSheet = await RequestSheetOfCM.aggregate([
-      //   {
-      //     $match: {
-      //       _id: mongoose.Types.ObjectId(id),
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "lines",
-      //       localField: "lineRef",
-      //       foreignField: "_id",
-      //       // pipeline: [
-      //       //   {
-      //       //     $project: {
-      //       //       line_name: 1,
-      //       //     },
-      //       //   },
-      //       // ],
-      //       as: "lines",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "machinesalldatas",
-      //       localField: "machineRef",
-      //       foreignField: "_id",
-      //       // pipeline: [
-      //       //   {
-      //       //     $project: {
-      //       //       machine_name: 1,
-      //       //       machine_code: 1,
-      //       //     },
-      //       //   },
-      //       // ],
-      //       as: "machines",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "users",
-      //       localField: "assignUserForCM",
-      //       foreignField: "_id",
-      //       pipeline: [
-      //         {
-      //           $project: {
-      //             user_type: 1,
-      //             tm_no: 1,
-      //             tm_name: 1,
-      //             email: 1,
-      //           },
-      //         },
-      //       ],
-      //       as: "assigned_users",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "cells",
-      //       localField: "cellRef",
-      //       foreignField: "_id",
-      //       // pipeline: [
-      //       //   {
-      //       //     $project: {
-      //       //       cell_name: 1,
-      //       //     },
-      //       //   },
-      //       // ],
-      //       as: "cells",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "sections",
-      //       localField: "sectionRef",
-      //       foreignField: "_id",
-      //       // pipeline: [
-      //       //   {
-      //       //     $project: {
-      //       //       section_name: 1,
-      //       //     },
-      //       //   },
-      //       // ],
-      //       as: "sections",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "plants",
-      //       localField: "plantRef",
-      //       foreignField: "_id",
-      //       // pipeline: [
-      //       //   {
-      //       //     $project: {
-      //       //       plant_name: 1,
-      //       //     },
-      //       //   },
-      //       // ],
-      //       as: "plants",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "subSections",
-      //       localField: "subSectionRef",
-      //       foreignField: "_id",
-      //       // pipeline: [
-      //       //   {
-      //       //     $project: {
-      //       //       subSection_name: 1,
-      //       //     },
-      //       //   },
-      //       // ],
-      //       as: "subSections",
-      //     },
-      //   },
-      //   {
-      //     $lookup: {
-      //       from: "users",
-      //       localField: "assignUserForCM",
-      //       foreignField: "_id",
-      //       pipeline: [
-      //         {
-      //           $project: {
-      //             user_type: 1,
-      //             tm_no: 1,
-      //             tm_name: 1,
-      //             email: 1,
-      //           },
-      //         },
-      //       ],
-      //       as: "namesOperators",
-      //     },
-      //   },
-      //   {
-      //     $project: {
-      //       requestSheetNoOfCM: 1,
-      //       maintenanceType: 1,
-      //       priorityCode: 1,
-      //       requestSheetOfBMRef: 1,
-      //       plannedDateAndTimeOfCM: 1,
-      //       sheetIssuedDateAndTimeOfCM: 1,
-      //       shiftOfCM: 1,
-      //       qualityRelated: 1,
-      //       preAggregationTimeStampOfRequestSheet: 1,
-      //       requestSheetCreatedBy: {
-      //         $arrayElemAt: ["$requestSheetCreatedBy", 0],
-      //       },
-
-      //       //only for material table purpose
-      //       cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-      //       line: { $arrayElemAt: ["$lines.line_name", 0] },
-      //       machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-      //       machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
-      //       plannedDateAndTimeOfCMForTable: {
-      //         $dateToString: {
-      //           format: "%d-%m-%Y T%H:%M",
-      //           date: "$plannedDateAndTimeOfCM",
-      //           timezone: timezone,
-      //         },
-      //       },
-      //       assigned_users: 1,
-
-      //       approvalOfMTD_SL: {
-      //         $arrayElemAt: ["$approvalOfMTD_SL", 0],
-      //       },
-      //       finalActivity: 1,
-      //       work_order_status: 1,
-      //       rejectedRemarksOfRequestSheet: 1,
-      //       feedbackMTD_HOS: 1,
-      //       qualityConfirmed: 1,
-
-      //       approvalOfMTD_TL: {
-      //         $arrayElemAt: ["$approvalOfMTD_TL", -1],
-      //       },
-      //       approvalStatusOfMTD_TL: {
-      //         $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
-      //       },
-      //       approvalDateAndTimeOfMTD_TL: {
-      //         $arrayElemAt: ["$approvalDateAndTimeOfMTD_TL", -1],
-      //       },
-
-      //       approvalOfMTD_HOSS: {
-      //         $arrayElemAt: ["$approvalOfMTD_HOSS", -1],
-      //       },
-      //       approvalStatusOfMTD_HOSS: {
-      //         $arrayElemAt: ["$approvalStatusOfMTD_HOSS", -1],
-      //       },
-      //       approvalDateAndTimeOfMTD_HOSS: {
-      //         $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOSS", -1],
-      //       },
-
-      //       approvalOfMTD_HOS: {
-      //         $arrayElemAt: ["$approvalOfMTD_HOS", -1],
-      //       },
-      //       approvalStatusOfMTD_HOS: {
-      //         $arrayElemAt: ["$approvalStatusOfMTD_HOS", -1],
-      //       },
-      //       approvalDateAndTimeOfMTD_HOS: {
-      //         $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOS", -1],
-      //       },
-
-      //       approvalOfPRD_TL: {
-      //         $arrayElemAt: ["$approvalOfPRD_TL", -1],
-      //       },
-      //       approvalStatusOfPRD_TL: {
-      //         $arrayElemAt: ["$approvalStatusOfPRD_TL", -1],
-      //       },
-      //       approvalDateAndTimeOfPRD_TL: {
-      //         $arrayElemAt: ["$approvalDateAndTimeOfPRD_TL", -1],
-      //       },
-
-      //       approvalOfPRD_HOS: {
-      //         $arrayElemAt: ["$approvalOfPRD_HOS", -1],
-      //       },
-      //       approvalStatusOfPRD_HOS: {
-      //         $arrayElemAt: ["$approvalStatusOfPRD_HOS", -1],
-      //       },
-      //       approvalDateAndTimeOfPRD_HOS: {
-      //         $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOS", -1],
-      //       },
-
-      //       approvalOfPRD_HOD: {
-      //         $arrayElemAt: ["$approvalOfPRD_HOD", -1],
-      //       },
-      //       approvalStatusOfPRD_HOD: {
-      //         $arrayElemAt: ["$approvalStatusOfPRD_HOD", -1],
-      //       },
-      //       approvalDateAndTimeOfPRD_HOD: {
-      //         $arrayElemAt: ["$approvalDateAndTimeOfPRD_HOD", -1],
-      //       },
-
-      //       approvalOfMTD_HOD: {
-      //         $arrayElemAt: ["$approvalOfMTD_HOD", -1],
-      //       },
-      //       approvalStatusOfMTD_HOD: {
-      //         $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
-      //       },
-      //       approvalDateAndTimeOfMTD_HOD: {
-      //         $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
-      //       },
-
-      //       // partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
-      //       // partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
-
-      //       // dataSheetOfBM: 1,
-      //       // drawingOfBM: 1,
-      //       // sparePartUsedOrNot: 1,
-      //       changedParts: 1,
-
-      //       machineRef: { $arrayElemAt: ["$machines", 0] },
-      //       lineRef: { $arrayElemAt: ["$lines", 0] },
-      //       cellRef: { $arrayElemAt: ["$cells", 0] },
-      //       subSectionRef: { $arrayElemAt: ["$subSections", 0] },
-      //       sectionRef: { $arrayElemAt: ["$sections", 0] },
-      //       plantRef: { $arrayElemAt: ["$plants", 0] },
-
-      //       requestSheetStatusOfCM: 1,
-      //       getDataForApprovalDashboard: 1,
-
-      //       actionTemporaryOrNot: 1,
-      //       cmBasicDataFilledByMTD_TL: 1,
-      //       dataSheetOfRequestSheet: 1,
-      //       drawingOfRequestSheet: 1,
-      //       supportingTM: 1,
-      //       attachedDataSheets: 1,
-      //       attachedDrawings: 1,
-      //       categoriesOfRequestSheet: 1,
-      //       yokotenkai: 1,
-      //     },
-      //   },
-      // ]);
       res.status(200).json({
         requestSheet: req?.requestSheetData?.[0],
         message: "Request sheet fetched successfully",

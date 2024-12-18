@@ -253,21 +253,6 @@ const MTDExistingMachineReqSheetWithData = ({
                       data-html2canvas-ignore="true"
                       className="col-auto d-flex gap-2 align-items-center"
                     >
-                      {/* <button
-                    className="btn bg-button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // navigate(
-                      //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
-                      // );
-                      window.open(
-                        `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineData?._id}`,
-                        "_blank"
-                      );
-                    }}
-                  >
-                    Machine Details
-                  </button> */}
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
@@ -276,30 +261,6 @@ const MTDExistingMachineReqSheetWithData = ({
                       </h4>
                     </Col>
 
-                    {/* <Col className="col-auto">
-                  <Box
-                    display="flex"
-                    justifyContent="end"
-                    gap={1}
-                    // sx={{ position: "absolute", top: "10px", right: "20px" }}
-                  >
-                    <MachineStatusBox
-                      title="PM Status"
-                      bodyText1={machineStatus?.pmStatusData?.PMStatus}
-                      bodyText2={machineStatus?.pmStatusData?.PMdate}
-                    />
-                    <MachineStatusBox
-                      title="BM"
-                      bodyText1={
-                        machineStatus?.bmStatusData?.totalHours &&
-                        `${(machineStatus?.bmStatusData?.totalHours).toFixed(
-                          1
-                        )} Hrs./${machineStatus?.bmStatusData?.count} Count`
-                      }
-                    />
-                    <MachineStatusBox title="CM" />
-                  </Box>
-                </Col> */}
                   </Row>
                 </Container>
               </td>
