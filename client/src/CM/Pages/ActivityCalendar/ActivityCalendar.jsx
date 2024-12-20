@@ -381,7 +381,6 @@ const ActivityCalendar = () => {
   const [reqSheetData, setReqSheetData] = useState();
   const getModalOpenForReqSheet = async (event) => {
     try {
-      console.log("rfsgdfs")
       const response = await axios.get(`/getReqSheetDataByID/${event.id}`);
       if (response.status === 200) {
         console.log(response);

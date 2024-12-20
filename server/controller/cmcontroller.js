@@ -64,7 +64,7 @@ let currentYear =
 
 const successResponse = (res, message = "", data = {}) => {
   try {
-    res.status(201).json({
+    return res.status(201).json({
       message,
       ...data,
     });
@@ -253,7 +253,6 @@ const quarterlyDataAdd = (
 
   for (let year = currentYear; year < currentYear + totalYears; year++) {
     const yearlyDataObject = {
-      plannedDateAndTimeOfCM: plannedDateAndTimeOfCM.replace(currentYear, year),
       preAggregationTimeStampOfRequestSheet: {
         requestSheet_year: `${year}-${year + 1}`,
         requestSheet_month: gettingMonthForSelectedDate(plannedDateAndTimeOfCM),
@@ -314,7 +313,9 @@ const quarterlyDataAdd = (
       }
     }
 
-    plannedData?.push(yearlyDataObject);
+    if (yearlyDataObject?.quarterlyDataOfTheCM?.length > 0) {
+      plannedData?.push(yearlyDataObject);
+    }
   }
 
   return plannedData;
@@ -378,11 +379,21 @@ router.post(
       "CM"
     );
 
+    const assignUserForCM =
+      requestSheetDataFilledByMTDUserForCM?.assignUserForCM?.map((item) => {
+        let userRef = item?._id;
+        delete item["_id"];
+        return {
+          ...item,
+          userRef,
+        };
+      });
+
     const commonDataFilledByAssignUser = quarterlyDataAdd(
       requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
         ?.frequencyValue,
-      requestSheetDataFilledByMTDUserForCM?.assignUserForCM
+      assignUserForCM
     );
 
     let requestSheetOfCM = new RequestSheetOfCM({
@@ -439,6 +450,34 @@ router.patch(
   }
 );
 
+const commonKeyGenerationMiddleware = tryCatchHandler(
+  async (req, res, next) => {
+    let commonKey =
+      "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter]";
+
+    let allKeys = {
+      approvalOfMTD_HOS: `${commonKey}.approvalOfMTD_HOS`,
+      approvalOfMTD_TL: `${commonKey}.approvalOfMTD_TL`,
+      approvalOfPRD_TL: `${commonKey}.approvalOfPRD_TL`,
+      requestSheetStatusOfCM: `${commonKey}.requestSheetStatusOfCM`,
+    };
+
+    if (req?.url?.split("/")?.includes("sendApprovalForRequestSheetOfCM")) {
+      allKeys = {
+        ...allKeys,
+        attachedFileByAssignedUser: `${commonKey}.attachedFileByAssignedUser`,
+        getDataForApprovalDashboard: `${commonKey}.getDataForApprovalDashboard`,
+        workDetails: `${commonKey}.workDetails`,
+        changedParts: `${commonKey}.changedParts`,
+        actionAndCounterMeasureStep: `${commonKey}.actionAndCounterMeasureStep`,
+      };
+    }
+
+    req.allKeys = allKeys;
+    return next();
+  }
+);
+
 router.patch(
   "/sendApprovalForRequestSheetOfCM/:reqId/:machineRef",
   authenticate,
@@ -446,6 +485,7 @@ router.patch(
   uploadDataSheetsOfBD.fields([
     { name: "attachedFileByAssignedUser", maxCount: 10 },
   ]),
+  commonKeyGenerationMiddleware,
   async (req, res, next) => {
     try {
       let commonApprovalStatusObj = {
@@ -453,30 +493,24 @@ router.patch(
         approvalDateAndTime: "",
       };
 
-      let commonKey =
-        "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter]";
-
-      let allKeys = {
-        attachedFileByAssignedUser: `${commonKey}.attachedFileByAssignedUser`,
-        requestSheetStatusOfCM: `${commonKey}.requestSheetStatusOfCM`,
-        getDataForApprovalDashboard: `${commonKey}.getDataForApprovalDashboard`,
-
-        approvalOfMTD_HOS: `${commonKey}.approvalOfMTD_HOS`,
-        approvalOfMTD_TL: `${commonKey}.approvalOfMTD_TL`,
-        approvalOfPRD_TL: `${commonKey}.approvalOfPRD_TL`,
-
-        workDetails: `${commonKey}.workDetails`,
-        changedParts: `${commonKey}.changedParts`,
-        actionAndCounterMeasureStep: `${commonKey}.actionAndCounterMeasureStep`,
-      };
-
       const requestSheetDataFilledByMTDUserForCM = JSON.parse(
         req.body.otherData
       );
 
+      let _ids = {
+        ID_MTD_HOS:
+          requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
+        ID_MTD_TL: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
+        ID_PRD_TL: requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL?._id,
+      };
+
+      delete requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS["_id"];
+      delete requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL["_id"];
+      delete requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL["_id"];
+
       let updateObj = {
         $push: {
-          [allKeys?.approvalOfMTD_HOS]: {
+          [req.allKeys?.approvalOfMTD_HOS]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS,
             ...commonApprovalStatusObj,
             approvalDateAndTime: new Date(),
@@ -492,7 +526,7 @@ router.patch(
           req.files?.attachedFileByAssignedUser?.[0]?.filename;
 
         updateObj.$set = {
-          [allKeys?.attachedFileByAssignedUser]:
+          [req.allKeys?.attachedFileByAssignedUser]:
             req.files?.attachedFileByAssignedUser?.[0]?.filename,
         };
       }
@@ -500,15 +534,15 @@ router.patch(
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
-          [allKeys?.approvalOfMTD_TL]: {
+          [req.allKeys?.approvalOfMTD_TL]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL,
             ...commonApprovalStatusObj,
           },
         };
         updateObj.$set = {
           ...updateObj.$set,
-          [allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
-          [allKeys?.getDataForApprovalDashboard]: {
+          [req.allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
+          [req.allKeys?.getDataForApprovalDashboard]: {
             Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
             departmentAndGradeOfUser: "MTD TL/HOSS",
           },
@@ -516,8 +550,8 @@ router.patch(
       } else {
         updateObj.$set = {
           ...updateObj.$set,
-          [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
-          [allKeys?.getDataForApprovalDashboard]: {
+          [req.allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
+          [req.allKeys?.getDataForApprovalDashboard]: {
             Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
             departmentAndGradeOfUser: "MTD HOS",
           },
@@ -533,7 +567,7 @@ router.patch(
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
-          [allKeys?.approvalOfPRD_TL]: {
+          [req.allKeys?.approvalOfPRD_TL]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL,
             ...commonApprovalStatusObj,
           },
@@ -541,11 +575,11 @@ router.patch(
       }
       updateObj.$set = {
         ...updateObj.$set,
-        [allKeys?.workDetails]:
+        [req.allKeys?.workDetails]:
           requestSheetDataFilledByMTDUserForCM?.workDetails,
-        [allKeys?.changedParts]:
+        [req.allKeys?.changedParts]:
           requestSheetDataFilledByMTDUserForCM?.changedParts,
-        [allKeys?.actionAndCounterMeasureStep]:
+        [req.allKeys?.actionAndCounterMeasureStep]:
           requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
       };
 
@@ -575,120 +609,146 @@ router.patch(
   }
 );
 
-const getRequestSheetData = async (req, res, next) => {
-  try {
-    let queryObjForGetRequestSheetData = {};
-    if (req.query?.selectedId) {
-      queryObjForGetRequestSheetData = {
-        _id: mongoose.Types.ObjectId(req.query?.selectedId),
-      };
-    }
-    if (req.query?.getDataForApprovalDashboardId) {
-      queryObjForGetRequestSheetData = {
-        "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
-          req.query.getDataForApprovalDashboardId
-        ),
-        ...req.queryObj,
-      };
-    }
-    const requestSheetData = await RequestSheetOfCM.aggregate([
-      {
-        $match: queryObjForGetRequestSheetData,
+const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
+  const requestSheetData = await RequestSheetOfCM.aggregate([
+    {
+      $match: req.queryObj,
+    },
+    {
+      $lookup: {
+        from: "planttomachinehierarchies",
+        localField: "plantToMachineHierarchyRef",
+        foreignField: "_id",
+        as: "plantToMachineHierarchy",
       },
-      {
-        $lookup: {
-          from: "planttomachinehierarchies",
-          localField: "plantToMachineHierarchyRef",
-          foreignField: "_id",
-          as: "plants",
-        },
+    },
+    {
+      $sort: {
+        _id: -1,
       },
-      {
-        $sort: {
-          _id: -1,
-        },
-      },
-      {
-        $project: {
-          requestSheetNoOfCM: 1,
-          requestSheetOfBMRef: 1,
-          maintenanceType: 1,
-          priorityCode: 1,
-          plannedDateAndTimeOfCM: 1,
-          sheetIssuedDateAndTimeOfCM: 1,
-          shiftOfCM: 1,
-          assigned_users: 1,
-          qualityRelated: 1,
-          requestSheetCreatedBy: 1,
-
-          //only for material table purpose
-          cell: {
-            $arrayElemAt: ["$planttomachinehierarchies.cell.cell_name", 0],
-          },
-          line: {
-            $arrayElemAt: ["$planttomachinehierarchies.line.line_name", 0],
-          },
-          machineNo: {
-            $arrayElemAt: [
-              "$planttomachinehierarchies.machine.machine_code",
-              0,
-            ],
-          },
-          machineName: {
-            $arrayElemAt: [
-              "$planttomachinehierarchies.machine.machine_name",
-              0,
-            ],
-          },
-          plannedDateAndTimeOfCMForTable: {
-            $dateToString: {
-              format: "%d-%m-%Y T%H:%M",
-              date: "$plannedDateAndTimeOfCM",
-              timezone: timezone,
+    },
+    {
+      $project: {
+        requestSheetNoOfCM: 1,
+        requestSheetOfBMRef: 1,
+        maintenanceType: 1,
+        priorityCode: 1,
+        plannedDateAndTimeOfCM: 1,
+        sheetIssuedDateAndTimeOfCM: 1,
+        shiftOfCM: 1,
+        assigned_users: 1,
+        qualityRelated: 1,
+        requestSheetCreatedBy: 1,
+        current_commonDataFilledByAssignUser: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: {
+                  $getField: {
+                    field: "quarterlyDataOfTheCM",
+                    input: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$commonDataFilledByAssignUser",
+                            as: "yearWiseData",
+                            cond: {
+                              $eq: [
+                                "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                                req?.query?.selectedYear,
+                              ],
+                            },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+                as: "quarterWiseData",
+                cond: {
+                  $eq: [
+                    "$$quarterWiseData.requestSheet_quarter",
+                    //need to change this quarter when user select previous year filter
+                    getFinancialQuarter(),
+                  ],
+                },
+              },
             },
-          },
-          finalActivity: 1,
-          work_order_status: 1,
-          rejectedRemarksOfRequestSheet: 1,
-          feedbackMTD_HOS: 1,
-          qualityConfirmed: 1,
-
-          changedParts: 1,
-          workDetails: 1,
-          actionAndCounterMeasureStep: 1,
-
-          requestSheetStatusOfCM: 1,
-          getDataForApprovalDashboard: 1,
-
-          actionTemporaryOrNot: 1,
-          cmBasicDataFilledByMTD_TL: 1,
-          dataSheetOfRequestSheet: 1,
-          drawingOfRequestSheet: 1,
-          supportingTM: 1,
-          attachedDataSheets: 1,
-          attachedDrawings: 1,
-          categoriesOfRequestSheet: 1,
-          yokotenkai: 1,
+            0,
+          ],
         },
+
+        //only for material table purpose
+        cell: {
+          $arrayElemAt: ["$plantToMachineHierarchy.cell.cell_name", 0],
+        },
+        line: {
+          $arrayElemAt: ["$plantToMachineHierarchy.line.line_name", 0],
+        },
+        machineNo: {
+          $arrayElemAt: ["$plantToMachineHierarchy.machine.machine_code", 0],
+        },
+        machineName: {
+          $arrayElemAt: ["$plantToMachineHierarchy.machine.machine_name", 0],
+        },
+        plannedDateAndTimeOfCMForTable: {
+          $dateToString: {
+            format: "%d-%m-%Y T%H:%M",
+            date: "$plannedDateAndTimeOfCM",
+            timezone: timezone,
+          },
+        },
+        finalActivity: 1,
+        work_order_status: 1,
+        rejectedRemarksOfRequestSheet: 1,
+        feedbackMTD_HOS: 1,
+        qualityConfirmed: 1,
+
+        changedParts: 1,
+        workDetails: 1,
+        actionAndCounterMeasureStep: 1,
+
+        requestSheetStatusOfCM: 1,
+        getDataForApprovalDashboard: 1,
+
+        actionTemporaryOrNot: 1,
+        cmBasicDataFilledByMTD_TL: 1,
+        dataSheetOfRequestSheet: 1,
+        drawingOfRequestSheet: 1,
+        supportingTM: 1,
+        attachedDataSheets: 1,
+        attachedDrawings: 1,
+        categoriesOfRequestSheet: 1,
+        yokotenkai: 1,
       },
-    ]);
-    req.requestSheetData = requestSheetData;
-    if (requestSheetData?.length === 0) {
-      return res.status(400).json({
-        message: "No data to display",
-      });
-    }
-    next();
-  } catch (error) {
-    logger.error(error, { maintenanceType: maintenanceType?.[1] });
-    res.status(500).json({ message: error?.message, error: new Error(error) });
+    },
+  ]);
+  req.requestSheetData = requestSheetData;
+  if (requestSheetData?.length === 0) {
+    return res.status(400).json({
+      message: "No data to display",
+    });
   }
-};
+  next();
+});
 
 router.get(
   "/getMachineRequestSheetDetailsForApprovalForCM/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    req.queryObj = {
+      ...req.queryObj,
+      "commonDataFilledByAssignUser.quarterlyDataOfTheCM.getDataForApprovalDashboard.Id":
+        {
+          $elemMatch: {
+            _id: mongoose.Types.ObjectId(req.rootUser?._id),
+          },
+        },
+    };
+    return next();
+  }),
   getRequestSheetData,
   dashboardLevelUserCheckMiddleware,
   findTLandOperatorList,
@@ -709,204 +769,60 @@ router.get(
   }
 );
 
-// *************************************************************************************
-
-// ---------------------- REMAINING
-
-// *************************************************************************************
 router.get(
   "/getAllCmReqSheet/:filter/:selectedId",
   authenticate,
   filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
-    try {
-      let queryPipeline = [
-        {
-          $match: req.queryObj,
-        },
-      ];
-      if (req.rootUser?.user_type === "Operator") {
-        queryPipeline = [
-          {
-            $match: {
-              ...queryPipeline?.[0]?.$match,
-              "commonDataFilledByAssignUser.quarterlyDataOfTheCM.assignUserForCM":
-                {
-                  $elemMatch: {
-                    _id: mongoose.Types.ObjectId(req.rootUser._id),
-                  },
-                },
-            },
-          },
-        ];
-      }
-
-      const reqSheetCM = await RequestSheetOfCM.aggregate([
-        ...queryPipeline,
-        {
-          $lookup: {
-            from: "planttomachinehierarchies",
-            localField: "plantToMachineHierarchyRef",
-            foreignField: "_id",
-            as: "plantToMachineHierarchyRef",
+    if (req.rootUser?.user_type === "Operator") {
+      req.queryObj = {
+        ...req.queryObj,
+        "commonDataFilledByAssignUser.quarterlyDataOfTheCM.assignUserForCM": {
+          $elemMatch: {
+            _id: mongoose.Types.ObjectId(req.rootUser?._id),
           },
         },
-        {
-          $unwind: "$plantToMachineHierarchyRef",
-        },
-        {
-          $project: {
-            requestSheetNoOfCM: 1,
-            maintenanceType: 1,
-            priorityCode: 1,
-            requestSheetOfBMRef: 1,
-            actionAndCounterMeasureStep: 1,
-            workDetails: 1,
-            plannedDateAndTimeOfCM: 1,
-            sheetIssuedDateAndTimeOfCM: 1,
-            shiftOfCM: 1,
-            partSuggestionByMTDTL: 1,
-            qualityRelated: 1,
-            commonDataFilledByAssignUser: 1,
-            current_commonDataFilledByAssignUser: {
-              $arrayElemAt: [
-                {
-                  $filter: {
-                    input: {
-                      $getField: {
-                        field: "quarterlyDataOfTheCM",
-                        input: {
-                          $arrayElemAt: [
-                            {
-                              $filter: {
-                                input: "$commonDataFilledByAssignUser",
-                                as: "yearWiseData",
-                                cond: {
-                                  $eq: [
-                                    "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                                    req?.query?.selectedYear,
-                                  ],
-                                },
-                              },
-                            },
-                            0,
-                          ],
-                        },
-                      },
-                    },
-                    as: "quarterWiseData",
-                    cond: {
-                      $eq: [
-                        "$$quarterWiseData.requestSheet_quarter",
-                        //need to change this quarter when user select previous year filter
-                        getFinancialQuarter(),
-                      ],
-                    },
-                  },
-                },
-                0,
-              ],
-            },
-            preAggregationTimeStampOfRequestSheet: 1,
-            requestSheetCreatedBy: 1,
-
-            //only for material table purpose
-            cell: "$plantToMachineHierarchyRef.cell.cell_name",
-            line: "$plantToMachineHierarchyRef.line.line_name",
-            machineNo: "$plantToMachineHierarchyRef.machine.machine_code",
-            machineName: "$plantToMachineHierarchyRef.machine.machine_name",
-
-            plannedDateAndTimeOfCMForTable: {
-              $dateToString: {
-                format: "%d-%m-%Y T%H:%M",
-                date: "$plannedDateAndTimeOfCM",
-                timezone: timezone,
-              },
-            },
-            assigned_users: "$assignUserForCM",
-            finalActivity: 1,
-            work_order_status: 1,
-            rejectedRemarksOfRequestSheet: 1,
-            feedbackMTD_HOS: 1,
-            qualityConfirmed: 1,
-
-            changedParts: 1,
-            workDetails: 1,
-            actionAndCounterMeasureStep: 1,
-
-            // machineRef: { $arrayElemAt: ["$machines", 0] },
-            // lineRef: { $arrayElemAt: ["$lines", 0] },
-            // cellRef: { $arrayElemAt: ["$cells", 0] },
-            // subSectionRef: { $arrayElemAt: ["$subSections", 0] },
-            // sectionRef: { $arrayElemAt: ["$sections", 0] },
-            // plantRef: { $arrayElemAt: ["$plants", 0] },
-
-            requestSheetStatusOfCM: 1,
-            getDataForApprovalDashboard: 1,
-
-            actionTemporaryOrNot: 1,
-            cmBasicDataFilledByMTD_TL: 1,
-            dataSheetOfRequestSheet: 1,
-            drawingOfRequestSheet: 1,
-            supportingTM: 1,
-            attachedDataSheets: 1,
-            attachedDrawings: 1,
-            categoriesOfRequestSheet: 1,
-            yokotenkai: 1,
-          },
-        },
-        {
-          $sort: {
-            _id: -1,
-          },
-        },
-      ]);
-
-      const counters = await RequestSheetOfCM.aggregate([
-        ...queryPipeline,
-        {
-          $group: {
-            _id: null,
-            total_request_sheet_count: {
-              $sum: 1,
-            },
-            open_request_sheet_count: {
-              $sum: {
-                $cond: [
-                  { $ne: ["$requestSheetStatusOfCM", "Completed"] },
-                  1,
-                  0,
-                ],
-              },
-            },
-            closed_request_sheet_count: {
-              $sum: {
-                $cond: [
-                  { $eq: ["$requestSheetStatusOfCM", "Completed"] },
-                  1,
-                  0,
-                ],
-              },
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-          },
-        },
-      ]);
-
-      res.json({
-        reqSheetCM,
-        counters: {
-          ...counters?.[0],
-        },
-        message: "Request-sheet fetched successfully",
-      });
-    } catch (error) {
-      console.log(error);
+      };
     }
+    return next();
+  }),
+  getRequestSheetData,
+  tryCatchHandler(async (req, res, next) => {
+    const counters = await RequestSheetOfCM.aggregate([
+      {
+        $match: req.queryObj,
+      },
+      {
+        $group: {
+          _id: null,
+          total_request_sheet_count: {
+            $sum: 1,
+          },
+          open_request_sheet_count: {
+            $sum: {
+              $cond: [{ $ne: ["$requestSheetStatusOfCM", "Completed"] }, 1, 0],
+            },
+          },
+          closed_request_sheet_count: {
+            $sum: {
+              $cond: [{ $eq: ["$requestSheetStatusOfCM", "Completed"] }, 1, 0],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+    ]);
+
+    successResponse(res, "Request-sheet fetched successfully", {
+      reqSheetCM: req.requestSheetData,
+      counters: {
+        ...counters?.[0],
+      },
+    });
   })
 );
 
@@ -914,17 +830,61 @@ router.get(
 router.get(
   "/getReqSheetDataByID/:selectedId",
   authenticate,
+  tryCatchHandler(async (req, res, next) => {
+    req.queryObj = {
+      _id: mongoose.Types.ObjectId(req.query?.selectedId),
+    };
+    return next();
+  }),
   getRequestSheetData,
-  async (req, res) => {
-    try {
-      res.status(200).json({
-        requestSheet: req?.requestSheetData?.[0],
-        message: "Request sheet fetched successfully",
-      });
-    } catch (error) {
-      console.log(error);
+  tryCatchHandler(async (req, res) => {
+    successResponse(res, "Request sheet fetched successfully", {
+      requestSheet: req?.requestSheetData?.[0],
+    });
+  })
+);
+
+router.patch(
+  "/approveOrRejectRequestSheet/:requestSheetID",
+  authenticate,
+  commonKeyGenerationMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    const { requestSheetID } = req.params;
+
+    const isRequestSheetExist = await RequestSheetOfCM.findById(requestSheetID);
+
+    if (!isRequestSheetExist) {
+      return res.status(404).json({ message: "Request sheet not found" });
     }
-  }
+
+    let updateObj = {
+      $set: {
+        [req.allKeys?.[`approvalOf${req?.query?.department}`]?.approvalStatus]:
+          "Accepted",
+        [req.allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
+      },
+    };
+
+    if (isRequestSheetExist) {
+    }
+
+    const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
+      {
+        _id: mongoose.Types.ObjectId(req.params?.reqId),
+      },
+      updateObj,
+      {
+        arrayFilters: [
+          {
+            "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
+              currentYear,
+          },
+          { "quarterFilter.requestSheet_quarter": getFinancialQuarter() },
+        ],
+        new: true,
+      }
+    );
+  })
 );
 
 router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
@@ -995,7 +955,6 @@ router.patch("/approvalOfHOS/:requestSheetID", async (req, res) => {
     if (!requestSheet) {
       return res.status(404).json({ message: "Request sheet not found" });
     }
-    console.log(cmSelectedSheetForView);
 
     if (approvalOfRequestSheet === "Yes") {
       requestSheet.approvalStatusOfMTD_HOS.pop();
