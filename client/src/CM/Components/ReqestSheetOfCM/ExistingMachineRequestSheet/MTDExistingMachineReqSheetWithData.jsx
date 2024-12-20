@@ -198,12 +198,15 @@ const MTDExistingMachineReqSheetWithData = ({
       const { ...otherFields } = requestSheetDataOfCM;
       for (
         let i = 0;
-        i < requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.length;
+        i <
+        requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser
+          ?.length;
         i++
       ) {
         formData.append(
           "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
-          requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.[i]
+          requestSheetDataOfCM?.cmBasicDataFilledByMTD_TL
+            ?.attachedFilesByMTDUser?.[i]
         );
       }
       // console.log(otherFields)
@@ -252,15 +255,13 @@ const MTDExistingMachineReqSheetWithData = ({
                       id="rs-top-btns"
                       data-html2canvas-ignore="true"
                       className="col-auto d-flex gap-2 align-items-center"
-                    >
-                    </Col>
+                    ></Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
                       <h4 className="m-0">
                         CM REQUEST SHEET (EXISTING MACHINE)
                       </h4>
                     </Col>
-
                   </Row>
                 </Container>
               </td>
@@ -843,10 +844,16 @@ const MTDExistingMachineReqSheetWithData = ({
                           multiple
                           // accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
-                            setValue("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", e.target.files, {
-                              shouldDirty: true,
-                            });
-                            clearErrors("cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser");
+                            setValue(
+                              "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
+                              e.target.files,
+                              {
+                                shouldDirty: true,
+                              }
+                            );
+                            clearErrors(
+                              "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser"
+                            );
                           }}
                         />
                         {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (

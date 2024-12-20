@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const userObj = {
+  userRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
   user_type: { type: String },
   tm_no: { type: Number },
   tm_name: { type: String },

@@ -7,21 +7,6 @@ module.exports = tryCatchHandler(async (req, res, next) => {
     let queryObj = {},
       queryObjForPM = {};
 
-    // if (req.query?.selectedYear) {
-    //   queryObj = {
-    //     "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-    //       req.query?.selectedYear,
-    //   };
-    // }
-
-    // if (req.query?.selectedMonth) {
-    //   queryObj = {
-    //     ...queryObj,
-    //     "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-    //       req.query?.selectedMonth,
-    //   };
-    // }
-
     if (req.query?.selectedYear) {
       queryObj = {
         commonDataFilledByAssignUser: {

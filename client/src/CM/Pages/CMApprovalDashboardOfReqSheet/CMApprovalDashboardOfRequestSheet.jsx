@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
@@ -20,7 +20,6 @@ import tableIcons from "../../../components/MatrialTableIcon";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
-import RoutingContext from "../../../context/routing/RoutingContext";
 import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 import axios from "axios";
 import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
@@ -31,7 +30,6 @@ const CMApprovalDashboardOfRequestSheet = () => {
     reducer,
     initialState("Yes")
   );
-  const loggedUserDetails = useContext(RoutingContext);
   const { register, handleSubmit, watch, errors } = useForm({});
   const [loading, setLoading] = useState(true);
   const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState(null);
@@ -118,7 +116,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
 
     try {
       const response = await axios.get(
-        `/getMachineRequestSheetDetailsForApprovalForCM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&getDataForApprovalDashboardId=${loggedUserDetails?._id}`
+        `/getMachineRequestSheetDetailsForApprovalForCM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`
       );
       console.log(response);
       if (response?.status === 201) {
