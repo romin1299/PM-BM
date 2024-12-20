@@ -240,7 +240,8 @@ router.get(
 const quarterlyDataAdd = (
   plannedDateAndTimeOfCM,
   frequencyValue,
-  assignUserForCM
+  assignUserForCM,
+  frequencyType
 ) => {
   const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
   const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM); // Get the starting quarter
@@ -250,10 +251,10 @@ const quarterlyDataAdd = (
   const totalYears = 5; // Generate data for 4 years
   const currentYear = moment(new Date()).tz(timezone).year();
   const currentQuarterIndex = Math.floor(moment(new Date()).month() / 3);
+  let modifiedPlannedDateAndTimeOfCM;
 
   for (let year = currentYear; year < currentYear + totalYears; year++) {
     const yearlyDataObject = {
-      plannedDateAndTimeOfCM: plannedDateAndTimeOfCM.replace(currentYear, year),
       preAggregationTimeStampOfRequestSheet: {
         requestSheet_year: `${year}-${year + 1}`,
         requestSheet_month: gettingMonthForSelectedDate(plannedDateAndTimeOfCM),
@@ -289,11 +290,13 @@ const quarterlyDataAdd = (
           plannedQuarterIndex,
           (plannedQuarterIndex + 2) % 4, // Alternate quarters
         ];
-
         if (year === currentYear) {
           // Current year: exclude past quarters
           isPlanned =
             alternatingQuarters.includes(i) && i >= currentQuarterIndex;
+
+          if (alternatingQuarters.includes(i))
+            modifiedPlannedDateAndTimeOfCM = plannedDateAndTimeOfCM;
         } else {
           // Future years: alternate as per the pattern
           isPlanned = alternatingQuarters.includes(i);
@@ -306,15 +309,32 @@ const quarterlyDataAdd = (
       }
 
       if (isPlanned) {
+        //for other frequency
+        if (frequencyValue !== "1/6 M")
+          modifiedPlannedDateAndTimeOfCM = plannedDateAndTimeOfCM.replace(
+            currentYear,
+            year
+          );
         yearlyDataObject?.quarterlyDataOfTheCM?.push({
+          plannedDateAndTimeOfCM: modifiedPlannedDateAndTimeOfCM,
           requestSheet_quarter: quarter,
           statusOfPlannedCM: "Planned",
           assignUserForCM,
         });
+
+        if (frequencyValue === "1/6 M") {
+          modifiedPlannedDateAndTimeOfCM = moment(
+            modifiedPlannedDateAndTimeOfCM
+          ).add(6, "month");
+        }
       }
     }
 
-    plannedData?.push(yearlyDataObject);
+    if (yearlyDataObject?.quarterlyDataOfTheCM?.length > 0) {
+      plannedData?.push(yearlyDataObject);
+    }
+
+    if (frequencyType === "One-time") break;
   }
 
   return plannedData;
@@ -382,7 +402,9 @@ router.post(
       requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
         ?.frequencyValue,
-      requestSheetDataFilledByMTDUserForCM?.assignUserForCM
+      requestSheetDataFilledByMTDUserForCM?.assignUserForCM,
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+        ?.frequencyType
     );
 
     let requestSheetOfCM = new RequestSheetOfCM({
@@ -669,7 +691,7 @@ const getRequestSheetData = async (req, res, next) => {
           attachedDrawings: 1,
           categoriesOfRequestSheet: 1,
           yokotenkai: 1,
-          commonDataFilledByAssignUser: 1
+          commonDataFilledByAssignUser: 1,
         },
       },
     ]);
