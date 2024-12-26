@@ -365,9 +365,6 @@ const ExistinngMachineReqSheetForOperator = ({
     // if (checkWhetherAnyErrorOccurredOrNot > 0) {
     //   return;
     // }
-    requestSheetDataOfCM.changedParts = parts;
-    requestSheetDataOfCM.workDetails = workDetails;
-    requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
     try {
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
