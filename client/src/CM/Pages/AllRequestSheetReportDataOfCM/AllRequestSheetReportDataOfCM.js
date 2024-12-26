@@ -55,6 +55,8 @@ const AllRequestSheetReportDataOfCM = () => {
     reducer,
     initialState("Yes")
   );
+  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState();
+
   const [loading, setLoading] = useState(false);
   const [CmReqSheetView, setCmReqSheetView] = useState(false);
   const [counters, setCounters] = useState([]);
@@ -230,6 +232,7 @@ const AllRequestSheetReportDataOfCM = () => {
         setCmReqSheetView(true);
         setIsEditable(true);
         setCmSelectedSheetForView(selectedRow);
+        setSelectedRowRequestSheetId(selectedRow?._id);
       },
     }),
     (row) => ({
@@ -240,7 +243,7 @@ const AllRequestSheetReportDataOfCM = () => {
         // console.log(event, selectedRow);
         setCmReqSheetView(true);
         setIsEditable(false);
-        setCmSelectedSheetForView(selectedRow);
+        setSelectedRowRequestSheetId(selectedRow?._id);
       },
     }),
   ];
@@ -525,7 +528,7 @@ const AllRequestSheetReportDataOfCM = () => {
       </Container>
       {CmReqSheetView && (
         <>
-          <Modal
+          {/* <Modal
             show={CmReqSheetView}
             fullscreen
             aria-labelledby="contained-modal-title-vcenter"
@@ -551,18 +554,20 @@ const AllRequestSheetReportDataOfCM = () => {
               </Button>
             </Modal.Header>
             <Modal.Body>
-              {cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
-              cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
-              cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
-              cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
-                <div>
-                  <ExistingMachineReqSheetView
-                    cmSelectedSheetForView={cmSelectedSheetForView}
-                    isEditable={isEditable}
-                    setCmReqSheetView={setCmReqSheetView}
-                  />
-                </div>
-              ) : (
+              {
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
+                cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
+                  <div>
+                    <ExistingMachineReqSheetWithData
+                      selectedRowRequestSheetId={selectedRowRequestSheetId}
+                      isEditable={isEditable}
+                      setCmReqSheetView={setCmReqSheetView}
+                      CmReqSheetView={CmReqSheetView}
+                    />
+                  </div>
+                ) :
                 <div>
                   <MTDExistingMachineReqSheetWithData
                     cmSelectedSheetForView={cmSelectedSheetForView}
@@ -570,9 +575,29 @@ const AllRequestSheetReportDataOfCM = () => {
                     setCmReqSheetView={setCmReqSheetView}
                   />
                 </div>
-              )}
+              }
             </Modal.Body>
-          </Modal>
+          </Modal> */}
+
+          {
+            // cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
+            //   cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
+            //   cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
+            //   (cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" && (
+            <div>
+              <ExistingMachineReqSheetWithData
+                selectedRowRequestSheetId={selectedRowRequestSheetId}
+                isEditable={isEditable}
+                setCmReqSheetView={setCmReqSheetView}
+                CmReqSheetView={CmReqSheetView}
+              />
+              <MTDExistingMachineReqSheetWithData
+                // cmSelectedSheetForView={cmSelectedSheetForView}
+                isEditable={isEditable}
+                setCmReqSheetView={setCmReqSheetView}
+              />
+            </div>
+          }
         </>
       )}
     </>

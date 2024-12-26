@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
 import Loading from "../../../../components/Loading/Loading";
@@ -9,7 +9,6 @@ import ExistingMachineReqSheetView from "../ExistingMachineRequestSheet/Existing
 
 const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   // const [dataOfLTPM, setDataOfLTPM] = useState([]);
-
   const currentYear = 2025;
   const yearsOfLTPM = Array.from({ length: 5 }, (_, i) => currentYear + i);
   // const [visibleYears, setVisibleYears] = useState(yearsOfLTPM.slice(0, 4));
@@ -92,6 +91,53 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 
   const openModalOfRequestSheetOfCm = () => {
     setCmReqSheetView((CmReqSheetView) => !CmReqSheetView);
+  };
+
+  const displayPlannedDataOfTheLTPM = (item, item2) => {
+    for (let i = 0; i < LTPMData?.yearList?.length; i++) {
+      let year = LTPMData?.yearList[i];
+      let yearAddition = `${year}-${year + 1}`;
+      if (
+        yearAddition ===
+        item2.preAggregationTimeStampOfRequestSheet?.requestSheet_year
+      ) {
+        for (let quarterValue of ["Q1", "Q2", "Q3", "Q4"]) {
+          for (
+            let index = 0;
+            index < item2?.quarterlyDataOfTheCM?.length;
+            index++
+          ) {
+            if (
+              quarterValue ===
+              item2?.quarterlyDataOfTheCM?.[index]?.requestSheet_quarter
+            ) {
+              return (
+                <td className="ar-table-col">
+                  {item2?.quarterlyDataOfTheCM?.[index]?.statusOfPlannedCM ===
+                    "Planned" && (
+                    <>
+                      <button
+                        type="button"
+                        className="commonBtn viewRequestSheetOfCMBtn"
+                        onClick={() => {
+                          openModalOfRequestSheetOfCm();
+                          setSelectedRowRequestSheetId(item?._id?._id);
+                        }}
+                      >
+                        --&gt;
+                      </button>
+                    </>
+                  )}
+                </td>
+              );
+            } else {
+              return <td className="ar-table-col">gj</td>;
+            }
+          }
+        }
+        break;
+      }
+    }
   };
 
   return (
@@ -258,11 +304,17 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                       <thead>
                         <tr>
                           <th colSpan={8}></th>
-                          {LTPMData?.yearList?.map((year, idx) => (
-                            <th className="ar-table-col1" colSpan={4} key={idx}>
-                              {year}-{year + 1}
-                            </th>
-                          ))}
+                          {LTPMData?.yearList?.map((year, idx) => {
+                            return (
+                              <th
+                                className="ar-table-col1"
+                                colSpan={4}
+                                key={idx}
+                              >
+                                {year}-{year + 1}
+                              </th>
+                            );
+                          })}
                         </tr>
                       </thead>
                       <thead className="mt-5">
@@ -326,32 +378,9 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                                     {item1?.personForLTPM}
                                   </td>
                                   <td className="ar-table-thead-header3"></td>
-
                                   {item1?.commonDataFilledByAssignUser?.map(
                                     (item2) =>
-                                      item2?.quarterlyDataOfTheCM?.map(
-                                        (item3) => (
-                                          <td className="ar-table-col">
-                                            {item3?.statusOfPlannedCM ===
-                                              "Planned" && (
-                                              <>
-                                                <button
-                                                  type="button"
-                                                  className="commonBtn viewRequestSheetOfCMBtn"
-                                                  onClick={() => {
-                                                    openModalOfRequestSheetOfCm();
-                                                    setSelectedRowRequestSheetId(
-                                                      item?._id?._id
-                                                    );
-                                                  }}
-                                                >
-                                                  --&gt;
-                                                </button>
-                                              </>
-                                            )}
-                                          </td>
-                                        )
-                                      )
+                                      displayPlannedDataOfTheLTPM(item, item2)
                                   )}
                                 </tr>
                               ))}

@@ -795,16 +795,18 @@ const ExistingMachineReqSheetView = ({
             </Table>
           </form>
 
-          {(context?.user_type === "Operator" ||
-            cmSelectedSheetForView?.assigned_users?.length > 0) &&
-            (cmSelectedSheetForView?.requestSheetStatusOfCM !== "Generated" ||
-              isEditable === true) && (
+          {
+            // context?.user_type === "Operator" ||
+            // cmSelectedSheetForView?.assigned_users?.length > 0) &&
+            // (cmSelectedSheetForView?.requestSheetStatusOfCM !== "Generated" ||
+            //   isEditable === true) && (
+            cmSelectedSheetForView && (
               <ExistinngMachineReqSheetForOperator
                 isEditable={isEditable}
                 cmSelectedSheetForView={cmSelectedSheetForView}
-                setCmReqSheetView={setCmReqSheetView}
               />
-            )}
+            )
+          }
         </div>
       </Modal.Body>
     </Modal>

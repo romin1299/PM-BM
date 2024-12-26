@@ -208,7 +208,6 @@ const WorkDetails = ({
           >
             <small>
               <b>Work {index + 1}</b>
-              {console.log("work ", work)}
             </small>
           </Col>
           <Col
@@ -255,7 +254,6 @@ const WorkDetails = ({
             md={2}
             className="border col-auto d-flex align-items-center gap-1"
           >
-            {console.log("edit", editedWork)}
             {editedWork && editedWork.id === work.id ? (
               <input
                 type="datetime-local"
