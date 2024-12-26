@@ -1,36 +1,20 @@
-// import React from "react";
-// import Table from "react-bootstrap/Table";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
 
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Box, Button, Tooltip, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
-import { exportPDF } from "../../Utils/exportPDF/exportPDF";
-
-const list = [
-  { key: "A", value: "A" },
-  { key: "B", value: "B" },
-  { key: "C", value: "C" },
-  { key: "D", value: "D" },
-];
+import ShiftInputField from "../../../CM/Components/ReqestSheetOfCM/RSComponents/ShiftInputField";
 
 function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
-  // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { machine_code, generateType, requestSheetID, selectedYear } =
     useParams();
@@ -51,55 +35,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
 
   const selectedRequestSheetData = useLocation();
   const loggedUserDetails = useContext(RoutingContext);
-  // console.log(selectedRequestSheetData?.state?.selectedRow)
-
-  // const [selectedShift, setSelectedShift] = useState("");
-  // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
-  // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
-  // const [selectedQuality, setSelectedQuality] = useState("");
-  // const [selectedMachineDetails, setMachineDetails] = useState("");
-
-  // const handleSelectShift = (key, event) => {
-  //   setSelectedShift({ key, value: event.target.value });
-  // };
-
-  // const handleMaintenanceType = (event) => {
-  //   setSelectedMaintenanceType(event.target.value);
-  // };
-  // const handlePriorityCode = (event) => {
-  //   setSelectedPriorityCode(event.target.value);
-  // };
-  // const handleQuality = (event) => {
-  //   setSelectedQuality(event.target.value);
-  // };
-
-  const [shiftOfBM, setShiftOfBM] = useState([]);
-  React.useEffect(() => {
-    const fetchShiftData = async () => {
-      const url = "/getAllShifts";
-
-      try {
-        const res = await axios.get(url, {
-          withCredentials: true,
-          credentials: "include",
-        });
-
-        // console.log("fetch shifts res:", res);
-        setShiftOfBM(res?.data?.getShifts);
-      } catch (error) {
-        console.log("error:", error);
-      }
-    };
-
-    fetchShiftData();
-  }, []);
-
   const newRequestSheetRegistration = async (requestSheetData) => {
-    // const machineRef = "63b67ccea716e21c95cd471a";
-    // requestSheetData.maintenanceType = selectedMaintenanceType;
-    // requestSheetData.priorityCode = selectedPriorityCode;
-    // requestSheetData.qualityRelated = selectedQuality;
-    // requestSheetData.shiftOfBM = selectedShift;
     const formData = new FormData();
     let { ...otherFields } = requestSheetData;
 
@@ -115,9 +51,6 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
         `/newRequestSheetRegistration/?reqId=${requestSheetID}&&machineRef=${machine_code}`,
         {
           method: "POST",
-          // headers: {
-          //   "Content-Type": "application/json",
-          // },
           body: formData,
         }
       );
@@ -260,10 +193,13 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                           // navigate(
                           //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
                           // );
-                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,"_blank")
+                          window.open(
+                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,
+                            "_blank"
+                          );
                         }}
                       >
-                       Machine Details
+                        Machine Details
                       </button>
                     </Col>
 
@@ -884,37 +820,10 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
               </td>
 
               <td className="border p-3 col-lg-4 col-md-4 col-sm-12">
-                <Row className="m-0">
-                  <Col className="border p-2">
-                    <FormControl>
-                      <FormLabel id="demo-radio-buttons-group-label">
-                        <small>
-                          <b>SHIFT</b>
-                        </small>
-                      </FormLabel>
-
-                      {watch("shiftOfBM") && (
-                        <RadioGroup
-                          row
-                          value={watch("shiftOfBM")}
-                          aria-labelledby="demo-radio-buttons-group-label"
-                          name="radio-buttons-group"
-                        >
-                          {shiftOfBM.map((shiftInfo) => (
-                            <FormControlLabel
-                              value={shiftInfo.shiftName}
-                              control={<Radio color="default" size="small" />}
-                              label={shiftInfo.shiftName}
-                              disabled={
-                                watch("shiftOfBM") !== shiftInfo.shiftName
-                              }
-                            />
-                          ))}
-                        </RadioGroup>
-                      )}
-                    </FormControl>
-                  </Col>
-                </Row>
+                <ShiftInputField
+                  shiftOfBM={watch("shiftOfBM")}
+                  setValue={setValue}
+                />
 
                 <Row className="m-0">
                   <Col className="border p-2">

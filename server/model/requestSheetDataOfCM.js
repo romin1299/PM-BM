@@ -184,6 +184,10 @@ const requestSheetOfCMSchema = new mongoose.Schema({
             type: String,
           },
 
+          rejectedRemarksOfRequestSheet: {
+            type: [String],
+          },
+
           requestSheetStatusOfCM: {
             type: String,
             default: "Generated",

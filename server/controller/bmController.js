@@ -3813,23 +3813,33 @@ router.patch(
     }
   }
 );
-router.get(
-  "/getAllShifts",
-  authenticate,
-
-  async (req, res, next) => {
-    const shifts = await Plant.find({
+router.get("/getAllShifts", authenticate, async (req, res, next) => {
+  try {
+    const plant = await Plant.findOne({
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
-    let getShifts = shifts?.[0]?.shiftOfBM;
+
+    if (!plant?.shiftOfBM) {
+      return res.status(400).json({ message: "Shift data is not available" });
+    }
+
+    const responseObj = {
+      getShifts: plant?.shiftOfBM,
+    };
+
+    if (req?.query?.wantCategories) {
+      responseObj.categories = plant?.categories;
+    }
 
     return res.status(201).json({
       message: "Shifts get successfully",
-      getShifts,
-      categories: shifts?.[0]?.categories,
+      ...responseObj,
     });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
+    res.status(500).json({ message: error?.message, error });
   }
-);
+});
 router.post(
   "/addShift",
   authenticate,

@@ -237,6 +237,17 @@ router.get(
   })
 );
 
+router.get(
+  "/getSupportingTMDetailsForRequestSheetOfCM",
+  authenticate,
+  findTLandOperatorList,
+  tryCatchHandler(async (req, res, next) => {
+    successResponse(res, "User data get successfully", {
+      TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
+    });
+  })
+);
+
 const quarterlyDataAdd = (
   plannedDateAndTimeOfCM,
   frequencyValue,
@@ -443,8 +454,8 @@ router.patch(
       requestSheetDataFilledByMTDUserForCM,
       { new: true }
     );
-    res.status(200).json({
-      message: "CM Request-sheet updated successfully",
+
+    successResponse(res, "CM Request-sheet updated successfully", {
       data: updatedRequestSheetOfCM,
     });
   }
@@ -461,18 +472,7 @@ const commonKeyGenerationMiddleware = tryCatchHandler(
       approvalOfPRD_TL: `${commonKey}.approvalOfPRD_TL`,
       requestSheetStatusOfCM: `${commonKey}.requestSheetStatusOfCM`,
     };
-
-    if (req?.url?.split("/")?.includes("sendApprovalForRequestSheetOfCM")) {
-      allKeys = {
-        ...allKeys,
-        attachedFileByAssignedUser: `${commonKey}.attachedFileByAssignedUser`,
-        getDataForApprovalDashboard: `${commonKey}.getDataForApprovalDashboard`,
-        workDetails: `${commonKey}.workDetails`,
-        changedParts: `${commonKey}.changedParts`,
-        actionAndCounterMeasureStep: `${commonKey}.actionAndCounterMeasureStep`,
-      };
-    }
-
+    req.commonKey = commonKey;
     req.allKeys = allKeys;
     return next();
   }
@@ -481,13 +481,21 @@ const commonKeyGenerationMiddleware = tryCatchHandler(
 router.patch(
   "/sendApprovalForRequestSheetOfCM/:reqId/:machineRef",
   authenticate,
-  dashboardLevelUserCheckMiddleware,
   uploadDataSheetsOfBD.fields([
     { name: "attachedFileByAssignedUser", maxCount: 10 },
   ]),
   commonKeyGenerationMiddleware,
   async (req, res, next) => {
     try {
+      const allKeys = {
+        ...req.allKeys,
+        attachedFileByAssignedUser: `${req?.commonKey}.attachedFileByAssignedUser`,
+        getDataForApprovalDashboard: `${req?.commonKey}.getDataForApprovalDashboard`,
+        workDetails: `${req?.commonKey}.workDetails`,
+        changedParts: `${req?.commonKey}.changedParts`,
+        actionAndCounterMeasureStep: `${req?.commonKey}.actionAndCounterMeasureStep`,
+      };
+
       let commonApprovalStatusObj = {
         approvalStatus: "Pending",
         approvalDateAndTime: "",
@@ -497,7 +505,7 @@ router.patch(
         req.body.otherData
       );
 
-      let _ids = {
+      let user_ids = {
         ID_MTD_HOS:
           requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
         ID_MTD_TL: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
@@ -505,13 +513,16 @@ router.patch(
       };
 
       delete requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS["_id"];
-      delete requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL["_id"];
-      delete requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL["_id"];
+      if (requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id)
+        delete requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL["_id"];
+      if (requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL?._id)
+        delete requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL["_id"];
 
       let updateObj = {
         $push: {
-          [req.allKeys?.approvalOfMTD_HOS]: {
+          [allKeys?.approvalOfMTD_HOS]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS,
+            userRef: user_ids?.ID_MTD_HOS,
             ...commonApprovalStatusObj,
             approvalDateAndTime: new Date(),
           },
@@ -526,7 +537,7 @@ router.patch(
           req.files?.attachedFileByAssignedUser?.[0]?.filename;
 
         updateObj.$set = {
-          [req.allKeys?.attachedFileByAssignedUser]:
+          [allKeys?.attachedFileByAssignedUser]:
             req.files?.attachedFileByAssignedUser?.[0]?.filename,
         };
       }
@@ -534,15 +545,16 @@ router.patch(
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
-          [req.allKeys?.approvalOfMTD_TL]: {
+          [allKeys?.approvalOfMTD_TL]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL,
+            userRef: user_ids?.ID_MTD_TL,
             ...commonApprovalStatusObj,
           },
         };
         updateObj.$set = {
           ...updateObj.$set,
-          [req.allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
-          [req.allKeys?.getDataForApprovalDashboard]: {
+          [allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
+          [allKeys?.getDataForApprovalDashboard]: {
             Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
             departmentAndGradeOfUser: "MTD TL/HOSS",
           },
@@ -550,36 +562,31 @@ router.patch(
       } else {
         updateObj.$set = {
           ...updateObj.$set,
-          [req.allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
-          [req.allKeys?.getDataForApprovalDashboard]: {
+          [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
+          [allKeys?.getDataForApprovalDashboard]: {
             Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
             departmentAndGradeOfUser: "MTD HOS",
           },
-
-          // requestSheetStatusOfCM: "Under MTD HOS Approval",
-          // "getDataForApprovalDashboard.Id":
-          //   requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
-          // "getDataForApprovalDashboard.departmentAndGradeOfUser": "MTD HOS",
-          // approvalDateAndTimeOfMTD_TL: new Date(),
         };
       }
 
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL === "Yes") {
         updateObj.$push = {
           ...updateObj.$push,
-          [req.allKeys?.approvalOfPRD_TL]: {
+          [allKeys?.approvalOfPRD_TL]: {
             ...requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL,
+            userRef: user_ids?.ID_PRD_TL,
             ...commonApprovalStatusObj,
           },
         };
       }
       updateObj.$set = {
         ...updateObj.$set,
-        [req.allKeys?.workDetails]:
+        [allKeys?.workDetails]:
           requestSheetDataFilledByMTDUserForCM?.workDetails,
-        [req.allKeys?.changedParts]:
+        [allKeys?.changedParts]:
           requestSheetDataFilledByMTDUserForCM?.changedParts,
-        [req.allKeys?.actionAndCounterMeasureStep]:
+        [allKeys?.actionAndCounterMeasureStep]:
           requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
       };
 
@@ -678,8 +685,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
             0,
           ],
         },
-
-        //only for material table purpose
         cell: {
           $arrayElemAt: ["$plantToMachineHierarchy.cell.cell_name", 0],
         },
@@ -747,6 +752,12 @@ router.get(
           },
         },
     };
+
+    req.otherProjection = {
+      machineName: {
+        $arrayElemAt: ["$plantToMachineHierarchy.machine.machine_name", 0],
+      },
+    };
     return next();
   }),
   getRequestSheetData,
@@ -779,7 +790,7 @@ router.get(
         ...req.queryObj,
         "commonDataFilledByAssignUser.quarterlyDataOfTheCM.assignUserForCM": {
           $elemMatch: {
-            _id: mongoose.Types.ObjectId(req.rootUser?._id),
+            userRef: mongoose.Types.ObjectId(req.rootUser?._id),
           },
         },
       };
@@ -832,7 +843,7 @@ router.get(
   authenticate,
   tryCatchHandler(async (req, res, next) => {
     req.queryObj = {
-      _id: mongoose.Types.ObjectId(req.query?.selectedId),
+      _id: mongoose.Types.ObjectId(req.params?.selectedId),
     };
     return next();
   }),
@@ -857,20 +868,134 @@ router.patch(
       return res.status(404).json({ message: "Request sheet not found" });
     }
 
+    const {
+      current_commonDataFilledByAssignUser,
+      approvalOfRequestSheet,
+      rejectedRemarksOfRequestSheet,
+    } = req.body;
+
+    let department;
+    if (
+      req?.rootUser?.user_type === "TL/HOSS" &&
+      req?.rootUser?.tm_department === "MTD"
+    ) {
+      department = "MTD_TL";
+    } else if (req?.rootUser?.user_type === "Section-Admin") {
+      department = "MTD_HOS";
+    } else if (
+      req?.rootUser?.tm_department === "PRD" &&
+      req?.rootUser?.user_type === "TL/HOSS"
+    ) {
+      department = "PRD_TL";
+    }
+
+    if (!department) {
+      return res
+        .status(400)
+        .json({ message: "Unauthorized department user!!!" });
+    }
+
+    let ObjForUserFilter =
+      current_commonDataFilledByAssignUser?.[`approvalOf${department}`]?.[
+        current_commonDataFilledByAssignUser?.[`approvalOf${department}`]
+          ?.length - 1
+      ];
+
+    if (!ObjForUserFilter) {
+      return res.status(404).json({ message: "User not assigned" });
+    }
+
+    if (ObjForUserFilter?.approvalStatus !== "Pending") {
+      return res.status(400).json({
+        message: `${ObjForUserFilter?.tm_no} : ${ObjForUserFilter?.tm_name}'s status is not pending`,
+      });
+    }
+
+    if (ObjForUserFilter?._id !== req?.rootUser?._id) {
+      return res
+        .status(404)
+        .json({ message: "Unauthorized user for approval" });
+    }
+
+    const allKeys = {
+      ...req.allKeys,
+      getDataForApprovalDashboard: `${req?.commonKey}.getDataForApprovalDashboard`,
+      approvalObj: `${req?.allKeys?.[`approvalOf${department}`]}.$[userFilter]`,
+    };
+
     let updateObj = {
       $set: {
-        [req.allKeys?.[`approvalOf${req?.query?.department}`]?.approvalStatus]:
-          "Accepted",
-        [req.allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
+        [`${allKeys?.approvalObj}.approvalDateAndTime`]: new Date(),
       },
     };
 
-    if (isRequestSheetExist) {
-    }
+    let NULL_Obj_getDataForApprovalDashboard = {
+      Id: null,
+      departmentAndGradeOfUser: null,
+    };
 
+    if (approvalOfRequestSheet === "No") {
+      updateObj.$set = {
+        ...updateObj?.$set,
+        [`${allKeys?.approvalObj}.approvalStatus`]: "Rejected",
+        [`${allKeys?.approvalObj}.rejectedRemarks`]:
+          rejectedRemarksOfRequestSheet,
+        [allKeys?.requestSheetStatusOfCM]: "Rejected",
+        [allKeys?.getDataForApprovalDashboard]:
+          NULL_Obj_getDataForApprovalDashboard,
+      };
+    } else if (approvalOfRequestSheet === "Yes") {
+      updateObj.$set = {
+        ...updateObj?.$set,
+        [`${allKeys?.approvalObj}.approvalStatus`]: "Accepted",
+      };
+
+      if (department === "MTD_TL") {
+        let approvalOfMTD_HOS =
+          current_commonDataFilledByAssignUser?.approvalOfMTD_HOS?.[
+            current_commonDataFilledByAssignUser?.approvalOfMTD_HOS?.length - 1
+          ];
+        updateObj.$set = {
+          ...updateObj?.$set,
+          [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
+          [allKeys?.getDataForApprovalDashboard]: {
+            Id: approvalOfMTD_HOS?.userRef,
+            departmentAndGradeOfUser: approvalOfMTD_HOS?.user_type,
+          },
+        };
+      } else if (department === "MTD_HOS") {
+        let approvalOfPRD_TL =
+          current_commonDataFilledByAssignUser?.approvalOfPRD_TL?.[
+            current_commonDataFilledByAssignUser?.approvalOfPRD_TL?.length - 1
+          ];
+
+        if (
+          approvalOfPRD_TL?.userRef &&
+          approvalOfPRD_TL?.approvalStatus === "Pending"
+        ) {
+          updateObj.$set = {
+            ...updateObj?.$set,
+            [allKeys?.requestSheetStatusOfCM]: "Under PRD TL Approval",
+            [allKeys?.getDataForApprovalDashboard]: {
+              Id: approvalOfPRD_TL?.userRef,
+              departmentAndGradeOfUser: approvalOfPRD_TL?.user_type,
+            },
+          };
+        } else completeApproval();
+      } else if (department === "PRD_TL") completeApproval();
+
+      function completeApproval() {
+        updateObj.$set = {
+          ...updateObj?.$set,
+          [allKeys?.requestSheetStatusOfCM]: "Completed",
+          [allKeys?.getDataForApprovalDashboard]:
+            NULL_Obj_getDataForApprovalDashboard,
+        };
+      }
+    }
     const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
       {
-        _id: mongoose.Types.ObjectId(req.params?.reqId),
+        _id: mongoose.Types.ObjectId(requestSheetID),
       },
       updateObj,
       {
@@ -880,173 +1005,17 @@ router.patch(
               currentYear,
           },
           { "quarterFilter.requestSheet_quarter": getFinancialQuarter() },
+          { "userFilter._id": mongoose.Types.ObjectId(ObjForUserFilter?._id) },
         ],
         new: true,
       }
     );
+
+    successResponse(res, "Request-sheet approved successfully", {
+      requestSheetOfCM,
+    });
   })
 );
-
-router.patch("/approvalOfMTDTL/:requestSheetID", async (req, res) => {
-  try {
-    const { requestSheetID } = req.params;
-    const {
-      approvalOfRequestSheet,
-      rejectedRemarksOfRequestSheet,
-      cmSelectedSheetForView,
-    } = req.body;
-    // console.log(rejectedRemarksOfRequestSheet);
-    const requestSheet = await RequestSheetOfCM.findById(requestSheetID);
-
-    if (!requestSheet) {
-      return res.status(404).json({ message: "Request sheet not found" });
-    }
-
-    if (approvalOfRequestSheet === "Yes") {
-      requestSheet?.approvalStatusOfMTD_TL?.pop();
-      requestSheet?.approvalStatusOfMTD_TL?.push("Accepted");
-      requestSheet?.approvalDateAndTimeOfMTD_HOS?.push(""); //Need to append this date because of the indexing issue at frontend level.
-
-      // requestSheet.requestSheetStatusOfCM = "Accepted by MTD TL";
-      requestSheet.requestSheetStatusOfCM = "Under MTD HOS Approval";
-
-      if (cmSelectedSheetForView?.approvalOfMTD_HOS?.tm_no) {
-        requestSheet.getDataForApprovalDashboard = {
-          Id: cmSelectedSheetForView?.approvalOfMTD_HOS?._id,
-          departmentAndGradeOfUser:
-            cmSelectedSheetForView?.approvalOfMTD_HOS?.user_type,
-        };
-      }
-    } else if (approvalOfRequestSheet === "No") {
-      requestSheet.approvalStatusOfMTD_TL.pop();
-      requestSheet.approvalStatusOfMTD_TL.push("Rejected");
-      requestSheet.getDataForApprovalDashboard = {
-        Id: null,
-        departmentAndGradeOfUser: null,
-      };
-
-      requestSheet.requestSheetStatusOfCM = "Rejected";
-      requestSheet.rejectedRemarksOfRequestSheet.push(
-        rejectedRemarksOfRequestSheet
-      );
-    }
-    requestSheet?.approvalDateAndTimeOfMTD_TL?.push(new Date());
-    await requestSheet.save();
-
-    res.status(200).json({
-      message: "Request sheet updated successfully",
-      requestSheet,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
-router.patch("/approvalOfHOS/:requestSheetID", async (req, res) => {
-  try {
-    const { requestSheetID } = req.params;
-    const {
-      approvalOfRequestSheet,
-      rejectedRemarksOfRequestSheet,
-      cmSelectedSheetForView,
-    } = req.body;
-
-    const requestSheet = await RequestSheetOfCM.findById(requestSheetID);
-
-    if (!requestSheet) {
-      return res.status(404).json({ message: "Request sheet not found" });
-    }
-
-    if (approvalOfRequestSheet === "Yes") {
-      requestSheet.approvalStatusOfMTD_HOS.pop();
-      requestSheet.approvalStatusOfMTD_HOS.push("Accepted");
-      if (!cmSelectedSheetForView?.approvalOfPRD_TL?._id) {
-        requestSheet.requestSheetStatusOfCM = "Completed";
-        requestSheet.getDataForApprovalDashboard = {
-          Id: null,
-          departmentAndGradeOfUser: null,
-        };
-      } else {
-        requestSheet.requestSheetStatusOfCM = "Under PRD TL Approval";
-        requestSheet.getDataForApprovalDashboard = {
-          Id: cmSelectedSheetForView?.approvalOfPRD_TL?._id,
-          departmentAndGradeOfUser:
-            cmSelectedSheetForView?.approvalOfPRD_TL?.user_type,
-        };
-      }
-    } else if (approvalOfRequestSheet === "No") {
-      requestSheet.approvalStatusOfMTD_HOS.pop();
-      requestSheet.approvalStatusOfMTD_HOS.push("Rejected");
-      requestSheet.getDataForApprovalDashboard = {
-        Id: null,
-        departmentAndGradeOfUser: null,
-      };
-
-      requestSheet.requestSheetStatusOfCM = "Rejected";
-      requestSheet.rejectedRemarksOfRequestSheet.push(
-        rejectedRemarksOfRequestSheet
-      );
-    }
-    requestSheet.approvalDateAndTimeOfMTD_HOS.push(new Date());
-
-    await requestSheet.save();
-
-    res.json({
-      message: "Request sheet updated successfully",
-      requestSheet,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
-router.patch("/approvalOfPRDTL/:requestSheetID", async (req, res) => {
-  try {
-    const { requestSheetID } = req.params;
-    const {
-      approvalOfRequestSheet,
-      rejectedRemarksOfRequestSheet,
-      cmSelectedSheetForView,
-    } = req.body;
-
-    const requestSheet = await RequestSheetOfCM.findById(requestSheetID);
-
-    if (!requestSheet) {
-      return res.status(404).json({ message: "Request sheet not found" });
-    }
-
-    if (approvalOfRequestSheet === "Yes") {
-      requestSheet.approvalStatusOfPRD_TL.pop();
-      requestSheet.approvalStatusOfPRD_TL.push("Accepted");
-
-      requestSheet.requestSheetStatusOfCM = "Completed";
-      requestSheet.getDataForApprovalDashboard = {
-        Id: null,
-        departmentAndGradeOfUser: null,
-      };
-    } else if (approvalOfRequestSheet === "No") {
-      requestSheet.approvalStatusOfPRD_TL.pop();
-      requestSheet.approvalStatusOfPRD_TL.push("Rejected");
-      requestSheet.getDataForApprovalDashboard = {
-        Id: null,
-        departmentAndGradeOfUser: null,
-      };
-
-      requestSheet.requestSheetStatusOfCM = "Rejected";
-      requestSheet.rejectedRemarksOfRequestSheet.push(
-        rejectedRemarksOfRequestSheet
-      );
-    }
-    requestSheet.approvalDateAndTimeOfPRD_TL.push(new Date());
-
-    await requestSheet.save();
-
-    res.json({
-      message: "Request sheet updated successfully",
-      requestSheet,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
 
 router.get(
   "/getApprovalLogsForCM/:filter/:selectedId",

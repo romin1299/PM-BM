@@ -24,7 +24,7 @@ import { Tooltip, OverlayTrigger } from "react-bootstrap";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import axios from "axios";
-import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 import moment from "moment";
 
 const locales = {
@@ -377,13 +377,12 @@ const ActivityCalendar = () => {
 
     return <EventCalendar {...toolbarProps} />;
   };
-  const [modalOpenForReqSheet, setModalOpenForReqSheet] = useState(false);
+  const [modalOpenForReqSheet, setModalOpenForReqSheet] = useState(true);
   const [reqSheetData, setReqSheetData] = useState();
   const getModalOpenForReqSheet = async (event) => {
     try {
       const response = await axios.get(`/getReqSheetDataByID/${event.id}`);
-      if (response.status === 200) {
-        console.log(response);
+      if (response.status === 201) {
         setReqSheetData(response.data.requestSheet?.[0]);
         setModalOpenForReqSheet(true);
       }
@@ -444,7 +443,7 @@ const ActivityCalendar = () => {
             </Modal.Header>
             <Modal.Body>
               <div>
-                <ExistingMachineReqSheetWithData
+                <ExistingMachineReqSheetView
                   cmSelectedSheetForView={reqSheetData}
                 />
               </div>

@@ -37,7 +37,7 @@ import {
   MaterialTableSX,
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import MaterialTable from "@material-table/core";
-import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
 // import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
@@ -556,7 +556,7 @@ const AllRequestSheetReportDataOfCM = () => {
               cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
               cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
                 <div>
-                  <ExistingMachineReqSheetWithData
+                  <ExistingMachineReqSheetView
                     cmSelectedSheetForView={cmSelectedSheetForView}
                     isEditable={isEditable}
                     setCmReqSheetView={setCmReqSheetView}
