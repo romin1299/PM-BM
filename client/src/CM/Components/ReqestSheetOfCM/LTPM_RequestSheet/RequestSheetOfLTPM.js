@@ -93,51 +93,84 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     setCmReqSheetView((CmReqSheetView) => !CmReqSheetView);
   };
 
-  const displayPlannedDataOfTheLTPM = (item, item2) => {
-    for (let i = 0; i < LTPMData?.yearList?.length; i++) {
-      let year = LTPMData?.yearList[i];
-      let yearAddition = `${year}-${year + 1}`;
+  const displayPlannedDataOfTheLTPM = (item, item1, years) => {
+    const rows = []; // Accumulate all <td> elements here
+    let yearFound = false; // Track if a matching year is found
+    let yearAddition = `${years}-${years + 1}`;
+    for (let i = 0; i < item1?.length; i++) {
       if (
         yearAddition ===
-        item2.preAggregationTimeStampOfRequestSheet?.requestSheet_year
+        item1?.[i]?.preAggregationTimeStampOfRequestSheet?.requestSheet_year
       ) {
+        yearFound = true; // Mark the year as found
+
         for (let quarterValue of ["Q1", "Q2", "Q3", "Q4"]) {
+          let quarterFound = false; // Track if the quarter matches
+
           for (
             let index = 0;
-            index < item2?.quarterlyDataOfTheCM?.length;
+            index < item1?.[i]?.quarterlyDataOfTheCM?.length;
             index++
           ) {
             if (
               quarterValue ===
-              item2?.quarterlyDataOfTheCM?.[index]?.requestSheet_quarter
+              item1?.[i]?.quarterlyDataOfTheCM?.[index]?.requestSheet_quarter
             ) {
-              return (
-                <td className="ar-table-col">
-                  {item2?.quarterlyDataOfTheCM?.[index]?.statusOfPlannedCM ===
+
+              // Add the corresponding <td> element to rows
+              rows.push(
+                <td
+                  className="ar-table-col"
+                  key={`${yearAddition}-${quarterValue}`}
+                >
+                  {item1?.[i]?.quarterlyDataOfTheCM?.[index]?.statusOfPlannedCM ===
                     "Planned" && (
-                    <>
-                      <button
-                        type="button"
-                        className="commonBtn viewRequestSheetOfCMBtn"
-                        onClick={() => {
-                          openModalOfRequestSheetOfCm();
-                          setSelectedRowRequestSheetId(item?._id?._id);
-                        }}
-                      >
-                        --&gt;
-                      </button>
-                    </>
+                    <button
+                      type="button"
+                      className="commonBtn viewRequestSheetOfCMBtn"
+                      onClick={() => {
+                        openModalOfRequestSheetOfCm();
+                        setSelectedRowRequestSheetId(item?._id?._id);
+                      }}
+                    >
+                      --&gt;
+                    </button>
                   )}
                 </td>
               );
-            } else {
-              return <td className="ar-table-col">gj</td>;
+
+              quarterFound = true; // Mark the quarter as matched
             }
           }
+
+          // If the quarter is not found, add an empty <td>
+          if (!quarterFound) {
+            rows.push(
+              <td
+                className="ar-table-col"
+                key={`${yearAddition}-${quarterValue}-empty`}
+              >
+                {/* Empty box for unmatched quarters */}
+              </td>
+            );
+          }
         }
-        break;
+
+        break; // Exit the outer loop once the matching year is processed
       }
     }
+    // If no matching year is found, add empty <td> elements for all four quarters
+    if (!yearFound) {
+      for (let quarterValue of ["Q1", "Q2", "Q3", "Q4"]) {
+        rows.push(
+          <td className="ar-table-col" key={`default-${quarterValue}`}>
+            {/* Empty space */}
+          </td>
+        );
+      }
+    }
+
+    return rows; // Return all accumulated rows
   };
 
   return (
@@ -378,9 +411,12 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                                     {item1?.personForLTPM}
                                   </td>
                                   <td className="ar-table-thead-header3"></td>
-                                  {item1?.commonDataFilledByAssignUser?.map(
-                                    (item2) =>
-                                      displayPlannedDataOfTheLTPM(item, item2)
+                                  {LTPMData?.yearList?.map((years, idx) =>
+                                    displayPlannedDataOfTheLTPM(
+                                      item,
+                                      item1?.commonDataFilledByAssignUser,
+                                      years
+                                    )
                                   )}
                                 </tr>
                               ))}

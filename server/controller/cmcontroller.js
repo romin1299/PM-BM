@@ -1300,7 +1300,7 @@ router.get(
           "cmBasicDataFilledByMTD_TL.frequencyType": "Scheduled",
           // lineRef: mongoose.Types.ObjectId(req?.query?.lineRef),
           ...req?.queryObj,
-          machineRef: mongoose.Types.ObjectId('63b67ccba716e21c95cd383e')
+          // machineRef: mongoose.Types.ObjectId('63b67ccba716e21c95cd383e')
         },
       },
       {
