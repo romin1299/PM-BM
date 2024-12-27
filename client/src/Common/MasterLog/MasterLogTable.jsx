@@ -72,51 +72,6 @@ const MasterLogTable = ({
     handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_NO_LOSS_BD });
   };
 
-  // const getListOfTheTLAndOperatorForNoLossBDEntryForm = async () => {
-  //   try {
-  //     const res = await fetch(
-  //       `/getListOfTheTLAndOperatorForNoLossBDEntryForm`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           Accept: "application/json",
-  //           "Content-Type": "application/json",
-  //         },
-  //         credentials: "include",
-  //       }
-  //     );
-  //     const data = await res.json();
-  //     if (res.status === 404) {
-  //       console.log("error", data?.message);
-  //     } else {
-  //       setSupportingTMList(data?.TLHOSS_and_TM_user_list);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const fetchShiftData = async () => {
-  //     const url = "/getAllShifts";
-
-  //     try {
-  //       const res = await axios.get(url, {
-  //         withCredentials: true,
-  //         credentials: "include",
-  //       });
-
-  //       // console.log("fetch shifts res:", res);
-  //       setPlantShiftsData(res?.data?.getShifts);
-  //       setPlantCategories(res?.data?.categories);
-  //     } catch (error) {
-  //       console.log("error:", error);
-  //     }
-  //   };
-
-  //   fetchShiftData();
-  //   getListOfTheTLAndOperatorForNoLossBDEntryForm();
-  // }, []);
   const getMasterLog = async () => {
     try {
       const res = await fetch(

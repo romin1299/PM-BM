@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
 import Loading from "../../../../components/Loading/Loading";
-import ExistingMachineReqSheetWithData from "../ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import ExistingMachineReqSheetView from "../ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 // import PaginationForLTPM from "../../../../components/Pagination/PaginationForLTPM";
 // import currentYear from "../../../../pages/Dashboard/DashboardComponent/currentYear";
 
@@ -433,7 +433,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
         }
       </div>
       {CmReqSheetView && (
-        <ExistingMachineReqSheetWithData
+        <ExistingMachineReqSheetView
           selectedRowRequestSheetId={selectedRowRequestSheetId}
           isEditable={false}
           setCmReqSheetView={setCmReqSheetView}

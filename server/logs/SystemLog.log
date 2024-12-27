@@ -3746,3 +3746,183 @@
 		TypeError: Cannot read properties of undefined (reading 'lessThanOne')
     at hourlyMonthlyBdTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:9337:46)
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2024-12-26T11:41 | CM | Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL.targetDateOfCM remaining portion targetDateOfCM
+		MongoServerError: Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL.targetDateOfCM remaining portion targetDateOfCM
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T11:41 | CM | Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL.targetDateOfCM remaining portion targetDateOfCM
+		MongoServerError: Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL.targetDateOfCM remaining portion targetDateOfCM
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T11:42 | CM | Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL
+		MongoServerError: Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T11:42 | CM | Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL
+		MongoServerError: Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T11:44 | CM | Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL
+		MongoServerError: Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T11:44 | CM | Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL
+		MongoServerError: Invalid $project :: caused by :: Path collision at cmBasicDataFilledByMTD_TL
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T11:53 | CM | Invalid $project :: caused by :: Path collision at targetDateOfCM
+		MongoServerError: Invalid $project :: caused by :: Path collision at targetDateOfCM
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T11:53 | CM | Invalid $project :: caused by :: Path collision at targetDateOfCM
+		MongoServerError: Invalid $project :: caused by :: Path collision at targetDateOfCM
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T12:29 | CM | Cast to ObjectId failed for value "EETP-044" (type string) at path "_id" for model "MachinesAllData"
+		CastError: Cast to ObjectId failed for value "EETP-044" (type string) at path "_id" for model "MachinesAllData"
+    at model.Query.exec (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\cmController.js:194:8
+    at D:\LiveProjects\DENSO-BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at findTLandOperatorList (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\cmController.js:139:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-12-26T12:29 | CM | Cast to ObjectId failed for value "EETP-044" (type string) at path "_id" for model "MachinesAllData"
+		CastError: Cast to ObjectId failed for value "EETP-044" (type string) at path "_id" for model "MachinesAllData"
+    at model.Query.exec (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\cmController.js:194:8
+    at D:\LiveProjects\DENSO-BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at findTLandOperatorList (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\cmController.js:139:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-12-26T12:30 | CM | Cast to ObjectId failed for value "EETP-044" (type string) at path "_id" for model "MachinesAllData"
+		CastError: Cast to ObjectId failed for value "EETP-044" (type string) at path "_id" for model "MachinesAllData"
+    at model.Query.exec (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\cmController.js:194:8
+    at D:\LiveProjects\DENSO-BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at findTLandOperatorList (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\cmController.js:139:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-12-26T12:30 | CM | Cast to ObjectId failed for value "EETP-044" (type string) at path "_id" for model "MachinesAllData"
+		CastError: Cast to ObjectId failed for value "EETP-044" (type string) at path "_id" for model "MachinesAllData"
+    at model.Query.exec (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\cmController.js:194:8
+    at D:\LiveProjects\DENSO-BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at findTLandOperatorList (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\controller\cmController.js:139:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-12-26T14:41 | CM | PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T14:41 | CM | PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T15:02 | CM | PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)
+2024-12-26T15:02 | CM | PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+    at Connection.onMessage (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:519:28)
+    at processIncomingData (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO-BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:564:12)
+    at _write (node:internal/streams/writable:493:10)
+    at Writable.write (node:internal/streams/writable:502:10)
+    at Socket.ondata (node:internal/streams/readable:1007:22)
+    at Socket.emit (node:events:519:28)

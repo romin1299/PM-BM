@@ -1,18 +1,8 @@
-import moment from "moment";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Col, Container, Form, Modal, Row, Table } from "react-bootstrap";
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import RoutingContext from "../../../../context/routing/RoutingContext";
-import PartList from "../../../../BM/Tabs/SubComponents/PartList";
-import {
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  RadioGroup,
-  Button,
-} from "@mui/material";
-import Multiselect from "multiselect-react-dropdown";
+import { FormControl, FormLabel, Button } from "@mui/material";
 import {
   CATEGORIES_OF_CM,
   FREQUENCY_OF_CM,
@@ -20,130 +10,44 @@ import {
 import axios from "axios";
 import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
 import { SuccessToast } from "../../../../BM/Component/ShowTostify";
+// import SupportingTMInputField from "../RSComponents/SupportingTMInputField";
 
-const ExistingMachineReqSheetWithData = ({
+const ExistingMachineReqSheetView = ({
+  selectedYear,
   selectedRowRequestSheetId,
   setCmReqSheetView,
-  isEditable = false,
+  // isEditable = false,
   CmReqSheetView,
 }) => {
-  const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
+  let isEditable = true;
 
-  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
-    reset,
     setValue,
-    setError,
     trigger,
     control,
     clearErrors,
   } = useForm({
-    defaultValues: {
-      plannedDateAndTimeOfCM: moment(
-        cmSelectedSheetForView?.plannedDateAndTimeOfCM
-      )
-        .tz("Asia/Kolkata")
-        .format("YYYY-MM-DDTHH:mm"),
-      sheetIssuedDateAndTimeOfCM: moment(
-        cmSelectedSheetForView?.sheetIssuedDateAndTimeOfCM
-      )
-        .tz("Asia/Kolkata")
-        .format("YYYY-MM-DDTHH:mm"),
-      maintenanceType: "CM",
-      cmBasicDataFilledByMTD_TL:
-        cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL,
-
-      assignUserForCM: cmSelectedSheetForView?.assigned_users,
-
-      // "cmBasicDataFilledByMTD_TL.frequencyType":
-      //   cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL?.frequencyType,
-      // "cmBasicDataFilledByMTD_TL.categories":
-      //   cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL?.categories,
-      // "cmBasicDataFilledByMTD_TL.targetDateOfCM": moment(new Date()).format(
-      //   "YYYY-MM-DDTHH:mm"
-      // ),
+    defaultValues: async () => {
+      try {
+        const response = await axios.get(
+          `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}`
+        );
+        if (response.status === 201) {
+          return response.data.requestSheet;
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
   });
-  const [supportingTMList, setSupportingTMList] = useState([]);
-  const [customCategory, setCustomCategory] = useState("");
-  const [parts, setParts] = useState([]);
-  const { machine_code, selectedYear } = useParams();
-
-  const getMachineDetails = async () => {
-    try {
-      const res = await fetch(
-        `/getMachineDetailsForRequestSheetOfCM/?machine_code=${machine_code}&&current_year=${selectedYear}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
-      if (res.status === 404) {
-        navigate("/", { replace: true });
-      } else {
-        const { machine, TLHOSS_and_TM_user_list } = await res.json();
-        setSupportingTMList(TLHOSS_and_TM_user_list);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getModalOpenForReqSheet = async (event) => {
-    try {
-      const response = await axios.get(`/getReqSheetDataByID/${selectedRowRequestSheetId}`);
-      if (response.status === 200) {
-        setCmSelectedSheetForView(response?.data?.requestSheet);
-        reset(response?.data?.requestSheet);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getModalOpenForReqSheet();
-    getMachineDetails();
-    setParts(cmSelectedSheetForView?.changedParts);
-  }, []);
-
-  const handleCategoryChange = (value) => {
-    setValue("cmBasicDataFilledByMTD_TL.categories", value, {
-      shouldDirty: true,
-    });
-    clearErrors("cmBasicDataFilledByMTD_TL.categories");
-    if (value !== "Others") {
-      setCustomCategory("");
-    }
-  };
-
-  const handleCustomCategoryChange = (e) => {
-    const value = e.target.value;
-    setCustomCategory(value);
-    if (value) {
-      setValue("cmBasicDataFilledByMTD_TL.categories", value, {
-        shouldDirty: true,
-      });
-    } else {
-      setValue("cmBasicDataFilledByMTD_TL.categories", "Others", {
-        shouldDirty: true,
-      });
-    }
-    clearErrors("cmBasicDataFilledByMTD_TL.categories");
-  };
-  const selectedCategory = watch("cmBasicDataFilledByMTD_TL.categories");
 
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
-      requestSheetDataOfCM.changedParts = parts;
+      requestSheetDataOfCM.changedParts = [];
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
       for (
@@ -159,7 +63,6 @@ const ExistingMachineReqSheetWithData = ({
             ?.attachedFilesByMTDUser[i]
         );
       }
-      // console.log(otherFields)
 
       formData.append("otherData", JSON.stringify(otherFields));
 
@@ -169,11 +72,11 @@ const ExistingMachineReqSheetWithData = ({
         },
       };
       const response = await axios.patch(
-        `/updateCmReqSheet/${cmSelectedSheetForView?._id}`,
+        `/updateCmReqSheet/${watch("_id")}`,
         formData,
         config
       );
-      if (response.status === 200) {
+      if (response.status === 201) {
         setCmReqSheetView(false);
         SuccessToast("Request-sheet updated successfully");
       }
@@ -182,6 +85,7 @@ const ExistingMachineReqSheetWithData = ({
     }
   };
   const context = useContext(RoutingContext);
+
   return (
     <Modal
       show={CmReqSheetView}
@@ -214,17 +118,6 @@ const ExistingMachineReqSheetWithData = ({
             <Table className="m-0">
               <tbody className="m-1 border p-3">
                 <tr class="">
-                  {/* <td width={100}>
-                <img
-                  src={denso_logo}
-                  width="120"
-                  height="30"
-                  className="d-inline-block align-top"
-                  alt="React Bootstrap logo"
-                />
-                
-              </td> */}
-
                   <td className="">
                     <Container fluid>
                       <Row>
@@ -232,54 +125,13 @@ const ExistingMachineReqSheetWithData = ({
                           id="rs-top-btns"
                           data-html2canvas-ignore="true"
                           className="col-auto d-flex gap-2 align-items-center"
-                        >
-                          {/* <button
-                        className="btn bg-button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // navigate(
-                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
-                          // );
-                          window.open(
-                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineData?._id}`,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Machine Details
-                      </button> */}
-                        </Col>
+                        ></Col>
 
                         <Col className="d-flex align-items-center justify-content-center text-center">
                           <h4 className="m-0">
                             CM REQUEST SHEET (EXISTING MACHINE)
                           </h4>
                         </Col>
-
-                        {/* <Col className="col-auto">
-                      <Box
-                        display="flex"
-                        justifyContent="end"
-                        gap={1}
-                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
-                      >
-                        <MachineStatusBox
-                          title="PM Status"
-                          bodyText1={machineStatus?.pmStatusData?.PMStatus}
-                          bodyText2={machineStatus?.pmStatusData?.PMdate}
-                        />
-                        <MachineStatusBox
-                          title="BM"
-                          bodyText1={
-                            machineStatus?.bmStatusData?.totalHours &&
-                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
-                              1
-                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
-                          }
-                        />
-                        <MachineStatusBox title="CM" />
-                      </Box>
-                    </Col> */}
                       </Row>
                     </Container>
                   </td>
@@ -291,7 +143,7 @@ const ExistingMachineReqSheetWithData = ({
                       <b>MAINT. TYPE</b>
                     </small>
                     <br />
-                    <small>{cmSelectedSheetForView?.maintenanceType}</small>
+                    <small>{watch("maintenanceType")}</small>
                   </td>
 
                   <td className="mb-0 pb-0 border col-6 col-md-2">
@@ -300,7 +152,7 @@ const ExistingMachineReqSheetWithData = ({
                       <b>PRIORITY CODE</b>
                     </small>
                     <br />
-                    <small>{cmSelectedSheetForView?.priorityCode}</small>
+                    <small>{watch("priorityCode")}</small>
                   </td>
 
                   <td className="mb-0 pb-0 border col-12 col-md-6">
@@ -316,7 +168,7 @@ const ExistingMachineReqSheetWithData = ({
                         <Col className="border">
                           <small className="text-left p-1 mb-2">
                             <b>REQUEST No. : </b>
-                            {cmSelectedSheetForView?.requestSheetNoOfCM}
+                            {watch("requestSheetNoOfCM")}
                           </small>
                         </Col>
                       </Row>
@@ -334,38 +186,16 @@ const ExistingMachineReqSheetWithData = ({
                                   <input
                                     type="datetime-local"
                                     disabled={!isEditable}
-                                    {...register("plannedDateAndTimeOfCM", {
-                                      required: "RequestSheet date is required",
-                                      onChange: (event) =>
-                                        setValue(
-                                          "plannedDateAndTimeOfCM",
-                                          event.target.value
-                                        ),
-                                    })}
-                                    // min={moment(new Date() - 1)
-                                    //   .subtract(1, "days")
-                                    //   .format("YYYY-MM-DDTHH:mm")}
+                                    {...register(
+                                      "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
+                                      {
+                                        required:
+                                          "RequestSheet date is required",
+                                      }
+                                    )}
                                   />
                                 </p>
                               </div>{" "}
-                              {/* &nbsp;&nbsp;&nbsp;&nbsp;
-                            <div className="text-center">
-                              <p className="mb-0">
-                                <b>TIME: </b>
-                                <br />
-                                <input
-                                  type="time"
-                                  {...register("requestSheettime", {
-                                    required: "RequestSheet time is required",
-                                  })}
-                                />
-                                {errors?.["requestSheettime"] && (
-                                  <p className="text-error">
-                                    {errors?.["requestSheettime"]?.message}
-                                  </p>
-                                )}
-                              </p>
-                            </div> */}
                             </div>
                           </Row>
                         </Col>
@@ -381,34 +211,11 @@ const ExistingMachineReqSheetWithData = ({
                                   <br />
                                   <input
                                     type="datetime-local"
-                                    {...register(
-                                      "sheetIssuedDateAndTimeOfCM"
-                                      //  {
-                                      //   required: "Sheet Issued date is required",
-                                      // }
-                                    )}
+                                    {...register("sheetIssuedDateAndTimeOfCM")}
                                     disabled
                                   />
                                 </p>
-                              </div>{" "}
-                              {/* &nbsp;&nbsp;&nbsp;&nbsp;
-                            <div className="text-center">
-                              <p className="mb-0">
-                                <b>TIME: </b>
-                                <br />
-                                <input
-                                  type="time"
-                                  {...register("requestSheettime", {
-                                    required: "RequestSheet time is required",
-                                  })}
-                                />
-                                {errors?.["requestSheettime"] && (
-                                  <p className="text-error">
-                                    {errors?.["requestSheettime"]?.message}
-                                  </p>
-                                )}
-                              </p>
-                            </div> */}
+                              </div>
                             </div>
                           </Row>
                         </Col>
@@ -417,24 +224,6 @@ const ExistingMachineReqSheetWithData = ({
                   </td>
 
                   <td className="border mb-0 col-12 col-md-2">
-                    {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
-                  <Col className="border border-left-0">
-                    <p className="mb-0">
-                      <b>Sr. No.</b>
-                    </p>
-                    <p className="fs-6 fw-normal">
-                      <input
-                        style={{ width: "100%" }}
-                        {...register("serialNo", {
-                          required: "Serial No. is required",
-                        })}
-                      />
-                      {errors?.["serialNo"] && (
-                        <p className="text-error">{errors?.["serialNo"]?.message}</p>
-                      )}
-                    </p>
-                  </Col>
-                </Row> */}
                     <div className="border">
                       <Row className="m-0">
                         <Col className="border pb-2 pt-1">
@@ -442,7 +231,7 @@ const ExistingMachineReqSheetWithData = ({
                             <b>DEPT./LINE</b>
                           </small>
                           <br />
-                          <small>{`${cmSelectedSheetForView?.cell}/${cmSelectedSheetForView?.line}`}</small>
+                          <small>{`${watch("cell")}/${watch("line")}`}</small>
                         </Col>
                       </Row>
 
@@ -453,13 +242,6 @@ const ExistingMachineReqSheetWithData = ({
                           </small>
                           <br />
                           <small>{context?.tm_name}</small>
-                          {/* <input
-                      style={{ width: "100%" }}
-                      {...register("TLName", {
-                        required: "Team Leader Name is required",
-                      })}
-                    />
-                    {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
                         </Col>
                       </Row>
                     </div>
@@ -472,14 +254,14 @@ const ExistingMachineReqSheetWithData = ({
                       <Col lg={4} md={6}>
                         <small className="mb-0">
                           <b>MACHINE NAME: </b> &nbsp;&nbsp;
-                          {cmSelectedSheetForView?.machineName}
+                          {watch("machineName")}
                         </small>{" "}
                         &nbsp;&nbsp;
                       </Col>
                       <Col lg={4} md={6}>
                         <small className="mb-0">
                           <b>MACHINE NO.:</b>&nbsp;&nbsp;
-                          {cmSelectedSheetForView?.machineNo}
+                          {watch("machineNo")}
                         </small>
                         &nbsp;&nbsp;
                       </Col>
@@ -499,10 +281,6 @@ const ExistingMachineReqSheetWithData = ({
                             id="cmBasicDataFilledByMTD_TL.activityOfCM"
                             className="m-1 mb-2"
                             disabled={!isEditable}
-                            // value={
-                            //   cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL
-                            //     ?.activityOfCM
-                            // }
                             style={{ width: "350px" }}
                             {...register(
                               "cmBasicDataFilledByMTD_TL.activityOfCM",
@@ -530,43 +308,24 @@ const ExistingMachineReqSheetWithData = ({
                         </p>
                       </Col>
                       <Col lg={9}>
-                        {isEditable === false ? (
-                          <div className="d-block align-items-center">
-                            {" "}
-                            <input
-                              type="text"
-                              id="cmBasicDataFilledByMTD_TL.activityOfCM"
-                              className="m-1 mb-2"
+                        {FREQUENCY_OF_CM?.map((value, idx) => (
+                          <React.Fragment key={idx}>
+                            <Form.Check
+                              label={value?.frequencyType}
+                              type="radio"
+                              value={value?.frequencyType}
                               disabled={!isEditable}
-                              value={
-                                cmSelectedSheetForView
-                                  ?.cmBasicDataFilledByMTD_TL?.frequencyType
-                              }
-                              style={{ width: "350px" }}
+                              name="cmBasicDataFilledByMTD_TL.frequencyType"
+                              className="m-1 mb-2"
+                              {...register(
+                                "cmBasicDataFilledByMTD_TL.frequencyType",
+                                {
+                                  required: "Please select frequency type",
+                                }
+                              )}
                             />
-                          </div>
-                        ) : (
-                          FREQUENCY_OF_CM?.map((value, idx) => (
-                            <div key={idx}>
-                              <Col>
-                                <input
-                                  type="radio"
-                                  id={`frequencyType_${idx}`}
-                                  name="cmBasicDataFilledByMTD_TL.frequencyType"
-                                  className="m-1 mb-2"
-                                  value={value?.frequencyType}
-                                  {...register(
-                                    "cmBasicDataFilledByMTD_TL.frequencyType",
-                                    {
-                                      required: "Please select frequency type",
-                                    }
-                                  )}
-                                />
-                                <label htmlFor={`frequencyType_${idx}`}>
-                                  {value?.frequencyType}
-                                </label>
-                              </Col>
 
+                            <div key={idx}>
                               {/* Render frequency values only if the frequencyType is Scheduled */}
                               {watch(
                                 "cmBasicDataFilledByMTD_TL.frequencyType"
@@ -577,31 +336,20 @@ const ExistingMachineReqSheetWithData = ({
                                       value?.frequencyValue?.map(
                                         (type, idx1) => (
                                           <Col key={idx1}>
-                                            <input
-                                              type="radio"
-                                              id={`frequencyValue_${idx1}`}
-                                              name="cmBasicDataFilledByMTD_TL.frequencyValue"
-                                              className="m-1 mb-2"
+                                            <Form.Check
+                                              label={type}
                                               value={type}
+                                              type="radio"
+                                              disabled={!isEditable}
+                                              className="m-1 mb-2"
                                               {...register(
                                                 "cmBasicDataFilledByMTD_TL.frequencyValue",
                                                 {
-                                                  required: {
-                                                    value:
-                                                      watch(
-                                                        "cmBasicDataFilledByMTD_TL.frequencyType"
-                                                      ) === "Scheduled",
-                                                    message:
-                                                      "Please select frequency value",
-                                                  },
+                                                  required:
+                                                    "Please select frequency type",
                                                 }
                                               )}
                                             />
-                                            <label
-                                              htmlFor={`frequencyValue_${idx1}`}
-                                            >
-                                              {type}
-                                            </label>
                                           </Col>
                                         )
                                       )}
@@ -619,20 +367,12 @@ const ExistingMachineReqSheetWithData = ({
                                   </Col>
                                 )}
                             </div>
-                          ))
-                        )}
+                          </React.Fragment>
+                        ))}
 
                         {/* ==============This should be set from default values of react hook forms=========================== */}
 
                         {/* Error for frequency type */}
-                        {errors?.cmBasicDataFilledByMTD_TL?.frequencyType && (
-                          <p className="text-error">
-                            {
-                              errors?.cmBasicDataFilledByMTD_TL?.frequencyType
-                                ?.message
-                            }
-                          </p>
-                        )}
                         {errors?.cmBasicDataFilledByMTD_TL?.frequencyType && (
                           <p className="text-error">
                             {
@@ -651,54 +391,27 @@ const ExistingMachineReqSheetWithData = ({
                         </p>
                       </Col>
                       <Col lg={9}>
-                        {isEditable === false ? (
-                          <div className="d-block align-items-center">
-                            {" "}
-                            <input
-                              type="text"
-                              id="cmBasicDataFilledByMTD_TL.activityOfCM"
-                              className="m-1 mb-2"
-                              disabled={!isEditable}
-                              value={
-                                cmSelectedSheetForView
-                                  ?.cmBasicDataFilledByMTD_TL?.categories
-                              }
-                              style={{ width: "350px" }}
-                            />
-                          </div>
-                        ) : (
-                          CATEGORIES_OF_CM.map((value, idx) => (
+                        <div className="d-flex justify-content-between ">
+                          {CATEGORIES_OF_CM.map((value, idx) => (
                             <React.Fragment key={idx}>
                               <Form.Check
-                                flex
+                                idx={idx}
                                 label={value}
                                 type="radio"
                                 value={value}
+                                disabled={!isEditable}
                                 name={`categories`}
                                 className="col-auto"
-                                checked={
-                                  selectedCategory === value ||
-                                  (value === "Others" && customCategory)
-                                }
                                 {...register(
                                   "cmBasicDataFilledByMTD_TL.categories",
                                   {
-                                    validate: (value) => {
-                                      if (
-                                        watch("actionTemporaryOrNot") ===
-                                          "Yes" &&
-                                        value === ""
-                                      ) {
-                                        return "Category is required";
-                                      }
-                                    },
+                                    required: "Category is required",
                                   }
                                 )}
-                                onChange={() => handleCategoryChange(value)}
                               />
                             </React.Fragment>
-                          ))
-                        )}
+                          ))}
+                        </div>
                         {errors?.cmBasicDataFilledByMTD_TL?.categories && (
                           <p className="text-error">
                             {
@@ -709,8 +422,8 @@ const ExistingMachineReqSheetWithData = ({
                         )}
                         <Row>
                           <Col lg={3}>
-                            {(selectedCategory === "Others" ||
-                              customCategory) && (
+                            {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                              "Others" && (
                               <Row className="m-0">
                                 <Col
                                   lg={12}
@@ -719,9 +432,13 @@ const ExistingMachineReqSheetWithData = ({
                                   <input
                                     type="text"
                                     size={20}
-                                    placeholder="Add Category"
-                                    value={customCategory}
-                                    onChange={handleCustomCategoryChange}
+                                    className="m-1 mb-2"
+                                    {...register(
+                                      "cmBasicDataFilledByMTD_TL.other_categories",
+                                      {
+                                        required: "Other category is required",
+                                      }
+                                    )}
                                   />
                                 </Col>
                               </Row>
@@ -750,24 +467,12 @@ const ExistingMachineReqSheetWithData = ({
                             style={{
                               fontSize: "15px",
                             }}
-                            value={moment(
-                              cmSelectedSheetForView?.cmBasicDataFilledByMTD_TL
-                                ?.targetDateOfCM
-                            )
-                              .tz("Asia/Kolkata")
-                              .format("YYYY-MM-DDTHH:mm")}
                             {...register(
                               "cmBasicDataFilledByMTD_TL.targetDateOfCM",
                               {
                                 required: "Please select target date",
                               }
                             )}
-                            onInput={() => {
-                              clearErrors(
-                                "cmBasicDataFilledByMTD_TL.targetDateOfCM"
-                              );
-                            }}
-                            // style={{ width: "350px" }}
                           />
                         </div>
                         {errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM && (
@@ -799,21 +504,12 @@ const ExistingMachineReqSheetWithData = ({
                             style={{
                               fontSize: "15px",
                             }}
-                            value={
-                              cmSelectedSheetForView?.partSuggestionByMTDTL
-                            }
                             {...register(
                               "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
                               {
                                 required: "Please enter part suggestion",
                               }
                             )}
-                            onInput={() => {
-                              clearErrors(
-                                "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
-                              );
-                            }}
-                            // style={{ width: "350px" }}
                           />
                         </div>
                         {errors?.cmBasicDataFilledByMTD_TL
@@ -836,7 +532,7 @@ const ExistingMachineReqSheetWithData = ({
                           <FormLabel id="demo-radio-buttons-group-label">
                             <small>
                               <b>SHIFT: </b> &nbsp;&nbsp;
-                              {cmSelectedSheetForView?.shiftOfCM}
+                              {watch("shiftOfCM")}
                             </small>
                           </FormLabel>
                         </FormControl>
@@ -847,7 +543,7 @@ const ExistingMachineReqSheetWithData = ({
                       <Col className="border p-2">
                         <small className="mb-0 d-flex align-items-center justify-content-start">
                           <b>QUALITY RELATED</b>&nbsp;&nbsp;&nbsp;
-                          {cmSelectedSheetForView?.qualityRelated}
+                          {watch("qualityRelated")}
                         </small>
                       </Col>
                     </Row>
@@ -856,56 +552,25 @@ const ExistingMachineReqSheetWithData = ({
                         <small className="mb-0 d-flex align-items-center justify-content-start">
                           <b>ASSIGN TO:</b>&nbsp;&nbsp;
                         </small>
-                        {isEditable === false ? (
-                          cmSelectedSheetForView?.assigned_users?.map(
-                            (item) => {
-                              return `${item.tm_name},`;
-                            }
-                          )
+                        {watch(
+                          "current_commonDataFilledByAssignUser.assignUserForCM"
+                        )
+                          ?.map((item) => {
+                            return `${item.tm_name}`;
+                          })
+                          .join(", ")}
+                        {/* {isEditable === false ? (
+                          
                         ) : (
-                          <Controller
-                            name="assignUserForCM"
+                          <SupportingTMInputField
                             control={control}
-                            rules={{
-                              required: "Please select the assign user",
-                            }}
-                            render={({ field }) => (
-                              <>
-                                <Multiselect
-                                  {...field}
-                                  displayValue="tm_name"
-                                  selectedValues={
-                                    cmSelectedSheetForView?.assigned_users
-                                  }
-                                  // className="col-5"
-                                  options={supportingTMList} // Options to display in the dropdown
-                                  // selectedValues={departmentList} // Preselected value to persist in dropdown
-                                  onSelect={async (selectedList) => {
-                                    // await setSelectedAssignTM(selectedList);
-                                    setValue("assignUserForCM", selectedList);
-                                    trigger("assignUserForCM");
-                                  }} // Function will trigger on select event
-                                  onRemove={async (selectedList) => {
-                                    // await setSelectedAssignTM(selectedList);
-                                    setValue("assignUserForCM", selectedList);
-                                    trigger("assignUserForCM");
-                                  }} // Function will trigger on remove event
-                                  style={{
-                                    multiselectContainer: {
-                                      width: "14rem",
-                                    },
-                                  }}
-                                  // selectedValues={requestSheetDataOfBM?.supportingTM}
-                                />
-                                {errors.assignUserForCM && (
-                                  <p className="text-error">
-                                    {errors?.assignUserForCM?.message}
-                                  </p>
-                                )}
-                              </>
-                            )}
+                            setValue={setValue}
+                            trigger={trigger}
+                            errors={errors}
+                            watch={watch}
+                            selectedYear={selectedYear}
                           />
-                        )}
+                        )} */}
                       </Col>
                       <Col className="border p-2"></Col>
                       {watch("priorityCode") === "KAIZEN" && (
@@ -921,7 +586,6 @@ const ExistingMachineReqSheetWithData = ({
                             <Form.Control
                               type="file"
                               multiple
-                              // accept="image/png, image/gif, image/jpeg"
                               onChange={(e) => {
                                 setValue(
                                   "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
@@ -935,69 +599,19 @@ const ExistingMachineReqSheetWithData = ({
                                 );
                               }}
                             />
-                            {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
-                          <p className="text-error">{"This field is required"}</p>
-                        )} */}
                           </Form.Group>
-                          {/* {selectedAttendee} */}
                         </Col>
                       )}
                     </Row>
                   </td>
                 </tr>
-                {/* {isEditable && <PartList parts={parts} setParts={setParts} />}
-            {cmSelectedSheetForView?.changedParts?.length > 0 &&
-              !isEditable && (
-                <tr className="row m-2">
-                  <td colSpan="12">
-                    <h5 className="mt-4 mb-3">New Part List</h5>
-                    <Table bordered>
-                      <thead>
-                        <tr>
-                          <th>Cost</th>
-                          <th>Maker Name</th>
-                          <th>Part Name</th>
-                          <th>Part No</th>
-                          <th>Quantity</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {cmSelectedSheetForView?.changedParts?.map(
-                          (part, index) => (
-                            <tr key={index}>
-                              <td>{part.cost}</td>
-                              <td>{part.makerName}</td>
-                              <td>{part.partName}</td>
-                              <td>{part.partNo}</td>
-                              <td>{part.quantity}</td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </Table>
-                  </td>
-                </tr>
-              )} */}
+
                 {isEditable &&
                   (context?.user_type === "MTD_TL" ||
                     context?.user_type === "Section-Admin") && (
                     <tr>
                       <td>
-                        <button
-                          type="submit"
-                          className="btn bg-success"
-                          // onClick={() => {
-                          //   if (
-                          //     !watch("problemFaced") &&
-                          //     !watch("select_problemFaced")
-                          //   ) {
-                          //     return setError("error_problemFaced", {
-                          //       type: "custom",
-                          //       message: "Please fill or select this field",
-                          //     });
-                          //   }
-                          // }}
-                        >
+                        <button type="submit" className="btn bg-success">
                           Update Request-Sheet
                         </button>
                       </td>
@@ -1012,10 +626,10 @@ const ExistingMachineReqSheetWithData = ({
             // cmSelectedSheetForView?.assigned_users?.length > 0) &&
             // (cmSelectedSheetForView?.requestSheetStatusOfCM !== "Generated" ||
             //   isEditable === true) && (
-            cmSelectedSheetForView && (
+            watch("_id") && (
               <ExistinngMachineReqSheetForOperator
                 isEditable={isEditable}
-                cmSelectedSheetForView={cmSelectedSheetForView}
+                cmSelectedSheetForView={watch("_id")}
               />
             )
           }
@@ -1025,4 +639,4 @@ const ExistingMachineReqSheetWithData = ({
   );
 };
 
-export default ExistingMachineReqSheetWithData;
+export default ExistingMachineReqSheetView;

@@ -144,44 +144,29 @@ const MTDExistingMachineReqSheetWithData = ({
     }
     return flagCountForHandlingError;
   };
-  const handleApprovalReq = () => {
-    let str = "";
-    if (context?.user_type === "TL/HOSS" && context?.tm_department === "MTD") {
-      str = "approvalOfMTDTL";
-    } else if (context?.user_type === "Section-Admin") {
-      str = "approvalOfHOS";
-    } else if (
-      context?.tm_department === "PRD" &&
-      context?.user_type === "TL/HOSS"
-    ) {
-      str = "approvalOfPRDTL";
-    }
-    return str;
-  };
+
   const approveRequestSheetFromHigherAuthority = async (
     requestSheetDataOfCM
   ) => {
     try {
       let checkWhetherAnyErrorOccurredOrNot = await handleCustomErrors();
       if (checkWhetherAnyErrorOccurredOrNot > 0) {
-        console.log("error");
         return;
-      } else {
-        const response = await axios.patch(
-          `/${handleApprovalReq()}/${cmSelectedSheetForView?._id}`,
-          {
-            approvalOfRequestSheet: watch("approvalOfRequestSheet"),
-            rejectedRemarksOfRequestSheet: watch(
-              "rejectedRemarksOfRequestSheet"
-            ),
-            cmSelectedSheetForView,
-          }
-        );
-        if (response.status === 200) {
-          // console.log(response.data);
-          SuccessToast(response.data.message);
-          setCmReqSheetView(false);
+      }
+
+      const response = await axios.patch(
+        `/approveOrRejectRequestSheet/${cmSelectedSheetForView?._id}`,
+        {
+          current_commonDataFilledByAssignUser:
+            cmSelectedSheetForView?.current_commonDataFilledByAssignUser,
+          approvalOfRequestSheet: watch("approvalOfRequestSheet"),
+          rejectedRemarksOfRequestSheet: watch("rejectedRemarksOfRequestSheet"),
         }
+      );
+
+      if (response.status === 201) {
+        SuccessToast(response.data.message);
+        setCmReqSheetView(false);
       }
     } catch (error) {
       console.log(error);
@@ -193,7 +178,6 @@ const MTDExistingMachineReqSheetWithData = ({
     requestSheetDataOfCM.changedParts = parts;
 
     try {
-      // console.log(requestSheetDataOfCM);
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
       for (
@@ -209,7 +193,6 @@ const MTDExistingMachineReqSheetWithData = ({
             ?.attachedFilesByMTDUser?.[i]
         );
       }
-      // console.log(otherFields)
 
       formData.append("otherData", JSON.stringify(otherFields));
 
@@ -223,7 +206,7 @@ const MTDExistingMachineReqSheetWithData = ({
         formData,
         config
       );
-      if (response.status === 200) {
+      if (response.status === 201) {
         SuccessToast("Request-sheet updated successfully");
         setCmReqSheetView(false);
       }

@@ -1,25 +1,17 @@
 import {
-  AppBar,
   Box,
-  Dialog,
   Button,
   Grid,
-  IconButton,
   InputAdornment,
-  Slide,
-  Switch,
   TextField,
-  Toolbar,
-  Tooltip,
   Typography,
   Paper,
 } from "@mui/material";
-import MaterialTable, { MTableToolbar } from "@material-table/core";
+import MaterialTable from "@material-table/core";
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { FaEye } from "react-icons/fa";
 import tableIcons from "../../../components/MatrialTableIcon";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import CloseIcon from "@mui/icons-material/Close";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import {
   MaterialTableOptions,
@@ -27,7 +19,7 @@ import {
   MaterialTableSX,
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import moment from "moment";
-import { Container, Modal } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
@@ -35,12 +27,10 @@ import {
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import ExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 import RoutingContext from "../../../context/routing/RoutingContext";
 
 const ActivityStatusDashboardOfCM = () => {
-  // const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
 
   const handleGenerateBMNavigation = async () => {
@@ -63,7 +53,6 @@ const ActivityStatusDashboardOfCM = () => {
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
       );
-      // console.log(response);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
       setCounters(response.data.counters);
     } catch (error) {
@@ -119,7 +108,7 @@ const ActivityStatusDashboardOfCM = () => {
     },
     {
       title: "status",
-      field: "requestSheetStatusOfCM",
+      field: "current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
       editable: false,
     },
     {
@@ -130,7 +119,7 @@ const ActivityStatusDashboardOfCM = () => {
     },
     {
       title: "Planned Date",
-      field: "plannedDateAndTimeOfCM",
+      field: "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
       type: "date",
       editable: false,
     },
@@ -146,26 +135,11 @@ const ActivityStatusDashboardOfCM = () => {
   const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState();
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const requestSheetApprovalAction = [
-    // {
-    //   icon: () => <CreditCardIcon className="text-primary1" />,
-    //   tooltip: "History Card",
-    //   position: "row",
-    //   onClick: (event, selectedRow) => {
-    //     console.log("----------", selectedRow);
-    //   },
-    // },
     (row) => ({
       icon: () => <FaEye className="text-primary" />,
       tooltip: "View",
       position: "row",
-      // disabled:
-      //   row?.assignUserId === context?._id &&
-      //   (row?.work_order_status === "Pending" ||
-      //     row?.work_order_status === "Closed")
-      //     ? false
-      //     : true,
       onClick: (event, selectedRow) => {
-        // console.log(selectedRow);
         setCmReqSheetView(true);
         setIsEditable(false);
         setSelectedRowRequestSheetId(selectedRow?._id);
@@ -218,17 +192,6 @@ const ActivityStatusDashboardOfCM = () => {
         />
       </Box>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      {/* <Box display="flex" alignItems="center">
-        <Tooltip title="Show/Hide Column">
-          <Switch
-            size="medium"
-            checked={displayColumnOrNot}
-            onClick={() =>
-              setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
-            }
-          />
-        </Tooltip>
-      </Box> */}
       <Box
         component="form"
         sx={{
@@ -237,16 +200,12 @@ const ActivityStatusDashboardOfCM = () => {
           gap: "10px",
         }}
       >
-        {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
-
         <TextField
           type="number"
           id="outlined-basic"
-          // sx={{ width: "80px" }}
           placeholder="From"
           variant="outlined"
           sx={{
-            // width: "12ch",
             width: "5rem",
             pl: 0,
             "& .MuiOutlinedInput-root": { pl: 0 },
@@ -268,11 +227,9 @@ const ActivityStatusDashboardOfCM = () => {
         <TextField
           type="number"
           id="outlined-basic"
-          // sx={{ width: "80px" }}
           placeholder="To"
           variant="outlined"
           sx={{
-            // width: "12ch",
             width: "5rem",
             pl: 0,
             "& .MuiOutlinedInput-root": { pl: 0 },
@@ -292,7 +249,6 @@ const ActivityStatusDashboardOfCM = () => {
           value={greaterValue}
         />
         <Button
-          // size="small"
           disableElevation
           className="bg-button text-center"
           variant="contained"
@@ -301,7 +257,6 @@ const ActivityStatusDashboardOfCM = () => {
             height: "33px",
             paddingInline: "10px",
           }}
-          // onClick={getAllRequestSheetData} //This will be used when we will use the api
         >
           Go
         </Button>
@@ -314,11 +269,8 @@ const ActivityStatusDashboardOfCM = () => {
         </h6>
       </Box>
     </div>,
-    // "sd;kfgksn"
   ];
-  const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="down" ref={ref} {...props} />;
-  });
+
   return (
     <>
       <Container fluid>
@@ -365,7 +317,7 @@ const ActivityStatusDashboardOfCM = () => {
             {
               title: "Open Requests",
               value: counters?.open_request_sheet_count || 0,
-              backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
+              backgroundColor: "#feb4b4ba",
             },
             {
               title: "Closed Requests",
@@ -378,7 +330,6 @@ const ActivityStatusDashboardOfCM = () => {
                 variant="outlined"
                 sx={{
                   backgroundColor: item.backgroundColor,
-                  // maxWidth: "100px",
                   p: "4px",
                   px: "10px",
                   borderRadius: "8px",
@@ -388,11 +339,7 @@ const ActivityStatusDashboardOfCM = () => {
                   variant="body2"
                   component="div"
                   textAlign="center"
-                  // width={120}
                   fontWeight={500}
-                  // color={"#15005c"}
-                  // pt={"4px"}
-                  // mb={"2px"}
                 >
                   {item.title}
                 </Typography>
@@ -402,7 +349,6 @@ const ActivityStatusDashboardOfCM = () => {
                   component="h5"
                   textAlign="center"
                   fontWeight={600}
-                  // pb={"4px"}
                 >
                   {item.value}
                 </Typography>
@@ -417,10 +363,6 @@ const ActivityStatusDashboardOfCM = () => {
                 header: {
                   actions: "Actions",
                 },
-                // toolbar: {
-                //   exportCSVName: "Export some Excel format",
-                //   exportPDFName: "Export as pdf!!"
-                // }
               }}
               title={filtration}
               isLoading={loading}
@@ -428,18 +370,7 @@ const ActivityStatusDashboardOfCM = () => {
               icons={tableIcons}
               columns={cmApprovalHeaders}
               data={approvalRequestSheetDataOfCM}
-              // title="User Management"
-              // tableRef={this.tableRef.current.onQueryChange()}
-
-              editable={
-                {
-                  // onRowUpdate: (updatedRow, oldRow) =>
-                  // new Promise(async (resolve, reject) => {
-                  //   //   await updateRequestSheet(updatedRow);
-                  //   resolve();
-                  // }),
-                }
-              }
+              editable={{}}
               options={{
                 ...MaterialTableOptions,
                 pageSize: 5,
@@ -477,7 +408,8 @@ const ActivityStatusDashboardOfCM = () => {
       </Container>
 
       {CmReqSheetView && (
-        <ExistingMachineReqSheetWithData
+        <ExistingMachineReqSheetView
+          selectedYear={reduceState?.selectedYear}
           selectedRowRequestSheetId={selectedRowRequestSheetId}
           isEditable={isEditable}
           setCmReqSheetView={setCmReqSheetView}

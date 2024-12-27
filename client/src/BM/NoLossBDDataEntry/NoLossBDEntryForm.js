@@ -1,4 +1,10 @@
-import React, { useReducer, useState, useEffect, useContext, forwardRef } from "react";
+import React, {
+  useReducer,
+  useState,
+  useEffect,
+  useContext,
+  forwardRef,
+} from "react";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   reducer,
@@ -106,7 +112,7 @@ const NoLossBDEntryForm = () => {
 
   useEffect(() => {
     const fetchShiftData = async () => {
-      const url = "/getAllShifts";
+      const url = "/getAllShifts?wantCategories=Yes";
 
       try {
         const res = await axios.get(url, {
@@ -114,9 +120,10 @@ const NoLossBDEntryForm = () => {
           credentials: "include",
         });
 
-        // console.log("fetch shifts res:", res);
-        setPlantShiftsData(res?.data?.getShifts);
-        setPlantCategories(res?.data?.categories);
+        if (res.status === 201) {
+          setPlantShiftsData(res?.data?.getShifts);
+          setPlantCategories(res?.data?.categories);
+        }
       } catch (error) {
         console.log("error:", error);
       }
@@ -185,7 +192,7 @@ const NoLossBDEntryForm = () => {
           workEndedDateOfBM: "",
         });
         SuccessToast(data?.message);
-        setProblems([]);  
+        setProblems([]);
         setActions([]);
         setSelectedSupportedTM([]);
         setInc(inc + 1);

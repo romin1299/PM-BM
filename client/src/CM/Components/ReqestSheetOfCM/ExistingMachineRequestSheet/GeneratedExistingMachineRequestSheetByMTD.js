@@ -1,16 +1,9 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
 import moment from "moment-timezone";
-// import { Box } from "@mui/material";
-import axios from "axios";
 import RoutingContext from "../../../../context/routing/RoutingContext";
 import {
   SuccessToast,
@@ -20,9 +13,8 @@ import {
   FREQUENCY_OF_CM,
   CATEGORIES_OF_CM,
 } from "../../../GlobalDataAccess/GlobalData";
-// import PartList from "../../../../BM/Tabs/SubComponents/PartList";
 import Multiselect from "multiselect-react-dropdown";
-// import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
+import ShiftInputField from "../RSComponents/ShiftInputField";
 
 const GeneratedExistingMachineRequestSheetByMTD = ({
   selectedMachineData,
@@ -30,7 +22,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 }) => {
   const navigate = useNavigate();
   const context = useContext(RoutingContext);
-  // const [parts, setParts] = useState([]);
 
   const {
     register,
@@ -39,7 +30,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     watch,
     reset,
     setValue,
-    setError,
     trigger,
     control,
     clearErrors,
@@ -54,102 +44,8 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     },
   });
 
-  const [plantShiftsData, setPlantShiftsData] = useState([]);
-
-  // const [selectedShift, setSelectedShift] = useState("");
-  // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
-  // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
-  // const [selectedQuality, setSelectedQuality] = useState("");
-  // const [selectedMachineData, setMachineDetails] = useState("");
-
-  // const handleSelectShift = (key, event) => {
-  //   setSelectedShift({ key, value: event.target.value });
-  // };
-
-  // const handleMaintenanceType = (event) => {
-  //   setSelectedMaintenanceType(event.target.value);
-  // };
-  // const handlePriorityCode = (event) => {
-  //   setSelectedPriorityCode(event.target.value);
-  // };
-  // const handleQuality = (event) => {
-  //   setSelectedQuality(event.target.value);
-  // };
-  let flagCountForHandlingError = 0;
-  const handleCustomError = () => {
-    // console.log(
-    //   watch("cmBasicDataFilledByMTD_TL.categories"),
-    //   "and ",
-    //   watch("cmBasicDataFilledByMTD_TL.inspectionItem")
-    // );
-    if (
-      watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
-      watch("cmBasicDataFilledByMTD_TL.inspectionItem") === ""
-    ) {
-      setError(
-        "cmBasicDataFilledByMTD_TL.inspectionItem",
-        {
-          message: "This field is required !",
-        },
-        { shouldFocus: true }
-      );
-      flagCountForHandlingError++;
-    }
-    if (
-      watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
-      watch("cmBasicDataFilledByMTD_TL.actionForLTPM") === ""
-    ) {
-      setError(
-        "cmBasicDataFilledByMTD_TL.actionForLTPM",
-        {
-          message: "This field is required !",
-        },
-        { shouldFocus: true }
-      );
-    }
-    if (
-      watch("cmBasicDataFilledByMTD_TL.categories") === "LTPM" &&
-      watch("cmBasicDataFilledByMTD_TL.personForLTPM") === ""
-    ) {
-      setError(
-        "cmBasicDataFilledByMTD_TL.personForLTPM",
-        {
-          message: "This field is required !",
-        },
-        { shouldFocus: true }
-      );
-      flagCountForHandlingError++;
-    }
-    if (
-      watch("partRequiredByMTDTL") === "Yes" &&
-      watch("cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL") === ""
-    ) {
-      setError(
-        "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
-        {
-          message: "This field is required !",
-        },
-        { shouldFocus: true }
-      );
-      flagCountForHandlingError++;
-    }
-    return flagCountForHandlingError;
-  };
-
   const newRequestSheetRegistrationOfCM = async (requestSheetDataOfCM) => {
-    // const machineRef = "63b67ccea716e21c95cd471a";
-    // requestSheetDataOfCM.maintenanceType = selectedMaintenanceType;
-    // requestSheetDataOfCM.priorityCode = selectedPriorityCode;
-    // requestSheetDataOfCM.qualityRelated = selectedQuality;
-    // requestSheetDataOfCM.shiftOfBM = selectedShift;
-    // requestSheetDataOfCM.changedParts = parts;
-    const customErrorCount = await handleCustomError();
-    if (customErrorCount > 0) {
-      return;
-    }
-
     try {
-      console.log(requestSheetDataOfCM);
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
 
@@ -194,65 +90,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
     }
   };
 
-  const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month() + 1;
-
-  const plannedDateAndTimeOfCM = watch("plannedDateAndTimeOfCM");
-  const [date, time] = plannedDateAndTimeOfCM.split("T");
-  const momentTime = moment(time, "HH:mm");
-
-  useEffect(() => {
-    const getCurrentShiftName = () => {
-      for (let shiftInfo of plantShiftsData) {
-        const startTime = moment(shiftInfo.shiftStartTime, "HH:mm");
-        const endTime = moment(shiftInfo.shiftEndTime, "HH:mm");
-
-        // if (
-        //   momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-        //   momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-        // )
-
-        if (endTime.isBefore(startTime)) {
-          if (
-            momentTime.isSameOrAfter(startTime) ||
-            momentTime.isSameOrBefore(endTime)
-          ) {
-            return shiftInfo.shiftName;
-          }
-        } else {
-          if (momentTime.isBetween(startTime, endTime)) {
-            return shiftInfo.shiftName;
-          }
-        }
-      }
-
-      return "";
-    };
-
-    setValue("shiftOfBM", getCurrentShiftName());
-    // setSelectedShift(getCurrentShiftName());
-  }, [plannedDateAndTimeOfCM, plantShiftsData]);
-
-  React.useEffect(() => {
-    const fetchShiftData = async () => {
-      const url = "/getAllShifts";
-
-      try {
-        const res = await axios.get(url, {
-          withCredentials: true,
-          credentials: "include",
-        });
-
-        // console.log("fetch shifts res:", res);
-        setPlantShiftsData(res?.data?.getShifts);
-      } catch (error) {
-        console.log("error:", error);
-      }
-    };
-
-    fetchShiftData();
-  }, []);
-
   const handleBack = () => {
     navigate("/cm", { replace: true });
   };
@@ -263,17 +100,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
         <Table className="m-0">
           <tbody className="m-1 border p-3">
             <tr class="">
-              {/* <td width={100}>
-                <img
-                  src={denso_logo}
-                  width="120"
-                  height="30"
-                  className="d-inline-block align-top"
-                  alt="React Bootstrap logo"
-                />
-                
-              </td> */}
-
               <td className="">
                 <Container fluid>
                   <Row>
@@ -285,21 +111,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       <button className="btn bg-button" onClick={handleBack}>
                         Back
                       </button>
-                      {/* <button
-                        className="btn bg-button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // navigate(
-                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
-                          // );
-                          window.open(
-                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineData?._id}`,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Machine Details
-                      </button> */}
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
@@ -307,31 +118,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                         CM REQUEST SHEET (EXISTING MACHINE)
                       </h4>
                     </Col>
-
-                    {/* <Col className="col-auto">
-                      <Box
-                        display="flex"
-                        justifyContent="end"
-                        gap={1}
-                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
-                      >
-                        <MachineStatusBox
-                          title="PM Status"
-                          bodyText1={machineStatus?.pmStatusData?.PMStatus}
-                          bodyText2={machineStatus?.pmStatusData?.PMdate}
-                        />
-                        <MachineStatusBox
-                          title="BM"
-                          bodyText1={
-                            machineStatus?.bmStatusData?.totalHours &&
-                            `${(machineStatus?.bmStatusData?.totalHours).toFixed(
-                              1
-                            )} Hrs./${machineStatus?.bmStatusData?.count} Count`
-                          }
-                        />
-                        <MachineStatusBox title="CM" />
-                      </Box>
-                    </Col> */}
                   </Row>
                 </Container>
               </td>
@@ -355,8 +141,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       {...register("maintenanceType", {
                         required: "Please select maintenance type",
                       })}
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "BM"}
                     />
                     <Form.Check
                       flex
@@ -366,8 +150,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       type="radio"
                       id={`inline-radio-2`}
                       value="PM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "PM"}
                       {...register("maintenanceType", {
                         required: "Please select maintenance type",
                       })}
@@ -380,8 +162,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       name="maintenanceType"
                       id={`inline-radio-3`}
                       value="CM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "CM"}
                       {...register("maintenanceType", {
                         required: "Please select maintenance type",
                       })}
@@ -394,8 +174,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       name="maintenanceType"
                       id={`inline-radio-4`}
                       value="TPM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "TPM"}
                       {...register("maintenanceType", {
                         required: "Please select maintenance type",
                       })}
@@ -424,8 +202,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       type="radio"
                       id={`inline-radio-1`}
                       value="EMERGENCY"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "EMERGENCY"}
                       {...register("priorityCode", {
                         required: "Please select priority code",
                       })}
@@ -438,8 +214,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       type="radio"
                       id={`inline-radio-2`}
                       value="IMPORTANT"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "IMPORTANT"}
                       {...register("priorityCode", {
                         required: "Please select priority code",
                       })}
@@ -452,8 +226,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       type="radio"
                       id={`inline-radio-3`}
                       value="DATA NEEDED"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "DATA NEEDED"}
                       {...register("priorityCode", {
                         required: "Please select priority code",
                       })}
@@ -466,8 +238,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       type="radio"
                       id={`inline-radio-4`}
                       value="KAIZEN"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "KAIZEN"}
                       {...register("priorityCode", {
                         required: "Please select priority code",
                       })}
@@ -507,7 +277,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                               ?.toUpperCase()}
                         -{selectedMachineData?.line_names?.line_name?.trim()}
                         -CM-
-                        {startedDate}-
+                        {moment().tz("Asia/Kolkata").month() + 1}-
                         {selectedMachineData?.line_names?.requestSheetNoOfCM +
                           1 || 1}
                       </small>
@@ -526,9 +296,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                               <br />
                               <input
                                 type="datetime-local"
-                                // min={moment(new Date() - 1)
-                                //   .subtract(1, "days")
-                                //   .format("YYYY-MM-DDTHH:mm")}
                                 {...register("plannedDateAndTimeOfCM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>
@@ -545,24 +312,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                               )}
                             </p>
                           </div>{" "}
-                          {/* &nbsp;&nbsp;&nbsp;&nbsp;
-                            <div className="text-center">
-                              <p className="mb-0">
-                                <b>TIME: </b>
-                                <br />
-                                <input
-                                  type="time"
-                                  {...register("requestSheettime", {
-                                    required: "RequestSheet time is required",
-                                  })}
-                                />
-                                {errors?.["requestSheettime"] && (
-                                  <p className="text-error">
-                                    {errors?.["requestSheettime"]?.message}
-                                  </p>
-                                )}
-                              </p>
-                            </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -578,36 +327,11 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                               <br />
                               <input
                                 type="datetime-local"
-                                {...register(
-                                  "sheetIssuedDateAndTimeOfCM"
-                                  //  {
-                                  //   required: "Sheet Issued date is required",
-                                  // }
-                                )}
+                                {...register("sheetIssuedDateAndTimeOfCM")}
                                 disabled
                               />
-                              {/* {errors?.["sheetIssuedDateAndTimeOfCM"] && (
-                                <p className="text-error">{errors?.["sheetIssuedDateAndTimeOfCM"]?.message}</p>
-                              )} */}
                             </small>
                           </div>{" "}
-                          {/* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */}
-                          {/* <div className="text-center">
-                              <p className="mb-0">
-                                <b>TIME: </b>
-                                <br />
-                                <input
-                                  type="time"
-                                  {...register(
-                                    "sheetIssuedTime"
-                                    //  {
-                                    //   required: "Sheet Issued time is required",
-                                    // }
-                                  )}
-                                  disabled
-                                />
-                              </p>
-                            </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -616,24 +340,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
               </td>
 
               <td className="border mb-0 col-12 col-md-2">
-                {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
-                  <Col className="border border-left-0">
-                    <p className="mb-0">
-                      <b>Sr. No.</b>
-                    </p>
-                    <p className="fs-6 fw-normal">
-                      <input
-                        style={{ width: "100%" }}
-                        {...register("serialNo", {
-                          required: "Serial No. is required",
-                        })}
-                      />
-                      {errors?.["serialNo"] && (
-                        <p className="text-error">{errors?.["serialNo"]?.message}</p>
-                      )}
-                    </p>
-                  </Col>
-                </Row> */}
                 <div className="border">
                   <Row className="m-0">
                     <Col className="border pb-2 pt-1">
@@ -655,13 +361,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       </small>
                       <br />
                       <small>{context?.tm_name}</small>
-                      {/* <input
-                      style={{ width: "100%" }}
-                      {...register("TLName", {
-                        required: "Team Leader Name is required",
-                      })}
-                    />
-                    {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
                     </Col>
                   </Row>
                 </div>
@@ -745,7 +444,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                           </label>
                         </Col>
 
-                        {/* Render frequency values only if the frequencyType is Scheduled */}
                         {watch("cmBasicDataFilledByMTD_TL.frequencyType") ===
                           value?.frequencyType &&
                           value?.frequencyType === "Scheduled" && (
@@ -812,31 +510,53 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       <b>Category:</b>
                     </p>
                   </Col>
-                  <Col lg={7} className="d-flex justify-content-center">
-                    {CATEGORIES_OF_CM?.map((value, idx) => (
-                      <>
-                        <Col>
-                          <input
+                  <Col lg={7}>
+                    <div className="d-flex justify-content-between">
+                      {CATEGORIES_OF_CM.map((value, idx) => (
+                        <React.Fragment key={idx}>
+                          <Form.Check
+                            // flex
+                            idx={idx}
+                            label={value}
                             type="radio"
-                            id="categories"
-                            name="cmBasicDataFilledByMTD_TL.categories"
-                            className="m-1 mb-2"
                             value={value}
-                            // style={{ width: "350px" }}
+                            name={`categories`}
+                            className="col-auto"
                             {...register(
                               "cmBasicDataFilledByMTD_TL.categories",
                               {
-                                required: "Please select category",
+                                required: "Category is required",
                               }
                             )}
                           />
-                          <label>{value}</label>
-                        </Col>
-                      </>
-                    ))}
+                        </React.Fragment>
+                      ))}
+                    </div>
                     {errors?.cmBasicDataFilledByMTD_TL?.categories && (
                       <p className="text-error">
                         {errors?.cmBasicDataFilledByMTD_TL?.categories?.message}
+                      </p>
+                    )}
+                    {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                      "Others" && (
+                      <input
+                        type="text"
+                        size={20}
+                        className="m-1 mb-2"
+                        {...register(
+                          "cmBasicDataFilledByMTD_TL.other_categories",
+                          {
+                            required: "Other category is required",
+                          }
+                        )}
+                      />
+                    )}
+                    {errors?.cmBasicDataFilledByMTD_TL?.other_categories && (
+                      <p className="text-error">
+                        {
+                          errors?.cmBasicDataFilledByMTD_TL?.other_categories
+                            ?.message
+                        }
                       </p>
                     )}
                   </Col>
@@ -858,15 +578,17 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             id="inspectionItem"
                             className="m-1 mb-2"
                             name="inspectionItem"
-                            // style={{ width: "350px" }}
                             {...register(
-                              "cmBasicDataFilledByMTD_TL.inspectionItem"
+                              "cmBasicDataFilledByMTD_TL.inspectionItem",
+                              {
+                                required:
+                                  watch(
+                                    "cmBasicDataFilledByMTD_TL.categories"
+                                  ) === "LTPM"
+                                    ? "This field is required !"
+                                    : false,
+                              }
                             )}
-                            onInput={() => {
-                              clearErrors(
-                                "cmBasicDataFilledByMTD_TL.inspectionItem"
-                              );
-                            }}
                           />
                         </div>
                         {errors?.cmBasicDataFilledByMTD_TL?.inspectionItem && (
@@ -894,15 +616,17 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             id="actionForLTPM"
                             className="m-1 mb-2"
                             name="actionForLTPM"
-                            // style={{ width: "350px" }}
                             {...register(
-                              "cmBasicDataFilledByMTD_TL.actionForLTPM"
+                              "cmBasicDataFilledByMTD_TL.actionForLTPM",
+                              {
+                                required:
+                                  watch(
+                                    "cmBasicDataFilledByMTD_TL.categories"
+                                  ) === "LTPM"
+                                    ? "This field is required !"
+                                    : false,
+                              }
                             )}
-                            onInput={() => {
-                              clearErrors(
-                                "cmBasicDataFilledByMTD_TL.actionForLTPM"
-                              );
-                            }}
                           />
                         </div>
                         {errors?.cmBasicDataFilledByMTD_TL?.actionForLTPM && (
@@ -930,15 +654,17 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             id="personForLTPM"
                             className="m-1 mb-2"
                             name="personForLTPM"
-                            // style={{ width: "350px" }}
                             {...register(
-                              "cmBasicDataFilledByMTD_TL.personForLTPM"
+                              "cmBasicDataFilledByMTD_TL.personForLTPM",
+                              {
+                                required:
+                                  watch(
+                                    "cmBasicDataFilledByMTD_TL.categories"
+                                  ) === "LTPM"
+                                    ? "This field is required !"
+                                    : false,
+                              }
                             )}
-                            onInput={() => {
-                              clearErrors(
-                                "cmBasicDataFilledByMTD_TL.personForLTPM"
-                              );
-                            }}
                           />
                         </div>
                         {errors?.cmBasicDataFilledByMTD_TL?.personForLTPM && (
@@ -969,7 +695,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                         id="targetDateOfCM"
                         className="m-1 mb-2"
                         name="cmBasicDataFilledByMTD_TL.targetDateOfCM"
-                        // style={{ width: "350px" }}
                         {...register(
                           "cmBasicDataFilledByMTD_TL.targetDateOfCM",
                           {
@@ -1009,7 +734,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                         value="Yes"
                         className="m-1 mb-2"
                         name="partRequiredByMTDTL"
-                        // style={{ width: "350px" }}
                         {...register("partRequiredByMTDTL", {
                           required: "This field is required !",
                         })}
@@ -1027,7 +751,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                         value="No"
                         className="m-1 mb-2"
                         name="partRequiredByMTDTL"
-                        // style={{ width: "350px" }}
                         {...register("partRequiredByMTDTL", {
                           required: "This field is required !",
                         })}
@@ -1059,19 +782,16 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                           type="text"
                           id="partSuggestionByMTDTL"
                           className="m-1 mb-2"
-                          name="partSuggestionByMTDTL"
-                          // style={{ width: "350px" }}
                           {...register(
                             "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
+
                             {
-                              required: "Please enter part name",
+                              required:
+                                watch("partRequiredByMTDTL") === "Yes"
+                                  ? "Please enter part name"
+                                  : false,
                             }
                           )}
-                          onInput={() => {
-                            clearErrors(
-                              "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
-                            );
-                          }}
                         />
                       </div>
                       {errors?.cmBasicDataFilledByMTD_TL
@@ -1086,47 +806,14 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                     </Col>
                   </Row>
                 )}
-
-                {/* <Col lg={11} md={11}>
-                  <Row className="">
-                    <PartList parts={parts} setParts={setParts} />
-                  </Row>
-                </Col> */}
               </td>
 
               <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
-                <Row className="m-0">
-                  <Col className="border p-2">
-                    <FormControl>
-                      <FormLabel id="demo-radio-buttons-group-label">
-                        <small>
-                          <b>SHIFT</b>
-                        </small>
-                      </FormLabel>
-
-                      {watch("shiftOfBM") && (
-                        <RadioGroup
-                          row
-                          value={watch("shiftOfBM")}
-                          // value={"B"}
-                          aria-labelledby="demo-radio-buttons-group-label"
-                          name="radio-buttons-group"
-                        >
-                          {plantShiftsData?.map((shiftInfo) => (
-                            <FormControlLabel
-                              value={shiftInfo.shiftName}
-                              control={<Radio color="default" size="small" />}
-                              label={shiftInfo.shiftName}
-                              disabled={
-                                watch("shiftOfBM") !== shiftInfo.shiftName
-                              }
-                            />
-                          ))}
-                        </RadioGroup>
-                      )}
-                    </FormControl>
-                  </Col>
-                </Row>
+                <ShiftInputField
+                  dateAndTime={watch("plannedDateAndTimeOfCM")}
+                  shiftOfBM={watch("shiftOfBM")}
+                  setValue={setValue}
+                />
 
                 <Row className="m-0">
                   <Col className="border p-2">
@@ -1186,16 +873,12 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                           <Multiselect
                             {...field}
                             displayValue="tm_name"
-                            // className="col-5"
                             options={assignTMList} // Options to display in the dropdown
-                            // selectedValues={departmentList} // Preselected value to persist in dropdown
                             onSelect={async (selectedList) => {
-                              // await setSelectedAssignTM(selectedList);
                               setValue("assignUserForCM", selectedList);
                               trigger("assignUserForCM");
                             }} // Function will trigger on select event
                             onRemove={async (selectedList) => {
-                              // await setSelectedAssignTM(selectedList);
                               setValue("assignUserForCM", selectedList);
                               trigger("assignUserForCM");
                             }} // Function will trigger on remove event
@@ -1204,7 +887,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                                 width: "14rem",
                               },
                             }}
-                            // selectedValues={requestSheetDataOfBM?.supportingTM}
                           />
                           {errors.assignUserForCM && (
                             <p className="text-error">
@@ -1225,7 +907,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                         <Form.Control
                           type="file"
                           multiple
-                          // accept="image/png, image/gif, image/jpeg"
                           onChange={(e) => {
                             setValue(
                               "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
@@ -1239,11 +920,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             );
                           }}
                         />
-                        {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
-                          <p className="text-error">{"This field is required"}</p>
-                        )} */}
                       </Form.Group>
-                      {/* {selectedAttendee} */}
                     </Col>
                   )}
                 </Row>
@@ -1252,21 +929,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 
             <tr>
               <td>
-                <button
-                  type="submit"
-                  className="btn bg-success"
-                  // onClick={() => {
-                  //   if (
-                  //     !watch("problemFaced") &&
-                  //     !watch("select_problemFaced")
-                  //   ) {
-                  //     return setError("error_problemFaced", {
-                  //       type: "custom",
-                  //       message: "Please fill or select this field",
-                  //     });
-                  //   }
-                  // }}
-                >
+                <button type="submit" className="btn bg-success">
                   Submit Request-Sheet
                 </button>
               </td>
