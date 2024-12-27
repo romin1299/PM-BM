@@ -46,7 +46,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
 
   const newRequestSheetRegistrationOfCM = async (requestSheetDataOfCM) => {
     try {
-      console.log(requestSheetDataOfCM);
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
 
@@ -511,30 +510,53 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                       <b>Category:</b>
                     </p>
                   </Col>
-                  <Col lg={7} className="d-flex justify-content-center">
-                    {CATEGORIES_OF_CM?.map((value, idx) => (
-                      <>
-                        <Col>
-                          <input
+                  <Col lg={7}>
+                    <div className="d-flex justify-content-between">
+                      {CATEGORIES_OF_CM.map((value, idx) => (
+                        <React.Fragment key={idx}>
+                          <Form.Check
+                            // flex
+                            idx={idx}
+                            label={value}
                             type="radio"
-                            id="categories"
-                            name="cmBasicDataFilledByMTD_TL.categories"
-                            className="m-1 mb-2"
                             value={value}
+                            name={`categories`}
+                            className="col-auto"
                             {...register(
                               "cmBasicDataFilledByMTD_TL.categories",
                               {
-                                required: "Please select category",
+                                required: "Category is required",
                               }
                             )}
                           />
-                          <label>{value}</label>
-                        </Col>
-                      </>
-                    ))}
+                        </React.Fragment>
+                      ))}
+                    </div>
                     {errors?.cmBasicDataFilledByMTD_TL?.categories && (
                       <p className="text-error">
                         {errors?.cmBasicDataFilledByMTD_TL?.categories?.message}
+                      </p>
+                    )}
+                    {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                      "Others" && (
+                      <input
+                        type="text"
+                        size={20}
+                        className="m-1 mb-2"
+                        {...register(
+                          "cmBasicDataFilledByMTD_TL.other_categories",
+                          {
+                            required: "Other category is required",
+                          }
+                        )}
+                      />
+                    )}
+                    {errors?.cmBasicDataFilledByMTD_TL?.other_categories && (
+                      <p className="text-error">
+                        {
+                          errors?.cmBasicDataFilledByMTD_TL?.other_categories
+                            ?.message
+                        }
                       </p>
                     )}
                   </Col>
@@ -760,7 +782,6 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                           type="text"
                           id="partSuggestionByMTDTL"
                           className="m-1 mb-2"
-                          name="partSuggestionByMTDTL"
                           {...register(
                             "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
 

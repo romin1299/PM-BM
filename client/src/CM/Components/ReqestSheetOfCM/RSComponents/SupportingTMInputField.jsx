@@ -8,12 +8,20 @@ const SupportingTMInputField = ({
   setValue,
   trigger,
   errors,
-  assigned_users,
+  watch,
   selectedYear,
 }) => {
   const navigate = useNavigate();
 
-  const [supportingTMList, setSupportingTMList] = useState([]);
+  const [supportingTMList, setSupportingTMList] = useState([
+    {
+      _id: "",
+      user_type: "",
+      tm_grade: "",
+      tm_department: "",
+      tm_name: "",
+    },
+  ]);
 
   const getSupportingTMDetails = async () => {
     try {
@@ -45,7 +53,7 @@ const SupportingTMInputField = ({
 
   return (
     <Controller
-      name="assignUserForCM"
+      name="current_commonDataFilledByAssignUser.assignUserForCM"
       control={control}
       rules={{
         required: "Please select the assign user",
@@ -55,15 +63,24 @@ const SupportingTMInputField = ({
           <Multiselect
             {...field}
             displayValue="tm_name"
-            selectedValues={assigned_users}
+            selectedValues={
+              watch("current_commonDataFilledByAssignUser.assignUserForCM") ||
+              []
+            }
             options={supportingTMList} // Options to display in the dropdown
             onSelect={async (selectedList) => {
-              setValue("assignUserForCM", selectedList);
-              trigger("assignUserForCM");
+              setValue(
+                "current_commonDataFilledByAssignUser.assignUserForCM",
+                selectedList
+              );
+              trigger("current_commonDataFilledByAssignUser.assignUserForCM");
             }} // Function will trigger on select event
             onRemove={async (selectedList) => {
-              setValue("assignUserForCM", selectedList);
-              trigger("assignUserForCM");
+              setValue(
+                "current_commonDataFilledByAssignUser.assignUserForCM",
+                selectedList
+              );
+              trigger("current_commonDataFilledByAssignUser.assignUserForCM");
             }} // Function will trigger on remove event
             style={{
               multiselectContainer: {
@@ -71,8 +88,13 @@ const SupportingTMInputField = ({
               },
             }}
           />
-          {errors.assignUserForCM && (
-            <p className="text-error">{errors?.assignUserForCM?.message}</p>
+          {errors?.current_commonDataFilledByAssignUser?.assignUserForCM && (
+            <p className="text-error">
+              {
+                errors?.current_commonDataFilledByAssignUser.assignUserForCM
+                  ?.message
+              }
+            </p>
           )}
         </>
       )}

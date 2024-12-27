@@ -1,22 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  TextField,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  RadioGroup,
-  Radio,
-  FormControl,
-  InputLabel,
-  Button,
-} from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { Row, Col, Container, Form } from "react-bootstrap";
+import { Row, Col, Form } from "react-bootstrap";
 import axios from "axios";
 import RoutingContext from "../../../../context/routing/RoutingContext";
-import PartList from "../../../../BM/Tabs/SubComponents/PartList";
-import ActionList from "../../../../BM/Tabs/SubComponents/ActionList";
-import WorkDetails from "../../../../BM/Tabs/SubComponents/WorkDetails";
 import {
   SuccessToast,
   WarningToast,
@@ -27,6 +13,7 @@ import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
 const ExistinngMachineReqSheetForOperator = ({
   cmSelectedSheetForView,
   isEditable = false,
+  setCmReqSheetView,
 }) => {
   const {
     register,
@@ -357,9 +344,11 @@ const ExistinngMachineReqSheetForOperator = ({
     if (checkWhetherAnyErrorOccurredOrNot > 0) {
       return;
     }
-    requestSheetDataOfCM.changedParts = parts;
-    requestSheetDataOfCM.workDetails = workDetails;
-    requestSheetDataOfCM.actionAndCounterMeasureStep = actions;
+    requestSheetDataOfCM.changedParts = allDataOFTableFilledByOperator?.parts;
+    requestSheetDataOfCM.workDetails =
+      allDataOFTableFilledByOperator?.workDetails;
+    requestSheetDataOfCM.actionAndCounterMeasureStep =
+      allDataOFTableFilledByOperator?.actions;
     try {
       const formData = new FormData();
       const { ...otherFields } = requestSheetDataOfCM;
@@ -518,29 +507,6 @@ const ExistinngMachineReqSheetForOperator = ({
             }
           })}
 
-          <Col lg={7}>
-            <Col lg={5}>
-              <small className="mb-0 pt-1">
-                <b>Dummy 1:</b>
-              </small>
-            </Col>
-            <div className="d-block align-items-center">
-              {" "}
-              <input
-                type="file"
-                id="id"
-                className="m-1 mb-2"
-                disabled={!isEditable}
-                style={{ width: "350px" }}
-                {...register("attachedFileByAssignedUser")}
-              />
-            </div>
-            {errors?.["attachedFileByAssignedUser"] && (
-              <p className="text-error">
-                {errors?.["attachedFileByAssignedUser"]?.message}
-              </p>
-            )}
-          </Col>
         </Row>
 
         {cmSelectedSheetForView?.commonDataFilledByAssignUser?.some((user) =>

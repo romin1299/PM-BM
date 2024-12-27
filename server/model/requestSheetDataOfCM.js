@@ -13,7 +13,7 @@ const userObj = {
 
 const approvalObj = {
   approvalStatus: { type: String },
-  approvalDateAndTime: { type: Date },
+  approvalDateAndTime: { type: String },
   rejectedRemarks: { type: String },
 };
 
@@ -36,9 +36,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     type: String,
   },
 
-  sheetIssuedDateAndTimeOfCM: {
-    type: Date,
-  },
+  sheetIssuedDateAndTimeOfCM: { type: String },
 
   cmBasicDataFilledByMTD_TL: {
     activityOfCM: { type: String },
@@ -51,7 +49,10 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     categories: {
       type: String,
     },
-    targetDateOfCM: { type: Date },
+    other_categories: {
+      type: String,
+    },
+    targetDateOfCM: { type: String },
     inspectionItem: {
       type: String,
     },
@@ -93,9 +94,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
             type: String,
           },
 
-          plannedDateAndTimeOfCM: {
-            type: Date,
-          },
+          plannedDateAndTimeOfCM: { type: String },
           //Spare parts related fields
           sparePartUsedOrNot: { type: String },
           changedParts: [

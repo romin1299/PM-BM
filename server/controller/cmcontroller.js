@@ -62,6 +62,9 @@ let currentYear =
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
+const generalDateFormat = (propDate = new Date()) =>
+  moment(propDate).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
+
 const successResponse = (res, message = "", data = {}) => {
   try {
     return res.status(201).json({
@@ -169,11 +172,16 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
   }
 };
 
+const findMachineUsing_id = tryCatchHandler(async (req, res, next) => {
+  req.findMachineQuery = {
+    _id: req.query?.machineRef,
+  };
+  return next();
+});
+
 const findMachineDataWithParentHierarchy = tryCatchHandler(
   async (req, res, next) => {
-    const machine = await Machine.findOne({
-      _id: req.query?.machineRef,
-    })
+    const machine = await Machine.findOne(req.findMachineQuery)
       .populate({
         path: "line_names",
         populate: {
@@ -208,30 +216,13 @@ router.get(
   authenticate,
   findTLandOperatorList,
   tryCatchHandler(async (req, res, next) => {
-    const selectedMachineData = await Machine.findOne({
-      machine_code: req.query?.machine_code,
-    })
-      .populate({
-        path: "line_names",
-        populate: {
-          path: "cell_names",
-          populate: {
-            path: "subSection_names",
-            populate: {
-              path: "section_names",
-              populate: {
-                path: "plant_names",
-                model: "Plants",
-              },
-            },
-          },
-        },
-      })
-      .select(["machine_code", "machine_name"])
-      .exec();
-
+    req.findMachineQuery = req.query;
+    return next();
+  }),
+  findMachineDataWithParentHierarchy,
+  tryCatchHandler(async (req, res, next) => {
     successResponse(res, "Selected machine data get successfully", {
-      machine: selectedMachineData,
+      machine: req.machine,
       TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
     });
   })
@@ -327,7 +318,9 @@ const quarterlyDataAdd = (
             year
           );
         yearlyDataObject?.quarterlyDataOfTheCM?.push({
-          plannedDateAndTimeOfCM: modifiedPlannedDateAndTimeOfCM,
+          plannedDateAndTimeOfCM: generalDateFormat(
+            modifiedPlannedDateAndTimeOfCM
+          ),
           requestSheet_quarter: quarter,
           statusOfPlannedCM: "Planned",
           assignUserForCM,
@@ -384,6 +377,7 @@ router.post(
   uploadDataSheetsOfBD.fields([
     { name: "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", maxCount: 10 },
   ]),
+  findMachineUsing_id,
   findMachineDataWithParentHierarchy,
   findPlantToMachineHierarchyObj,
   async (req, res, next) => {
@@ -426,6 +420,21 @@ router.post(
       assignUserForCM
     );
 
+    requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
+      generalDateFormat(
+        requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM
+      );
+
+    requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.targetDateOfCM =
+      generalDateFormat(
+        requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+          ?.targetDateOfCM
+      );
+
+    console.log(
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+    );
+
     let requestSheetOfCM = new RequestSheetOfCM({
       requestSheetNoOfCM,
       ..._idObject,
@@ -433,8 +442,6 @@ router.post(
       requestSheetCreatedBy: req?.rootUser,
       shiftOfCM: requestSheetDataFilledByMTDUserForCM?.shiftOfBM,
       ...requestSheetDataFilledByMTDUserForCM,
-      partSuggestionByMTDTL:
-        requestSheetDataFilledByMTDUserForCM?.partSuggestionByMTDTL,
       commonDataFilledByAssignUser,
     });
 
@@ -466,6 +473,25 @@ router.patch(
       requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
         "";
     }
+
+    if (requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM) {
+      requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
+        generalDateFormat(
+          requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM
+        );
+    }
+
+    if (
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+        ?.targetDateOfCM
+    ) {
+      requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.targetDateOfCM =
+        generalDateFormat(
+          requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+            ?.targetDateOfCM
+        );
+    }
+
     //
     // console.log(requestSheetDataFilledByMTDUserForCM);
     const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
@@ -728,10 +754,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         rejectedRemarksOfRequestSheet: 1,
         feedbackMTD_HOS: 1,
         qualityConfirmed: 1,
-
-        changedParts: 1,
-        workDetails: 1,
-        actionAndCounterMeasureStep: 1,
 
         requestSheetStatusOfCM: 1,
         getDataForApprovalDashboard: 1,
@@ -1269,7 +1291,7 @@ router.get(
           "cmBasicDataFilledByMTD_TL.frequencyType": "Scheduled",
           // lineRef: mongoose.Types.ObjectId(req?.query?.lineRef),
           ...req?.queryObj,
-          machineRef: mongoose.Types.ObjectId('63b67ccba716e21c95cd383e')
+          machineRef: mongoose.Types.ObjectId("63b67ccba716e21c95cd383e"),
         },
       },
       {
