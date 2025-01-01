@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
 import moment from "moment";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const WorkDetails = ({
   workDetails,
@@ -12,9 +12,8 @@ const WorkDetails = ({
   handleOnchangeFlag,
   assigned_users,
   isEditable,
+  setValue,
 }) => {
-  const { machine_code, selectedYear } = useParams();
-
   const [newWork, setNewWork] = useState("");
   const [newTMName, setNewTMName] = useState({});
   const [newFromDate, setNewFromDate] = useState("");
@@ -23,24 +22,25 @@ const WorkDetails = ({
   const [editedWork, setEditedWork] = useState(null);
   const [supportingTMList, setSupportingTMList] = useState([]);
 
+  const FLAGS = ["DEFAULT", "ADD", "UPDATE", "DELETE"];
+
+  const [CURDFlag, setCURDFlag] = useState(FLAGS?.[0]);
+
   const navigate = useNavigate();
   const getMachineDetails = async () => {
     try {
-      const res = await fetch(
-        `/getMachineDetailsForRequestSheetOfCM/?machine_code=${machine_code}&&current_year=${selectedYear}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
+      const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
       if (res.status === 404) {
         navigate("/", { replace: true });
       } else {
-        const { machine, TLHOSS_and_TM_user_list } = await res.json();
+        const { TLHOSS_and_TM_user_list } = await res.json();
         setSupportingTMList(TLHOSS_and_TM_user_list);
       }
     } catch (error) {
@@ -50,7 +50,7 @@ const WorkDetails = ({
 
   useEffect(() => {
     getMachineDetails();
-  }, [machine_code]);
+  }, []);
 
   const [dateError, setDateError] = useState("");
 
@@ -83,8 +83,12 @@ const WorkDetails = ({
         fromDate: newFromDate,
         toDate: newToDate,
       };
-      // console.log("workdetails", workDetails, "newworkdetails", newWorkDetail);
-      setWorkDetails([...workDetails, newWorkDetail]);
+      console.log(workDetails);
+      let updatedWorkDetails = [...workDetails, newWorkDetail];
+      console.log(updatedWorkDetails);
+
+      setWorkDetails(updatedWorkDetails);
+      setValue && setValue("workDetails", updatedWorkDetails);
       // console.log("workdwedawDWD", workDetails);
       handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
       clearErrors && clearErrors("workDetailsValidation");
@@ -111,6 +115,7 @@ const WorkDetails = ({
       return work;
     });
     setWorkDetails(updatedWorkDetails);
+    setValue && setValue("workDetails", updatedWorkDetails);
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
     setEditedWork(null);
   };
@@ -127,6 +132,7 @@ const WorkDetails = ({
       (work) => work?.id !== workId
     );
     setWorkDetails(updatedWorkDetails);
+    setValue && setValue("workDetails", updatedWorkDetails);
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
   };
 

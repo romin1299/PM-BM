@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Col, Container, Form, Modal, Row, Table } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import RoutingContext from "../../../../context/routing/RoutingContext";
@@ -25,11 +25,8 @@ const ExistingMachineReqSheetView = ({
     register,
     handleSubmit,
     formState: { errors, dirtyFields },
-    watch,
     setValue,
-    trigger,
-    control,
-    clearErrors,
+    watch,
   } = useForm({
     defaultValues: async () => {
       try {
@@ -37,7 +34,7 @@ const ExistingMachineReqSheetView = ({
           `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}`
         );
         if (response.status === 201) {
-          return response.data.requestSheet;
+          return response.data?.requestSheet;
         }
       } catch (error) {
         console.log(error);
@@ -47,9 +44,23 @@ const ExistingMachineReqSheetView = ({
 
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
-      requestSheetDataOfCM.changedParts = [];
       const formData = new FormData();
+
+      // console.log(dirtyFields, requestSheetDataOfCM);
+
+      // return;
       const { ...otherFields } = requestSheetDataOfCM;
+
+      // if (
+      //   requestSheetDataOfCM?.commonDataFilledByAssignUser?.some((user) =>
+      //     user.quarterlyDataOfTheCM.some((quarter) =>
+      //       quarter.assignUserForCM.some((u) => u._id === context?._id)
+      //     )
+      //   ) === true
+      // ) {
+      //   requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
+      // }
+
       for (
         let i = 0;
         i <
@@ -72,7 +83,7 @@ const ExistingMachineReqSheetView = ({
         },
       };
       const response = await axios.patch(
-        `/updateCmReqSheet/${watch("_id")}`,
+        `/sendApprovalForRequestSheetOfCM/${watch("_id")}`,
         formData,
         config
       );
@@ -586,18 +597,21 @@ const ExistingMachineReqSheetView = ({
                             <Form.Control
                               type="file"
                               multiple
-                              onChange={(e) => {
-                                setValue(
-                                  "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
-                                  e.target.files,
-                                  {
-                                    shouldDirty: true,
-                                  }
-                                );
-                                clearErrors(
-                                  "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser"
-                                );
-                              }}
+                              {...register(
+                                "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser"
+                              )}
+                              // onChange={(e) => {
+                              //   setValue(
+                              //     "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
+                              //     e.target.files,
+                              //     {
+                              //       shouldDirty: true,
+                              //     }
+                              //   );
+                              //   clearErrors(
+                              //     "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser"
+                              //   );
+                              // }}
                             />
                           </Form.Group>
                         </Col>
@@ -619,20 +633,17 @@ const ExistingMachineReqSheetView = ({
                   )}
               </tbody>
             </Table>
-          </form>
-
-          {
-            // context?.user_type === "Operator" ||
-            // cmSelectedSheetForView?.assigned_users?.length > 0) &&
-            // (cmSelectedSheetForView?.requestSheetStatusOfCM !== "Generated" ||
-            //   isEditable === true) && (
-            watch("_id") && (
+            {watch("_id") && (
               <ExistinngMachineReqSheetForOperator
+                setValue={setValue}
                 isEditable={isEditable}
-                cmSelectedSheetForView={watch("_id")}
+                selectedYear={selectedYear}
+                register={register}
+                errors={errors}
+                watch={watch}
               />
-            )
-          }
+            )}
+          </form>
         </div>
       </Modal.Body>
     </Modal>

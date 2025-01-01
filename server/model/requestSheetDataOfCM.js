@@ -169,6 +169,14 @@ const requestSheetOfCMSchema = new mongoose.Schema({
             },
           ],
 
+          isPermissionOfMTDTL: {
+            type: String,
+          },
+
+          isPermissionOfPRDTL: {
+            type: String,
+          },
+
           getDataForApprovalDashboard: {
             Id: {
               type: mongoose.Schema.Types.ObjectId,

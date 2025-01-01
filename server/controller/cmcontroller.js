@@ -241,6 +241,70 @@ router.get(
   })
 );
 
+router.get(
+  "/getApprovalUserList",
+  authenticate,
+  tryCatchHandler(async (req, res, next) => {
+    const users = await User.aggregate([
+      {
+        $match: {
+          $or: [
+            {
+              tm_department: "MTD",
+              tm_grade: "HOS",
+            },
+            {
+              tm_department: { $in: ["MTD", "PRD"] },
+              user_type: "TL/HOSS",
+            },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: {
+            tm_department: "$tm_department",
+            tm_grade: "$tm_grade",
+            user_type: "$user_type",
+          },
+          groupUsers: {
+            $push: {
+              userRef: "$_id",
+              tm_no: "$tm_no",
+              user_type: "$user_type",
+              tm_name: "$tm_name",
+              email: "$email",
+            },
+          },
+        },
+      },
+    ]);
+
+    let userList = {
+      MTDHOSList: [],
+      MTDTLList: [],
+      PRDTLList: [],
+    };
+
+    for (let i = 0; i < users.length; i++) {
+      const { _id, groupUsers } = users[i];
+      const { tm_department, tm_grade, user_type } = _id;
+
+      if (tm_department === "MTD" && tm_grade === "HOS") {
+        userList.MTDHOSList = groupUsers;
+      } else if (tm_department === "MTD" && user_type === "TL/HOSS") {
+        userList.MTDTLList = groupUsers;
+      } else {
+        userList.PRDTLList = groupUsers;
+      }
+    }
+
+    successResponse(res, "User data get successfully", {
+      userList,
+    });
+  })
+);
+
 const quarterlyDataAdd = (
   plannedDateAndTimeOfCM,
   frequencyValue,
@@ -433,10 +497,6 @@ router.post(
           ?.targetDateOfCM
       );
 
-    console.log(
-      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-    );
-
     let requestSheetOfCM = new RequestSheetOfCM({
       requestSheetNoOfCM,
       ..._idObject,
@@ -526,7 +586,7 @@ const commonKeyGenerationMiddleware = tryCatchHandler(
 );
 
 router.patch(
-  "/sendApprovalForRequestSheetOfCM/:reqId/:machineRef",
+  "/sendApprovalForRequestSheetOfCM/:reqId",
   authenticate,
   uploadDataSheetsOfBD.fields([
     { name: "attachedFileByAssignedUser", maxCount: 10 },
@@ -537,10 +597,13 @@ router.patch(
       const allKeys = {
         ...req.allKeys,
         attachedFileByAssignedUser: `${req?.commonKey}.attachedFileByAssignedUser`,
+        plannedDateAndTimeOfCM: `${req?.commonKey}.plannedDateAndTimeOfCM`,
         getDataForApprovalDashboard: `${req?.commonKey}.getDataForApprovalDashboard`,
         workDetails: `${req?.commonKey}.workDetails`,
         changedParts: `${req?.commonKey}.changedParts`,
         actionAndCounterMeasureStep: `${req?.commonKey}.actionAndCounterMeasureStep`,
+        isPermissionOfMTDTL: `${req?.commonKey}.isPermissionOfMTDTL`,
+        isPermissionOfPRDTL: `${req?.commonKey}.isPermissionOfPRDTL`,
       };
 
       let commonApprovalStatusObj = {
@@ -551,30 +614,6 @@ router.patch(
       const requestSheetDataFilledByMTDUserForCM = JSON.parse(
         req.body.otherData
       );
-
-      let user_ids = {
-        ID_MTD_HOS:
-          requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
-        ID_MTD_TL: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
-        ID_PRD_TL: requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL?._id,
-      };
-
-      delete requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS["_id"];
-      if (requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id)
-        delete requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL["_id"];
-      if (requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL?._id)
-        delete requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL["_id"];
-
-      let updateObj = {
-        $push: {
-          [allKeys?.approvalOfMTD_HOS]: {
-            ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS,
-            userRef: user_ids?.ID_MTD_HOS,
-            ...commonApprovalStatusObj,
-            approvalDateAndTime: new Date(),
-          },
-        },
-      };
 
       if (
         req.files?.attachedFileByAssignedUser?.[0]?.filename ||
@@ -589,20 +628,108 @@ router.patch(
         };
       }
 
-      if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes") {
-        updateObj.$push = {
-          ...updateObj.$push,
-          [allKeys?.approvalOfMTD_TL]: {
-            ...requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL,
-            userRef: user_ids?.ID_MTD_TL,
-            ...commonApprovalStatusObj,
-          },
-        };
+      if (
+        requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+          ?.frequencyType === "One-time"
+      ) {
+        requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
+          "";
+      }
+
+      if (requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM) {
+        requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
+          generalDateFormat(
+            requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM
+          );
+      }
+
+      if (
+        requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+          ?.targetDateOfCM
+      ) {
+        requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.targetDateOfCM =
+          generalDateFormat(
+            requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+              ?.targetDateOfCM
+          );
+      }
+
+      let updateObj = {
+        $set: {
+          [allKeys?.plannedDateAndTimeOfCM]: generalDateFormat(
+            requestSheetDataFilledByMTDUserForCM
+              ?.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM
+          ),
+          [allKeys?.isPermissionOfMTDTL]:
+            requestSheetDataFilledByMTDUserForCM
+              ?.current_commonDataFilledByAssignUser?.isPermissionOfMTDTL,
+          [allKeys?.isPermissionOfPRDTL]:
+            requestSheetDataFilledByMTDUserForCM
+              ?.current_commonDataFilledByAssignUser?.isPermissionOfPRDTL,
+        },
+      };
+
+      let otherArrayFilters = [];
+
+      const addOrUpdateApprovalUser = (key, specificUserObj) => {
+        if (specificUserObj?.[`approvalOf${key}`]) {
+          const { AddNewOrUpdateExistingArrayField } = specificUserObj;
+
+          const userApprovalInfo = specificUserObj?.[`approvalOf${key}`];
+
+          if (AddNewOrUpdateExistingArrayField?.status === "ADD_NEW") {
+            updateObj.$push = {
+              ...updateObj.$push,
+              [allKeys?.[`approvalOf${key}`]]: {
+                ...userApprovalInfo,
+                ...commonApprovalStatusObj,
+              },
+            };
+          } else {
+            let defaultKey = `${allKeys?.[`approvalOf${key}`]}.$[${key
+              .toLowerCase()
+              ?.split("_")
+              ?.join("")}userFilter]`;
+
+            updateObj.$set = {
+              ...updateObj.$set,
+              [`${defaultKey}.userRef`]: userApprovalInfo?.userRef,
+              [`${defaultKey}.tm_no`]: userApprovalInfo?.tm_no,
+              [`${defaultKey}.user_type`]: userApprovalInfo?.user_type,
+              [`${defaultKey}.tm_name`]: userApprovalInfo?.tm_name,
+              [`${defaultKey}.email`]: userApprovalInfo?.email,
+            };
+
+            otherArrayFilters.push({
+              [`${key.toLowerCase()?.split("_")?.join("")}userFilter._id`]:
+                mongoose.Types.ObjectId(
+                  AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField
+                ),
+            });
+          }
+        }
+      };
+
+      addOrUpdateApprovalUser(
+        "MTD_HOS",
+        requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS
+      );
+
+      if (
+        requestSheetDataFilledByMTDUserForCM
+          ?.current_commonDataFilledByAssignUser?.isPermissionOfMTDTL === "Yes"
+      ) {
+        addOrUpdateApprovalUser(
+          "MTD_TL",
+          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
+        );
+
         updateObj.$set = {
           ...updateObj.$set,
           [allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
           [allKeys?.getDataForApprovalDashboard]: {
-            Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_TL?._id,
+            Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
+              ?.approvalOfMTD_TL?.userRef,
             departmentAndGradeOfUser: "MTD TL/HOSS",
           },
         };
@@ -611,23 +738,24 @@ router.patch(
           ...updateObj.$set,
           [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
           [allKeys?.getDataForApprovalDashboard]: {
-            Id: requestSheetDataFilledByMTDUserForCM?.approvalOfMTD_HOS?._id,
+            Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS
+              ?.approvalOfMTD_HOS?.userRef,
             departmentAndGradeOfUser: "MTD HOS",
           },
         };
       }
 
-      if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL === "Yes") {
-        updateObj.$push = {
-          ...updateObj.$push,
-          [allKeys?.approvalOfPRD_TL]: {
-            ...requestSheetDataFilledByMTDUserForCM?.approvalOfPRD_TL,
-            userRef: user_ids?.ID_PRD_TL,
-            ...commonApprovalStatusObj,
-          },
-        };
+      if (
+        requestSheetDataFilledByMTDUserForCM
+          ?.current_commonDataFilledByAssignUser?.isPermissionOfPRDTL === "Yes"
+      ) {
+        addOrUpdateApprovalUser(
+          "PRD_TL",
+          requestSheetDataFilledByMTDUserForCM?.approvalObj_PRD_TL
+        );
       }
       updateObj.$set = {
+        ...requestSheetDataFilledByMTDUserForCM,
         ...updateObj.$set,
         [allKeys?.workDetails]:
           requestSheetDataFilledByMTDUserForCM?.workDetails,
@@ -644,11 +772,14 @@ router.patch(
         updateObj,
         {
           arrayFilters: [
+            // by default considered as current year and current quarter,
+            // if needed then, have update filter with selected year and selected quarter
             {
               "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
                 currentYear,
             },
             { "quarterFilter.requestSheet_quarter": getFinancialQuarter() },
+            ...otherArrayFilters,
           ],
           new: true,
         }
@@ -664,6 +795,166 @@ router.patch(
 );
 
 const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
+  let otherPipelines = {
+    addFields: {},
+    project: {},
+  };
+
+  let currentFYYearAndQuarter = {
+    quarter: getFinancialQuarter(),
+  };
+
+  if (req.url?.split("/")?.includes("getReqSheetDataByID")) {
+    const getUserApprovalObj = (key, permissionKey) => {
+      let approvalUserDetails = {
+        $last: `$current_commonDataFilledByAssignUser.${key}`,
+      };
+
+      if (permissionKey) {
+        approvalUserDetails = {
+          $cond: [
+            {
+              $eq: [
+                `$current_commonDataFilledByAssignUser.${permissionKey}`,
+                "Yes",
+              ],
+            },
+            {
+              $last: `$current_commonDataFilledByAssignUser.${key}`,
+            },
+            {},
+          ],
+        };
+      }
+      return {
+        $cond: [
+          {
+            $gt: ["$current_commonDataFilledByAssignUser", null],
+          },
+          {
+            $cond: [
+              {
+                $or: [
+                  {
+                    $lte: [
+                      { $size: `$current_commonDataFilledByAssignUser.${key}` },
+                      0,
+                    ],
+                  },
+                  {
+                    $in: [
+                      {
+                        $getField: {
+                          field: "approvalStatus",
+                          input: {
+                            $last: `$current_commonDataFilledByAssignUser.${key}`,
+                          },
+                        },
+                      },
+                      ["Rejected", "Accepted", ""],
+                    ],
+                  },
+                ],
+              },
+              {
+                AddNewOrUpdateExistingArrayField: {
+                  status: "ADD_NEW",
+                  refIdFOrUpdateExitingField: "",
+                },
+                [key]: {},
+              },
+              {
+                AddNewOrUpdateExistingArrayField: {
+                  status: "UPDATE_EXISTING",
+                  refIdFOrUpdateExitingField: {
+                    $getField: {
+                      field: "_id",
+                      input: {
+                        $last: `$current_commonDataFilledByAssignUser.${key}`,
+                      },
+                    },
+                  },
+                },
+                [key]: approvalUserDetails,
+              },
+            ],
+          },
+          {
+            AddNewOrUpdateExistingArrayField: {
+              status: "ADD_NEW",
+              refIdFOrUpdateExitingField: "",
+            },
+            [key]: {},
+          },
+        ],
+      };
+    };
+
+    otherPipelines = {
+      addFields: {
+        upto_currentYear_current_commonDataFilledByAssignUser: {
+          $filter: {
+            input: {
+              $map: {
+                input: "$commonDataFilledByAssignUser",
+                as: "yearObj",
+                in: {
+                  preAggregationTimeStampOfRequestSheet: {
+                    requestSheet_year:
+                      "$$yearObj.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                    requestSheet_month:
+                      "$$yearObj.preAggregationTimeStampOfRequestSheet.requestSheet_month",
+                  },
+                  quarterlyDataOfTheCM: {
+                    $filter: {
+                      input: "$$yearObj.quarterlyDataOfTheCM",
+                      as: "quarterObj",
+                      cond: {
+                        $lte: [
+                          {
+                            $dateFromString: {
+                              dateString: "$$quarterObj.plannedDateAndTimeOfCM",
+                              timezone,
+                            },
+                          },
+                          new Date(),
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            as: "yearlyData",
+            cond: {
+              $ne: ["$$yearlyData.quarterlyDataOfTheCM", []],
+            },
+          },
+        },
+      },
+      project: {
+        "upto_currentYear_current_commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet": 1,
+        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.requestSheet_quarter": 1,
+        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.plannedDateAndTimeOfCM": 1,
+        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.changedParts": 1,
+        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.workDetails": 1,
+        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.actionAndCounterMeasureStep": 1,
+
+        approvalObj_MTD_TL: getUserApprovalObj(
+          "approvalOfMTD_TL",
+          "isPermissionOfMTDTL"
+        ),
+        approvalObj_MTD_HOS: getUserApprovalObj("approvalOfMTD_HOS"),
+        approvalObj_PRD_TL: getUserApprovalObj(
+          "approvalOfPRD_TL",
+          "isPermissionOfPRDTL"
+        ),
+      },
+    };
+
+    currentFYYearAndQuarter["year"] = currentYear;
+    req.currentFYYearAndQuarter = currentFYYearAndQuarter;
+  }
 
   const requestSheetData = await RequestSheetOfCM.aggregate([
     {
@@ -683,17 +974,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       },
     },
     {
-      $project: {
-        requestSheetNoOfCM: 1,
-        requestSheetOfBMRef: 1,
-        maintenanceType: 1,
-        priorityCode: 1,
-        plannedDateAndTimeOfCM: 1,
-        sheetIssuedDateAndTimeOfCM: 1,
-        shiftOfCM: 1,
-        assigned_users: 1,
-        qualityRelated: 1,
-        requestSheetCreatedBy: 1,
+      $addFields: {
         current_commonDataFilledByAssignUser: {
           $arrayElemAt: [
             {
@@ -727,8 +1008,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
                     //need to change this quarter when user select previous year filter
                     req.query?.selectedQuarter
                       ? req.query?.selectedQuarter
-                      : getFinancialQuarter(),
-                    // getFinancialQuarter()
+                      : currentFYYearAndQuarter?.quarter,
                   ],
                 },
               },
@@ -736,6 +1016,35 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
             0,
           ],
         },
+        ...otherPipelines?.addFields,
+      },
+    },
+    {
+      $project: {
+        requestSheetNoOfCM: 1,
+        requestSheetOfBMRef: 1,
+        maintenanceType: 1,
+        priorityCode: 1,
+        plannedDateAndTimeOfCM: 1,
+        sheetIssuedDateAndTimeOfCM: 1,
+        shiftOfCM: 1,
+        assigned_users: 1,
+        qualityRelated: 1,
+        requestSheetCreatedBy: 1,
+
+        "current_commonDataFilledByAssignUser.requestSheet_quarter": 1,
+        "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM": 1,
+        "current_commonDataFilledByAssignUser.statusOfPlannedCM": 1,
+        "current_commonDataFilledByAssignUser.assignUserForCM": 1,
+        "current_commonDataFilledByAssignUser.rejectedRemarksOfRequestSheet": 1,
+        "current_commonDataFilledByAssignUser.requestSheetStatusOfCM": 1,
+        "current_commonDataFilledByAssignUser._id": 1,
+        "current_commonDataFilledByAssignUser.getDataForApprovalDashboard": 1,
+        "current_commonDataFilledByAssignUser.isPermissionOfMTDTL": 1,
+        "current_commonDataFilledByAssignUser.isPermissionOfPRDTL": 1,
+
+        ...otherPipelines?.project,
+
         cell: {
           $arrayElemAt: ["$plantToMachineHierarchy.cell.cell_name", 0],
         },
@@ -783,13 +1092,15 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       },
     },
   ]);
-  req.requestSheetData = requestSheetData;
+
   if (requestSheetData?.length === 0) {
     return res.status(400).json({
       message: "No data to display",
-      reqSheetCM: requestSheetData
+      reqSheetCM: requestSheetData,
     });
   }
+
+  req.requestSheetData = requestSheetData;
   next();
 });
 
@@ -904,6 +1215,8 @@ router.get(
   }),
   getRequestSheetData,
   tryCatchHandler(async (req, res) => {
+    let requestSheet = req?.requestSheetData?.[0];
+    requestSheet["currentFYYearAndQuarter"] = req.currentFYYearAndQuarter;
     successResponse(res, "Request sheet fetched successfully", {
       requestSheet: req?.requestSheetData?.[0],
     });
