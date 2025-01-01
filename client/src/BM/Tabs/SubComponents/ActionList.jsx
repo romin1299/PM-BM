@@ -9,6 +9,7 @@ const ActionList = ({
   clearErrors,
   handleOnchangeFlag,
   isEditable,
+  setValue,
 }) => {
   const [newActionText, setNewActionText] = useState("");
   const [newActionStatus, setNewActionStatus] = useState("OK");
@@ -25,7 +26,12 @@ const ActionList = ({
         action: newActionText,
         status: newActionStatus,
       };
-      setActions([...actions, newAction]);
+      let updatedActions = [...actions, newAction];
+      setActions(updatedActions);
+      setValue &&
+        setValue("actionAndCounterMeasureStep", updatedActions, {
+          shouldDirty: true,
+        });
       handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
       clearErrors && clearErrors("actionValidation");
       setNewActionText("");
@@ -43,6 +49,10 @@ const ActionList = ({
       return action;
     });
     setActions(updatedActions);
+    setValue &&
+      setValue("actionAndCounterMeasureStep", updatedActions, {
+        shouldDirty: true,
+      });
     handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
     setEditedAction(null);
   };
@@ -57,6 +67,10 @@ const ActionList = ({
 
     const updatedActions = actions?.filter((action) => action?.id !== actionId);
     setActions(updatedActions);
+    setValue &&
+      setValue("actionAndCounterMeasureStep", updatedActions, {
+        shouldDirty: true,
+      });
     handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
   };
 
@@ -76,6 +90,10 @@ const ActionList = ({
       return action;
     });
     setActions(updatedActions);
+    setValue &&
+      setValue("actionAndCounterMeasureStep", updatedActions, {
+        shouldDirty: true,
+      });
     handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
   };
 

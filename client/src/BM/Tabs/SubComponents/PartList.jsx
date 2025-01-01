@@ -17,6 +17,7 @@ const PartList = ({
   handleOnchangeFlag,
   isEditable,
   clearErrors,
+  setValue,
 }) => {
   // console.clear();
 
@@ -37,7 +38,9 @@ const PartList = ({
       // Assign a new id by incrementing the maximum id
       newPart.id = parts?.length;
 
-      setParts([...parts, newPart]);
+      let updatedParts = [...parts, newPart];
+      setParts(updatedParts);
+      setValue && setValue("changedParts", updatedParts, { shouldDirty: true });
       handleOnchangeFlag && handleOnchangeFlag("parts_val_flag");
       clearErrors("partList");
       setNewPart(initialState);
@@ -59,10 +62,11 @@ const PartList = ({
       editedPart.quantity &&
       editedPart.cost
     ) {
-      const updatedParts = parts.map((part) =>
-        part.id === editedPart.id ? editedPart : part
+      const updatedParts = parts.map((part, index) =>
+        (part.id || index) === editedPart.id ? editedPart : part
       );
       setParts(updatedParts);
+      setValue && setValue("changedParts", updatedParts, { shouldDirty: true });
       handleOnchangeFlag && handleOnchangeFlag("parts_val_flag");
       setEditedPart(null);
     }
@@ -83,6 +87,7 @@ const PartList = ({
       (part, index) => (part?.id || index) !== partId
     );
     setParts(updatedParts);
+    setValue && setValue("changedParts", updatedParts, { shouldDirty: true });
     handleOnchangeFlag && handleOnchangeFlag("parts_val_flag");
   };
 
@@ -354,7 +359,7 @@ const PartList = ({
           </Col>
         </Row>
       ) : (
-        // isEditable && (
+        isEditable && (
           <Row className="m-0  p-1 border">
             <Col lg={4}>
               <button
@@ -365,7 +370,7 @@ const PartList = ({
               </button>
             </Col>
           </Row>
-        // )
+        )
       )}
 
       {Array.from({ length: 2 - parts?.length }).map((_, index) => (

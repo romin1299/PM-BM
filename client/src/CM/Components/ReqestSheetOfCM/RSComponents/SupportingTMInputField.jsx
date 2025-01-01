@@ -25,17 +25,14 @@ const SupportingTMInputField = ({
 
   const getSupportingTMDetails = async () => {
     try {
-      const res = await fetch(
-        `/getSupportingTMDetailsForRequestSheetOfCM/?current_year=${selectedYear}`,
-        {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        }
-      );
+      const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
       if (res.status === 404) {
         navigate("/", { replace: true });
       } else {
