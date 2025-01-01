@@ -78,7 +78,7 @@ const MiddlewareForTablesOfMTD = ({
             )}
           </Row>
         </Col>
-        {/* <Col sm={12}>
+        <Col sm={12}>
           <Row className="">
             <WorkDetails
               setValue={setValue}
@@ -99,7 +99,7 @@ const MiddlewareForTablesOfMTD = ({
               </p>
             )}
           </Row>
-        </Col> */}
+        </Col>
       </Row>
     </div>
   );

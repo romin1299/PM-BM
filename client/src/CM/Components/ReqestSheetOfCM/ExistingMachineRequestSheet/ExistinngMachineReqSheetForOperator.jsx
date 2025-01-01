@@ -127,6 +127,7 @@ const ExistinngMachineReqSheetForOperator = ({
               requestSheet_quarter={quarter?.requestSheet_quarter}
               plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}
               partsData={quarter?.changedParts}
+              workData={quarter?.workDetails}
               actionData={quarter?.actionAndCounterMeasureStep}
               isEditable={
                 isEditable &&
