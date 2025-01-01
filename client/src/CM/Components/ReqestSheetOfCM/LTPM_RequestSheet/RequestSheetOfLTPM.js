@@ -116,15 +116,14 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
               quarterValue ===
               item1?.[i]?.quarterlyDataOfTheCM?.[index]?.requestSheet_quarter
             ) {
-
               // Add the corresponding <td> element to rows
               rows.push(
                 <td
                   className="ar-table-col"
                   key={`${yearAddition}-${quarterValue}`}
                 >
-                  {item1?.[i]?.quarterlyDataOfTheCM?.[index]?.statusOfPlannedCM ===
-                    "Planned" && (
+                  {item1?.[i]?.quarterlyDataOfTheCM?.[index]
+                    ?.statusOfPlannedCM === "Planned" && (
                     <button
                       type="button"
                       className="commonBtn viewRequestSheetOfCMBtn"
@@ -229,12 +228,18 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                           >
                             <p>
                               Section Name :{" "}
-                              {LTPMData?.data?.[0]?.section_data?.section_name}
+                              {
+                                LTPMData?.data?.[0]?.machineAllData?.section
+                                  ?.section_name
+                              }
                             </p>
                             <br />
                             <p>
                               Line Name :{" "}
-                              {LTPMData?.data?.[0]?.lines?.line_name}
+                              {
+                                LTPMData?.data?.[0]?.machineAllData?.line
+                                  ?.line_name
+                              }
                             </p>
                           </th>
                           <th
@@ -386,13 +391,13 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                                   rowSpan={item?.data?.length + 1}
                                   className="ar-table-col"
                                 >
-                                  {item?.machines.machine_code}
+                                  {item?.machineAllData?.machine?.machine_code}
                                 </td>
                                 <td
                                   rowSpan={item?.data?.length + 1}
                                   className="ar-table-col"
                                 >
-                                  {item?.machines.machine_name}
+                                  {item?.machineAllData?.machine?.machine_name}
                                 </td>
                               </tr>
 
@@ -434,6 +439,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
       </div>
       {CmReqSheetView && (
         <ExistingMachineReqSheetView
+          selectedYear={reduceState?.selectedYear}
           selectedRowRequestSheetId={selectedRowRequestSheetId}
           isEditable={false}
           setCmReqSheetView={setCmReqSheetView}

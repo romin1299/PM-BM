@@ -33,11 +33,13 @@ const { gettingFYYear } = require("../middleware/gettingFYYear");
 const {
   gettingMonthForSelectedDate,
   getFinancialQuarter,
+  getFinancialQuarterByMonth,
 } = require("../middleware/gettingFYMonthForPreAgg");
 
 const {
   CM_PLANNED_STATUS,
 } = require("../GlobalData/RequestSheetApprovalStatus");
+const { start } = require("repl");
 
 router.use(cookieParser());
 
@@ -1004,7 +1006,9 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
                   $eq: [
                     "$$quarterWiseData.requestSheet_quarter",
                     //need to change this quarter when user select previous year filter
-                    currentFYYearAndQuarter?.quarter,
+                    req.query?.selectedQuarter
+                      ? req.query?.selectedQuarter
+                      : currentFYYearAndQuarter?.quarter,
                   ],
                 },
               },
@@ -1080,11 +1084,19 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         yokotenkai: 1,
       },
     },
+    {
+      $match: {
+        "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM": {
+          $ne: undefined,
+        },
+      },
+    },
   ]);
 
   if (requestSheetData?.length === 0) {
     return res.status(400).json({
       message: "No data to display",
+      reqSheetCM: requestSheetData,
     });
   }
 
@@ -1496,19 +1508,72 @@ router.get(
   }
 );
 
-router.get("/getReqSheetDataForCalendar", authenticate, async (req, res) => {
+router.get(`/getReqSheetDataForCalendar`, authenticate, async (req, res) => {
   try {
+    let yearConvert =
+      req?.query?.selectedMonth * 1 < 3
+        ? `${req?.query?.selectedYear * 1 - 1}-${req?.query?.selectedYear}`
+        : `${req?.query?.selectedYear}-${req?.query?.selectedYear * 1 + 1}`;
+
+    let commonProjection = {
+      $getField: {
+        field: "plannedDateAndTimeOfCM",
+        input: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: {
+                  $getField: {
+                    field: "quarterlyDataOfTheCM",
+                    input: {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$commonDataFilledByAssignUser",
+                            as: "yearWiseData",
+                            cond: {
+                              $eq: [
+                                "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                                yearConvert,
+                              ],
+                            },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                },
+                as: "quarterWiseData",
+                cond: {
+                  $eq: [
+                    "$$quarterWiseData.requestSheet_quarter",
+                    //need to change this quarter when user select previous year filter
+                    getFinancialQuarterByMonth(req?.query?.selectedMonth * 1),
+                  ],
+                },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    };
+
     const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
       {
         $project: {
           title: "$cmBasicDataFilledByMTD_TL.activityOfCM",
-          allDay: true,
-          start: "$plannedDateAndTimeOfCM",
-          end: "$plannedDateAndTimeOfCM",
+          start: commonProjection,
+          end: commonProjection,
+        },
+      },
+      {
+        $match: {
+          $or: [{ start: { $ne: undefined } }, { end: { $ne: undefined } }],
         },
       },
     ]);
-    // console.log(reqSheetDataForCalendar);
     res.status(200).json({
       message: "Request sheet data for calendar fetched successfully",
       reqSheetDataForCalendar,
@@ -1577,7 +1642,7 @@ router.get(
   "/LTPM/getDatOfLTPM/:filter/:selectedId",
   authenticate,
   filterMiddleware,
-  middlewareForSectionAndSubSectionLookup,
+  // middlewareForSectionAndSubSectionLookup,
   tryCatchHandler(async (req, res, next) => {
     const paginationCount = req?.query?.paginationCount * 1;
     const startYearOfLTPM = moment()
@@ -1612,10 +1677,7 @@ router.get(
       {
         $group: {
           _id: {
-            machineRef: "$machineRef",
-            lineRef: "$lineRef",
-            sectionRef: "$sectionRef",
-            subSectionRef: "$subSectionRef",
+            plantToMachineHierarchyRef: "$plantToMachineHierarchyRef",
             _id: "$_id",
           },
           data: {
@@ -1627,48 +1689,24 @@ router.get(
               commonDataFilledByAssignUser: "$commonDataFilledByAssignUser",
             },
           },
-          lineName: { $first: "$lineRef" },
         },
       },
       {
         $lookup: {
-          from: "machinesalldatas",
-          localField: "_id.machineRef",
+          from: "planttomachinehierarchies",
+          localField: "_id.plantToMachineHierarchyRef",
           foreignField: "_id",
           as: "machines",
-          pipeline: [
-            {
-              $project: {
-                machine_code: 1,
-                machine_name: 1,
-              },
-            },
-          ],
         },
       },
       {
-        $unwind: "$machines",
-      },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "lineName",
-          foreignField: "_id",
-          as: "lines",
-          pipeline: [
-            {
-              $project: {
-                line_name: 1,
-              },
-            },
-          ],
+        $project: {
+          data: 1,
+          machineAllData: { $arrayElemAt: ["$machines", 0] },
         },
       },
-      {
-        $unwind: "$lines",
-      },
-      ...req.queryObjPipeline,
     ]);
+
     successResponse(res, "LTPM Line wise data get successfully", {
       paginationCount,
       data,

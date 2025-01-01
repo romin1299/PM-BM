@@ -586,6 +586,7 @@ const AllRequestSheetReportDataOfCM = () => {
             //   (cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" && (
             <div>
               <ExistingMachineReqSheetView
+                selectedYear={reduceState?.selectedYear}
                 selectedRowRequestSheetId={selectedRowRequestSheetId}
                 isEditable={isEditable}
                 setCmReqSheetView={setCmReqSheetView}

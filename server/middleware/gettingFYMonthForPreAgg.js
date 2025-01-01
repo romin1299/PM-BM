@@ -17,8 +17,8 @@ exports.gettingMonthForSelectedDate = (date) => {
   return monthKeyArray[moment(new Date(date)).tz("Asia/Kolkata").month()];
 };
 
-exports.getFinancialQuarter = (date) => {
-  const financialYearStartMonth = 4; // April is the 4th month
-  const month = moment(date).month() + 1; // moment().month() is zero-based, so adding 1
-  return `Q${Math.ceil((((month - financialYearStartMonth + 12) % 12) + 1) / 3)}`;
-};
+exports.getFinancialQuarter = (date) => 
+  `Q${Math.ceil((((moment(date).month() + 1 - 4 + 12) % 12) + 1) / 3)}`;
+
+exports.getFinancialQuarterByMonth = (selectedMonth) =>
+  `Q${Math.floor(((selectedMonth - 3 + 12) % 12) / 3) + 1}`;
