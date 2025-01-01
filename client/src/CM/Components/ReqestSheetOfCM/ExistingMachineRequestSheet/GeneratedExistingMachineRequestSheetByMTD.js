@@ -581,12 +581,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             {...register(
                               "cmBasicDataFilledByMTD_TL.inspectionItem",
                               {
-                                required:
-                                  watch(
-                                    "cmBasicDataFilledByMTD_TL.categories"
-                                  ) === "LTPM"
-                                    ? "This field is required !"
-                                    : false,
+                                required: "This field is required !",
                               }
                             )}
                           />
@@ -619,12 +614,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             {...register(
                               "cmBasicDataFilledByMTD_TL.actionForLTPM",
                               {
-                                required:
-                                  watch(
-                                    "cmBasicDataFilledByMTD_TL.categories"
-                                  ) === "LTPM"
-                                    ? "This field is required !"
-                                    : false,
+                                required: "This field is required !",
                               }
                             )}
                           />
@@ -657,12 +647,7 @@ const GeneratedExistingMachineRequestSheetByMTD = ({
                             {...register(
                               "cmBasicDataFilledByMTD_TL.personForLTPM",
                               {
-                                required:
-                                  watch(
-                                    "cmBasicDataFilledByMTD_TL.categories"
-                                  ) === "LTPM"
-                                    ? "This field is required !"
-                                    : false,
+                                required: "This field is required !",
                               }
                             )}
                           />

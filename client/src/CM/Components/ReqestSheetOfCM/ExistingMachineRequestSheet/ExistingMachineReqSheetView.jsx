@@ -431,33 +431,165 @@ const ExistingMachineReqSheetView = ({
                             }
                           </p>
                         )}
-                        <Row>
-                          <Col lg={3}>
-                            {watch("cmBasicDataFilledByMTD_TL.categories") ===
-                              "Others" && (
-                              <Row className="m-0">
-                                <Col
-                                  lg={12}
-                                  className="d-flex justify-content-start"
-                                >
-                                  <input
-                                    type="text"
-                                    size={20}
-                                    className="m-1 mb-2"
-                                    {...register(
-                                      "cmBasicDataFilledByMTD_TL.other_categories",
-                                      {
-                                        required: "Other category is required",
-                                      }
-                                    )}
-                                  />
-                                </Col>
-                              </Row>
+                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                          "Others" && (
+                          <>
+                            <input
+                              type="text"
+                              size={20}
+                              className="m-1 mb-2"
+                              {...register(
+                                "cmBasicDataFilledByMTD_TL.other_categories",
+                                {
+                                  required: "Other category is required",
+                                }
+                              )}
+                            />
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.other_categories && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.other_categories?.message
+                                }
+                              </p>
+                            )}
+                          </>
+                        )}
+                      </Col>
+                    </Row>
+
+                    {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                      "LTPM" && (
+                      <>
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Inspection Item: </b>
+                            </p>
+                          </Col>
+
+                          <Col lg={7}>
+                            <div className="d-block align-items-center">
+                              {" "}
+                              <input
+                                type="text"
+                                id="inspectionItem"
+                                className="m-1 mb-2"
+                                name="inspectionItem"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.inspectionItem",
+                                  {
+                                    required:
+                                      watch(
+                                        "cmBasicDataFilledByMTD_TL.inspectionItem"
+                                      ) === ""
+                                        ? "This field is required !"
+                                        : false,
+                                  }
+                                )}
+                              />
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.inspectionItem && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.inspectionItem?.message
+                                }
+                              </p>
                             )}
                           </Col>
                         </Row>
-                      </Col>
-                    </Row>
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Action: </b>
+                            </p>
+                          </Col>
+
+                          <Col lg={7}>
+                            <div className="d-block align-items-center">
+                              {" "}
+                              <input
+                                type="text"
+                                id="actionForLTPM"
+                                className="m-1 mb-2"
+                                name="actionForLTPM"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.actionForLTPM",
+                                  {
+                                    required:
+                                      watch(
+                                        "cmBasicDataFilledByMTD_TL.actionForLTPM"
+                                      ) === ""
+                                        ? "This field is required !"
+                                        : false,
+                                  }
+                                )}
+                              />
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.actionForLTPM && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.actionForLTPM?.message
+                                }
+                              </p>
+                            )}
+                          </Col>
+                        </Row>
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Person: </b>
+                            </p>
+                          </Col>
+
+                          <Col lg={7}>
+                            <div className="d-block align-items-center">
+                              {" "}
+                              <input
+                                type="text"
+                                id="personForLTPM"
+                                className="m-1 mb-2"
+                                name="personForLTPM"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.personForLTPM",
+                                  {
+                                    required:
+                                      watch(
+                                        "cmBasicDataFilledByMTD_TL.personForLTPM"
+                                      ) === ""
+                                        ? "This field is required !"
+                                        : false,
+                                  }
+                                )}
+                              />
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.personForLTPM && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.personForLTPM?.message
+                                }
+                              </p>
+                            )}
+                          </Col>
+                        </Row>
+                      </>
+                    )}
 
                     <Row className="m-0 border d-flex align-items-center">
                       <Col lg={3}>

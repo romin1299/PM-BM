@@ -889,6 +889,15 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         ],
       };
     };
+    const categoryCheck = (category, field) => ({
+      $cond: [
+        {
+          $eq: ["$cmBasicDataFilledByMTD_TL.categories", category],
+        },
+        field,
+        "",
+      ],
+    });
 
     otherPipelines = {
       addFields: {
@@ -933,6 +942,45 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         },
       },
       project: {
+        // requestSheetOfBMRef: 1,
+        maintenanceType: 1,
+        priorityCode: 1,
+        sheetIssuedDateAndTimeOfCM: 1,
+        shiftOfCM: 1,
+        qualityRelated: 1,
+        requestSheetCreatedBy: 1,
+
+        "current_commonDataFilledByAssignUser.requestSheet_quarter": 1,
+        "current_commonDataFilledByAssignUser.statusOfPlannedCM": 1,
+        "current_commonDataFilledByAssignUser.assignUserForCM": 1,
+        "current_commonDataFilledByAssignUser.rejectedRemarksOfRequestSheet": 1,
+        "current_commonDataFilledByAssignUser._id": 1,
+        "current_commonDataFilledByAssignUser.getDataForApprovalDashboard": 1,
+        "current_commonDataFilledByAssignUser.isPermissionOfMTDTL": 1,
+        "current_commonDataFilledByAssignUser.isPermissionOfPRDTL": 1,
+
+        "cmBasicDataFilledByMTD_TL.problemBackgroundOfCM": 1,
+        "cmBasicDataFilledByMTD_TL.frequencyType": 1,
+        "cmBasicDataFilledByMTD_TL.frequencyValue": 1,
+        "cmBasicDataFilledByMTD_TL.other_categories": categoryCheck(
+          "Others",
+          "$cmBasicDataFilledByMTD_TL.other_categories"
+        ),
+        "cmBasicDataFilledByMTD_TL.inspectionItem": categoryCheck(
+          "LTPM",
+          "$cmBasicDataFilledByMTD_TL.inspectionItem"
+        ),
+        "cmBasicDataFilledByMTD_TL.actionForLTPM": categoryCheck(
+          "LTPM",
+          "$cmBasicDataFilledByMTD_TL.actionForLTPM"
+        ),
+        "cmBasicDataFilledByMTD_TL.personForLTPM": categoryCheck(
+          "LTPM",
+          "$cmBasicDataFilledByMTD_TL.personForLTPM"
+        ),
+        "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL": 1,
+        "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser": 1,
+
         "upto_currentYear_current_commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.requestSheet_quarter": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.plannedDateAndTimeOfCM": 1,
@@ -1021,30 +1069,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     },
     {
       $project: {
-        requestSheetNoOfCM: 1,
-        requestSheetOfBMRef: 1,
-        maintenanceType: 1,
-        priorityCode: 1,
-        plannedDateAndTimeOfCM: 1,
-        sheetIssuedDateAndTimeOfCM: 1,
-        shiftOfCM: 1,
-        assigned_users: 1,
-        qualityRelated: 1,
-        requestSheetCreatedBy: 1,
-
-        "current_commonDataFilledByAssignUser.requestSheet_quarter": 1,
-        "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM": 1,
-        "current_commonDataFilledByAssignUser.statusOfPlannedCM": 1,
-        "current_commonDataFilledByAssignUser.assignUserForCM": 1,
-        "current_commonDataFilledByAssignUser.rejectedRemarksOfRequestSheet": 1,
-        "current_commonDataFilledByAssignUser.requestSheetStatusOfCM": 1,
-        "current_commonDataFilledByAssignUser._id": 1,
-        "current_commonDataFilledByAssignUser.getDataForApprovalDashboard": 1,
-        "current_commonDataFilledByAssignUser.isPermissionOfMTDTL": 1,
-        "current_commonDataFilledByAssignUser.isPermissionOfPRDTL": 1,
-
-        ...otherPipelines?.project,
-
         cell: {
           $arrayElemAt: ["$plantToMachineHierarchy.cell.cell_name", 0],
         },
@@ -1064,24 +1088,14 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
             timezone: timezone,
           },
         },
-        finalActivity: 1,
-        work_order_status: 1,
-        rejectedRemarksOfRequestSheet: 1,
-        feedbackMTD_HOS: 1,
-        qualityConfirmed: 1,
+        requestSheetNoOfCM: 1,
+        "cmBasicDataFilledByMTD_TL.categories": 1,
+        "cmBasicDataFilledByMTD_TL.activityOfCM": 1,
+        "current_commonDataFilledByAssignUser.requestSheetStatusOfCM": 1,
+        "cmBasicDataFilledByMTD_TL.targetDateOfCM": 1,
+        "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM": 1,
 
-        requestSheetStatusOfCM: 1,
-        getDataForApprovalDashboard: 1,
-
-        actionTemporaryOrNot: 1,
-        cmBasicDataFilledByMTD_TL: 1,
-        dataSheetOfRequestSheet: 1,
-        drawingOfRequestSheet: 1,
-        supportingTM: 1,
-        attachedDataSheets: 1,
-        attachedDrawings: 1,
-        categoriesOfRequestSheet: 1,
-        yokotenkai: 1,
+        ...otherPipelines?.project,
       },
     },
     {

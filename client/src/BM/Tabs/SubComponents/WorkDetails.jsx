@@ -3,7 +3,6 @@ import { Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
 
 const WorkDetails = ({
   workDetails,
@@ -27,9 +26,6 @@ const WorkDetails = ({
   const [editedWork, setEditedWork] = useState(null);
   const [supportingTMList, setSupportingTMList] = useState([]);
 
-  console.log(newWork);
-
-  const navigate = useNavigate();
   const getMachineDetails = async () => {
     try {
       const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
@@ -40,9 +36,8 @@ const WorkDetails = ({
         },
         credentials: "include",
       });
-      if (res.status === 404) {
-        navigate("/", { replace: true });
-      } else {
+
+      if (res.status === 201) {
         const { TLHOSS_and_TM_user_list } = await res.json();
         setSupportingTMList(TLHOSS_and_TM_user_list);
       }
@@ -60,6 +55,10 @@ const WorkDetails = ({
   const findSelectedSupportingTM = (_id) =>
     supportingTMList.find((user) => user._id === _id);
 
+  const cancelAdd = () => {
+    setNewWork(initialState);
+  };
+
   const addWorkDetail = () => {
     if (new Date(newWork?.fromDate) > new Date(newWork?.toDate)) {
       setDateError("From date cannot be later than To date");
@@ -75,7 +74,7 @@ const WorkDetails = ({
       setValue && setValue("workDetails", updatedWorkDetails);
       handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
       clearErrors && clearErrors("workDetailsValidation");
-      setNewWork(initialState);
+      cancelAdd();
     } else {
       setDateError("Please enter all the fields");
     }
@@ -109,10 +108,6 @@ const WorkDetails = ({
     setWorkDetails(updatedWorkDetails);
     setValue && setValue("workDetails", updatedWorkDetails);
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
-  };
-
-  const cancelAdd = () => {
-    setNewWork(initialState);
   };
 
   const handleOnChangeAddOrUpdateNewWork = ({ target }) => {
