@@ -7,7 +7,6 @@ import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import enUS from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import DatePicker from "react-datepicker";
 import {
   Button,
   TextField,
@@ -17,9 +16,7 @@ import {
   FormControl,
 } from "@mui/material";
 import "react-datepicker/dist/react-datepicker.css";
-import { Container, Modal } from "react-bootstrap";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { toast } from "react-toastify";
 import { Tooltip, OverlayTrigger } from "react-bootstrap";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import "bootstrap/dist/js/bootstrap.bundle.min";
@@ -70,13 +67,19 @@ const initialEvents = [
   // },
 ];
 
-const EventCalendar = ({ onNavigate, label, onView, date, view }) => {
-  const [selectedMonth, setSelectedMonth] = useState(date.getMonth());
-  const [selectedDate, setSelectedDate] = useState(
-    moment(date).format("DD/MM/YYYY")
-  );
-  const [selectedYear, setSelectedYear] = useState(date.getFullYear());
-  console.log("vieew fo ", view);
+const EventCalendar = ({
+  onNavigate,
+  label,
+  onView,
+  date,
+  view,
+  selectedMonth,
+  setSelectedMonth,
+  selectedYear,
+  setSelectedYear,
+  selectedDate,
+  setSelectedDate,
+}) => {
   const handleMonthChange = (event) => {
     const newMonth = event.target.value;
     setSelectedMonth(newMonth);
@@ -266,26 +269,46 @@ const EventCalendar = ({ onNavigate, label, onView, date, view }) => {
   );
 };
 const ActivityCalendar = () => {
-  const [newEvent, setNewEvent] = useState({
-    title: "",
-    start: new Date(),
-    end: new Date(),
-  });
   const [allEvents, setAllEvents] = useState(initialEvents);
   const [currentView, setCurrentView] = useState(Views.MONTH);
 
+  const [selectedMonth, setSelectedMonth] = useState();
+  const [selectedDate, setSelectedDate] = useState();
+  const [selectedYear, setSelectedYear] = useState();
+  const CustomToolbar = (toolbarProps) => {
+    const { view } = toolbarProps;
+    useEffect(() => {
+      setCurrentView(view);
+    }, [view]);
+    setSelectedMonth(toolbarProps?.date?.getMonth());
+    setSelectedYear(toolbarProps?.date?.getFullYear());
+    setSelectedDate(moment(toolbarProps?.date).format("DD/MM/YYYY"));
+    return (
+      <EventCalendar
+        {...toolbarProps}
+        selectedMonth={selectedMonth}
+        setSelectedMonth={setSelectedMonth}
+        selectedYear={selectedYear}
+        setSelectedYear={setSelectedYear}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
+    );
+  };
   const getReqSheetDataForCalendar = async () => {
     try {
-      const response = await axios.get("/getReqSheetDataForCalendar", {
-        withCredentials: true,
-        credentials: "include",
-      });
+      const response = await axios.get(
+        `/getReqSheetDataForCalendar/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
+      );
       if (response.status === 200) {
         const events = response.data.reqSheetDataForCalendar?.map((event) => ({
           start: new Date(event.start),
           end: new Date(event.end),
           title: event.title,
-          // allDay: true,
           id: event._id,
         }));
         setAllEvents(events);
@@ -295,17 +318,8 @@ const ActivityCalendar = () => {
     }
   };
   useEffect(() => {
-    getReqSheetDataForCalendar();
-  }, []);
-
-  const handleAddEvent = () => {
-    if (newEvent.title && newEvent.start && newEvent.end) {
-      setAllEvents([...allEvents, newEvent]);
-      setNewEvent({ title: "", start: new Date(), end: new Date() });
-    } else {
-      toast.error("Please fill in all fields");
-    }
-  };
+    if (selectedDate) getReqSheetDataForCalendar();
+  }, [selectedDate]);
 
   const CustomEvent = ({ event }) => {
     const startDate = format(new Date(event.start), "MMMM d, yyyy h:mm a");
@@ -369,26 +383,11 @@ const ActivityCalendar = () => {
     };
   };
 
-  const CustomToolbar = (toolbarProps) => {
-    const { view, onView } = toolbarProps;
-    useEffect(() => {
-      setCurrentView(view);
-    }, [view]);
-
-    return <EventCalendar {...toolbarProps} />;
-  };
-  const [modalOpenForReqSheet, setModalOpenForReqSheet] = useState(true);
-  const [reqSheetData, setReqSheetData] = useState();
+  const [modalOpenForReqSheet, setModalOpenForReqSheet] = useState(false);
+  const [reqSheetId, setReqSheetId] = useState();
   const getModalOpenForReqSheet = async (event) => {
-    try {
-      const response = await axios.get(`/getReqSheetDataByID/${event.id}`);
-      if (response.status === 201) {
-        setReqSheetData(response.data.requestSheet?.[0]);
-        setModalOpenForReqSheet(true);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    setReqSheetId(event.id);
+    setModalOpenForReqSheet(true);
   };
 
   return (
@@ -399,7 +398,7 @@ const ActivityCalendar = () => {
         events={allEvents}
         startAccessor="start"
         endAccessor="end"
-        onDoubleClickEvent={(event) => getModalOpenForReqSheet(event)}
+        onSelectEvent={(event) => getModalOpenForReqSheet(event)}
         style={{ height: 500 }}
         components={{
           toolbar: (toolbarProps) => (
@@ -416,39 +415,18 @@ const ActivityCalendar = () => {
       <br />
       {modalOpenForReqSheet && (
         <>
-          <Modal
-            show={modalOpenForReqSheet}
-            fullscreen
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-          >
-            <Modal.Header>
-              <Modal.Title id="contained-modal-title-vcenter">
-                CM Request-Sheet
-              </Modal.Title>
-              <Button
-                variant="secondary"
-                onClick={() => setModalOpenForReqSheet(false)}
-                sx={{
-                  backgroundColor: "#B02A37",
-                  color: "#F2F2F2",
-                  "&:hover": {
-                    backgroundColor: "#B02A37",
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                Close
-              </Button>
-            </Modal.Header>
-            <Modal.Body>
-              <div>
-                <ExistingMachineReqSheetView
-                  cmSelectedSheetForView={reqSheetData}
-                />
-              </div>
-            </Modal.Body>
-          </Modal>
+          <div>
+            <ExistingMachineReqSheetView
+              selectedRowRequestSheetId={reqSheetId}
+              selectedYear={
+                selectedMonth * 1 < 3
+                  ? `${selectedYear * 1 - 1}-${selectedYear}`
+                  : `${selectedYear}-${selectedYear * 1 + 1}`
+              }
+              CmReqSheetView={modalOpenForReqSheet}
+              setCmReqSheetView={setModalOpenForReqSheet}
+            />
+          </div>
         </>
       )}
     </div>

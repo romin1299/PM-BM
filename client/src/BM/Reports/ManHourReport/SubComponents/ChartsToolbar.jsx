@@ -24,6 +24,7 @@ const ChartsToolbar = ({
   RSStatusFiltration,
   maintenanceTypeArrayForFilter,
   maintenanceTypeFiltration,
+  quarterFiltration,
   resetButtonFiltration,
   isWithLocalStorageForFiltration,
   selectedLineOrNot,
@@ -115,6 +116,7 @@ const ChartsToolbar = ({
           RSStatusFiltration={RSStatusFiltration}
           maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
           maintenanceTypeFiltration={maintenanceTypeFiltration}
+          quarterFiltration= {quarterFiltration}
           resetButtonFiltration={resetButtonFiltration}
           isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
           selectedLineOrNot={selectedLineOrNot}

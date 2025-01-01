@@ -32,6 +32,13 @@ const products = [
   "Product 5",
 ];
 
+const QUARTER_LIST=[
+  "Q1",
+  "Q2",
+  "Q3",
+  "Q4",
+]
+
 function getStyles(name, personName, theme) {
   return {
     fontWeight:
@@ -80,6 +87,8 @@ export default function LineSelectionDropdown({
   selectedRSStatus,
   maintenanceTypeFiltration,
   selectedMaintenanceType,
+  quarterFiltration,
+  selectedQuarter,
 
   sectionFiltration,
   subSectionFiltration,
@@ -747,6 +756,52 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item,
                   selectedMaintenanceType,
+                  "for-array-value"
+                )}
+              >
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
+      <FormControl size="small">
+        {quarterFiltration && (
+          <Select
+            displayEmpty
+            value={selectedQuarter}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_QUARTER,
+                isWithLocalStorageForFiltration,
+                selectedQuarter: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "Quarter";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {QUARTER_LIST?.map((item) => (
+              <MenuItem
+                key={item}
+                value={item}
+                style={getStyleForSelectedValue(
+                  item,
+                  selectedQuarter,
                   "for-array-value"
                 )}
               >

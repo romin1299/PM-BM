@@ -50,8 +50,9 @@ const ActivityStatusDashboardOfCM = () => {
   const getAllCMSheetData = async () => {
     try {
       setLoading(true);
+      setApprovalRequestSheetDataOfCM()
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
+        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}&&selectedQuarter=${reduceState?.selectedQuarter}`
       );
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
       setCounters(response.data.counters);
@@ -68,6 +69,7 @@ const ActivityStatusDashboardOfCM = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
+    reduceState?.selectedQuarter
   ]);
   const cmApprovalHeaders = [
     {
@@ -176,7 +178,7 @@ const ActivityStatusDashboardOfCM = () => {
           baseUrlForFiltering={baseUrlForFiltering}
           reduceState={reduceState}
           reducerDispatch={reducerDispatch}
-          monthFiltration
+          // monthFiltration
           yearFiltration
           sectionFiltration
           subSectionFiltration
@@ -187,6 +189,7 @@ const ActivityStatusDashboardOfCM = () => {
           RSStatusFiltration
           maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
           maintenanceTypeFiltration
+          quarterFiltration
           resetButtonFiltration
           isWithLocalStorageForFiltration="Yes"
         />
@@ -270,7 +273,7 @@ const ActivityStatusDashboardOfCM = () => {
       </Box>
     </div>,
   ];
-
+console.log(approvalRequestSheetDataOfCM)
   return (
     <>
       <Container fluid>
