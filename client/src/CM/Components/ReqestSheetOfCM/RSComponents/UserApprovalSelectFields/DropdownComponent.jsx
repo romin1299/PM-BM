@@ -9,6 +9,7 @@ const DropdownComponent = ({
   formKey,
   register,
   errors,
+  isEditable,
   requiredMSG = "Please select",
 }) => {
   useEffect(() => {
@@ -37,6 +38,7 @@ const DropdownComponent = ({
       <select
         size="small"
         label={label}
+        disabled={!isEditable}
         value={watch(`${formKey}.userRef`)}
         {...register(`${formKey}.userRef`, {
           required: requiredMSG,

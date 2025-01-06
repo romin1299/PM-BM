@@ -21,8 +21,8 @@ const UserApprovalSelectFields = ({
     }
   };
   useEffect(() => {
-    getApprovalListOfCM();
-  }, []);
+    if (isEditable) getApprovalListOfCM();
+  }, [isEditable]);
 
   return (
     <Row className="m-0 d-flex border align-items-start p-2">
@@ -43,12 +43,9 @@ const UserApprovalSelectFields = ({
                     disabled={!isEditable}
                     id={`inline-${type}-1`}
                     value="Yes"
-                    {...register(
-                      "current_commonDataFilledByAssignUser.isPermissionOfMTDTL",
-                      {
-                        required: "This field is required",
-                      }
-                    )}
+                    {...register("isPermissionOfMTDTL", {
+                      required: "This field is required",
+                    })}
                   />
                   <Form.Check
                     flex
@@ -58,62 +55,59 @@ const UserApprovalSelectFields = ({
                     type={type}
                     id={`inline-${type}-2`}
                     value="No"
-                    {...register(
-                      "current_commonDataFilledByAssignUser.isPermissionOfMTDTL",
-                      {
-                        required: "This field is required",
-                      }
-                    )}
+                    {...register("isPermissionOfMTDTL", {
+                      required: "This field is required",
+                    })}
                   />
                 </div>
               ))}
             </Form>
-            {errors?.current_commonDataFilledByAssignUser
-              ?.isPermissionOfMTDTL && (
+            {errors?.isPermissionOfMTDTL && (
               <p className="text-error">
-                {
-                  errors?.current_commonDataFilledByAssignUser
-                    ?.isPermissionOfMTDTL?.message
-                }
+                {errors?.isPermissionOfMTDTL?.message}
               </p>
             )}
             <br />
           </Col>
           <Col lg={8}>
-            {watch(
-              "current_commonDataFilledByAssignUser.isPermissionOfMTDTL"
-            ) === "Yes" && (
+            {watch("isPermissionOfMTDTL") === "Yes" && (
               <>
                 <Col className="pt-2 d-flex">
-                  {dropdownUsers?.MTDTLList && (
-                    <DropdownComponent
-                      setValue={setValue}
-                      title="Select MTD TL/HOSS:"
-                      userDropdown={dropdownUsers?.MTDTLList}
-                      label="Select MTD TL/HOSS"
-                      formKey="approvalObj_MTD_TL.approvalOfMTD_TL"
-                      register={register}
-                      watch={watch}
-                      errors={errors}
-                    />
-                  )}
+                  {isEditable
+                    ? dropdownUsers?.MTDTLList && (
+                        <DropdownComponent
+                          isEditable={isEditable}
+                          setValue={setValue}
+                          title="Select MTD TL/HOSS:"
+                          userDropdown={dropdownUsers?.MTDTLList}
+                          label="Select MTD TL/HOSS"
+                          formKey="approvalObj_MTD_TL.approvalOfMTD_TL"
+                          register={register}
+                          watch={watch}
+                          errors={errors}
+                        />
+                      )
+                    : watch("approvalObj_MTD_TL.approvalOfMTD_TL.tm_name")}
                 </Col>
                 <br />
               </>
             )}
             <Col className="pt-2 d-flex mb-2">
-              {dropdownUsers?.MTDHOSList && (
-                <DropdownComponent
-                  setValue={setValue}
-                  title="Select MTD HOS:"
-                  userDropdown={dropdownUsers?.MTDHOSList}
-                  label="Select MTD HOS"
-                  formKey="approvalObj_MTD_HOS.approvalOfMTD_HOS"
-                  register={register}
-                  watch={watch}
-                  errors={errors}
-                />
-              )}
+              {isEditable
+                ? dropdownUsers?.MTDHOSList && (
+                    <DropdownComponent
+                      isEditable={isEditable}
+                      setValue={setValue}
+                      title="Select MTD HOS:"
+                      userDropdown={dropdownUsers?.MTDHOSList}
+                      label="Select MTD HOS"
+                      formKey="approvalObj_MTD_HOS.approvalOfMTD_HOS"
+                      register={register}
+                      watch={watch}
+                      errors={errors}
+                    />
+                  )
+                : watch("approvalObj_MTD_HOS.approvalOfMTD_HOS.tm_name")}
             </Col>
           </Col>
         </Row>
@@ -140,12 +134,9 @@ const UserApprovalSelectFields = ({
                     disabled={!isEditable}
                     id={`inline-${type}-1`}
                     value="Yes"
-                    {...register(
-                      "current_commonDataFilledByAssignUser.isPermissionOfPRDTL",
-                      {
-                        required: "This field is required",
-                      }
-                    )}
+                    {...register("isPermissionOfPRDTL", {
+                      required: "This field is required",
+                    })}
                   />
                   <Form.Check
                     flex
@@ -155,45 +146,39 @@ const UserApprovalSelectFields = ({
                     disabled={!isEditable}
                     id={`inline-${type}-2`}
                     value="No"
-                    {...register(
-                      "current_commonDataFilledByAssignUser.isPermissionOfPRDTL",
-                      {
-                        required: "This field is required",
-                      }
-                    )}
+                    {...register("isPermissionOfPRDTL", {
+                      required: "This field is required",
+                    })}
                   />
                 </div>
               ))}
             </Form>
-            {errors?.current_commonDataFilledByAssignUser
-              ?.isPermissionOfPRDTL && (
+            {errors?.isPermissionOfPRDTL && (
               <p className="text-error">
-                {
-                  errors?.current_commonDataFilledByAssignUser
-                    ?.isPermissionOfPRDTL?.message
-                }
+                {errors?.isPermissionOfPRDTL?.message}
               </p>
             )}
             <br />
           </Col>
           <Col lg={8} sm={12}>
-            {watch(
-              "current_commonDataFilledByAssignUser.isPermissionOfPRDTL"
-            ) === "Yes" && (
+            {watch("isPermissionOfPRDTL") === "Yes" && (
               <>
                 <Col lg={12} className="mt-2 d-flex">
-                  {dropdownUsers?.PRDTLList && (
-                    <DropdownComponent
-                      setValue={setValue}
-                      title="Select PRD TL:"
-                      userDropdown={dropdownUsers?.PRDTLList}
-                      label="Select PRD TL"
-                      formKey="approvalObj_PRD_TL.approvalOfPRD_TL"
-                      register={register}
-                      watch={watch}
-                      errors={errors}
-                    />
-                  )}
+                  {isEditable
+                    ? dropdownUsers?.PRDTLList && (
+                        <DropdownComponent
+                          isEditable={isEditable}
+                          setValue={setValue}
+                          title="Select PRD TL:"
+                          userDropdown={dropdownUsers?.PRDTLList}
+                          label="Select PRD TL"
+                          formKey="approvalObj_PRD_TL.approvalOfPRD_TL"
+                          register={register}
+                          watch={watch}
+                          errors={errors}
+                        />
+                      )
+                    : watch("approvalObj_PRD_TL.approvalOfPRD_TL.tm_name")}
                 </Col>
               </>
             )}

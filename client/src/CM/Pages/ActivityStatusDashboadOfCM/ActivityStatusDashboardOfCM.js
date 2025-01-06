@@ -33,33 +33,64 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 const ActivityStatusDashboardOfCM = () => {
   const navigate = useNavigate();
 
-  const handleGenerateBMNavigation = async () => {
-    navigate(`/cm/generateCMRequestSheetMainDashboard`);
-  };
-
-  const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
-    useState([]);
-  const [loading, setLoading] = useState(false);
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
     initialState("Yes")
   );
-  const [CmReqSheetView, setCmReqSheetView] = useState(false);
-  const [counters, setCounters] = useState([]);
+
+  const handleGenerateBMNavigation = async () => {
+    navigate(`/cm/generateCMRequestSheetMainDashboard`);
+  };
+
+  const initialStateForRS = {
+    loading: true,
+    reqSheetCM: [],
+    counters: {
+      total_request_sheet_count: 0,
+      open_request_sheet_count: 0,
+      closed_request_sheet_count: 0,
+    },
+  };
+
+  const [activityStatusDashboardData, setActivityStatusDashboardData] =
+    useState(initialStateForRS);
+
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
+
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
 
   const getAllCMSheetData = async () => {
     try {
-      setLoading(true);
-      setApprovalRequestSheetDataOfCM()
+      setActivityStatusDashboardData({
+        ...initialStateForRS,
+        loading: true,
+      });
       const response = await axios.get(
         `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}&&selectedQuarter=${reduceState?.selectedQuarter}`
       );
-      setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
-      setCounters(response.data.counters);
+
+      if (response?.status === 201) {
+        return setActivityStatusDashboardData({
+          loading: false,
+          ...response.data,
+        });
+      }
     } catch (error) {
       console.log(error);
     }
-    setLoading(false);
+    setActivityStatusDashboardData({
+      ...initialStateForRS,
+      loading: false,
+    });
   };
   useEffect(() => {
     if (reduceState?.selectedValue) getAllCMSheetData();
@@ -69,7 +100,7 @@ const ActivityStatusDashboardOfCM = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
-    reduceState?.selectedQuarter
+    reduceState?.selectedQuarter,
   ]);
   const cmApprovalHeaders = [
     {
@@ -127,24 +158,26 @@ const ActivityStatusDashboardOfCM = () => {
     },
   ];
 
-  const [greaterValue, setGreaterValue] = useState(
-    localStorage.getItem("greaterValue")
-  );
-  const [isEditable, setIsEditable] = useState(false);
-  const [lesserValue, setLesserValue] = useState(
-    localStorage.getItem("lesserValue")
-  );
-  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState();
-  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  // const [greaterValue, setGreaterValue] = useState(
+  //   localStorage.getItem("greaterValue")
+  // );
+  // const [lesserValue, setLesserValue] = useState(
+  //   localStorage.getItem("lesserValue")
+  // );
+
   const requestSheetApprovalAction = [
     (row) => ({
       icon: () => <FaEye className="text-primary" />,
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        setCmReqSheetView(true);
-        setIsEditable(false);
-        setSelectedRowRequestSheetId(selectedRow?._id);
+        setSelectedCMRequestSheetPopupData(
+          (selectedCMRequestSheetPopupData) => ({
+            ...selectedCMRequestSheetPopupData,
+            cmReqSheetView: true,
+            selectedRowRequestSheetId: selectedRow?._id,
+          })
+        );
       },
     }),
   ];
@@ -195,7 +228,7 @@ const ActivityStatusDashboardOfCM = () => {
         />
       </Box>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <Box
+      {/* <Box
         component="form"
         sx={{
           display: "flex",
@@ -263,17 +296,9 @@ const ActivityStatusDashboardOfCM = () => {
         >
           Go
         </Button>
-        <h6
-          style={{
-            color: "red",
-          }}
-        >
-          Planned Date is remaining
-        </h6>
-      </Box>
+      </Box> */}
     </div>,
   ];
-console.log(approvalRequestSheetDataOfCM)
   return (
     <>
       <Container fluid>
@@ -314,17 +339,22 @@ console.log(approvalRequestSheetDataOfCM)
           {[
             {
               title: "Total Requests",
-              value: counters?.total_request_sheet_count || 0,
+              value:
+                activityStatusDashboardData?.counters
+                  ?.total_request_sheet_count,
               backgroundColor: "#c7defb",
             },
             {
               title: "Open Requests",
-              value: counters?.open_request_sheet_count || 0,
+              value:
+                activityStatusDashboardData?.counters?.open_request_sheet_count,
               backgroundColor: "#feb4b4ba",
             },
             {
               title: "Closed Requests",
-              value: counters?.closed_request_sheet_count || 0,
+              value:
+                activityStatusDashboardData?.counters
+                  ?.closed_request_sheet_count,
               backgroundColor: "#c6efce",
             },
           ].map((item) => (
@@ -368,11 +398,11 @@ console.log(approvalRequestSheetDataOfCM)
                 },
               }}
               title={filtration}
-              isLoading={loading}
+              isLoading={activityStatusDashboardData?.loading}
               actions={requestSheetApprovalAction}
               icons={tableIcons}
               columns={cmApprovalHeaders}
-              data={approvalRequestSheetDataOfCM}
+              data={activityStatusDashboardData?.reqSheetCM}
               editable={{}}
               options={{
                 ...MaterialTableOptions,
@@ -410,13 +440,11 @@ console.log(approvalRequestSheetDataOfCM)
         </Grid>
       </Container>
 
-      {CmReqSheetView && (
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
         <ExistingMachineReqSheetView
+          handlePopupStatus={handlePopupStatus}
           selectedYear={reduceState?.selectedYear}
-          selectedRowRequestSheetId={selectedRowRequestSheetId}
-          isEditable={isEditable}
-          setCmReqSheetView={setCmReqSheetView}
-          CmReqSheetView={CmReqSheetView}
+          {...selectedCMRequestSheetPopupData}
         />
       )}
     </>

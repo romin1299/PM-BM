@@ -33,9 +33,15 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   };
 
   const [LTPMData, setLTPMData] = useState(initialState);
-  const [CmReqSheetView, setCmReqSheetView] = useState(false);
-  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] =
-    useState("");
+
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
 
   // const [loading, setLoading] = useState(true);
 
@@ -89,9 +95,16 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     reduceState.selectedMonth,
   ]);
 
-  const openModalOfRequestSheetOfCm = () => {
-    setCmReqSheetView((CmReqSheetView) => !CmReqSheetView);
+  const openModalOfRequestSheetOfCm = (_id) => {
+    setSelectedCMRequestSheetPopupData((selectedCMRequestSheetPopupData) => ({
+      ...selectedCMRequestSheetPopupData,
+      cmReqSheetView: true,
+      selectedRowRequestSheetId: _id,
+    }));
   };
+
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
 
   const displayPlannedDataOfTheLTPM = (item, item1, years) => {
     const rows = []; // Accumulate all <td> elements here
@@ -128,8 +141,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                       type="button"
                       className="commonBtn viewRequestSheetOfCMBtn"
                       onClick={() => {
-                        openModalOfRequestSheetOfCm();
-                        setSelectedRowRequestSheetId(item?._id?._id);
+                        openModalOfRequestSheetOfCm(item?._id?._id);
                       }}
                     >
                       --&gt;
@@ -437,13 +449,12 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
           </>
         }
       </div>
-      {CmReqSheetView && (
+
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
         <ExistingMachineReqSheetView
+          handlePopupStatus={handlePopupStatus}
           selectedYear={reduceState?.selectedYear}
-          selectedRowRequestSheetId={selectedRowRequestSheetId}
-          isEditable={false}
-          setCmReqSheetView={setCmReqSheetView}
-          CmReqSheetView={CmReqSheetView}
+          {...selectedCMRequestSheetPopupData}
         />
       )}
     </>

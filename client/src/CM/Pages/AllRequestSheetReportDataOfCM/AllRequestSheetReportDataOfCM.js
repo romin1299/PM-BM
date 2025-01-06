@@ -55,11 +55,21 @@ const AllRequestSheetReportDataOfCM = () => {
     reducer,
     initialState("Yes")
   );
-  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState();
 
   const [loading, setLoading] = useState(false);
-  const [CmReqSheetView, setCmReqSheetView] = useState(false);
   const [counters, setCounters] = useState([]);
+
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
+
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
 
   const getAllCMSheetData = async () => {
     try {
@@ -82,7 +92,7 @@ const AllRequestSheetReportDataOfCM = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
-    CmReqSheetView,
+    selectedCMRequestSheetPopupData?.cmReqSheetView,
   ]);
   const cmApprovalHeaders = [
     {
@@ -162,77 +172,32 @@ const AllRequestSheetReportDataOfCM = () => {
   const context = useContext(RoutingContext);
   // console.log(context);
 
-  const [greaterValue, setGreaterValue] = useState(
-    localStorage.getItem("greaterValue")
-  );
-  const [lesserValue, setLesserValue] = useState(
-    localStorage.getItem("lesserValue")
-  );
-  const [isEditable, setIsEditable] = useState(false);
-  const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
+  // const [greaterValue, setGreaterValue] = useState(
+  //   localStorage.getItem("greaterValue")
+  // );
+  // const [lesserValue, setLesserValue] = useState(
+  //   localStorage.getItem("lesserValue")
+  // );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const requestSheetApprovalAction = [
-    // {
-    //   icon: () => <CreditCardIcon className="text-primary1" />,
-    //   tooltip: "History Card",
-    //   position: "row",
-    //   onClick: (event, selectedRow) => {
-    //     console.log("----------", selectedRow);
-    //   },
-    // },
     (row) => ({
       icon: () => (
         <SvgIcon
           component={EditSheetIcon}
           sx={{
-            color:
-              (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.some(
-                (u) => u._id === context?._id
-              ) &&
-                (row?.current_commonDataFilledByAssignUser
-                  ?.requestSheetStatusOfCM === "Generated" ||
-                  row?.current_commonDataFilledByAssignUser
-                    ?.requestSheetStatusOfCM === "Fill Sheet" ||
-                  row?.current_commonDataFilledByAssignUser
-                    ?.requestSheetStatusOfCM === "Rejected")) ||
-              (row?.current_commonDataFilledByAssignUser?.assignUserForCM
-                ?.length === 0 &&
-                context?.user_type === "TL/HOSS")
-                ? "#FF6F00"
-                : "",
+            color: row?.isEditableRS ? "#FF6F00" : "",
           }}
         />
       ),
       tooltip: "Update Req-sheet",
       position: "row",
-      // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
-      disabled:
-        (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.length ===
-          0 &&
-          context?.user_type === "TL/HOSS") ||
-        (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.some(
-          (u) => u._id === context?._id
-        ) &&
-          (row?.current_commonDataFilledByAssignUser?.requestSheetStatusOfCM ===
-            "Generated" ||
-            row?.current_commonDataFilledByAssignUser
-              ?.requestSheetStatusOfCM === "Fill Sheet" ||
-            row?.current_commonDataFilledByAssignUser
-              ?.requestSheetStatusOfCM === "Rejected"))
-          ? false
-          : true,
-      // disabled:
-      //   row?.assignUserId === context?._id &&
-      //   (row?.work_order_status === "Pending" ||
-      //     row?.work_order_status === "Closed")
-      //     ? false
-      //     : true,
+      disabled: !row?.isEditableRS,
       onClick: (event, selectedRow) => {
-        // console.log(event, selectedRow);
-        setCmReqSheetView(true);
-        setIsEditable(true);
-        setCmSelectedSheetForView(selectedRow);
-        setSelectedRowRequestSheetId(selectedRow?._id);
+        setSelectedCMRequestSheetPopupData({
+          isEditable: true,
+          cmReqSheetView: true,
+          selectedRowRequestSheetId: selectedRow?._id,
+        });
       },
     }),
     (row) => ({
@@ -240,10 +205,11 @@ const AllRequestSheetReportDataOfCM = () => {
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        // console.log(event, selectedRow);
-        setCmReqSheetView(true);
-        setIsEditable(false);
-        setSelectedRowRequestSheetId(selectedRow?._id);
+        setSelectedCMRequestSheetPopupData({
+          isEditable: false,
+          cmReqSheetView: true,
+          selectedRowRequestSheetId: selectedRow?._id,
+        });
       },
     }),
   ];
@@ -292,18 +258,7 @@ const AllRequestSheetReportDataOfCM = () => {
         />
       </Box>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      {/* <Box display="flex" alignItems="center">
-        <Tooltip title="Show/Hide Column">
-          <Switch
-            size="medium"
-            checked={displayColumnOrNot}
-            onClick={() =>
-              setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
-            }
-          />
-        </Tooltip>
-      </Box> */}
-      <Box
+      {/* <Box
         component="form"
         sx={{
           display: "flex",
@@ -311,8 +266,6 @@ const AllRequestSheetReportDataOfCM = () => {
           gap: "10px",
         }}
       >
-        {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
-
         <TextField
           type="number"
           id="outlined-basic"
@@ -379,9 +332,8 @@ const AllRequestSheetReportDataOfCM = () => {
         >
           Go
         </Button>
-      </Box>
+      </Box> */}
     </div>,
-    // "sd;kfgksn"
   ];
   const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="down" ref={ref} {...props} />;
@@ -526,79 +478,23 @@ const AllRequestSheetReportDataOfCM = () => {
           </Grid>
         </Grid>
       </Container>
-      {CmReqSheetView && (
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
         <>
-          {/* <Modal
-            show={CmReqSheetView}
-            fullscreen
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-          >
-            <Modal.Header>
-              <Modal.Title id="contained-modal-title-vcenter">
-                CM Request-Sheet
-              </Modal.Title>
-              <Button
-                variant="secondary"
-                onClick={() => setCmReqSheetView(false)}
-                sx={{
-                  backgroundColor: "#B02A37",
-                  color: "#F2F2F2",
-                  "&:hover": {
-                    backgroundColor: "#B02A37",
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                Close
-              </Button>
-            </Modal.Header>
-            <Modal.Body>
-              {
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
-                  <div>
-                    <ExistingMachineReqSheetWithData
-                      selectedRowRequestSheetId={selectedRowRequestSheetId}
-                      isEditable={isEditable}
-                      setCmReqSheetView={setCmReqSheetView}
-                      CmReqSheetView={CmReqSheetView}
-                    />
-                  </div>
-                ) :
-                <div>
-                  <MTDExistingMachineReqSheetWithData
-                    cmSelectedSheetForView={cmSelectedSheetForView}
-                    isEditable={isEditable}
-                    setCmReqSheetView={setCmReqSheetView}
-                  />
-                </div>
-              }
-            </Modal.Body>
-          </Modal> */}
-
-          {
-            // cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
-            //   cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
-            //   cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
-            //   (cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" && (
-            <div>
+          <div>
+            {selectedCMRequestSheetPopupData?.cmReqSheetView && (
               <ExistingMachineReqSheetView
+                handlePopupStatus={handlePopupStatus}
                 selectedYear={reduceState?.selectedYear}
-                selectedRowRequestSheetId={selectedRowRequestSheetId}
-                isEditable={isEditable}
-                setCmReqSheetView={setCmReqSheetView}
-                CmReqSheetView={CmReqSheetView}
+                {...selectedCMRequestSheetPopupData}
               />
-              <MTDExistingMachineReqSheetWithData
-                // cmSelectedSheetForView={cmSelectedSheetForView}
-                isEditable={isEditable}
-                setCmReqSheetView={setCmReqSheetView}
-              />
-            </div>
-          }
+            )}
+
+            {/* <MTDExistingMachineReqSheetWithData
+              // cmSelectedSheetForView={cmSelectedSheetForView}
+              isEditable={isEditable}
+              setCmReqSheetView={setCmReqSheetView}
+            /> */}
+          </div>
         </>
       )}
     </>

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Col, Container, Form, Modal, Row, Table } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import RoutingContext from "../../../../context/routing/RoutingContext";
@@ -8,19 +8,20 @@ import {
   FREQUENCY_OF_CM,
 } from "../../../GlobalDataAccess/GlobalData";
 import axios from "axios";
-import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
+
 import { SuccessToast } from "../../../../BM/Component/ShowTostify";
+import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
+import UserApprovalSelectFields from "../RSComponents/UserApprovalSelectFields/UserApprovalSelectFields";
+import ApproveOrRejectComponent from "../RSComponents/ApproveOrRejectComponent";
 // import SupportingTMInputField from "../RSComponents/SupportingTMInputField";
 
 const ExistingMachineReqSheetView = ({
+  handlePopupStatus,
   selectedYear,
   selectedRowRequestSheetId,
-  setCmReqSheetView,
-  // isEditable = false,
-  CmReqSheetView,
+  isEditable = false,
+  cmReqSheetView,
 }) => {
-  let isEditable = true;
-
   const {
     register,
     handleSubmit,
@@ -42,24 +43,61 @@ const ExistingMachineReqSheetView = ({
     },
   });
 
+  const handleDirtyFields = (requestSheetDataOfCM) => {
+    let newVal = {};
+
+    const objValueMappingFunction = (dirtyFields, key, allValues) => {
+      return Object.fromEntries(
+        Object.keys(dirtyFields[key])
+          .filter((item) => dirtyFields[key][item])
+          .map((item) =>
+            typeof allValues[key][item] === "object"
+              ? [key, { ...allValues[key] }]
+              : [[`${key}.${item}`], allValues[key][item]]
+          )
+      );
+    };
+
+    Object.keys(dirtyFields)?.map((key) => {
+      if (
+        [
+          "changedParts",
+          "actionAndCounterMeasureStep",
+          "workDetails",
+        ]?.includes(key)
+      ) {
+        newVal[key] = requestSheetDataOfCM[key];
+      } else if (typeof requestSheetDataOfCM[key] === "object") {
+        newVal = {
+          ...newVal,
+          ...objValueMappingFunction(dirtyFields, key, requestSheetDataOfCM),
+        };
+      } else {
+        newVal[key] = requestSheetDataOfCM[key];
+      }
+    });
+
+    return newVal;
+  };
+
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
       const formData = new FormData();
 
-      // console.log(dirtyFields, requestSheetDataOfCM);
+      const { ...otherFields } = handleDirtyFields(requestSheetDataOfCM);
 
-      // return;
-      const { ...otherFields } = requestSheetDataOfCM;
+      otherFields.approvalObj_MTD_HOS =
+        requestSheetDataOfCM?.approvalObj_MTD_HOS;
 
-      // if (
-      //   requestSheetDataOfCM?.commonDataFilledByAssignUser?.some((user) =>
-      //     user.quarterlyDataOfTheCM.some((quarter) =>
-      //       quarter.assignUserForCM.some((u) => u._id === context?._id)
-      //     )
-      //   ) === true
-      // ) {
-      //   requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
-      // }
+      if (otherFields?.isPermissionOfMTDTL) {
+        otherFields.approvalObj_MTD_TL =
+          requestSheetDataOfCM?.approvalObj_MTD_TL;
+      }
+
+      if (otherFields?.isPermissionOfPRDTL) {
+        otherFields.approvalObj_PRD_TL =
+          requestSheetDataOfCM?.approvalObj_PRD_TL;
+      }
 
       for (
         let i = 0;
@@ -88,7 +126,7 @@ const ExistingMachineReqSheetView = ({
         config
       );
       if (response.status === 201) {
-        setCmReqSheetView(false);
+        handlePopupStatus();
         SuccessToast("Request-sheet updated successfully");
       }
     } catch (error) {
@@ -99,7 +137,7 @@ const ExistingMachineReqSheetView = ({
 
   return (
     <Modal
-      show={CmReqSheetView}
+      show={cmReqSheetView}
       fullscreen
       aria-labelledby="contained-modal-title-vcenter"
       centered
@@ -110,7 +148,7 @@ const ExistingMachineReqSheetView = ({
         </Modal.Title>
         <Button
           variant="secondary"
-          onClick={() => setCmReqSheetView(false)}
+          onClick={handlePopupStatus}
           sx={{
             backgroundColor: "#B02A37",
             color: "#F2F2F2",
@@ -438,6 +476,7 @@ const ExistingMachineReqSheetView = ({
                               type="text"
                               size={20}
                               className="m-1 mb-2"
+                              disabled={!isEditable}
                               {...register(
                                 "cmBasicDataFilledByMTD_TL.other_categories",
                                 {
@@ -480,6 +519,7 @@ const ExistingMachineReqSheetView = ({
                                 id="inspectionItem"
                                 className="m-1 mb-2"
                                 name="inspectionItem"
+                                disabled={!isEditable}
                                 {...register(
                                   "cmBasicDataFilledByMTD_TL.inspectionItem",
                                   {
@@ -522,6 +562,7 @@ const ExistingMachineReqSheetView = ({
                                 id="actionForLTPM"
                                 className="m-1 mb-2"
                                 name="actionForLTPM"
+                                disabled={!isEditable}
                                 {...register(
                                   "cmBasicDataFilledByMTD_TL.actionForLTPM",
                                   {
@@ -564,6 +605,7 @@ const ExistingMachineReqSheetView = ({
                                 id="personForLTPM"
                                 className="m-1 mb-2"
                                 name="personForLTPM"
+                                disabled={!isEditable}
                                 {...register(
                                   "cmBasicDataFilledByMTD_TL.personForLTPM",
                                   {
@@ -648,10 +690,7 @@ const ExistingMachineReqSheetView = ({
                               fontSize: "15px",
                             }}
                             {...register(
-                              "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
-                              {
-                                required: "Please enter part suggestion",
-                              }
+                              "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
                             )}
                           />
                         </div>
@@ -765,16 +804,67 @@ const ExistingMachineReqSheetView = ({
                   )}
               </tbody>
             </Table>
-            {watch("_id") && (
-              <ExistinngMachineReqSheetForOperator
-                setValue={setValue}
-                isEditable={isEditable}
-                selectedYear={selectedYear}
-                register={register}
-                errors={errors}
-                watch={watch}
-              />
+            {watch(
+              "upto_currentYear_current_commonDataFilledByAssignUser"
+            )?.map((year) =>
+              year.quarterlyDataOfTheCM?.map((quarter) => (
+                <MiddlewareForTablesOfMTD
+                  setValue={setValue}
+                  requestSheet_year={
+                    year?.preAggregationTimeStampOfRequestSheet
+                      ?.requestSheet_year
+                  }
+                  requestSheet_quarter={quarter?.requestSheet_quarter}
+                  plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}
+                  partsData={quarter?.changedParts}
+                  workData={quarter?.workDetails}
+                  actionData={quarter?.actionAndCounterMeasureStep}
+                  isEditable={
+                    isEditable &&
+                    watch("currentFYYearAndQuarter.year") ===
+                      year?.preAggregationTimeStampOfRequestSheet
+                        ?.requestSheet_year &&
+                    watch("currentFYYearAndQuarter.quarter") ===
+                      quarter?.requestSheet_quarter
+                  }
+                />
+              ))
             )}
+
+            <UserApprovalSelectFields
+              setValue={setValue}
+              watch={watch}
+              register={register}
+              errors={errors}
+              isEditable={isEditable}
+            />
+
+            {isEditable && (
+              <Row className="m-0 border p-2 d-flex justify-content-between">
+                <Col lg={6} md={6} sm={12}>
+                  <button
+                    type="submit"
+                    className="btn bg-success"
+                    style={{ marginTop: "1rem" }}
+                  >
+                    Submit
+                  </button>
+                </Col>
+              </Row>
+            )}
+
+            {isEditable &&
+              watch(
+                "current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id"
+              ) === context?._id && (
+                <ApproveOrRejectComponent
+                  handlePopupStatus={handlePopupStatus}
+                  watch={watch}
+                  register={register}
+                  errors={errors}
+                  isEditable={isEditable}
+                />
+              )}
           </form>
         </div>
       </Modal.Body>

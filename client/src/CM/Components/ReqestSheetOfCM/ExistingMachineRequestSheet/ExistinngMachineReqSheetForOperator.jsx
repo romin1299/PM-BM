@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Row, Col } from "react-bootstrap";
 
 import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
@@ -11,13 +11,6 @@ const ExistinngMachineReqSheetForOperator = ({
   errors,
   watch,
 }) => {
-  const [allDataOFTableFilledByOperator, setAllDataOFTableFilledByOperator] =
-    useState({
-      parts: [],
-      actions: [],
-      workDetails: [],
-    });
-
   //   if (watch("mtdHOS") === undefined) {
   //     setError(
   //       "mtdHOS",
@@ -137,10 +130,6 @@ const ExistinngMachineReqSheetForOperator = ({
                 watch("currentFYYearAndQuarter.quarter") ===
                   quarter?.requestSheet_quarter
               }
-              allDataOFTableFilledByOperator={allDataOFTableFilledByOperator}
-              setAllDataOFTableFilledByOperator={
-                setAllDataOFTableFilledByOperator
-              }
             />
           ))
       )}
@@ -153,17 +142,19 @@ const ExistinngMachineReqSheetForOperator = ({
         isEditable={isEditable}
       />
 
-      <Row className="m-0 border p-2 d-flex justify-content-between">
-        <Col lg={6} md={6} sm={12}>
-          <button
-            type="submit"
-            className="btn bg-success"
-            style={{ marginTop: "1rem" }}
-          >
-            Submit
-          </button>
-        </Col>
-      </Row>
+      {isEditable && (
+        <Row className="m-0 border p-2 d-flex justify-content-between">
+          <Col lg={6} md={6} sm={12}>
+            <button
+              type="submit"
+              className="btn bg-success"
+              style={{ marginTop: "1rem" }}
+            >
+              Submit
+            </button>
+          </Col>
+        </Row>
+      )}
     </>
   );
 };

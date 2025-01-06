@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 
 import axios from "axios";
 import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
+import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 
 const CMApprovalDashboardOfRequestSheet = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
@@ -35,7 +36,18 @@ const CMApprovalDashboardOfRequestSheet = () => {
   const [isEditable, setIsEditable] = useState(false);
   const [cmReqSheetView, setCmReqSheetView] = useState(false);
 
-  const navigate = useNavigate();
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
+
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
+
   const requestSheetApprovalAction = [
     (row) => ({
       icon: () => <DescriptionIcon className="text-primary" />,
@@ -43,10 +55,14 @@ const CMApprovalDashboardOfRequestSheet = () => {
       position: "row",
 
       onClick: (event, selectedRow) => {
-        console.log("THIS IS ROLE", selectedRow);
-        setCmSelectedSheetForView(selectedRow);
-        setCmReqSheetView(true);
-        setIsEditable(true);
+        // setCmReqSheetView(true);
+        // setIsEditable(true);
+
+        setSelectedCMRequestSheetPopupData({
+          isEditable: true,
+          cmReqSheetView: true,
+          selectedRowRequestSheetId: selectedRow?._id,
+        });
       },
     }),
   ];
@@ -222,7 +238,16 @@ const CMApprovalDashboardOfRequestSheet = () => {
           </Col>
         </Row>
       </Container>
-      <Modal
+
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
+        <ExistingMachineReqSheetView
+          handlePopupStatus={handlePopupStatus}
+          selectedYear={reduceState?.selectedYear}
+          {...selectedCMRequestSheetPopupData}
+        />
+      )}
+
+      {/* <Modal
         show={cmReqSheetView}
         fullscreen
         aria-labelledby="contained-modal-title-vcenter"
@@ -254,31 +279,8 @@ const CMApprovalDashboardOfRequestSheet = () => {
               setCmReqSheetView={setCmReqSheetView}
             />
           </div>
-          {/* {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-            "Under MTD TL/HOSS Approval" && (
-          )} */}
-          {/* {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-            "Under MTD HOS Approval" && (
-            <div>
-              <HOSExistingMachineReqSheet
-                cmSelectedSheetForView={cmSelectedSheetForView}
-                isEditable={isEditable}
-                setCmReqSheetView={setCmReqSheetView}
-              />
-            </div>
-          )}
-          {cmSelectedSheetForView?.requestSheetStatusOfCM ===
-            "Under PRD TL Approval" && (  
-            <div>
-              <HOSExistingMachineReqSheet
-                cmSelectedSheetForView={cmSelectedSheetForView}
-                isEditable={isEditable}
-                setCmReqSheetView={setCmReqSheetView}
-              />
-            </div>
-          )} */}
         </Modal.Body>
-      </Modal>
+      </Modal> */}
     </>
   );
 };

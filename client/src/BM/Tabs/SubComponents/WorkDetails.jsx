@@ -9,7 +9,6 @@ const WorkDetails = ({
   setWorkDetails,
   clearErrors,
   handleOnchangeFlag,
-  assigned_users,
   isEditable,
   setValue,
 }) => {
@@ -71,7 +70,10 @@ const WorkDetails = ({
       };
       let updatedWorkDetails = [...workDetails, newWorkDetail];
       setWorkDetails(updatedWorkDetails);
-      setValue && setValue("workDetails", updatedWorkDetails);
+      setValue &&
+        setValue("workDetails", updatedWorkDetails, {
+          shouldDirty: true,
+        });
       handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
       clearErrors && clearErrors("workDetailsValidation");
       cancelAdd();
@@ -96,7 +98,10 @@ const WorkDetails = ({
       work?.id === updatedWork?.id ? updatedWork : work
     );
     setWorkDetails(updatedWorkDetails);
-    setValue && setValue("workDetails", updatedWorkDetails);
+    setValue &&
+      setValue("workDetails", updatedWorkDetails, {
+        shouldDirty: true,
+      });
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
     cancelEdit();
   };
@@ -106,7 +111,10 @@ const WorkDetails = ({
       (work) => work?.id !== workId
     );
     setWorkDetails(updatedWorkDetails);
-    setValue && setValue("workDetails", updatedWorkDetails);
+    setValue &&
+      setValue("workDetails", updatedWorkDetails, {
+        shouldDirty: true,
+      });
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
   };
 
