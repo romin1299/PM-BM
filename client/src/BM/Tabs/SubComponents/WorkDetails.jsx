@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
@@ -11,6 +11,7 @@ const WorkDetails = ({
   handleOnchangeFlag,
   isEditable,
   setValue,
+  supportingTMList,
 }) => {
   const initialState = {
     id: "",
@@ -23,31 +24,31 @@ const WorkDetails = ({
 
   const [newWork, setNewWork] = useState(initialState);
   const [editedWork, setEditedWork] = useState(null);
-  const [supportingTMList, setSupportingTMList] = useState([]);
+  // const [supportingTMList, setSupportingTMList] = useState([]);
 
-  const getMachineDetails = async () => {
-    try {
-      const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+  // const getMachineDetails = async () => {
+  //   try {
+  //     const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //     });
 
-      if (res.status === 201) {
-        const { TLHOSS_and_TM_user_list } = await res.json();
-        setSupportingTMList(TLHOSS_and_TM_user_list);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     if (res.status === 201) {
+  //       const { TLHOSS_and_TM_user_list } = await res.json();
+  //       setSupportingTMList(TLHOSS_and_TM_user_list);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    getMachineDetails();
-  }, []);
+  // useEffect(() => {
+  //   getMachineDetails();
+  // }, []);
 
   const [dateError, setDateError] = useState("");
 
@@ -75,7 +76,7 @@ const WorkDetails = ({
           shouldDirty: true,
         });
       handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
-      clearErrors && clearErrors("workDetailsValidation");
+      clearErrors && clearErrors("workDetails");
       cancelAdd();
     } else {
       setDateError("Please enter all the fields");

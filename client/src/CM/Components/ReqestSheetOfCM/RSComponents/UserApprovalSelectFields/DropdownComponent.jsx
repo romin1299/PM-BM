@@ -8,7 +8,6 @@ const DropdownComponent = ({
   label,
   formKey,
   register,
-  errors,
   isEditable,
   requiredMSG = "Please select",
 }) => {
@@ -49,9 +48,6 @@ const DropdownComponent = ({
           <option value={value?.userRef}>{value?.tm_name}</option>
         ))}
       </select>
-      {errors?.[`${formKey}.userRef`] && (
-        <p className="text-error">{errors?.[`${formKey}.userRef`]?.message}</p>
-      )}
     </>
   );
 };

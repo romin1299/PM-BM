@@ -9,6 +9,7 @@ const UserApprovalSelectFields = ({
   register,
   errors,
   isEditable,
+  isRequired,
 }) => {
   const [dropdownUsers, setDropdownUsers] = useState({});
 
@@ -44,7 +45,7 @@ const UserApprovalSelectFields = ({
                     id={`inline-${type}-1`}
                     value="Yes"
                     {...register("isPermissionOfMTDTL", {
-                      required: "This field is required",
+                      required: isRequired ? "This field is required" : false,
                     })}
                   />
                   <Form.Check
@@ -56,7 +57,7 @@ const UserApprovalSelectFields = ({
                     id={`inline-${type}-2`}
                     value="No"
                     {...register("isPermissionOfMTDTL", {
-                      required: "This field is required",
+                      required: isRequired ? "This field is required" : false,
                     })}
                   />
                 </div>
@@ -67,7 +68,6 @@ const UserApprovalSelectFields = ({
                 {errors?.isPermissionOfMTDTL?.message}
               </p>
             )}
-            <br />
           </Col>
           <Col lg={8}>
             {watch("isPermissionOfMTDTL") === "Yes" && (
@@ -76,6 +76,11 @@ const UserApprovalSelectFields = ({
                   {isEditable
                     ? dropdownUsers?.MTDTLList && (
                         <DropdownComponent
+                          requiredMSG={
+                            watch("isPermissionOfMTDTL") === "Yes" || isRequired
+                              ? "Please select"
+                              : false
+                          }
                           isEditable={isEditable}
                           setValue={setValue}
                           title="Select MTD TL/HOSS:"
@@ -84,18 +89,25 @@ const UserApprovalSelectFields = ({
                           formKey="approvalObj_MTD_TL.approvalOfMTD_TL"
                           register={register}
                           watch={watch}
-                          errors={errors}
                         />
                       )
                     : watch("approvalObj_MTD_TL.approvalOfMTD_TL.tm_name")}
                 </Col>
-                <br />
+                {errors?.approvalObj_MTD_TL?.approvalOfMTD_TL?.[`userRef`] && (
+                  <p className="text-error">
+                    {
+                      errors?.approvalObj_MTD_TL?.approvalOfMTD_TL?.[`userRef`]
+                        ?.message
+                    }
+                  </p>
+                )}
               </>
             )}
             <Col className="pt-2 d-flex mb-2">
               {isEditable
                 ? dropdownUsers?.MTDHOSList && (
                     <DropdownComponent
+                      requiredMSG={isRequired ? "Please select" : false}
                       isEditable={isEditable}
                       setValue={setValue}
                       title="Select MTD HOS:"
@@ -104,11 +116,18 @@ const UserApprovalSelectFields = ({
                       formKey="approvalObj_MTD_HOS.approvalOfMTD_HOS"
                       register={register}
                       watch={watch}
-                      errors={errors}
                     />
                   )
                 : watch("approvalObj_MTD_HOS.approvalOfMTD_HOS.tm_name")}
             </Col>
+            {errors?.approvalObj_MTD_HOS?.approvalOfMTD_HOS?.[`userRef`] && (
+              <p className="text-error">
+                {
+                  errors?.approvalObj_MTD_HOS?.approvalOfMTD_HOS?.[`userRef`]
+                    ?.message
+                }
+              </p>
+            )}
           </Col>
         </Row>
       </Col>
@@ -135,7 +154,7 @@ const UserApprovalSelectFields = ({
                     id={`inline-${type}-1`}
                     value="Yes"
                     {...register("isPermissionOfPRDTL", {
-                      required: "This field is required",
+                      required: isRequired ? "This field is required" : false,
                     })}
                   />
                   <Form.Check
@@ -147,7 +166,7 @@ const UserApprovalSelectFields = ({
                     id={`inline-${type}-2`}
                     value="No"
                     {...register("isPermissionOfPRDTL", {
-                      required: "This field is required",
+                      required: isRequired ? "This field is required" : false,
                     })}
                   />
                 </div>
@@ -158,7 +177,6 @@ const UserApprovalSelectFields = ({
                 {errors?.isPermissionOfPRDTL?.message}
               </p>
             )}
-            <br />
           </Col>
           <Col lg={8} sm={12}>
             {watch("isPermissionOfPRDTL") === "Yes" && (
@@ -167,6 +185,11 @@ const UserApprovalSelectFields = ({
                   {isEditable
                     ? dropdownUsers?.PRDTLList && (
                         <DropdownComponent
+                          requiredMSG={
+                            watch("isPermissionOfPRDTL") === "Yes" || isRequired
+                              ? "Please select"
+                              : false
+                          }
                           isEditable={isEditable}
                           setValue={setValue}
                           title="Select PRD TL:"
@@ -175,11 +198,18 @@ const UserApprovalSelectFields = ({
                           formKey="approvalObj_PRD_TL.approvalOfPRD_TL"
                           register={register}
                           watch={watch}
-                          errors={errors}
                         />
                       )
                     : watch("approvalObj_PRD_TL.approvalOfPRD_TL.tm_name")}
                 </Col>
+                {errors?.approvalObj_PRD_TL?.approvalOfPRD_TL?.[`userRef`] && (
+                  <p className="text-error">
+                    {
+                      errors?.approvalObj_PRD_TL?.approvalOfPRD_TL?.[`userRef`]
+                        ?.message
+                    }
+                  </p>
+                )}
               </>
             )}
           </Col>

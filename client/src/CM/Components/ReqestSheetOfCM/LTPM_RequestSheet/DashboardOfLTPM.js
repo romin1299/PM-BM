@@ -1,21 +1,12 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { Container, Row, Col } from "react-bootstrap";
-import tableIcons from "../../../../components/MatrialTableIcon";
-import DescriptionIcon from "@mui/icons-material/Description";
-import MaterialTable from "@material-table/core";
+import React, { useReducer, useState } from "react";
+import { Container } from "react-bootstrap";
 import RequestSheetOfLTPM from "./RequestSheetOfLTPM";
-import {
-  MaterialTableOptions,
-  MaterialTableSX,
-  MaterialTableStyle,
-} from "../../../../BM/Utils/TableUtils/MaterialTableProps";
 import BMTitlebar from "../../../../BM/Component/BMTitlebar";
 import ChartsToolbar from "../../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
   reducer,
 } from "../../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
-import axios from "axios";
 import { FaEye } from "react-icons/fa";
 
 const DashboardOfLTPM = () => {
@@ -23,24 +14,6 @@ const DashboardOfLTPM = () => {
   const [openCloseLTPM, setOpenCloseLTPM] = useState(false);
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState(""));
-  const approvalDashboardHeader = [
-    {
-      title: "Sr. No.",
-      render: (rowData) => `${rowData.tableData.id + 1}`,
-      editable: false,
-      width: "5%",
-    },
-    {
-      title: "Product",
-      field: "cellName",
-      editable: false,
-    },
-    {
-      title: "Line",
-      field: "lineName",
-      editable: false,
-    },
-  ];
 
   const openCloseModalOfLTPM = () => {
     setOpenCloseLTPM(!openCloseLTPM);
@@ -91,7 +64,7 @@ const DashboardOfLTPM = () => {
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
               // monthFiltration
-              yearFiltration
+              // yearFiltration
               sectionFiltration
               subSectionFiltration
               cellFiltration

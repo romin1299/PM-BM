@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from "react";
-import { Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
@@ -13,15 +13,11 @@ import {
   MaterialTableSX,
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import MaterialTable from "@material-table/core";
-import Loading from "../../../components/Loading/Loading";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import moment from "moment";
 import tableIcons from "../../../components/MatrialTableIcon";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
 
 import axios from "axios";
-import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
 import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 
 const CMApprovalDashboardOfRequestSheet = () => {
@@ -30,11 +26,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
     reducer,
     initialState("Yes")
   );
-  const { register, handleSubmit, watch, errors } = useForm({});
   const [loading, setLoading] = useState(true);
-  const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState(null);
-  const [isEditable, setIsEditable] = useState(false);
-  const [cmReqSheetView, setCmReqSheetView] = useState(false);
 
   const defaultState = {
     cmReqSheetView: false,
@@ -152,7 +144,6 @@ const CMApprovalDashboardOfRequestSheet = () => {
     reduceState?.selectedValue,
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
-    cmReqSheetView,
   ]);
   return (
     <>
@@ -246,41 +237,6 @@ const CMApprovalDashboardOfRequestSheet = () => {
           {...selectedCMRequestSheetPopupData}
         />
       )}
-
-      {/* <Modal
-        show={cmReqSheetView}
-        fullscreen
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Header>
-          <Modal.Title id="contained-modal-title-vcenter">
-            CM Request-Sheet
-          </Modal.Title>
-          <Button
-            onClick={() => setCmReqSheetView(false)}
-            style={{
-              backgroundColor: "#B02A37",
-              color: "#F2F2F2",
-              "&:hover": {
-                backgroundColor: "#B02A37",
-                cursor: "pointer",
-              },
-            }}
-          >
-            Close
-          </Button>
-        </Modal.Header>
-        <Modal.Body>
-          <div>
-            <MTDExistingMachineReqSheetWithData
-              cmSelectedSheetForView={cmSelectedSheetForView}
-              isEditable={isEditable}
-              setCmReqSheetView={setCmReqSheetView}
-            />
-          </div>
-        </Modal.Body>
-      </Modal> */}
     </>
   );
 };

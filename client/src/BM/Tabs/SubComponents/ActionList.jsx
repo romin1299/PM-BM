@@ -33,7 +33,7 @@ const ActionList = ({
           shouldDirty: true,
         });
       handleOnchangeFlag && handleOnchangeFlag("actions_val_flag");
-      clearErrors && clearErrors("actionValidation");
+      clearErrors && clearErrors("actionAndCounterMeasureStep");
       setNewActionText("");
       setNewActionStatus("NG");
       setIsAdding(false);

@@ -317,8 +317,16 @@ const quarterlyDataAdd = (
   const plannedData = [];
 
   const totalYears = 5; // Generate data for 4 years
-  const currentYear = moment(new Date()).tz(timezone).year();
-  const currentQuarterIndex = Math.floor(moment(new Date()).month() / 3);
+
+  let currentDate = moment(new Date()).tz(timezone);
+
+  let currentYear = currentDate.year();
+
+  if ([0, 1, 2]?.includes(currentDate.month())) {
+    currentYear -= 1;
+  }
+
+  const currentQuarterIndex = Math.floor(currentDate.month() / 3);
   let modifiedPlannedDateAndTimeOfCM;
 
   for (let year = currentYear; year < currentYear + totalYears; year++) {
@@ -512,62 +520,6 @@ router.post(
   }
 );
 
-router.patch(
-  "/updateCmReqSheet/:id",
-  authenticate,
-  uploadDataSheetsOfBD.fields([
-    { name: "attachedFileByAssignedUser", maxCount: 10 },
-  ]),
-  async (req, res, next) => {
-    const id = req.params.id;
-    const requestSheetDataFilledByMTDUserForCM = JSON.parse(req.body.otherData);
-    if (
-      req.files?.attachedFileByAssignedUser?.[0]?.filename ||
-      req.files?.attachedFileByAssignedUser
-    ) {
-      requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
-        req.files?.attachedFileByAssignedUser?.[0]?.filename;
-    }
-    if (
-      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-        ?.frequencyType === "One-time"
-    ) {
-      requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.frequencyValue =
-        "";
-    }
-
-    if (requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM) {
-      requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
-        generalDateFormat(
-          requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM
-        );
-    }
-
-    if (
-      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-        ?.targetDateOfCM
-    ) {
-      requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.targetDateOfCM =
-        generalDateFormat(
-          requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-            ?.targetDateOfCM
-        );
-    }
-
-    //
-    // console.log(requestSheetDataFilledByMTDUserForCM);
-    const updatedRequestSheetOfCM = await RequestSheetOfCM.findByIdAndUpdate(
-      { _id: id },
-      requestSheetDataFilledByMTDUserForCM,
-      { new: true }
-    );
-
-    successResponse(res, "CM Request-sheet updated successfully", {
-      data: updatedRequestSheetOfCM,
-    });
-  }
-);
-
 const commonKeyGenerationMiddleware = tryCatchHandler(
   async (req, res, next) => {
     let commonKey =
@@ -672,15 +624,16 @@ router.patch(
 
       const pullUser = (key, specificUserObj) => {
         const { AddNewOrUpdateExistingArrayField } = specificUserObj;
-
-        updateObj.$pull = {
-          ...updateObj.$pull,
-          [`${allKeys?.[`approvalOf${key}`]}`]: {
-            _id: mongoose.Types.ObjectId(
-              AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField
-            ),
-          },
-        };
+        if (AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField) {
+          updateObj.$pull = {
+            ...updateObj.$pull,
+            [`${allKeys?.[`approvalOf${key}`]}`]: {
+              _id: mongoose.Types.ObjectId(
+                AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField
+              ),
+            },
+          };
+        }
       };
 
       const addOrUpdateApprovalUser = (key, specificUserObj) => {
@@ -746,7 +699,6 @@ router.patch(
 
           updateObj.$set = {
             ...updateObj.$set,
-            [allKeys?.requestSheetStatusOfCM]: "Under MTD TL/HOSS Approval",
             [allKeys?.getDataForApprovalDashboard]: {
               Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
                 ?.approvalOfMTD_TL?.userRef,
@@ -756,7 +708,6 @@ router.patch(
         } else {
           updateObj.$set = {
             ...updateObj.$set,
-            [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
             [allKeys?.getDataForApprovalDashboard]: {
               Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS
                 ?.approvalOfMTD_HOS?.userRef,
@@ -791,6 +742,14 @@ router.patch(
             requestSheetDataFilledByMTDUserForCM?.approvalObj_PRD_TL
           );
         }
+      }
+
+      if (requestSheetDataFilledByMTDUserForCM?.requestSheetStatusOfCM) {
+        updateObj.$set = {
+          ...updateObj.$set,
+          [allKeys?.requestSheetStatusOfCM]:
+            requestSheetDataFilledByMTDUserForCM?.requestSheetStatusOfCM,
+        };
       }
 
       updateObj.$set = {
@@ -840,7 +799,7 @@ router.patch(
         }
       );
       return res.status(201).json({
-        message: `Request-sheet approval send !!`,
+        message: `Request-sheet updated !!`,
         requestSheetOfCM,
       });
     } catch (error) {
@@ -868,7 +827,78 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     quarter: getFinancialQuarter(),
   };
 
-  if (req.url?.split("/")?.includes("getReqSheetDataByID")) {
+  let lastQuarterOrSelectedQuarter = {
+    $arrayElemAt: [
+      {
+        $getField: {
+          field: "quarterlyDataOfTheCM",
+          input: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: "$commonDataFilledByAssignUser",
+                  as: "yearWiseData",
+                  cond: {
+                    $eq: [
+                      "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                      req?.query?.selectedYear,
+                    ],
+                  },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      -1,
+    ],
+  };
+
+  if (req.query?.selectedQuarter) {
+    lastQuarterOrSelectedQuarter = {
+      $arrayElemAt: [
+        {
+          $filter: {
+            input: {
+              $getField: {
+                field: "quarterlyDataOfTheCM",
+                input: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$commonDataFilledByAssignUser",
+                        as: "yearWiseData",
+                        cond: {
+                          $eq: [
+                            "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                            req?.query?.selectedYear,
+                          ],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+            as: "quarterWiseData",
+            cond: {
+              $eq: [
+                "$$quarterWiseData.requestSheet_quarter",
+                req.query?.selectedQuarter,
+              ],
+            },
+          },
+        },
+        0,
+      ],
+    };
+  }
+
+  const reqUrl = req.url?.split("/");
+
+  if (reqUrl?.includes("getReqSheetDataByID")) {
     const getUserApprovalObj = (key, permissionKey) => {
       let approvalUserDetails = {
         $last: `$current_commonDataFilledByAssignUser.${key}`,
@@ -1025,6 +1055,11 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         isPermissionOfPRDTL:
           "$current_commonDataFilledByAssignUser.isPermissionOfPRDTL",
 
+        changedParts: "$current_commonDataFilledByAssignUser.changedParts",
+        workDetails: "$current_commonDataFilledByAssignUser.workDetails",
+        actionAndCounterMeasureStep:
+          "$current_commonDataFilledByAssignUser.actionAndCounterMeasureStep",
+
         "cmBasicDataFilledByMTD_TL.problemBackgroundOfCM": 1,
         "cmBasicDataFilledByMTD_TL.frequencyType": 1,
         "cmBasicDataFilledByMTD_TL.frequencyValue": 1,
@@ -1069,8 +1104,21 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
 
     currentFYYearAndQuarter["year"] = currentYear;
     req.currentFYYearAndQuarter = currentFYYearAndQuarter;
-  } else if (req.url?.split("/")?.includes("getAllCmReqSheet")) {
+  } else if (reqUrl?.includes("getAllCmReqSheet")) {
     otherPipelines.project = {
+      "current_commonDataFilledByAssignUser.assignUserForCM": 1,
+      assignUserForCM: {
+        $cond: [
+          {
+            $eq: [
+              "$current_commonDataFilledByAssignUser.statusOfPlannedCM",
+              "Planned",
+            ],
+          },
+          "$current_commonDataFilledByAssignUser.assignUserForCM",
+          "",
+        ],
+      },
       isEditableRS: {
         $cond: [
           {
@@ -1125,47 +1173,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     },
     {
       $addFields: {
-        current_commonDataFilledByAssignUser: {
-          $arrayElemAt: [
-            {
-              $filter: {
-                input: {
-                  $getField: {
-                    field: "quarterlyDataOfTheCM",
-                    input: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: "$commonDataFilledByAssignUser",
-                            as: "yearWiseData",
-                            cond: {
-                              $eq: [
-                                "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                                req?.query?.selectedYear,
-                              ],
-                            },
-                          },
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                },
-                as: "quarterWiseData",
-                cond: {
-                  $eq: [
-                    "$$quarterWiseData.requestSheet_quarter",
-                    //need to change this quarter when user select previous year filter
-                    req.query?.selectedQuarter
-                      ? req.query?.selectedQuarter
-                      : currentFYYearAndQuarter?.quarter,
-                  ],
-                },
-              },
-            },
-            0,
-          ],
-        },
+        current_commonDataFilledByAssignUser: lastQuarterOrSelectedQuarter,
         ...otherPipelines?.addFields,
       },
     },
@@ -1193,8 +1201,8 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         requestSheetNoOfCM: 1,
         "cmBasicDataFilledByMTD_TL.categories": 1,
         "cmBasicDataFilledByMTD_TL.activityOfCM": 1,
-        "current_commonDataFilledByAssignUser.requestSheetStatusOfCM": 1,
         "cmBasicDataFilledByMTD_TL.targetDateOfCM": 1,
+        "current_commonDataFilledByAssignUser.requestSheetStatusOfCM": 1,
         "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM": 1,
 
         ...otherPipelines?.project,
@@ -1219,8 +1227,6 @@ router.get(
   authenticate,
   filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
-    delete req.queryObj.subSectionRef; // for testing purpose only
-
     req.queryObj.commonDataFilledByAssignUser = {
       $elemMatch: {
         ...req.queryObj?.commonDataFilledByAssignUser?.$elemMatch,
@@ -1229,11 +1235,6 @@ router.get(
       },
     };
 
-    req.otherProjection = {
-      machineName: {
-        $arrayElemAt: ["$plantToMachineHierarchy.machine.machine_name", 0],
-      },
-    };
     return next();
   }),
   getRequestSheetData,
@@ -1735,22 +1736,33 @@ router.get(
   // middlewareForSectionAndSubSectionLookup,
   tryCatchHandler(async (req, res, next) => {
     const paginationCount = req?.query?.paginationCount * 1;
-    const startYearOfLTPM = moment()
+    let startYearOfLTPM = moment()
       .subtract(paginationCount, "years")
       .tz(timezone)
       .year();
+
+    const currentDate = moment().tz(timezone);
+
+    if (startYearOfLTPM === currentDate.year()) {
+      if ([0, 1, 2]?.includes(currentDate.month())) {
+        startYearOfLTPM -= 1;
+      }
+    }
+
     const yearList = Array.from({ length: 5 }, (_, i) => startYearOfLTPM + i);
     const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
+    delete req.queryObj.commonDataFilledByAssignUser;
+
     req.queryObj = {
       ...req?.queryObj,
-      commonDataFilledByAssignUser: {
-        $elemMatch: {
-          "preAggregationTimeStampOfRequestSheet.requestSheet_year": `${startYearOfLTPM}-${
-            startYearOfLTPM + 1
-          }`,
-        },
-      },
+      // commonDataFilledByAssignUser: {
+      //   $elemMatch: {
+      //     "preAggregationTimeStampOfRequestSheet.requestSheet_year": `${startYearOfLTPM}-${
+      //       startYearOfLTPM + 1
+      //     }`,
+      //   },
+      // },
     };
 
     const quarterList = Array(5).fill(QUARTER).flat();
@@ -1759,9 +1771,7 @@ router.get(
         $match: {
           "cmBasicDataFilledByMTD_TL.categories": "LTPM",
           "cmBasicDataFilledByMTD_TL.frequencyType": "Scheduled",
-          // lineRef: mongoose.Types.ObjectId(req?.query?.lineRef),
           ...req?.queryObj,
-          // machineRef: mongoose.Types.ObjectId('63b67ccba716e21c95cd383e')
         },
       },
       {

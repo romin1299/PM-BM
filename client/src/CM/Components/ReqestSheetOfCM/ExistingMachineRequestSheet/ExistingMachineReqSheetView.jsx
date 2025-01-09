@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Col, Container, Form, Modal, Row, Table } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import RoutingContext from "../../../../context/routing/RoutingContext";
@@ -10,6 +10,8 @@ import {
 import axios from "axios";
 
 import { SuccessToast } from "../../../../BM/Component/ShowTostify";
+
+import SendForApprovalRadioButtons from "../RSComponents/SendForApprovalRadioButtons";
 import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
 import UserApprovalSelectFields from "../RSComponents/UserApprovalSelectFields/UserApprovalSelectFields";
 import ApproveOrRejectComponent from "../RSComponents/ApproveOrRejectComponent";
@@ -21,21 +23,28 @@ const ExistingMachineReqSheetView = ({
   selectedRowRequestSheetId,
   isEditable = false,
   cmReqSheetView,
+  selectedQuarter = "",
 }) => {
   const {
+    watch,
     register,
+
     handleSubmit,
     formState: { errors, dirtyFields },
+
+    clearErrors,
     setValue,
-    watch,
+    setError,
   } = useForm({
     defaultValues: async () => {
       try {
         const response = await axios.get(
-          `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}`
+          `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}&&selectedQuarter=${selectedQuarter}`
         );
         if (response.status === 201) {
-          return response.data?.requestSheet;
+          const { requestSheet } = response.data;
+          requestSheet["wantToSendForApproval"] = "No";
+          return requestSheet;
         }
       } catch (error) {
         console.log(error);
@@ -80,11 +89,45 @@ const ExistingMachineReqSheetView = ({
     return newVal;
   };
 
+  const generateError = (field, key, message) =>
+    (!field || field?.length === 0) &&
+    setError(key, {
+      type: "required",
+      message,
+    });
+
+  const handleCustomError = ({
+    changedParts,
+    actionAndCounterMeasureStep,
+    workDetails,
+  }) => {
+    generateError(changedParts, "changedParts", "Part list is required");
+    generateError(
+      actionAndCounterMeasureStep,
+      "actionAndCounterMeasureStep",
+      "Action and counter measure step is required"
+    );
+    generateError(workDetails, "workDetails", "Work details is required");
+  };
+
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
-      const formData = new FormData();
+      if (requestSheetDataOfCM?.wantToSendForApproval === "Yes") {
+        handleCustomError(requestSheetDataOfCM);
+        if (Object.keys(errors)?.length === 0) {
+          return;
+        }
+      }
 
+      const formData = new FormData();
       const { ...otherFields } = handleDirtyFields(requestSheetDataOfCM);
+
+      if (otherFields?.wantToSendForApproval === "Yes") {
+        otherFields["requestSheetStatusOfCM"] = "Under MTD HOS Approval";
+        if (requestSheetDataOfCM?.isPermissionOfMTDTL === "Yes") {
+          otherFields["requestSheetStatusOfCM"] = "Under MTD TL/HOSS Approval";
+        }
+      }
 
       otherFields.approvalObj_MTD_HOS =
         requestSheetDataOfCM?.approvalObj_MTD_HOS;
@@ -790,46 +833,16 @@ const ExistingMachineReqSheetView = ({
                     </Row>
                   </td>
                 </tr>
-
-                {isEditable &&
-                  (context?.user_type === "MTD_TL" ||
-                    context?.user_type === "Section-Admin") && (
-                    <tr>
-                      <td>
-                        <button type="submit" className="btn bg-success">
-                          Update Request-Sheet
-                        </button>
-                      </td>
-                    </tr>
-                  )}
               </tbody>
             </Table>
-            {watch(
-              "upto_currentYear_current_commonDataFilledByAssignUser"
-            )?.map((year) =>
-              year.quarterlyDataOfTheCM?.map((quarter) => (
-                <MiddlewareForTablesOfMTD
-                  setValue={setValue}
-                  requestSheet_year={
-                    year?.preAggregationTimeStampOfRequestSheet
-                      ?.requestSheet_year
-                  }
-                  requestSheet_quarter={quarter?.requestSheet_quarter}
-                  plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}
-                  partsData={quarter?.changedParts}
-                  workData={quarter?.workDetails}
-                  actionData={quarter?.actionAndCounterMeasureStep}
-                  isEditable={
-                    isEditable &&
-                    watch("currentFYYearAndQuarter.year") ===
-                      year?.preAggregationTimeStampOfRequestSheet
-                        ?.requestSheet_year &&
-                    watch("currentFYYearAndQuarter.quarter") ===
-                      quarter?.requestSheet_quarter
-                  }
-                />
-              ))
-            )}
+
+            <TableMappingComponent
+              setValue={setValue}
+              watch={watch}
+              isEditable={isEditable}
+              errors={errors}
+              clearErrors={clearErrors}
+            />
 
             <UserApprovalSelectFields
               setValue={setValue}
@@ -837,7 +850,17 @@ const ExistingMachineReqSheetView = ({
               register={register}
               errors={errors}
               isEditable={isEditable}
+              isRequired={watch("wantToSendForApproval") === "Yes"}
             />
+
+            {watch(
+              "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+            ) === "Generated" && (
+              <SendForApprovalRadioButtons
+                register={register}
+                errors={errors}
+              />
+            )}
 
             {isEditable && (
               <Row className="m-0 border p-2 d-flex justify-content-between">
@@ -873,3 +896,69 @@ const ExistingMachineReqSheetView = ({
 };
 
 export default ExistingMachineReqSheetView;
+
+const TableMappingComponent = ({
+  watch,
+  setValue,
+  isEditable,
+  errors,
+  clearErrors,
+}) => {
+  const [supportingTMList, setSupportingTMList] = useState([]);
+
+  const getMachineDetails = async () => {
+    try {
+      const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (res.status === 201) {
+        const { TLHOSS_and_TM_user_list } = await res.json();
+        setSupportingTMList(TLHOSS_and_TM_user_list);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMachineDetails();
+  }, []);
+
+  return (
+    <>
+      {watch("upto_currentYear_current_commonDataFilledByAssignUser")?.map(
+        (year) =>
+          year.quarterlyDataOfTheCM?.map((quarter) => (
+            <MiddlewareForTablesOfMTD
+              clearErrors={clearErrors}
+              errors={errors}
+              supportingTMList={supportingTMList}
+              setValue={setValue}
+              requestSheet_year={
+                year?.preAggregationTimeStampOfRequestSheet?.requestSheet_year
+              }
+              requestSheet_quarter={quarter?.requestSheet_quarter}
+              plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}
+              partsData={quarter?.changedParts}
+              workData={quarter?.workDetails}
+              actionData={quarter?.actionAndCounterMeasureStep}
+              isEditable={
+                isEditable &&
+                watch("currentFYYearAndQuarter.year") ===
+                  year?.preAggregationTimeStampOfRequestSheet
+                    ?.requestSheet_year &&
+                watch("currentFYYearAndQuarter.quarter") ===
+                  quarter?.requestSheet_quarter
+              }
+            />
+          ))
+      )}
+    </>
+  );
+};

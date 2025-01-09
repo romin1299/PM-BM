@@ -1,36 +1,18 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
-import {
-  AppBar,
-  Box,
-  Dialog,
-  Button,
-  Grid,
-  IconButton,
-  InputAdornment,
-  Slide,
-  Switch,
-  TextField,
-  Toolbar,
-  Tooltip,
-  Typography,
-  SvgIcon,
-  Paper,
-} from "@mui/material";
+import React, { useEffect, useReducer, useState } from "react";
+import { Box, Grid, Slide, Typography, SvgIcon, Paper } from "@mui/material";
 import { FaEye } from "react-icons/fa";
 import { ReactComponent as EditSheetIcon } from "../../../static/svg/edit-sheet-2.svg";
 
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import moment from "moment";
-import { Container, Modal } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
   reducer,
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import tableIcons from "../../../components/MatrialTableIcon";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 import {
   MaterialTableOptions,
   MaterialTableStyle,
@@ -38,17 +20,8 @@ import {
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import MaterialTable from "@material-table/core";
 import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
-import RoutingContext from "../../../context/routing/RoutingContext";
-import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
-// import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
 
 const AllRequestSheetReportDataOfCM = () => {
-  const navigate = useNavigate();
-
-  const handleGenerateBMNavigation = async () => {
-    navigate(`/cm/generateCMRequestSheetMainDashboard`);
-  };
-
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
     useState([]);
   const [reduceState, reducerDispatch] = useReducer(
@@ -133,44 +106,21 @@ const AllRequestSheetReportDataOfCM = () => {
     },
     {
       title: "status",
-      field: "requestSheetStatusOfCM",
+      field: "current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
       editable: false,
     },
     {
       title: "Planned Date",
       field: "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
-      // render: (rowData) => {
-      //   return rowData?.commonDataFilledByAssignUser?.map((item) => {
-      //     return `${moment(item?.plannedDateAndTimeOfCM).format(
-      //       "DD-MM-YYYY"
-      //     )}, `;
-      //   });
-      // },
       type: "date",
       editable: false,
     },
     {
       title: "Assigned To",
-      render: (rowData) => {
-        if (
-          rowData?.current_commonDataFilledByAssignUser?.assignUserForCM
-            ?.length > 0 &&
-          rowData?.current_commonDataFilledByAssignUser?.statusOfPlannedCM ===
-            "Planned"
-        ) {
-          const assigned_users =
-            rowData?.current_commonDataFilledByAssignUser?.assignUserForCM?.map(
-              (users) => {
-                return `${users?.tm_name}, `;
-              }
-            );
-          return assigned_users;
-        }
-      },
+      render: (rowData) =>
+        rowData?.assignUserForCM?.map((users) => users?.tm_name)?.join(", "),
     },
   ];
-  const context = useContext(RoutingContext);
-  // console.log(context);
 
   // const [greaterValue, setGreaterValue] = useState(
   //   localStorage.getItem("greaterValue")
@@ -488,12 +438,6 @@ const AllRequestSheetReportDataOfCM = () => {
                 {...selectedCMRequestSheetPopupData}
               />
             )}
-
-            {/* <MTDExistingMachineReqSheetWithData
-              // cmSelectedSheetForView={cmSelectedSheetForView}
-              isEditable={isEditable}
-              setCmReqSheetView={setCmReqSheetView}
-            /> */}
           </div>
         </>
       )}

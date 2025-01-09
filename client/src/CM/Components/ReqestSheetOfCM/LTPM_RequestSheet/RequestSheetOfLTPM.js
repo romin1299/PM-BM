@@ -38,6 +38,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     cmReqSheetView: false,
     isEditable: false,
     selectedRowRequestSheetId: "",
+    selectedQuarter: "",
   };
 
   const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
@@ -95,11 +96,12 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     reduceState.selectedMonth,
   ]);
 
-  const openModalOfRequestSheetOfCm = (_id) => {
+  const openModalOfRequestSheetOfCm = (_id, selectedQuarter) => {
     setSelectedCMRequestSheetPopupData((selectedCMRequestSheetPopupData) => ({
       ...selectedCMRequestSheetPopupData,
       cmReqSheetView: true,
       selectedRowRequestSheetId: _id,
+      selectedQuarter,
     }));
   };
 
@@ -141,7 +143,11 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                       type="button"
                       className="commonBtn viewRequestSheetOfCMBtn"
                       onClick={() => {
-                        openModalOfRequestSheetOfCm(item?._id?._id);
+                        openModalOfRequestSheetOfCm(
+                          item?._id?._id,
+                          item1?.[i]?.quarterlyDataOfTheCM?.[index]
+                            ?.requestSheet_quarter
+                        );
                       }}
                     >
                       --&gt;
