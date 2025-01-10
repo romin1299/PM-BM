@@ -897,92 +897,92 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
   }
 
   const reqUrl = req.url?.split("/");
+  const getUserApprovalObj = (key, permissionKey) => {
+    let approvalUserDetails = {
+      $last: `$current_commonDataFilledByAssignUser.${key}`,
+    };
 
-  if (reqUrl?.includes("getReqSheetDataByID")) {
-    const getUserApprovalObj = (key, permissionKey) => {
-      let approvalUserDetails = {
-        $last: `$current_commonDataFilledByAssignUser.${key}`,
-      };
-
-      if (permissionKey) {
-        approvalUserDetails = {
-          $cond: [
-            {
-              $eq: [
-                `$current_commonDataFilledByAssignUser.${permissionKey}`,
-                "Yes",
-              ],
-            },
-            {
-              $last: `$current_commonDataFilledByAssignUser.${key}`,
-            },
-            {},
-          ],
-        };
-      }
-      return {
+    if (permissionKey) {
+      approvalUserDetails = {
         $cond: [
           {
-            $gt: ["$current_commonDataFilledByAssignUser", null],
-          },
-          {
-            $cond: [
-              {
-                $or: [
-                  {
-                    $lte: [
-                      { $size: `$current_commonDataFilledByAssignUser.${key}` },
-                      0,
-                    ],
-                  },
-                  {
-                    $in: [
-                      {
-                        $getField: {
-                          field: "approvalStatus",
-                          input: {
-                            $last: `$current_commonDataFilledByAssignUser.${key}`,
-                          },
-                        },
-                      },
-                      ["Rejected", "Accepted", ""],
-                    ],
-                  },
-                ],
-              },
-              {
-                AddNewOrUpdateExistingArrayField: {
-                  status: "ADD_NEW",
-                  refIdFOrUpdateExitingField: "",
-                },
-                [key]: {},
-              },
-              {
-                AddNewOrUpdateExistingArrayField: {
-                  status: "UPDATE_EXISTING",
-                  refIdFOrUpdateExitingField: {
-                    $getField: {
-                      field: "_id",
-                      input: {
-                        $last: `$current_commonDataFilledByAssignUser.${key}`,
-                      },
-                    },
-                  },
-                },
-                [key]: approvalUserDetails,
-              },
+            $eq: [
+              `$current_commonDataFilledByAssignUser.${permissionKey}`,
+              "Yes",
             ],
           },
           {
-            AddNewOrUpdateExistingArrayField: {
-              status: "ADD_NEW",
-              refIdFOrUpdateExitingField: "",
-            },
-            [key]: {},
+            $last: `$current_commonDataFilledByAssignUser.${key}`,
           },
+          {},
         ],
       };
+    }
+    return {
+      $cond: [
+        {
+          $gt: ["$current_commonDataFilledByAssignUser", null],
+        },
+        {
+          $cond: [
+            {
+              $or: [
+                {
+                  $lte: [
+                    { $size: `$current_commonDataFilledByAssignUser.${key}` },
+                    0,
+                  ],
+                },
+                {
+                  $in: [
+                    {
+                      $getField: {
+                        field: "approvalStatus",
+                        input: {
+                          $last: `$current_commonDataFilledByAssignUser.${key}`,
+                        },
+                      },
+                    },
+                    ["Rejected", "Accepted", ""],
+                  ],
+                },
+              ],
+            },
+            {
+              AddNewOrUpdateExistingArrayField: {
+                status: "ADD_NEW",
+                refIdFOrUpdateExitingField: "",
+              },
+              [key]: {},
+            },
+            {
+              AddNewOrUpdateExistingArrayField: {
+                status: "UPDATE_EXISTING",
+                refIdFOrUpdateExitingField: {
+                  $getField: {
+                    field: "_id",
+                    input: {
+                      $last: `$current_commonDataFilledByAssignUser.${key}`,
+                    },
+                  },
+                },
+              },
+              [key]: approvalUserDetails,
+            },
+          ],
+        },
+        {
+          AddNewOrUpdateExistingArrayField: {
+            status: "ADD_NEW",
+            refIdFOrUpdateExitingField: "",
+          },
+          [key]: {},
+        },
+      ],
     };
+  };
+
+  if (reqUrl?.includes("getReqSheetDataByID")) {
     const categoryCheck = (category, field) => ({
       $cond: [
         {
@@ -1151,6 +1151,13 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
           false,
         ],
       },
+    };
+  } else if (reqUrl?.includes("getApprovalLogsForCM")) {
+    otherPipelines.project = {
+      "current_commonDataFilledByAssignUser.assignUserForCM": 1,
+      "current_commonDataFilledByAssignUser.approvalOfMTD_TL": 1,
+      "current_commonDataFilledByAssignUser.approvalOfMTD_HOS": 1,
+      "current_commonDataFilledByAssignUser.approvalOfPRD_TL": 1,
     };
   }
 
@@ -1480,115 +1487,11 @@ router.get(
   "/getApprovalLogsForCM/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  getRequestSheetData,
   async (req, res, next) => {
     try {
-      const getDataOfRequestSheetApprovalLogs =
-        await RequestSheetOfCM.aggregate([
-          {
-            $match: {
-              ...req.queryObj,
-              $and: [
-                {
-                  requestSheetStatusOfCM: {
-                    $ne: "Generated",
-                  },
-                },
-              ],
-            },
-          },
-          {
-            $lookup: {
-              from: "machinesalldatas",
-              localField: "machineRef",
-              foreignField: "_id",
-              as: "machines",
-            },
-          },
-          {
-            $lookup: {
-              from: "lines",
-              localField: "lineRef",
-              foreignField: "_id",
-              as: "lines",
-            },
-          },
-          {
-            $lookup: {
-              from: "cells",
-              localField: "cellRef",
-              foreignField: "_id",
-              as: "cells",
-            },
-          },
-          {
-            $lookup: {
-              from: "users",
-              localField: "assignUserForCM",
-              foreignField: "_id",
-              pipeline: [
-                {
-                  $project: {
-                    user_type: 1,
-                    tm_name: 1,
-                  },
-                },
-              ],
-              as: "namesOperators",
-            },
-          },
-
-          {
-            $project: {
-              requestSheetNoOfCM: 1,
-              plannedDateAndTimeOfCM: 1,
-              assignUserForCM: 1,
-              namesOperators: 1,
-
-              approvalOfMTD_TL: 1,
-              approvalStatusOfMTD_TL: 1,
-              approvalDateAndTimeOfMTD_TL: 1,
-
-              approvalOfMTD_HOS: 1,
-              approvalStatusOfMTD_HOS: 1,
-              approvalDateAndTimeOfMTD_HOS: 1,
-
-              approvalOfPRD_TL: 1,
-              approvalStatusOfPRD_TL: 1,
-              approvalDateAndTimeOfPRD_TL: 1,
-
-              rejectedRemarksOfRequestSheet: 1,
-
-              approverNameLogOfMTD_TL: 1,
-              approverNameLogOfMTD_HOS: 1,
-              approverNameLogOfPRD_TL: 1,
-
-              requestSheetStatus: 1,
-
-              machineRef: { $arrayElemAt: ["$machines", 0] },
-              lineRef: { $arrayElemAt: ["$lines", 0] },
-
-              line: { $arrayElemAt: ["$lines.line_name", 0] },
-              cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-              machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-              machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
-
-              assignUserForCM: {
-                $arrayElemAt: ["$namesOperators.tm_name", 0],
-              },
-
-              plannedDateAndTimeOfCMForTable: {
-                $dateToString: {
-                  format: "%d-%m-%Y T%H:%M",
-                  date: "$plannedDateAndTimeOfCM",
-                  timezone: timezone,
-                },
-              },
-            },
-          },
-        ]);
-      res.status(200).json({
-        message: "Get approval data successfully",
-        approvalDataLogs: getDataOfRequestSheetApprovalLogs,
+      successResponse(res, "Request-sheet fetched successfully", {
+        approvalDataLogs: req.requestSheetData,
       });
     } catch (error) {
       console.log(error);

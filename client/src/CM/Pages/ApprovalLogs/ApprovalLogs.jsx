@@ -15,8 +15,22 @@ import axios from "axios";
 const ApprovalLogs = () => {
   const [approvalLogs, setApprovalLogs] = useState([]);
 
-  const [columns, setColumns] = useState([]);
-  const [searchResult, setSearchResult] = useState([]);
+  const renderApprovalUser = (userArray) =>
+    userArray?.map((value) => (
+      <>
+        <span>
+          <b>{value?.approvalStatus}</b> -{value?.tm_name},
+          {value?.approvalDateAndTime}
+          {value?.approvalStatus === "Rejected" && (
+            <>
+              {", "}
+              <b>Remarks:</b> {value?.rejectedRemarks}
+            </>
+          )}
+        </span>
+        <br />
+      </>
+    ));
 
   let commonColumns = [
     {
@@ -114,16 +128,22 @@ const ApprovalLogs = () => {
     },
     {
       title: "Planned Date",
-      dataIndex: "plannedDateAndTimeOfCMForTable",
+      // dataIndex: "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
+      render: (text, record) => (
+        <span>
+          {record?.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM}
+        </span>
+      ),
       sorter: (a, b) => {
         let comparison = 0;
-
         if (
-          a.plannedDateAndTimeOfCMForTable < b.plannedDateAndTimeOfCMForTable
+          a.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM <
+          b.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM
         ) {
           comparison = 1;
         } else if (
-          a.plannedDateAndTimeOfCMForTable > b.plannedDateAndTimeOfCMForTable
+          a.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM >
+          b.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM
         ) {
           comparison = -1;
         }
@@ -137,9 +157,11 @@ const ApprovalLogs = () => {
       //   dataIndex: "assignUserForCM",
       render: (text, record) => (
         <span>
-          {record?.namesOperators?.map((value, idx) => (
-            <span>{value.tm_name},</span>
-          ))}
+          {record?.current_commonDataFilledByAssignUser?.assignUserForCM?.map(
+            (value) => (
+              <span>{value.tm_name},</span>
+            )
+          )}
         </span>
       ),
       // fixed: "left",
@@ -149,83 +171,27 @@ const ApprovalLogs = () => {
     {
       title: "MTD TL",
       render: (text, record) =>
-        record?.approvalStatusOfMTD_TL?.map((value, idx) => (
-          <>
-            <span>
-              <b>{value}</b> -{record["approverNameLogOfMTD_TL"]?.[idx]},
-              {record["approvalDateAndTimeOfMTD_TL"]?.[idx] &&
-                moment(record["approvalDateAndTimeOfMTD_TL"]?.[idx])
-                  .tz("Asia/Kolkata")
-                  .format("DD-MM-YYYY THH:mm")}
-              {value === "Rejected" && (
-                <>
-                  {", "}
-                  <b>Remarks:</b> {record?.rejectedRemarksOfRequestSheet?.[idx]}
-                </>
-              )}
-            </span>
-            <br />
-          </>
-        )),
-
+        renderApprovalUser(
+          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_TL
+        ),
       width: "20%",
     },
     {
       title: "MTD HOS",
-      render: (text, record) => (
-        <>
-          <span>
-            {record?.approvalStatusOfMTD_HOS?.map((value, idx) => (
-              <>
-                <span>
-                  <b>{value}</b> -{record["approverNameLogOfMTD_HOS"]?.[idx]},
-                  {record["approvalDateAndTimeOfMTD_HOS"]?.[idx] &&
-                    moment(record["approvalDateAndTimeOfMTD_HOS"]?.[idx])
-                      .tz("Asia/Kolkata")
-                      .format("DD-MM-YYYY THH:mm")}
-                  {value === "Rejected" && (
-                    <>
-                      {", "}
-                      <b>Remarks:</b>{" "}
-                      {record?.rejectedRemarksOfRequestSheet?.[idx]}
-                    </>
-                  )}
-                </span>
-                <br />
-              </>
-            ))}
-          </span>
-        </>
-      ),
+      render: (text, record) =>
+        renderApprovalUser(
+          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_HOS
+        ),
+
       width: "20%",
     },
     {
       title: "PRD TL",
-      render: (text, record) => (
-        <>
-          <span>
-            {record?.approvalStatusOfPRD_TL?.map((value, idx) => (
-              <>
-                <span>
-                  <b>{value}</b> -{record["approverNameLogOfPRD_TL"]?.[idx]},
-                  {record["approvalDateAndTimeOfPRD_TL"]?.[idx] &&
-                    moment(record["approvalDateAndTimeOfPRD_TL"]?.[idx])
-                      .tz("Asia/Kolkata")
-                      .format("DD-MM-YYYY THH:mm")}
-                  {value === "Rejected" && (
-                    <>
-                      {", "}
-                      <b>Remarks:</b>{" "}
-                      {record?.rejectedRemarksOfRequestSheet?.[idx]}
-                    </>
-                  )}
-                </span>
-                <br />
-              </>
-            ))}
-          </span>
-        </>
-      ),
+      render: (text, record) =>
+        renderApprovalUser(
+          record?.current_commonDataFilledByAssignUser?.approvalOfPRD_TL
+        ),
+
       width: "20%",
     },
   ];
