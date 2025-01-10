@@ -856,10 +856,7 @@ const ExistingMachineReqSheetView = ({
             {watch(
               "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
             ) === "Generated" && (
-              <SendForApprovalRadioButtons
-                register={register}
-                errors={errors}
-              />
+              <SendForApprovalRadioButtons register={register} />
             )}
 
             {isEditable && (

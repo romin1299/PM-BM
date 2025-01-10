@@ -1,7 +1,7 @@
 import React from "react";
 import { Col, Form, Row } from "react-bootstrap";
 
-const SendForApprovalRadioButtons = ({ register, errors }) => {
+const SendForApprovalRadioButtons = ({ register }) => {
   return (
     <>
       <Row className="m-1 d-flex justify-content-start">
