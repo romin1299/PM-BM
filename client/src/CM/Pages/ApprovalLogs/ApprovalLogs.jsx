@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useReducer } from "react";
 import { Table, ConfigProvider } from "antd";
-import moment from "moment-timezone";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
-// Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
   reducer,
@@ -10,7 +8,6 @@ import {
 
 import { Container } from "react-bootstrap";
 import BMTitlebar from "../../../BM/Component/BMTitlebar";
-import { Row, Col } from "react-bootstrap";
 import axios from "axios";
 const ApprovalLogs = () => {
   const [approvalLogs, setApprovalLogs] = useState([]);
