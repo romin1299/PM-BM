@@ -2,23 +2,23 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const multer = require("multer");
-const fs = require("fs");
-let path = require("path");
+// const fs = require("fs");
+// let path = require("path");
 const cookieParser = require("cookie-parser");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 
-const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
+// const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
+// const SubSection = require("../model/subSectionSchema");
+// const Cell = require("../model/cellSchema");
+// const Line = require("../model/lineSchema");
+// const LogHistory = require("../model/logHistorySchema");
+// const NoLossBD = require("../model/noLossBDSheetData");
+// const HandlingActions = require("../model/handlingActions");
+// const Plant = require("../model/plantSchema");
 const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
-const SubSection = require("../model/subSectionSchema");
-const Cell = require("../model/cellSchema");
-const Line = require("../model/lineSchema");
-const LogHistory = require("../model/logHistorySchema");
-const NoLossBD = require("../model/noLossBDSheetData");
-const HandlingActions = require("../model/handlingActions");
-const Plant = require("../model/plantSchema");
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
 const PlantToMachineHierarchy = require("../model/plantToMachineHierarchySchema");
 
@@ -29,36 +29,36 @@ const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 const maintenanceType = require("../utils/maintenanceType");
 const filterMiddleware = require("../middleware/filterMiddleware");
 const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
-const { gettingFYYear } = require("../middleware/gettingFYYear");
+// const { gettingFYYear } = require("../middleware/gettingFYYear");
 const {
   gettingMonthForSelectedDate,
   getFinancialQuarter,
   getFinancialQuarterByMonth,
 } = require("../middleware/gettingFYMonthForPreAgg");
 
-const {
-  CM_PLANNED_STATUS,
-} = require("../GlobalData/RequestSheetApprovalStatus");
-const { start } = require("repl");
+// const {
+//   CM_PLANNED_STATUS,
+// } = require("../GlobalData/RequestSheetApprovalStatus");
+// const { start } = require("repl");
 
 router.use(cookieParser());
 
-const monthKeyArray = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "June",
-  "July",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+// const monthKeyArray = [
+//   "Jan",
+//   "Feb",
+//   "Mar",
+//   "Apr",
+//   "May",
+//   "June",
+//   "July",
+//   "Aug",
+//   "Sep",
+//   "Oct",
+//   "Nov",
+//   "Dec",
+// ];
 
-let currentMonth = monthKeyArray[new Date().getMonth()];
+// let currentMonth = monthKeyArray[new Date().getMonth()];
 let currentYear =
   new Date().getMonth() < 3
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
@@ -1577,60 +1577,60 @@ router.get(`/getReqSheetDataForCalendar`, authenticate, async (req, res) => {
   }
 });
 
-const middlewareForSectionAndSubSectionLookup = async (req, res, next) => {
-  try {
-    let queryObjPipeline = [];
-    const section = await Section.findOne({
-      section_id: req?.rootUser?.section_data?.split("-")?.[0],
-    });
+// const middlewareForSectionAndSubSectionLookup = async (req, res, next) => {
+//   try {
+//     let queryObjPipeline = [];
+//     const section = await Section.findOne({
+//       section_id: req?.rootUser?.section_data?.split("-")?.[0],
+//     });
 
-    if (section.dashboardLevel === "Yes") {
-      queryObjPipeline = [
-        {
-          $lookup: {
-            from: "sections",
-            localField: "_id.sectionRef",
-            foreignField: "_id",
-            as: "section_data",
-            pipeline: [
-              {
-                $project: { section_name: "$section_name" },
-              },
-            ],
-          },
-        },
-        {
-          $unwind: "$section_data",
-        },
-      ];
-    } else {
-      queryObjPipeline = [
-        {
-          $lookup: {
-            from: "subsections",
-            localField: "_id.subSectionRef",
-            foreignField: "_id",
-            as: "section_data",
-            pipeline: [
-              {
-                $project: { section_name: "$subSection_name" },
-              },
-            ],
-          },
-        },
-        {
-          $unwind: "$section_data",
-        },
-      ];
-    }
+//     if (section.dashboardLevel === "Yes") {
+//       queryObjPipeline = [
+//         {
+//           $lookup: {
+//             from: "sections",
+//             localField: "_id.sectionRef",
+//             foreignField: "_id",
+//             as: "section_data",
+//             pipeline: [
+//               {
+//                 $project: { section_name: "$section_name" },
+//               },
+//             ],
+//           },
+//         },
+//         {
+//           $unwind: "$section_data",
+//         },
+//       ];
+//     } else {
+//       queryObjPipeline = [
+//         {
+//           $lookup: {
+//             from: "subsections",
+//             localField: "_id.subSectionRef",
+//             foreignField: "_id",
+//             as: "section_data",
+//             pipeline: [
+//               {
+//                 $project: { section_name: "$subSection_name" },
+//               },
+//             ],
+//           },
+//         },
+//         {
+//           $unwind: "$section_data",
+//         },
+//       ];
+//     }
 
-    req.queryObjPipeline = queryObjPipeline;
-    next();
-  } catch (error) {
-    logger.error(error, { maintenanceType: maintenanceType?.[1] });
-    res.status(500).json({ message: error?.message, error });
-  }
-};
+//     req.queryObjPipeline = queryObjPipeline;
+//     next();
+//   } catch (error) {
+//     logger.error(error, { maintenanceType: maintenanceType?.[1] });
+//     res.status(500).json({ message: error?.message, error });
+//   }
+// };
 
 router.get(
   "/LTPM/getDatOfLTPM/:filter/:selectedId",
