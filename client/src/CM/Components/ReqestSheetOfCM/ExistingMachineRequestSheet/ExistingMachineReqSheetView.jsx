@@ -114,7 +114,7 @@ const ExistingMachineReqSheetView = ({
     try {
       if (requestSheetDataOfCM?.wantToSendForApproval === "Yes") {
         handleCustomError(requestSheetDataOfCM);
-        if (Object.keys(errors)?.length === 0) {
+        if (Object.keys(errors)?.length > 0) {
           return;
         }
       }
@@ -849,15 +849,22 @@ const ExistingMachineReqSheetView = ({
               watch={watch}
               register={register}
               errors={errors}
-              isEditable={isEditable}
+              isEditable={
+                ["Generated", "Fill Sheet", "Rejected"]?.includes(
+                  watch(
+                    "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+                  )
+                ) && isEditable
+              }
               isRequired={watch("wantToSendForApproval") === "Yes"}
             />
 
-            {watch(
-              "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
-            ) === "Generated" && (
-              <SendForApprovalRadioButtons register={register} />
-            )}
+            {["Generated", "Fill Sheet", "Rejected"]?.includes(
+              watch(
+                "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+              )
+            ) &&
+              isEditable && <SendForApprovalRadioButtons register={register} />}
 
             {isEditable && (
               <Row className="m-0 border p-2 d-flex justify-content-between">

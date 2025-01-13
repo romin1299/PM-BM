@@ -106,9 +106,28 @@ const findTLandOperatorList = async (req, res, next) => {
       req?.rootUser?.tm_department === "MTD" ||
       req?.rootUser?.user_type === "Operator"
     ) {
+      const section = await Section.findOne({
+        section_id: req?.rootUser?.section_data?.split("-")?.[0],
+      });
+
+      let queryObj = {
+        plant_data: req?.rootUser?.plant_data,
+        section_data: req?.rootUser?.section_data,
+      };
+
+      if (
+        req?.rootUser?.tm_grade !== "HOD" &&
+        section?.dashboardLevel === "No"
+      ) {
+        queryObj = {
+          ...queryObj,
+          subSection_data: { $in: req?.rootUser?.subSection_data },
+        };
+      }
+
       TLHOSS_and_TM_user_list = await User.find(
         {
-          ...req.queryObj,
+          ...queryObj,
           tm_no: { $ne: req?.rootUser?.tm_no },
           $or: [
             {
@@ -141,32 +160,6 @@ const findTLandOperatorList = async (req, res, next) => {
     }
     req.TLHOSS_and_TM_user_list = TLHOSS_and_TM_user_list;
 
-    next();
-  } catch (error) {
-    logger.error(error, { maintenanceType: maintenanceType?.[1] });
-    res.status(500).json({ message: error?.message, error });
-  }
-};
-
-const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
-  try {
-    const section = await Section.findOne({
-      section_id: req?.rootUser?.section_data?.split("-")?.[0],
-    });
-
-    let queryObj = {
-      plant_data: req?.rootUser?.plant_data,
-      section_data: req?.rootUser?.section_data,
-    };
-
-    if (req?.rootUser?.tm_grade !== "HOD" && section?.dashboardLevel === "No") {
-      queryObj = {
-        ...queryObj,
-        subSection_data: { $in: req?.rootUser?.subSection_data },
-      };
-    }
-
-    req.queryObj = queryObj;
     next();
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -926,13 +919,20 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         {
           $cond: [
             {
-              $or: [
-                {
-                  $lte: [
-                    { $size: `$current_commonDataFilledByAssignUser.${key}` },
-                    0,
-                  ],
-                },
+              $lte: [
+                { $size: `$current_commonDataFilledByAssignUser.${key}` },
+                0,
+              ],
+            },
+            {
+              AddNewOrUpdateExistingArrayField: {
+                status: "ADD_NEW",
+                refIdFOrUpdateExitingField: "",
+              },
+              [key]: {},
+            },
+            {
+              $cond: [
                 {
                   $in: [
                     {
@@ -946,28 +946,28 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
                     ["Rejected", "Accepted", ""],
                   ],
                 },
-              ],
-            },
-            {
-              AddNewOrUpdateExistingArrayField: {
-                status: "ADD_NEW",
-                refIdFOrUpdateExitingField: "",
-              },
-              [key]: {},
-            },
-            {
-              AddNewOrUpdateExistingArrayField: {
-                status: "UPDATE_EXISTING",
-                refIdFOrUpdateExitingField: {
-                  $getField: {
-                    field: "_id",
-                    input: {
-                      $last: `$current_commonDataFilledByAssignUser.${key}`,
+                {
+                  AddNewOrUpdateExistingArrayField: {
+                    status: "ADD_NEW",
+                    refIdFOrUpdateExitingField: "",
+                  },
+                  [key]: approvalUserDetails,
+                },
+                {
+                  AddNewOrUpdateExistingArrayField: {
+                    status: "UPDATE_EXISTING",
+                    refIdFOrUpdateExitingField: {
+                      $getField: {
+                        field: "_id",
+                        input: {
+                          $last: `$current_commonDataFilledByAssignUser.${key}`,
+                        },
+                      },
                     },
                   },
+                  [key]: approvalUserDetails,
                 },
-              },
-              [key]: approvalUserDetails,
+              ],
             },
           ],
         },
@@ -980,6 +980,41 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         },
       ],
     };
+  };
+
+  let isEditableRS = {
+    $cond: [
+      {
+        $in: [
+          "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
+          ["Generated", "Fill Sheet", "Rejected"],
+        ],
+      },
+      {
+        $ne: [
+          {
+            $filter: {
+              input: "$current_commonDataFilledByAssignUser.assignUserForCM",
+              as: "item",
+              cond: { $eq: ["$$item.userRef", req.rootUser?._id] },
+            },
+          },
+          [],
+        ],
+      },
+      {
+        $cond: [
+          {
+            $eq: [
+              "$current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id",
+              req.rootUser?._id,
+            ],
+          },
+          true,
+          false,
+        ],
+      },
+    ],
   };
 
   if (reqUrl?.includes("getReqSheetDataByID")) {
@@ -1043,6 +1078,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         shiftOfCM: 1,
         qualityRelated: 1,
         requestSheetCreatedBy: 1,
+        isEditableRS,
 
         "current_commonDataFilledByAssignUser.requestSheet_quarter": 1,
         "current_commonDataFilledByAssignUser.statusOfPlannedCM": 1,
@@ -1119,38 +1155,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
           "",
         ],
       },
-      isEditableRS: {
-        $cond: [
-          {
-            $and: [
-              {
-                $ne: [
-                  {
-                    $filter: {
-                      input:
-                        "$current_commonDataFilledByAssignUser.assignUserForCM",
-                      as: "item",
-                      cond: { $eq: ["$$item.userRef", req.rootUser?._id] },
-                    },
-                  },
-                  [],
-                ],
-              },
-              {
-                $in: [
-                  "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
-                  ["Generated", "Fill Sheet", "Rejected"],
-                ],
-              },
-              // {
-              //   $eq: [req?.rootUser?.user_type, "TL/HOSSS"],
-              // },
-            ],
-          },
-          true,
-          false,
-        ],
-      },
+      isEditableRS,
     };
   } else if (reqUrl?.includes("getApprovalLogsForCM")) {
     otherPipelines.project = {
@@ -1245,14 +1250,11 @@ router.get(
     return next();
   }),
   getRequestSheetData,
-  dashboardLevelUserCheckMiddleware,
-  findTLandOperatorList,
   async (req, res, next) => {
     try {
       res.status(201).json({
         message: "Request-sheet data get successfully",
         requestSheetData: req.requestSheetData,
-        TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
       });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
