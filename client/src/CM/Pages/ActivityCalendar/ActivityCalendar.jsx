@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-// import $ from "jquery";
-// import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
@@ -9,7 +7,6 @@ import enUS from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import {
   Button,
-  TextField,
   MenuItem,
   Select,
   InputLabel,
@@ -388,11 +385,27 @@ const ActivityCalendar = () => {
     };
   };
 
-  const [modalOpenForReqSheet, setModalOpenForReqSheet] = useState(false);
-  const [reqSheetId, setReqSheetId] = useState();
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
+
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
+
   const getModalOpenForReqSheet = async (event) => {
-    setReqSheetId(event.id);
-    setModalOpenForReqSheet(true);
+    // setReqSheetId(event.id);
+    // setModalOpenForReqSheet(true);
+
+    setSelectedCMRequestSheetPopupData((selectedCMRequestSheetPopupData) => ({
+      ...selectedCMRequestSheetPopupData,
+      cmReqSheetView: true,
+      selectedRowRequestSheetId: event.id,
+    }));
   };
 
   return (
@@ -418,22 +431,17 @@ const ActivityCalendar = () => {
       <br />
       <br />
       <br />
-      {modalOpenForReqSheet && (
-        <>
-          <div>
-            <ExistingMachineReqSheetView
-              selectedRowRequestSheetId={reqSheetId}
-              selectedYear={
-                selectedMonth * 1 < 3
-                  ? `${selectedYear * 1 - 1}-${selectedYear}`
-                  : `${selectedYear}-${selectedYear * 1 + 1}`
-              }
-              CmReqSheetView={modalOpenForReqSheet}
-              setCmReqSheetView={setModalOpenForReqSheet}
-              selectedMonth={selectedMonth}
-            />
-          </div>
-        </>
+
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
+        <ExistingMachineReqSheetView
+          handlePopupStatus={handlePopupStatus}
+          selectedYear={
+            selectedMonth * 1 < 3
+              ? `${selectedYear * 1 - 1}-${selectedYear}`
+              : `${selectedYear}-${selectedYear * 1 + 1}`
+          }
+          {...selectedCMRequestSheetPopupData}
+        />
       )}
     </div>
   );

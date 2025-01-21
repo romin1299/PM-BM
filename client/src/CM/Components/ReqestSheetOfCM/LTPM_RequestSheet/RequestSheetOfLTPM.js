@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
 import Loading from "../../../../components/Loading/Loading";
@@ -33,12 +33,16 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   };
 
   const [LTPMData, setLTPMData] = useState(initialState);
-  const [CmReqSheetView, setCmReqSheetView] = useState(false);
-  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState({
-    idOfTheReq: "",
-    quarterOfTheSelectedReqForLTPM: "",
-    yearOfTheSelectedReqForLTPM: "",
-  });
+
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+    selectedQuarter: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
 
   // const [loading, setLoading] = useState(true);
 
@@ -92,9 +96,17 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     reduceState.selectedMonth,
   ]);
 
-  const openModalOfRequestSheetOfCm = () => {
-    setCmReqSheetView((CmReqSheetView) => !CmReqSheetView);
+  const openModalOfRequestSheetOfCm = (_id, selectedQuarter) => {
+    setSelectedCMRequestSheetPopupData((selectedCMRequestSheetPopupData) => ({
+      ...selectedCMRequestSheetPopupData,
+      cmReqSheetView: true,
+      selectedRowRequestSheetId: _id,
+      selectedQuarter,
+    }));
   };
+
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
 
   const displayPlannedDataOfTheLTPM = (item, item1, years) => {
     const rows = []; // Accumulate all <td> elements here
@@ -131,14 +143,10 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                       type="button"
                       className="commonBtn viewRequestSheetOfCMBtn"
                       onClick={() => {
-                        openModalOfRequestSheetOfCm();
-                        setSelectedRowRequestSheetId(
-                          (selectedRowRequestSheetId) => ({
-                            ...selectedRowRequestSheetId,
-                            idOfTheReq: item?._id?._id,
-                            quarterOfTheSelectedReqForLTPM: quarterValue,
-                            yearOfTheSelectedReqForLTPM: yearAddition,
-                          })
+                        openModalOfRequestSheetOfCm(
+                          item?._id?._id,
+                          item1?.[i]?.quarterlyDataOfTheCM?.[index]
+                            ?.requestSheet_quarter
                         );
                       }}
                     >
@@ -447,16 +455,12 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
           </>
         }
       </div>
-      {CmReqSheetView && (
+
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
         <ExistingMachineReqSheetView
-          selectedYear={selectedRowRequestSheetId?.yearOfTheSelectedReqForLTPM}
-          selectedRowRequestSheetId={selectedRowRequestSheetId?.idOfTheReq}
-          quarterOfSelectedRq={
-            selectedRowRequestSheetId?.quarterOfTheSelectedReqForLTPM
-          }
-          isEditable={false}
-          setCmReqSheetView={setCmReqSheetView}
-          CmReqSheetView={CmReqSheetView}
+          handlePopupStatus={handlePopupStatus}
+          selectedYear={reduceState?.selectedYear}
+          {...selectedCMRequestSheetPopupData}
         />
       )}
     </>

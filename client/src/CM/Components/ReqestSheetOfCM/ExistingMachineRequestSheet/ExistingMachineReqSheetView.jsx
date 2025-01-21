@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Col, Container, Form, Modal, Row, Table } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import RoutingContext from "../../../../context/routing/RoutingContext";
@@ -8,27 +8,36 @@ import {
   FREQUENCY_OF_CM,
 } from "../../../GlobalDataAccess/GlobalData";
 import axios from "axios";
-import ExistinngMachineReqSheetForOperator from "./ExistinngMachineReqSheetForOperator";
+
 import { SuccessToast } from "../../../../BM/Component/ShowTostify";
+
+import SendForApprovalRadioButtons from "../RSComponents/SendForApprovalRadioButtons";
+import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
+import UserApprovalSelectFields from "../RSComponents/UserApprovalSelectFields/UserApprovalSelectFields";
+import ApproveOrRejectComponent from "../RSComponents/ApproveOrRejectComponent";
 // import SupportingTMInputField from "../RSComponents/SupportingTMInputField";
 
 const ExistingMachineReqSheetView = ({
+  handlePopupStatus,
   selectedYear,
   selectedRowRequestSheetId,
-  setCmReqSheetView,
   quarterOfSelectedRq,
   selectedMonth,
   // isEditable = false,
-  CmReqSheetView,
+  isEditable = false,
+  cmReqSheetView,
+  selectedQuarter = "",
 }) => {
-  let isEditable = true;
-
   const {
+    watch,
     register,
+
     handleSubmit,
     formState: { errors, dirtyFields },
+
+    clearErrors,
     setValue,
-    watch,
+    setError,
   } = useForm({
     defaultValues: async () => {
       try {
@@ -36,7 +45,9 @@ const ExistingMachineReqSheetView = ({
           `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}&&selectedQuarter=${quarterOfSelectedRq}&&selectedMonth=${selectedMonth}`
         );
         if (response.status === 201) {
-          return response.data?.requestSheet;
+          const { requestSheet } = response.data;
+          requestSheet["wantToSendForApproval"] = "No";
+          return requestSheet;
         }
       } catch (error) {
         console.log(error);
@@ -44,24 +55,95 @@ const ExistingMachineReqSheetView = ({
     },
   });
 
+  const handleDirtyFields = (requestSheetDataOfCM) => {
+    let newVal = {};
+
+    const objValueMappingFunction = (dirtyFields, key, allValues) => {
+      return Object.fromEntries(
+        Object.keys(dirtyFields[key])
+          .filter((item) => dirtyFields[key][item])
+          .map((item) =>
+            typeof allValues[key][item] === "object"
+              ? [key, { ...allValues[key] }]
+              : [[`${key}.${item}`], allValues[key][item]]
+          )
+      );
+    };
+
+    Object.keys(dirtyFields)?.map((key) => {
+      if (
+        [
+          "changedParts",
+          "actionAndCounterMeasureStep",
+          "workDetails",
+        ]?.includes(key)
+      ) {
+        newVal[key] = requestSheetDataOfCM[key];
+      } else if (typeof requestSheetDataOfCM[key] === "object") {
+        newVal = {
+          ...newVal,
+          ...objValueMappingFunction(dirtyFields, key, requestSheetDataOfCM),
+        };
+      } else {
+        newVal[key] = requestSheetDataOfCM[key];
+      }
+    });
+
+    return newVal;
+  };
+
+  const generateError = (field, key, message) =>
+    (!field || field?.length === 0) &&
+    setError(key, {
+      type: "required",
+      message,
+    });
+
+  const handleCustomError = ({
+    changedParts,
+    actionAndCounterMeasureStep,
+    workDetails,
+  }) => {
+    generateError(changedParts, "changedParts", "Part list is required");
+    generateError(
+      actionAndCounterMeasureStep,
+      "actionAndCounterMeasureStep",
+      "Action and counter measure step is required"
+    );
+    generateError(workDetails, "workDetails", "Work details is required");
+  };
+
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
+      if (requestSheetDataOfCM?.wantToSendForApproval === "Yes") {
+        handleCustomError(requestSheetDataOfCM);
+        if (Object.keys(errors)?.length > 0) {
+          return;
+        }
+      }
+
       const formData = new FormData();
+      const { ...otherFields } = handleDirtyFields(requestSheetDataOfCM);
 
-      // console.log(dirtyFields, requestSheetDataOfCM);
+      if (otherFields?.wantToSendForApproval === "Yes") {
+        otherFields["requestSheetStatusOfCM"] = "Under MTD HOS Approval";
+        if (requestSheetDataOfCM?.isPermissionOfMTDTL === "Yes") {
+          otherFields["requestSheetStatusOfCM"] = "Under MTD TL/HOSS Approval";
+        }
+      }
 
-      // return;
-      const { ...otherFields } = requestSheetDataOfCM;
+      otherFields.approvalObj_MTD_HOS =
+        requestSheetDataOfCM?.approvalObj_MTD_HOS;
 
-      // if (
-      //   requestSheetDataOfCM?.commonDataFilledByAssignUser?.some((user) =>
-      //     user.quarterlyDataOfTheCM.some((quarter) =>
-      //       quarter.assignUserForCM.some((u) => u._id === context?._id)
-      //     )
-      //   ) === true
-      // ) {
-      //   requestSheetDataOfCM.requestSheetStatusOfCM = "Fill Sheet";
-      // }
+      if (otherFields?.isPermissionOfMTDTL) {
+        otherFields.approvalObj_MTD_TL =
+          requestSheetDataOfCM?.approvalObj_MTD_TL;
+      }
+
+      if (otherFields?.isPermissionOfPRDTL) {
+        otherFields.approvalObj_PRD_TL =
+          requestSheetDataOfCM?.approvalObj_PRD_TL;
+      }
 
       for (
         let i = 0;
@@ -90,7 +172,7 @@ const ExistingMachineReqSheetView = ({
         config
       );
       if (response.status === 201) {
-        setCmReqSheetView(false);
+        handlePopupStatus();
         SuccessToast("Request-sheet updated successfully");
       }
     } catch (error) {
@@ -101,7 +183,7 @@ const ExistingMachineReqSheetView = ({
 
   return (
     <Modal
-      show={CmReqSheetView}
+      show={cmReqSheetView}
       fullscreen
       aria-labelledby="contained-modal-title-vcenter"
       centered
@@ -112,7 +194,7 @@ const ExistingMachineReqSheetView = ({
         </Modal.Title>
         <Button
           variant="secondary"
-          onClick={() => setCmReqSheetView(false)}
+          onClick={handlePopupStatus}
           sx={{
             backgroundColor: "#B02A37",
             color: "#F2F2F2",
@@ -433,33 +515,169 @@ const ExistingMachineReqSheetView = ({
                             }
                           </p>
                         )}
-                        <Row>
-                          <Col lg={3}>
-                            {watch("cmBasicDataFilledByMTD_TL.categories") ===
-                              "Others" && (
-                              <Row className="m-0">
-                                <Col
-                                  lg={12}
-                                  className="d-flex justify-content-start"
-                                >
-                                  <input
-                                    type="text"
-                                    size={20}
-                                    className="m-1 mb-2"
-                                    {...register(
-                                      "cmBasicDataFilledByMTD_TL.other_categories",
-                                      {
-                                        required: "Other category is required",
-                                      }
-                                    )}
-                                  />
-                                </Col>
-                              </Row>
+                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                          "Others" && (
+                          <>
+                            <input
+                              type="text"
+                              size={20}
+                              className="m-1 mb-2"
+                              disabled={!isEditable}
+                              {...register(
+                                "cmBasicDataFilledByMTD_TL.other_categories",
+                                {
+                                  required: "Other category is required",
+                                }
+                              )}
+                            />
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.other_categories && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.other_categories?.message
+                                }
+                              </p>
+                            )}
+                          </>
+                        )}
+                      </Col>
+                    </Row>
+
+                    {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                      "LTPM" && (
+                      <>
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Inspection Item: </b>
+                            </p>
+                          </Col>
+
+                          <Col lg={7}>
+                            <div className="d-block align-items-center">
+                              {" "}
+                              <input
+                                type="text"
+                                id="inspectionItem"
+                                className="m-1 mb-2"
+                                name="inspectionItem"
+                                disabled={!isEditable}
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.inspectionItem",
+                                  {
+                                    required:
+                                      watch(
+                                        "cmBasicDataFilledByMTD_TL.inspectionItem"
+                                      ) === ""
+                                        ? "This field is required !"
+                                        : false,
+                                  }
+                                )}
+                              />
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.inspectionItem && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.inspectionItem?.message
+                                }
+                              </p>
                             )}
                           </Col>
                         </Row>
-                      </Col>
-                    </Row>
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Action: </b>
+                            </p>
+                          </Col>
+
+                          <Col lg={7}>
+                            <div className="d-block align-items-center">
+                              {" "}
+                              <input
+                                type="text"
+                                id="actionForLTPM"
+                                className="m-1 mb-2"
+                                name="actionForLTPM"
+                                disabled={!isEditable}
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.actionForLTPM",
+                                  {
+                                    required:
+                                      watch(
+                                        "cmBasicDataFilledByMTD_TL.actionForLTPM"
+                                      ) === ""
+                                        ? "This field is required !"
+                                        : false,
+                                  }
+                                )}
+                              />
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.actionForLTPM && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.actionForLTPM?.message
+                                }
+                              </p>
+                            )}
+                          </Col>
+                        </Row>
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Person: </b>
+                            </p>
+                          </Col>
+
+                          <Col lg={7}>
+                            <div className="d-block align-items-center">
+                              {" "}
+                              <input
+                                type="text"
+                                id="personForLTPM"
+                                className="m-1 mb-2"
+                                name="personForLTPM"
+                                disabled={!isEditable}
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.personForLTPM",
+                                  {
+                                    required:
+                                      watch(
+                                        "cmBasicDataFilledByMTD_TL.personForLTPM"
+                                      ) === ""
+                                        ? "This field is required !"
+                                        : false,
+                                  }
+                                )}
+                              />
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.personForLTPM && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.personForLTPM?.message
+                                }
+                              </p>
+                            )}
+                          </Col>
+                        </Row>
+                      </>
+                    )}
 
                     <Row className="m-0 border d-flex align-items-center">
                       <Col lg={3}>
@@ -518,10 +736,7 @@ const ExistingMachineReqSheetView = ({
                               fontSize: "15px",
                             }}
                             {...register(
-                              "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
-                              {
-                                required: "Please enter part suggestion",
-                              }
+                              "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
                             )}
                           />
                         </div>
@@ -621,30 +836,65 @@ const ExistingMachineReqSheetView = ({
                     </Row>
                   </td>
                 </tr>
-
-                {isEditable &&
-                  (context?.user_type === "MTD_TL" ||
-                    context?.user_type === "Section-Admin") && (
-                    <tr>
-                      <td>
-                        <button type="submit" className="btn bg-success">
-                          Update Request-Sheet
-                        </button>
-                      </td>
-                    </tr>
-                  )}
               </tbody>
             </Table>
-            {watch("_id") && (
-              <ExistinngMachineReqSheetForOperator
-                setValue={setValue}
-                isEditable={isEditable}
-                selectedYear={selectedYear}
-                register={register}
-                errors={errors}
-                watch={watch}
-              />
+
+            <TableMappingComponent
+              setValue={setValue}
+              watch={watch}
+              isEditable={isEditable}
+              errors={errors}
+              clearErrors={clearErrors}
+            />
+
+            <UserApprovalSelectFields
+              setValue={setValue}
+              watch={watch}
+              register={register}
+              errors={errors}
+              isEditable={
+                ["Generated", "Fill Sheet", "Rejected"]?.includes(
+                  watch(
+                    "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+                  )
+                ) && isEditable
+              }
+              isRequired={watch("wantToSendForApproval") === "Yes"}
+            />
+
+            {["Generated", "Fill Sheet", "Rejected"]?.includes(
+              watch(
+                "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+              )
+            ) &&
+              isEditable && <SendForApprovalRadioButtons register={register} />}
+
+            {isEditable && (
+              <Row className="m-0 border p-2 d-flex justify-content-between">
+                <Col lg={6} md={6} sm={12}>
+                  <button
+                    type="submit"
+                    className="btn bg-success"
+                    style={{ marginTop: "1rem" }}
+                  >
+                    Submit
+                  </button>
+                </Col>
+              </Row>
             )}
+
+            {isEditable &&
+              watch(
+                "current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id"
+              ) === context?._id && (
+                <ApproveOrRejectComponent
+                  handlePopupStatus={handlePopupStatus}
+                  watch={watch}
+                  register={register}
+                  errors={errors}
+                  isEditable={isEditable}
+                />
+              )}
           </form>
         </div>
       </Modal.Body>
@@ -653,3 +903,69 @@ const ExistingMachineReqSheetView = ({
 };
 
 export default ExistingMachineReqSheetView;
+
+const TableMappingComponent = ({
+  watch,
+  setValue,
+  isEditable,
+  errors,
+  clearErrors,
+}) => {
+  const [supportingTMList, setSupportingTMList] = useState([]);
+
+  const getMachineDetails = async () => {
+    try {
+      const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (res.status === 201) {
+        const { TLHOSS_and_TM_user_list } = await res.json();
+        setSupportingTMList(TLHOSS_and_TM_user_list);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMachineDetails();
+  }, []);
+
+  return (
+    <>
+      {watch("upto_currentYear_current_commonDataFilledByAssignUser")?.map(
+        (year) =>
+          year.quarterlyDataOfTheCM?.map((quarter) => (
+            <MiddlewareForTablesOfMTD
+              clearErrors={clearErrors}
+              errors={errors}
+              supportingTMList={supportingTMList}
+              setValue={setValue}
+              requestSheet_year={
+                year?.preAggregationTimeStampOfRequestSheet?.requestSheet_year
+              }
+              requestSheet_quarter={quarter?.requestSheet_quarter}
+              plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}
+              partsData={quarter?.changedParts}
+              workData={quarter?.workDetails}
+              actionData={quarter?.actionAndCounterMeasureStep}
+              isEditable={
+                isEditable &&
+                watch("currentFYYearAndQuarter.year") ===
+                  year?.preAggregationTimeStampOfRequestSheet
+                    ?.requestSheet_year &&
+                watch("currentFYYearAndQuarter.quarter") ===
+                  quarter?.requestSheet_quarter
+              }
+            />
+          ))
+      )}
+    </>
+  );
+};

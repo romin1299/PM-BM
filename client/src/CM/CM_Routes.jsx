@@ -7,7 +7,8 @@ import GenerateRequestSheetMainDashboard from "../BM/RequestSheet/GenerateReques
 
 import ActivityStatusDashboardOfCM from "./Pages/ActivityStatusDashboadOfCM/ActivityStatusDashboardOfCM";
 import AllRequestSheetReportDataOfCM from "./Pages/AllRequestSheetReportDataOfCM/AllRequestSheetReportDataOfCM";
-import ExistingMachineRequestSheet from "./Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineRequestSheet";
+import GeneratedExistingMachineRequestSheetByMTD from "./Components/ReqestSheetOfCM/ExistingMachineRequestSheet/GeneratedExistingMachineRequestSheetByMTD";
+
 import DashboardOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/DashboardOfLTPM";
 import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
 import ApprovalLogs from "./Pages/ApprovalLogs/ApprovalLogs";
@@ -78,7 +79,7 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/request-sheet/:machine_code/:selectedYear",
-          element: <ExistingMachineRequestSheet />,
+          element: <GeneratedExistingMachineRequestSheetByMTD />,
         },
         {
           path: "/cm/approval",

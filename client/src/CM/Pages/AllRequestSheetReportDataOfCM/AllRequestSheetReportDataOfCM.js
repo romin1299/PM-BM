@@ -1,36 +1,18 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
-import {
-  AppBar,
-  Box,
-  Dialog,
-  Button,
-  Grid,
-  IconButton,
-  InputAdornment,
-  Slide,
-  Switch,
-  TextField,
-  Toolbar,
-  Tooltip,
-  Typography,
-  SvgIcon,
-  Paper,
-} from "@mui/material";
+import React, { useEffect, useReducer, useState } from "react";
+import { Box, Grid, Slide, Typography, SvgIcon, Paper } from "@mui/material";
 import { FaEye } from "react-icons/fa";
 import { ReactComponent as EditSheetIcon } from "../../../static/svg/edit-sheet-2.svg";
 
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import moment from "moment";
-import { Container, Modal } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
   reducer,
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import tableIcons from "../../../components/MatrialTableIcon";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 import {
   MaterialTableOptions,
   MaterialTableStyle,
@@ -38,28 +20,29 @@ import {
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import MaterialTable from "@material-table/core";
 import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
-import RoutingContext from "../../../context/routing/RoutingContext";
-import MTDExistingMachineReqSheetWithData from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/MTDExistingMachineReqSheetWithData";
-// import HOSExistingMachineReqSheet from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/HOSExistingMachineReqSheet";
 
 const AllRequestSheetReportDataOfCM = () => {
-  const navigate = useNavigate();
-
-  const handleGenerateBMNavigation = async () => {
-    navigate(`/cm/generateCMRequestSheetMainDashboard`);
-  };
-
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
     useState([]);
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
     initialState("Yes")
   );
-  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState();
 
   const [loading, setLoading] = useState(false);
-  const [CmReqSheetView, setCmReqSheetView] = useState(false);
   const [counters, setCounters] = useState([]);
+
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
+
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
 
   const getAllCMSheetData = async () => {
     try {
@@ -83,8 +66,7 @@ const AllRequestSheetReportDataOfCM = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
-    reduceState?.selectedQuarter,
-    CmReqSheetView,
+    selectedCMRequestSheetPopupData?.cmReqSheetView,
   ]);
   const cmApprovalHeaders = [
     {
@@ -125,116 +107,48 @@ const AllRequestSheetReportDataOfCM = () => {
     },
     {
       title: "status",
-      field: "requestSheetStatusOfCM",
+      field: "current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
       editable: false,
     },
     {
       title: "Planned Date",
       field: "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
-      // render: (rowData) => {
-      //   return rowData?.commonDataFilledByAssignUser?.map((item) => {
-      //     return `${moment(item?.plannedDateAndTimeOfCM).format(
-      //       "DD-MM-YYYY"
-      //     )}, `;
-      //   });
-      // },
       type: "date",
       editable: false,
     },
     {
       title: "Assigned To",
-      render: (rowData) => {
-        if (
-          rowData?.current_commonDataFilledByAssignUser?.assignUserForCM
-            ?.length > 0 &&
-          rowData?.current_commonDataFilledByAssignUser?.statusOfPlannedCM ===
-            "Planned"
-        ) {
-          const assigned_users =
-            rowData?.current_commonDataFilledByAssignUser?.assignUserForCM?.map(
-              (users) => {
-                return `${users?.tm_name}, `;
-              }
-            );
-          return assigned_users;
-        }
-      },
+      render: (rowData) =>
+        rowData?.assignUserForCM?.map((users) => users?.tm_name)?.join(", "),
     },
   ];
-  const context = useContext(RoutingContext);
-  // console.log(context);
 
-  const [greaterValue, setGreaterValue] = useState(
-    localStorage.getItem("greaterValue")
-  );
-  const [lesserValue, setLesserValue] = useState(
-    localStorage.getItem("lesserValue")
-  );
-  const [isEditable, setIsEditable] = useState(false);
-  const [cmSelectedSheetForView, setCmSelectedSheetForView] = useState();
+  // const [greaterValue, setGreaterValue] = useState(
+  //   localStorage.getItem("greaterValue")
+  // );
+  // const [lesserValue, setLesserValue] = useState(
+  //   localStorage.getItem("lesserValue")
+  // );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const requestSheetApprovalAction = [
-    // {
-    //   icon: () => <CreditCardIcon className="text-primary1" />,
-    //   tooltip: "History Card",
-    //   position: "row",
-    //   onClick: (event, selectedRow) => {
-    //     console.log("----------", selectedRow);
-    //   },
-    // },
     (row) => ({
       icon: () => (
         <SvgIcon
           component={EditSheetIcon}
           sx={{
-            color:
-              (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.some(
-                (u) => u._id === context?._id
-              ) &&
-                (row?.current_commonDataFilledByAssignUser
-                  ?.requestSheetStatusOfCM === "Generated" ||
-                  row?.current_commonDataFilledByAssignUser
-                    ?.requestSheetStatusOfCM === "Fill Sheet" ||
-                  row?.current_commonDataFilledByAssignUser
-                    ?.requestSheetStatusOfCM === "Rejected")) ||
-              (row?.current_commonDataFilledByAssignUser?.assignUserForCM
-                ?.length === 0 &&
-                context?.user_type === "TL/HOSS")
-                ? "#FF6F00"
-                : "",
+            color: row?.isEditableRS ? "#FF6F00" : "",
           }}
         />
       ),
       tooltip: "Update Req-sheet",
       position: "row",
-      // disabled: row?.requestSheetStatusOfCM === "Generated" ? false : true,
-      disabled:
-        (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.length ===
-          0 &&
-          context?.user_type === "TL/HOSS") ||
-        (row?.current_commonDataFilledByAssignUser?.assignUserForCM?.some(
-          (u) => u._id === context?._id
-        ) &&
-          (row?.current_commonDataFilledByAssignUser?.requestSheetStatusOfCM ===
-            "Generated" ||
-            row?.current_commonDataFilledByAssignUser
-              ?.requestSheetStatusOfCM === "Fill Sheet" ||
-            row?.current_commonDataFilledByAssignUser
-              ?.requestSheetStatusOfCM === "Rejected"))
-          ? false
-          : true,
-      // disabled:
-      //   row?.assignUserId === context?._id &&
-      //   (row?.work_order_status === "Pending" ||
-      //     row?.work_order_status === "Closed")
-      //     ? false
-      //     : true,
+      disabled: !row?.isEditableRS,
       onClick: (event, selectedRow) => {
-        // console.log(event, selectedRow);
-        setCmReqSheetView(true);
-        setIsEditable(true);
-        setCmSelectedSheetForView(selectedRow);
-        setSelectedRowRequestSheetId(selectedRow?._id);
+        setSelectedCMRequestSheetPopupData({
+          isEditable: true,
+          cmReqSheetView: true,
+          selectedRowRequestSheetId: selectedRow?._id,
+        });
       },
     }),
     (row) => ({
@@ -242,10 +156,11 @@ const AllRequestSheetReportDataOfCM = () => {
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        // console.log(event, selectedRow);
-        setCmReqSheetView(true);
-        setIsEditable(false);
-        setSelectedRowRequestSheetId(selectedRow?._id);
+        setSelectedCMRequestSheetPopupData({
+          isEditable: false,
+          cmReqSheetView: true,
+          selectedRowRequestSheetId: selectedRow?._id,
+        });
       },
     }),
   ];
@@ -295,18 +210,7 @@ const AllRequestSheetReportDataOfCM = () => {
         />
       </Box>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      {/* <Box display="flex" alignItems="center">
-        <Tooltip title="Show/Hide Column">
-          <Switch
-            size="medium"
-            checked={displayColumnOrNot}
-            onClick={() =>
-              setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
-            }
-          />
-        </Tooltip>
-      </Box> */}
-      <Box
+      {/* <Box
         component="form"
         sx={{
           display: "flex",
@@ -314,8 +218,6 @@ const AllRequestSheetReportDataOfCM = () => {
           gap: "10px",
         }}
       >
-        {/* <p style={{ fontSize: "1rem" }}>Top:</p> */}
-
         <TextField
           type="number"
           id="outlined-basic"
@@ -382,9 +284,8 @@ const AllRequestSheetReportDataOfCM = () => {
         >
           Go
         </Button>
-      </Box>
+      </Box> */}
     </div>,
-    // "sd;kfgksn"
   ];
   const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="down" ref={ref} {...props} />;
@@ -529,79 +430,17 @@ const AllRequestSheetReportDataOfCM = () => {
           </Grid>
         </Grid>
       </Container>
-      {CmReqSheetView && (
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
         <>
-          {/* <Modal
-            show={CmReqSheetView}
-            fullscreen
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-          >
-            <Modal.Header>
-              <Modal.Title id="contained-modal-title-vcenter">
-                CM Request-Sheet
-              </Modal.Title>
-              <Button
-                variant="secondary"
-                onClick={() => setCmReqSheetView(false)}
-                sx={{
-                  backgroundColor: "#B02A37",
-                  color: "#F2F2F2",
-                  "&:hover": {
-                    backgroundColor: "#B02A37",
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                Close
-              </Button>
-            </Modal.Header>
-            <Modal.Body>
-              {
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
-                cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" ? (
-                  <div>
-                    <ExistingMachineReqSheetWithData
-                      selectedRowRequestSheetId={selectedRowRequestSheetId}
-                      isEditable={isEditable}
-                      setCmReqSheetView={setCmReqSheetView}
-                      CmReqSheetView={CmReqSheetView}
-                    />
-                  </div>
-                ) :
-                <div>
-                  <MTDExistingMachineReqSheetWithData
-                    cmSelectedSheetForView={cmSelectedSheetForView}
-                    isEditable={isEditable}
-                    setCmReqSheetView={setCmReqSheetView}
-                  />
-                </div>
-              }
-            </Modal.Body>
-          </Modal> */}
-
-          {
-            // cmSelectedSheetForView?.requestSheetStatusOfCM === "Generated" ||
-            //   cmSelectedSheetForView?.requestSheetStatusOfCM === "Fill Sheet" ||
-            //   cmSelectedSheetForView?.requestSheetStatusOfCM === "Rejected" ||
-            //   (cmSelectedSheetForView?.requestSheetStatusOfCM === "Completed" && (
-            <div>
+          <div>
+            {selectedCMRequestSheetPopupData?.cmReqSheetView && (
               <ExistingMachineReqSheetView
+                handlePopupStatus={handlePopupStatus}
                 selectedYear={reduceState?.selectedYear}
-                selectedRowRequestSheetId={selectedRowRequestSheetId}
-                isEditable={isEditable}
-                setCmReqSheetView={setCmReqSheetView}
-                CmReqSheetView={CmReqSheetView}
+                {...selectedCMRequestSheetPopupData}
               />
-              <MTDExistingMachineReqSheetWithData
-                // cmSelectedSheetForView={cmSelectedSheetForView}
-                isEditable={isEditable}
-                setCmReqSheetView={setCmReqSheetView}
-              />
-            </div>
-          }
+            )}
+          </div>
         </>
       )}
     </>

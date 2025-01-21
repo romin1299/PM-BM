@@ -42,7 +42,7 @@ const PartList = ({
       setParts(updatedParts);
       setValue && setValue("changedParts", updatedParts, { shouldDirty: true });
       handleOnchangeFlag && handleOnchangeFlag("parts_val_flag");
-      clearErrors("partList");
+      clearErrors && clearErrors("changedParts");
       setNewPart(initialState);
       setIsAdding(false);
     }

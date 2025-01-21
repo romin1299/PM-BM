@@ -1,149 +1,136 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
 
 const WorkDetails = ({
   workDetails,
   setWorkDetails,
   clearErrors,
   handleOnchangeFlag,
-  assigned_users,
   isEditable,
   setValue,
+  supportingTMList,
 }) => {
-  const [newWork, setNewWork] = useState("");
-  const [newTMName, setNewTMName] = useState({});
-  const [newFromDate, setNewFromDate] = useState("");
-  const [newToDate, setNewToDate] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-  const [editedWork, setEditedWork] = useState(null);
-  const [supportingTMList, setSupportingTMList] = useState([]);
-
-  const FLAGS = ["DEFAULT", "ADD", "UPDATE", "DELETE"];
-
-  const [CURDFlag, setCURDFlag] = useState(FLAGS?.[0]);
-
-  const navigate = useNavigate();
-  const getMachineDetails = async () => {
-    try {
-      const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-      if (res.status === 404) {
-        navigate("/", { replace: true });
-      } else {
-        const { TLHOSS_and_TM_user_list } = await res.json();
-        setSupportingTMList(TLHOSS_and_TM_user_list);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  const initialState = {
+    id: "",
+    work: "",
+    tmId: "",
+    tm_name: "",
+    fromDate: "",
+    toDate: "",
   };
 
-  useEffect(() => {
-    getMachineDetails();
-  }, []);
+  const [newWork, setNewWork] = useState(initialState);
+  const [editedWork, setEditedWork] = useState(null);
+  // const [supportingTMList, setSupportingTMList] = useState([]);
+
+  // const getMachineDetails = async () => {
+  //   try {
+  //     const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
+  //       method: "GET",
+  //       headers: {
+  //         Accept: "application/json",
+  //         "Content-Type": "application/json",
+  //       },
+  //       credentials: "include",
+  //     });
+
+  //     if (res.status === 201) {
+  //       const { TLHOSS_and_TM_user_list } = await res.json();
+  //       setSupportingTMList(TLHOSS_and_TM_user_list);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   getMachineDetails();
+  // }, []);
 
   const [dateError, setDateError] = useState("");
 
-  const handleChangeOfTmName = (event, isEditing = false) => {
-    const id = event.target.value;
-    const selectedUser = supportingTMList.find((user) => user._id === id);
+  const findSelectedSupportingTM = (_id) =>
+    supportingTMList.find((user) => user._id === _id);
 
-    if (isEditing) {
-      setEditedWork((prev) => ({
-        ...prev,
-        tmId: id,
-        tmName: selectedUser?.tm_name || "",
-      }));
-    } else {
-      setNewTMName({ _id: id, name: selectedUser?.tm_name });
-    }
+  const cancelAdd = () => {
+    setNewWork(initialState);
   };
-  const addWorkDetail = (event) => {
-    event.preventDefault();
-    if (new Date(newFromDate) > new Date(newToDate)) {
+
+  const addWorkDetail = () => {
+    if (new Date(newWork?.fromDate) > new Date(newWork?.toDate)) {
       setDateError("From date cannot be later than To date");
       return;
     }
-    if (newWork.trim() !== "") {
+    if (newWork?.work?.trim() !== "") {
       const newWorkDetail = {
-        id: new Date(),
-        tmId: newTMName?._id || "",
-        work: newWork,
-        tmName: newTMName?.name || "",
-        fromDate: newFromDate,
-        toDate: newToDate,
+        ...newWork,
+        tmName: findSelectedSupportingTM(newWork?.tmId)?.tm_name,
       };
-      console.log(workDetails);
       let updatedWorkDetails = [...workDetails, newWorkDetail];
-      console.log(updatedWorkDetails);
-
       setWorkDetails(updatedWorkDetails);
-      setValue && setValue("workDetails", updatedWorkDetails);
-      // console.log("workdwedawDWD", workDetails);
+      setValue &&
+        setValue("workDetails", updatedWorkDetails, {
+          shouldDirty: true,
+        });
       handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
-      clearErrors && clearErrors("workDetailsValidation");
-      setNewWork("");
-      setNewTMName("");
-      setNewFromDate("");
-      setNewToDate("");
-      setIsAdding(false);
+      clearErrors && clearErrors("workDetails");
+      cancelAdd();
     } else {
       setDateError("Please enter all the fields");
     }
   };
 
-  const editWorkDetail = (event, workId, updatedWork) => {
-    event.preventDefault();
+  const cancelEdit = () => {
+    setEditedWork(null);
+  };
+
+  const editWorkDetail = () => {
     if (new Date(editedWork.fromDate) > new Date(editedWork.toDate)) {
       setDateError("From date cannot be later than To date");
       return;
     }
-    const updatedWorkDetails = workDetails?.map((work) => {
-      if (work.id === workId) {
-        return { ...editedWork };
-      }
-      return work;
-    });
+    let updatedWork = editedWork;
+    updatedWork["tmName"] = findSelectedSupportingTM(editedWork?.tmId)?.tm_name;
+
+    const updatedWorkDetails = workDetails?.map((work) =>
+      work?.id === updatedWork?.id ? updatedWork : work
+    );
     setWorkDetails(updatedWorkDetails);
-    setValue && setValue("workDetails", updatedWorkDetails);
+    setValue &&
+      setValue("workDetails", updatedWorkDetails, {
+        shouldDirty: true,
+      });
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
-    setEditedWork(null);
+    cancelEdit();
   };
 
-  const cancelEdit = (event) => {
-    event.preventDefault();
-    setEditedWork(null);
-  };
-
-  const deleteWorkDetail = (event, workId) => {
-    event.preventDefault();
-
+  const deleteWorkDetail = (workId) => {
     const updatedWorkDetails = workDetails?.filter(
       (work) => work?.id !== workId
     );
     setWorkDetails(updatedWorkDetails);
-    setValue && setValue("workDetails", updatedWorkDetails);
+    setValue &&
+      setValue("workDetails", updatedWorkDetails, {
+        shouldDirty: true,
+      });
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
   };
 
-  const cancelAdd = (event) => {
-    event.preventDefault();
+  const handleOnChangeAddOrUpdateNewWork = ({ target }) => {
+    const { name, value } = target;
 
-    setNewWork("");
-    setNewTMName("");
-    setNewFromDate("");
-    setNewToDate("");
-    setIsAdding(false);
+    const handleSetState = (workDetails) => ({
+      ...workDetails,
+      [name]: value,
+    });
+
+    if (editedWork && editedWork?.id) {
+      return setEditedWork(handleSetState);
+    }
+    setNewWork(handleSetState);
   };
 
   return (
@@ -216,93 +203,72 @@ const WorkDetails = ({
               <b>Work {index + 1}</b>
             </small>
           </Col>
-          <Col
-            lg={3}
-            md={3}
-            className={`border col-auto d-flex align-items-center gap-1 ${
-              editedWork && editedWork.id === work.id ? "editable" : ""
-            }`}
-          >
-            {editedWork && editedWork.id === work.id ? (
-              <input
-                type="text"
-                value={editedWork.work}
-                onChange={(e) =>
-                  setEditedWork({ ...editedWork, work: e.target.value })
-                }
-              />
-            ) : (
-              work.work
-            )}
-          </Col>
-          <Col
-            lg={2}
-            md={2}
-            className="border col-auto d-flex align-items-center gap-1"
-          >
-            {editedWork && editedWork.id === work.id ? (
-              <select
-                value={editedWork?.tmId}
-                onChange={(e) => handleChangeOfTmName(e, true)}
+          {editedWork && editedWork?.id === work?.id ? (
+            <>
+              <Col
+                lg={3}
+                md={3}
+                className={`border col-auto d-flex align-items-center gap-1 `}
               >
-                {supportingTMList.map((value) => (
-                  <option key={value} value={value._id}>
-                    {value?.tm_name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              work?.tmName
-            )}
-          </Col>
-          <Col
-            lg={2}
-            md={2}
-            className="border col-auto d-flex align-items-center gap-1"
-          >
-            {editedWork && editedWork.id === work.id ? (
-              <input
-                type="datetime-local"
-                value={moment(editedWork.fromDate)
-                  .tz("Asia/Kolkata")
-                  .format("YYYY-MM-DDTHH:mm")}
-                onChange={(e) =>
-                  setEditedWork({ ...editedWork, fromDate: e.target.value })
-                }
-              />
-            ) : (
-              moment(work.fromDate).format("DD-MM-YYYY hh:mm A")
-            )}
-          </Col>
-          <Col
-            lg={2}
-            md={2}
-            className="border col-auto d-flex align-items-center gap-1"
-          >
-            {editedWork && editedWork.id === work.id ? (
-              <input
-                type="datetime-local"
-                value={moment(editedWork.toDate)
-                  .tz("Asia/Kolkata")
-                  .format("YYYY-MM-DDTHH:mm")}
-                onChange={(e) =>
-                  setEditedWork({ ...editedWork, toDate: e.target.value })
-                }
-              />
-            ) : (
-              moment(work.toDate).format("DD-MM-YYYY hh:mm A")
-            )}
-          </Col>
-          <Col
-            lg={1}
-            md={1}
-            className="d-flex border col-auto gap-1 p-1 flex-wrap"
-          >
-            {editedWork && editedWork.id === work.id ? (
-              <>
+                <input
+                  type="text"
+                  name="work"
+                  value={editedWork?.work}
+                  onChange={handleOnChangeAddOrUpdateNewWork}
+                />
+              </Col>
+              <Col
+                lg={2}
+                md={2}
+                className="border col-auto d-flex align-items-center gap-1"
+              >
+                <select
+                  name="tmId"
+                  value={editedWork?.tmId}
+                  onChange={handleOnChangeAddOrUpdateNewWork}
+                >
+                  {supportingTMList.map((value) => (
+                    <option value={value._id}>{value?.tm_name}</option>
+                  ))}
+                </select>
+              </Col>
+              <Col
+                lg={2}
+                md={2}
+                className="border col-auto d-flex align-items-center gap-1"
+              >
+                <input
+                  type="datetime-local"
+                  name="fromDate"
+                  value={moment(editedWork.fromDate)
+                    .tz("Asia/Kolkata")
+                    .format("YYYY-MM-DDTHH:mm")}
+                  onChange={handleOnChangeAddOrUpdateNewWork}
+                />
+              </Col>
+              <Col
+                lg={2}
+                md={2}
+                className="border col-auto d-flex align-items-center gap-1"
+              >
+                <input
+                  type="datetime-local"
+                  name="toDate"
+                  value={moment(editedWork.toDate)
+                    .tz("Asia/Kolkata")
+                    .format("YYYY-MM-DDTHH:mm")}
+                  onChange={handleOnChangeAddOrUpdateNewWork}
+                />
+              </Col>
+              <Col
+                lg={1}
+                md={1}
+                className="d-flex border col-auto gap-1 p-1 flex-wrap"
+              >
                 <button
+                  type="button"
                   className="bg-info text-white border-0"
-                  onClick={(event) => editWorkDetail(event, work.id)}
+                  onClick={editWorkDetail}
                   style={{
                     display: isEditable ? "block" : "none",
                   }}
@@ -310,6 +276,7 @@ const WorkDetails = ({
                   Update
                 </button>
                 <button
+                  type="button"
                   className="bg-danger text-white border-0"
                   onClick={cancelEdit}
                   style={{
@@ -318,13 +285,47 @@ const WorkDetails = ({
                 >
                   Cancel
                 </button>
-              </>
-            ) : (
-              <>
+              </Col>
+            </>
+          ) : (
+            <>
+              <Col
+                lg={3}
+                md={3}
+                className={`border col-auto d-flex align-items-center gap-1 `}
+              >
+                {work.work}
+              </Col>
+              <Col
+                lg={2}
+                md={2}
+                className="border col-auto d-flex align-items-center gap-1"
+              >
+                {work?.tmName}
+              </Col>
+              <Col
+                lg={2}
+                md={2}
+                className="border col-auto d-flex align-items-center gap-1"
+              >
+                {moment(work.fromDate).format("DD-MM-YYYY hh:mm A")}
+              </Col>
+              <Col
+                lg={2}
+                md={2}
+                className="border col-auto d-flex align-items-center gap-1"
+              >
+                {moment(work.toDate).format("DD-MM-YYYY hh:mm A")}
+              </Col>
+              <Col
+                lg={1}
+                md={1}
+                className="d-flex border col-auto gap-1 p-1 flex-wrap"
+              >
                 <button
+                  type="button"
                   className="bg-warning text-white border-0"
-                  onClick={(event) => {
-                    event.preventDefault();
+                  onClick={() => {
                     setEditedWork({ ...work });
                   }}
                   style={{
@@ -334,21 +335,22 @@ const WorkDetails = ({
                   Edit
                 </button>
                 <button
+                  type="button"
                   className="bg-danger text-white border-0"
-                  onClick={(event) => deleteWorkDetail(event, work.id)}
+                  onClick={() => deleteWorkDetail(work.id)}
                   style={{
                     display: isEditable ? "block" : "none",
                   }}
                 >
                   Delete
                 </button>
-              </>
-            )}
-          </Col>
+              </Col>
+            </>
+          )}
         </Row>
       ))}
 
-      {isAdding ? (
+      {newWork?.id ? (
         <Row className="m-0">
           <Col
             lg={2}
@@ -366,8 +368,9 @@ const WorkDetails = ({
           >
             <input
               type="text"
-              value={newWork}
-              onChange={(e) => setNewWork(e.target.value)}
+              name="work"
+              value={newWork?.work}
+              onChange={handleOnChangeAddOrUpdateNewWork}
               placeholder="Enter work details"
             />
           </Col>
@@ -377,12 +380,13 @@ const WorkDetails = ({
             className="border col-auto d-flex align-items-center gap-1"
           >
             <select
-              value={newTMName._id || ""}
-              onChange={(e) => handleChangeOfTmName(e)}
+              name="tmId"
+              value={newWork?.tmId || ""}
+              onChange={handleOnChangeAddOrUpdateNewWork}
             >
               <option value="">Select TM</option>
               {supportingTMList.map((value) => (
-                <option key={value} value={value._id}>
+                <option key={value._id} value={value._id}>
                   {value?.tm_name}
                 </option>
               ))}
@@ -395,8 +399,9 @@ const WorkDetails = ({
           >
             <input
               type="datetime-local"
-              value={newFromDate}
-              onChange={(e) => setNewFromDate(e.target.value)}
+              name="fromDate"
+              value={newWork?.fromDate}
+              onChange={handleOnChangeAddOrUpdateNewWork}
             />
           </Col>
           <Col
@@ -406,8 +411,9 @@ const WorkDetails = ({
           >
             <input
               type="datetime-local"
-              value={newToDate}
-              onChange={(e) => setNewToDate(e.target.value)}
+              name="toDate"
+              value={newWork?.toDate}
+              onChange={handleOnChangeAddOrUpdateNewWork}
             />
           </Col>
           <Col
@@ -416,12 +422,14 @@ const WorkDetails = ({
             className="border col-auto d-flex align-items-center gap-1 p-1"
           >
             <button
+              type="button"
               className="bg-success text-white border-0"
               onClick={addWorkDetail}
             >
               Add
             </button>
             <button
+              type="button"
               className="bg-danger text-white border-0"
               onClick={cancelAdd}
             >
@@ -439,8 +447,14 @@ const WorkDetails = ({
           <Row className="m-0 p-1 border">
             <Col lg={4}>
               <button
+                type="button"
                 className="bg-warning text-white border-0"
-                onClick={() => setIsAdding(true)}
+                onClick={() =>
+                  setNewWork({
+                    ...initialState,
+                    id: new Date(),
+                  })
+                }
               >
                 Add Work Detail
               </button>
@@ -451,7 +465,14 @@ const WorkDetails = ({
 
       {Array.from({ length: 2 - workDetails?.length }).map((_, index) => (
         <Row key={index} className="m-0 p-1 border">
-          <AddBoxIcon onClick={() => setIsAdding(true)} />
+          <AddBoxIcon
+            onClick={() =>
+              setNewWork({
+                ...initialState,
+                id: new Date(),
+              })
+            }
+          />
         </Row>
       ))}
     </div>
