@@ -273,7 +273,6 @@ const ActivityStatusDashboardOfCM = () => {
       </Box>
     </div>,
   ];
-console.log(approvalRequestSheetDataOfCM)
   return (
     <>
       <Container fluid>

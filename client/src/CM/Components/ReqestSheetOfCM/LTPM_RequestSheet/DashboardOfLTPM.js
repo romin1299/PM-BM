@@ -91,7 +91,7 @@ const DashboardOfLTPM = () => {
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
               // monthFiltration
-              yearFiltration
+              // yearFiltration
               sectionFiltration
               subSectionFiltration
               cellFiltration

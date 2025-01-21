@@ -16,6 +16,8 @@ const ExistingMachineReqSheetView = ({
   selectedYear,
   selectedRowRequestSheetId,
   setCmReqSheetView,
+  quarterOfSelectedRq,
+  selectedMonth,
   // isEditable = false,
   CmReqSheetView,
 }) => {
@@ -31,7 +33,7 @@ const ExistingMachineReqSheetView = ({
     defaultValues: async () => {
       try {
         const response = await axios.get(
-          `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}`
+          `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}&&selectedQuarter=${quarterOfSelectedRq}&&selectedMonth=${selectedMonth}`
         );
         if (response.status === 201) {
           return response.data?.requestSheet;

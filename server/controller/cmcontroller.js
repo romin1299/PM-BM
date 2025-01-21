@@ -955,6 +955,49 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     currentFYYearAndQuarter["year"] = currentYear;
     req.currentFYYearAndQuarter = currentFYYearAndQuarter;
   }
+  // console.log(
+  //   "req.query?.selectedQuarter",
+  //   req.query?.selectedQuarter,
+  //   req?.query?.selectedYear,
+  //   req?.query?.selectedMonth,
+  //   getFinancialQuarterByMonth(req?.query?.selectedMonth),
+  //   getFinancialQuarter(new Date())
+  // );
+
+  let middlewareForGetQuarterWiseOrUptoCurrentDate = {};
+
+  if (
+    req?.query?.selectedQuarter &&
+    req?.query?.selectedQuarter !== "undefined"
+    // || req?.query?.selectedMonth
+  ) {
+    middlewareForGetQuarterWiseOrUptoCurrentDate = {
+      $eq: [
+        "$$quarterWiseData.requestSheet_quarter",
+        //need to change this quarter when user select previous year filter
+
+        req.query?.selectedQuarter !== "undefined" &&
+        req.query?.selectedQuarter !== ""
+          ? req.query?.selectedQuarter
+          : req?.query?.selectedMonth !== "undefined" &&
+            req?.query?.selectedMonth !== ""
+          ? getFinancialQuarterByMonth(req?.query?.selectedMonth * 1)
+          : getFinancialQuarter(new Date()),
+      ],
+    };
+  } else {
+    middlewareForGetQuarterWiseOrUptoCurrentDate = {
+      $lte: [
+        {
+          $dateFromString: {
+            dateString: "$$quarterWiseData.plannedDateAndTimeOfCM",
+            timezone,
+          },
+        },
+        new Date(),
+      ],
+    };
+  }
 
   const requestSheetData = await RequestSheetOfCM.aggregate([
     {
@@ -1003,13 +1046,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
                 },
                 as: "quarterWiseData",
                 cond: {
-                  $eq: [
-                    "$$quarterWiseData.requestSheet_quarter",
-                    //need to change this quarter when user select previous year filter
-                    req.query?.selectedQuarter
-                      ? req.query?.selectedQuarter
-                      : currentFYYearAndQuarter?.quarter,
-                  ],
+                  ...middlewareForGetQuarterWiseOrUptoCurrentDate,
                 },
               },
             },
@@ -1092,6 +1129,8 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       },
     },
   ]);
+
+  // console.log(requestSheetData)
 
   if (requestSheetData?.length === 0) {
     return res.status(400).json({

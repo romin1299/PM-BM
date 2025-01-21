@@ -34,8 +34,11 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 
   const [LTPMData, setLTPMData] = useState(initialState);
   const [CmReqSheetView, setCmReqSheetView] = useState(false);
-  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] =
-    useState("");
+  const [selectedRowRequestSheetId, setSelectedRowRequestSheetId] = useState({
+    idOfTheReq: "",
+    quarterOfTheSelectedReqForLTPM: "",
+    yearOfTheSelectedReqForLTPM: "",
+  });
 
   // const [loading, setLoading] = useState(true);
 
@@ -129,7 +132,14 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                       className="commonBtn viewRequestSheetOfCMBtn"
                       onClick={() => {
                         openModalOfRequestSheetOfCm();
-                        setSelectedRowRequestSheetId(item?._id?._id);
+                        setSelectedRowRequestSheetId(
+                          (selectedRowRequestSheetId) => ({
+                            ...selectedRowRequestSheetId,
+                            idOfTheReq: item?._id?._id,
+                            quarterOfTheSelectedReqForLTPM: quarterValue,
+                            yearOfTheSelectedReqForLTPM: yearAddition,
+                          })
+                        );
                       }}
                     >
                       --&gt;
@@ -439,8 +449,11 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
       </div>
       {CmReqSheetView && (
         <ExistingMachineReqSheetView
-          selectedYear={reduceState?.selectedYear}
-          selectedRowRequestSheetId={selectedRowRequestSheetId}
+          selectedYear={selectedRowRequestSheetId?.yearOfTheSelectedReqForLTPM}
+          selectedRowRequestSheetId={selectedRowRequestSheetId?.idOfTheReq}
+          quarterOfSelectedRq={
+            selectedRowRequestSheetId?.quarterOfTheSelectedReqForLTPM
+          }
           isEditable={false}
           setCmReqSheetView={setCmReqSheetView}
           CmReqSheetView={CmReqSheetView}

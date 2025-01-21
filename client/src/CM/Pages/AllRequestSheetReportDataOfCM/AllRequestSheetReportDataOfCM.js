@@ -64,8 +64,9 @@ const AllRequestSheetReportDataOfCM = () => {
   const getAllCMSheetData = async () => {
     try {
       setLoading(true);
+      setApprovalRequestSheetDataOfCM();
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}`
+        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}&&selectedQuarter=${reduceState?.selectedQuarter}`
       );
       setCounters(response.data.counters);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
@@ -82,6 +83,7 @@ const AllRequestSheetReportDataOfCM = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
+    reduceState?.selectedQuarter,
     CmReqSheetView,
   ]);
   const cmApprovalHeaders = [
@@ -276,7 +278,7 @@ const AllRequestSheetReportDataOfCM = () => {
           baseUrlForFiltering={baseUrlForFiltering}
           reduceState={reduceState}
           reducerDispatch={reducerDispatch}
-          monthFiltration
+          // monthFiltration
           yearFiltration
           sectionFiltration
           subSectionFiltration
@@ -286,6 +288,7 @@ const AllRequestSheetReportDataOfCM = () => {
           RSStatusArray={RSStatusArray}
           RSStatusFiltration
           maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          quarterFiltration
           maintenanceTypeFiltration
           resetButtonFiltration
           isWithLocalStorageForFiltration="Yes"

@@ -117,7 +117,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
       const response = await axios.get(
         `/getMachineRequestSheetDetailsForApprovalForCM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`
       );
-      console.log(response);
+      // console.log(response);
       if (response?.status === 201) {
         setApprovalRequestSheetDataOfCM(response?.data?.requestSheetData);
       }

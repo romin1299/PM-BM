@@ -149,6 +149,11 @@ const EventCalendar = ({
   const months = Array.from({ length: 12 }, (_, i) =>
     format(new Date(0, i), "MMMM")
   );
+  // const months = Array.from({ length: 12 }, (_, i) =>
+  //   moment()
+  //     .month((i + 3) % 12)
+  //     .format("MMM")
+  // );
   const years = Array.from(
     { length: 20 },
     (_, i) => date.getFullYear() - 10 + i
@@ -425,6 +430,7 @@ const ActivityCalendar = () => {
               }
               CmReqSheetView={modalOpenForReqSheet}
               setCmReqSheetView={setModalOpenForReqSheet}
+              selectedMonth={selectedMonth}
             />
           </div>
         </>
