@@ -132,15 +132,19 @@ const ExistingMachineReqSheetView = ({
         }
       }
 
+      otherFields.plannedDateAndTimeOfCM = watch(
+        "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM"
+      );
+
       otherFields.approvalObj_MTD_HOS =
         requestSheetDataOfCM?.approvalObj_MTD_HOS;
 
-      if (otherFields?.isPermissionOfMTDTL) {
+      if (otherFields?.isPermissionOfMTDTL === "Yes") {
         otherFields.approvalObj_MTD_TL =
           requestSheetDataOfCM?.approvalObj_MTD_TL;
       }
 
-      if (otherFields?.isPermissionOfPRDTL) {
+      if (otherFields?.isPermissionOfPRDTL === "Yes") {
         otherFields.approvalObj_PRD_TL =
           requestSheetDataOfCM?.approvalObj_PRD_TL;
       }
@@ -716,41 +720,45 @@ const ExistingMachineReqSheetView = ({
                         )}
                       </Col>
                     </Row>
-                    <Row className="m-0 border d-flex align-items-center">
-                      <Col lg={3}>
-                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                          <b>Part Suggestion: </b>
-                        </p>
-                      </Col>
-
-                      <Col lg={9}>
-                        <div>
-                          {" "}
-                          <input
-                            id="partSuggestionByMTDTL"
-                            type="text"
-                            className="m-1 mb-2"
-                            name="partSuggestionByMTDTL"
-                            disabled={!isEditable}
-                            style={{
-                              fontSize: "15px",
-                            }}
-                            {...register(
-                              "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
-                            )}
-                          />
-                        </div>
-                        {errors?.cmBasicDataFilledByMTD_TL
-                          ?.partSuggestionByMTDTL && (
-                          <p className="text-error">
-                            {
-                              errors?.cmBasicDataFilledByMTD_TL
-                                ?.partSuggestionByMTDTL?.message
-                            }
+                    {watch(
+                      "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
+                    ) && (
+                      <Row className="m-0 border d-flex align-items-center">
+                        <Col lg={3}>
+                          <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                            <b>Part Suggestion: </b>
                           </p>
-                        )}
-                      </Col>
-                    </Row>
+                        </Col>
+
+                        <Col lg={9}>
+                          <div>
+                            {" "}
+                            <input
+                              id="partSuggestionByMTDTL"
+                              type="text"
+                              className="m-1 mb-2"
+                              name="partSuggestionByMTDTL"
+                              disabled={!isEditable}
+                              style={{
+                                fontSize: "15px",
+                              }}
+                              {...register(
+                                "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL"
+                              )}
+                            />
+                          </div>
+                          {errors?.cmBasicDataFilledByMTD_TL
+                            ?.partSuggestionByMTDTL && (
+                            <p className="text-error">
+                              {
+                                errors?.cmBasicDataFilledByMTD_TL
+                                  ?.partSuggestionByMTDTL?.message
+                              }
+                            </p>
+                          )}
+                        </Col>
+                      </Row>
+                    )}
                   </td>
 
                   <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
@@ -847,20 +855,22 @@ const ExistingMachineReqSheetView = ({
               clearErrors={clearErrors}
             />
 
-            <UserApprovalSelectFields
-              setValue={setValue}
-              watch={watch}
-              register={register}
-              errors={errors}
-              isEditable={
-                ["Generated", "Fill Sheet", "Rejected"]?.includes(
-                  watch(
-                    "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
-                  )
-                ) && isEditable
-              }
-              isRequired={watch("wantToSendForApproval") === "Yes"}
-            />
+            {isEditable && (
+              <UserApprovalSelectFields
+                setValue={setValue}
+                watch={watch}
+                register={register}
+                errors={errors}
+                isEditable={
+                  ["Generated", "Fill Sheet", "Rejected"]?.includes(
+                    watch(
+                      "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+                    )
+                  ) && isEditable
+                }
+                isRequired={watch("wantToSendForApproval") === "Yes"}
+              />
+            )}
 
             {["Generated", "Fill Sheet", "Rejected"]?.includes(
               watch(
@@ -958,10 +968,10 @@ const TableMappingComponent = ({
               isEditable={
                 isEditable &&
                 watch("currentFYYearAndQuarter.year") ===
-                  year?.preAggregationTimeStampOfRequestSheet
-                    ?.requestSheet_year &&
-                watch("currentFYYearAndQuarter.quarter") ===
-                  quarter?.requestSheet_quarter
+                  year?.preAggregationTimeStampOfRequestSheet?.requestSheet_year
+                //     &&
+                // watch("currentFYYearAndQuarter.quarter") ===
+                //   quarter?.requestSheet_quarter
               }
             />
           ))

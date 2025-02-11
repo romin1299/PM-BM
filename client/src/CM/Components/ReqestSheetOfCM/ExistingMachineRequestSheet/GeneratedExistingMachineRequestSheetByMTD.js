@@ -82,6 +82,7 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
   const newRequestSheetRegistrationOfCM = async (requestSheetDataOfCM) => {
     try {
       const formData = new FormData();
+      delete requestSheetDataOfCM["cmBasicDataFilledByMTD_TL.targetDateOfCM"]
       const { ...otherFields } = requestSheetDataOfCM;
 
       for (

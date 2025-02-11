@@ -238,9 +238,34 @@ router.get(
   "/getApprovalUserList",
   authenticate,
   tryCatchHandler(async (req, res, next) => {
+    const section = await Section.findOne({
+      section_id: req?.rootUser?.section_data?.split("-")?.[0],
+    });
+
+    let queryObj = {
+      plant_data: req?.rootUser?.plant_data,
+      _id: { $ne: req?.rootUser?._id },
+    };
+
+    if (req?.rootUser?.tm_grade !== "HOD") {
+      if (section.dashboardLevel === "Yes") {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+        };
+      } else {
+        queryObj = {
+          ...queryObj,
+          section_data: req?.rootUser?.section_data,
+          subSection_data: { $in: req?.rootUser?.subSection_data },
+        };
+      }
+    }
+
     const users = await User.aggregate([
       {
         $match: {
+          ...queryObj,
           $or: [
             {
               tm_department: "MTD",
@@ -379,11 +404,24 @@ const quarterlyDataAdd = (
 
       if (isPlanned) {
         //for other frequency
-        if (frequencyValue !== "1/6 M")
+        // console.log(
+        //   frequencyValue,
+        //   typeof frequencyValue,
+        //   year,
+        //   currentYear,
+        //   plannedDateAndTimeOfCM
+        // );
+        if (frequencyValue !== "1/6 M") {
+          const changeTheYearOfThePlannedDateBasedOnTheFY = (passingYear) => {
+            return [0, 1, 2]?.includes(currentDate.month())
+              ? passingYear + 1
+              : passingYear;
+          };
           modifiedPlannedDateAndTimeOfCM = plannedDateAndTimeOfCM.replace(
-            currentYear,
-            year
+            changeTheYearOfThePlannedDateBasedOnTheFY(currentYear),
+            changeTheYearOfThePlannedDateBasedOnTheFY(year)
           );
+        }
         yearlyDataObject?.quarterlyDataOfTheCM?.push({
           plannedDateAndTimeOfCM: generalDateFormat(
             modifiedPlannedDateAndTimeOfCM
@@ -785,7 +823,11 @@ router.patch(
               "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
                 currentYear,
             },
-            { "quarterFilter.requestSheet_quarter": getFinancialQuarter() },
+            {
+              "quarterFilter.requestSheet_quarter": getFinancialQuarter(
+                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+              ),
+            },
             ...otherArrayFilters,
           ],
           new: true,
@@ -848,7 +890,25 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     ],
   };
 
-  if (req.query?.selectedQuarter) {
+  if (
+    req.query?.selectedQuarter &&
+    req?.query?.selectedQuarter !== "undefined"
+  ) {
+    let middlewareForGetQuarterWiseOrUptoCurrentDate = {
+      $eq: [
+        "$$quarterWiseData.requestSheet_quarter",
+        //need to change this quarter when user select previous year filter
+
+        req.query?.selectedQuarter !== "undefined" &&
+        req.query?.selectedQuarter !== ""
+          ? req.query?.selectedQuarter
+          : req?.query?.selectedMonth !== "undefined" &&
+            req?.query?.selectedMonth !== ""
+          ? getFinancialQuarterByMonth(req?.query?.selectedMonth * 1)
+          : getFinancialQuarter(new Date()),
+      ],
+    };
+
     lastQuarterOrSelectedQuarter = {
       $arrayElemAt: [
         {
@@ -877,10 +937,11 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
             },
             as: "quarterWiseData",
             cond: {
-              $eq: [
-                "$$quarterWiseData.requestSheet_quarter",
-                req.query?.selectedQuarter,
-              ],
+              ...middlewareForGetQuarterWiseOrUptoCurrentDate,
+              // $eq: [
+              //   "$$quarterWiseData.requestSheet_quarter",
+              //   req.query?.selectedQuarter,
+              // ],
             },
           },
         },
@@ -1174,40 +1235,40 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
   //   getFinancialQuarter(new Date())
   // );
 
-  let middlewareForGetQuarterWiseOrUptoCurrentDate = {};
+  // let middlewareForGetQuarterWiseOrUptoCurrentDate = {};
 
-  if (
-    req?.query?.selectedQuarter &&
-    req?.query?.selectedQuarter !== "undefined"
-    // || req?.query?.selectedMonth
-  ) {
-    middlewareForGetQuarterWiseOrUptoCurrentDate = {
-      $eq: [
-        "$$quarterWiseData.requestSheet_quarter",
-        //need to change this quarter when user select previous year filter
+  // if (
+  //   req?.query?.selectedQuarter &&
+  //   req?.query?.selectedQuarter !== "undefined"
+  //   // || req?.query?.selectedMonth
+  // ) {
+  //   middlewareForGetQuarterWiseOrUptoCurrentDate = {
+  //     $eq: [
+  //       "$$quarterWiseData.requestSheet_quarter",
+  //       //need to change this quarter when user select previous year filter
 
-        req.query?.selectedQuarter !== "undefined" &&
-        req.query?.selectedQuarter !== ""
-          ? req.query?.selectedQuarter
-          : req?.query?.selectedMonth !== "undefined" &&
-            req?.query?.selectedMonth !== ""
-          ? getFinancialQuarterByMonth(req?.query?.selectedMonth * 1)
-          : getFinancialQuarter(new Date()),
-      ],
-    };
-  } else {
-    middlewareForGetQuarterWiseOrUptoCurrentDate = {
-      $lte: [
-        {
-          $dateFromString: {
-            dateString: "$$quarterWiseData.plannedDateAndTimeOfCM",
-            timezone,
-          },
-        },
-        new Date(),
-      ],
-    };
-  }
+  //       req.query?.selectedQuarter !== "undefined" &&
+  //       req.query?.selectedQuarter !== ""
+  //         ? req.query?.selectedQuarter
+  //         : req?.query?.selectedMonth !== "undefined" &&
+  //           req?.query?.selectedMonth !== ""
+  //         ? getFinancialQuarterByMonth(req?.query?.selectedMonth * 1)
+  //         : getFinancialQuarter(new Date()),
+  //     ],
+  //   };
+  // } else {
+  //   middlewareForGetQuarterWiseOrUptoCurrentDate = {
+  //     $lte: [
+  //       {
+  //         $dateFromString: {
+  //           dateString: "$$quarterWiseData.plannedDateAndTimeOfCM",
+  //           timezone,
+  //         },
+  //       },
+  //       new Date(),
+  //     ],
+  //   };
+  // }
 
   const requestSheetData = await RequestSheetOfCM.aggregate([
     {
@@ -1228,41 +1289,41 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     },
     {
       $addFields: {
-        current_commonDataFilledByAssignUser: {
-          $arrayElemAt: [
-            {
-              $filter: {
-                input: {
-                  $getField: {
-                    field: "quarterlyDataOfTheCM",
-                    input: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: "$commonDataFilledByAssignUser",
-                            as: "yearWiseData",
-                            cond: {
-                              $eq: [
-                                "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                                req?.query?.selectedYear,
-                              ],
-                            },
-                          },
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                },
-                as: "quarterWiseData",
-                cond: {
-                  ...middlewareForGetQuarterWiseOrUptoCurrentDate,
-                },
-              },
-            },
-            0,
-          ],
-        },
+        // current_commonDataFilledByAssignUser: {
+        //   $arrayElemAt: [
+        //     {
+        //       $filter: {
+        //         input: {
+        //           $getField: {
+        //             field: "quarterlyDataOfTheCM",
+        //             input: {
+        //               $arrayElemAt: [
+        //                 {
+        //                   $filter: {
+        //                     input: "$commonDataFilledByAssignUser",
+        //                     as: "yearWiseData",
+        //                     cond: {
+        //                       $eq: [
+        //                         "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+        //                         req?.query?.selectedYear,
+        //                       ],
+        //                     },
+        //                   },
+        //                 },
+        //                 0,
+        //               ],
+        //             },
+        //           },
+        //         },
+        //         as: "quarterWiseData",
+        //         cond: {
+        //           ...middlewareForGetQuarterWiseOrUptoCurrentDate,
+        //         },
+        //       },
+        //     },
+        //     0,
+        //   ],
+        // },
         current_commonDataFilledByAssignUser: lastQuarterOrSelectedQuarter,
         ...otherPipelines?.addFields,
       },
@@ -1284,7 +1345,12 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         plannedDateAndTimeOfCMForTable: {
           $dateToString: {
             format: "%d-%m-%Y T%H:%M",
-            date: "$plannedDateAndTimeOfCM",
+            date: {
+              $dateFromString: {
+                dateString:
+                  "$current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
+              },
+            },
             timezone: timezone,
           },
         },
@@ -1300,8 +1366,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     },
     ...otherPipelines?.aggregationPipeline,
   ]);
-
-  // console.log(requestSheetData)
 
   if (requestSheetData?.length === 0) {
     return res.status(400).json({

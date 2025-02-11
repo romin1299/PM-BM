@@ -18,7 +18,6 @@ const AddApproverNameIfNotAvailableInCheckSheet = ({
     control,
     // reset,
   } = useForm();
-
   const submitAllSelectedApprovalValue = async (editedApprovalData) => {
     try {
       if (Object.keys(dirtyFields)?.length === 0) {

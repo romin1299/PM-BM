@@ -3797,14 +3797,14 @@ router.post(
                 if (
                   key1.planningTableAnimationArray2?.[previousMonth]?.[0] ===
                     "1" &&
-                  key1.planningTableAnimationArray2?.[previousMonth]?.length <=
+                  key1.planningTableAnimationArray2?.[previousMonth]?.length <
                     2 &&
                   key1.cycle === "1/1M" &&
                   !key1?.isDeleted &&
                   !key1?.isAdded &&
                   !key1?.isEdited
                 ) {
-                  // console.log("regular....");
+                  console.log("regular....");
                   updateOnesPerMonthStatusSkip(
                     key.machine_code,
                     key1.tableRowId,
@@ -3820,13 +3820,11 @@ router.post(
                     monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
                   key1.planningTableAnimationArray2?.[previousMonth]?.[0] ===
                     "1" &&
-                  key1.planningTableAnimationArray2?.[previousMonth]?.length <=
+                  key1.planningTableAnimationArray2?.[previousMonth]?.length <
                     2 &&
                   key1.cycle === "1/1M" &&
                   (key1.isAdded || key1.isEdited)
                 ) {
-                  // console.log("..condition..");
-
                   updateOnesPerMonthStatusSkip(
                     key.machine_code,
                     key1.tableRowId,
@@ -4687,7 +4685,6 @@ router.post(
           }
         );
       }
-      console.log(updateChecksheetRow);
       res.status(201).json({
         message: "CheckSheet data updated successfully",
         flagForCycleChange,
@@ -4879,7 +4876,6 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
         section_data: loggedUserData.section_data,
         user_type: "Operator",
       });
-
       MTDTLlist = await User.find({
         section_data: loggedUserData.section_data,
         user_type: "TL/HOSS",
@@ -4971,7 +4967,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
         subSection_data: { $in: loggedUserData.subSection_data },
         user_type: "Operator",
       });
-
+      console.log(loggedUserData.section_data, loggedUserData.subSection_data);
       MTDTLlist = await User.find({
         section_data: loggedUserData.section_data,
         subSection_data: { $in: loggedUserData.subSection_data },

@@ -114,7 +114,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
 
     {
       title: "R.S Status",
-      field: "requestSheetStatusOfCM",
+      field: "current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
       editable: false,
     },
   ];
@@ -144,6 +144,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
     reduceState?.selectedValue,
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
+    selectedCMRequestSheetPopupData,
   ]);
   return (
     <>

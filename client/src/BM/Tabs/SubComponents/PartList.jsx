@@ -21,6 +21,8 @@ const PartList = ({
 }) => {
   // console.clear();
 
+  console.log(isEditable)
+
   const [isAdding, setIsAdding] = useState(false);
   const [editedPart, setEditedPart] = useState(null);
   const [newPart, setNewPart] = useState(initialState);
