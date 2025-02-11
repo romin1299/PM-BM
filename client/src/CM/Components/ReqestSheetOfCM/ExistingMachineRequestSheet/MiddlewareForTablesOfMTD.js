@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import PartList from "../../../../BM/Tabs/SubComponents/PartList";
-import ActionList from "../../../../BM/Tabs/SubComponents/ActionList";
+// import ActionList from "../../../../BM/Tabs/SubComponents/ActionList";
 import WorkDetails from "../../../../BM/Tabs/SubComponents/WorkDetails";
-import { useForm } from "react-hook-form";
 import { Col, Row } from "react-bootstrap";
 
 const MiddlewareForTablesOfMTD = ({
   partsData,
-  actionData,
+  // actionData,
   workData,
+  totalTimeBasedOnWork,
+
   isEditable,
   setValue,
   errors,
@@ -27,7 +28,7 @@ const MiddlewareForTablesOfMTD = ({
         </Col>
       </Row>
       <Row className="d-flex align-items-center">
-        <Col lg={6} sm={12}>
+        <Col sm={12}>
           <Row className="">
             <PartListMiddleware
               setValue={setValue}
@@ -38,7 +39,7 @@ const MiddlewareForTablesOfMTD = ({
             />
           </Row>
         </Col>
-        <Col lg={6} sm={12}>
+        {/* <Col lg={6} sm={12}>
           <Row className="">
             <ActionListMiddleware
               setValue={setValue}
@@ -48,7 +49,7 @@ const MiddlewareForTablesOfMTD = ({
               actionData={actionData}
             />
           </Row>
-        </Col>
+        </Col> */}
         <Col sm={12}>
           <Row className="">
             <WorkDetailsMiddleware
@@ -58,6 +59,7 @@ const MiddlewareForTablesOfMTD = ({
               errors={errors}
               supportingTMList={supportingTMList}
               workData={workData}
+              totalTimeBasedOnWork={totalTimeBasedOnWork}
             />
           </Row>
         </Col>
@@ -96,37 +98,37 @@ const PartListMiddleware = ({
     </>
   );
 };
-const ActionListMiddleware = ({
-  setValue,
-  isEditable,
-  clearErrors,
-  errors,
-  actionData,
-}) => {
-  const [actions, setActions] = useState([]);
+// const ActionListMiddleware = ({
+//   setValue,
+//   isEditable,
+//   clearErrors,
+//   errors,
+//   actionData,
+// }) => {
+//   const [actions, setActions] = useState([]);
 
-  useEffect(() => {
-    setActions(actionData);
-  }, [actionData]);
+//   useEffect(() => {
+//     setActions(actionData);
+//   }, [actionData]);
 
-  return (
-    <>
-      <ActionList
-        setValue={setValue}
-        actions={actions}
-        setActions={setActions}
-        clearErrors={clearErrors}
-        isEditable={isEditable}
-      />
+//   return (
+//     <>
+//       <ActionList
+//         setValue={setValue}
+//         actions={actions}
+//         setActions={setActions}
+//         clearErrors={clearErrors}
+//         isEditable={isEditable}
+//       />
 
-      {isEditable && errors?.["actionAndCounterMeasureStep"] && (
-        <p className="text-error">
-          {errors?.["actionAndCounterMeasureStep"]?.message}
-        </p>
-      )}
-    </>
-  );
-};
+//       {isEditable && errors?.["actionAndCounterMeasureStep"] && (
+//         <p className="text-error">
+//           {errors?.["actionAndCounterMeasureStep"]?.message}
+//         </p>
+//       )}
+//     </>
+//   );
+// };
 const WorkDetailsMiddleware = ({
   setValue,
   isEditable,
@@ -134,6 +136,7 @@ const WorkDetailsMiddleware = ({
   errors,
   supportingTMList,
   workData,
+  totalTimeBasedOnWork,
 }) => {
   const [workDetails, setWorkDetails] = useState([]);
 
@@ -150,6 +153,7 @@ const WorkDetailsMiddleware = ({
         setWorkDetails={setWorkDetails}
         clearErrors={clearErrors}
         isEditable={isEditable}
+        totalTimeBasedOnWork={totalTimeBasedOnWork}
       />
       {isEditable && errors?.["workDetails"] && (
         <p className="text-error">{errors?.["workDetails"]?.message}</p>

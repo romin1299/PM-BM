@@ -34,6 +34,9 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
     clearErrors,
   } = useForm({
     defaultValues: {
+      cmBasicDataFilledByMTD_TL: {
+        personForLTPM: "M",
+      },
       plannedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       sheetIssuedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       maintenanceType: "CM",
@@ -723,11 +726,9 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                                 id="personForLTPM"
                                 className="m-1 mb-2"
                                 name="personForLTPM"
+                                disabled={true}
                                 {...register(
-                                  "cmBasicDataFilledByMTD_TL.personForLTPM",
-                                  {
-                                    required: "This field is required !",
-                                  }
+                                  "cmBasicDataFilledByMTD_TL.personForLTPM"
                                 )}
                               />
                             </div>
