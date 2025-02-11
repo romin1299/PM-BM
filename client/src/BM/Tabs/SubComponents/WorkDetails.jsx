@@ -3,6 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import { AddBoxIcon } from "../../../modules/PageModules";
 import "./RequestSheet.scss";
 import moment from "moment";
+import Multiselect from "multiselect-react-dropdown";
 
 const WorkDetails = ({
   workDetails,
@@ -12,18 +13,23 @@ const WorkDetails = ({
   isEditable,
   setValue,
   supportingTMList,
+  totalTimeBasedOnWork,
 }) => {
   const initialState = {
     id: "",
     work: "",
-    tmId: "",
-    tm_name: "",
+    // tmId: "",
+    // tm_name: "",
     fromDate: "",
     toDate: "",
   };
 
   const [newWork, setNewWork] = useState(initialState);
   const [editedWork, setEditedWork] = useState(null);
+  const [selectedSupportingTM, setSelectedSupportingTM] = useState([]);
+
+  const [workTotalTime, setWorkTotalTime] = useState(totalTimeBasedOnWork || 0);
+
   // const [supportingTMList, setSupportingTMList] = useState([]);
 
   // const getMachineDetails = async () => {
@@ -52,8 +58,8 @@ const WorkDetails = ({
 
   const [dateError, setDateError] = useState("");
 
-  const findSelectedSupportingTM = (_id) =>
-    supportingTMList.find((user) => user._id === _id);
+  // const findSelectedSupportingTM = (_id) =>
+  //   supportingTMList.find((user) => user._id === _id);
 
   const cancelAdd = () => {
     setNewWork(initialState);
@@ -67,7 +73,8 @@ const WorkDetails = ({
     if (newWork?.work?.trim() !== "") {
       const newWorkDetail = {
         ...newWork,
-        tmName: findSelectedSupportingTM(newWork?.tmId)?.tm_name,
+        user: selectedSupportingTM,
+        // tmName: findSelectedSupportingTM(newWork?.tmId)?.tm_name,
       };
       let updatedWorkDetails = [...workDetails, newWorkDetail];
       setWorkDetails(updatedWorkDetails);
@@ -75,6 +82,18 @@ const WorkDetails = ({
         setValue("workDetails", updatedWorkDetails, {
           shouldDirty: true,
         });
+
+      setWorkTotalTime(
+        (workTotalTime) =>
+          workTotalTime +
+          moment(newWorkDetail?.toDate).diff(
+            moment(newWorkDetail?.fromDate),
+            "minutes"
+          ) /
+            60
+      );
+
+      setSelectedSupportingTM([]);
       handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
       clearErrors && clearErrors("workDetails");
       cancelAdd();
@@ -85,6 +104,7 @@ const WorkDetails = ({
 
   const cancelEdit = () => {
     setEditedWork(null);
+    setSelectedSupportingTM([]);
   };
 
   const editWorkDetail = () => {
@@ -93,29 +113,51 @@ const WorkDetails = ({
       return;
     }
     let updatedWork = editedWork;
-    updatedWork["tmName"] = findSelectedSupportingTM(editedWork?.tmId)?.tm_name;
+    // updatedWork["tmName"] = findSelectedSupportingTM(editedWork?.tmId)?.tm_name;
+    updatedWork["user"] = selectedSupportingTM;
 
-    const updatedWorkDetails = workDetails?.map((work) =>
-      work?.id === updatedWork?.id ? updatedWork : work
-    );
+    let totalTime = 0;
+
+    const updatedWorkDetails = workDetails?.map((work) => {
+      let finalWork = work;
+
+      if (work?.id === updatedWork?.id) {
+        finalWork = updatedWork;
+      }
+
+      totalTime +=
+        moment(finalWork?.toDate).diff(moment(finalWork?.fromDate), "minutes") /
+        60;
+
+      return finalWork;
+    });
+
     setWorkDetails(updatedWorkDetails);
     setValue &&
       setValue("workDetails", updatedWorkDetails, {
         shouldDirty: true,
       });
+    setWorkTotalTime(totalTime);
+
+    setSelectedSupportingTM([]);
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
     cancelEdit();
   };
 
-  const deleteWorkDetail = (workId) => {
-    const updatedWorkDetails = workDetails?.filter(
-      (work) => work?.id !== workId
-    );
+  const deleteWorkDetail = ({ id, toDate, fromDate }) => {
+    const updatedWorkDetails = workDetails?.filter((work) => work?.id !== id);
+
     setWorkDetails(updatedWorkDetails);
     setValue &&
       setValue("workDetails", updatedWorkDetails, {
         shouldDirty: true,
       });
+
+    setWorkTotalTime(
+      (workTotalTime) =>
+        workTotalTime - moment(toDate).diff(moment(fromDate), "minutes") / 60
+    );
+
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
   };
 
@@ -222,7 +264,7 @@ const WorkDetails = ({
                 md={2}
                 className="border col-auto d-flex align-items-center gap-1"
               >
-                <select
+                {/* <select
                   name="tmId"
                   value={editedWork?.tmId}
                   onChange={handleOnChangeAddOrUpdateNewWork}
@@ -230,7 +272,24 @@ const WorkDetails = ({
                   {supportingTMList.map((value) => (
                     <option value={value._id}>{value?.tm_name}</option>
                   ))}
-                </select>
+                </select> */}
+
+                <Multiselect
+                  displayValue="tm_name"
+                  options={supportingTMList}
+                  selectedValues={selectedSupportingTM}
+                  onSelect={async (selectedList) => {
+                    setSelectedSupportingTM(selectedList);
+                  }}
+                  onRemove={async (selectedList) => {
+                    setSelectedSupportingTM(selectedList);
+                  }}
+                  style={{
+                    multiselectContainer: {
+                      width: "14rem",
+                    },
+                  }}
+                />
               </Col>
               <Col
                 lg={2}
@@ -301,7 +360,8 @@ const WorkDetails = ({
                 md={2}
                 className="border col-auto d-flex align-items-center gap-1"
               >
-                {work?.tmName}
+                {/* {work?.tmName} */}
+                {work?.user?.map((item) => item?.tm_name)?.join(" ,")}
               </Col>
               <Col
                 lg={2}
@@ -327,6 +387,7 @@ const WorkDetails = ({
                   className="bg-warning text-white border-0"
                   onClick={() => {
                     setEditedWork({ ...work });
+                    setSelectedSupportingTM(work?.user);
                   }}
                   style={{
                     display: isEditable ? "block" : "none",
@@ -337,7 +398,7 @@ const WorkDetails = ({
                 <button
                   type="button"
                   className="bg-danger text-white border-0"
-                  onClick={() => deleteWorkDetail(work.id)}
+                  onClick={() => deleteWorkDetail(work)}
                   style={{
                     display: isEditable ? "block" : "none",
                   }}
@@ -379,7 +440,7 @@ const WorkDetails = ({
             md={2}
             className="border col-auto d-flex align-items-center gap-1"
           >
-            <select
+            {/* <select
               name="tmId"
               value={newWork?.tmId || ""}
               onChange={handleOnChangeAddOrUpdateNewWork}
@@ -390,7 +451,22 @@ const WorkDetails = ({
                   {value?.tm_name}
                 </option>
               ))}
-            </select>
+            </select> */}
+            <Multiselect
+              displayValue="tm_name"
+              options={supportingTMList}
+              onSelect={async (selectedList) => {
+                setSelectedSupportingTM(selectedList);
+              }}
+              onRemove={async (selectedList) => {
+                setSelectedSupportingTM(selectedList);
+              }}
+              style={{
+                multiselectContainer: {
+                  width: "14rem",
+                },
+              }}
+            />
           </Col>
           <Col
             lg={2}
@@ -445,7 +521,7 @@ const WorkDetails = ({
       ) : (
         isEditable && (
           <Row className="m-0 p-1 border">
-            <Col lg={4}>
+            <Col lg={7}>
               <button
                 type="button"
                 className="bg-warning text-white border-0"
@@ -458,6 +534,12 @@ const WorkDetails = ({
               >
                 Add Work Detail
               </button>
+            </Col>
+            <Col lg={2} className="border">
+              <b>Total time Difference</b>
+            </Col>
+            <Col lg={2} className="border">
+              <b>{workTotalTime} Hr</b>
             </Col>
           </Row>
         )

@@ -655,17 +655,9 @@ const ExistingMachineReqSheetView = ({
                                 id="personForLTPM"
                                 className="m-1 mb-2"
                                 name="personForLTPM"
-                                disabled={!isEditable}
+                                disabled={true}
                                 {...register(
-                                  "cmBasicDataFilledByMTD_TL.personForLTPM",
-                                  {
-                                    required:
-                                      watch(
-                                        "cmBasicDataFilledByMTD_TL.personForLTPM"
-                                      ) === ""
-                                        ? "This field is required !"
-                                        : false,
-                                  }
+                                  "cmBasicDataFilledByMTD_TL.personForLTPM"
                                 )}
                               />
                             </div>
@@ -960,11 +952,6 @@ const TableMappingComponent = ({
               requestSheet_year={
                 year?.preAggregationTimeStampOfRequestSheet?.requestSheet_year
               }
-              requestSheet_quarter={quarter?.requestSheet_quarter}
-              plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}
-              partsData={quarter?.changedParts}
-              workData={quarter?.workDetails}
-              actionData={quarter?.actionAndCounterMeasureStep}
               isEditable={
                 isEditable &&
                 watch("currentFYYearAndQuarter.year") ===
@@ -973,6 +960,12 @@ const TableMappingComponent = ({
                 // watch("currentFYYearAndQuarter.quarter") ===
                 //   quarter?.requestSheet_quarter
               }
+              requestSheet_quarter={quarter?.requestSheet_quarter}
+              plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}
+              partsData={quarter?.changedParts}
+              workData={quarter?.workDetails}
+              actionData={quarter?.actionAndCounterMeasureStep}
+              totalTimeBasedOnWork={quarter?.totalTimeBasedOnWork}
             />
           ))
       )}

@@ -111,13 +111,14 @@ const requestSheetOfCMSchema = new mongoose.Schema({
             {
               id: { type: Date },
               work: { type: String },
-              tmId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Users",
-              },
-              tmName: {
-                type: String,
-              },
+              // tmId: {
+              //   type: mongoose.Schema.Types.ObjectId,
+              //   ref: "Users",
+              // },
+              // tmName: {
+              //   type: String,
+              // },
+              user: [userObj],
               fromDate: {
                 type: Date,
               },
@@ -126,6 +127,11 @@ const requestSheetOfCMSchema = new mongoose.Schema({
               },
             },
           ],
+
+          totalTimeBasedOnWork: {
+            type: Number,
+            default: 0,
+          },
           //Action related fields
           actionAndCounterMeasureStep: [
             {

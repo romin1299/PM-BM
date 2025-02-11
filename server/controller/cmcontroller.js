@@ -583,6 +583,7 @@ router.patch(
         plannedDateAndTimeOfCM: `${req?.commonKey}.plannedDateAndTimeOfCM`,
         getDataForApprovalDashboard: `${req?.commonKey}.getDataForApprovalDashboard`,
         workDetails: `${req?.commonKey}.workDetails`,
+        totalTimeBasedOnWork: `${req?.commonKey}.totalTimeBasedOnWork`,
         changedParts: `${req?.commonKey}.changedParts`,
         actionAndCounterMeasureStep: `${req?.commonKey}.actionAndCounterMeasureStep`,
         isPermissionOfMTDTL: `${req?.commonKey}.isPermissionOfMTDTL`,
@@ -789,10 +790,27 @@ router.patch(
       };
 
       if (requestSheetDataFilledByMTDUserForCM?.workDetails) {
+        let totalTimeBasedOnWork = 0;
+
+        for (
+          let i = 0;
+          i < requestSheetDataFilledByMTDUserForCM?.workDetails?.length;
+          i++
+        ) {
+          const element = requestSheetDataFilledByMTDUserForCM?.workDetails[i];
+
+          totalTimeBasedOnWork +=
+            moment(element?.toDate)?.diff(
+              moment(element?.fromDate),
+              "minutes"
+            ) / 60;
+        }
+
         updateObj.$set = {
           ...updateObj.$set,
           [allKeys?.workDetails]:
             requestSheetDataFilledByMTDUserForCM?.workDetails,
+          [allKeys?.totalTimeBasedOnWork]: totalTimeBasedOnWork,
         };
       }
       if (requestSheetDataFilledByMTDUserForCM?.changedParts) {
@@ -1184,6 +1202,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.plannedDateAndTimeOfCM": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.changedParts": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.workDetails": 1,
+        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.totalTimeBasedOnWork": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.actionAndCounterMeasureStep": 1,
 
         approvalObj_MTD_TL: getUserApprovalObj(
