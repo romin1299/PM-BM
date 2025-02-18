@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const commonVarForTypeString = {
   type: String,
 };
@@ -94,8 +96,25 @@ exports.allTargetData = [
 
 exports.TmMttrSkillScoresAndLimit = [
   {
-    from:production_hrs_refObj,
-    to:production_hrs_refObj,
-    score:production_hrs_refObj
-  }
-]
+    from: production_hrs_refObj,
+    to: production_hrs_refObj,
+    score: production_hrs_refObj,
+  },
+];
+
+exports.userObj = {
+  userRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
+  user_type: { type: String },
+  tm_no: { type: Number },
+  tm_name: { type: String },
+  email: { type: String },
+};
+
+exports.approvalObj = {
+  approvalStatus: { type: String },
+  approvalDateAndTime: { type: String },
+  rejectedRemarks: { type: String },
+};

@@ -92,32 +92,43 @@ const ExistingMachineReqSheetView = ({
     return newVal;
   };
 
-  const generateError = (field, key, message) =>
-    (!field || field?.length === 0) &&
-    setError(key, {
-      type: "required",
-      message,
-    });
-
-  const handleCustomError = ({
+  const generateError = async (field, key, message) => {
+    if (!field || field?.length === 0) {
+      setError(key, {
+        type: "required",
+        message,
+      });
+    }
+    return field?.length;
+  };
+  const handleCustomError = async ({
     changedParts,
-    actionAndCounterMeasureStep,
+    // actionAndCounterMeasureStep,
     workDetails,
   }) => {
-    generateError(changedParts, "changedParts", "Part list is required");
-    generateError(
-      actionAndCounterMeasureStep,
-      "actionAndCounterMeasureStep",
-      "Action and counter measure step is required"
+    return (
+      (await generateError(
+        changedParts,
+        "changedParts",
+        "Part list is required"
+      )) +
+      (await generateError(
+        workDetails,
+        "workDetails",
+        "Work details is required"
+      ))
     );
-    generateError(workDetails, "workDetails", "Work details is required");
+    // generateError(
+    //   actionAndCounterMeasureStep,
+    //   "actionAndCounterMeasureStep",
+    //   "Action and counter measure step is required"
+    // );
   };
 
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
       if (requestSheetDataOfCM?.wantToSendForApproval === "Yes") {
-        handleCustomError(requestSheetDataOfCM);
-        if (Object.keys(errors)?.length > 0) {
+        if ((await handleCustomError(requestSheetDataOfCM)) <= 0) {
           return;
         }
       }
@@ -125,28 +136,30 @@ const ExistingMachineReqSheetView = ({
       const formData = new FormData();
       const { ...otherFields } = handleDirtyFields(requestSheetDataOfCM);
 
-      if (otherFields?.wantToSendForApproval === "Yes") {
-        otherFields["requestSheetStatusOfCM"] = "Under MTD HOS Approval";
-        if (requestSheetDataOfCM?.isPermissionOfMTDTL === "Yes") {
-          otherFields["requestSheetStatusOfCM"] = "Under MTD TL/HOSS Approval";
-        }
-      }
-
       otherFields.plannedDateAndTimeOfCM = watch(
         "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM"
       );
 
-      otherFields.approvalObj_MTD_HOS =
-        requestSheetDataOfCM?.approvalObj_MTD_HOS;
+      // otherFields.approvalObj_MTD_HOS =
+      //   requestSheetDataOfCM?.approvalObj_MTD_HOS;
 
-      if (otherFields?.isPermissionOfMTDTL === "Yes") {
-        otherFields.approvalObj_MTD_TL =
-          requestSheetDataOfCM?.approvalObj_MTD_TL;
-      }
+      const prdApproval = () => {
+        otherFields.isPermissionOfPRDTL = watch("isPermissionOfPRDTL");
+        otherFields.approvalObj_PRD_TL = watch("approvalObj_PRD_TL");
+      };
 
-      if (otherFields?.isPermissionOfPRDTL === "Yes") {
-        otherFields.approvalObj_PRD_TL =
-          requestSheetDataOfCM?.approvalObj_PRD_TL;
+      if (
+        watch("current_commonDataFilledByAssignUser.requestSheetStatusOfCM") ===
+        "Rejected"
+      ) {
+        otherFields.approvalObj_MTD_TL = watch("approvalObj_MTD_TL");
+        otherFields.approvalObj_MTD_HOSS = watch("approvalObj_MTD_HOSS");
+        otherFields.approvalObj_MTD_HOS = watch("approvalObj_MTD_HOS");
+        prdApproval();
+      } else {
+        if (requestSheetDataOfCM?.approvalObj_PRD_TL) {
+          prdApproval();
+        }
       }
 
       for (
@@ -847,22 +860,20 @@ const ExistingMachineReqSheetView = ({
               clearErrors={clearErrors}
             />
 
-            {isEditable && (
-              <UserApprovalSelectFields
-                setValue={setValue}
-                watch={watch}
-                register={register}
-                errors={errors}
-                isEditable={
-                  ["Generated", "Fill Sheet", "Rejected"]?.includes(
-                    watch(
-                      "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
-                    )
-                  ) && isEditable
-                }
-                isRequired={watch("wantToSendForApproval") === "Yes"}
-              />
-            )}
+            <UserApprovalSelectFields
+              setValue={setValue}
+              watch={watch}
+              register={register}
+              errors={errors}
+              isEditable={
+                ["Generated", "Fill Sheet", "Rejected"]?.includes(
+                  watch(
+                    "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+                  )
+                ) && isEditable
+              }
+              isRequired={watch("wantToSendForApproval") === "Yes"}
+            />
 
             {["Generated", "Fill Sheet", "Rejected"]?.includes(
               watch(
@@ -942,8 +953,8 @@ const TableMappingComponent = ({
   return (
     <>
       {watch("upto_currentYear_current_commonDataFilledByAssignUser")?.map(
-        (year) =>
-          year.quarterlyDataOfTheCM?.map((quarter) => (
+        (year, yearIndex) =>
+          year.quarterlyDataOfTheCM?.map((quarter, quarterIndex) => (
             <MiddlewareForTablesOfMTD
               clearErrors={clearErrors}
               errors={errors}
@@ -954,11 +965,11 @@ const TableMappingComponent = ({
               }
               isEditable={
                 isEditable &&
-                watch("currentFYYearAndQuarter.year") ===
-                  year?.preAggregationTimeStampOfRequestSheet?.requestSheet_year
-                //     &&
-                // watch("currentFYYearAndQuarter.quarter") ===
-                //   quarter?.requestSheet_quarter
+                watch("upto_currentYear_current_commonDataFilledByAssignUser")
+                  ?.length -
+                  1 ===
+                  yearIndex &&
+                year.quarterlyDataOfTheCM?.length - 1 === quarterIndex
               }
               requestSheet_quarter={quarter?.requestSheet_quarter}
               plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}

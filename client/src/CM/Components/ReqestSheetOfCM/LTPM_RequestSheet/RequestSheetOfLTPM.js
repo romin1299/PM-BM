@@ -1,9 +1,10 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
 import Loading from "../../../../components/Loading/Loading";
 import ExistingMachineReqSheetView from "../ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import RoutingContext from "../../../../context/routing/RoutingContext";
 // import PaginationForLTPM from "../../../../components/Pagination/PaginationForLTPM";
 // import currentYear from "../../../../pages/Dashboard/DashboardComponent/currentYear";
 
@@ -30,6 +31,8 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     yearList: yearsOfLTPM.slice(0, 4),
     quarterList: ["Q1", "Q2", "Q3", "Q4"],
     data: [],
+    lineId: "",
+    LTPMApproval: {},
   };
 
   const [LTPMData, setLTPMData] = useState(initialState);
@@ -46,6 +49,13 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 
   // const [loading, setLoading] = useState(true);
 
+  const handleSetState = (otherData) =>
+    setLTPMData((LTPMData) => ({
+      ...LTPMData,
+      loading: false,
+      ...otherData,
+    }));
+
   const getDataOfLTPM = async (propPaginationCount = 0) => {
     // setLoading(true);
 
@@ -61,12 +71,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 
       // setDataOfLTPM(res?.data?.resultOfLTPM);
 
-      setLTPMData((LTPMData) => ({
-        ...LTPMData,
-        loading: false,
-        ...res?.data,
-        // data: res?.data?.resultOfLTPM,
-      }));
+      handleSetState(res?.data);
     } catch (error) {
       console.log(error);
 
@@ -89,7 +94,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   // const currentYear = new Date().getFullYear();
 
   useEffect(() => {
-    getDataOfLTPM();
+    if (reduceState?.flagForTogglingFilter === "based-on-line") getDataOfLTPM();
   }, [
     reduceState?.selectedValue,
     reduceState.selectedYear,
@@ -223,8 +228,15 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                           </th>
                         </tr>
                         <tr>
-                          <th className="approvalName"></th>
-                          <th className="approvalName"></th>
+                          <PlanningApproval
+                            {...LTPMData?.LTPMApproval?.planningApproval}
+                            preparationApprovalAndPlanPreparationMTD_HOS={
+                              LTPMData?.LTPMApproval
+                                ?.preparationApprovalAndPlanPreparationMTD_HOS
+                            }
+                            lineId={LTPMData?.lineId}
+                            handleSetState={handleSetState}
+                          />
                         </tr>
                       </thead>
                     </table>
@@ -305,26 +317,15 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                           <td className="ar-table-col1"></td>
                         </tr>
                         <tr>
-                          <th
-                            className="approvalName"
-                            colSpan={2}
-                            rowSpan={5}
-                          ></th>
-                          <th
-                            className="approvalName"
-                            colSpan={2}
-                            rowSpan={5}
-                          ></th>
-                          <th
-                            className="approvalName"
-                            colSpan={2}
-                            rowSpan={5}
-                          ></th>
-                          {/* <th
-                            className="approvalName"
-                            colSpan={2}
-                            rowSpan={5}
-                          ></th> */}
+                          <PreparationApproval
+                            {...LTPMData?.LTPMApproval?.preparationApproval}
+                            preparationApprovalAndPlanPreparationMTD_HOS={
+                              LTPMData?.LTPMApproval
+                                ?.preparationApprovalAndPlanPreparationMTD_HOS
+                            }
+                            lineId={LTPMData?.lineId}
+                            handleSetState={handleSetState}
+                          />
                           <th className="ar-table-thead-header1">
                             Approved by
                             <br />
@@ -468,3 +469,271 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
 };
 
 export default RequestSheetOfLTPM;
+
+const PreparationApproval = ({
+  lineId,
+  handleSetState,
+  status,
+  preparedByMTD_TL,
+  checkByMTD_TL,
+  preparationApprovalAndPlanPreparationMTD_HOS,
+}) => {
+  if (!status && preparedByMTD_TL?.tm_name) {
+    return (
+      <SelectPreparationApproval
+        preparedByMTD_TL={preparedByMTD_TL}
+        lineId={lineId}
+        handleSetState={handleSetState}
+      />
+    );
+  }
+
+  return (
+    <>
+      <th className="approvalName" colSpan={2} rowSpan={5}>
+        <ViewOrApproveComponent
+          user={preparationApprovalAndPlanPreparationMTD_HOS}
+          lineId={lineId}
+          handleSetState={handleSetState}
+          status={status}
+          statusForConditionCheck="Under approval of MTD HOS"
+        />
+      </th>
+      <th className="approvalName" colSpan={2} rowSpan={5}>
+        <ViewOrApproveComponent
+          user={checkByMTD_TL}
+          lineId={lineId}
+          handleSetState={handleSetState}
+          status={status}
+          statusForConditionCheck="Check for MTD TL"
+        />
+      </th>
+      <th className="approvalName" colSpan={2} rowSpan={5}>
+        {preparedByMTD_TL?.tm_name}
+      </th>
+    </>
+  );
+};
+
+const SelectPreparationApproval = ({
+  preparedByMTD_TL,
+  lineId,
+  handleSetState,
+}) => {
+  const [dropdownUsers, setDropdownUsers] = useState({
+    MTDHOSList: [],
+    MTDTLList: [],
+  });
+
+  const [selectedUsers, setSelectedUsers] = useState({
+    indexOfApprovedByMTD_HOS: 0,
+    indexOfCheckByMTD_TL: 0,
+  });
+
+  const handleChange = ({ target }) => {
+    const { name, value } = target;
+    setSelectedUsers((selectedUsers) => ({
+      ...selectedUsers,
+      [name]: value * 1,
+    }));
+  };
+
+  const getApprovalListOfCM = async () => {
+    try {
+      const response = await axios.get(
+        `/getApprovalUserList/?departmentFilterForTL=MTD`
+      );
+      setDropdownUsers(response?.data?.userList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getApprovalListOfCM();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.patch(`/sendPreparationApproval/${lineId}`, {
+        preparationApprovalAndPlanPreparationMTD_HOS:
+          dropdownUsers?.MTDHOSList?.[selectedUsers?.indexOfApprovedByMTD_HOS],
+        checkByMTD_TL:
+          dropdownUsers?.MTDTLList?.[selectedUsers?.indexOfCheckByMTD_TL],
+      });
+
+      if (response.status === 201) {
+        handleSetState(response?.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+      <th className="approvalName" colSpan={2} rowSpan={5}>
+        <UserSelectionDropdown
+          name="indexOfApprovedByMTD_HOS"
+          onChange={handleChange}
+          userArray={dropdownUsers?.MTDHOSList}
+        />
+        <button className="bg-button" onClick={handleSubmit}>
+          Send Approval
+        </button>
+      </th>
+      <th className="approvalName" colSpan={2} rowSpan={5}>
+        <UserSelectionDropdown
+          name="indexOfCheckByMTD_TL"
+          onChange={handleChange}
+          userArray={dropdownUsers?.MTDTLList}
+        />
+      </th>
+      <th className="approvalName" colSpan={2} rowSpan={5}>
+        {preparedByMTD_TL?.tm_name}
+      </th>
+    </>
+  );
+};
+
+const PlanningApproval = ({
+  status,
+  preparationApprovalAndPlanPreparationMTD_HOS,
+  planAcceptedByPRD_HOS,
+  lineId,
+  handleSetState,
+}) => {
+  if (status === "Under approval of MTD HOS") {
+    return (
+      <SelectPlanningApproval
+        preparationApprovalAndPlanPreparationMTD_HOS={
+          preparationApprovalAndPlanPreparationMTD_HOS
+        }
+        lineId={lineId}
+        handleSetState={handleSetState}
+      />
+    );
+  }
+
+  return (
+    <>
+      <th className="approvalName">
+        <ViewOrApproveComponent
+          user={planAcceptedByPRD_HOS}
+          lineId={lineId}
+          handleSetState={handleSetState}
+          status={status}
+          statusForConditionCheck="Under approval of PRD HOS"
+          phase="Planning"
+        />
+      </th>
+      <th className="approvalName">
+        {preparationApprovalAndPlanPreparationMTD_HOS?.tm_name}
+      </th>
+    </>
+  );
+};
+
+const SelectPlanningApproval = ({
+  preparationApprovalAndPlanPreparationMTD_HOS,
+  lineId,
+  handleSetState,
+}) => {
+  const [PRDHOSList, setPRDHOSList] = useState([]);
+  const [indexOfPRD_HOS, setIndexOfPRD_HOS] = useState(0);
+
+  const handleChange = ({ target }) => setIndexOfPRD_HOS(target?.value * 1);
+
+  const getApprovalListOfCM = async () => {
+    try {
+      const response = await axios.get(
+        `/getApprovalUserList/?departmentFilterForHOS=PRD`
+      );
+      setPRDHOSList(response?.data?.userList?.PRDHOSList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getApprovalListOfCM();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.patch(`/sendPlanningApproval/${lineId}`, {
+        planAcceptedByPRD_HOS: PRDHOSList?.[indexOfPRD_HOS],
+      });
+
+      if (response.status === 201) {
+        handleSetState(response?.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+      <th className="approvalName">
+        <UserSelectionDropdown
+          name="indexOfPRD_HOS"
+          onChange={handleChange}
+          userArray={PRDHOSList}
+        />
+        <button className="bg-button" onClick={handleSubmit}>
+          Send Approval
+        </button>
+      </th>
+      <th className="approvalName">
+        {preparationApprovalAndPlanPreparationMTD_HOS?.tm_name}
+      </th>
+    </>
+  );
+};
+
+const ViewOrApproveComponent = ({
+  user,
+  lineId,
+  handleSetState,
+  status,
+  statusForConditionCheck,
+  phase = "Preparation",
+}) => {
+  const context = useContext(RoutingContext);
+
+  if (context?._id !== user?.userRef || status !== statusForConditionCheck) {
+    return <>{user?.tm_name}</>;
+  }
+
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.patch(`/acceptApproval/${phase}/${lineId}`, {
+        status,
+      });
+
+      if (response.status === 201) {
+        handleSetState(response?.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <button className="bg-button" onClick={handleSubmit}>
+      Accept
+    </button>
+  );
+};
+
+const UserSelectionDropdown = ({ name, onChange, userArray }) => {
+  return (
+    <select name={name} onChange={onChange}>
+      <option selected disabled value="">
+        Please Select
+      </option>
+      {userArray?.map((item, index) => (
+        <option value={index}>{item?.tm_name}</option>
+      ))}
+    </select>
+  );
+};

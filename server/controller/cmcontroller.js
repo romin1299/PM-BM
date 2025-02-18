@@ -11,7 +11,7 @@ const timezone = "Asia/Kolkata";
 // const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 // const SubSection = require("../model/subSectionSchema");
 // const Cell = require("../model/cellSchema");
-// const Line = require("../model/lineSchema");
+const Line = require("../model/lineSchema");
 // const LogHistory = require("../model/logHistorySchema");
 // const NoLossBD = require("../model/noLossBDSheetData");
 // const HandlingActions = require("../model/handlingActions");
@@ -262,20 +262,39 @@ router.get(
       }
     }
 
+    const { departmentFilterForTL, departmentFilterForHOS } = req.query;
+
+    let userFilter = {
+      tm_department: "MTD",
+      tm_grade: "HOS",
+    };
+
+    if (departmentFilterForHOS) {
+      userFilter = {
+        tm_department: departmentFilterForHOS,
+        tm_grade: "HOS",
+      };
+    }
+
+    if (departmentFilterForTL) {
+      userFilter = {
+        $or: [
+          userFilter,
+          {
+            tm_department: {
+              $in: departmentFilterForTL?.split("-"),
+            },
+            user_type: "TL/HOSS",
+          },
+        ],
+      };
+    }
+
     const users = await User.aggregate([
       {
         $match: {
           ...queryObj,
-          $or: [
-            {
-              tm_department: "MTD",
-              tm_grade: "HOS",
-            },
-            {
-              tm_department: { $in: ["MTD", "PRD"] },
-              user_type: "TL/HOSS",
-            },
-          ],
+          ...userFilter,
         },
       },
       {
@@ -300,6 +319,7 @@ router.get(
 
     let userList = {
       MTDHOSList: [],
+      PRDHOSList: [],
       MTDTLList: [],
       PRDTLList: [],
     };
@@ -310,6 +330,8 @@ router.get(
 
       if (tm_department === "MTD" && tm_grade === "HOS") {
         userList.MTDHOSList = groupUsers;
+      } else if (tm_department === "PRD" && tm_grade === "HOS") {
+        userList.PRDHOSList = groupUsers;
       } else if (tm_department === "MTD" && user_type === "TL/HOSS") {
         userList.MTDTLList = groupUsers;
       } else {
@@ -557,8 +579,9 @@ const commonKeyGenerationMiddleware = tryCatchHandler(
       "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter]";
 
     let allKeys = {
-      approvalOfMTD_HOS: `${commonKey}.approvalOfMTD_HOS`,
       approvalOfMTD_TL: `${commonKey}.approvalOfMTD_TL`,
+      approvalOfMTD_HOSS: `${commonKey}.approvalOfMTD_HOSS`,
+      approvalOfMTD_HOS: `${commonKey}.approvalOfMTD_HOS`,
       approvalOfPRD_TL: `${commonKey}.approvalOfPRD_TL`,
       requestSheetStatusOfCM: `${commonKey}.requestSheetStatusOfCM`,
     };
@@ -707,6 +730,29 @@ router.patch(
         }
       };
 
+      if (requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL) {
+        addOrUpdateApprovalUser(
+          "MTD_TL",
+          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
+        );
+
+        updateObj.$set = {
+          ...updateObj.$set,
+          [allKeys?.getDataForApprovalDashboard]: {
+            Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
+              ?.approvalOfMTD_TL?.userRef,
+            departmentAndGradeOfUser: "MTD TL/HOSS",
+          },
+        };
+      }
+
+      if (requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOSS) {
+        addOrUpdateApprovalUser(
+          "MTD_HOSS",
+          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOSS
+        );
+      }
+
       if (requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS) {
         addOrUpdateApprovalUser(
           "MTD_HOS",
@@ -714,45 +760,33 @@ router.patch(
         );
       }
 
-      if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL) {
-        updateObj.$set = {
-          ...updateObj.$set,
-          [allKeys?.isPermissionOfMTDTL]:
-            requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL,
-        };
+      // if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL) {
+      // updateObj.$set = {
+      //   ...updateObj.$set,
+      //   [allKeys?.isPermissionOfMTDTL]:
+      //     requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL,
+      // };
 
-        if (
-          requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes"
-        ) {
-          addOrUpdateApprovalUser(
-            "MTD_TL",
-            requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
-          );
+      //   if (
+      //     requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes"
+      //   ) {
 
-          updateObj.$set = {
-            ...updateObj.$set,
-            [allKeys?.getDataForApprovalDashboard]: {
-              Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
-                ?.approvalOfMTD_TL?.userRef,
-              departmentAndGradeOfUser: "MTD TL/HOSS",
-            },
-          };
-        } else {
-          updateObj.$set = {
-            ...updateObj.$set,
-            [allKeys?.getDataForApprovalDashboard]: {
-              Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS
-                ?.approvalOfMTD_HOS?.userRef,
-              departmentAndGradeOfUser: "MTD HOS",
-            },
-          };
+      //   } else {
+      //     updateObj.$set = {
+      //       ...updateObj.$set,
+      //       [allKeys?.getDataForApprovalDashboard]: {
+      //         Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS
+      //           ?.approvalOfMTD_HOS?.userRef,
+      //         departmentAndGradeOfUser: "MTD HOS",
+      //       },
+      //     };
 
-          pullUser(
-            "MTD_TL",
-            requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
-          );
-        }
-      }
+      //     pullUser(
+      //       "MTD_TL",
+      //       requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
+      //     );
+      //   }
+      // }
 
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL) {
         updateObj.$set = {
@@ -776,11 +810,12 @@ router.patch(
         }
       }
 
-      if (requestSheetDataFilledByMTDUserForCM?.requestSheetStatusOfCM) {
+      if (
+        requestSheetDataFilledByMTDUserForCM?.wantToSendForApproval === "Yes"
+      ) {
         updateObj.$set = {
           ...updateObj.$set,
-          [allKeys?.requestSheetStatusOfCM]:
-            requestSheetDataFilledByMTDUserForCM?.requestSheetStatusOfCM,
+          [allKeys?.requestSheetStatusOfCM]: "Under MTD TL Approval",
         };
       }
 
@@ -874,10 +909,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         },
       },
     ],
-  };
-
-  let currentFYYearAndQuarter = {
-    quarter: getFinancialQuarter(),
   };
 
   let lastQuarterOrSelectedQuarter = {
@@ -1013,16 +1044,26 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
             {
               $cond: [
                 {
-                  $in: [
+                  $or: [
                     {
-                      $getField: {
-                        field: "approvalStatus",
-                        input: {
-                          $last: `$current_commonDataFilledByAssignUser.${key}`,
+                      $in: [
+                        {
+                          $getField: {
+                            field: "approvalStatus",
+                            input: {
+                              $last: `$current_commonDataFilledByAssignUser.${key}`,
+                            },
+                          },
                         },
-                      },
+                        ["Rejected", "Accepted", ""],
+                      ],
                     },
-                    ["Rejected", "Accepted", ""],
+                    {
+                      $eq: [
+                        "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
+                        "Rejected",
+                      ],
+                    },
                   ],
                 },
                 {
@@ -1082,15 +1123,9 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         ],
       },
       {
-        $cond: [
-          {
-            $eq: [
-              "$current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id",
-              req.rootUser?._id,
-            ],
-          },
-          true,
-          false,
+        $eq: [
+          "$current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id",
+          req.rootUser?._id,
         ],
       },
     ],
@@ -1165,8 +1200,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "current_commonDataFilledByAssignUser.rejectedRemarksOfRequestSheet": 1,
         "current_commonDataFilledByAssignUser._id": 1,
         "current_commonDataFilledByAssignUser.getDataForApprovalDashboard": 1,
-        isPermissionOfMTDTL:
-          "$current_commonDataFilledByAssignUser.isPermissionOfMTDTL",
         isPermissionOfPRDTL:
           "$current_commonDataFilledByAssignUser.isPermissionOfPRDTL",
 
@@ -1205,10 +1238,8 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.totalTimeBasedOnWork": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.actionAndCounterMeasureStep": 1,
 
-        approvalObj_MTD_TL: getUserApprovalObj(
-          "approvalOfMTD_TL",
-          "isPermissionOfMTDTL"
-        ),
+        approvalObj_MTD_TL: getUserApprovalObj("approvalOfMTD_TL"),
+        approvalObj_MTD_HOSS: getUserApprovalObj("approvalOfMTD_HOSS"),
         approvalObj_MTD_HOS: getUserApprovalObj("approvalOfMTD_HOS"),
         approvalObj_PRD_TL: getUserApprovalObj(
           "approvalOfPRD_TL",
@@ -1217,9 +1248,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       },
       aggregationPipeline: [],
     };
-
-    currentFYYearAndQuarter["year"] = currentYear;
-    req.currentFYYearAndQuarter = currentFYYearAndQuarter;
   } else if (reqUrl?.includes("getAllCmReqSheet")) {
     otherPipelines.project = {
       "current_commonDataFilledByAssignUser.assignUserForCM": 1,
@@ -1241,6 +1269,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     otherPipelines.project = {
       "current_commonDataFilledByAssignUser.assignUserForCM": 1,
       "current_commonDataFilledByAssignUser.approvalOfMTD_TL": 1,
+      "current_commonDataFilledByAssignUser.approvalOfMTD_HOSS": 1,
       "current_commonDataFilledByAssignUser.approvalOfMTD_HOS": 1,
       "current_commonDataFilledByAssignUser.approvalOfPRD_TL": 1,
     };
@@ -1491,8 +1520,6 @@ router.get(
   }),
   getRequestSheetData,
   tryCatchHandler(async (req, res) => {
-    let requestSheet = req?.requestSheetData?.[0];
-    requestSheet["currentFYYearAndQuarter"] = req.currentFYYearAndQuarter;
     successResponse(res, "Request sheet fetched successfully", {
       requestSheet: req?.requestSheetData?.[0],
     });
@@ -1512,22 +1539,63 @@ router.patch(
       return res.status(404).json({ message: "Request sheet not found" });
     }
 
-    const { approvalOfRequestSheet, rejectedRemarksOfRequestSheet } = req.body;
+    const {
+      approvalOfRequestSheet,
+      rejectedRemarksOfRequestSheet,
+      current_commonDataFilledByAssignUser,
+
+      approvalOfMTD_HOSS,
+      approvalOfMTD_HOS,
+      isPermissionOfPRDTL,
+      approvalOfPRD_TL,
+    } = req.body;
 
     let department;
-    if (
-      req?.rootUser?.user_type === "TL/HOSS" &&
-      req?.rootUser?.tm_department === "MTD"
-    ) {
-      department = "MTD_TL";
-    } else if (req?.rootUser?.user_type === "Section-Admin") {
-      department = "MTD_HOS";
-    } else if (
-      req?.rootUser?.tm_department === "PRD" &&
-      req?.rootUser?.user_type === "TL/HOSS"
-    ) {
-      department = "PRD_TL";
+    // if (
+    //   req?.rootUser?.user_type === "TL/HOSS" &&
+    //   req?.rootUser?.tm_department === "MTD"
+    // ) {
+    //   department = "MTD_TL";
+    // } else if (req?.rootUser?.user_type === "Section-Admin") {
+    //   department = "MTD_HOS";
+    // } else if (
+    //   req?.rootUser?.tm_department === "PRD" &&
+    //   req?.rootUser?.user_type === "TL/HOSS"
+    // ) {
+    //   department = "PRD_TL";
+    // }
+
+    switch (current_commonDataFilledByAssignUser?.requestSheetStatusOfCM) {
+      case "Under MTD TL Approval":
+        department = "MTD_TL";
+        break;
+
+      case "Under MTD HOSS Approval":
+        department = "MTD_HOSS";
+        break;
+
+      case "Under MTD HOS Approval":
+        department = "MTD_HOS";
+        break;
+
+      case "Under PRD TL Approval":
+        department = "PRD_TL";
+        break;
     }
+
+    // if (
+    //   current_commonDataFilledByAssignUser?.requestSheetStatusOfCM ===
+    //   "Under MTD TL Approval"
+    // ) {
+    //   department = "MTD_TL";
+    // } else if (req?.rootUser?.user_type === "Section-Admin") {
+    //   department = "MTD_HOS";
+    // } else if (
+    //   req?.rootUser?.tm_department === "PRD" &&
+    //   req?.rootUser?.user_type === "TL/HOSS"
+    // ) {
+    //   department = "PRD_TL";
+    // }
 
     if (!department) {
       return res
@@ -1581,48 +1649,95 @@ router.patch(
           NULL_Obj_getDataForApprovalDashboard,
       };
     } else if (approvalOfRequestSheet === "Yes") {
+      let nextApprovalObj = {
+        requestSheetStatusOfCM: "",
+        getDataForApprovalDashboard: NULL_Obj_getDataForApprovalDashboard,
+      };
+
+      const completeApproval = () => {
+        nextApprovalObj.requestSheetStatusOfCM = "Completed";
+      };
+
+      switch (current_commonDataFilledByAssignUser?.requestSheetStatusOfCM) {
+        case "Under MTD TL Approval":
+          nextApprovalObj.requestSheetStatusOfCM = "Under MTD HOSS Approval";
+          nextApprovalObj.getDataForApprovalDashboard = {
+            Id: approvalOfMTD_HOSS?.userRef,
+            departmentAndGradeOfUser: approvalOfMTD_HOSS?.user_type,
+          };
+
+          break;
+
+        case "Under MTD HOSS Approval":
+          nextApprovalObj.requestSheetStatusOfCM = "Under MTD HOS Approval";
+          nextApprovalObj.getDataForApprovalDashboard = {
+            Id: approvalOfMTD_HOS?.userRef,
+            departmentAndGradeOfUser: approvalOfMTD_HOS?.user_type,
+          };
+          break;
+
+        case "Under MTD HOS Approval":
+          if (isPermissionOfPRDTL === "Yes") {
+            nextApprovalObj.requestSheetStatusOfCM = "Under PRD TL Approval";
+            nextApprovalObj.getDataForApprovalDashboard = {
+              Id: approvalOfPRD_TL?.userRef,
+              departmentAndGradeOfUser: approvalOfPRD_TL?.user_type,
+            };
+          } else completeApproval();
+
+          break;
+
+        case "Under PRD TL Approval":
+          completeApproval();
+          break;
+      }
+
       updateObj.$set = {
         ...updateObj?.$set,
         [`${allKeys?.approvalObj}.approvalStatus`]: "Accepted",
+        [allKeys?.requestSheetStatusOfCM]:
+          nextApprovalObj?.requestSheetStatusOfCM,
+        [allKeys?.getDataForApprovalDashboard]:
+          nextApprovalObj?.getDataForApprovalDashboard,
       };
 
-      if (department === "MTD_TL") {
-        let { approvalOfMTD_HOS } = req.body;
+      // if (department === "MTD_TL") {
+      //   let { approvalOfMTD_HOS } = req.body;
 
-        updateObj.$set = {
-          ...updateObj?.$set,
-          [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
-          [allKeys?.getDataForApprovalDashboard]: {
-            Id: approvalOfMTD_HOS?.userRef,
-            departmentAndGradeOfUser: approvalOfMTD_HOS?.user_type,
-          },
-        };
-      } else if (department === "MTD_HOS") {
-        let { approvalOfPRD_TL } = req.body;
+      //   updateObj.$set = {
+      //     ...updateObj?.$set,
+      //     [allKeys?.requestSheetStatusOfCM]: "Under MTD HOS Approval",
+      //     [allKeys?.getDataForApprovalDashboard]: {
+      //       Id: approvalOfMTD_HOS?.userRef,
+      //       departmentAndGradeOfUser: approvalOfMTD_HOS?.user_type,
+      //     },
+      //   };
+      // } else if (department === "MTD_HOS") {
+      //   let { approvalOfPRD_TL } = req.body;
 
-        if (
-          approvalOfPRD_TL?.userRef &&
-          approvalOfPRD_TL?.approvalStatus === "Pending"
-        ) {
-          updateObj.$set = {
-            ...updateObj?.$set,
-            [allKeys?.requestSheetStatusOfCM]: "Under PRD TL Approval",
-            [allKeys?.getDataForApprovalDashboard]: {
-              Id: approvalOfPRD_TL?.userRef,
-              departmentAndGradeOfUser: approvalOfPRD_TL?.user_type,
-            },
-          };
-        } else completeApproval();
-      } else if (department === "PRD_TL") completeApproval();
+      //   if (
+      //     approvalOfPRD_TL?.userRef &&
+      //     approvalOfPRD_TL?.approvalStatus === "Pending"
+      //   ) {
+      //     updateObj.$set = {
+      //       ...updateObj?.$set,
+      //       [allKeys?.requestSheetStatusOfCM]: "Under PRD TL Approval",
+      //       [allKeys?.getDataForApprovalDashboard]: {
+      //         Id: approvalOfPRD_TL?.userRef,
+      //         departmentAndGradeOfUser: approvalOfPRD_TL?.user_type,
+      //       },
+      //     };
+      //   } else completeApproval();
+      // } else if (department === "PRD_TL") completeApproval();
 
-      function completeApproval() {
-        updateObj.$set = {
-          ...updateObj?.$set,
-          [allKeys?.requestSheetStatusOfCM]: "Completed",
-          [allKeys?.getDataForApprovalDashboard]:
-            NULL_Obj_getDataForApprovalDashboard,
-        };
-      }
+      // function completeApproval() {
+      //   updateObj.$set = {
+      //     ...updateObj?.$set,
+      //     [allKeys?.requestSheetStatusOfCM]: "Completed",
+      //     [allKeys?.getDataForApprovalDashboard]:
+      //       NULL_Obj_getDataForApprovalDashboard,
+      //   };
+      // }
     }
     const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
       {
@@ -1667,80 +1782,91 @@ router.get(
   }
 );
 
-router.get(`/getReqSheetDataForCalendar`, authenticate, async (req, res) => {
-  try {
-    let yearConvert =
-      req?.query?.selectedMonth * 1 < 3
-        ? `${req?.query?.selectedYear * 1 - 1}-${req?.query?.selectedYear}`
-        : `${req?.query?.selectedYear}-${req?.query?.selectedYear * 1 + 1}`;
+router.get(
+  `/getReqSheetDataForCalendar/:filter/:selectedId`,
+  authenticate,
+  filterMiddleware,
+  async (req, res) => {
+    try {
+      delete req.queryObj["commonDataFilledByAssignUser"];
 
-    let commonProjection = {
-      $getField: {
-        field: "plannedDateAndTimeOfCM",
-        input: {
-          $arrayElemAt: [
-            {
-              $filter: {
-                input: {
-                  $getField: {
-                    field: "quarterlyDataOfTheCM",
-                    input: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: "$commonDataFilledByAssignUser",
-                            as: "yearWiseData",
-                            cond: {
-                              $eq: [
-                                "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                                yearConvert,
-                              ],
+      let yearConvert =
+        req?.query?.selectedMonth * 1 < 3
+          ? `${req?.query?.selectedYear * 1 - 1}-${req?.query?.selectedYear}`
+          : `${req?.query?.selectedYear}-${req?.query?.selectedYear * 1 + 1}`;
+
+      let commonProjection = {
+        $getField: {
+          field: "plannedDateAndTimeOfCM",
+          input: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: {
+                    $getField: {
+                      field: "quarterlyDataOfTheCM",
+                      input: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: "$commonDataFilledByAssignUser",
+                              as: "yearWiseData",
+                              cond: {
+                                $eq: [
+                                  "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                                  yearConvert,
+                                ],
+                              },
                             },
                           },
-                        },
-                        0,
-                      ],
+                          0,
+                        ],
+                      },
                     },
                   },
-                },
-                as: "quarterWiseData",
-                cond: {
-                  $eq: [
-                    "$$quarterWiseData.requestSheet_quarter",
-                    //need to change this quarter when user select previous year filter
-                    getFinancialQuarterByMonth(req?.query?.selectedMonth * 1),
-                  ],
+                  as: "quarterWiseData",
+                  cond: {
+                    $eq: [
+                      "$$quarterWiseData.requestSheet_quarter",
+                      //need to change this quarter when user select previous year filter
+                      getFinancialQuarterByMonth(req?.query?.selectedMonth * 1),
+                    ],
+                  },
                 },
               },
-            },
-            0,
-          ],
+              0,
+            ],
+          },
         },
-      },
-    };
+      };
 
-    const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
-      {
-        $project: {
-          title: "$cmBasicDataFilledByMTD_TL.activityOfCM",
-          start: commonProjection,
-          end: commonProjection,
+      const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
+        {
+          $match: req?.queryObj,
         },
-      },
-      {
-        $match: {
-          $or: [{ start: { $ne: undefined } }, { end: { $ne: undefined } }],
+        {
+          $project: {
+            id: "$_id",
+            title: "$cmBasicDataFilledByMTD_TL.activityOfCM",
+            start: commonProjection,
+            end: commonProjection,
+          },
         },
-      },
-    ]);
-    res.status(200).json({
-      message: "Request sheet data for calendar fetched successfully",
-      reqSheetDataForCalendar,
-    });
-  } catch (error) {
-    console.log(error);
+        {
+          $match: {
+            $or: [{ start: { $ne: undefined } }, { end: { $ne: undefined } }],
+          },
+        },
+      ]);
+      res.status(200).json({
+        message: "Request sheet data for calendar fetched successfully",
+        reqSheetDataForCalendar,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 
 // const middlewareForSectionAndSubSectionLookup = async (req, res, next) => {
 //   try {
@@ -1800,7 +1926,7 @@ router.get(`/getReqSheetDataForCalendar`, authenticate, async (req, res) => {
 router.get(
   "/LTPM/getDatOfLTPM/:filter/:selectedId",
   authenticate,
-  filterMiddleware,
+  // filterMiddleware,
   // middlewareForSectionAndSubSectionLookup,
   tryCatchHandler(async (req, res, next) => {
     const paginationCount = req?.query?.paginationCount * 1;
@@ -1820,18 +1946,20 @@ router.get(
     const yearList = Array.from({ length: 5 }, (_, i) => startYearOfLTPM + i);
     const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
-    delete req.queryObj.commonDataFilledByAssignUser;
+    // delete req.queryObj.commonDataFilledByAssignUser;
 
-    req.queryObj = {
-      ...req?.queryObj,
-      // commonDataFilledByAssignUser: {
-      //   $elemMatch: {
-      //     "preAggregationTimeStampOfRequestSheet.requestSheet_year": `${startYearOfLTPM}-${
-      //       startYearOfLTPM + 1
-      //     }`,
-      //   },
-      // },
-    };
+    // req.queryObj = {
+    //   ...req?.queryObj,
+    // commonDataFilledByAssignUser: {
+    //   $elemMatch: {
+    //     "preAggregationTimeStampOfRequestSheet.requestSheet_year": `${startYearOfLTPM}-${
+    //       startYearOfLTPM + 1
+    //     }`,
+    //   },
+    // },
+    // };
+
+    const { selectedId } = req.params;
 
     const quarterList = Array(5).fill(QUARTER).flat();
     const data = await RequestSheetOfCM.aggregate([
@@ -1839,7 +1967,8 @@ router.get(
         $match: {
           "cmBasicDataFilledByMTD_TL.categories": "LTPM",
           "cmBasicDataFilledByMTD_TL.frequencyType": "Scheduled",
-          ...req?.queryObj,
+          lineRef: mongoose.Types.ObjectId(selectedId),
+          // ...req?.queryObj,
         },
       },
       {
@@ -1875,11 +2004,118 @@ router.get(
       },
     ]);
 
+    const { _id, LTPMApproval } = await Line.findOne(
+      {
+        _id: selectedId,
+      },
+      {
+        LTPMApproval: 1,
+      }
+    );
+
+    if (
+      req?.rootUser?.user_type === "TL/HOSS" &&
+      !LTPMApproval?.preparationApproval?.preparedByMTD_TL?.tm_name
+    ) {
+      LTPMApproval.preparationApproval.preparedByMTD_TL = req?.rootUser;
+    }
+
     successResponse(res, "LTPM Line wise data get successfully", {
       paginationCount,
       data,
       quarterList,
       yearList,
+      lineId: _id,
+      LTPMApproval,
+    });
+  })
+);
+
+router.patch(
+  "/sendPreparationApproval/:lineId",
+  authenticate,
+  tryCatchHandler(async (req, res, next) => {
+    const { checkByMTD_TL, preparationApprovalAndPlanPreparationMTD_HOS } =
+      req.body;
+
+    const { LTPMApproval } = await Line.findOneAndUpdate(
+      { _id: req.params?.lineId },
+      {
+        "LTPMApproval.preparationApproval": {
+          status: "Check for MTD TL",
+          preparedByMTD_TL: req?.rootUser,
+          checkByMTD_TL,
+        },
+        "LTPMApproval.preparationApprovalAndPlanPreparationMTD_HOS":
+          preparationApprovalAndPlanPreparationMTD_HOS,
+      },
+      { new: true }
+    );
+
+    successResponse(res, "Preparation approval send successfully", {
+      LTPMApproval,
+    });
+  })
+);
+
+router.patch(
+  "/sendPlanningApproval/:lineId",
+  authenticate,
+  tryCatchHandler(async (req, res, next) => {
+    const { planAcceptedByPRD_HOS } = req.body;
+
+    const { LTPMApproval } = await Line.findOneAndUpdate(
+      { _id: req.params?.lineId },
+      {
+        "LTPMApproval.planningApproval.status": "Under approval of PRD HOS",
+        "LTPMApproval.planningApproval.planAcceptedByPRD_HOS":
+          planAcceptedByPRD_HOS,
+      },
+      { new: true }
+    );
+
+    successResponse(res, "Planning approval send successfully", {
+      LTPMApproval,
+    });
+  })
+);
+
+router.patch(
+  "/acceptApproval/:phase/:lineId",
+  authenticate,
+  tryCatchHandler(async (req, res, next) => {
+    const { status } = req.body;
+
+    let updateObj = {};
+    let resMsg = `${req?.params?.phase} approval completed successfully`;
+
+    if (req?.params?.phase === "Preparation") {
+      updateObj = {
+        "LTPMApproval.preparationApproval.status": "Under approval of MTD HOS",
+      };
+
+      if (status === "Under approval of MTD HOS") {
+        updateObj = {
+          "LTPMApproval.preparationApproval.status": "Completed",
+          "LTPMApproval.planningApproval.status": status,
+        };
+      } else {
+        resMsg = `${req?.params?.phase} approval accepted successfully`;
+      }
+    } else {
+      updateObj = {
+        "LTPMApproval.planningApproval.status": "Completed",
+      };
+    }
+
+    const { LTPMApproval } = await Line.findOneAndUpdate(
+      { _id: req.params?.lineId },
+      updateObj,
+      { new: true }
+    );
+
+    successResponse(res, resMsg, {
+      LTPMApproval,
     });
   })
 );

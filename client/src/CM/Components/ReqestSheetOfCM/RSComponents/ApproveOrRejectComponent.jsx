@@ -20,7 +20,9 @@ const ApproveOrRejectComponent = ({
           ),
 
           approvalOfMTD_TL: watch("approvalObj_MTD_TL.approvalOfMTD_TL"),
+          approvalOfMTD_HOSS: watch("approvalObj_MTD_HOSS.approvalOfMTD_HOSS"),
           approvalOfMTD_HOS: watch("approvalObj_MTD_HOS.approvalOfMTD_HOS"),
+          isPermissionOfPRDTL: watch("isPermissionOfPRDTL"),
           approvalOfPRD_TL: watch("approvalObj_PRD_TL.approvalOfPRD_TL"),
 
           approvalOfRequestSheet: watch("approvalOfRequestSheet"),

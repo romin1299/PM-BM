@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
-const { allTargetData } = require("./common");
+const { allTargetData, userObj, approvalObj } = require("./common");
+
+const commonUserApprovalObj = {
+  ...userObj,
+  ...approvalObj,
+};
 
 const commonVarForTypeString = {
   type: String,
@@ -102,6 +107,22 @@ const lineSchema = new mongoose.Schema({
 
   requestSheetNoOfCM: {
     type: Number,
+  },
+
+  LTPMApproval: {
+    preparationApproval: {
+      status: commonVarForTypeString,
+      preparedByMTD_TL: commonUserApprovalObj,
+      checkByMTD_TL: commonUserApprovalObj,
+      // approvedByMTD_HOS: commonUserApprovalObj,
+    },
+    planningApproval: {
+      status: commonVarForTypeString,
+      // planPreparedByMTD_HOS: commonUserApprovalObj,
+      planAcceptedByPRD_HOS: commonUserApprovalObj,
+    },
+    preparationApprovalAndPlanPreparationMTD_HOS: commonUserApprovalObj,
+    quarterlyApproval: {},
   },
 });
 
