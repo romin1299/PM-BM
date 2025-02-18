@@ -26,7 +26,6 @@ const ExistingMachineReqSheetView = ({
   // isEditable = false,
   isEditable = false,
   cmReqSheetView,
-  selectedQuarter = "",
 }) => {
   const {
     watch,

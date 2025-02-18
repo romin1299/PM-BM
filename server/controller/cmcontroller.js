@@ -925,7 +925,8 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
                   cond: {
                     $eq: [
                       "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                      req?.query?.selectedYear,
+                      "2025-2026",
+                      // req?.query?.selectedYear,
                     ],
                   },
                 },
@@ -1111,15 +1112,48 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         ],
       },
       {
-        $ne: [
+        $or: [
           {
-            $filter: {
-              input: "$current_commonDataFilledByAssignUser.assignUserForCM",
-              as: "item",
-              cond: { $eq: ["$$item.userRef", req.rootUser?._id] },
-            },
+            $and: [
+              {
+                $eq: [
+                  "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
+                  "Generated",
+                ],
+              },
+              {
+                $eq: [
+                  {
+                    $cond: [
+                      {
+                        $isArray:
+                          "$current_commonDataFilledByAssignUser.assignUserForCM",
+                      },
+                      {
+                        $size:
+                          "$current_commonDataFilledByAssignUser.assignUserForCM",
+                      },
+                      0,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            ],
           },
-          [],
+          {
+            $ne: [
+              {
+                $filter: {
+                  input:
+                    "$current_commonDataFilledByAssignUser.assignUserForCM",
+                  as: "item",
+                  cond: { $eq: ["$$item.userRef", req.rootUser?._id] },
+                },
+              },
+              [],
+            ],
+          },
         ],
       },
       {
@@ -1929,7 +1963,7 @@ router.get(
   // filterMiddleware,
   // middlewareForSectionAndSubSectionLookup,
   tryCatchHandler(async (req, res, next) => {
-    const paginationCount = req?.query?.paginationCount * 1;
+    let paginationCount = req?.query?.paginationCount * 1;
     let startYearOfLTPM = moment()
       .subtract(paginationCount, "years")
       .tz(timezone)
@@ -1940,6 +1974,7 @@ router.get(
     if (startYearOfLTPM === currentDate.year()) {
       if ([0, 1, 2]?.includes(currentDate.month())) {
         startYearOfLTPM -= 1;
+        paginationCount += 1;
       }
     }
 
