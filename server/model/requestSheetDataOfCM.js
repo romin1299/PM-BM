@@ -36,7 +36,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     other_categories: {
       type: String,
     },
-    targetDateOfCM: { type: String },
+    plannedDateAndTimeOfCM: { type: String },
     inspectionItem: {
       type: String,
     },
@@ -77,8 +77,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
           requestSheet_quarter: {
             type: String,
           },
-
-          plannedDateAndTimeOfCM: { type: String },
+          targetDateOfCM: { type: String },
           //Spare parts related fields
           sparePartUsedOrNot: { type: String },
           changedParts: [

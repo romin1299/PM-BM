@@ -36,11 +36,11 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
     defaultValues: {
       cmBasicDataFilledByMTD_TL: {
         personForLTPM: "M",
+        plannedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       },
-      plannedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       sheetIssuedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       maintenanceType: "CM",
-      "cmBasicDataFilledByMTD_TL.targetDateOfCM": moment(new Date()).format(
+      targetDateOfCM: moment(new Date()).format(
         "YYYY-MM-DDTHH:mm"
       ),
     },
@@ -85,7 +85,7 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
   const newRequestSheetRegistrationOfCM = async (requestSheetDataOfCM) => {
     try {
       const formData = new FormData();
-      delete requestSheetDataOfCM["cmBasicDataFilledByMTD_TL.targetDateOfCM"]
+      // delete requestSheetDataOfCM["cmBasicDataFilledByMTD_TL.targetDateOfCM"];
       const { ...otherFields } = requestSheetDataOfCM;
 
       for (
@@ -341,20 +341,27 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                                   <br />
                                   <input
                                     type="datetime-local"
-                                    {...register("plannedDateAndTimeOfCM", {
-                                      required: "RequestSheet date is required",
-                                      onChange: (event) =>
-                                        setValue(
-                                          "plannedDateAndTimeOfCM",
-                                          event.target.value
-                                        ),
-                                    })}
+                                    {...register(
+                                      "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
+                                      {
+                                        required:
+                                          "RequestSheet date is required",
+                                        onChange: (event) =>
+                                          setValue(
+                                            "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
+                                            event.target.value
+                                          ),
+                                      }
+                                    )}
                                   />
-                                  {errors?.["plannedDateAndTimeOfCM"] && (
+                                  {errors?.[
+                                    "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM"
+                                  ] && (
                                     <p className="text-error">
                                       {
-                                        errors?.["plannedDateAndTimeOfCM"]
-                                          ?.message
+                                        errors?.[
+                                          "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM"
+                                        ]?.message
                                       }
                                     </p>
                                   )}
@@ -761,24 +768,19 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                             type="datetime-local"
                             id="targetDateOfCM"
                             className="m-1 mb-2"
-                            name="cmBasicDataFilledByMTD_TL.targetDateOfCM"
-                            {...register(
-                              "cmBasicDataFilledByMTD_TL.targetDateOfCM",
-                              {
-                                required: "Please select target date",
-                              }
-                            )}
+                            name="targetDateOfCM"
+                            {...register("targetDateOfCM", {
+                              required: "Please select target date",
+                            })}
                             onInput={() => {
-                              clearErrors(
-                                "cmBasicDataFilledByMTD_TL.targetDateOfCM"
-                              );
+                              clearErrors("targetDateOfCM");
                             }}
                           />
                         </div>
-                        {errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM && (
+                        {errors?.targetDateOfCM && (
                           <p className="text-error">
                             {
-                              errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM
+                              errors?.targetDateOfCM
                                 ?.message
                             }
                           </p>
@@ -877,7 +879,9 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
 
                   <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
                     <ShiftInputField
-                      dateAndTime={watch("plannedDateAndTimeOfCM")}
+                      dateAndTime={watch(
+                        "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM"
+                      )}
                       shiftOfBM={watch("shiftOfBM")}
                       setValue={setValue}
                     />

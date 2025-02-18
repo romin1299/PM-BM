@@ -346,13 +346,13 @@ router.get(
 );
 
 const quarterlyDataAdd = (
-  plannedDateAndTimeOfCM,
   frequencyValue,
   assignUserForCM,
-  frequencyType
+  frequencyType,
+  targetDateOfCM
 ) => {
   const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
-  const plannedQuarter = getFinancialQuarter(plannedDateAndTimeOfCM); // Get the starting quarter
+  const plannedQuarter = getFinancialQuarter(targetDateOfCM); // Get the starting quarter
   const plannedQuarterIndex = QUARTERS.indexOf(plannedQuarter);
   const plannedData = [];
 
@@ -369,103 +369,127 @@ const quarterlyDataAdd = (
   const currentQuarterIndex = Math.floor(currentDate.month() / 3);
   let modifiedPlannedDateAndTimeOfCM;
 
-  for (let year = currentYear; year < currentYear + totalYears; year++) {
-    const yearlyDataObject = {
-      preAggregationTimeStampOfRequestSheet: {
-        requestSheet_year: `${year}-${year + 1}`,
-        requestSheet_month: gettingMonthForSelectedDate(plannedDateAndTimeOfCM),
-      },
-      quarterlyDataOfTheCM: [],
+  let yearlyDataObject1 = {
+    preAggregationTimeStampOfRequestSheet: {},
+    quarterlyDataOfTheCM: [],
+  };
+  if (frequencyValue === "1/1 M" || frequencyValue === "1/3 M") {
+    yearlyDataObject1.preAggregationTimeStampOfRequestSheet = {
+      requestSheet_year: `${currentYear}-${currentYear + 1}`,
+      requestSheet_month: gettingMonthForSelectedDate(targetDateOfCM),
     };
+    // quarterlyDataOfTheCM: [],
 
-    for (let i = 0; i < QUARTERS.length; i++) {
-      const quarter = QUARTERS[i];
-      let isPlanned = false;
+    yearlyDataObject1?.quarterlyDataOfTheCM?.push({
+      targetDateOfCM: generalDateFormat(targetDateOfCM),
+      requestSheet_quarter: getFinancialQuarter(targetDateOfCM),
+      statusOfPlannedCM: "Planned",
+      assignUserForCM,
+    });
+    plannedData?.push(yearlyDataObject1);
+  } else {
+    for (let year = currentYear; year < currentYear + totalYears; year++) {
+      const yearlyDataObject = {
+        preAggregationTimeStampOfRequestSheet: {
+          requestSheet_year: `${year}-${year + 1}`,
+          requestSheet_month: gettingMonthForSelectedDate(targetDateOfCM),
+        },
+        quarterlyDataOfTheCM: [],
+      };
 
-      if (frequencyValue === "1/Y") {
-        // Plan only the starting quarter each year
-        isPlanned = i === plannedQuarterIndex;
-      } else if (frequencyValue === "1/2 Y") {
-        // Plan the starting quarter every two years
-        const currentQuarter = (year - currentYear) * 4 + i;
-        isPlanned = currentQuarter % 8 === plannedQuarterIndex;
-      } else if (frequencyValue === "1/3 Y") {
-        // Plan the starting quarter every three years
-        const currentQuarter = (year - currentYear) * 4 + i;
-        isPlanned = currentQuarter % 12 === plannedQuarterIndex;
-      } else if (frequencyValue === "1/4 Y") {
-        // Plan the starting quarter every four years
-        // Plan the quarter 4 years later (not in between)
-        // Current year plan: should happen in next cycle 4 years later
-        if (year - currentYear >= 4 && (year - currentYear) % 4 === 0) {
+      for (let i = 0; i < QUARTERS.length; i++) {
+        const quarter = QUARTERS[i];
+        let isPlanned = false;
+
+        if (frequencyValue === "1/Y") {
+          // Plan only the starting quarter each year
           isPlanned = i === plannedQuarterIndex;
-        }
-      } else if (frequencyValue === "1/6 M") {
-        // Alternate quarters based on the starting quarter
-        const alternatingQuarters = [
-          plannedQuarterIndex,
-          (plannedQuarterIndex + 2) % 4, // Alternate quarters
-        ];
-        if (year === currentYear) {
-          // Current year: exclude past quarters
-          isPlanned =
-            alternatingQuarters.includes(i) && i >= currentQuarterIndex;
+        } else if (frequencyValue === "1/2 Y") {
+          // Plan the starting quarter every two years
+          const currentQuarter = (year - currentYear) * 4 + i;
+          isPlanned = currentQuarter % 8 === plannedQuarterIndex;
+        } else if (frequencyValue === "1/3 Y") {
+          // Plan the starting quarter every three years
+          const currentQuarter = (year - currentYear) * 4 + i;
+          isPlanned = currentQuarter % 12 === plannedQuarterIndex;
+        } else if (frequencyValue === "1/4 Y") {
+          // Plan the starting quarter every four years
+          // Plan the quarter 4 years later (not in between)
+          // Current year plan: should happen in next cycle 4 years later
+          if (year - currentYear >= 4 && (year - currentYear) % 4 === 0) {
+            isPlanned = i === plannedQuarterIndex;
+          }
+        } else if (frequencyValue === "1/6 M") {
+          // Alternate quarters based on the starting quarter
+          const alternatingQuarters = [
+            plannedQuarterIndex,
+            (plannedQuarterIndex + 2) % 4, // Alternate quarters
+          ];
+          if (year === currentYear) {
+            // Current year: exclude past quarters
 
-          if (alternatingQuarters.includes(i))
-            modifiedPlannedDateAndTimeOfCM = plannedDateAndTimeOfCM;
-        } else {
-          // Future years: alternate as per the pattern
-          isPlanned = alternatingQuarters.includes(i);
+            if (
+              alternatingQuarters.includes(i) &&
+              i >= currentQuarterIndex &&
+              currentQuarterIndex !== 0
+            ) {
+              modifiedPlannedDateAndTimeOfCM = targetDateOfCM;
+            }
+            // isPlanned =
+            //   alternatingQuarters.includes(i) && i >= currentQuarterIndex;
+
+            // if (alternatingQuarters.includes(i) && i >= currentQuarterIndex)
+          } else {
+            // Future years: alternate as per the pattern
+            isPlanned = alternatingQuarters.includes(i);
+          }
+        }
+
+        // Ensure that the starting quarter is planned for the current year
+        if (year === currentYear && i === plannedQuarterIndex) {
+          isPlanned = true;
+        }
+
+        if (isPlanned) {
+          //for other frequency
+          // console.log(
+          //   frequencyValue,
+          //   typeof frequencyValue,
+          //   year,
+          //   currentYear,
+          // );
+          if (frequencyValue !== "1/6 M") {
+            const changeTheYearOfThePlannedDateBasedOnTheFY = (passingYear) => {
+              return [0, 1, 2]?.includes(currentDate.month())
+                ? passingYear + 1
+                : passingYear;
+            };
+            modifiedPlannedDateAndTimeOfCM = targetDateOfCM.replace(
+              changeTheYearOfThePlannedDateBasedOnTheFY(currentYear),
+              changeTheYearOfThePlannedDateBasedOnTheFY(year)
+            );
+          }
+          yearlyDataObject?.quarterlyDataOfTheCM?.push({
+            targetDateOfCM: generalDateFormat(modifiedPlannedDateAndTimeOfCM),
+            requestSheet_quarter: quarter,
+            statusOfPlannedCM: "Planned",
+            assignUserForCM,
+          });
+
+          if (frequencyValue === "1/6 M") {
+            modifiedPlannedDateAndTimeOfCM = moment(
+              modifiedPlannedDateAndTimeOfCM
+            ).add(6, "month");
+          }
         }
       }
 
-      // Ensure that the starting quarter is planned for the current year
-      if (year === currentYear && i === plannedQuarterIndex) {
-        isPlanned = true;
+      if (yearlyDataObject?.quarterlyDataOfTheCM?.length > 0) {
+        plannedData?.push(yearlyDataObject);
       }
 
-      if (isPlanned) {
-        //for other frequency
-        // console.log(
-        //   frequencyValue,
-        //   typeof frequencyValue,
-        //   year,
-        //   currentYear,
-        //   plannedDateAndTimeOfCM
-        // );
-        if (frequencyValue !== "1/6 M") {
-          const changeTheYearOfThePlannedDateBasedOnTheFY = (passingYear) => {
-            return [0, 1, 2]?.includes(currentDate.month())
-              ? passingYear + 1
-              : passingYear;
-          };
-          modifiedPlannedDateAndTimeOfCM = plannedDateAndTimeOfCM.replace(
-            changeTheYearOfThePlannedDateBasedOnTheFY(currentYear),
-            changeTheYearOfThePlannedDateBasedOnTheFY(year)
-          );
-        }
-        yearlyDataObject?.quarterlyDataOfTheCM?.push({
-          plannedDateAndTimeOfCM: generalDateFormat(
-            modifiedPlannedDateAndTimeOfCM
-          ),
-          requestSheet_quarter: quarter,
-          statusOfPlannedCM: "Planned",
-          assignUserForCM,
-        });
-
-        if (frequencyValue === "1/6 M") {
-          modifiedPlannedDateAndTimeOfCM = moment(
-            modifiedPlannedDateAndTimeOfCM
-          ).add(6, "month");
-        }
-      }
+      if (frequencyType === "One-time") break;
     }
-
-    if (yearlyDataObject?.quarterlyDataOfTheCM?.length > 0) {
-      plannedData?.push(yearlyDataObject);
-    }
-
-    if (frequencyType === "One-time") break;
   }
 
   return plannedData;
@@ -541,10 +565,12 @@ router.post(
       });
 
     const commonDataFilledByAssignUser = quarterlyDataAdd(
-      requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM,
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
         ?.frequencyValue,
-      assignUserForCM
+      assignUserForCM,
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+        ?.frequencyType,
+      requestSheetDataFilledByMTDUserForCM?.targetDateOfCM
     );
 
     requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
@@ -603,7 +629,7 @@ router.patch(
       const allKeys = {
         ...req.allKeys,
         attachedFileByAssignedUser: `${req?.commonKey}.attachedFileByAssignedUser`,
-        plannedDateAndTimeOfCM: `${req?.commonKey}.plannedDateAndTimeOfCM`,
+        targetDateOfCM: `${req?.commonKey}.targetDateOfCM`,
         getDataForApprovalDashboard: `${req?.commonKey}.getDataForApprovalDashboard`,
         workDetails: `${req?.commonKey}.workDetails`,
         totalTimeBasedOnWork: `${req?.commonKey}.totalTimeBasedOnWork`,
@@ -666,13 +692,13 @@ router.patch(
 
       if (
         requestSheetDataFilledByMTDUserForCM
-          ?.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM
+          ?.current_commonDataFilledByAssignUser?.targetDateOfCM
       ) {
         updateObj.$set = {
           ...updateObj.$set,
-          [allKeys?.plannedDateAndTimeOfCM]: generalDateFormat(
+          [allKeys?.targetDateOfCM]: generalDateFormat(
             requestSheetDataFilledByMTDUserForCM
-              ?.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM
+              ?.current_commonDataFilledByAssignUser?.targetDateOfCM
           ),
         };
       }
@@ -878,7 +904,7 @@ router.patch(
             },
             {
               "quarterFilter.requestSheet_quarter": getFinancialQuarter(
-                requestSheetDataFilledByMTDUserForCM?.plannedDateAndTimeOfCM
+                requestSheetDataFilledByMTDUserForCM?.targetDateOfCM
               ),
             },
             ...otherArrayFilters,
@@ -903,7 +929,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     aggregationPipeline: [
       {
         $match: {
-          "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM": {
+          "current_commonDataFilledByAssignUser.targetDateOfCM": {
             $ne: undefined,
           },
         },
@@ -1199,7 +1225,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
                         $lte: [
                           {
                             $dateFromString: {
-                              dateString: "$$quarterObj.plannedDateAndTimeOfCM",
+                              dateString: "$$quarterObj.targetDateOfCM",
                               timezone,
                             },
                           },
@@ -1245,6 +1271,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "cmBasicDataFilledByMTD_TL.problemBackgroundOfCM": 1,
         "cmBasicDataFilledByMTD_TL.frequencyType": 1,
         "cmBasicDataFilledByMTD_TL.frequencyValue": 1,
+        "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM": 1,
         "cmBasicDataFilledByMTD_TL.other_categories": categoryCheck(
           "Others",
           "$cmBasicDataFilledByMTD_TL.other_categories"
@@ -1266,7 +1293,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
 
         "upto_currentYear_current_commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.requestSheet_quarter": 1,
-        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.plannedDateAndTimeOfCM": 1,
+        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.targetDateOfCM": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.changedParts": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.workDetails": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.totalTimeBasedOnWork": 1,
@@ -1430,7 +1457,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
             date: {
               $dateFromString: {
                 dateString:
-                  "$current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
+                  "$current_commonDataFilledByAssignUser.targetDateOfCM",
               },
             },
             timezone: timezone,
@@ -1439,9 +1466,9 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         requestSheetNoOfCM: 1,
         "cmBasicDataFilledByMTD_TL.categories": 1,
         "cmBasicDataFilledByMTD_TL.activityOfCM": 1,
-        "cmBasicDataFilledByMTD_TL.targetDateOfCM": 1,
+        "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM": 1,
         "current_commonDataFilledByAssignUser.requestSheetStatusOfCM": 1,
-        "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM": 1,
+        "current_commonDataFilledByAssignUser.targetDateOfCM": 1,
 
         ...otherPipelines?.project,
       },
@@ -1831,7 +1858,7 @@ router.get(
 
       let commonProjection = {
         $getField: {
-          field: "plannedDateAndTimeOfCM",
+          field: "targetDateOfCM",
           input: {
             $arrayElemAt: [
               {

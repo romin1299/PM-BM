@@ -112,7 +112,13 @@ const AllRequestSheetReportDataOfCM = () => {
     },
     {
       title: "Planned Date",
-      field: "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
+      field: "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
+      type: "date",
+      editable: false,
+    },
+    {
+      title: "Target Date",
+      field: "current_commonDataFilledByAssignUser.targetDateOfCM",
       type: "date",
       editable: false,
     },

@@ -539,7 +539,7 @@ const WorkDetails = ({
               <b>Total time Difference</b>
             </Col>
             <Col lg={2} className="border">
-              <b>{workTotalTime} Hr</b>
+              <b>{workTotalTime.toFixed(2)} Hr</b>
             </Col>
           </Row>
         )
