@@ -60,6 +60,10 @@ const CM_Routes = ({ commonRoutes }) => {
           path: "/cm/approvalLogs",
           element: <ApprovalLogs />,
         },
+        {
+          path: "/cm/dashboard/ltpm",
+          element: <DashboardOfLTPM />,
+        },
       ],
     },
     {

@@ -174,6 +174,14 @@ const ApprovalLogs = () => {
       width: "20%",
     },
     {
+      title: "MTD HOSS",
+      render: (text, record) =>
+        renderApprovalUser(
+          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_HOSS
+        ),
+      width: "20%",
+    },
+    {
       title: "MTD HOS",
       render: (text, record) =>
         renderApprovalUser(

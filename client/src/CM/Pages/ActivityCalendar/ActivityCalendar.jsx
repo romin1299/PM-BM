@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
@@ -20,6 +20,11 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 import axios from "axios";
 import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 import moment from "moment";
+import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
+import {
+  reducer,
+  initialState,
+} from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 
 const locales = {
   "en-US": enUS,
@@ -277,6 +282,13 @@ const ActivityCalendar = () => {
   const [selectedMonth, setSelectedMonth] = useState();
   const [selectedDate, setSelectedDate] = useState();
   const [selectedYear, setSelectedYear] = useState();
+
+  const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+  const [reduceState, reducerDispatch] = useReducer(
+    reducer,
+    initialState("Yes")
+  );
+
   const CustomToolbar = (toolbarProps) => {
     const { view } = toolbarProps;
     useEffect(() => {
@@ -300,7 +312,7 @@ const ActivityCalendar = () => {
   const getReqSheetDataForCalendar = async () => {
     try {
       const response = await axios.get(
-        `/getReqSheetDataForCalendar/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
+        `/getReqSheetDataForCalendar/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
         {
           withCredentials: true,
           credentials: "include",
@@ -320,8 +332,9 @@ const ActivityCalendar = () => {
     }
   };
   useEffect(() => {
-    if (selectedDate) getReqSheetDataForCalendar();
-  }, [selectedDate]);
+    if (selectedDate && reduceState?.selectedValue)
+      getReqSheetDataForCalendar();
+  }, [selectedDate, reduceState?.selectedValue]);
 
   const CustomEvent = ({ event }) => {
     const startDate = format(new Date(event.start), "MMMM d, yyyy h:mm a");
@@ -411,6 +424,22 @@ const ActivityCalendar = () => {
   return (
     <div className="p-3 ">
       {/* <Container> */}
+
+      <ChartsToolbar
+        baseUrlForFiltering={baseUrlForFiltering}
+        reduceState={reduceState}
+        reducerDispatch={reducerDispatch}
+        // monthFiltration
+        // yearFiltration
+        sectionFiltration
+        subSectionFiltration
+        cellFiltration
+        lineFiltration
+        resetButtonFiltration
+        machineFiltration
+        isWithLocalStorageForFiltration="Yes"
+      />
+
       <Calendar
         localizer={localizer}
         events={allEvents}
