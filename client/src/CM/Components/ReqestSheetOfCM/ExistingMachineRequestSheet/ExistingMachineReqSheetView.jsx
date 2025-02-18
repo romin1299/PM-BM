@@ -132,8 +132,8 @@ const ExistingMachineReqSheetView = ({
         }
       }
 
-      otherFields.plannedDateAndTimeOfCM = watch(
-        "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM"
+      otherFields.targetDateOfCM = watch(
+        "current_commonDataFilledByAssignUser.targetDateOfCM"
       );
 
       otherFields.approvalObj_MTD_HOS =
@@ -286,7 +286,7 @@ const ExistingMachineReqSheetView = ({
                                     type="datetime-local"
                                     disabled={!isEditable}
                                     {...register(
-                                      "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
+                                      "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
                                       {
                                         required:
                                           "RequestSheet date is required",
@@ -689,23 +689,23 @@ const ExistingMachineReqSheetView = ({
                             id="targetDateOfCM"
                             type="datetime-local"
                             className="m-1 mb-2"
-                            name="cmBasicDataFilledByMTD_TL.targetDateOfCM"
+                            name="current_commonDataFilledByAssignUser.targetDateOfCM"
                             disabled={!isEditable}
                             style={{
                               fontSize: "15px",
                             }}
                             {...register(
-                              "cmBasicDataFilledByMTD_TL.targetDateOfCM",
+                              "current_commonDataFilledByAssignUser.targetDateOfCM",
                               {
                                 required: "Please select target date",
                               }
                             )}
                           />
                         </div>
-                        {errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM && (
+                        {errors?.current_commonDataFilledByAssignUser?.targetDateOfCM && (
                           <p className="text-error">
                             {
-                              errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM
+                              errors?.current_commonDataFilledByAssignUser?.targetDateOfCM
                                 ?.message
                             }
                           </p>
@@ -961,7 +961,7 @@ const TableMappingComponent = ({
                 //   quarter?.requestSheet_quarter
               }
               requestSheet_quarter={quarter?.requestSheet_quarter}
-              plannedDateAndTimeOfCM={quarter?.plannedDateAndTimeOfCM}
+              targetDateOfCM={quarter?.targetDateOfCM}
               partsData={quarter?.changedParts}
               workData={quarter?.workDetails}
               actionData={quarter?.actionAndCounterMeasureStep}

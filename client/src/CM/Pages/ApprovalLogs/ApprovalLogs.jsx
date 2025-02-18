@@ -128,19 +128,19 @@ const ApprovalLogs = () => {
       // dataIndex: "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
       render: (text, record) => (
         <span>
-          {record?.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM}
+          {record?.current_commonDataFilledByAssignUser?.targetDateOfCM}
         </span>
       ),
       sorter: (a, b) => {
         let comparison = 0;
         if (
-          a.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM <
-          b.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM
+          a.current_commonDataFilledByAssignUser?.targetDateOfCM <
+          b.current_commonDataFilledByAssignUser?.targetDateOfCM
         ) {
           comparison = 1;
         } else if (
-          a.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM >
-          b.current_commonDataFilledByAssignUser?.plannedDateAndTimeOfCM
+          a.current_commonDataFilledByAssignUser?.targetDateOfCM >
+          b.current_commonDataFilledByAssignUser?.targetDateOfCM
         ) {
           comparison = -1;
         }

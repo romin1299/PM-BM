@@ -28,7 +28,7 @@ const UserApprovalSelectFields = ({
   return (
     <>
       <div className="p-2 ">
-        Approval flow : MTD TL -&gt; MTD HOSS -&gt; MTD HOS -&gt; PRD TL
+        <b>Approval flow:</b> MTD TL -&gt; MTD HOSS -&gt; MTD HOS -&gt; PRD TL
       </div>
       <Row className="m-0 d-flex border align-items-start p-2">
         <Col lg={6} style={{ paddingRight: "0px" }}>

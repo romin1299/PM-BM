@@ -137,14 +137,14 @@ const ActivityStatusDashboardOfCM = () => {
       editable: false,
     },
     {
-      title: "Target Date",
-      field: "cmBasicDataFilledByMTD_TL.targetDateOfCM",
+      title: "Planned Date",
+      field: "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
       type: "date",
       editable: false,
     },
     {
-      title: "Planned Date",
-      field: "current_commonDataFilledByAssignUser.plannedDateAndTimeOfCM",
+      title: "Target Date",
+      field: "current_commonDataFilledByAssignUser.targetDateOfCM",
       type: "date",
       editable: false,
     },
