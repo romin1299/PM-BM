@@ -151,7 +151,8 @@ const AllRequestSheetReportDataOfCM = () => {
       disabled: !row?.isEditableRS,
       onClick: (event, selectedRow) => {
         setSelectedCMRequestSheetPopupData({
-          isEditable: true,
+          isEditable: row?.isEditableRS && row?.assignUserForCM?.length > 0,
+          assignUserCondition: row?.assignUserForCM?.length <= 0,
           cmReqSheetView: true,
           selectedRowRequestSheetId: selectedRow?._id,
         });

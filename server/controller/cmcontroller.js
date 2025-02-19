@@ -629,6 +629,7 @@ router.patch(
       const allKeys = {
         ...req.allKeys,
         attachedFileByAssignedUser: `${req?.commonKey}.attachedFileByAssignedUser`,
+        assignUserForCM: `${req?.commonKey}.assignUserForCM`,
         targetDateOfCM: `${req?.commonKey}.targetDateOfCM`,
         getDataForApprovalDashboard: `${req?.commonKey}.getDataForApprovalDashboard`,
         workDetails: `${req?.commonKey}.workDetails`,
@@ -700,6 +701,26 @@ router.patch(
             requestSheetDataFilledByMTDUserForCM
               ?.current_commonDataFilledByAssignUser?.targetDateOfCM
           ),
+        };
+      }
+
+      if (
+        requestSheetDataFilledByMTDUserForCM
+          ?.current_commonDataFilledByAssignUser?.assignUserForCM
+      ) {
+        updateObj.$set = {
+          ...updateObj.$set,
+          [allKeys?.assignUserForCM]:
+            requestSheetDataFilledByMTDUserForCM?.current_commonDataFilledByAssignUser?.assignUserForCM?.map(
+              (item) => {
+                let userRef = item?._id;
+                delete item["_id"];
+                return {
+                  ...item,
+                  userRef,
+                };
+              }
+            ),
         };
       }
 
@@ -786,34 +807,6 @@ router.patch(
         );
       }
 
-      // if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL) {
-      // updateObj.$set = {
-      //   ...updateObj.$set,
-      //   [allKeys?.isPermissionOfMTDTL]:
-      //     requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL,
-      // };
-
-      //   if (
-      //     requestSheetDataFilledByMTDUserForCM?.isPermissionOfMTDTL === "Yes"
-      //   ) {
-
-      //   } else {
-      //     updateObj.$set = {
-      //       ...updateObj.$set,
-      //       [allKeys?.getDataForApprovalDashboard]: {
-      //         Id: requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS
-      //           ?.approvalOfMTD_HOS?.userRef,
-      //         departmentAndGradeOfUser: "MTD HOS",
-      //       },
-      //     };
-
-      //     pullUser(
-      //       "MTD_TL",
-      //       requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
-      //     );
-      //   }
-      // }
-
       if (requestSheetDataFilledByMTDUserForCM?.isPermissionOfPRDTL) {
         updateObj.$set = {
           ...updateObj.$set,
@@ -888,7 +881,6 @@ router.patch(
             requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
         };
       }
-
       const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
         {
           _id: mongoose.Types.ObjectId(req.params?.reqId),
@@ -940,29 +932,37 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
   let lastQuarterOrSelectedQuarter = {
     $arrayElemAt: [
       {
-        $getField: {
-          field: "quarterlyDataOfTheCM",
+        $filter: {
           input: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: "$commonDataFilledByAssignUser",
-                  as: "yearWiseData",
-                  cond: {
-                    $eq: [
-                      "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                      "2025-2026",
-                      // req?.query?.selectedYear,
-                    ],
+            $getField: {
+              field: "quarterlyDataOfTheCM",
+              input: {
+                $arrayElemAt: [
+                  {
+                    $filter: {
+                      input: "$commonDataFilledByAssignUser",
+                      as: "yearWiseData",
+                      cond: {
+                        $eq: [
+                          "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                          req?.query?.selectedYear,
+                        ],
+                      },
+                    },
                   },
-                },
+                  0,
+                ],
               },
-              0,
-            ],
+            },
+          },
+          as: "quarterObj",
+          cond: {
+            // need to add more status when RS status is Skipped or other-status
+            $ne: ["$$quarterObj.requestSheetStatusOfCM", "Completed"],
           },
         },
       },
-      -1,
+      0,
     ],
   };
 
@@ -1321,7 +1321,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
             ],
           },
           "$current_commonDataFilledByAssignUser.assignUserForCM",
-          "",
+          [],
         ],
       },
       isEditableRS,

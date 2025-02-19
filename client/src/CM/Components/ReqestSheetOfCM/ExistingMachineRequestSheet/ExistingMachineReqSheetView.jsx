@@ -15,7 +15,7 @@ import SendForApprovalRadioButtons from "../RSComponents/SendForApprovalRadioBut
 import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
 import UserApprovalSelectFields from "../RSComponents/UserApprovalSelectFields/UserApprovalSelectFields";
 import ApproveOrRejectComponent from "../RSComponents/ApproveOrRejectComponent";
-// import SupportingTMInputField from "../RSComponents/SupportingTMInputField";
+import SupportingTMInputField from "../RSComponents/SupportingTMInputField";
 
 const ExistingMachineReqSheetView = ({
   handlePopupStatus,
@@ -23,8 +23,8 @@ const ExistingMachineReqSheetView = ({
   selectedRowRequestSheetId,
   quarterOfSelectedRq,
   selectedMonth,
-  // isEditable = false,
   isEditable = false,
+  assignUserCondition = false,
   cmReqSheetView,
 }) => {
   const {
@@ -33,7 +33,8 @@ const ExistingMachineReqSheetView = ({
 
     handleSubmit,
     formState: { errors, dirtyFields },
-
+    control,
+    trigger,
     clearErrors,
     setValue,
     setError,
@@ -431,7 +432,9 @@ const ExistingMachineReqSheetView = ({
                               {...register(
                                 "cmBasicDataFilledByMTD_TL.frequencyType",
                                 {
-                                  required: "Please select frequency type",
+                                  required: isEditable
+                                    ? "Please select frequency type"
+                                    : false,
                                 }
                               )}
                             />
@@ -456,8 +459,9 @@ const ExistingMachineReqSheetView = ({
                                               {...register(
                                                 "cmBasicDataFilledByMTD_TL.frequencyValue",
                                                 {
-                                                  required:
-                                                    "Please select frequency type",
+                                                  required: isEditable
+                                                    ? "Please select frequency type"
+                                                    : false,
                                                 }
                                               )}
                                             />
@@ -516,7 +520,10 @@ const ExistingMachineReqSheetView = ({
                                 {...register(
                                   "cmBasicDataFilledByMTD_TL.categories",
                                   {
-                                    required: "Category is required",
+                                    // required: "Category is required",
+                                    required: isEditable
+                                      ? "Category is required"
+                                      : false,
                                   }
                                 )}
                               />
@@ -714,11 +721,12 @@ const ExistingMachineReqSheetView = ({
                             )}
                           />
                         </div>
-                        {errors?.current_commonDataFilledByAssignUser?.targetDateOfCM && (
+                        {errors?.current_commonDataFilledByAssignUser
+                          ?.targetDateOfCM && (
                           <p className="text-error">
                             {
-                              errors?.current_commonDataFilledByAssignUser?.targetDateOfCM
-                                ?.message
+                              errors?.current_commonDataFilledByAssignUser
+                                ?.targetDateOfCM?.message
                             }
                           </p>
                         )}
@@ -794,13 +802,14 @@ const ExistingMachineReqSheetView = ({
                         </small>
                         {watch(
                           "current_commonDataFilledByAssignUser.assignUserForCM"
-                        )
-                          ?.map((item) => {
-                            return `${item.tm_name}`;
-                          })
-                          .join(", ")}
-                        {/* {isEditable === false ? (
-                          
+                        )?.length > 0 && !assignUserCondition ? (
+                          watch(
+                            "current_commonDataFilledByAssignUser.assignUserForCM"
+                          )
+                            ?.map((item) => {
+                              return `${item.tm_name}`;
+                            })
+                            .join(", ")
                         ) : (
                           <SupportingTMInputField
                             control={control}
@@ -810,7 +819,7 @@ const ExistingMachineReqSheetView = ({
                             watch={watch}
                             selectedYear={selectedYear}
                           />
-                        )} */}
+                        )}
                       </Col>
                       <Col className="border p-2"></Col>
                       {watch("priorityCode") === "KAIZEN" && (
@@ -881,7 +890,7 @@ const ExistingMachineReqSheetView = ({
             ) &&
               isEditable && <SendForApprovalRadioButtons register={register} />}
 
-            {isEditable && (
+            {(isEditable || assignUserCondition) && (
               <Row className="m-0 border p-2 d-flex justify-content-between">
                 <Col lg={6} md={6} sm={12}>
                   <button
