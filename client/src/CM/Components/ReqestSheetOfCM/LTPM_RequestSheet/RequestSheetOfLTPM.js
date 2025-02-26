@@ -344,7 +344,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                             &nbsp;
                             <button
                               className="btn-pagination"
-                              onClick={() => getDataOfLTPM(0)}
+                              onClick={() => getDataOfLTPM()}
                             >
                               Reset
                             </button>

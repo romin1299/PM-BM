@@ -71,12 +71,11 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
 
 cron.schedule("0 0 1 * *", async () => {
   try {
-    const valueOfTheFunction =
-      await commonDataAdditionForOncePerMonthAndThree("1/1 M");
-    console.log("---", valueOfTheFunction)
+    const valueOfTheFunction = await commonDataAdditionForOncePerMonthAndThree(
+      "1/1 M"
+    );
     if (valueOfTheFunction?.length) {
       const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
-      console.log(`Updated ${result.modifiedCount} request sheets.`);
     }
   } catch (error) {
     console.log(error);
@@ -84,15 +83,34 @@ cron.schedule("0 0 1 * *", async () => {
   }
 });
 
-cron.schedule("* * * */3 *", async () => {
-  try {
-    const valueOfTheFunction =
-      await commonDataAdditionForOncePerMonthAndThree("1/3 M");
+// cron.schedule("* * * */3 *", async () => {
+//   try {
+//     const valueOfTheFunction = await commonDataAdditionForOncePerMonthAndThree(
+//       "1/3 M"
+//     );
+//     if (valueOfTheFunction?.length) {
+//       const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     logger.error(error, { maintenanceType: maintenanceType?.[0] });
+//   }
+// });
 
-    if (valueOfTheFunction?.length) {
-      const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
-      console.log(`Updated ${result.modifiedCount} request sheets 3.`);
-    }
+cron.schedule("0 0 1 4 *", async () => {
+  try {
+    const requestSheets = await RequestSheetOfCM.find(
+      {
+        // _id: mongoose.Types.ObjectId("67b2e18e0ed27a39afcdf206"),
+        "cmBasicDataFilledByMTD_TL.frequencyValue": {
+          $in: ["1/6 M", "1/Y", "1/2 Y", "1/3 Y", "1/4 Y"],
+        },
+      },
+      {
+        _id: 1,
+        "commonDataFilledByAssignUser.quarterlyDataOfTheCM.targetDateOfCM": 1,
+      }
+    );
   } catch (error) {
     console.log(error);
     logger.error(error, { maintenanceType: maintenanceType?.[0] });

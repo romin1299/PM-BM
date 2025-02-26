@@ -6182,3 +6182,23 @@
     at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
     at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:33:5)
     at processTicksAndRejections (internal/process/task_queues.js:95:5)
+2025-02-18T14:38 | CM | Cannot access 'startYearOfLTPM' before initialization
+		ReferenceError: Cannot access 'startYearOfLTPM' before initialization
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:1960:17
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:33:5)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+2025-02-18T17:12 | CM | Found non-callable @@iterator
+		TypeError: Found non-callable @@iterator
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:996:13
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:1514:12
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\filterMiddleware.js:91:5
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5

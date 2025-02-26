@@ -433,6 +433,7 @@ const quarterlyDataAdd = (
               i >= currentQuarterIndex &&
               currentQuarterIndex !== 0
             ) {
+              isPlanned = true;
               modifiedPlannedDateAndTimeOfCM = targetDateOfCM;
             }
             // isPlanned =
@@ -444,10 +445,13 @@ const quarterlyDataAdd = (
             isPlanned = alternatingQuarters.includes(i);
           }
         }
-
+        let assignUserOnlyForFirstQuarterWhileGenerate = {};
         // Ensure that the starting quarter is planned for the current year
         if (year === currentYear && i === plannedQuarterIndex) {
           isPlanned = true;
+          assignUserOnlyForFirstQuarterWhileGenerate = {
+            assignUserForCM: assignUserForCM,
+          };
         }
 
         if (isPlanned) {
@@ -473,7 +477,7 @@ const quarterlyDataAdd = (
             targetDateOfCM: generalDateFormat(modifiedPlannedDateAndTimeOfCM),
             requestSheet_quarter: quarter,
             statusOfPlannedCM: "Planned",
-            assignUserForCM,
+            ...assignUserOnlyForFirstQuarterWhileGenerate,
           });
 
           if (frequencyValue === "1/6 M") {
@@ -965,10 +969,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     ],
   };
 
-  if (
-    req.query?.selectedQuarter &&
-    req?.query?.selectedQuarter !== "undefined"
-  ) {
+  if (req.query?.selectedQuarter) {
     let middlewareForGetQuarterWiseOrUptoCurrentDate = {
       $eq: [
         "$$quarterWiseData.requestSheet_quarter",
@@ -2021,6 +2022,11 @@ router.get(
           localField: "_id.plantToMachineHierarchyRef",
           foreignField: "_id",
           as: "machines",
+        },
+      },
+      {
+        $sort: {
+          "_id._id": -1,
         },
       },
       {

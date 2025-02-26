@@ -67,6 +67,7 @@ const AllRequestSheetReportDataOfCM = () => {
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
     selectedCMRequestSheetPopupData?.cmReqSheetView,
+    reduceState?.selectedQuarter,
   ]);
   const cmApprovalHeaders = [
     {
@@ -444,6 +445,7 @@ const AllRequestSheetReportDataOfCM = () => {
                 handlePopupStatus={handlePopupStatus}
                 selectedYear={reduceState?.selectedYear}
                 {...selectedCMRequestSheetPopupData}
+                quarterOfSelectedRq={reduceState?.selectedQuarter}
               />
             )}
           </div>

@@ -334,7 +334,7 @@ const ActivityCalendar = () => {
   useEffect(() => {
     if (selectedDate && reduceState?.selectedValue)
       getReqSheetDataForCalendar();
-  }, [selectedDate, reduceState?.selectedValue]);
+  }, [selectedDate, reduceState?.selectedValue, selectedMonth]);
 
   const CustomEvent = ({ event }) => {
     const startDate = format(new Date(event.start), "MMMM d, yyyy h:mm a");
@@ -470,6 +470,7 @@ const ActivityCalendar = () => {
               : `${selectedYear}-${selectedYear * 1 + 1}`
           }
           {...selectedCMRequestSheetPopupData}
+          selectedMonth={selectedMonth}
         />
       )}
     </div>

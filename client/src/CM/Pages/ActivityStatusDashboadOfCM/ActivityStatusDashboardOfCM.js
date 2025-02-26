@@ -437,6 +437,7 @@ const ActivityStatusDashboardOfCM = () => {
           handlePopupStatus={handlePopupStatus}
           selectedYear={reduceState?.selectedYear}
           {...selectedCMRequestSheetPopupData}
+          quarterOfSelectedRq={reduceState?.selectedQuarter}
         />
       )}
     </>
