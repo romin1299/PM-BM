@@ -1,0 +1,14 @@
+[{
+  "_id": {
+    "$oid": "63215b066cb9f4600bf0b526"
+  },
+  "tm_no": 12345,
+  "user_type": "Admin",
+  "tm_name": "Denso Admin1",
+  "email": "densoadmin1@gmail.com",
+  "password": "$2a$12$AzIjYPBD6mAgxnUPXkOYi.goO7bX/oj9CRXYOWAf28iL7BmW2hide",
+  "__v": 97,
+  "cell_data": [],
+  "subSection_data": [],
+  "isAuthorizedUserForUpdatingRequestSheetInAnyStatus": "No"
+}]
