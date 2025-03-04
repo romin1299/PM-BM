@@ -1026,7 +1026,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
           // problemOccurredDateAndTimeOfBM:
           problemOccurredDateAndTimeOfBM: {
-            $dateToString: { 
+            $dateToString: {
               format: "%d-%m-%Y T%H:%M",
               date: "$problemOccurredDateAndTimeOfBM",
               timezone: "Asia/Kolkata",
@@ -1047,8 +1047,10 @@ const findRequestSheetMiddleware = async (req, res, next) => {
               { $arrayElemAt: ["$namesPRD.tm_name", 0] },
             ],
           },
-          approvalStatusOfMTD_TL: {$arrayElemAt: ["$approvalStatusOfMTD_TL", -1]},
-          getDataForApprovalDashboard: 1
+          approvalStatusOfMTD_TL: {
+            $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+          },
+          getDataForApprovalDashboard: 1,
         },
       },
     ]);
@@ -10256,7 +10258,7 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 },
                 "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                   req.query.selectedYear,
-                  maintenanceType: "BM",
+                maintenanceType: "BM",
               },
             },
 
@@ -11145,9 +11147,7 @@ router.get(
 
       if (req.params.selectedId) {
         const sections = await Section.find({
-          plant_names: mongoose.Types.ObjectId(
-            req.queryObj.plantRef
-          ),
+          plant_names: mongoose.Types.ObjectId(req.queryObj.plantRef),
         });
         // console.log(sections);
 

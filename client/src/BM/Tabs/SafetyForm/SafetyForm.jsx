@@ -2,33 +2,29 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControl,
   FormControlLabel,
   FormGroup,
   FormHelperText,
   Grid,
-  Radio,
-  RadioGroup,
   TextField,
 } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { BiPlusMedical } from "react-icons/bi";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { Form, Modal } from "react-bootstrap";
-import RoutingContext from "../../../context/routing/RoutingContext";
 
 const SafetyForm = ({
   id,
   lineName,
   machineNo,
+  machineName,
   setSafetyFormModalOpen,
   safetyFormModalOpen,
   machineSafetyCheckedByMTD,
 }) => {
   const [safetyForm, setSafetyForm] = useState(null);
-  const loggedUserDetails = useContext(RoutingContext);
 
   const {
     handleSubmit,
@@ -36,105 +32,12 @@ const SafetyForm = ({
     watch,
     reset,
     register,
-    setValue,
     formState: { errors },
   } = useForm({
-    // defaultValues: {
-    //   //   workName: "",
-    //   generalMaintainanceWork: {
-    //     IsAccepted:
-    //       safetyForm?.generalMaintainanceWork?.IsAccepted === "true"
-    //         ? "true"
-    //         : "false",
-    //     protectiveEquipment: false,
-    //     postNecessaryWarnigs: false,
-    //     powerAndAirOff: false,
-    //   },
-    //   workInsideMachine: {
-    //     IsAccepted:
-    //       safetyForm?.workInsideMachine?.IsAccepted === "true"
-    //         ? "true"
-    //         : "false",
-    //     protectiveEquipment: false,
-    //     hadMeeting: false,
-    //   },
-    //   highPressure: {
-    //     IsAccepted:
-    //       safetyForm?.highPressure?.IsAccepted === "true" ? "true" : "false",
-    //     notOpenPressureLine: false,
-    //     proper3SWork: false,
-    //     isTrainedStaffAvailable: false,
-    //   },
-    //   workHandlingHeavyObj: {
-    //     IsAccepted:
-    //       safetyForm?.workHandlingHeavyObj?.IsAccepted === "true"
-    //         ? "true"
-    //         : "false",
-    //     visuallyGuessWeight: false,
-    //     prohibitSlingOpWithSingleWire: false,
-    //     wearPersonalProtectiveEquipment: false,
-    //     secureFootingAndHandPosition: false,
-    //   },
-    //   workAtHeight: {
-    //     IsAccepted:
-    //       safetyForm?.workAtHeight?.IsAccepted === "true" ? "true" : "false",
-    //     postASignOfHighPlace: false,
-    //     postASignToUseFire: false,
-    //     secureFootingAndSafetyBelt: false,
-    //   },
-    //   workHandlingFire: {
-    //     IsAccepted:
-    //       safetyForm?.workHandlingFire?.IsAccepted === "true"
-    //         ? "true"
-    //         : "false",
-    //     takeFirePrevention: false,
-    //     measureOxygen: false,
-    //     isAssociatesQualified: false,
-    //   },
-    //   involvingHandlingOfFlammableLiquid: {
-    //     IsAccepted:
-    //       safetyForm?.involvingHandlingOfFlammableLiquid?.IsAccepted === "true"
-    //         ? "true"
-    //         : "false",
-    //     takeFirePrevention: false,
-    //     measureOxygen: false,
-    //     isAssociatesQualified: false,
-    //   },
-    //   workInvolvingRiskOfOxygen: {
-    //     IsAccepted:
-    //       safetyForm?.workInvolvingRiskOfOxygen?.IsAccepted === "true"
-    //         ? "true"
-    //         : "false",
-    //     holdAnObserverAndWearProtectiveEquipment: false,
-    //     isAssociatesQualified: false,
-    //   },
-    //   workUsingHighVoltage: {
-    //     IsAccepted:
-    //       safetyForm?.workUsingHighVoltage?.IsAccepted === "true"
-    //         ? "true"
-    //         : "false",
-    //     isAssociatesQualified: false,
-    //   },
-    //   keyRisks: "",
-    //   preventiveMeasures: "",
-    // },
+    values: {
+      processName: machineName,
+    },
   });
-
-  const workInsideMachineValue = watch("workInsideMachine.IsAccepted");
-  const highPressureValue = watch("highPressure.IsAccepted");
-  const workHandlingHeavyObjValue = watch("workHandlingHeavyObj.IsAccepted");
-  const workAtHeightValue = watch("workAtHeight.IsAccepted");
-  const workHandlingFireValue = watch("workHandlingFire.IsAccepted");
-  const involvingHandlingOfFlammableLiquidValue = watch(
-    "involvingHandlingOfFlammableLiquid.IsAccepted"
-  );
-  const workInvolvingRiskOfOxygenValue = watch(
-    "workInvolvingRiskOfOxygen.IsAccepted"
-  );
-  const workUsingHighVoltageValue = watch("workUsingHighVoltage.IsAccepted");
-  const generalMaintainanceWorkValue = watch(
-    "generalMaintainanceWork.IsAccepted"
-  );
 
   const getSafetyForm = async () => {
     try {
@@ -159,7 +62,6 @@ const SafetyForm = ({
           "Content-type": "application/json",
         },
       };
-      console.log(data);
       const response = await axios.post(`/addSafetyForm/${id}`, data, config);
       toast.success(response.data.message);
       setSafetyFormModalOpen(false);
@@ -258,40 +160,11 @@ const SafetyForm = ({
                   </>
                 )}
               </Box>
-              <Box
-                className="d-flex border p-1 border-top-0 align-items-center"
-                fontWeight={600}
-              >
+              <Box className="d-flex border p-1 border-top-0 align-items-center">
                 <Grid sm={4} fontWeight={650}>
                   Process Name:
                 </Grid>
-                <Grid sm={4}>
-                  <TextField
-                    size="small"
-                    disabled={safetyForm}
-                    placeholder="Enter Process Name"
-                    {...register("processName", {
-                      required: "Process Name is required",
-                    })}
-                    error={!!errors.processName}
-                    helperText={errors.processName?.message}
-                  />
-                </Grid>
-                {/* <Grid sm={4} fontWeight={650}>
-                  Asset Admin No:
-                </Grid>
-                <Grid sm={4}>
-                  <TextField
-                    size="small"
-                    disabled={safetyForm}
-                    placeholder="Enter Asset Admin No"
-                    {...register("assetAdminNo", {
-                      required: "Asset Admin No is required",
-                    })}
-                    error={!!errors.assetAdminNo}
-                    helperText={errors.assetAdminNo?.message}
-                  />
-                </Grid> */}
+                <Grid sm={4}>{watch("processName")}</Grid>
               </Box>
               <Box
                 className="d-flex border p-1 border-top-0 align-items-center"
@@ -345,7 +218,7 @@ const SafetyForm = ({
                   )}
                 </Grid>
               </Box>
-              {generalMaintainanceWorkValue === "true" && (
+              {watch("generalMaintainanceWork.IsAccepted") === "true" && (
                 <FormGroup>
                   <Controller
                     name="generalMaintainanceWork.protectiveEquipment"
@@ -462,7 +335,7 @@ const SafetyForm = ({
                     )}
                   </Grid>
                 </Box>
-                {workInsideMachineValue === "true" && (
+                {watch("workInsideMachine.IsAccepted") === "true" && (
                   <FormGroup>
                     <Controller
                       name="workInsideMachine.protectiveEquipment"
@@ -552,7 +425,7 @@ const SafetyForm = ({
                     )}
                   </Grid>
                 </Box>
-                {highPressureValue === "true" && (
+                {watch("highPressure.IsAccepted") === "true" && (
                   <FormGroup>
                     <Controller
                       name="highPressure.notOpenPressureLine"
@@ -664,7 +537,7 @@ const SafetyForm = ({
                     )}
                   </Grid>
                 </Box>
-                {workHandlingHeavyObjValue === "true" && (
+                {watch("workHandlingHeavyObj.IsAccepted") === "true" && (
                   <FormGroup>
                     <Controller
                       name="workHandlingHeavyObj.visuallyGuessWeight"
@@ -788,7 +661,7 @@ const SafetyForm = ({
                     )}
                   </Grid>
                 </Box>
-                {workAtHeightValue === "true" && (
+                {watch("workAtHeight.IsAccepted") === "true" && (
                   <FormGroup>
                     <Controller
                       name="workAtHeight.wearPersonalProtectiveEquipment"
@@ -926,7 +799,7 @@ const SafetyForm = ({
                     )}
                   </Grid>
                 </Box>
-                {workHandlingFireValue === "true" && (
+                {watch("workHandlingFire.IsAccepted") === "true" && (
                   <FormGroup>
                     <Controller
                       name="workHandlingFire.postASignToUseFire"
@@ -1166,7 +1039,7 @@ const SafetyForm = ({
                     )}
                   </Grid>
                 </Box>
-                {workInvolvingRiskOfOxygenValue === "true" && (
+                {watch("workInvolvingRiskOfOxygen.IsAccepted") === "true" && (
                   <FormGroup>
                     <Controller
                       name="workInvolvingRiskOfOxygen.measureOxygen"
@@ -1347,7 +1220,18 @@ const SafetyForm = ({
                     disabled={safetyForm}
                     placeholder="Enter Key Risks"
                     {...register("keyRisks", {
-                      required: "Key Risks are required",
+                      required:
+                        watch("workInsideMachine.IsAccepted") === "true" ||
+                        watch("highPressure.IsAccepted") === "true" ||
+                        watch("workHandlingHeavyObj.IsAccepted") === "true" ||
+                        watch("workAtHeight.IsAccepted") === "true" ||
+                        watch("workAtHeight.isAssociatesQualified") ===
+                          "true" ||
+                        watch("workInvolvingRiskOfOxygen.IsAccepted") ===
+                          "true" ||
+                        watch("workUsingHighTemp.IsAccepted") === "true"
+                          ? "Key Risks are required"
+                          : false,
                     })}
                     error={!!errors.keyRisks}
                     helperText={errors.keyRisks?.message}
@@ -1379,7 +1263,6 @@ const SafetyForm = ({
               name="finalSafetyAcceptance"
               {...register("finalSafetyAcceptance", {
                 required: "Final Safety Acceptance is required",
-
               })}
               id="finalSafetyAcceptance"
               disabled={safetyForm}

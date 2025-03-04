@@ -1324,6 +1324,7 @@ const RequestSheetMainDashboard = () => {
           id={selectedRow?._id}
           lineName={selectedRow?.line}
           machineNo={selectedRow?.machineNo}
+          machineName={selectedRow?.machineName}
           setSafetyFormModalOpen={setSafetyFormModalOpen}
           safetyFormModalOpen={safetyFormModalOpen}
           machineSafetyCheckedByMTD={selectedRow?.machineSafetyCheckedByMTD}
