@@ -3804,7 +3804,6 @@ router.post(
                   !key1?.isAdded &&
                   !key1?.isEdited
                 ) {
-                  console.log("regular....");
                   updateOnesPerMonthStatusSkip(
                     key.machine_code,
                     key1.tableRowId,

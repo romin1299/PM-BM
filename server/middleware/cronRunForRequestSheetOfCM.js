@@ -11,12 +11,13 @@ const {
 const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
   const requestSheets = await RequestSheetOfCM.find(
     {
-      // _id: mongoose.Types.ObjectId("67b2e18e0ed27a39afcdf206"),
+      // _id: mongoose.Types.ObjectId("67b3264523290745c8eb14e6"),
       "cmBasicDataFilledByMTD_TL.frequencyValue":
-        frequencyValue === "1/1 M" ? "1/1 M" : "1/3 M",
+        typeof frequencyValue === "object" ? frequencyValue : "1/1 M",
     },
     {
       _id: 1,
+      "cmBasicDataFilledByMTD_TL.frequencyValue": 1,
       "commonDataFilledByAssignUser.quarterlyDataOfTheCM.targetDateOfCM": 1,
     }
   );
@@ -35,13 +36,60 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
         requestSheet?.commonDataFilledByAssignUser?.[
           requestSheet?.commonDataFilledByAssignUser?.length - 1
         ];
-      lastTargetDate = lastEntry.quarterlyDataOfTheCM?.[0]?.targetDateOfCM;
+      lastTargetDate =
+        lastEntry?.quarterlyDataOfTheCM?.[
+          lastEntry?.quarterlyDataOfTheCM?.length - 1
+        ]?.targetDateOfCM;
     }
+
+    let splitTheFrequencyForTheAddValue =
+      requestSheet?.cmBasicDataFilledByMTD_TL?.frequencyValue?.split(" ");
+
     const newTargetDate = lastTargetDate
       ? moment(lastTargetDate)
-          .add(frequencyValue === "1/1 M" ? 1 : 3, "month")
+          .add(
+            splitTheFrequencyForTheAddValue?.[0]?.split("/")[1] === "Y"
+              ? 1
+              : splitTheFrequencyForTheAddValue?.[0]?.split("/")[1],
+            splitTheFrequencyForTheAddValue?.[1] === "M" ? "months" : "years"
+          )
           .format("YYYY-MM-DDTHH:mm")
       : moment().format("YYYY-MM-DDTHH:mm");
+
+    let quarterlyDataEntries;
+
+    if (requestSheet?.cmBasicDataFilledByMTD_TL?.frequencyValue === "1/3 M") {
+      if (moment().diff(lastTargetDate, "months") === 3) {
+        quarterlyDataEntries = [
+          {
+            requestSheet_quarter: getFinancialQuarter(moment()),
+            statusOfPlannedCM: "Planned",
+            targetDateOfCM: newTargetDate,
+            requestSheetStatusOfCM: "Generated",
+          },
+        ];
+      }
+    } else {
+      quarterlyDataEntries = [
+        {
+          requestSheet_quarter: getFinancialQuarter(moment()),
+          statusOfPlannedCM: "Planned",
+          targetDateOfCM: newTargetDate,
+          requestSheetStatusOfCM: "Generated",
+        },
+      ];
+    }
+
+    if (requestSheet?.cmBasicDataFilledByMTD_TL?.frequencyValue === "1/6 M") {
+      quarterlyDataEntries?.push({
+        requestSheet_quarter: getFinancialQuarter(moment().add(6, "months")),
+        statusOfPlannedCM: "Planned",
+        targetDateOfCM: moment(newTargetDate)
+          .add(6, "months")
+          .format("YYYY-MM-DDTHH:mm"),
+        requestSheetStatusOfCM: "Generated",
+      });
+    }
 
     return {
       updateOne: {
@@ -53,12 +101,7 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
                 requestSheet_year: currentYear,
                 requestSheet_month: gettingMonthForSelectedDate(moment()),
               },
-              quarterlyDataOfTheCM: {
-                requestSheet_quarter: getFinancialQuarter(moment()),
-                statusOfPlannedCM: "Planned",
-                targetDateOfCM: newTargetDate,
-                requestSheetStatusOfCM: "Generated",
-              },
+              quarterlyDataOfTheCM: { $each: quarterlyDataEntries },
             },
           },
         },
@@ -69,19 +112,19 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
   return bulkOps;
 };
 
-cron.schedule("0 0 1 * *", async () => {
-  try {
-    const valueOfTheFunction = await commonDataAdditionForOncePerMonthAndThree(
-      "1/1 M"
-    );
-    if (valueOfTheFunction?.length) {
-      const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
-    }
-  } catch (error) {
-    console.log(error);
-    logger.error(error, { maintenanceType: maintenanceType?.[0] });
-  }
-});
+// cron.schedule("0 0 1 * *", async () => {
+//   try {
+//     const valueOfTheFunction = await commonDataAdditionForOncePerMonthAndThree(
+//       "1/1 M"
+//     );
+//     if (valueOfTheFunction?.length) {
+//       // const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     logger.error(error, { maintenanceType: maintenanceType?.[0] });
+//   }
+// });
 
 // cron.schedule("* * * */3 *", async () => {
 //   try {
@@ -97,22 +140,40 @@ cron.schedule("0 0 1 * *", async () => {
 //   }
 // });
 
-cron.schedule("0 0 1 4 *", async () => {
-  try {
-    const requestSheets = await RequestSheetOfCM.find(
-      {
-        // _id: mongoose.Types.ObjectId("67b2e18e0ed27a39afcdf206"),
-        "cmBasicDataFilledByMTD_TL.frequencyValue": {
-          $in: ["1/6 M", "1/Y", "1/2 Y", "1/3 Y", "1/4 Y"],
-        },
-      },
-      {
-        _id: 1,
-        "commonDataFilledByAssignUser.quarterlyDataOfTheCM.targetDateOfCM": 1,
-      }
-    );
-  } catch (error) {
-    console.log(error);
-    logger.error(error, { maintenanceType: maintenanceType?.[0] });
-  }
-});
+const valueOfTheFunction = commonDataAdditionForOncePerMonthAndThree([
+  "1/6 M",
+  "1/Y",
+  "1/2 Y",
+  "1/3 Y",
+  "1/4 Y",
+]);
+
+console.log(valueOfTheFunction);
+
+// cron.schedule("0 0 1 4 *", async () => {
+//   try {
+//     const valueOfTheFunction = await commonDataAdditionForOncePerMonthAndThree([
+//       "1/6 M",
+//       "1/Y",
+//       "1/2 Y",
+//       "1/3 Y",
+//       "1/4 Y",
+//     ]);
+
+//     const requestSheets = await RequestSheetOfCM.find(
+//       {
+//         // _id: mongoose.Types.ObjectId("67b2e18e0ed27a39afcdf206"),
+//         "cmBasicDataFilledByMTD_TL.frequencyValue": {
+//           $in: ["1/6 M", "1/Y", "1/2 Y", "1/3 Y", "1/4 Y"],
+//         },
+//       },
+//       {
+//         _id: 1,
+//         "commonDataFilledByAssignUser.quarterlyDataOfTheCM.targetDateOfCM": 1,
+//       }
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     logger.error(error, { maintenanceType: maintenanceType?.[0] });
+//   }
+// });
