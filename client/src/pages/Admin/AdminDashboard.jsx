@@ -15,7 +15,7 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import EmailConfiguration from "../../Popups/EmailConfiguration";
 import Footer from "../../components/Footer/Footer";
 
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
@@ -292,44 +292,44 @@ function AdminDashboard() {
   };
 
   //update the data of the user using user id
-  const updateUserInfo = async (updatedRow) => {
-    const tm_name = updatedRow.tm_name;
-    const tm_no = updatedRow.tm_no;
-    // const user_type = updatedRow.user_type;
-    const email = updatedRow.email;
-    const address = updatedRow.address;
+  // const updateUserInfo = async (updatedRow) => {
+  //   const tm_name = updatedRow.tm_name;
+  //   const tm_no = updatedRow.tm_no;
+  //   // const user_type = updatedRow.user_type;
+  //   const email = updatedRow.email;
+  //   const address = updatedRow.address;
 
-    try {
-      const res = await fetch("/updateUser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tm_no: tm_no,
-          tm_name: tm_name,
-          // user_type: user_type,
-          email: email,
-          address: address,
-        }),
-      });
+  //   try {
+  //     const res = await fetch("/updateUser", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         tm_no: tm_no,
+  //         tm_name: tm_name,
+  //         // user_type: user_type,
+  //         email: email,
+  //         address: address,
+  //       }),
+  //     });
 
-      const data = await res.json();
+  //     const data = await res.json();
 
-      if (res.status === 400 || res.status === 422 || !data) {
-        window.alert("Invalid");
-      } else if (res.status === 409) {
-        console.logt("user already exists");
-        refreshPage();
-      } else {
-        console.log("Data Updated Successful");
-        // refreshPage();
-        // const dateAndTime = timeStamp();
-        // const addMessage = `${updatedRow.user_name} user updated`;
-        // logData(dateAndTime, addMessage);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     if (res.status === 400 || res.status === 422 || !data) {
+  //       window.alert("Invalid");
+  //     } else if (res.status === 409) {
+  //       console.logt("user already exists");
+  //       refreshPage();
+  //     } else {
+  //       console.log("Data Updated Successful");
+  //       // refreshPage();
+  //       // const dateAndTime = timeStamp();
+  //       // const addMessage = `${updatedRow.user_name} user updated`;
+  //       // logData(dateAndTime, addMessage);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   //delete the data of the user using user id
   const deleteUserInfo = async (selectedRow) => {

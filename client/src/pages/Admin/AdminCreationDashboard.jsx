@@ -24,7 +24,7 @@ import {
 import "../../SCSS/MaterialTable.scss";
 import { RadioGroup } from "@mui/material";
 
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
@@ -71,7 +71,6 @@ const AdminCreationDashboard = () => {
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "10%",
-
     },
     {
       title: "Plant Id",
@@ -209,7 +208,7 @@ const AdminCreationDashboard = () => {
       label: "Sequence",
       key: "subSection_sequence",
     },
-  ]
+  ];
 
   const postPlantToGetSectionList = async (selectedPlant) => {
     setsections(undefined);
@@ -317,7 +316,12 @@ const AdminCreationDashboard = () => {
     const doc = new jsPDF();
     let rows = [];
     sectionList?.sectionsInfo?.map((item, idx) => {
-      let rowArrayOfTable = [++idx, item.section_id, item.section_name, item.dashboardLevel];
+      let rowArrayOfTable = [
+        ++idx,
+        item.section_id,
+        item.section_name,
+        item.dashboardLevel,
+      ];
       rows.push(rowArrayOfTable);
     });
     doc.text(`Section Data`, 15, 10);
@@ -333,7 +337,12 @@ const AdminCreationDashboard = () => {
     const doc = new jsPDF();
     let rows = [];
     subSectionList?.subSectionsInfo?.map((item, idx) => {
-      let rowArrayOfTable = [++idx, item.subSection_id, item.subSection_name, item.subSection_sequence];
+      let rowArrayOfTable = [
+        ++idx,
+        item.subSection_id,
+        item.subSection_name,
+        item.subSection_sequence,
+      ];
       rows.push(rowArrayOfTable);
     });
     doc.text(`Sub Section Data`, 15, 10);
@@ -459,8 +468,8 @@ const AdminCreationDashboard = () => {
                 </option>
                 {plantList !== ""
                   ? plantList.plantArray.map((option) => {
-                    return <option value={option}>{option}</option>;
-                  })
+                      return <option value={option}>{option}</option>;
+                    })
                   : ""}
               </select>
             </div>
@@ -496,8 +505,8 @@ const AdminCreationDashboard = () => {
 
                 {sectionList !== ""
                   ? sectionList.sectionArray.map((option) => {
-                    return <option value={option}>{option}</option>;
-                  })
+                      return <option value={option}>{option}</option>;
+                    })
                   : ""}
               </select>
             </div>

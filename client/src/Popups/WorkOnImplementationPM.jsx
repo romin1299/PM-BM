@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { useNavigate } from "react-router-dom";
-import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 import { Col, Row } from "react-bootstrap";
@@ -10,35 +8,19 @@ import { SuccessToast } from "../BM/Component/ShowTostify";
 
 function WorkOnImplementationPM({
   close,
-  disabledButtonAfterPM,
   tableRowId,
   tableRowIdForSrNo,
   yearOfCheckSheet,
   machineId,
   monthForCompareSystemMonth,
   previousMonth,
-  functionToSetRefKey,
   inceptionValueForLogHistory,
   machineAllData,
   refKeyForScheduleMonthInLogHistory,
   remarksCompulsoryOrNot,
-  postMachineIdToGetAllDetailsOfMachine
+  postMachineIdToGetAllDetailsOfMachine,
 }) {
-  const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
-
-  const navigate = useNavigate();
-
-  const abnormalityStatusDropdown = [
-    {
-      label: "Open",
-      value: "Open",
-    },
-    {
-      label: "Close",
-      value: "Close",
-    },
-  ];
 
   const sparePartsDropdown = [
     {
@@ -51,16 +33,6 @@ function WorkOnImplementationPM({
     },
   ];
 
-  const pmStatusDropdown = [
-    {
-      label: "Completed",
-      value: "Completed",
-    },
-    {
-      label: "Pending",
-      value: "Pending",
-    },
-  ];
   const validationSchema = yup.object({
     workedOnPM: yup.string().required("Please select one"),
 
@@ -169,7 +141,7 @@ function WorkOnImplementationPM({
             // disabledButtonAfterPM(tableRowId, true);
             close();
             postMachineIdToGetAllDetailsOfMachine();
-            SuccessToast(`Row ${tableRowId} Implementation Data Updated !!!`)
+            SuccessToast(`Row ${tableRowId} Implementation Data Updated !!!`);
             // window.location.reload();
             // navigate("/machineWiseCheckSheetForImplemetation");
           }

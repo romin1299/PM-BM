@@ -4,7 +4,7 @@ import "./index.css";
 import Router from "./Router";
 import { BrowserRouter } from "react-router-dom";
 import ContextAPIState from "./context/ContextAPI/ContextAPIState";
-import Footer from "./components/Footer/Footer";
+// import Footer from "./components/Footer/Footer";
 import "./BM/Utils/functions/array.method";
 
 import { ThemeProvider } from "@mui/material/styles";

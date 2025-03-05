@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { Modal, Button } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 
-function DeleteConfirmation({ showCheckSheet, displayAndHide, selectedRow, functionToSetRefKey }) {
-
+function DeleteConfirmation({
+  showCheckSheet,
+  displayAndHide,
+  selectedRow,
+  functionToSetRefKey,
+}) {
   const notifyForDeleteChecksheet = () => {
     toast.success("CheckSheet deleted successfully", {
       position: "top-center",
@@ -26,7 +30,7 @@ function DeleteConfirmation({ showCheckSheet, displayAndHide, selectedRow, funct
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            selectedRow,
+          selectedRow,
         }),
       });
 
@@ -36,7 +40,7 @@ function DeleteConfirmation({ showCheckSheet, displayAndHide, selectedRow, funct
         window.alert("Invalid");
       } else {
         functionToSetRefKey();
-        displayAndHide()
+        displayAndHide();
         notifyForDeleteChecksheet();
         console.log("Data Deleted Successful");
       }
@@ -62,7 +66,9 @@ function DeleteConfirmation({ showCheckSheet, displayAndHide, selectedRow, funct
           <Button className="btn-reset" onClick={() => displayAndHide()}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={deleteCheckSheet}>Delete</Button>
+          <Button variant="danger" onClick={deleteCheckSheet}>
+            Delete
+          </Button>
         </Modal.Footer>
       </Modal>
     </>
