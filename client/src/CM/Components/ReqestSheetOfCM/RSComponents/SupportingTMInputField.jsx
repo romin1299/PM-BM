@@ -9,7 +9,6 @@ const SupportingTMInputField = ({
   trigger,
   errors,
   watch,
-  selectedYear,
 }) => {
   const navigate = useNavigate();
 
@@ -52,9 +51,9 @@ const SupportingTMInputField = ({
     <Controller
       name="current_commonDataFilledByAssignUser.assignUserForCM"
       control={control}
-      rules={{
-        required: "Please select the assign user",
-      }}
+      // rules={{
+      //   required: "Please select the assign user",
+      // }}
       render={({ field }) => (
         <>
           <Multiselect
@@ -68,14 +67,16 @@ const SupportingTMInputField = ({
             onSelect={async (selectedList) => {
               setValue(
                 "current_commonDataFilledByAssignUser.assignUserForCM",
-                selectedList
+                selectedList,
+                { shouldDirty: true }
               );
               trigger("current_commonDataFilledByAssignUser.assignUserForCM");
             }} // Function will trigger on select event
             onRemove={async (selectedList) => {
               setValue(
                 "current_commonDataFilledByAssignUser.assignUserForCM",
-                selectedList
+                selectedList,
+                { shouldDirty: true }
               );
               trigger("current_commonDataFilledByAssignUser.assignUserForCM");
             }} // Function will trigger on remove event

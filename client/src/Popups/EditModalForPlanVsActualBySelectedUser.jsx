@@ -1,25 +1,18 @@
 import React, { useState } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { useNavigate } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 import { Col, Row } from "react-bootstrap";
 const EditModalForPlanVsActualBySelectedUser = ({
   close,
-  disabledButtonAfterPM,
   tableRowId,
   tableRowIdForSrNo,
   yearOfCheckSheet,
   machineId,
   monthForCompareSystemMonth,
   postMachineIdToGetAllDetailsOfMachine,
-  inceptionValueForLogHistory,
-  machineAllData,
-  refKeyForScheduleMonthInLogHistory,
-  remarksCompulsoryOrNot,
 }) => {
-
   const monthKeyArray = [
     "Jan",
     "Feb",
@@ -39,7 +32,7 @@ const EditModalForPlanVsActualBySelectedUser = ({
     monthKeyArray[monthKeyArray?.indexOf(monthForCompareSystemMonth) - 1] ===
     undefined
       ? monthKeyArray.splice(-1)[0]
-      : monthKeyArray[monthKeyArray?.indexOf(monthForCompareSystemMonth) - 1]
+      : monthKeyArray[monthKeyArray?.indexOf(monthForCompareSystemMonth) - 1];
 
   const [userPhoto, setUserPhoto] = useState([]);
 
@@ -158,7 +151,7 @@ const EditModalForPlanVsActualBySelectedUser = ({
           } else {
             console.log("Submitted Successfully...");
             close();
-            postMachineIdToGetAllDetailsOfMachine()
+            postMachineIdToGetAllDetailsOfMachine();
           }
         })
         .catch((err) => {

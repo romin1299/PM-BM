@@ -57,11 +57,11 @@
 
 import React, { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Tabs, Tab, Container, Row, Col } from "react-bootstrap";
+import { Tabs, Tab, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import PMTabdashboard from "./BM/Tabs/PMTabdashboard";
 import BM_Routes from "./BM/BM_Routes";
-import { BsWrench, BsHammer } from "react-icons/bs";
+// import { BsWrench, BsHammer } from "react-icons/bs";
 import { denso_logo } from "./modules/LoginModules";
 
 import MachineHistoryComponent from "./Common/Machine/MachineHistoryComponent";
@@ -78,13 +78,12 @@ import RightNavbar from "./components/RightNavbar/RightNavbar";
 
 import KPI_Routes from "./KPI_Tab/KPI_Routes";
 import MainPageComponent from "./KPI_Tab/MainPage/MainPageComponent";
-import OperatorDashboard from "./pages/Operator/OperatorDashboard";
-import {
-  NAME_OF_THE_COMPANY,
-  LIST_OF_COMPANY,
-} from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
+// import {
+//   NAME_OF_THE_COMPANY,
+//   LIST_OF_COMPANY,
+// } from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import RoutingContext from "./context/routing/RoutingContext";
-import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
+// import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
 import PM from "./static/Icons/PM_history_4.png";
 import BM from "./static/Icons/BM_History_1.png";
 import CM from "./static/Icons/CM.png";
@@ -147,7 +146,7 @@ function App() {
     // } else {
     //   setActiveKey(pathParts[1]);
     // }
-  }, [location.pathname]);  
+  }, [location.pathname]);
 
   const loggedUser = useContext(RoutingContext);
   let mainRouteForCompanyBased = [];
@@ -269,7 +268,7 @@ function App() {
             width={150}
           />
         </Col>
-        <Col  
+        <Col
           lg={8}
           md={8}
           sm={1}

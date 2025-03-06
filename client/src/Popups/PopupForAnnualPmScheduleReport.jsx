@@ -1,9 +1,9 @@
 import React from "react";
 
-import { Row, Col, Container, Button } from "react-bootstrap";
+import { Row, Col, Container } from "react-bootstrap";
 
 import * as yup from "yup";
-import { useFormik, validateYupSchema } from "formik";
+import { useFormik } from "formik";
 
 import { TextareaAutosize } from "@mui/base";
 
@@ -11,7 +11,6 @@ const PopupForAnnualPmScheduleReport = ({
   month,
   close,
   selectedYear,
-  loggedUserDetails,
   lineInfo,
   allUserDropdownList,
   funForRefreshingDataAfterApproval,

@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { Modal, Button } from "react-bootstrap";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { WarningToast } from "../BM/Component/ShowTostify";
 const AddApproverNameIfNotAvailableInCheckSheet = ({
   machine_code,
   selectedYear,
   modelProp,
   listOfAllApproverAndOtherData,
-  postMachineIdToGetAllDetailsOfMachine
+  postMachineIdToGetAllDetailsOfMachine,
 }) => {
   const {
     register,
@@ -15,7 +15,7 @@ const AddApproverNameIfNotAvailableInCheckSheet = ({
     setValue,
     watch,
     formState: { errors, dirtyFields },
-    control,
+    // control,
     // reset,
   } = useForm();
   const submitAllSelectedApprovalValue = async (editedApprovalData) => {
@@ -67,7 +67,7 @@ const AddApproverNameIfNotAvailableInCheckSheet = ({
       } else {
         // console.log(data);
         modelProp?.onHide();
-        postMachineIdToGetAllDetailsOfMachine()
+        postMachineIdToGetAllDetailsOfMachine();
       }
     } catch (error) {
       console.log(error);

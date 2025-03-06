@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
-import { showPwdImg, hidePwdImg } from "../modules/LoginModules";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
@@ -9,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 function EmailConfiguration({ close }) {
   const [emailConfigurationData, setEmailConfigurationData] = useState([]);
-  const [refKey2, setRefKey2] = useState(0);
 
   const validationSchema = yup.object({
     server_ip: yup.string().required("Please enter server IP"),
@@ -52,7 +50,9 @@ function EmailConfiguration({ close }) {
           ? emailConfigurationData?.emailPort
           : values?.email_port;
       values.email =
-        values?.email === "" ? emailConfigurationData?.fromEmailId : values?.email;
+        values?.email === ""
+          ? emailConfigurationData?.fromEmailId
+          : values?.email;
       values.emailForSpareRequest =
         values?.emailForSpareRequest === ""
           ? emailConfigurationData?.emailForSpareRequest

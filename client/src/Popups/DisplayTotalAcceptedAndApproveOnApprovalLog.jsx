@@ -5,7 +5,6 @@ const DisplayTotalAcceptedAndApproveOnApprovalLog = ({
   acceptedAndApproveTotalCount,
   modelProp,
 }) => {
-  console.log(acceptedAndApproveTotalCount);
   return (
     <Modal
       {...modelProp}

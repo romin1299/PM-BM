@@ -4,24 +4,13 @@ import { Container, Row, Col } from "react-bootstrap";
 import { cyan, deepPurple, green, indigo } from "@mui/material/colors";
 import { lightBlue, lightGreen, orange, red, teal } from "@mui/material/colors";
 
-import MaterialTable, { MTableToolbar } from "@material-table/core";
+import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-import DescriptionIcon from "@mui/icons-material/Description";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DateTimePicker } from "@mui/x-date-pickers";
-import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
-import CancelIcon from "@mui/icons-material/Cancel";
-import FactCheckIcon from "@mui/icons-material/FactCheck";
 import RoutingContext from "../../context/routing/RoutingContext";
-import { format } from "date-fns";
 import MachineHistoryCard from "../HistoryCard/MachineHistoryCard";
 import SummeryCard from "../HistoryCard/SummeryCard";
 import moment from "moment";
@@ -31,15 +20,11 @@ import { InputAdornment, TextField } from "@mui/material";
 import {
   Box,
   Button,
-  Divider,
-  Stack,
-  Chip,
   Tooltip,
   Typography,
   Paper,
   Switch,
 } from "@mui/material";
-import BMTitlebar from "../Component/BMTitlebar";
 import {
   MaterialTableOptions,
   MaterialTableSX,
@@ -55,7 +40,6 @@ import {
 import SvgIcon from "@mui/material/SvgIcon";
 import { ReactComponent as HistoryIcon } from "../../static/svg/history.svg";
 import { ReactComponent as EditSheetIcon } from "../../static/svg/edit-sheet-2.svg";
-import EditSheetIconSVG from "../../static/svg/edit-sheet-2.svg";
 import EditIcon from "@mui/icons-material/Edit";
 import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
@@ -75,7 +59,7 @@ const RequestSheetMainDashboard = () => {
   const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
   const [sparePartsRequestModal, setSparePartsRequestModal] = useState(false);
   const [greaterValue, setGreaterValue] = useState(
-    localStorage.getItem("greaterValue") 
+    localStorage.getItem("greaterValue")
   );
   const [lesserValue, setLesserValue] = useState(
     localStorage.getItem("lesserValue")
@@ -249,10 +233,10 @@ const RequestSheetMainDashboard = () => {
 
     setLoading(false);
   };
-  useEffect(()=>{
-    localStorage.setItem("greaterValue", "")
-    localStorage.setItem("lesserValue", "")
-  },[])
+  useEffect(() => {
+    localStorage.setItem("greaterValue", "");
+    localStorage.setItem("lesserValue", "");
+  }, []);
 
   const updateRequestSheet = async (updatedRow) => {
     try {
@@ -523,7 +507,7 @@ const RequestSheetMainDashboard = () => {
         editable: false,
       },
     ];
-// console.log("THis is ",reduceStateForRequestSheetData?.requestSheetData)
+  // console.log("THis is ",reduceStateForRequestSheetData?.requestSheetData)
   const requestSheetHeader = [
     {
       title: "Sr. No.",

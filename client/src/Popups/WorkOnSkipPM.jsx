@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { useNavigate } from "react-router-dom";
-import { Select } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 import { Multiselect } from "multiselect-react-dropdown";
@@ -10,27 +8,11 @@ import { useContext } from "react";
 import RoutingContext from "../context/routing/RoutingContext";
 
 function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
-  const [workedData, setWorkedData] = useState([]);
   const [userPhoto, setUserPhoto] = useState([]);
-
-  // console.log("+++++++++++++++++++++++++", selectedRow);
 
   const [supportingTMList, setSupportingTMList] = useState([]);
   const [selectedSupportedTM, setSelectedSupportedTM] = useState([]);
   const context = useContext(RoutingContext);
-
-  const navigate = useNavigate();
-
-  const abnormalityStatusDropdown = [
-    {
-      label: "Open",
-      value: "Open",
-    },
-    {
-      label: "Close",
-      value: "Close",
-    },
-  ];
 
   const sparePartsDropdown = [
     {
@@ -43,16 +25,6 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
     },
   ];
 
-  const pmStatusDropdown = [
-    {
-      label: "Completed",
-      value: "Completed",
-    },
-    {
-      label: "Pending",
-      value: "Pending",
-    },
-  ];
   const validationSchema = yup.object({
     workedOnPM: yup.string().required("Please select one"),
     reasonForDelayWhenSkip: yup

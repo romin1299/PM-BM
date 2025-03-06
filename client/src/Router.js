@@ -4,11 +4,11 @@ import { Routes, Route } from "react-router-dom";
 import App from "./App";
 import LoginPage from "./Login/Login";
 import CreateNewPassword from "./Login/CreateNewPassword";
-import PropagateLoader from "react-spinners/PropagateLoader";
-import denso_log from "./static/images/denso_logo.png";
+// import PropagateLoader from "react-spinners/PropagateLoader";
+// import denso_log from "./static/images/denso_logo.png";
 import ResetPasswordPage from "./Login/ResetPasswordPage";
 import UpdatePassword from "./Login/UpdatePassword";
-import Footer from "./components/Footer/Footer";
+// import Footer from "./components/Footer/Footer";
 
 import Scanning from "./ScanningComponent/Scanning";
 import SheetDashboard from "./ScanningComponent/SheetDashboard";
