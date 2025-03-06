@@ -958,11 +958,12 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
           as: "quarterObj",
           cond: {
             // need to add more status when RS status is Skipped or other-status
-            $ne: ["$$quarterObj.requestSheetStatusOfCM", "Completed"],
+            // $ne: ["$$quarterObj.requestSheetStatusOfCM", "Completed"],
+            $lte: ["$$quarterObj.targetDateOfCM", new Date()],
           },
         },
       },
-      0,
+      -1,
     ],
   };
 
