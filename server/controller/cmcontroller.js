@@ -1684,6 +1684,40 @@ router.patch(
 
       const completeApproval = () => {
         nextApprovalObj.requestSheetStatusOfCM = "Completed";
+
+        if (
+          isRequestSheetExist?.cmBasicDataFilledByMTD_TL?.frequencyValue ===
+          "1/3 M"
+        ) {
+          let lastEntry =
+            isRequestSheetExist?.commonDataFilledByAssignUser?.[
+              isRequestSheetExist?.commonDataFilledByAssignUser?.length - 1
+            ];
+
+          let lastTragetDate =
+            lastEntry?.quarterlyDataOfTheCM?.[
+              lastEntry?.quarterlyDataOfTheCM?.length - 1
+            ]?.targetDateOfCM;
+
+          let newTargetDate = moment(lastTragetDate).add(3, "months");
+          let quarterlyDataEntries = [
+            {
+              requestSheet_quarter: getFinancialQuarter(newTargetDate),
+              statusOfPlannedCM: "Planned",
+              targetDateOfCM: newTargetDate,
+              requestSheetStatusOfCM: "Generated",
+            },
+          ];
+          updateObj.$push = {
+            commonDataFilledByAssignUser: {
+              preAggregationTimeStampOfRequestSheet: {
+                requestSheet_year: currentYear,
+                requestSheet_month: gettingMonthForSelectedDate(newTargetDate),
+              },
+              quarterlyDataOfTheCM: { $each: quarterlyDataEntries },
+            },
+          };
+        }
       };
 
       switch (current_commonDataFilledByAssignUser?.requestSheetStatusOfCM) {
