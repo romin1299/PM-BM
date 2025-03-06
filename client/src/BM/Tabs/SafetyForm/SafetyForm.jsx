@@ -1250,7 +1250,18 @@ const SafetyForm = ({
                     disabled={safetyForm}
                     placeholder="Enter Preventive Measures"
                     {...register("preventiveMeasures", {
-                      required: "Preventive Measures are required",
+                      required:
+                        watch("workInsideMachine.IsAccepted") === "true" ||
+                        watch("highPressure.IsAccepted") === "true" ||
+                        watch("workHandlingHeavyObj.IsAccepted") === "true" ||
+                        watch("workAtHeight.IsAccepted") === "true" ||
+                        watch("workAtHeight.isAssociatesQualified") ===
+                          "true" ||
+                        watch("workInvolvingRiskOfOxygen.IsAccepted") ===
+                          "true" ||
+                        watch("workUsingHighTemp.IsAccepted") === "true"
+                          ? "Preventive Measures are required"
+                          : false,
                     })}
                     error={!!errors.preventiveMeasures}
                     helperText={errors.preventiveMeasures?.message}
@@ -1258,27 +1269,29 @@ const SafetyForm = ({
                 </Grid>
               </Box>
             </Grid>
-            <input
-              type="checkbox"
-              name="finalSafetyAcceptance"
-              {...register("finalSafetyAcceptance", {
-                required: "Final Safety Acceptance is required",
-              })}
-              id="finalSafetyAcceptance"
-              disabled={safetyForm}
-            />
-            &ensp;
-            <span>
-              Self declaration: I have checked machine and fixed all Safety
-              Devices (Safety area curtain, Safety cover, Emergency Switch,
-              Safety plug, Door interlocks etc.) back to original position
-              @GENBA
-            </span>
-            {errors?.finalSafetyAcceptance && (
-              <FormHelperText error>
-                {errors?.finalSafetyAcceptance?.message}
-              </FormHelperText>
-            )}
+            <Grid>
+              <input
+                type="checkbox"
+                name="finalSafetyAcceptance"
+                {...register("finalSafetyAcceptance", {
+                  required: "Final Safety Acceptance is required",
+                })}
+                id="finalSafetyAcceptance"
+                disabled={safetyForm}
+              />
+              &ensp;
+              <span>
+                Self declaration: I have checked machine and fixed all Safety
+                Devices (Safety area curtain, Safety cover, Emergency Switch,
+                Safety plug, Door interlocks etc.) back to original position
+                @GENBA
+              </span>
+              {errors?.finalSafetyAcceptance && (
+                <FormHelperText error>
+                  {errors?.finalSafetyAcceptance?.message}
+                </FormHelperText>
+              )}
+            </Grid>
             {!safetyForm && (
               <Grid item xs={12} mt={2} className="text-center">
                 <Button variant="contained" type="submit">

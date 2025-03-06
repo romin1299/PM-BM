@@ -1262,3 +1262,51 @@
     at updateAndPushApprovalDataOfImplementation (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23022:54)
     at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\auth.js:23122:15
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:17 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:17 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:17 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at runNextTicks (node:internal/process/task_queues:65:3)
+    at processImmediate (node:internal/timers:437:9)
+2025-03-05T17:17 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at runNextTicks (node:internal/process/task_queues:65:3)
+    at processImmediate (node:internal/timers:437:9)
+2025-03-05T17:17 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:17 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:17 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:20 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:20 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:20 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-03-05T17:20 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
