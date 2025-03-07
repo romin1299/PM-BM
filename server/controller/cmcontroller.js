@@ -474,7 +474,9 @@ const quarterlyDataAdd = (
             );
           }
           yearlyDataObject?.quarterlyDataOfTheCM?.push({
-            targetDateOfCM: generalDateFormat(modifiedPlannedDateAndTimeOfCM),
+            targetDateOfCM: generalDateFormat(
+              modifiedPlannedDateAndTimeOfCM || targetDateOfCM
+            ),
             requestSheet_quarter: quarter,
             statusOfPlannedCM: "Planned",
             ...assignUserOnlyForFirstQuarterWhileGenerate,
@@ -482,7 +484,7 @@ const quarterlyDataAdd = (
 
           if (frequencyValue === "1/6 M") {
             modifiedPlannedDateAndTimeOfCM = moment(
-              modifiedPlannedDateAndTimeOfCM
+              modifiedPlannedDateAndTimeOfCM || targetDateOfCM
             ).add(6, "month");
           }
         }
@@ -582,11 +584,11 @@ router.post(
         requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM
       );
 
-    requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.targetDateOfCM =
-      generalDateFormat(
-        requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-          ?.targetDateOfCM
-      );
+    // requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.targetDateOfCM =
+    //   generalDateFormat(
+    //     requestSheetDataFilledByMTDUserForCM
+    //       ?.targetDateOfCM
+    //   );
 
     let requestSheetOfCM = new RequestSheetOfCM({
       requestSheetNoOfCM,
