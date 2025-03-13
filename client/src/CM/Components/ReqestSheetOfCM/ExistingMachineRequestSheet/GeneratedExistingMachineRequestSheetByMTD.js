@@ -40,9 +40,7 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
       },
       sheetIssuedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       maintenanceType: "CM",
-      targetDateOfCM: moment(new Date()).format(
-        "YYYY-MM-DDTHH:mm"
-      ),
+      targetDateOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
     },
   });
 
@@ -490,6 +488,68 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                     <Row className="m-0 border d-flex align-items-center">
                       <Col lg={5}>
                         <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                          <b>Category:</b>
+                        </p>
+                      </Col>
+                      <Col lg={7}>
+                        <div className="d-flex justify-content-between">
+                          {CATEGORIES_OF_CM.map((value, idx) => (
+                            <React.Fragment key={idx}>
+                              <Form.Check
+                                // flex
+                                idx={idx}
+                                label={value}
+                                type="radio"
+                                value={value}
+                                name={`categories`}
+                                className="col-auto"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.categories",
+                                  {
+                                    required: "Category is required",
+                                  }
+                                )}
+                              />
+                            </React.Fragment>
+                          ))}
+                        </div>
+                        {errors?.cmBasicDataFilledByMTD_TL?.categories && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.categories
+                                ?.message
+                            }
+                          </p>
+                        )}
+                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                          "Others" && (
+                          <input
+                            type="text"
+                            size={20}
+                            className="m-1 mb-2"
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.other_categories",
+                              {
+                                required: "Other category is required",
+                              }
+                            )}
+                          />
+                        )}
+                        {errors?.cmBasicDataFilledByMTD_TL
+                          ?.other_categories && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL
+                                ?.other_categories?.message
+                            }
+                          </p>
+                        )}
+                      </Col>
+                    </Row>
+
+                    <Row className="m-0 border d-flex align-items-center">
+                      <Col lg={5}>
+                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                           <b>Frequency: </b>
                         </p>
                       </Col>
@@ -578,67 +638,6 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                       </Col>
                     </Row>
 
-                    <Row className="m-0 border d-flex align-items-center">
-                      <Col lg={5}>
-                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                          <b>Category:</b>
-                        </p>
-                      </Col>
-                      <Col lg={7}>
-                        <div className="d-flex justify-content-between">
-                          {CATEGORIES_OF_CM.map((value, idx) => (
-                            <React.Fragment key={idx}>
-                              <Form.Check
-                                // flex
-                                idx={idx}
-                                label={value}
-                                type="radio"
-                                value={value}
-                                name={`categories`}
-                                className="col-auto"
-                                {...register(
-                                  "cmBasicDataFilledByMTD_TL.categories",
-                                  {
-                                    required: "Category is required",
-                                  }
-                                )}
-                              />
-                            </React.Fragment>
-                          ))}
-                        </div>
-                        {errors?.cmBasicDataFilledByMTD_TL?.categories && (
-                          <p className="text-error">
-                            {
-                              errors?.cmBasicDataFilledByMTD_TL?.categories
-                                ?.message
-                            }
-                          </p>
-                        )}
-                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
-                          "Others" && (
-                          <input
-                            type="text"
-                            size={20}
-                            className="m-1 mb-2"
-                            {...register(
-                              "cmBasicDataFilledByMTD_TL.other_categories",
-                              {
-                                required: "Other category is required",
-                              }
-                            )}
-                          />
-                        )}
-                        {errors?.cmBasicDataFilledByMTD_TL
-                          ?.other_categories && (
-                          <p className="text-error">
-                            {
-                              errors?.cmBasicDataFilledByMTD_TL
-                                ?.other_categories?.message
-                            }
-                          </p>
-                        )}
-                      </Col>
-                    </Row>
                     {watch("cmBasicDataFilledByMTD_TL.categories") ===
                       "LTPM" && (
                       <>
@@ -779,10 +778,7 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                         </div>
                         {errors?.targetDateOfCM && (
                           <p className="text-error">
-                            {
-                              errors?.targetDateOfCM
-                                ?.message
-                            }
+                            {errors?.targetDateOfCM?.message}
                           </p>
                         )}
                       </Col>

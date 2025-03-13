@@ -262,7 +262,8 @@ router.get(
       }
     }
 
-    const { departmentFilterForTL, departmentFilterForHOS } = req.query;
+    const { departmentFilterForTL, departmentFilterForHOS, gradeFilter } =
+      req.query;
 
     let userFilter = {
       tm_department: "MTD",
@@ -270,10 +271,11 @@ router.get(
     };
 
     if (departmentFilterForHOS) {
-      userFilter = {
-        tm_department: departmentFilterForHOS,
-        tm_grade: "HOS",
-      };
+      userFilter.tm_department = departmentFilterForHOS;
+    }
+
+    if (gradeFilter) {
+      userFilter.tm_grade = gradeFilter;
     }
 
     if (departmentFilterForTL) {
@@ -319,6 +321,7 @@ router.get(
 
     let userList = {
       MTDHOSList: [],
+      MTDHODList: [],
       PRDHOSList: [],
       MTDTLList: [],
       PRDTLList: [],
@@ -330,6 +333,8 @@ router.get(
 
       if (tm_department === "MTD" && tm_grade === "HOS") {
         userList.MTDHOSList = groupUsers;
+      } else if (tm_department === "MTD" && tm_grade === "HOD") {
+        userList.MTDHODList = groupUsers;
       } else if (tm_department === "PRD" && tm_grade === "HOS") {
         userList.PRDHOSList = groupUsers;
       } else if (tm_department === "MTD" && user_type === "TL/HOSS") {
@@ -854,10 +859,12 @@ router.patch(
           const element = requestSheetDataFilledByMTDUserForCM?.workDetails[i];
 
           totalTimeBasedOnWork +=
-            moment(element?.toDate)?.diff(
+            (moment(element?.toDate)?.diff(
               moment(element?.fromDate),
               "minutes"
-            ) / 60;
+            ) /
+              60) *
+            element?.user?.length;
         }
 
         updateObj.$set = {
@@ -2006,7 +2013,10 @@ router.get(
       }
     }
 
-    const yearList = Array.from({ length: 5 }, (_, i) => startYearOfLTPM + i);
+    const yearList = Array.from(
+      { length: 5 },
+      (_, i) => `${startYearOfLTPM + i}-${startYearOfLTPM + i + 1}`
+    );
     const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
     // delete req.queryObj.commonDataFilledByAssignUser;
@@ -2025,15 +2035,17 @@ router.get(
     const { selectedId } = req.params;
 
     const quarterList = Array(5).fill(QUARTER).flat();
-    const data = await RequestSheetOfCM.aggregate([
+
+    const { _id, LTPMApproval } = await Line.findOne(
       {
-        $match: {
-          "cmBasicDataFilledByMTD_TL.categories": "LTPM",
-          "cmBasicDataFilledByMTD_TL.frequencyType": "Scheduled",
-          lineRef: mongoose.Types.ObjectId(selectedId),
-          // ...req?.queryObj,
-        },
+        _id: selectedId,
       },
+      {
+        LTPMApproval: 1,
+      }
+    );
+
+    let otherPipeline = [
       {
         $group: {
           _id: {
@@ -2061,20 +2073,274 @@ router.get(
       },
       {
         $project: {
-          data: 1,
+          _id: 1,
+          "data.frequencyValue": 1,
+          "data.inspectionItem": 1,
+          "data.actionForLTPM": 1,
+          "data.personForLTPM": 1,
+          "data.commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet": 1,
+          "data.commonDataFilledByAssignUser.quarterlyDataOfTheCM.requestSheet_quarter": 1,
+          "data.commonDataFilledByAssignUser.quarterlyDataOfTheCM.statusOfPlannedCM": 1,
           machineAllData: { $arrayElemAt: ["$machines", 0] },
         },
       },
-    ]);
+    ];
 
-    const { _id, LTPMApproval } = await Line.findOne(
+    if (LTPMApproval.planningApproval.status === "Completed") {
+      otherPipeline = [
+        {
+          $facet: {
+            quarterlyPlannedUnplannedData: [
+              {
+                $group: {
+                  _id: {
+                    plantToMachineHierarchyRef: "$plantToMachineHierarchyRef",
+                    _id: "$_id",
+                  },
+                  data: {
+                    $push: {
+                      frequencyValue:
+                        "$cmBasicDataFilledByMTD_TL.frequencyValue",
+                      inspectionItem:
+                        "$cmBasicDataFilledByMTD_TL.inspectionItem",
+                      actionForLTPM: "$cmBasicDataFilledByMTD_TL.actionForLTPM",
+                      personForLTPM: "$cmBasicDataFilledByMTD_TL.personForLTPM",
+                      commonDataFilledByAssignUser:
+                        "$commonDataFilledByAssignUser",
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "planttomachinehierarchies",
+                  localField: "_id.plantToMachineHierarchyRef",
+                  foreignField: "_id",
+                  as: "machines",
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  "data.frequencyValue": 1,
+                  "data.inspectionItem": 1,
+                  "data.actionForLTPM": 1,
+                  "data.personForLTPM": 1,
+                  "data.commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet": 1,
+                  "data.commonDataFilledByAssignUser.quarterlyDataOfTheCM.requestSheet_quarter": 1,
+                  "data.commonDataFilledByAssignUser.quarterlyDataOfTheCM.statusOfPlannedCM": 1,
+                  machineAllData: { $arrayElemAt: ["$machines", 0] },
+                },
+              },
+            ],
+            quarterlyTLAndHODApproval: [
+              {
+                $unwind: "$commonDataFilledByAssignUser",
+              },
+              {
+                $unwind: "$commonDataFilledByAssignUser.quarterlyDataOfTheCM",
+              },
+              {
+                $group: {
+                  _id: {
+                    requestSheet_year:
+                      "$commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                    requestSheet_quarter:
+                      "$commonDataFilledByAssignUser.quarterlyDataOfTheCM.requestSheet_quarter",
+                  },
+                  count: {
+                    $sum: {
+                      $cond: [
+                        {
+                          $eq: [
+                            "$commonDataFilledByAssignUser.quarterlyDataOfTheCM.statusOfPlannedCM",
+                            "Planned",
+                          ],
+                        },
+                        1,
+                        0,
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ];
+    }
+
+    const data = await RequestSheetOfCM.aggregate([
       {
-        _id: selectedId,
+        $match: {
+          "cmBasicDataFilledByMTD_TL.categories": "LTPM",
+          "cmBasicDataFilledByMTD_TL.frequencyType": "Scheduled",
+          lineRef: mongoose.Types.ObjectId(selectedId),
+          // ...req?.queryObj,
+        },
       },
       {
-        LTPMApproval: 1,
+        $addFields: {
+          commonDataFilledByAssignUser: {
+            $map: {
+              input: {
+                $map: {
+                  input: yearList,
+                  as: "year",
+                  in: {
+                    $cond: [
+                      {
+                        $in: [
+                          "$$year",
+                          "$commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                        ],
+                      },
+                      {
+                        $arrayElemAt: [
+                          "$commonDataFilledByAssignUser",
+                          {
+                            $indexOfArray: [
+                              "$commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                              "$$year",
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        preAggregationTimeStampOfRequestSheet: {
+                          requestSheet_year: "$$year",
+                          requestSheet_month: "",
+                        },
+                        quarterlyDataOfTheCM: [],
+                      },
+                    ],
+                  },
+                },
+              },
+              as: "outerObjData",
+              in: {
+                preAggregationTimeStampOfRequestSheet:
+                  "$$outerObjData.preAggregationTimeStampOfRequestSheet",
+                quarterlyDataOfTheCM: {
+                  $map: {
+                    input: QUARTER,
+                    as: "quarter",
+                    in: {
+                      $cond: [
+                        {
+                          $in: [
+                            "$$quarter",
+                            "$$outerObjData.quarterlyDataOfTheCM.requestSheet_quarter",
+                          ],
+                        },
+                        {
+                          $arrayElemAt: [
+                            "$$outerObjData.quarterlyDataOfTheCM",
+                            {
+                              $indexOfArray: [
+                                "$$outerObjData.quarterlyDataOfTheCM.requestSheet_quarter",
+                                "$$quarter",
+                              ],
+                            },
+                          ],
+                        },
+                        {
+                          requestSheet_quarter: "$$quarter",
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      ...otherPipeline,
+    ]);
+
+    let otherResData = {
+      data,
+    };
+
+    if (LTPMApproval.planningApproval.status === "Completed") {
+      let quarterlyApprovalObj = [];
+
+      for (let i = 0; i < data?.[0]?.quarterlyTLAndHODApproval.length; i++) {
+        const element = data?.[0]?.quarterlyTLAndHODApproval[i];
+
+        const approvalObjExist = LTPMApproval?.quarterlyApproval?.find(
+          (item) =>
+            item?.preAggregationTimeStampOfRequestSheet?.requestSheet_year ===
+              element?._id?.requestSheet_year &&
+            item?.preAggregationTimeStampOfRequestSheet
+              ?.requestSheet_quarter === element?._id?.requestSheet_quarter
+        );
+
+        if (approvalObjExist) {
+          quarterlyApprovalObj.push(approvalObjExist);
+        } else {
+          let approval = {
+            checkAndVerifyByMTD_TL: {},
+            approveByHOD: {},
+          };
+
+          if (
+            req?.rootUser?.user_type === "TL/HOSS" &&
+            !LTPMApproval?.planningApproval?.status === "Completed"
+          ) {
+            approval.checkAndVerifyByMTD_TL = req?.rootUser;
+          }
+
+          quarterlyApprovalObj.push({
+            preAggregationTimeStampOfRequestSheet: {
+              requestSheet_year: element?._id?.requestSheet_year,
+              requestSheet_quarter: element?._id?.requestSheet_quarter,
+            },
+            count: element?.count,
+            ...approval,
+          });
+        }
       }
-    );
+      quarterlyApprovalObj.sort((a, b) => {
+        if (
+          a.preAggregationTimeStampOfRequestSheet?.requestSheet_year?.split(
+            "-"
+          )?.[0] *
+            1 !==
+          b.preAggregationTimeStampOfRequestSheet?.requestSheet_year?.split(
+            "-"
+          )?.[0] *
+            1
+        ) {
+          return (
+            a.preAggregationTimeStampOfRequestSheet?.requestSheet_year?.split(
+              "-"
+            )?.[0] *
+              1 -
+            b.preAggregationTimeStampOfRequestSheet?.requestSheet_year?.split(
+              "-"
+            )?.[0] *
+              1
+          );
+        }
+        return (
+          a.preAggregationTimeStampOfRequestSheet?.requestSheet_quarter?.slice(
+            -1
+          ) *
+            1 -
+          b.preAggregationTimeStampOfRequestSheet?.requestSheet_quarter?.slice(
+            -1
+          ) *
+            1
+        );
+      });
+
+      otherResData = {
+        data: data?.[0]?.quarterlyPlannedUnplannedData,
+        quarterlyApprovalObj,
+      };
+    }
 
     if (
       req?.rootUser?.user_type === "TL/HOSS" &&
@@ -2085,7 +2351,7 @@ router.get(
 
     successResponse(res, "LTPM Line wise data get successfully", {
       paginationCount,
-      data,
+      ...otherResData,
       quarterList,
       yearList,
       lineId: _id,
@@ -2107,10 +2373,15 @@ router.patch(
         "LTPMApproval.preparationApproval": {
           status: "Check for MTD TL",
           preparedByMTD_TL: req?.rootUser,
-          checkByMTD_TL,
+          checkByMTD_TL: {
+            approvalStatus: "Pending",
+            ...checkByMTD_TL,
+          },
         },
-        "LTPMApproval.preparationApprovalAndPlanPreparationMTD_HOS":
-          preparationApprovalAndPlanPreparationMTD_HOS,
+        "LTPMApproval.preparationApprovalAndPlanPreparationMTD_HOS": {
+          approvalStatus: "Pending",
+          ...preparationApprovalAndPlanPreparationMTD_HOS,
+        },
       },
       { new: true }
     );
@@ -2131,8 +2402,10 @@ router.patch(
       { _id: req.params?.lineId },
       {
         "LTPMApproval.planningApproval.status": "Under approval of PRD HOS",
-        "LTPMApproval.planningApproval.planAcceptedByPRD_HOS":
-          planAcceptedByPRD_HOS,
+        "LTPMApproval.planningApproval.planAcceptedByPRD_HOS": {
+          approvalStatus: "Pending",
+          ...planAcceptedByPRD_HOS,
+        },
       },
       { new: true }
     );
@@ -2144,42 +2417,116 @@ router.patch(
 );
 
 router.patch(
+  "/sendQuarterlyApproval/:lineId",
+  authenticate,
+  tryCatchHandler(async (req, res, next) => {
+    const { approveByHOD, approvalObj } = req.body;
+
+    let quarterlyApproval = {
+      ...approvalObj,
+      status: "Under approval of MTD HOD",
+      checkAndVerifyByMTD_TL: {
+        userRef: req.rootUser?._id,
+        tm_no: req.rootUser?.tm_no,
+        user_type: req.rootUser?.user_type,
+        tm_name: req.rootUser?.tm_name,
+        email: req.rootUser?.email,
+      },
+      approveByHOD: {
+        ...approveByHOD,
+        approvalStatus: "Pending",
+      },
+    };
+
+    await Line.findOneAndUpdate(
+      { _id: req.params?.lineId },
+      {
+        $push: {
+          "LTPMApproval.quarterlyApproval": quarterlyApproval,
+        },
+      },
+      { new: true }
+    );
+
+    successResponse(res, "Quarterly approval send successfully", {
+      quarterlyApproval,
+    });
+  })
+);
+
+router.patch(
   "/acceptApproval/:phase/:lineId",
   authenticate,
   tryCatchHandler(async (req, res, next) => {
     const { status } = req.body;
 
-    let updateObj = {};
+    let updateObj = {},
+      resObj = {},
+      otherPipeline = { new: true };
     let resMsg = `${req?.params?.phase} approval completed successfully`;
 
     if (req?.params?.phase === "Preparation") {
       updateObj = {
+        "LTPMApproval.preparationApproval.checkByMTD_TL.approvalStatus":
+          "Accepted",
         "LTPMApproval.preparationApproval.status": "Under approval of MTD HOS",
       };
 
       if (status === "Under approval of MTD HOS") {
         updateObj = {
+          "LTPMApproval.preparationApprovalAndPlanPreparationMTD_HOS.approvalStatus":
+            "Accepted",
           "LTPMApproval.preparationApproval.status": "Completed",
           "LTPMApproval.planningApproval.status": status,
         };
       } else {
         resMsg = `${req?.params?.phase} approval accepted successfully`;
       }
+    } else if (req?.params?.phase === "Planning") {
+      updateObj = {
+        "LTPMApproval.planningApproval.planAcceptedByPRD_HOS.approvalStatus":
+          "Accepted",
+        "LTPMApproval.planningApproval.status": "Completed",
+      };
     } else {
       updateObj = {
-        "LTPMApproval.planningApproval.status": "Completed",
+        $set: {
+          "LTPMApproval.quarterlyApproval.$[yearAndQuarterFilter].approveByHOD.approvalStatus":
+            "Accepted",
+          "LTPMApproval.quarterlyApproval.$[yearAndQuarterFilter].status":
+            "Completed",
+        },
+      };
+
+      otherPipeline = {
+        arrayFilters: [
+          {
+            "yearAndQuarterFilter._id": mongoose.Types.ObjectId(
+              req.query?._idForParticularYearAndQuarter
+            ),
+          },
+        ],
+        new: true,
+      };
+
+      resObj = {
+        quarterlyApproval: req.query,
       };
     }
 
     const { LTPMApproval } = await Line.findOneAndUpdate(
       { _id: req.params?.lineId },
       updateObj,
-      { new: true }
+      otherPipeline
     );
 
-    successResponse(res, resMsg, {
-      LTPMApproval,
-    });
+    if (req?.params?.phase !== "QuarterlyApproval") {
+      resObj = {
+        LTPMApproval,
+      };
+    }
+
+    successResponse(res, resMsg, resObj);
   })
 );
 
