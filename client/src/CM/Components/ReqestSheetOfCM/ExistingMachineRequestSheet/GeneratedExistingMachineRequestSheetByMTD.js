@@ -15,6 +15,7 @@ import {
 } from "../../../GlobalDataAccess/GlobalData";
 import Multiselect from "multiselect-react-dropdown";
 import ShiftInputField from "../RSComponents/ShiftInputField";
+import ButtonCMRequestSheetHistory from "../HistoryOfCMRequestSheet/ButtonCMRequestSheetHistory";
 
 const GeneratedExistingMachineRequestSheetByMTD = () => {
   const navigate = useNavigate();
@@ -153,6 +154,17 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                           >
                             Back
                           </button>
+
+                          {machineAndSupportingTMData?.selectedMachineData
+                            ?._id && (
+                            <ButtonCMRequestSheetHistory
+                              machineId={
+                                machineAndSupportingTMData?.selectedMachineData
+                                  ?._id
+                              }
+                              selectedYear={selectedYear}
+                            />
+                          )}
                         </Col>
 
                         <Col className="d-flex align-items-center justify-content-center text-center">

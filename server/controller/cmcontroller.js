@@ -1317,7 +1317,10 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       },
       aggregationPipeline: [],
     };
-  } else if (reqUrl?.includes("getAllCmReqSheet")) {
+  } else if (
+    reqUrl?.includes("getAllCmReqSheet") ||
+    reqUrl?.includes("getCMRequestSheetHistoryData")
+  ) {
     otherPipelines.project = {
       "current_commonDataFilledByAssignUser.assignUserForCM": 1,
       assignUserForCM: {
@@ -1406,41 +1409,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     },
     {
       $addFields: {
-        // current_commonDataFilledByAssignUser: {
-        //   $arrayElemAt: [
-        //     {
-        //       $filter: {
-        //         input: {
-        //           $getField: {
-        //             field: "quarterlyDataOfTheCM",
-        //             input: {
-        //               $arrayElemAt: [
-        //                 {
-        //                   $filter: {
-        //                     input: "$commonDataFilledByAssignUser",
-        //                     as: "yearWiseData",
-        //                     cond: {
-        //                       $eq: [
-        //                         "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-        //                         req?.query?.selectedYear,
-        //                       ],
-        //                     },
-        //                   },
-        //                 },
-        //                 0,
-        //               ],
-        //             },
-        //           },
-        //         },
-        //         as: "quarterWiseData",
-        //         cond: {
-        //           ...middlewareForGetQuarterWiseOrUptoCurrentDate,
-        //         },
-        //       },
-        //     },
-        //     0,
-        //   ],
-        // },
         current_commonDataFilledByAssignUser: lastQuarterOrSelectedQuarter,
         ...otherPipelines?.addFields,
       },
@@ -1452,6 +1420,9 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         },
         line: {
           $arrayElemAt: ["$plantToMachineHierarchy.line.line_name", 0],
+        },
+        machineId: {
+          $arrayElemAt: ["$plantToMachineHierarchy.machine._id", 0],
         },
         machineNo: {
           $arrayElemAt: ["$plantToMachineHierarchy.machine.machine_code", 0],
@@ -1573,6 +1544,29 @@ router.get(
     successResponse(res, "Request-sheet fetched successfully", {
       reqSheetCM: req.requestSheetData,
       counters: counters?.[0],
+    });
+  })
+);
+
+router.get(
+  "/getCMRequestSheetHistoryData",
+  authenticate,
+  tryCatchHandler(async (req, res, next) => {
+    req.queryObj = {
+      commonDataFilledByAssignUser: {
+        $elemMatch: {
+          "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            req.query?.selectedYear,
+        },
+      },
+      machineRef: mongoose.Types.ObjectId(req.query?.machineId),
+    };
+    next();
+  }),
+  getRequestSheetData,
+  tryCatchHandler(async (req, res, next) => {
+    successResponse(res, "Request-sheet fetched successfully", {
+      requestSheetData: req.requestSheetData,
     });
   })
 );

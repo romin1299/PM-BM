@@ -16,6 +16,7 @@ import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
 import UserApprovalSelectFields from "../RSComponents/UserApprovalSelectFields/UserApprovalSelectFields";
 import ApproveOrRejectComponent from "../RSComponents/ApproveOrRejectComponent";
 import SupportingTMInputField from "../RSComponents/SupportingTMInputField";
+import ButtonCMRequestSheetHistory from "../HistoryOfCMRequestSheet/ButtonCMRequestSheetHistory";
 
 const ExistingMachineReqSheetView = ({
   handlePopupStatus,
@@ -237,7 +238,14 @@ const ExistingMachineReqSheetView = ({
                           id="rs-top-btns"
                           data-html2canvas-ignore="true"
                           className="col-auto d-flex gap-2 align-items-center"
-                        ></Col>
+                        >
+                          {watch("machineId") && (
+                            <ButtonCMRequestSheetHistory
+                              machineId={watch("machineId")}
+                              selectedYear={selectedYear}
+                            />
+                          )}
+                        </Col>
 
                         <Col className="d-flex align-items-center justify-content-center text-center">
                           <h4 className="m-0">
