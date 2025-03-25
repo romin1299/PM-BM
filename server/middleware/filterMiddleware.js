@@ -84,6 +84,11 @@ module.exports = tryCatchHandler(async (req, res, next) => {
       queryObjForPM = {
         _id: mongoose.Types.ObjectId(req.params?.selectedId),
       };
+    } else if(req.params?.filter === "based-on-requestSheetIdOfBM"){
+      queryObj = {
+        ...queryObj,
+        requestSheetOfBMRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
     }
 
     req.queryObj = queryObj;

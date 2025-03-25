@@ -285,33 +285,32 @@ const ExistingMachineReqSheetView = ({
                         </Col>
                       </Row>
                       <Row className="m-0">
-                        <Col className="border">
-                          <Row>
-                            <small className="border-right-0 text-center m-0">
-                              <b>PLANNED DATE</b>
-                            </small>
-                            <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
-                              <div className="text-center">
-                                <p className="mb-0">
-                                  <b>DATE & TIME: </b>
-                                  <br />
-                                  <input
-                                    type="datetime-local"
-                                    disabled={!isEditable}
-                                    {...register(
-                                      "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
-                                      {
-                                        required:
-                                          "RequestSheet date is required",
-                                      }
-                                    )}
-                                  />
-                                </p>
-                              </div>{" "}
-                            </div>
-                          </Row>
+                        <Col className="border d-flex align-items-center">
+                          <small className="border-right-0 text-center m-0">
+                            <b>PLANNED DATE: </b>
+                          </small>
                         </Col>
                         <Col className="border">
+                          <div className="border-left-0 text-center mb-1 ">
+                            <div className="text-center">
+                              <p className="mb-0">
+                                <b>DATE & TIME: </b>
+                                <br />
+                                <input
+                                  type="datetime-local"
+                                  disabled={!isEditable}
+                                  {...register(
+                                    "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
+                                    {
+                                      required: "RequestSheet date is required",
+                                    }
+                                  )}
+                                />
+                              </p>
+                            </div>{" "}
+                          </div>
+                        </Col>
+                        {/* <Col className="border">
                           <Row>
                             <small className="border-right-0 text-center m-0">
                               <b>SHEET ISSUED</b>
@@ -330,7 +329,7 @@ const ExistingMachineReqSheetView = ({
                               </div>
                             </div>
                           </Row>
-                        </Col>
+                        </Col> */}
                       </Row>
                     </div>
                   </td>

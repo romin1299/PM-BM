@@ -40,9 +40,7 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
       },
       sheetIssuedDateAndTimeOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       maintenanceType: "CM",
-      targetDateOfCM: moment(new Date()).format(
-        "YYYY-MM-DDTHH:mm"
-      ),
+      targetDateOfCM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
     },
   });
 
@@ -329,48 +327,47 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                         </Col>
                       </Row>
                       <Row className="m-0">
-                        <Col className="border">
-                          <Row>
-                            <small className="border-right-0 text-center m-0">
-                              <b>PLANNED DATE</b>
-                            </small>
-                            <div className="d-flex align-items-center justify-content-center mt-1 mb-1 border-top">
-                              <div className="text-center">
-                                <p className="mb-0">
-                                  <b>DATE & TIME: </b>
-                                  <br />
-                                  <input
-                                    type="datetime-local"
-                                    {...register(
-                                      "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
-                                      {
-                                        required:
-                                          "RequestSheet date is required",
-                                        onChange: (event) =>
-                                          setValue(
-                                            "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
-                                            event.target.value
-                                          ),
-                                      }
-                                    )}
-                                  />
-                                  {errors?.[
-                                    "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM"
-                                  ] && (
-                                    <p className="text-error">
-                                      {
-                                        errors?.[
-                                          "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM"
-                                        ]?.message
-                                      }
-                                    </p>
-                                  )}
-                                </p>
-                              </div>{" "}
-                            </div>
-                          </Row>
+                        <Col className="border d-flex align-items-center">
+                          <small className="border-right-0 text-center m-0">
+                            <b>PLANNED DATE</b>
+                          </small>
                         </Col>
                         <Col className="border">
+                          <div className="border-left-0 text-center mb-1">
+                            <div className="text-center">
+                              <p className="mb-0">
+                                <b>DATE & TIME: </b>
+                                <br />
+                                <input
+                                  type="datetime-local"
+                                  {...register(
+                                    "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
+                                    {
+                                      required: "RequestSheet date is required",
+                                      onChange: (event) =>
+                                        setValue(
+                                          "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
+                                          event.target.value
+                                        ),
+                                    }
+                                  )}
+                                />
+                                {errors?.[
+                                  "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM"
+                                ] && (
+                                  <p className="text-error">
+                                    {
+                                      errors?.[
+                                        "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM"
+                                      ]?.message
+                                    }
+                                  </p>
+                                )}
+                              </p>
+                            </div>{" "}
+                          </div>
+                        </Col>
+                        {/* <Col className="border">
                           <Row>
                             <small className="border-left-0 text-center m-0">
                               <b>SHEET ISSUED</b>
@@ -389,7 +386,7 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                               </div>{" "}
                             </div>
                           </Row>
-                        </Col>
+                        </Col> */}
                       </Row>
                     </div>
                   </td>
@@ -779,10 +776,7 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                         </div>
                         {errors?.targetDateOfCM && (
                           <p className="text-error">
-                            {
-                              errors?.targetDateOfCM
-                                ?.message
-                            }
+                            {errors?.targetDateOfCM?.message}
                           </p>
                         )}
                       </Col>

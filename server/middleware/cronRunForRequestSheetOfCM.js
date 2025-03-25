@@ -114,41 +114,18 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
 
 cron.schedule("0 0 1 * *", async () => {
   try {
-    const valueOfTheFunction = await commonDataAdditionForOncePerMonthAndThree(
-      "1/1 M"
-    );
+    let valueOfTheFunction = await commonDataAdditionForOncePerMonthAndThree([
+      "1/1 M",
+      "1/3 M",
+    ]);
     if (valueOfTheFunction?.length) {
-      // const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
+      const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
     }
   } catch (error) {
     console.log(error);
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
   }
 });
-
-// cron.schedule("* * * */3 *", async () => {
-//   try {
-//     const valueOfTheFunction = await commonDataAdditionForOncePerMonthAndThree(
-//       "1/3 M"
-//     );
-//     if (valueOfTheFunction?.length) {
-//       const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     logger.error(error, { maintenanceType: maintenanceType?.[0] });
-//   }
-// });
-
-// const valueOfTheFunction = commonDataAdditionForOncePerMonthAndThree([
-//   "1/6 M",
-//   "1/Y",
-//   "1/2 Y",
-//   "1/3 Y",
-//   "1/4 Y",
-// ]);
-
-// console.log(valueOfTheFunction);
 
 cron.schedule("0 0 1 4 *", async () => {
   try {
@@ -159,21 +136,21 @@ cron.schedule("0 0 1 4 *", async () => {
       "1/3 Y",
       "1/4 Y",
     ]);
-
-    const requestSheets = await RequestSheetOfCM.find(
-      {
-        // _id: mongoose.Types.ObjectId("67b2e18e0ed27a39afcdf206"),
-        "cmBasicDataFilledByMTD_TL.frequencyValue": {
-          $in: ["1/6 M", "1/Y", "1/2 Y", "1/3 Y", "1/4 Y"],
-        },
-      },
-      {
-        _id: 1,
-        "commonDataFilledByAssignUser.quarterlyDataOfTheCM.targetDateOfCM": 1,
-      }
-    );
+    if (valueOfTheFunction?.length) {
+      const result = await RequestSheetOfCM.bulkWrite(valueOfTheFunction);
+    }
   } catch (error) {
     console.log(error);
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
   }
 });
+
+// const valueOfTheFunction = commonDataAdditionForOncePerMonthAndThree([
+//   "1/6 M",
+//   "1/Y",
+//   "1/2 Y",
+//   "1/3 Y",
+//   "1/4 Y",
+// ]);
+
+// console.log(valueOfTheFunction);

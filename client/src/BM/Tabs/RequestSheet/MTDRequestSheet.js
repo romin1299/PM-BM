@@ -17,11 +17,12 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
 import { Button, Typography } from "@mui/material";
-import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import BMReflectionYokotenkai from "../SubComponents/BMReflectionYokotenkai";
 import {
   FREQUENCY_OF_CM,
   CATEGORIES_OF_CM,
 } from "../../../CM/GlobalDataAccess/GlobalData";
+import axios from "axios";
 const list = [
   { key: "A", value: "A" },
   { key: "B", value: "B" },
@@ -44,6 +45,7 @@ function MyTable({
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
   const [parts, setParts] = useState([]);
+  const [dataOfTheCM, setDataOfTheCM] = useState([]);
   const [selectedMinor, setSelectedMinor] = useState();
   const [selectedMajor, setSelectedMajor] = useState();
 
@@ -96,6 +98,7 @@ function MyTable({
       //   ...rest,
       // }));
       requestSheetData.changedParts = parts;
+      requestSheetData.dataOfTheCM = dataOfTheCM;
       requestSheetData.supportingTM =
         // selectedSupportedTM?.length > 0
         //   ?
@@ -121,7 +124,6 @@ function MyTable({
         "attachedDataSheets",
         requestSheetData?.attachedDataSheets?.[0]
       );
-      console.log(requestSheetData);
       for (let i = 0; i < requestSheetData?.attachedDrawings?.length; i++) {
         formData.append(
           "attachedDrawings",
@@ -656,6 +658,17 @@ function MyTable({
     }
   };
 
+  const getAllCMSheetData = async () => {
+    try {
+      const response = await axios.get(
+        `/getAllCmReqSheet/based-on-requestSheetIdOfBM/${requestSheetDataOfBM?._id}/?selectedYear=2024-2025`
+      );
+      setDataOfTheCM(response?.data?.reqSheetCM);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {
       setValue(
@@ -808,6 +821,10 @@ function MyTable({
       setSelectedMinor("Yes");
     }
   }, [timeDifferenceMinutes]);
+
+  useEffect(() => {
+    if (requestSheetDataOfBM?._id) getAllCMSheetData();
+  }, [requestSheetDataOfBM?._id]);
 
   return (
     <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
@@ -2377,6 +2394,7 @@ function MyTable({
                 actions={actions}
                 setActions={setActions}
                 clearErrors={clearErrors}
+                isEditable={true}
               />
               <input
                 {...register("actionValidation", {
@@ -2391,73 +2409,33 @@ function MyTable({
               )}
             </td>
             <td className="col-lg-6 col-md-12 col-sm-12">
-              <Row className="m-0">
-                <Col className="border col-lg-12 col-md-12 col-sm-12">
-                  <small>
-                    <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
-                  </small>
-                  <br />
-                  <textarea
-                    rows={2}
-                    type="text"
-                    id="preventive_corrective_maintenance"
-                    name="preventive_corrective_maintenance"
-                    style={{ width: "80%" }}
-                    {...register("preventive_corrective_maintenance", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue(
-                        "preventive_corrective_maintenance",
-                        e.target.value,
-                        { shouldDirty: true }
-                      );
-                      clearErrors("preventive_corrective_maintenance");
-                    }}
-                  />
-                  {errors?.["preventive_corrective_maintenance"] && (
-                    <p className="text-error">
-                      {errors?.["preventive_corrective_maintenance"]?.message}
-                    </p>
-                  )}
-                </Col>
-              </Row>
-
-              {/* <Row className="m-0 p-1 border">
-                <AddBoxIcon onClick={() => {}} />
-              </Row> */}
-              <Row className="m-0">
-                <Col className="border col-lg-12 col-md-12 col-sm-12">
-                  <small>
-                    {" "}
-                    <b>YOKOTENKAI</b>
-                  </small>
-
-                  <br />
-                  <textarea
-                    rows={2}
-                    type="text"
-                    id="yokotenkai"
-                    name="yokotenkai"
-                    className="m-1"
-                    style={{ width: "80%" }}
-                    {...register("yokotenkai", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("yokotenkai", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("yokotenkai");
-                    }}
-                  />
-                  {errors?.["yokotenkai"] && (
-                    <p className="text-error">
-                      {errors?.["yokotenkai"]?.message}
-                    </p>
-                  )}
-                </Col>
-              </Row>
+              <small>
+                <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
+              </small>
+              <br />
+              <textarea
+                rows={2}
+                type="text"
+                id="preventive_corrective_maintenance"
+                name="preventive_corrective_maintenance"
+                style={{ width: "80%" }}
+                {...register("preventive_corrective_maintenance", {
+                  // required: "This field is required",
+                })}
+                onChange={(e) => {
+                  setValue(
+                    "preventive_corrective_maintenance",
+                    e.target.value,
+                    { shouldDirty: true }
+                  );
+                  clearErrors("preventive_corrective_maintenance");
+                }}
+              />
+              {errors?.["preventive_corrective_maintenance"] && (
+                <p className="text-error">
+                  {errors?.["preventive_corrective_maintenance"]?.message}
+                </p>
+              )}
             </td>
           </tr>
           <tr className="row m-0">
@@ -2520,288 +2498,27 @@ function MyTable({
             </td>
           </tr>
           {watch("actionTemporaryOrNot") === "Yes" && (
-            <tr className="row m-0">
-              <td className="col-sm-12 col-md-6">
-                <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
-                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                      <b>Activity Of CM: </b>
-                    </p>
-                  </Col>
-
-                  <Col lg={7}>
-                    <div className="d-block align-items-center">
+            <tr>
+              <td className="col-lg-12 col-md-12 col-sm-12">
+                {/* <Row className="m-0 p-1 border">
+                <AddBoxIcon onClick={() => {}} />
+              </Row> */}
+                <Row className="m-0">
+                  <Col className="border col-lg-12 col-md-12 col-sm-12">
+                    <small>
                       {" "}
-                      <input
-                        type="text"
-                        id="cmBasicDataFilledByMTD_TL.activityOfCM"
-                        className="m-1 mb-2"
-                        style={{ width: "350px" }}
-                        {...register("cmBasicDataFilledByMTD_TL.activityOfCM", {
-                          validate: (value) => {
-                            if (
-                              watch("actionTemporaryOrNot") === "Yes" &&
-                              value === ""
-                            ) {
-                              return "Activity is reqired";
-                            }
-                          },
-                        })}
-                        onChange={(e) => {
-                          setValue(
-                            "cmBasicDataFilledByMTD_TL.activityOfCM",
-                            e.target.value,
-                            {
-                              shouldDirty: true,
-                            }
-                          );
-                          clearErrors("cmBasicDataFilledByMTD_TL.activityOfCM");
-                        }}
-                      />
-                    </div>
-                    {errors?.cmBasicDataFilledByMTD_TL?.activityOfCM && (
+                      <b>YOKOTENKAI</b>
+                    </small>
+                    <BMReflectionYokotenkai
+                      dataOfTheCM={dataOfTheCM}
+                      setDataOfTheCM={setDataOfTheCM}
+                      setActions={setActions}
+                      clearErrors={clearErrors}
+                      isEditable={true}
+                    />
+                    {errors?.["yokotenkai"] && (
                       <p className="text-error">
-                        {
-                          errors?.cmBasicDataFilledByMTD_TL?.activityOfCM
-                            ?.message
-                        }
-                      </p>
-                    )}
-                  </Col>
-                </Row>
-
-                <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
-                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                      <b>Frequency: </b>
-                    </p>
-                  </Col>
-                  <Col lg={7}>
-                    {FREQUENCY_OF_CM?.map((value, idx) => (
-                      <div key={idx}>
-                        <Col>
-                          <input
-                            type="radio"
-                            id={`frequencyType_${idx}`}
-                            name="cmBasicDataFilledByMTD_TL.frequencyType"
-                            className="m-1 mb-2"
-                            value={value?.frequencyType}
-                            {...register(
-                              "cmBasicDataFilledByMTD_TL.frequencyType",
-                              {
-                                validate: (value) => {
-                                  if (
-                                    watch("actionTemporaryOrNot") === "Yes" &&
-                                    value === ""
-                                  ) {
-                                    return "Frequency is reqired";
-                                  } else {
-                                    clearErrors(
-                                      "cmBasicDataFilledByMTD_TL.frequencyType"
-                                    );
-                                  }
-                                },
-                              }
-                            )}
-                            onChange={(e) => {
-                              setValue(
-                                "cmBasicDataFilledByMTD_TL.frequencyType",
-                                e.target.value,
-                                {
-                                  shouldDirty: true,
-                                }
-                              );
-                              clearErrors(
-                                "cmBasicDataFilledByMTD_TL.frequencyType"
-                              );
-                            }}
-                          />
-                          <label htmlFor={`frequencyType_${idx}`}>
-                            {value?.frequencyType}
-                          </label>
-                        </Col>
-
-                        {/* Render frequency values only if the frequencyType is Scheduled */}
-                        {watch("cmBasicDataFilledByMTD_TL.frequencyType") ===
-                          value?.frequencyType &&
-                          value?.frequencyType === "Scheduled" && (
-                            <Col className="d-flex justify-content-center align-items-center">
-                              {value?.frequencyValue?.length > 0 &&
-                                value?.frequencyValue?.map((type, idx1) => (
-                                  <Col key={idx1}>
-                                    <input
-                                      type="radio"
-                                      id={`frequencyValue_${idx1}`}
-                                      name="cmBasicDataFilledByMTD_TL.frequencyValue"
-                                      className="m-1 mb-2"
-                                      value={type}
-                                      {...register(
-                                        "cmBasicDataFilledByMTD_TL.frequencyValue",
-                                        {
-                                          required: {
-                                            value:
-                                              watch(
-                                                "cmBasicDataFilledByMTD_TL.frequencyType"
-                                              ) === "Scheduled",
-                                            message:
-                                              "Please select frequency value",
-                                          },
-                                        }
-                                      )}
-                                    />
-                                    <label htmlFor={`frequencyValue_${idx1}`}>
-                                      {type}
-                                    </label>
-                                  </Col>
-                                ))}
-
-                              {/* Error for frequency value (only for Scheduled) */}
-                              {errors?.cmBasicDataFilledByMTD_TL
-                                ?.frequencyValue && (
-                                <p className="text-error">
-                                  {
-                                    errors?.cmBasicDataFilledByMTD_TL
-                                      ?.frequencyValue?.message
-                                  }
-                                </p>
-                              )}
-                            </Col>
-                          )}
-                      </div>
-                    ))}
-
-                    {/* Error for frequency type */}
-                    {errors?.cmBasicDataFilledByMTD_TL?.frequencyType && (
-                      <p className="text-error">
-                        {
-                          errors?.cmBasicDataFilledByMTD_TL?.frequencyType
-                            ?.message
-                        }
-                      </p>
-                    )}
-                  </Col>
-                </Row>
-              </td>
-              <td className="col-sm-12 col-md-6">
-                <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={3}>
-                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                      <b>Category of CM:</b>
-                    </p>
-                  </Col>
-                  <Col lg={9} className="d-flex justify-content-between">
-                    {CATEGORIES_OF_CM?.map((value, idx) => (
-                      <>
-                        <Form.Check
-                          flex
-                          label={value}
-                          type="radio"
-                          value={value}
-                          name={`categories`}
-                          className="col-auto"
-                          // onChange={handleactionTemporaryOrNot}
-                          {...register("cmBasicDataFilledByMTD_TL.categories", {
-                            validate: (value) => {
-                              if (
-                                watch("actionTemporaryOrNot") === "Yes" &&
-                                value === ""
-                              ) {
-                                return "Catagory is reqired";
-                              }
-                            },
-                          })}
-                          onChange={(e) => {
-                            setValue(
-                              "cmBasicDataFilledByMTD_TL.categories",
-                              e.target.value,
-                              { shouldDirty: true }
-                            );
-                            clearErrors("cmBasicDataFilledByMTD_TL.categories");
-                            if (e.target.value !== "Others") {
-                              setCustomCategory(""); // Clear custom category when another option is selected
-                            }
-                          }}
-                        />
-                      </>
-                    ))}
-                    {errors?.cmBasicDataFilledByMTD_TL?.categories && (
-                      <p className="text-error">
-                        {errors?.cmBasicDataFilledByMTD_TL?.categories?.message}
-                      </p>
-                    )}
-                  </Col>
-                  {watch("cmBasicDataFilledByMTD_TL.categories") ===
-                    "Others" && (
-                    <Row className="m-0 border d-flex align-items-center">
-                      <Col lg={12} className="d-flex justify-content-end">
-                        <input
-                          type="text"
-                          size={20}
-                          placeholder="Add Category"
-                          onChange={(e) => {
-                            setCustomCategory(e.target.value); // Update the custom category state
-                          }}
-                          onBlur={() => {
-                            if (customCategory) {
-                              // Update the form field only after user has entered a value
-                              setValue(
-                                "cmBasicDataFilledByMTD_TL.categories",
-                                customCategory,
-                                { shouldDirty: true }
-                              );
-                              clearErrors(
-                                "cmBasicDataFilledByMTD_TL.categories"
-                              );
-                            }
-                          }}
-                        />
-                      </Col>
-                    </Row>
-                  )}
-                </Row>
-
-                <Row className="m-0 border d-flex align-items-center">
-                  <Col lg={5}>
-                    <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                      <b>Target Date for CM: </b>
-                    </p>
-                  </Col>
-
-                  <Col lg={7}>
-                    <div className="d-block align-items-center">
-                      {" "}
-                      <input
-                        type="datetime-local"
-                        id="targetDateOfCM"
-                        className="m-1 mb-2"
-                        name="cmBasicDataFilledByMTD_TL.targetDateOfCM"
-                        // style={{ width: "350px" }}
-                        {...register(
-                          "cmBasicDataFilledByMTD_TL.targetDateOfCM"
-                        )}
-                        // onInput={() => {
-                        //   clearErrors("cmBasicDataFilledByMTD_TL.targetDateOfCM");
-                        // }}
-                        onChange={(e) => {
-                          setValue(
-                            "cmBasicDataFilledByMTD_TL.targetDateOfCM",
-                            e.target.value,
-                            {
-                              shouldDirty: true,
-                            }
-                          );
-                          clearErrors(
-                            "cmBasicDataFilledByMTD_TL.targetDateOfCM"
-                          );
-                        }}
-                      />
-                    </div>
-                    {errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM && (
-                      <p className="text-error">
-                        {
-                          errors?.cmBasicDataFilledByMTD_TL?.targetDateOfCM
-                            ?.message
-                        }
+                        {errors?.["yokotenkai"]?.message}
                       </p>
                     )}
                   </Col>
@@ -2934,7 +2651,11 @@ function MyTable({
                 </Col>
                 <Col lg={11} md={11}>
                   <Row className="">
-                    <PartList parts={parts} setParts={setParts} />
+                    <PartList
+                      parts={parts}
+                      setParts={setParts}
+                      isEditable={true}
+                    />
                   </Row>
                 </Col>
               </Row>

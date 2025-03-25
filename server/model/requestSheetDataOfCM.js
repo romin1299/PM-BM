@@ -14,7 +14,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
   //If require else byDefault is BM
   maintenanceType: {
     type: String,
-    default: "BM",
+    default: "CM",
   },
   priorityCode: {
     type: String,
@@ -45,6 +45,7 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     },
     personForLTPM: {
       type: String,
+      default: "M"
     },
     partSuggestionByMTDTL: {
       type: String,

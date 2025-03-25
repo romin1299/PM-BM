@@ -460,11 +460,6 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   yokotenkai: {
     type: String,
   },
-
-  CM_requestSheetRef: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "CM_RequestSheetData",
-  },
 });
 
 const RequestSheetOfBM = new mongoose.model(

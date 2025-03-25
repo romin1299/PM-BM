@@ -26,7 +26,10 @@ const truncValue = require("../utils/truncValue");
 const sendMailForSpareRequest = require("../sendMailForBM/sendMailForSpareRequest");
 const logger = require("../utils/LoggingController/loggers");
 const maintenanceType = require("../utils/maintenanceType");
-
+const {
+  newRequestSheetDataStore,
+} = require("../middleware/findMachineDataForNewRequestSheetOfCM");
+const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 router.use(cookieParser());
 // router.use(authenticate);
 
@@ -35,6 +38,7 @@ const {
 } = require("../GlobalData/RequestSheetApprovalStatus");
 const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
+const PlantToMachineHierarchy = require("../model/plantToMachineHierarchySchema");
 
 const statusArray = [
   "Generated",
@@ -259,6 +263,60 @@ const dashboardLevelUserCheckMiddleware = async (req, res, next) => {
   }
 };
 
+const findMachineDataWithParentHierarchy = tryCatchHandler(
+  async (machineId) => {
+    const machine = await Machine.findOne({ _id: machineId })
+      .populate({
+        path: "line_names",
+        populate: {
+          path: "cell_names",
+          populate: {
+            path: "subSection_names",
+            populate: {
+              path: "section_names",
+              populate: {
+                path: "plant_names",
+                model: "Plants",
+              },
+            },
+          },
+        },
+      })
+      .select(["machine_code", "machine_name", "machine_nickname"])
+      .exec();
+
+    if (!machine) {
+      return res.status(400).json({
+        message: "Machine data doesn't exist",
+      });
+    }
+    return machine;
+  }
+);
+
+const findPlantToMachineHierarchyObj = tryCatchHandler(async (machine) => {
+  let hierarchy = await PlantToMachineHierarchy.findOne({
+    "machine._id": machine?._id,
+  });
+
+  if (!hierarchy) {
+    hierarchy = new PlantToMachineHierarchy({
+      machine: machine,
+      line: machine?.line_names,
+      cell: machine?.line_names?.cell_names,
+      subSection: machine?.line_names?.cell_names?.subSection_names,
+      section: machine?.line_names?.cell_names?.subSection_names?.section_names,
+      plant:
+        machine?.line_names?.cell_names?.subSection_names?.section_names
+          ?.plant_names,
+    });
+
+    await hierarchy.save();
+  }
+
+  return hierarchy?._id;
+});
+
 router.post(
   "/newRequestSheetRegistration",
   authenticate,
@@ -314,112 +372,8 @@ router.post(
           const getRequestSheetData = await RequestSheetOfBM.findOne({
             _id: mongoose.Types.ObjectId(req.query?.reqId),
           });
-          const requestSheetDataFilledByMTDUser = JSON.parse(
-            req.body.otherData
-          );
-          let objForNewCM = {};
-          if (
-            requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
-              ?.activityOfCM
-          ) {
-            objForNewCM = {
-              ...objForNewCM,
-              "cmBasicDataFilledByMTD_TL.activityOfCM":
-                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
-                  ?.activityOfCM,
-            };
-          }
-          if (
-            requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
-              ?.categories
-          ) {
-            objForNewCM = {
-              ...objForNewCM,
-              "cmBasicDataFilledByMTD_TL.categories":
-                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
-                  ?.categories,
-            };
-          }
-          if (
-            requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
-              ?.frequencyType
-          ) {
-            objForNewCM = {
-              ...objForNewCM,
-              "cmBasicDataFilledByMTD_TL.frequencyType":
-                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
-                  ?.frequencyType,
-            };
-          }
-          if (
-            requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
-              ?.targetDateOfCM
-          ) {
-            objForNewCM = {
-              ...objForNewCM,
-              "cmBasicDataFilledByMTD_TL.targetDateOfCM":
-                requestSheetDataFilledByMTDUser?.cmBasicDataFilledByMTD_TL
-                  ?.targetDateOfCM,
-            };
-          }
-          let commonObjForNewOrUpdateCM = {
-            ..._idObject,
-            shiftOfCM: getRequestSheetData?.shiftOfBM,
-            sheetIssuedDateAndTimeOfCM:
-              getRequestSheetData?.sheetIssuedDateAndTimeOfBM,
-            requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
-            plannedDateAndTimeOfCM:
-              getRequestSheetData?.problemOccurredDateAndTimeOfBM,
-            maintenanceType: "CM",
-            preAggregationTimeStampOfRequestSheet:
-              getRequestSheetData?.preAggregationTimeStampOfRequestSheet,
-            ...objForNewCM,
-          };
-          const requestSheetNoOfCM = await globalReqSheetNo(
-            _idObject.machineRef,
-            "CM"
-          );
-          const isExistCmReqSheet = await RequestSheetOfCM.findOne({
-            requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
-          });
-          let newRequestSheetOfCM;
 
-          if (isExistCmReqSheet) {
-            newRequestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
-              {
-                requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
-              },
-              {
-                $set: commonObjForNewOrUpdateCM,
-              },
-              {
-                new: true,
-              }
-            );
-          } else {
-            newRequestSheetOfCM = await RequestSheetOfCM.create({
-              ...commonObjForNewOrUpdateCM,
-              requestSheetNoOfCM: requestSheetNoOfCM,
-            });
-          }
-
-          // const newRequestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
-          //   { requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId) },
-          //   {
-          //     $set: {
-          //       ..._idObject,
-          //       requestSheetOfBMRef: mongoose.Types.ObjectId(req.query?.reqId),
-          //       problemOccurredDateAndTimeOfCM:
-          //         getRequestSheetData?.problemOccurredDateAndTimeOfBM,
-          //       preAggregationTimeStampOfRequestSheet:
-          //         getRequestSheetData?.preAggregationTimeStampOfRequestSheet,
-          //       ...objForNewCM,
-          //     },
-          //   },
-          //   {
-          //     upsert: true,
-          //   }
-          // );
+          let requestSheetDataFilledByMTDUser = JSON.parse(req.body.otherData);
 
           const prdDataUpdatedByOtherUser = JSON.parse(
             req?.body?.prdDataUpdatedByOtherUser
@@ -646,10 +600,39 @@ router.post(
               new: true,
             }
           );
-          res.status(201).json({
-            message: `Request-sheet updated successfully ${requestSheet?.requestSheetNoOfBM}`,
-            requestSheet,
-          });
+
+          //for New CM request generation for BM reflaction
+          if (requestSheet?._id) {
+            for (
+              let index = 0;
+              index < requestSheetDataFilledByMTDUser?.dataOfTheCM?.length;
+              index++
+            ) {
+              if(requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index]?.cmBasicDataFilledByMTD_TL?.id){
+
+                let machineDataUseInCretionOfCM =
+                  await findMachineDataWithParentHierarchy(
+                    requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index]
+                      ?.cmBasicDataFilledByMTD_TL?.machineId
+                  );
+  
+                await newRequestSheetDataStore(
+                  machineDataUseInCretionOfCM,
+                  requestSheet?._id,
+                  requestSheet?.shiftOfBM,
+                  requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index],
+                  await findPlantToMachineHierarchyObj(
+                    machineDataUseInCretionOfCM
+                  ),
+                  req?.rootUser
+                );
+              }
+            }
+          }
+          // res.status(201).json({
+          //   message: `Request-sheet updated successfully ${requestSheet?.requestSheetNoOfBM}`,
+          //   requestSheet,
+          // });
         } else {
           const requestSheetDataFilledByPRDUser = JSON.parse(
             req.body.otherData
