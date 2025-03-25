@@ -122,7 +122,21 @@ const lineSchema = new mongoose.Schema({
       planAcceptedByPRD_HOS: commonUserApprovalObj,
     },
     preparationApprovalAndPlanPreparationMTD_HOS: commonUserApprovalObj,
-    quarterlyApproval: {},
+    quarterlyApproval: [
+      {
+        preAggregationTimeStampOfRequestSheet: {
+          requestSheet_year: {
+            type: String,
+          },
+          requestSheet_quarter: {
+            type: String,
+          },
+        },
+        status: commonVarForTypeString,
+        checkAndVerifyByMTD_TL: commonUserApprovalObj,
+        approveByHOD: commonUserApprovalObj,
+      },
+    ],
   },
 });
 

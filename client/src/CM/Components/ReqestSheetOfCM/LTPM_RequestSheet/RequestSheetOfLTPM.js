@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState, useContext } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Modal } from "react-bootstrap";
 import DataNotFound from "../../../../BM/Reports/Common/DataNotFound";
 import Loading from "../../../../components/Loading/Loading";
 import ExistingMachineReqSheetView from "../ExistingMachineRequestSheet/ExistingMachineReqSheetView";
@@ -9,11 +9,6 @@ import RoutingContext from "../../../../context/routing/RoutingContext";
 // import currentYear from "../../../../pages/Dashboard/DashboardComponent/currentYear";
 
 const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
-  // const [dataOfLTPM, setDataOfLTPM] = useState([]);
-  const currentYear = 2025;
-  const yearsOfLTPM = Array.from({ length: 5 }, (_, i) => currentYear + i);
-  // const [visibleYears, setVisibleYears] = useState(yearsOfLTPM.slice(0, 4));
-
   let columns = [
     "SN",
     "Machine No.",
@@ -28,12 +23,15 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   const initialState = {
     loading: true,
     paginationCount: 0,
-    yearList: yearsOfLTPM.slice(0, 4),
+    yearList: [],
     quarterList: ["Q1", "Q2", "Q3", "Q4"],
     data: [],
+    quarterlyApprovalObj: [],
     lineId: "",
     LTPMApproval: {},
   };
+
+  const context = useContext(RoutingContext);
 
   const [LTPMData, setLTPMData] = useState(initialState);
 
@@ -47,8 +45,6 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
     useState(defaultState);
 
-  // const [loading, setLoading] = useState(true);
-
   const handleSetState = (otherData) =>
     setLTPMData((LTPMData) => ({
       ...LTPMData,
@@ -57,8 +53,6 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
     }));
 
   const getDataOfLTPM = async (propPaginationCount = 0) => {
-    // setLoading(true);
-
     setLTPMData(initialState);
 
     try {
@@ -69,8 +63,6 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
         credentials: "include",
       });
 
-      // setDataOfLTPM(res?.data?.resultOfLTPM);
-
       handleSetState(res?.data);
     } catch (error) {
       console.log(error);
@@ -80,18 +72,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
         ...initialState,
       });
     }
-    // setLoading(false);
   };
-
-  // let yearsOfLTPM = [
-  //   new Date().getFullYear(),
-  //   new Date().getFullYear() + 1,
-  //   new Date().getFullYear() + 2,
-  //   new Date().getFullYear() + 3,
-  //   new Date().getFullYear() + 4,
-  // ];
-
-  // const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     if (reduceState?.flagForTogglingFilter === "based-on-line") getDataOfLTPM();
@@ -113,87 +94,87 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
   const handlePopupStatus = () =>
     setSelectedCMRequestSheetPopupData(defaultState);
 
-  const displayPlannedDataOfTheLTPM = (item, item1, years) => {
-    const rows = []; // Accumulate all <td> elements here
-    let yearFound = false; // Track if a matching year is found
-    let yearAddition = `${years}-${years + 1}`;
-    for (let i = 0; i < item1?.length; i++) {
-      if (
-        yearAddition ===
-        item1?.[i]?.preAggregationTimeStampOfRequestSheet?.requestSheet_year
-      ) {
-        yearFound = true; // Mark the year as found
+  // const displayPlannedDataOfTheLTPM = (item, item1, year) => {
+  //   const rows = []; // Accumulate all <td> elements here
+  //   let yearFound = false; // Track if a matching year is found
+  //   let yearAddition = year;
+  //   for (let i = 0; i < item1?.length; i++) {
+  //     if (
+  //       yearAddition ===
+  //       item1?.[i]?.preAggregationTimeStampOfRequestSheet?.requestSheet_year
+  //     ) {
+  //       yearFound = true; // Mark the year as found
 
-        for (let quarterValue of ["Q1", "Q2", "Q3", "Q4"]) {
-          let quarterFound = false; // Track if the quarter matches
+  //       for (let quarterValue of ["Q1", "Q2", "Q3", "Q4"]) {
+  //         let quarterFound = false; // Track if the quarter matches
 
-          for (
-            let index = 0;
-            index < item1?.[i]?.quarterlyDataOfTheCM?.length;
-            index++
-          ) {
-            if (
-              quarterValue ===
-              item1?.[i]?.quarterlyDataOfTheCM?.[index]?.requestSheet_quarter
-            ) {
-              // Add the corresponding <td> element to rows
-              rows.push(
-                <td
-                  className="ar-table-col"
-                  key={`${yearAddition}-${quarterValue}`}
-                >
-                  {item1?.[i]?.quarterlyDataOfTheCM?.[index]
-                    ?.statusOfPlannedCM === "Planned" && (
-                    <button
-                      type="button"
-                      className="commonBtn viewRequestSheetOfCMBtn"
-                      onClick={() => {
-                        openModalOfRequestSheetOfCm(
-                          item?._id?._id,
-                          item1?.[i]?.quarterlyDataOfTheCM?.[index]
-                            ?.requestSheet_quarter
-                        );
-                      }}
-                    >
-                      --&gt;
-                    </button>
-                  )}
-                </td>
-              );
+  //         for (
+  //           let index = 0;
+  //           index < item1?.[i]?.quarterlyDataOfTheCM?.length;
+  //           index++
+  //         ) {
+  //           if (
+  //             quarterValue ===
+  //             item1?.[i]?.quarterlyDataOfTheCM?.[index]?.requestSheet_quarter
+  //           ) {
+  //             // Add the corresponding <td> element to rows
+  //             rows.push(
+  //               <td
+  //                 className="ar-table-col"
+  //                 key={`${yearAddition}-${quarterValue}`}
+  //               >
+  //                 {item1?.[i]?.quarterlyDataOfTheCM?.[index]
+  //                   ?.statusOfPlannedCM === "Planned" && (
+  //                   <button
+  //                     type="button"
+  //                     className="commonBtn viewRequestSheetOfCMBtn"
+  //                     onClick={() => {
+  //                       openModalOfRequestSheetOfCm(
+  //                         item?._id?._id,
+  //                         item1?.[i]?.quarterlyDataOfTheCM?.[index]
+  //                           ?.requestSheet_quarter
+  //                       );
+  //                     }}
+  //                   >
+  //                     --&gt;
+  //                   </button>
+  //                 )}
+  //               </td>
+  //             );
 
-              quarterFound = true; // Mark the quarter as matched
-            }
-          }
+  //             quarterFound = true; // Mark the quarter as matched
+  //           }
+  //         }
 
-          // If the quarter is not found, add an empty <td>
-          if (!quarterFound) {
-            rows.push(
-              <td
-                className="ar-table-col"
-                key={`${yearAddition}-${quarterValue}-empty`}
-              >
-                {/* Empty box for unmatched quarters */}
-              </td>
-            );
-          }
-        }
+  //         // If the quarter is not found, add an empty <td>
+  //         if (!quarterFound) {
+  //           rows.push(
+  //             <td
+  //               className="ar-table-col"
+  //               key={`${yearAddition}-${quarterValue}-empty`}
+  //             >
+  //               {/* Empty box for unmatched quarters */}
+  //             </td>
+  //           );
+  //         }
+  //       }
 
-        break; // Exit the outer loop once the matching year is processed
-      }
-    }
-    // If no matching year is found, add empty <td> elements for all four quarters
-    if (!yearFound) {
-      for (let quarterValue of ["Q1", "Q2", "Q3", "Q4"]) {
-        rows.push(
-          <td className="ar-table-col" key={`default-${quarterValue}`}>
-            {/* Empty space */}
-          </td>
-        );
-      }
-    }
+  //       break; // Exit the outer loop once the matching year is processed
+  //     }
+  //   }
+  //   // If no matching year is found, add empty <td> elements for all four quarters
+  //   if (!yearFound) {
+  //     for (let quarterValue of ["Q1", "Q2", "Q3", "Q4"]) {
+  //       rows.push(
+  //         <td className="ar-table-col" key={`default-${quarterValue}`}>
+  //           {/* Empty space */}
+  //         </td>
+  //       );
+  //     }
+  //   }
 
-    return rows; // Return all accumulated rows
-  };
+  //   return rows; // Return all accumulated rows
+  // };
 
   return (
     <>
@@ -203,7 +184,28 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
             <div>
               <Container fluid>
                 <Row>
-                  <Col lg={6} md={6} sm={12} />
+                  <Col lg={6} md={6} sm={12}>
+                    <td
+                      className="ltpm-pagination d-flex align-items-center justify-content-center"
+                      colSpan={3}
+                    >
+                      <button
+                        className="btn-pagination"
+                        onClick={() =>
+                          getDataOfLTPM(LTPMData?.paginationCount + 1)
+                        }
+                      >
+                        Previous FY
+                      </button>
+                      &nbsp;
+                      <button
+                        className="btn-pagination"
+                        onClick={() => getDataOfLTPM(0)}
+                      >
+                        Reset
+                      </button>
+                    </td>
+                  </Col>
                   <Col lg={6} md={6} sm={12}>
                     <table className="ar-table tableCol1 ">
                       <thead>
@@ -236,6 +238,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                             }
                             lineId={LTPMData?.lineId}
                             handleSetState={handleSetState}
+                            context={context}
                           />
                         </tr>
                       </thead>
@@ -314,7 +317,19 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                             <br />
                             (MTD TL)
                           </th>
-                          <td className="ar-table-col1"></td>
+
+                          {LTPMData?.LTPMApproval?.planningApproval?.status ===
+                          "Completed" ? (
+                            LTPMData?.quarterlyApprovalObj?.map((item) => (
+                              <td className="ar-table-col1">
+                                {item?.checkAndVerifyByMTD_TL?.tm_name}
+                              </td>
+                            ))
+                          ) : (
+                            <EmptyQuarterlyApprovalMapping
+                              arr={LTPMData?.quarterList}
+                            />
+                          )}
                         </tr>
                         <tr>
                           <PreparationApproval
@@ -325,39 +340,33 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                             }
                             lineId={LTPMData?.lineId}
                             handleSetState={handleSetState}
+                            context={context}
                           />
                           <th className="ar-table-thead-header1">
                             Approved by
                             <br />
-                            (MTD HOS)
+                            (G.M.)
                           </th>
-                          <td className="ar-table-col1"></td>
-                          <td className="ltpm-pagination" colSpan={3}>
-                            <button
-                              className="btn-pagination"
-                              onClick={() =>
-                                getDataOfLTPM(LTPMData?.paginationCount + 1)
+
+                          {LTPMData?.LTPMApproval?.planningApproval?.status ===
+                          "Completed" ? (
+                            <QuarterlyApproval
+                              lineId={LTPMData?.lineId}
+                              handleSetState={handleSetState}
+                              userKey="MTD_HOD"
+                              quarterlyApprovalObj={
+                                LTPMData?.quarterlyApprovalObj
                               }
-                            >
-                              Previous FY
-                            </button>
-                            &nbsp;
-                            <button
-                              className="btn-pagination"
-                              onClick={() => getDataOfLTPM()}
-                            >
-                              Reset
-                            </button>
-                          </td>
+                              context={context}
+                            />
+                          ) : (
+                            <EmptyQuarterlyApprovalMapping
+                              arr={LTPMData?.quarterList}
+                            />
+                          )}
                         </tr>
                       </thead>
 
-                      {/* <PaginationForLTPM
-                        // setVisibleYears={setVisibleYears}
-                        // visibleYears={visibleYears}
-                        yearsOfLTPM={yearsOfLTPM}
-                        setLTPMData={setLTPMData}
-                      /> */}
                       <thead>
                         <tr>
                           <th colSpan={8}></th>
@@ -368,7 +377,7 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                                 colSpan={4}
                                 key={idx}
                               >
-                                {year}-{year + 1}
+                                {year}
                               </th>
                             );
                           })}
@@ -435,12 +444,44 @@ const RequestSheetOfLTPM = ({ selectedLine, reduceState }) => {
                                     {item1?.personForLTPM}
                                   </td>
                                   <td className="ar-table-thead-header3"></td>
-                                  {LTPMData?.yearList?.map((years, idx) =>
+                                  {/* {LTPMData?.yearList?.map((year, idx) =>
                                     displayPlannedDataOfTheLTPM(
                                       item,
                                       item1?.commonDataFilledByAssignUser,
-                                      years
+                                      year
                                     )
+                                  )} */}
+
+                                  {item1?.commonDataFilledByAssignUser?.map(
+                                    (outer) =>
+                                      outer?.quarterlyDataOfTheCM?.map(
+                                        (inner) =>
+                                          inner?.statusOfPlannedCM ===
+                                          "Planned" ? (
+                                            <td
+                                              className="ar-table-col"
+                                              key={`${outer?.preAggregationTimeStampOfRequestSheet?.requestSheet_year}-${inner?.requestSheet_quarter}-empty`}
+                                            >
+                                              <button
+                                                type="button"
+                                                className="commonBtn viewRequestSheetOfCMBtn"
+                                                onClick={() => {
+                                                  openModalOfRequestSheetOfCm(
+                                                    item?._id?._id,
+                                                    inner?.requestSheet_quarter
+                                                  );
+                                                }}
+                                              >
+                                                --&gt;
+                                              </button>
+                                            </td>
+                                          ) : (
+                                            <td
+                                              className="ar-table-col"
+                                              key={`${outer?.preAggregationTimeStampOfRequestSheet?.requestSheet_year}-${inner?.requestSheet_quarter}-empty`}
+                                            ></td>
+                                          )
+                                      )
                                   )}
                                 </tr>
                               ))}
@@ -477,8 +518,14 @@ const PreparationApproval = ({
   preparedByMTD_TL,
   checkByMTD_TL,
   preparationApprovalAndPlanPreparationMTD_HOS,
+  context,
 }) => {
-  if (!status && preparedByMTD_TL?.tm_name) {
+  if (
+    !status &&
+    preparedByMTD_TL?.tm_name &&
+    context?.user_type === "TL/HOSS" &&
+    context?.tm_department === "MTD"
+  ) {
     return (
       <SelectPreparationApproval
         preparedByMTD_TL={preparedByMTD_TL}
@@ -497,6 +544,7 @@ const PreparationApproval = ({
           handleSetState={handleSetState}
           status={status}
           statusForConditionCheck="Under approval of MTD HOS"
+          context={context}
         />
       </th>
       <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -506,6 +554,7 @@ const PreparationApproval = ({
           handleSetState={handleSetState}
           status={status}
           statusForConditionCheck="Check for MTD TL"
+          context={context}
         />
       </th>
       <th className="approvalName" colSpan={2} rowSpan={5}>
@@ -601,8 +650,13 @@ const PlanningApproval = ({
   planAcceptedByPRD_HOS,
   lineId,
   handleSetState,
+  context,
 }) => {
-  if (status === "Under approval of MTD HOS") {
+  if (
+    status === "Under approval of MTD HOS" &&
+    context?.user_type === "TL/HOSS" &&
+    context?.tm_department === "MTD"
+  ) {
     return (
       <SelectPlanningApproval
         preparationApprovalAndPlanPreparationMTD_HOS={
@@ -624,6 +678,7 @@ const PlanningApproval = ({
           status={status}
           statusForConditionCheck="Under approval of PRD HOS"
           phase="Planning"
+          context={context}
         />
       </th>
       <th className="approvalName">
@@ -690,6 +745,194 @@ const SelectPlanningApproval = ({
   );
 };
 
+const EmptyQuarterlyApprovalMapping = ({ arr }) =>
+  arr?.map((item) => <td className="ar-table-col1"></td>);
+
+const QuarterlyApproval = ({
+  lineId,
+  handleSetState,
+  quarterlyApprovalObj,
+  context,
+}) => {
+  const [dropdownUsers, setDropdownUsers] = useState({
+    MTDHODList: [],
+  });
+
+  const getApprovalListOfCM = async () => {
+    try {
+      const response = await axios.get(
+        `/getApprovalUserList/?departmentFilterForTL=MTD&&gradeFilter=HOD`
+      );
+      setDropdownUsers(response?.data?.userList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getApprovalListOfCM();
+  }, []);
+
+  const handleQuarterlyApprovalUpdate = (
+    approvalObj,
+    basedOn = "sendApproval"
+  ) =>
+    handleSetState({
+      quarterlyApprovalObj: quarterlyApprovalObj?.map((item) =>
+        basedOn === "sendApproval"
+          ? item?.preAggregationTimeStampOfRequestSheet?.requestSheet_year ===
+              approvalObj?.preAggregationTimeStampOfRequestSheet
+                ?.requestSheet_year &&
+            item?.preAggregationTimeStampOfRequestSheet
+              ?.requestSheet_quarter ===
+              approvalObj?.preAggregationTimeStampOfRequestSheet
+                ?.requestSheet_quarter
+            ? approvalObj
+            : item
+          : item?._id === approvalObj?._idForParticularYearAndQuarter
+          ? {
+              ...item,
+              approveByHOD: {
+                ...item?.approveByHOD,
+                approvalStatus: "Accepted",
+              },
+              status: "Completed",
+            }
+          : item
+      ),
+    });
+
+  return quarterlyApprovalObj?.map((item) => {
+    if (
+      !item?.approveByHOD?.tm_name &&
+      item?.count > 0 &&
+      context?.user_type === "TL/HOSS" &&
+      context?.tm_department === "MTD"
+    ) {
+      return (
+        <QuarterlyApprovalButtonComponentMapping
+          lineId={lineId}
+          handleSetState={handleQuarterlyApprovalUpdate}
+          MTDHODList={dropdownUsers?.MTDHODList}
+          approvalObj={item}
+          context={context}
+        />
+      );
+    }
+
+    return (
+      <td className="ar-table-col1">
+        <ViewOrApproveComponent
+          user={item?.approveByHOD}
+          lineId={lineId}
+          handleSetState={handleQuarterlyApprovalUpdate}
+          status={item?.status}
+          statusForConditionCheck="Under approval of MTD HOD"
+          phase="QuarterlyApproval"
+          query={`_idForParticularYearAndQuarter=${item?._id}`}
+          context={context}
+        />
+      </td>
+    );
+  });
+};
+
+const QuarterlyApprovalButtonComponentMapping = ({
+  lineId,
+  handleSetState,
+  MTDHODList,
+  approvalObj,
+  context,
+}) => {
+  const [handlePopup, setHandlePopup] = useState(false);
+
+  const handleChange = () => setHandlePopup((handlePopup) => !handlePopup);
+
+  return (
+    <td className="ar-table-col1">
+      <button className="bg-button" onClick={handleChange}>
+        Approval
+      </button>
+
+      <SelectParticularQuarterApproval
+        lineId={lineId}
+        handleSetState={handleSetState}
+        MTDHODList={MTDHODList}
+        handlePopup={handlePopup}
+        handleChangePopupState={handleChange}
+        approvalObj={approvalObj}
+        context={context}
+      />
+    </td>
+  );
+};
+
+const SelectParticularQuarterApproval = ({
+  lineId,
+  handleSetState,
+  MTDHODList,
+  handlePopup,
+  handleChangePopupState,
+  approvalObj,
+  context,
+}) => {
+  const [selectedUsers, setSelectedUsers] = useState({
+    indexOfApprovedByMTD_HOD: 0,
+  });
+
+  const handleChange = ({ target }) => {
+    const { name, value } = target;
+    setSelectedUsers((selectedUsers) => ({
+      ...selectedUsers,
+      [name]: value * 1,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.patch(`/sendQuarterlyApproval/${lineId}`, {
+        approvalObj,
+        approveByHOD: MTDHODList?.[selectedUsers?.indexOfApprovedByMTD_HOD],
+      });
+
+      if (response.status === 201) {
+        handleSetState(response?.data?.quarterlyApproval);
+        handleChangePopupState();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <Modal show={handlePopup} onHide={handleChangePopupState} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>HOD approval</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Row>
+          <Col>Check & Verify By (MTD TL): </Col>
+          <Col>{context?.tm_name}</Col>
+        </Row>
+        <Row>
+          <Col>Approved by (G.M.) </Col>
+          <Col>
+            <UserSelectionDropdown
+              name="indexOfApprovedByMTD_HOD"
+              onChange={handleChange}
+              userArray={MTDHODList}
+            />
+          </Col>
+        </Row>
+      </Modal.Body>
+      <Modal.Footer>
+        <button className="bg-button" onClick={handleSubmit}>
+          Send Approval
+        </button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
+
 const ViewOrApproveComponent = ({
   user,
   lineId,
@@ -697,21 +940,39 @@ const ViewOrApproveComponent = ({
   status,
   statusForConditionCheck,
   phase = "Preparation",
+  query = "",
+  context,
 }) => {
-  const context = useContext(RoutingContext);
-
   if (context?._id !== user?.userRef || status !== statusForConditionCheck) {
-    return <>{user?.tm_name}</>;
+    if (!user?.tm_name) {
+      return <></>;
+    }
+    return (
+      <>
+        <span>{user?.tm_name}</span>
+        <br />
+        <span>Status: {user?.approvalStatus}</span>
+      </>
+    );
   }
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.patch(`/acceptApproval/${phase}/${lineId}`, {
-        status,
-      });
+      const response = await axios.patch(
+        `/acceptApproval/${phase}/${lineId}/?${query}`,
+        {
+          status,
+        }
+      );
 
       if (response.status === 201) {
-        handleSetState(response?.data);
+        if (phase === "QuarterlyApproval") {
+          return handleSetState(
+            response?.data?.quarterlyApproval,
+            "AcceptApproval"
+          );
+        }
+        return handleSetState(response?.data);
       }
     } catch (error) {
       console.log(error);

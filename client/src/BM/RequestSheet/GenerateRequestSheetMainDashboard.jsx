@@ -71,7 +71,6 @@ const GenerateRequestSheetMainDashboard = () => {
 
   const ACTION = {
     GET: "get-main-dashboard-request-sheet-data",
-    SUB_SECTION_EVENT: "handle-sub-section-dropdown-change",
     LOADING: "handle-loading-state",
   };
 
@@ -86,13 +85,6 @@ const GenerateRequestSheetMainDashboard = () => {
           selectedSubSection: action?.selectedSubSection,
           dashboardLevel: action?.dashboardLevel,
           subSectionArr: action?.subSectionArr,
-        };
-      case ACTION?.SUB_SECTION_EVENT:
-        return {
-          ...state,
-          isLoading: false,
-          selectedSubSection: action?.selectedSubSection,
-          message: action?.message,
         };
 
       case ACTION?.LOADING:
@@ -109,7 +101,7 @@ const GenerateRequestSheetMainDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel =
-    async ({ url }) => {
+    async (url) => {
       try {
         reducerDispatch({
           type: ACTION.LOADING,
@@ -123,21 +115,11 @@ const GenerateRequestSheetMainDashboard = () => {
           credentials: "include",
         });
 
-        const {
-          allDataBasedOnDashboardLevel,
-          subSectionArr,
-          selectedSubSection,
-          dashboardLevel,
-          message,
-        } = await res.json();
+        const data = await res.json();
 
         reducerDispatch({
           type: ACTION.GET,
-          message,
-          allDataBasedOnDashboardLevel,
-          selectedSubSection,
-          dashboardLevel,
-          subSectionArr,
+          ...data,
         });
       } catch (error) {
         console.log(error);
@@ -145,14 +127,10 @@ const GenerateRequestSheetMainDashboard = () => {
     };
 
   useEffect(() => {
-    let url = `/getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel`;
-    if (reduceState?.selectedSubSection) {
-      url = `/getAllDataBasedOnSelectedSubSection/${reduceState?.selectedSubSection}/${reduceState?.dashboardLevel}`;
-    }
-    getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel({
-      url,
-    });
-  }, [reduceState?.selectedSubSection]);
+    getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel(
+      `/getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel`
+    );
+  }, []);
 
   const handleBack = () => {
     localStorage.getItem("activeKey") === "bm"
@@ -238,10 +216,9 @@ const GenerateRequestSheetMainDashboard = () => {
                 autoComplete="off"
                 value={reduceState?.selectedSubSection}
                 onChange={(e) => {
-                  reducerDispatch({
-                    type: ACTION.SUB_SECTION_EVENT,
-                    selectedSubSection: e.target.value,
-                  });
+                  getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel(
+                    `/getAllDataBasedOnSelectedSubSection/${e.target.value}/${reduceState?.dashboardLevel}`
+                  );
                 }}
                 variant="standard"
               >

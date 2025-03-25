@@ -16,6 +16,7 @@ import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
 import UserApprovalSelectFields from "../RSComponents/UserApprovalSelectFields/UserApprovalSelectFields";
 import ApproveOrRejectComponent from "../RSComponents/ApproveOrRejectComponent";
 import SupportingTMInputField from "../RSComponents/SupportingTMInputField";
+import ButtonCMRequestSheetHistory from "../HistoryOfCMRequestSheet/ButtonCMRequestSheetHistory";
 
 const ExistingMachineReqSheetView = ({
   handlePopupStatus,
@@ -237,7 +238,14 @@ const ExistingMachineReqSheetView = ({
                           id="rs-top-btns"
                           data-html2canvas-ignore="true"
                           className="col-auto d-flex gap-2 align-items-center"
-                        ></Col>
+                        >
+                          {watch("machineId") && (
+                            <ButtonCMRequestSheetHistory
+                              machineId={watch("machineId")}
+                              selectedYear={selectedYear}
+                            />
+                          )}
+                        </Col>
 
                         <Col className="d-flex align-items-center justify-content-center text-center">
                           <h4 className="m-0">
@@ -415,6 +423,73 @@ const ExistingMachineReqSheetView = ({
                     <Row className="m-0 border d-flex align-items-center">
                       <Col lg={3}>
                         <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                          <b>Category:</b>
+                        </p>
+                      </Col>
+                      <Col lg={9}>
+                        <div className="d-flex justify-content-between ">
+                          {CATEGORIES_OF_CM.map((value, idx) => (
+                            <React.Fragment key={idx}>
+                              <Form.Check
+                                idx={idx}
+                                label={value}
+                                type="radio"
+                                value={value}
+                                disabled={!isEditable}
+                                name={`categories`}
+                                className="col-auto"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.categories",
+                                  {
+                                    // required: "Category is required",
+                                    required: isEditable
+                                      ? "Category is required"
+                                      : false,
+                                  }
+                                )}
+                              />
+                            </React.Fragment>
+                          ))}
+                        </div>
+                        {errors?.cmBasicDataFilledByMTD_TL?.categories && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.categories
+                                ?.message
+                            }
+                          </p>
+                        )}
+                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                          "Others" && (
+                          <>
+                            <input
+                              type="text"
+                              size={20}
+                              className="m-1 mb-2"
+                              disabled={!isEditable}
+                              {...register(
+                                "cmBasicDataFilledByMTD_TL.other_categories",
+                                {
+                                  required: "Other category is required",
+                                }
+                              )}
+                            />
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.other_categories && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.other_categories?.message
+                                }
+                              </p>
+                            )}
+                          </>
+                        )}
+                      </Col>
+                    </Row>
+                    <Row className="m-0 border d-flex align-items-center">
+                      <Col lg={3}>
+                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                           <b>Frequency: </b> &nbsp;&nbsp;
                         </p>
                       </Col>
@@ -494,74 +569,6 @@ const ExistingMachineReqSheetView = ({
                                 ?.message
                             }
                           </p>
-                        )}
-                      </Col>
-                    </Row>
-
-                    <Row className="m-0 border d-flex align-items-center">
-                      <Col lg={3}>
-                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                          <b>Category:</b>
-                        </p>
-                      </Col>
-                      <Col lg={9}>
-                        <div className="d-flex justify-content-between ">
-                          {CATEGORIES_OF_CM.map((value, idx) => (
-                            <React.Fragment key={idx}>
-                              <Form.Check
-                                idx={idx}
-                                label={value}
-                                type="radio"
-                                value={value}
-                                disabled={!isEditable}
-                                name={`categories`}
-                                className="col-auto"
-                                {...register(
-                                  "cmBasicDataFilledByMTD_TL.categories",
-                                  {
-                                    // required: "Category is required",
-                                    required: isEditable
-                                      ? "Category is required"
-                                      : false,
-                                  }
-                                )}
-                              />
-                            </React.Fragment>
-                          ))}
-                        </div>
-                        {errors?.cmBasicDataFilledByMTD_TL?.categories && (
-                          <p className="text-error">
-                            {
-                              errors?.cmBasicDataFilledByMTD_TL?.categories
-                                ?.message
-                            }
-                          </p>
-                        )}
-                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
-                          "Others" && (
-                          <>
-                            <input
-                              type="text"
-                              size={20}
-                              className="m-1 mb-2"
-                              disabled={!isEditable}
-                              {...register(
-                                "cmBasicDataFilledByMTD_TL.other_categories",
-                                {
-                                  required: "Other category is required",
-                                }
-                              )}
-                            />
-                            {errors?.cmBasicDataFilledByMTD_TL
-                              ?.other_categories && (
-                              <p className="text-error">
-                                {
-                                  errors?.cmBasicDataFilledByMTD_TL
-                                    ?.other_categories?.message
-                                }
-                              </p>
-                            )}
-                          </>
                         )}
                       </Col>
                     </Row>

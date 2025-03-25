@@ -15,6 +15,7 @@ import {
 } from "../../../GlobalDataAccess/GlobalData";
 import Multiselect from "multiselect-react-dropdown";
 import ShiftInputField from "../RSComponents/ShiftInputField";
+import ButtonCMRequestSheetHistory from "../HistoryOfCMRequestSheet/ButtonCMRequestSheetHistory";
 
 const GeneratedExistingMachineRequestSheetByMTD = () => {
   const navigate = useNavigate();
@@ -153,6 +154,17 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                           >
                             Back
                           </button>
+
+                          {machineAndSupportingTMData?.selectedMachineData
+                            ?._id && (
+                            <ButtonCMRequestSheetHistory
+                              machineId={
+                                machineAndSupportingTMData?.selectedMachineData
+                                  ?._id
+                              }
+                              selectedYear={selectedYear}
+                            />
+                          )}
                         </Col>
 
                         <Col className="d-flex align-items-center justify-content-center text-center">
@@ -487,6 +499,68 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                     <Row className="m-0 border d-flex align-items-center">
                       <Col lg={5}>
                         <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                          <b>Category:</b>
+                        </p>
+                      </Col>
+                      <Col lg={7}>
+                        <div className="d-flex justify-content-between">
+                          {CATEGORIES_OF_CM.map((value, idx) => (
+                            <React.Fragment key={idx}>
+                              <Form.Check
+                                // flex
+                                idx={idx}
+                                label={value}
+                                type="radio"
+                                value={value}
+                                name={`categories`}
+                                className="col-auto"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.categories",
+                                  {
+                                    required: "Category is required",
+                                  }
+                                )}
+                              />
+                            </React.Fragment>
+                          ))}
+                        </div>
+                        {errors?.cmBasicDataFilledByMTD_TL?.categories && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL?.categories
+                                ?.message
+                            }
+                          </p>
+                        )}
+                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                          "Others" && (
+                          <input
+                            type="text"
+                            size={20}
+                            className="m-1 mb-2"
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.other_categories",
+                              {
+                                required: "Other category is required",
+                              }
+                            )}
+                          />
+                        )}
+                        {errors?.cmBasicDataFilledByMTD_TL
+                          ?.other_categories && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL
+                                ?.other_categories?.message
+                            }
+                          </p>
+                        )}
+                      </Col>
+                    </Row>
+
+                    <Row className="m-0 border d-flex align-items-center">
+                      <Col lg={5}>
+                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                           <b>Frequency: </b>
                         </p>
                       </Col>
@@ -575,67 +649,6 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                       </Col>
                     </Row>
 
-                    <Row className="m-0 border d-flex align-items-center">
-                      <Col lg={5}>
-                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                          <b>Category:</b>
-                        </p>
-                      </Col>
-                      <Col lg={7}>
-                        <div className="d-flex justify-content-between">
-                          {CATEGORIES_OF_CM.map((value, idx) => (
-                            <React.Fragment key={idx}>
-                              <Form.Check
-                                // flex
-                                idx={idx}
-                                label={value}
-                                type="radio"
-                                value={value}
-                                name={`categories`}
-                                className="col-auto"
-                                {...register(
-                                  "cmBasicDataFilledByMTD_TL.categories",
-                                  {
-                                    required: "Category is required",
-                                  }
-                                )}
-                              />
-                            </React.Fragment>
-                          ))}
-                        </div>
-                        {errors?.cmBasicDataFilledByMTD_TL?.categories && (
-                          <p className="text-error">
-                            {
-                              errors?.cmBasicDataFilledByMTD_TL?.categories
-                                ?.message
-                            }
-                          </p>
-                        )}
-                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
-                          "Others" && (
-                          <input
-                            type="text"
-                            size={20}
-                            className="m-1 mb-2"
-                            {...register(
-                              "cmBasicDataFilledByMTD_TL.other_categories",
-                              {
-                                required: "Other category is required",
-                              }
-                            )}
-                          />
-                        )}
-                        {errors?.cmBasicDataFilledByMTD_TL
-                          ?.other_categories && (
-                          <p className="text-error">
-                            {
-                              errors?.cmBasicDataFilledByMTD_TL
-                                ?.other_categories?.message
-                            }
-                          </p>
-                        )}
-                      </Col>
-                    </Row>
                     {watch("cmBasicDataFilledByMTD_TL.categories") ===
                       "LTPM" && (
                       <>

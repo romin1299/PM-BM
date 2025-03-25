@@ -86,11 +86,12 @@ const WorkDetails = ({
       setWorkTotalTime(
         (workTotalTime) =>
           workTotalTime +
-          moment(newWorkDetail?.toDate).diff(
+          (moment(newWorkDetail?.toDate).diff(
             moment(newWorkDetail?.fromDate),
             "minutes"
           ) /
-            60
+            60) *
+            selectedSupportingTM?.length
       );
 
       setSelectedSupportingTM([]);
@@ -126,8 +127,12 @@ const WorkDetails = ({
       }
 
       totalTime +=
-        moment(finalWork?.toDate).diff(moment(finalWork?.fromDate), "minutes") /
-        60;
+        (moment(finalWork?.toDate).diff(
+          moment(finalWork?.fromDate),
+          "minutes"
+        ) /
+          60) *
+        finalWork?.user?.length;
 
       return finalWork;
     });
@@ -144,7 +149,7 @@ const WorkDetails = ({
     cancelEdit();
   };
 
-  const deleteWorkDetail = ({ id, toDate, fromDate }) => {
+  const deleteWorkDetail = ({ id, toDate, fromDate, user }) => {
     const updatedWorkDetails = workDetails?.filter((work) => work?.id !== id);
 
     setWorkDetails(updatedWorkDetails);
@@ -155,7 +160,8 @@ const WorkDetails = ({
 
     setWorkTotalTime(
       (workTotalTime) =>
-        workTotalTime - moment(toDate).diff(moment(fromDate), "minutes") / 60
+        workTotalTime -
+        (moment(toDate).diff(moment(fromDate), "minutes") / 60) * user?.length
     );
 
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");

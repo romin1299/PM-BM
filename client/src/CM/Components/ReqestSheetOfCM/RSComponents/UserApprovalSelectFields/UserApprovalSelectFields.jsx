@@ -15,7 +15,9 @@ const UserApprovalSelectFields = ({
 
   const getApprovalListOfCM = async () => {
     try {
-      const response = await axios.get(`/getApprovalUserList/?departmentFilterForTL=MTD-PRD`);
+      const response = await axios.get(
+        `/getApprovalUserList/?departmentFilterForTL=MTD-PRD`
+      );
       setDropdownUsers(response?.data?.userList);
     } catch (error) {
       console.log(error);
@@ -30,150 +32,100 @@ const UserApprovalSelectFields = ({
       <div className="p-2 ">
         <b>Approval flow:</b> MTD TL -&gt; MTD HOSS -&gt; MTD HOS -&gt; PRD TL
       </div>
-      <Row className="m-0 d-flex border align-items-start p-2">
-        <Col lg={6} style={{ paddingRight: "0px" }}>
-          <Row className="row m-0 border">
-            {/* <Col lg={4} className="m-0  border center p-2">
-            <small className="mb-0 d-flex align-items-center justify-content-start">
-              <b>MTD TL/HOSS Permission</b>&nbsp;&nbsp;&nbsp;
-            </small>
-            <Form>
-              {["radio"].map((type) => (
-                <div key={`inline-${type}`} className="d-flex gap-4">
-                  <Form.Check
-                    flex
-                    label="Yes"
-                    name="group1"
-                    type={type}
-                    disabled={!isEditable}
-                    id={`inline-${type}-1`}
-                    value="Yes"
-                    {...register("isPermissionOfMTDTL", {
-                      required: isRequired ? "This field is required" : false,
-                    })}
-                  />
-                  <Form.Check
-                    flex
-                    label="No"
-                    name="group1"
-                    disabled={!isEditable}
-                    type={type}
-                    id={`inline-${type}-2`}
-                    value="No"
-                    {...register("isPermissionOfMTDTL", {
-                      required: isRequired ? "This field is required" : false,
-                    })}
-                  />
-                </div>
-              ))}
-            </Form>
-            {errors?.isPermissionOfMTDTL && (
+      <div className="border">
+        <Row className="m-0 d-flex border align-items-start p-2">
+          <Col>
+            {isEditable ? (
+              dropdownUsers?.MTDTLList && (
+                <DropdownComponent
+                  requiredMSG={isRequired ? "Please select" : false}
+                  isEditable={isEditable}
+                  setValue={setValue}
+                  title="Select MTD TL:"
+                  userDropdown={dropdownUsers?.MTDTLList}
+                  label="Select MTD TL"
+                  formKey="approvalObj_MTD_TL.approvalOfMTD_TL"
+                  register={register}
+                  watch={watch}
+                />
+              )
+            ) : (
+              <>
+                <b>MTD TL:</b>&nbsp;
+                {watch("approvalObj_MTD_TL.approvalOfMTD_TL.tm_name")}
+              </>
+            )}
+            {errors?.approvalObj_MTD_TL?.approvalOfMTD_TL?.[`userRef`] && (
               <p className="text-error">
-                {errors?.isPermissionOfMTDTL?.message}
+                {
+                  errors?.approvalObj_MTD_TL?.approvalOfMTD_TL?.[`userRef`]
+                    ?.message
+                }
               </p>
             )}
-          </Col> */}
-            <Col>
-              {/* {watch("isPermissionOfMTDTL") === "Yes" && <></>} */}
-              <Col className="pt-2 d-flex">
-                {isEditable ? (
-                  dropdownUsers?.MTDTLList && (
-                    <DropdownComponent
-                      requiredMSG={isRequired ? "Please select" : false}
-                      isEditable={isEditable}
-                      setValue={setValue}
-                      title="Select MTD TL:"
-                      userDropdown={dropdownUsers?.MTDTLList}
-                      label="Select MTD TL"
-                      formKey="approvalObj_MTD_TL.approvalOfMTD_TL"
-                      register={register}
-                      watch={watch}
-                    />
-                  )
-                ) : (
-                  <>
-                    <b>MTD TL:</b>&nbsp;
-                    {watch("approvalObj_MTD_TL.approvalOfMTD_TL.tm_name")}
-                  </>
-                )}
-              </Col>
-              {errors?.approvalObj_MTD_TL?.approvalOfMTD_TL?.[`userRef`] && (
-                <p className="text-error">
-                  {
-                    errors?.approvalObj_MTD_TL?.approvalOfMTD_TL?.[`userRef`]
-                      ?.message
-                  }
-                </p>
-              )}
-              <Col className="pt-2 d-flex">
-                {isEditable ? (
-                  dropdownUsers?.MTDTLList && (
-                    <DropdownComponent
-                      requiredMSG={isRequired ? "Please select" : false}
-                      isEditable={isEditable}
-                      setValue={setValue}
-                      title="Select MTD HOSS:"
-                      userDropdown={dropdownUsers?.MTDTLList}
-                      label="Select MTD HOSS"
-                      formKey="approvalObj_MTD_HOSS.approvalOfMTD_HOSS"
-                      register={register}
-                      watch={watch}
-                    />
-                  )
-                ) : (
-                  <>
-                    <b>MTD HOSS:</b>&nbsp;
-                    {watch("approvalObj_MTD_HOSS.approvalOfMTD_HOSS.tm_name")}
-                  </>
-                )}
-              </Col>
-              {errors?.approvalObj_MTD_HOSS?.approvalOfMTD_HOSS?.[
-                `userRef`
-              ] && (
-                <p className="text-error">
-                  {
-                    errors?.approvalObj_MTD_HOSS?.approvalOfMTD_HOSS?.[
-                      `userRef`
-                    ]?.message
-                  }
-                </p>
-              )}
-              <Col className="pt-2 d-flex mb-2">
-                {isEditable ? (
-                  dropdownUsers?.MTDHOSList && (
-                    <DropdownComponent
-                      requiredMSG={isRequired ? "Please select" : false}
-                      isEditable={isEditable}
-                      setValue={setValue}
-                      title="Select MTD HOS:"
-                      userDropdown={dropdownUsers?.MTDHOSList}
-                      label="Select MTD HOS"
-                      formKey="approvalObj_MTD_HOS.approvalOfMTD_HOS"
-                      register={register}
-                      watch={watch}
-                    />
-                  )
-                ) : (
-                  <>
-                    <b>MTD HOS:</b>&nbsp;
-                    {watch("approvalObj_MTD_HOS.approvalOfMTD_HOS.tm_name")}
-                  </>
-                )}
-              </Col>
-              {errors?.approvalObj_MTD_HOS?.approvalOfMTD_HOS?.[`userRef`] && (
-                <p className="text-error">
-                  {
-                    errors?.approvalObj_MTD_HOS?.approvalOfMTD_HOS?.[`userRef`]
-                      ?.message
-                  }
-                </p>
-              )}
-            </Col>
-          </Row>
-        </Col>
-        <Col lg={6} style={{ paddingRight: "0px" }}>
-          <Row className="row m-0 border">
-            <Col lg={3} md={12} className="m-0  border center p-2">
+          </Col>
+          <Col>
+            {isEditable ? (
+              dropdownUsers?.MTDTLList && (
+                <DropdownComponent
+                  requiredMSG={isRequired ? "Please select" : false}
+                  isEditable={isEditable}
+                  setValue={setValue}
+                  title="Select MTD HOSS:"
+                  userDropdown={dropdownUsers?.MTDTLList}
+                  label="Select MTD HOSS"
+                  formKey="approvalObj_MTD_HOSS.approvalOfMTD_HOSS"
+                  register={register}
+                  watch={watch}
+                />
+              )
+            ) : (
+              <>
+                <b>MTD HOSS:</b>&nbsp;
+                {watch("approvalObj_MTD_HOSS.approvalOfMTD_HOSS.tm_name")}
+              </>
+            )}
+            {errors?.approvalObj_MTD_HOSS?.approvalOfMTD_HOSS?.[`userRef`] && (
+              <p className="text-error">
+                {
+                  errors?.approvalObj_MTD_HOSS?.approvalOfMTD_HOSS?.[`userRef`]
+                    ?.message
+                }
+              </p>
+            )}
+          </Col>
+          <Col>
+            {isEditable ? (
+              dropdownUsers?.MTDHOSList && (
+                <DropdownComponent
+                  requiredMSG={isRequired ? "Please select" : false}
+                  isEditable={isEditable}
+                  setValue={setValue}
+                  title="Select MTD HOS:"
+                  userDropdown={dropdownUsers?.MTDHOSList}
+                  label="Select MTD HOS"
+                  formKey="approvalObj_MTD_HOS.approvalOfMTD_HOS"
+                  register={register}
+                  watch={watch}
+                />
+              )
+            ) : (
+              <>
+                <b>MTD HOS:</b>&nbsp;
+                {watch("approvalObj_MTD_HOS.approvalOfMTD_HOS.tm_name")}
+              </>
+            )}
+            {errors?.approvalObj_MTD_HOS?.approvalOfMTD_HOS?.[`userRef`] && (
+              <p className="text-error">
+                {
+                  errors?.approvalObj_MTD_HOS?.approvalOfMTD_HOS?.[`userRef`]
+                    ?.message
+                }
+              </p>
+            )}
+          </Col>
+          <Col style={{ paddingRight: "0px" }}>
+            <div lg={3} md={12} className="m-0  border center p-2">
               <small
                 className="mb-0 d-flex align-items-center justify-content-start"
                 style={{
@@ -217,8 +169,8 @@ const UserApprovalSelectFields = ({
                   {errors?.isPermissionOfPRDTL?.message}
                 </p>
               )}
-            </Col>
-            <Col lg={8} sm={12}>
+            </div>
+            <div lg={8} sm={12}>
               {watch("isPermissionOfPRDTL") === "Yes" && (
                 <>
                   <Col lg={12} className="mt-2 d-flex">
@@ -260,10 +212,10 @@ const UserApprovalSelectFields = ({
                   )}
                 </>
               )}
-            </Col>
-          </Row>
-        </Col>
-      </Row>
+            </div>
+          </Col>
+        </Row>
+      </div>
     </>
   );
 };
