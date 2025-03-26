@@ -6457,3 +6457,15 @@
     at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
     at listOnTimeout (node:internal/timers:557:17)
     at processTimers (node:internal/timers:500:7)
+2025-03-25T14:23 | CM | categoryCheck is not defined
+		ReferenceError: categoryCheck is not defined
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:1135:53
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\cmController.js:1353:12
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\filterMiddleware.js:96:5
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5

@@ -230,11 +230,11 @@ exports.newRequestSheetDataStore = async (
         ...requestSheetDataFilledByMTDUserForCM,
         cmBasicDataFilledByMTD_TL: {
           ...requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL,
-          plannedDateAndTimeOfCM: new Date(), 
+          plannedDateAndTimeOfCM: generalDateFormat(new Date()),
         },
       };
     }
-
+    
     let requestSheetOfCM = new RequestSheetOfCM({
       requestSheetNoOfCM,
       ..._idObject,

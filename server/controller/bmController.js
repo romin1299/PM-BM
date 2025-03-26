@@ -629,10 +629,10 @@ router.post(
               }
             }
           }
-          // res.status(201).json({
-          //   message: `Request-sheet updated successfully ${requestSheet?.requestSheetNoOfBM}`,
-          //   requestSheet,
-          // });
+          res.status(201).json({
+            message: `Request-sheet updated successfully ${requestSheet?.requestSheetNoOfBM}`,
+            requestSheet,
+          });
         } else {
           const requestSheetDataFilledByPRDUser = JSON.parse(
             req.body.otherData

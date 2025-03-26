@@ -1,11 +1,7 @@
-import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
-import { DropdownButton, Dropdown } from "react-bootstrap";
-
 import React, { useState, useEffect, useContext } from "react";
 import { Table } from "react-bootstrap";
 import DownloadIcon from "@mui/icons-material/Download";
-import { AddBoxIcon } from "../../../modules/PageModules";
 import ProblemList from "../SubComponents/ProblemList";
 import ActionList from "../SubComponents/ActionList";
 import PartList from "../SubComponents/PartList";
@@ -18,17 +14,7 @@ import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
 import { Button, Typography } from "@mui/material";
 import BMReflectionYokotenkai from "../SubComponents/BMReflectionYokotenkai";
-import {
-  FREQUENCY_OF_CM,
-  CATEGORIES_OF_CM,
-} from "../../../CM/GlobalDataAccess/GlobalData";
 import axios from "axios";
-const list = [
-  { key: "A", value: "A" },
-  { key: "B", value: "B" },
-  { key: "C", value: "C" },
-  { key: "D", value: "D" },
-];
 
 function MyTable({
   selectedMachineDetails,
@@ -40,7 +26,8 @@ function MyTable({
 
   const navigate = useNavigate();
 
-  const { machine_code, requestSheetID, generateType } = useParams();
+  const { machine_code, requestSheetID, generateType, selectedYear } =
+    useParams();
 
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
@@ -60,7 +47,7 @@ function MyTable({
     setError,
     control,
     clearErrors,
-    // reset,
+    reset,
   } = useForm({
     defaultValues: {
       workEndedDateOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
@@ -84,8 +71,6 @@ function MyTable({
         ),
         "minutes"
       ) - (watch("maintenanceTime") || 0);
-
-  const [customCategory, setCustomCategory] = useState("");
 
   const newRequestSheetRegistration = async (requestSheetData) => {
     try {
@@ -362,20 +347,20 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (
-        !watch("preventive_corrective_maintenance") &&
-        timeDifferenceMinutes > 120
-      ) {
-        setError(
-          "preventive_corrective_maintenance",
-          {
-            message: "This field is required !",
-          },
-          { shouldFocus: true }
-        );
-        flagCountForHandlingError++;
-        // console.log(flagCountForHandlingError);
-      }
+      // if (
+      //   !watch("preventive_corrective_maintenance") &&
+      //   timeDifferenceMinutes > 120
+      // ) {
+      //   setError(
+      //     "preventive_corrective_maintenance",
+      //     {
+      //       message: "This field is required !",
+      //     },
+      //     { shouldFocus: true }
+      //   );
+      //   flagCountForHandlingError++;
+      //   // console.log(flagCountForHandlingError);
+      // }
 
       if (!watch("yokotenkai") && timeDifferenceMinutes > 120) {
         setError(
@@ -661,7 +646,7 @@ function MyTable({
   const getAllCMSheetData = async () => {
     try {
       const response = await axios.get(
-        `/getAllCmReqSheet/based-on-requestSheetIdOfBM/${requestSheetDataOfBM?._id}/?selectedYear=2024-2025`
+        `/getAllCmReqSheet/based-on-requestSheetIdOfBM/${requestSheetDataOfBM?._id}/?selectedYear=${selectedYear}`
       );
       setDataOfTheCM(response?.data?.reqSheetCM);
     } catch (error) {
@@ -823,7 +808,9 @@ function MyTable({
   }, [timeDifferenceMinutes]);
 
   useEffect(() => {
-    if (requestSheetDataOfBM?._id) getAllCMSheetData();
+    if (requestSheetDataOfBM?._id) {
+      getAllCMSheetData();
+    }
   }, [requestSheetDataOfBM?._id]);
 
   return (
@@ -2413,7 +2400,52 @@ function MyTable({
                 <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
               </small>
               <br />
-              <textarea
+              <div className="mtd-parts-section">
+                <Row className="m-0 d-flex">
+                  <Col
+                    sm={2}
+                    className="border col-auto d-flex align-items-center gap-1"
+                  >
+                    <small>
+                      <b>LINE</b>
+                    </small>
+                  </Col>
+                  <Col
+                    sm={2}
+                    className="border col-auto d-flex align-items-center gap-1"
+                  >
+                    <small>
+                      <b>MACHINE</b>
+                    </small>
+                  </Col>
+                  <Col
+                    sm={2}
+                    className="border col-auto d-flex align-items-center gap-1"
+                  >
+                    <small>
+                      <b>ACTIVITY</b>
+                    </small>
+                  </Col>
+                </Row>
+              </div>
+              {dataOfTheCM?.map(
+                (data, index) =>
+                  data?.machineId === requestSheetDataOfBM?.machineRef?._id && (
+                    <Row key={index} className="m-0 d-flex">
+                      <Col sm={2} className="border">
+                        {data?.cmBasicDataFilledByMTD_TL?.line}
+                      </Col>
+                      <Col sm={2} className="border">
+                        {data?.cmBasicDataFilledByMTD_TL?.machineName}
+                      </Col>
+                      <Col sm={2} className="border">
+                        {data?.cmBasicDataFilledByMTD_TL?.activityOfCM}
+                      </Col>
+                    </Row>
+                  )
+              )}
+
+              {/* <textarea
                 rows={2}
                 type="text"
                 id="preventive_corrective_maintenance"
@@ -2435,7 +2467,7 @@ function MyTable({
                 <p className="text-error">
                   {errors?.["preventive_corrective_maintenance"]?.message}
                 </p>
-              )}
+              )} */}
             </td>
           </tr>
           <tr className="row m-0">

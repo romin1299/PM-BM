@@ -58,7 +58,7 @@ export const menuItems = [
     title: "Activity Calendar",
     icon: <CalendarMonthIcon className="text-white" />,
     route: "/cm/activity-calendar",
-    allowedRoles: ["Section-Admin", "TL/HOSS"],
+    allowedRoles: allusers,
   },
   {
     icon: <AccountCircleIcon className="text-white" />,

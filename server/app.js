@@ -52,9 +52,9 @@ require(path.join(
 require(path.join(__dirname, "./controller/financialYearController"));
 
 //When deploying please comment this backup code
-require(path.join(__dirname, "./controller/everyDayAutoBackup"));
+// require(path.join(__dirname, "./controller/everyDayAutoBackup"));
 
-// require(path.join(__dirname, "./middleware/cronRunForRequestSheetOfCM"));
+require(path.join(__dirname, "./middleware/cronRunForRequestSheetOfCM"));
 
 //for logos and other image
 app.use(express.static(path.join(__dirname, "images")));

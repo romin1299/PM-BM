@@ -995,17 +995,16 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     ],
   };
 
+  const categoryCheck = (category, field) => ({
+    $cond: [
+      {
+        $eq: ["$cmBasicDataFilledByMTD_TL.categories", category],
+      },
+      field,
+      "",
+    ],
+  });
   if (reqUrl?.includes("getReqSheetDataByID")) {
-    const categoryCheck = (category, field) => ({
-      $cond: [
-        {
-          $eq: ["$cmBasicDataFilledByMTD_TL.categories", category],
-        },
-        field,
-        "",
-      ],
-    });
-
     otherPipelines = {
       addFields: {
         upto_currentYear_current_commonDataFilledByAssignUser: {
@@ -1132,6 +1131,18 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         ],
       },
       isEditableRS,
+      "cmBasicDataFilledByMTD_TL.other_categories": categoryCheck(
+          "Others",
+          "$cmBasicDataFilledByMTD_TL.other_categories"
+        ),
+        "cmBasicDataFilledByMTD_TL.inspectionItem": categoryCheck(
+          "LTPM",
+          "$cmBasicDataFilledByMTD_TL.inspectionItem"
+        ),
+        "cmBasicDataFilledByMTD_TL.actionForLTPM": categoryCheck(
+          "LTPM",
+          "$cmBasicDataFilledByMTD_TL.actionForLTPM"
+        ),
     };
   } else if (reqUrl?.includes("getApprovalLogsForCM")) {
     otherPipelines.project = {
@@ -1142,66 +1153,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       "current_commonDataFilledByAssignUser.approvalOfPRD_TL": 1,
     };
   }
-  // console.log(
-  //   "req.query?.selectedQuarter",
-  //   req.query?.selectedQuarter,
-  //   req?.query?.selectedYear,
-  //   req?.query?.selectedMonth,
-  //   getFinancialQuarterByMonth(req?.query?.selectedMonth),
-  //   getFinancialQuarter(new Date())
-  // );
-
-  // let middlewareForGetQuarterWiseOrUptoCurrentDate = {};
-
-  // if (
-  //   req?.query?.selectedQuarter &&
-  //   req?.query?.selectedQuarter !== "undefined"
-  //   // || req?.query?.selectedMonth
-  // ) {
-  //   middlewareForGetQuarterWiseOrUptoCurrentDate = {
-  //     $eq: [
-  //       "$$quarterWiseData.requestSheet_quarter",
-  //       //need to change this quarter when user select previous year filter
-
-  //       req.query?.selectedQuarter !== "undefined" &&
-  //       req.query?.selectedQuarter !== ""
-  //         ? req.query?.selectedQuarter
-  //         : req?.query?.selectedMonth !== "undefined" &&
-  //           req?.query?.selectedMonth !== ""
-  //         ? getFinancialQuarterByMonth(req?.query?.selectedMonth * 1)
-  //         : getFinancialQuarter(new Date()),
-  //     ],
-  //   };
-  // } else {
-  //   middlewareForGetQuarterWiseOrUptoCurrentDate = {
-  //     $lte: [
-  //       {
-  //         $dateFromString: {
-  //           dateString: "$$quarterWiseData.plannedDateAndTimeOfCM",
-  //           timezone,
-  //         },
-  //       },
-  //       new Date(),
-  //     ],
-  //   };
-  // }
-
-  // if (req?.queryObj?.requestSheetOfBMRef) {
-  //   otherPipelines.projectionForBMReflactionTable = {
-  //     "cmBasicDataFilledByMTD_TL.categories": 1,
-  //     "cmBasicDataFilledByMTD_TL.activityOfCM": 1,
-  //     "cmBasicDataFilledByMTD_TL.frequencyType": 1,
-  //     "cmBasicDataFilledByMTD_TL.frequencyValue": 1,
-  //     "cmBasicDataFilledByMTD_TL.line": {
-  //       $arrayElemAt: ["$plantToMachineHierarchy.line.line_name", 0],
-  //     },
-  //     "cmBasicDataFilledByMTD_TL.machineName": {
-  //       $arrayElemAt: ["$plantToMachineHierarchy.machine.machine_name", 0],
-  //     },
-  //     targetDateOfCM: 1,
-  //   };
-  // }
-
+  
   const requestSheetData = await RequestSheetOfCM.aggregate([
     {
       $match: req.queryObj,
@@ -1256,8 +1208,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         },
         requestSheetNoOfCM: 1,
         "cmBasicDataFilledByMTD_TL.categories": 1,
-        "cmBasicDataFilledByMTD_TL.inspectionItem": 1,
-        "cmBasicDataFilledByMTD_TL.actionForLTPM": 1,
         "cmBasicDataFilledByMTD_TL.activityOfCM": 1,
         "cmBasicDataFilledByMTD_TL.frequencyType": 1,
         "cmBasicDataFilledByMTD_TL.frequencyValue": 1,

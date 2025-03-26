@@ -57,6 +57,10 @@ const CM_Routes = ({ commonRoutes }) => {
           element: <CMApprovalDashboardOfRequestSheet />,
         },
         {
+          path: "/cm/activity-calendar",
+          element: <ActivityCalendar />,
+        },
+        {
           path: "/cm/approvalLogs",
           element: <ApprovalLogs />,
         },
@@ -118,6 +122,14 @@ const CM_Routes = ({ commonRoutes }) => {
         {
           path: "/cm/approvalLogs",
           element: <ApprovalLogs />,
+        },
+        {
+          path: "/cm/dashboard/ltpm",
+          element: <DashboardOfLTPM />,
+        },
+        {
+          path: "/cm/activity-calendar",
+          element: <ActivityCalendar />,
         },
       ],
     },

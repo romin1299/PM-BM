@@ -654,7 +654,7 @@ const PlanningApproval = ({
 }) => {
   if (
     status === "Under approval of MTD HOS" &&
-    context?.user_type === "TL/HOSS" &&
+    // context?.user_type === "TL/HOSS" &&
     context?.tm_department === "MTD"
   ) {
     return (

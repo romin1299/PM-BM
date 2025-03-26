@@ -18,6 +18,7 @@ const initialState = {
     inspectionItem: "",
     lineId: "",
     machineId: "",
+    other_categories: "",
   },
   targetDateOfCM: "",
 };
@@ -318,13 +319,17 @@ const BMReflectionYokotenkai = ({
                         cmBasicDataFilledByMTD_TL: {
                           ...editedDataOfCM?.cmBasicDataFilledByMTD_TL,
                           categories: e.target.value,
+                          inspectionItem: "",
+                          actionForLTPM: "",
+                          other_categories: "",
                         },
                       })
                     }
                   />
                 </React.Fragment>
               ))}
-              {editedDataOfCM?.categories === "LTPM" && (
+              {editedDataOfCM?.cmBasicDataFilledByMTD_TL?.categories ===
+                "LTPM" && (
                 <>
                   <input
                     type="text"
@@ -362,6 +367,26 @@ const BMReflectionYokotenkai = ({
                   />
                 </>
               )}
+              {editedDataOfCM?.cmBasicDataFilledByMTD_TL?.categories ===
+                "Others" && (
+                <input
+                  type="text"
+                  className="mb-2 mt-2"
+                  placeholder="Other Category"
+                  value={
+                    editedDataOfCM?.cmBasicDataFilledByMTD_TL?.other_categories
+                  }
+                  onChange={(e) =>
+                    setEditedDataOfCM({
+                      ...editedDataOfCM,
+                      cmBasicDataFilledByMTD_TL: {
+                        ...editedDataOfCM?.cmBasicDataFilledByMTD_TL,
+                        other_categories: e.target.value,
+                      },
+                    })
+                  }
+                />
+              )}
             </Col>
             <Col sm={1} className="border">
               {FREQUENCY_OF_CM?.map((value, idx) => (
@@ -383,6 +408,7 @@ const BMReflectionYokotenkai = ({
                           cmBasicDataFilledByMTD_TL: {
                             ...editedDataOfCM?.cmBasicDataFilledByMTD_TL,
                             frequencyType: e.target.value,
+                            frequencyValue: "",
                           },
                         })
                       }
@@ -476,13 +502,17 @@ const BMReflectionYokotenkai = ({
               {data?.cmBasicDataFilledByMTD_TL?.categories === "LTPM" && (
                 <>
                   <div>
-                    Inspection Item:{" "}
+                    <b>Inspection Item: </b>
                     {data?.cmBasicDataFilledByMTD_TL?.inspectionItem}
                   </div>
                   <div>
-                    Action:{data?.cmBasicDataFilledByMTD_TL?.actionForLTPM}
+                    <b>Action: </b>
+                    {data?.cmBasicDataFilledByMTD_TL?.actionForLTPM}
                   </div>
                 </>
+              )}
+              {data?.cmBasicDataFilledByMTD_TL?.categories === "Others" && (
+                <div>{data?.cmBasicDataFilledByMTD_TL?.other_categories}</div>
               )}
             </Col>
             <Col sm={1} className="border">
@@ -495,32 +525,34 @@ const BMReflectionYokotenkai = ({
             </Col>
             <Col sm={1} className="d-flex border col-auto gap-1 p-1 flex-wrap">
               {!data?._id && (
-                <button
-                  class="bg-warning text-white border-0"
-                  style={{
-                    display: isEditable ? "block" : "none",
-                  }}
-                  onClick={(event) => {
-                    editData(event, {
-                      ...data,
-                      id: index,
-                    });
-                  }}
-                >
-                  Edit
-                </button>
+                <>
+                  <button
+                    class="bg-warning text-white border-0"
+                    style={{
+                      display: isEditable ? "block" : "none",
+                    }}
+                    onClick={(event) => {
+                      editData(event, {
+                        ...data,
+                        id: index,
+                      });
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="bg-danger text-white border-0"
+                    style={{
+                      display: isEditable ? "block" : "none",
+                    }}
+                    onClick={(event) => {
+                      deleteData(event, index);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </>
               )}
-              <button
-                class="bg-danger text-white border-0"
-                style={{
-                  display: isEditable ? "block" : "none",
-                }}
-                onClick={(event) => {
-                  deleteData(event, index);
-                }}
-              >
-                Delete
-              </button>
             </Col>
           </Row>
         )
@@ -654,6 +686,24 @@ const BMReflectionYokotenkai = ({
                   }
                 />
               </>
+            )}
+            {newDataOfCM?.cmBasicDataFilledByMTD_TL?.categories ===
+              "Others" && (
+              <input
+                type="text"
+                className="mb-2 mt-2"
+                placeholder="Other Category"
+                value={newDataOfCM?.cmBasicDataFilledByMTD_TL?.other_categories}
+                onChange={(e) =>
+                  setNewDataOfCM({
+                    ...newDataOfCM,
+                    cmBasicDataFilledByMTD_TL: {
+                      ...newDataOfCM?.cmBasicDataFilledByMTD_TL,
+                      other_categories: e.target.value,
+                    },
+                  })
+                }
+              />
             )}
           </Col>
           <Col sm={1} className="border">
