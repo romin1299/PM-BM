@@ -31,7 +31,7 @@ app.use(
 
 app.use(require(path.join(__dirname, "./controller/auth")));
 app.use(require(path.join(__dirname, "./controller/bmController")));
-app.use(require(path.join(__dirname, "./controller/cmController")));
+app.use(require(path.join(__dirname, "./controller/cmcontroller")));
 app.use(
   "/common",
   require(path.join(__dirname, "./controller/commonController"))
