@@ -640,6 +640,11 @@ router.patch(
           ...updateObj.$set,
           [allKeys?.requestSheetStatusOfCM]: "Under MTD TL Approval",
         };
+      } else {
+        updateObj.$set = {
+          ...updateObj.$set,
+          [allKeys?.requestSheetStatusOfCM]: "Ongoing",
+        };
       }
 
       updateObj.$set = {
@@ -938,7 +943,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       {
         $in: [
           "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
-          ["Generated", "Fill Sheet", "Rejected"],
+          ["Generated", "Fill Sheet", "Rejected", "Ongoing"],
         ],
       },
       {
@@ -1132,17 +1137,17 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       },
       isEditableRS,
       "cmBasicDataFilledByMTD_TL.other_categories": categoryCheck(
-          "Others",
-          "$cmBasicDataFilledByMTD_TL.other_categories"
-        ),
-        "cmBasicDataFilledByMTD_TL.inspectionItem": categoryCheck(
-          "LTPM",
-          "$cmBasicDataFilledByMTD_TL.inspectionItem"
-        ),
-        "cmBasicDataFilledByMTD_TL.actionForLTPM": categoryCheck(
-          "LTPM",
-          "$cmBasicDataFilledByMTD_TL.actionForLTPM"
-        ),
+        "Others",
+        "$cmBasicDataFilledByMTD_TL.other_categories"
+      ),
+      "cmBasicDataFilledByMTD_TL.inspectionItem": categoryCheck(
+        "LTPM",
+        "$cmBasicDataFilledByMTD_TL.inspectionItem"
+      ),
+      "cmBasicDataFilledByMTD_TL.actionForLTPM": categoryCheck(
+        "LTPM",
+        "$cmBasicDataFilledByMTD_TL.actionForLTPM"
+      ),
     };
   } else if (reqUrl?.includes("getApprovalLogsForCM")) {
     otherPipelines.project = {
@@ -1153,7 +1158,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       "current_commonDataFilledByAssignUser.approvalOfPRD_TL": 1,
     };
   }
-  
+
   const requestSheetData = await RequestSheetOfCM.aggregate([
     {
       $match: req.queryObj,

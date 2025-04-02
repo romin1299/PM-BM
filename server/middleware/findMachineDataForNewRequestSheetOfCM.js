@@ -22,23 +22,23 @@ const quarterlyDataAdd = (
   const plannedData = [];
 
   const totalYears = 5; // Generate data for 4 years
-
-  let currentDate = moment(new Date()).tz(timezone);
-
-  let currentYear = currentDate.year();
-
-  if ([0, 1, 2]?.includes(currentDate.month())) {
+  // let currentDate = moment(new Date()).tz(timezone);
+  let currentDate = targetDateOfCM;
+  
+  let currentYear = moment(currentDate).year();
+  
+  if ([0, 1, 2]?.includes(moment(currentDate).month())) {
     currentYear -= 1;
   }
-
-  const currentQuarterIndex = Math.floor(currentDate.month() / 3);
+  
+  const currentQuarterIndex = Math.floor(moment(currentDate).month() / 3);
   let modifiedPlannedDateAndTimeOfCM;
-
+  
   let yearlyDataObject1 = {
     preAggregationTimeStampOfRequestSheet: {},
     quarterlyDataOfTheCM: [],
   };
-
+  
   if (frequencyValue === "1/1 M" || frequencyValue === "1/3 M") {
     yearlyDataObject1.preAggregationTimeStampOfRequestSheet = {
       requestSheet_year: `${currentYear}-${currentYear + 1}`,
@@ -130,7 +130,7 @@ const quarterlyDataAdd = (
           // );
           if (frequencyValue !== "1/6 M") {
             const changeTheYearOfThePlannedDateBasedOnTheFY = (passingYear) => {
-              return [0, 1, 2]?.includes(currentDate.month())
+              return [0, 1, 2]?.includes(moment(currentDate).month())
                 ? passingYear + 1
                 : passingYear;
             };
@@ -234,7 +234,7 @@ exports.newRequestSheetDataStore = async (
         },
       };
     }
-    
+
     let requestSheetOfCM = new RequestSheetOfCM({
       requestSheetNoOfCM,
       ..._idObject,

@@ -880,7 +880,7 @@ const ExistingMachineReqSheetView = ({
               register={register}
               errors={errors}
               isEditable={
-                ["Generated", "Fill Sheet", "Rejected"]?.includes(
+                ["Generated", "Fill Sheet", "Rejected", "Ongoing"]?.includes(
                   watch(
                     "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
                   )
@@ -889,7 +889,7 @@ const ExistingMachineReqSheetView = ({
               isRequired={watch("wantToSendForApproval") === "Yes"}
             />
 
-            {["Generated", "Fill Sheet", "Rejected"]?.includes(
+            {["Generated", "Fill Sheet", "Rejected", "Ongoing"]?.includes(
               watch(
                 "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
               )
