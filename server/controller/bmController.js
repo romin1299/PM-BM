@@ -556,32 +556,10 @@ router.post(
             req.body.otherData
           );
 
-          const {
-            problemFaced,
-            PRD_ObservationForProblem_5Why_1How,
-            why_5M_1E,
-            where_process,
-            when_frequency,
-            who_person,
-            which_defectLocation,
-            how_details,
-            // requestSheetdate,
-            // requestSheettime,
-            // sheetIssuedDate,
-            // sheetIssuedTime,
-            problemOccurredDateAndTimeOfBM,
-            sheetIssuedDateAndTimeOfBM,
-            maintenanceType,
-            priorityCode,
-            qualityRelated,
-            shiftOfBM,
-            attachedImagesOrVideoByPRDUser,
-          } = req.body;
-
           let requestSheetNos = machine.line_names.requestSheetNos + 1 || 1;
 
           let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
-            { _id: machine.line_names._id },
+            { _id: machine?.line_names?._id },
             // { $set: { $inc: { requestSheetNos: 1 } } },
             { $set: { requestSheetNos } },
             { new: true }
@@ -619,7 +597,7 @@ router.post(
             ..._idObject,
             // ...req.body,
             requestSheetNoOfBM,
-            requestSheetCreatedBy: req.rootUser._id,
+            requestSheetCreatedBy: req?.rootUser?._id,
             priorityCode: requestSheetDataFilledByPRDUser?.priorityCode,
             qualityRelated: requestSheetDataFilledByPRDUser?.qualityRelated,
             shiftOfBM: requestSheetDataFilledByPRDUser?.shiftOfBM,

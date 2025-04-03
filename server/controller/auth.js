@@ -14405,14 +14405,14 @@ router.post(
           i < previousYearCheckCheetDataOfPeraticularSection.length;
           i++
         ) {
-          // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.current_year)
-          // if (previousYearCheckCheetDataOfPeraticularSection[i]?.machine_code === "EETP-005") {
+          // console.log(previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.current_year)
+          // if (previousYearCheckCheetDataOfPeraticularSection?.[i]?.machine_code === "EETP-005") {
           previousYearCheckCheetDataOfPeraticularSection[
             i
           ].checkSheet_data.checksheet_status =
-            previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data
+            previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data
               .checksheet_status
-              ? previousYearCheckCheetDataOfPeraticularSection[i]
+              ? previousYearCheckCheetDataOfPeraticularSection?.[i]
                   .checkSheet_data.checksheet_status === "Preparation"
                 ? "Preparation"
                 : "Planning"
@@ -14429,11 +14429,11 @@ router.post(
           ) {
             // for (let j = 0; j < financialYearWiseMonthKeyArray.length; j++) {
             //     let month = financialYearWiseMonthKeyArray[j];
-            //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] == "2") {
-            //         previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] = "0"
+            //     if (previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] == "2") {
+            //         previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0] = "0"
             //     }
-            //     if (previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0]) {
-            //         newFinancialCheckSheetPlanningData[month][0] = previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2[month][0]
+            //     if (previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2[month][0]) {
+            //         newFinancialCheckSheetPlanningData[month][0] = previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2[month][0]
 
             //     } else {
             //         continue
@@ -14442,20 +14442,20 @@ router.post(
             // }
 
             let cycleValue =
-              previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data
-                ?.checkSheet[k]?.cycle === "1/1M"
+              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
+                ?.checkSheet?.[k]?.cycle === "1/1M"
                 ? 1
-                : previousYearCheckCheetDataOfPeraticularSection[i]
-                    ?.checkSheet_data?.checkSheet[k]?.cycle === "1/2M"
+                : previousYearCheckCheetDataOfPeraticularSection?.[i]
+                    ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/2M"
                 ? 2
-                : previousYearCheckCheetDataOfPeraticularSection[i]
-                    ?.checkSheet_data?.checkSheet[k]?.cycle === "1/3M"
+                : previousYearCheckCheetDataOfPeraticularSection?.[i]
+                    ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/3M"
                 ? 3
-                : previousYearCheckCheetDataOfPeraticularSection[i]
-                    ?.checkSheet_data?.checkSheet[k]?.cycle === "1/4M"
+                : previousYearCheckCheetDataOfPeraticularSection?.[i]
+                    ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/4M"
                 ? 4
-                : previousYearCheckCheetDataOfPeraticularSection[i]
-                    ?.checkSheet_data?.checkSheet[k]?.cycle === "1/6M"
+                : previousYearCheckCheetDataOfPeraticularSection?.[i]
+                    ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/6M"
                 ? 6
                 : 12;
 
@@ -14487,23 +14487,22 @@ router.post(
               Mar: ["0"],
             };
             let startMonthForCopyData =
-              previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data
-                .checkSheet[k].start_month;
-            // console.log("before update ----> ", previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2)
+              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
+                ?.checkSheet?.[k]?.start_month;
+            // console.log("before update ----> ", previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2)
             for (
               let l = 0;
               l < 12 / Cycle &&
-              previousYearCheckCheetDataOfPeraticularSection[i]?.checkSheet_data
-                ?.checkSheet[k]?.start_month < 12;
+              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
+                ?.checkSheet?.[k]?.start_month < 12;
               l++
             ) {
-              // console.log("=====>", previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].start_month )
+              // console.log("=====>", previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].start_month )
               let monthOfkey =
-                financialYearWiseMonthKeyArray[
-                  previousYearCheckCheetDataOfPeraticularSection[i]
-                    ?.checkSheet_data?.checkSheet[k]?.start_month
+                financialYearWiseMonthKeyArray?.[
+                  previousYearCheckCheetDataOfPeraticularSection?.[i]
+                    ?.checkSheet_data?.checkSheet?.[k]?.start_month
                 ];
-              // console.log(monthOfkey, "=====>", previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[k].start_month)
 
               newFinancialCheckSheetPlanningData[monthOfkey][0] = "1";
 
@@ -14511,8 +14510,8 @@ router.post(
                 i
               ].checkSheet_data.checkSheet[k].start_month =
                 parseInt(
-                  previousYearCheckCheetDataOfPeraticularSection[i]
-                    ?.checkSheet_data?.checkSheet[k]?.start_month
+                  previousYearCheckCheetDataOfPeraticularSection?.[i]
+                    ?.checkSheet_data?.checkSheet?.[k]?.start_month
                 ) + Cycle;
             }
             previousYearCheckCheetDataOfPeraticularSection[
@@ -14523,18 +14522,18 @@ router.post(
               i
             ].checkSheet_data.checkSheet[k].planningTableAnimationArray2 =
               newFinancialCheckSheetPlanningData;
-            // console.log(previousYearCheckCheetDataOfPeraticularSection[i]?.machine_code, "------>", newFinancialCheckSheetPlanningData)
+            // console.log(previousYearCheckCheetDataOfPeraticularSection?.[i]?.machine_code, "------>", newFinancialCheckSheetPlanningData)
           }
-          // console.log(previousYearCheckCheetDataOfPeraticularSection[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2)
+          // console.log(previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[0].planningTableAnimationArray2)
           copyCheckSheetData = await Machine.updateOne(
             {
               machine_code:
-                previousYearCheckCheetDataOfPeraticularSection[i]?.machine_code,
+                previousYearCheckCheetDataOfPeraticularSection?.[i]?.machine_code,
             },
             {
               $push: {
                 checkSheet_data:
-                  previousYearCheckCheetDataOfPeraticularSection[i]
+                  previousYearCheckCheetDataOfPeraticularSection?.[i]
                     ?.checkSheet_data,
               },
             }
@@ -14543,7 +14542,7 @@ router.post(
           removeFieldsFromPreviousYear = await Machine.updateOne(
             {
               machine_code:
-                previousYearCheckCheetDataOfPeraticularSection[i].machine_code,
+                previousYearCheckCheetDataOfPeraticularSection?.[i].machine_code,
             },
             {
               $unset: {
