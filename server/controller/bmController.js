@@ -12728,9 +12728,9 @@ router.get(
           ],
         bdTrendData: bdTrendData?.[0],
         machineHistoryCardData: machineHistoryCardData?.[0],
-        totalCount: bdTrendData?.[0].totalCount,
+        totalCount: bdTrendData?.[0]?.totalCount,
 
-        bdTrendDataTarget: req.target,
+        bdTrendDataTarget: req?.target,
       });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
