@@ -32,12 +32,7 @@ const products = [
   "Product 5",
 ];
 
-const QUARTER_LIST=[
-  "Q1",
-  "Q2",
-  "Q3",
-  "Q4",
-]
+const QUARTER_LIST = ["Q1", "Q2", "Q3", "Q4"];
 
 function getStyles(name, personName, theme) {
   return {
@@ -75,6 +70,7 @@ export default function LineSelectionDropdown({
   selectedMachine,
   machines,
   selectedYear,
+  selectedYearWithoutFY,
   selectedMonth,
   RSStatusArray,
   maintenanceTypeArrayForFilter,
@@ -83,6 +79,7 @@ export default function LineSelectionDropdown({
   baseUrlForFiltering,
   monthFiltration,
   yearFiltration,
+  yearFiltrationWithoutFY,
   RSStatusFiltration,
   selectedRSStatus,
   maintenanceTypeFiltration,
@@ -98,7 +95,8 @@ export default function LineSelectionDropdown({
 
   resetButtonFiltration,
   isWithLocalStorageForFiltration,
-  selectedLineOrNot = ""
+  selectedLineOrNot = "",
+  defaultSelectedMonth = "",
 }) {
   const context = useContext(RoutingContext);
 
@@ -119,6 +117,12 @@ export default function LineSelectionDropdown({
     const { financialYears } = await fetchFinancialYears();
     setFinancialYears(financialYears);
   };
+
+  const yearsWithoutFY = Array.from({ length: 20 }, (_, i) => {
+    const startYear = new Date().getFullYear() - 10 + i;
+    const endYear = startYear + 1;
+    return `${startYear}-${endYear}`;
+  });
 
   useEffect(() => {
     fetchFYYearData();
@@ -341,6 +345,7 @@ export default function LineSelectionDropdown({
         machines,
         message,
         selectedRSStatus,
+        selectedMonth: defaultSelectedMonth,
       });
     }
   };
@@ -594,6 +599,7 @@ export default function LineSelectionDropdown({
                 type: ACTION.HANDLE_SELECT_YEAR,
                 isWithLocalStorageForFiltration,
                 selectedYear: e.target.value,
+                defaultSelectedMonth,
               });
             }}
             input={<OutlinedInput />}
@@ -611,7 +617,53 @@ export default function LineSelectionDropdown({
             MenuProps={MenuProps}
             inputProps={{ "aria-label": "Without label" }}
           >
-            {financialYears.map((item) => (
+            {(defaultSelectedMonth ? yearsWithoutFY : financialYears)?.map(
+              (item) => (
+                <MenuItem
+                  key={item}
+                  value={item}
+                  style={getStyleForSelectedValue(
+                    item,
+                    selectedYear,
+                    "for-array-value"
+                  )}
+                >
+                  {item}
+                </MenuItem>
+              )
+            )}
+          </Select>
+        </FormControl>
+      )}
+
+      {/* {yearFiltrationWithoutFY && (
+        <FormControl size="small">
+          <Select
+            displayEmpty
+            value={selectedYearWithoutFY}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_YEAR_WITHOUT_FY,
+                isWithLocalStorageForFiltration,
+                selectedYearWithoutFY: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) return value;
+              return "Year";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {yearsWithoutFY.map((item) => (
               <MenuItem
                 key={item}
                 value={item}
@@ -626,7 +678,7 @@ export default function LineSelectionDropdown({
             ))}
           </Select>
         </FormControl>
-      )}
+      )} */}
 
       <FormControl size="small">
         {monthFiltration && (
@@ -820,18 +872,7 @@ export default function LineSelectionDropdown({
           disableElevation
           className="bg-button"
           onClick={async () => {
-            let selectedYear =
-              new Date().getMonth() < 3
-                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-
-            await reducerDispatch({
-              type: ACTION.HANDLE_SELECT_YEAR,
-              isWithLocalStorageForFiltration,
-              selectedYear,
-            });
-
-            getFiltrationValueByDefault(selectedYear);
+            getFiltrationValueByDefault();
           }}
         >
           Reset
