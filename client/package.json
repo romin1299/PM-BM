@@ -83,7 +83,7 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "set HTTPS=true&&set SSL_CRT_FILE=C:\\certificate\\cert.crt&&set SSL_KEY_FILE=C:\\certificate\\cert.key&&react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

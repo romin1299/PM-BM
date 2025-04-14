@@ -600,8 +600,12 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                                 value?.frequencyType === "Scheduled" && (
                                   <Col className="d-flex justify-content-center align-items-center">
                                     {value?.frequencyValue?.length > 0 &&
-                                      value?.frequencyValue?.map(
-                                        (type, idx1) => (
+                                      value?.frequencyValue?.map((type, idx1) =>
+                                        watch(
+                                          "cmBasicDataFilledByMTD_TL.categories"
+                                        ) === "LTPM" && idx1 < 4 ? (
+                                          ""
+                                        ) : (
                                           <Col key={idx1}>
                                             <input
                                               type="radio"
