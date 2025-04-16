@@ -15,6 +15,7 @@ const ChartsToolbar = ({
   ACTION,
   monthFiltration,
   yearFiltration,
+  yearFiltrationWithoutFY,
   sectionFiltration,
   subSectionFiltration,
   cellFiltration,
@@ -28,6 +29,7 @@ const ChartsToolbar = ({
   resetButtonFiltration,
   isWithLocalStorageForFiltration,
   selectedLineOrNot,
+  defaultSelectedMonth
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -108,6 +110,7 @@ const ChartsToolbar = ({
           monthFiltration={monthFiltration}
           machineFiltration={machineFiltration}
           yearFiltration={yearFiltration}
+          yearFiltrationWithoutFY={yearFiltrationWithoutFY}
           sectionFiltration={sectionFiltration}
           subSectionFiltration={subSectionFiltration}
           cellFiltration={cellFiltration}
@@ -120,6 +123,7 @@ const ChartsToolbar = ({
           resetButtonFiltration={resetButtonFiltration}
           isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
           selectedLineOrNot={selectedLineOrNot}
+          defaultSelectedMonth={defaultSelectedMonth}
         />
       </Box>
 

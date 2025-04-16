@@ -24,7 +24,7 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
 
   if (!requestSheets.length) return console.log("No records to update.");
 
-  const bulkOps = requestSheets.map((requestSheet) => {
+  const bulkOps = requestSheets?.map((requestSheet) => {
     let lastTargetDate;
 
     // Extract the most recent targetDateOfCM
@@ -93,7 +93,7 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
 
     return {
       updateOne: {
-        filter: { _id: requestSheet._id },
+        filter: { _id: requestSheet?._id },
         update: {
           $push: {
             commonDataFilledByAssignUser: {

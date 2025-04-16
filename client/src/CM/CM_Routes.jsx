@@ -13,6 +13,7 @@ import DashboardOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/Dash
 import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
 import ApprovalLogs from "./Pages/ApprovalLogs/ApprovalLogs";
 import ActivityCalendar from "./Pages/ActivityCalendar/ActivityCalendar";
+import FullCalenderForActivity from "./Pages/ActivityCalendar/FullCalenderForActivity";
 
 const CM_Routes = ({ commonRoutes }) => {
   let reportRoutes = [];
@@ -95,7 +96,8 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <ActivityCalendar />,
+          // element: <ActivityCalendar />,
+          element: <FullCalenderForActivity/>
         },
         {
           path: "/cm/dashboard/ltpm",

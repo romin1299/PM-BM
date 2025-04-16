@@ -39,6 +39,7 @@ const {
 const {
   newRequestSheetDataStore,
 } = require("../middleware/findMachineDataForNewRequestSheetOfCM");
+const { format } = require("path");
 
 // const {
 //   CM_PLANNED_STATUS,
@@ -640,6 +641,11 @@ router.patch(
           ...updateObj.$set,
           [allKeys?.requestSheetStatusOfCM]: "Under MTD TL Approval",
         };
+      } else {
+        updateObj.$set = {
+          ...updateObj.$set,
+          [allKeys?.requestSheetStatusOfCM]: "Ongoing",
+        };
       }
 
       updateObj.$set = {
@@ -784,7 +790,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
           ? req.query?.selectedQuarter
           : req?.query?.selectedMonth !== "undefined" &&
             req?.query?.selectedMonth !== ""
-          ? getFinancialQuarterByMonth(req?.query?.selectedMonth * 1)
+          ? getFinancialQuarterByMonth(req?.query?.selectedMonth)
           : getFinancialQuarter(new Date()),
       ],
     };
@@ -938,7 +944,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       {
         $in: [
           "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
-          ["Generated", "Fill Sheet", "Rejected"],
+          ["Generated", "Fill Sheet", "Rejected", "Ongoing"],
         ],
       },
       {
@@ -1132,17 +1138,17 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       },
       isEditableRS,
       "cmBasicDataFilledByMTD_TL.other_categories": categoryCheck(
-          "Others",
-          "$cmBasicDataFilledByMTD_TL.other_categories"
-        ),
-        "cmBasicDataFilledByMTD_TL.inspectionItem": categoryCheck(
-          "LTPM",
-          "$cmBasicDataFilledByMTD_TL.inspectionItem"
-        ),
-        "cmBasicDataFilledByMTD_TL.actionForLTPM": categoryCheck(
-          "LTPM",
-          "$cmBasicDataFilledByMTD_TL.actionForLTPM"
-        ),
+        "Others",
+        "$cmBasicDataFilledByMTD_TL.other_categories"
+      ),
+      "cmBasicDataFilledByMTD_TL.inspectionItem": categoryCheck(
+        "LTPM",
+        "$cmBasicDataFilledByMTD_TL.inspectionItem"
+      ),
+      "cmBasicDataFilledByMTD_TL.actionForLTPM": categoryCheck(
+        "LTPM",
+        "$cmBasicDataFilledByMTD_TL.actionForLTPM"
+      ),
     };
   } else if (reqUrl?.includes("getApprovalLogsForCM")) {
     otherPipelines.project = {
@@ -1153,7 +1159,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       "current_commonDataFilledByAssignUser.approvalOfPRD_TL": 1,
     };
   }
-  
+
   const requestSheetData = await RequestSheetOfCM.aggregate([
     {
       $match: req.queryObj,
@@ -1663,67 +1669,159 @@ router.get(
   async (req, res) => {
     try {
       delete req.queryObj["commonDataFilledByAssignUser"];
-
       let yearConvert =
         req?.query?.selectedMonth * 1 < 3
           ? `${req?.query?.selectedYear * 1 - 1}-${req?.query?.selectedYear}`
           : `${req?.query?.selectedYear}-${req?.query?.selectedYear * 1 + 1}`;
 
-      let commonProjection = {
-        $getField: {
-          field: "targetDateOfCM",
-          input: {
-            $arrayElemAt: [
-              {
-                $filter: {
+      let findYearObject = [];
+
+      console.log(getFinancialQuarterByMonth(req?.query?.selectedMonth), req?.query?.selectedMonth, req?.query?.calendarViewType);
+
+      if (req?.query?.calendarViewType === "multiMonthYear") {
+        findYearObject = [
+          {
+            $addFields: {
+              allQuartelyData: {
+                $map: {
                   input: {
-                    $getField: {
-                      field: "quarterlyDataOfTheCM",
-                      input: {
-                        $arrayElemAt: [
-                          {
-                            $filter: {
-                              input: "$commonDataFilledByAssignUser",
-                              as: "yearWiseData",
-                              cond: {
-                                $eq: [
-                                  "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                                  yearConvert,
-                                ],
-                              },
-                            },
-                          },
-                          0,
+                    $filter: {
+                      input: "$commonDataFilledByAssignUser",
+                      as: "yearWiseData",
+                      cond: {
+                        $in: [
+                          "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                          [req?.query?.selectedYear, "2024-2025"],
                         ],
                       },
                     },
                   },
-                  as: "quarterWiseData",
-                  cond: {
-                    $eq: [
-                      "$$quarterWiseData.requestSheet_quarter",
-                      //need to change this quarter when user select previous year filter
-                      getFinancialQuarterByMonth(req?.query?.selectedMonth * 1),
-                    ],
+                  as: "filterQuatrlyData",
+                  in: {
+                    $filter: {
+                      input: "$$filterQuatrlyData.quarterlyDataOfTheCM",
+                      as: "getParticularQuarter",
+                      cond: {
+                        $cond: [
+                          {
+                            $eq: [
+                              "$$filterQuatrlyData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                              "2024-2025",
+                            ],
+                          },
+                          {
+                            $eq: [
+                              "$$getParticularQuarter.requestSheet_quarter",
+                              "Q4",
+                            ],
+                          },
+                          {
+                            $in: [
+                              "$$getParticularQuarter.requestSheet_quarter",
+                              ["Q1", "Q2", "Q3"],
+                            ],
+                          },
+                        ],
+                      },
+                    },
                   },
                 },
               },
-              0,
-            ],
+            },
           },
-        },
-      };
-
+          {
+            $unwind: "$allQuartelyData",
+          },
+          {
+            $unwind: "$allQuartelyData",
+          },
+        ];
+      } else {
+        findYearObject.push({
+          $addFields: {
+            allQuartelyData: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: {
+                      $getField: {
+                        field: "quarterlyDataOfTheCM",
+                        input: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: "$commonDataFilledByAssignUser",
+                                as: "yearWiseData",
+                                cond: {
+                                  $eq: [
+                                    "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                                    req?.query?.selectedYear,
+                                  ],
+                                },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                    },
+                    as: "quarterWiseData",
+                    cond: {
+                      $eq: [
+                        "$$quarterWiseData.requestSheet_quarter",
+                        //need to change this quarter when user select previous year filter
+                        getFinancialQuarterByMonth(req?.query?.selectedMonth),
+                      ],
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+          },
+        });
+      }
       const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
         {
-          $match: req?.queryObj,
+          $match: {
+            // _id: mongoose.Types.ObjectId("67dba4f57b637eac3f4b9576"),
+            ...req?.queryObj,
+          },
         },
+        ...findYearObject,
         {
           $project: {
             id: "$_id",
+            _id: 0,
             title: "$cmBasicDataFilledByMTD_TL.activityOfCM",
-            start: commonProjection,
-            end: commonProjection,
+            start: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: {
+                  $toDate: {
+                    $getField: {
+                      field: "targetDateOfCM",
+                      input: "$allQuartelyData",
+                    },
+                  },
+                },
+                timezone,
+              },
+            },
+            end: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: {
+                  $toDate: {
+                    $getField: {
+                      field: "targetDateOfCM",
+                      input: "$allQuartelyData",
+                    },
+                  },
+                },
+                timezone,
+              },
+            },
           },
         },
         {
@@ -1732,6 +1830,7 @@ router.get(
           },
         },
       ]);
+      console.log(reqSheetDataForCalendar);
       res.status(200).json({
         message: "Request sheet data for calendar fetched successfully",
         reqSheetDataForCalendar,

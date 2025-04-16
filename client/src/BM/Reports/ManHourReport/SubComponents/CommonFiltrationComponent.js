@@ -1,5 +1,3 @@
-import { selectClasses } from "@mui/material";
-
 export const initialState = (isWithLocalStorageForFiltration) => {
   if (isWithLocalStorageForFiltration === "Yes")
     return {
@@ -172,6 +170,13 @@ export const reducer = (state, action) => {
         localStorage.setItem("lines", JSON.stringify(action?.lines));
         localStorage.setItem("selectedMachine", action?.selectedMachine);
         localStorage.setItem("machines", JSON.stringify(action?.machines));
+        localStorage.setItem(
+          "selectedYear",
+          new Date().getMonth() < 3
+            ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+            : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`
+        );
+        localStorage.setItem("selectedMonth", action?.selectedMonth);
       }
 
       return {
@@ -195,6 +200,11 @@ export const reducer = (state, action) => {
         lines: action?.lines,
         selectedMachine: action?.selectedMachine,
         machines: action?.machines,
+        selectedYear:
+          new Date().getMonth() < 3
+            ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+            : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+        selectedMonth: action?.selectedMonth,
       };
 
     case ACTION?.GET_DATA_BASED_ON_SECTION:
@@ -521,20 +531,46 @@ export const reducer = (state, action) => {
     case ACTION?.HANDLE_SELECT_YEAR:
       if (action?.isWithLocalStorageForFiltration === "Yes") {
         localStorage.setItem("selectedYear", action?.selectedYear);
-        localStorage.removeItem("selectedMonth");
+        !action?.defaultSelectedMonth &&
+          localStorage.removeItem("selectedMonth");
         localStorage.removeItem("selectedRSStatus");
         localStorage.removeItem("selectedMaintenanceType");
         localStorage.removeItem("selectedQuarter");
       }
 
+      if (!action?.defaultSelectedMonth) {
+        state = {
+          ...state,
+          selectedMonth: "",
+        };
+      }
+
       return {
         ...state,
         selectedYear: action?.selectedYear,
-        selectedMonth: "",
         selectedRSStatus: "",
         selectedMaintenanceType: "",
         selectedQuarter: "",
       };
+
+    // case ACTION?.HANDLE_SELECT_YEAR_WITHOUT_FY:
+    //   if (action?.isWithLocalStorageForFiltration === "Yes") {
+    //     localStorage.setItem(
+    //       "selectedYearWithoutFY",
+    //       action?.selectedYearWithoutFY
+    //     );
+    //     localStorage.removeItem("selectedRSStatus");
+    //     localStorage.removeItem("selectedMaintenanceType");
+    //     localStorage.removeItem("selectedQuarter");
+    //   }
+
+    //   return {
+    //     ...state,
+    //     selectedYearWithoutFY: action?.selectedYearWithoutFY,
+    //     selectedRSStatus: "",
+    //     selectedMaintenanceType: "",
+    //     selectedQuarter: "",
+    //   };
 
     case ACTION?.HANDLE_SELECT_MONTH:
       if (action?.isWithLocalStorageForFiltration === "Yes") {
