@@ -608,14 +608,16 @@ router.post(
               index < requestSheetDataFilledByMTDUser?.dataOfTheCM?.length;
               index++
             ) {
-              if(requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index]?.cmBasicDataFilledByMTD_TL?.id){
-
+              if (
+                requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index]
+                  ?.cmBasicDataFilledByMTD_TL?.id
+              ) {
                 let machineDataUseInCretionOfCM =
                   await findMachineDataWithParentHierarchy(
                     requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index]
                       ?.cmBasicDataFilledByMTD_TL?.machineId
                   );
-  
+
                 await newRequestSheetDataStore(
                   machineDataUseInCretionOfCM,
                   requestSheet?._id,
@@ -933,6 +935,13 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           },
           maintenanceType: 1,
           requestSheetStatus: 1,
+          handOverTime: {
+            $dateToString: {
+              format: "%d-%m-%Y T%H:%M",
+              date: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
+              timezone: "Asia/Kolkata",
+            },
+          },
           assignUser: {
             $arrayElemAt: ["$namesOperators.tm_name", 0],
           },
@@ -1264,13 +1273,14 @@ router.patch(
         } else {
           requestSheetStatus = statusArray[4];
         }
-        let timeDifferenceMinutes = moment(
-          req.body?.handOverTime !== null
-            ? moment(req.body?.handOverTime, true).isValid()
-              ? new Date(req?.body?.handOverTime)
-              : moment(req.body?.handOverTime, "DD-MM-YYYY [T]HH:mm").toDate()
-            : new Date()
-        )
+
+        let commonWorkEndDate = req.body?.handOverTime
+          ? moment(req.body?.handOverTime, true).isValid()
+            ? moment(req?.body?.handOverTime)
+            : moment(req.body?.handOverTime, "DD-MM-YYYY [T]HH:mm").toDate()
+          : moment();
+
+        let timeDifferenceMinutes = moment(commonWorkEndDate)
           .tz("Asia/Kolkata")
           .diff(
             moment(isRequestSheetExist?.problemOccurredDateAndTimeOfBM).tz(
@@ -1279,22 +1289,15 @@ router.patch(
             "minutes"
           );
 
-        let workEndedDateOfBM =
-          req.body?.handOverTime !== null
-            ? moment(req.body?.handOverTime, true).isValid()
-              ? new Date(req?.body?.handOverTime)
-              : moment(req.body?.handOverTime, "DD-MM-YYYY [T]HH:mm").toDate()
-            : new Date();
-
         let firstWordOfFinalAction = req.body?.finalActivity?.split(" ")[0];
         queryObj = {
-          finalActivity: req.body?.finalActivity.replace(
+          finalActivity: req.body?.finalActivity?.replace(
             firstWordOfFinalAction,
             firstWordOfFinalAction?.charAt(0)?.toUpperCase() +
-              firstWordOfFinalAction?.substring(1).toLowerCase()
+              firstWordOfFinalAction?.substring(1)?.toLowerCase()
           ),
-          "maintenanceReportFilledByMTD.workEndedDateOfBM": workEndedDateOfBM,
-          "maintenanceReportFilledByMTD.refHandOverTime": workEndedDateOfBM,
+          "maintenanceReportFilledByMTD.workEndedDateOfBM": commonWorkEndDate,
+          "maintenanceReportFilledByMTD.refHandOverTime": commonWorkEndDate,
           requestSheetStatus,
           "maintenanceReportFilledByMTD.breakDownTime": timeDifferenceMinutes,
           dataSheetOfRequestSheet: timeDifferenceMinutes > 120 && "Yes",

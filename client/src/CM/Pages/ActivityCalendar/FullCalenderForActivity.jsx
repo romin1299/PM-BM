@@ -15,7 +15,7 @@ const FullCalenderForActivity = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const calendarRef = useRef(null);
   const [allEvents, setAllEvents] = useState([]);
-  const [calendarView, setCalendarView] = useState('')
+  const [calendarView, setCalendarView] = useState("");
 
   const monthKeyArray = [
     "Jan",
@@ -37,7 +37,7 @@ const FullCalenderForActivity = () => {
     initialState("Yes")
   );
 
-  const getReqSheetDataForCalendar = async (calendarViewType) => {
+  const getReqSheetDataForCalendar = async () => {
     try {
       const response = await axios.get(
         `/getReqSheetDataForCalendar/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&calendarViewType=${calendarView}`,
@@ -105,11 +105,13 @@ const FullCalenderForActivity = () => {
     reduceState?.selectedValue,
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
-    calendarView
+    calendarView,
   ]);
 
   const handleViewChange = (arg) => {
     setCalendarView(arg.view.type);
+
+    if (calendarView === "multiMonthYear") getReqSheetDataForCalendar();
   };
 
   return (
@@ -161,7 +163,6 @@ const FullCalenderForActivity = () => {
                 dayMaxEventRows: 2,
               },
             }}
-
             viewDidMount={handleViewChange}
           />
         )}

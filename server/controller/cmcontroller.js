@@ -1674,131 +1674,154 @@ router.get(
           ? `${req?.query?.selectedYear * 1 - 1}-${req?.query?.selectedYear}`
           : `${req?.query?.selectedYear}-${req?.query?.selectedYear * 1 + 1}`;
 
-      let commonProjection = {};
+      let findYearObject = [];
+
+      console.log(getFinancialQuarterByMonth(req?.query?.selectedMonth), req?.query?.selectedMonth, req?.query?.calendarViewType);
+
       if (req?.query?.calendarViewType === "multiMonthYear") {
-        commonProjection = {
-          $map: {
-            input: {
-              $filter: {
-                input: "$commonDataFilledByAssignUser",
-                as: "yearWiseData",
-                cond: {
-                  $in: [
-                    "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                    [req?.query?.selectedYear, "2024-2025"],
-                  ],
-                },
-              },
-            },
-            as: "filteredYearQuarterData",
-            in: "$$filteredYearQuarterData"
-            // {
-            //   $cond: [
-            //     {
-            //       $eq: [
-            //         "$$filteredYearQuarterData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-            //         "2024-2025",
-            //       ],
-            //     },
-            //     {
-            //       $filter: {
-            //         input: "$$filteredYearQuarterData.quarterlyDataOfTheCM",
-            //         as: "quarterWiseDataCheck",
-            //         cond: {
-            //           $eq: [
-            //             "$$quarterWiseDataCheck.requestSheet_quarter",
-            //             "Q4",
-            //           ],
-            //         },
-            //       },
-            //     },
-            //     {
-            //       $filter: {
-            //         input: "$$filteredYearQuarterData.quarterlyDataOfTheCM",
-            //         as: "quarterWiseDataCheck",
-            //         cond: {
-            //           $in: [
-            //             "$$quarterWiseDataCheck.requestSheet_quarter",
-            //             ["Q1", "Q2", "Q3"],
-            //           ],
-            //         },
-            //       },
-            //     },
-            //   ],
-            // },
-          },
-        };
-      } else {
-        commonProjection = {
-          $dateToString: {
-            format: "%Y-%m-%d",
-            date: {
-              $toDate: {
-                $getField: {
-                  field: "targetDateOfCM",
+        findYearObject = [
+          {
+            $addFields: {
+              allQuartelyData: {
+                $map: {
                   input: {
-                    $arrayElemAt: [
-                      {
-                        $filter: {
-                          input: {
-                            $getField: {
-                              field: "quarterlyDataOfTheCM",
-                              input: {
-                                $arrayElemAt: [
-                                  {
-                                    $filter: {
-                                      input: "$commonDataFilledByAssignUser",
-                                      as: "yearWiseData",
-                                      cond: {
-                                        $eq: [
-                                          "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                                          // yearConvert,
-                                          req?.query?.selectedYear,
-                                        ],
-                                      },
-                                    },
-                                  },
-                                  0,
-                                ],
-                              },
-                            },
-                          },
-                          as: "quarterWiseData",
-                          cond: {
+                    $filter: {
+                      input: "$commonDataFilledByAssignUser",
+                      as: "yearWiseData",
+                      cond: {
+                        $in: [
+                          "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                          [req?.query?.selectedYear, "2024-2025"],
+                        ],
+                      },
+                    },
+                  },
+                  as: "filterQuatrlyData",
+                  in: {
+                    $filter: {
+                      input: "$$filterQuatrlyData.quarterlyDataOfTheCM",
+                      as: "getParticularQuarter",
+                      cond: {
+                        $cond: [
+                          {
                             $eq: [
-                              "$$quarterWiseData.requestSheet_quarter",
-                              //need to change this quarter when user select previous year filter
-                              getFinancialQuarterByMonth(
-                                req?.query?.selectedMonth
-                              ),
+                              "$$filterQuatrlyData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                              "2024-2025",
                             ],
                           },
-                        },
+                          {
+                            $eq: [
+                              "$$getParticularQuarter.requestSheet_quarter",
+                              "Q4",
+                            ],
+                          },
+                          {
+                            $in: [
+                              "$$getParticularQuarter.requestSheet_quarter",
+                              ["Q1", "Q2", "Q3"],
+                            ],
+                          },
+                        ],
                       },
-                      0,
-                    ],
+                    },
                   },
                 },
               },
             },
-            timezone,
           },
-        };
+          {
+            $unwind: "$allQuartelyData",
+          },
+          {
+            $unwind: "$allQuartelyData",
+          },
+        ];
+      } else {
+        findYearObject.push({
+          $addFields: {
+            allQuartelyData: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: {
+                      $getField: {
+                        field: "quarterlyDataOfTheCM",
+                        input: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: "$commonDataFilledByAssignUser",
+                                as: "yearWiseData",
+                                cond: {
+                                  $eq: [
+                                    "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                                    req?.query?.selectedYear,
+                                  ],
+                                },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                    },
+                    as: "quarterWiseData",
+                    cond: {
+                      $eq: [
+                        "$$quarterWiseData.requestSheet_quarter",
+                        //need to change this quarter when user select previous year filter
+                        getFinancialQuarterByMonth(req?.query?.selectedMonth),
+                      ],
+                    },
+                  },
+                },
+                0,
+              ],
+            },
+          },
+        });
       }
-
       const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
         {
-          $match:{
-            _id: mongoose.Types.ObjectId('67dba4f57b637eac3f4b9576')
-          } 
-          // req?.queryObj,
+          $match: {
+            // _id: mongoose.Types.ObjectId("67dba4f57b637eac3f4b9576"),
+            ...req?.queryObj,
+          },
         },
+        ...findYearObject,
         {
           $project: {
             id: "$_id",
+            _id: 0,
             title: "$cmBasicDataFilledByMTD_TL.activityOfCM",
-            start: commonProjection,
-            end: commonProjection,
+            start: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: {
+                  $toDate: {
+                    $getField: {
+                      field: "targetDateOfCM",
+                      input: "$allQuartelyData",
+                    },
+                  },
+                },
+                timezone,
+              },
+            },
+            end: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: {
+                  $toDate: {
+                    $getField: {
+                      field: "targetDateOfCM",
+                      input: "$allQuartelyData",
+                    },
+                  },
+                },
+                timezone,
+              },
+            },
           },
         },
         {
@@ -1807,9 +1830,7 @@ router.get(
           },
         },
       ]);
-      console.log(
-        reqSheetDataForCalendar?.[0]
-      );
+      console.log(reqSheetDataForCalendar);
       res.status(200).json({
         message: "Request sheet data for calendar fetched successfully",
         reqSheetDataForCalendar,
