@@ -10,6 +10,7 @@ import FullCalendar from "@fullcalendar/react";
 import multiMonthPlugin from "@fullcalendar/multimonth";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import moment from "moment";
+import "./calendar.css";
 
 const FullCalenderForActivity = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
@@ -73,10 +74,13 @@ const FullCalenderForActivity = () => {
   useEffect(() => {
     if (reduceState?.selectedValue) {
       const calendarApi = calendarRef.current?.getApi();
+
+      let dateToGo;
       if (
-        calendarApi ||
-        reduceState?.selectedMonth ||
-        reduceState?.selectedYear
+        (calendarApi ||
+          reduceState?.selectedMonth ||
+          reduceState?.selectedYear) &&
+        calendarView === "dayGridMonth"
       ) {
         const monthIndex = monthKeyArray.indexOf(reduceState.selectedMonth);
 
@@ -91,14 +95,23 @@ const FullCalenderForActivity = () => {
             ? parseInt(reduceState.selectedYear) + 1
             : reduceState.selectedYear;
 
-        const dateToGo = moment({
+        dateToGo = moment({
           year: adjustedYear,
           month: monthIndex,
         }).toDate();
 
         calendarApi.gotoDate(dateToGo);
+      } else if (calendarView === "multiMonthYear") {
+        dateToGo = moment({
+          year: reduceState.selectedYear,
+          month: 0, // January
+          day: 1,
+        }).toDate();
+        calendarApi.gotoDate(dateToGo);
+      }else if(calendarView === "dayGridWeek" || calendarView === "dayGridDay"){
+        dateToGo = new Date()
+        calendarApi.gotoDate(dateToGo);
       }
-
       getReqSheetDataForCalendar();
     }
   }, [
@@ -110,8 +123,6 @@ const FullCalenderForActivity = () => {
 
   const handleViewChange = (arg) => {
     setCalendarView(arg.view.type);
-
-    if (calendarView === "multiMonthYear") getReqSheetDataForCalendar();
   };
 
   return (
@@ -145,13 +156,12 @@ const FullCalenderForActivity = () => {
             initialView="dayGridMonth"
             multiMonthMaxColumns={3}
             height={600}
-            // buttonText={{ today: "Today" }}
+            buttonText={{ month: "Month", year: "Year" }}
             headerToolbar={{
-              right: "dayGridMonth,multiMonthYear",
-              center: "title",
-              left: "",
+              right: "multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
+              left: "title",
+              center: "",
             }}
-            // datesSet={handleDatesSet}
             ref={calendarRef}
             events={allEvents}
             dayMaxEventRows
@@ -163,7 +173,7 @@ const FullCalenderForActivity = () => {
                 dayMaxEventRows: 2,
               },
             }}
-            viewDidMount={handleViewChange}
+            datesSet={handleViewChange}
           />
         )}
       </div>

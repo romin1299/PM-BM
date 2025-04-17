@@ -12,7 +12,6 @@ import GeneratedExistingMachineRequestSheetByMTD from "./Components/ReqestSheetO
 import DashboardOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/DashboardOfLTPM";
 import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
 import ApprovalLogs from "./Pages/ApprovalLogs/ApprovalLogs";
-import ActivityCalendar from "./Pages/ActivityCalendar/ActivityCalendar";
 import FullCalenderForActivity from "./Pages/ActivityCalendar/FullCalenderForActivity";
 
 const CM_Routes = ({ commonRoutes }) => {
@@ -59,7 +58,8 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <ActivityCalendar />,
+          element: <FullCalenderForActivity/>
+
         },
         {
           path: "/cm/approvalLogs",
@@ -96,7 +96,6 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          // element: <ActivityCalendar />,
           element: <FullCalenderForActivity/>
         },
         {
@@ -131,7 +130,8 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <ActivityCalendar />,
+          element: <FullCalenderForActivity/>
+
         },
       ],
     },
