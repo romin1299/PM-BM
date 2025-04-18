@@ -40,6 +40,7 @@ const FullCalenderForActivity = () => {
 
   const getReqSheetDataForCalendar = async () => {
     try {
+      setAllEvents([]);
       const response = await axios.get(
         `/getReqSheetDataForCalendar/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&calendarViewType=${calendarView}`,
         {
@@ -100,6 +101,7 @@ const FullCalenderForActivity = () => {
           month: monthIndex,
         }).toDate();
 
+        calendarApi.setOption("height", 600);
         calendarApi.gotoDate(dateToGo);
       } else if (calendarView === "multiMonthYear") {
         dateToGo = moment({
@@ -108,9 +110,14 @@ const FullCalenderForActivity = () => {
           day: 1,
         }).toDate();
         calendarApi.gotoDate(dateToGo);
-      }else if(calendarView === "dayGridWeek" || calendarView === "dayGridDay"){
-        dateToGo = new Date()
+        calendarApi.setOption("height", 1000);
+      } else if (
+        calendarView === "dayGridWeek" ||
+        calendarView === "dayGridDay"
+      ) {
+        dateToGo = new Date();
         calendarApi.gotoDate(dateToGo);
+        calendarApi.setOption("height", 550);
       }
       getReqSheetDataForCalendar();
     }
@@ -149,18 +156,66 @@ const FullCalenderForActivity = () => {
             />
           }
         />
+        <div style={{ marginBottom: "10px" }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              marginRight: "20px",
+            }}
+          >
+            <span
+              style={{
+                width: "12px",
+                height: "12px",
+                backgroundColor: "#D91656",
+                display: "inline-block",
+                borderRadius: "50%",
+                marginRight: "5px",
+              }}
+            ></span>
+            BM
+          </span>
+
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              marginRight: "20px",
+            }}
+          >
+            <span
+              style={{
+                width: "12px",
+                height: "12px",
+                backgroundColor: "#FF9D23",
+                display: "inline-block",
+                borderRadius: "50%",
+                marginRight: "5px",
+              }}
+            ></span>
+            CM
+          </span>
+        </div>
         {reduceState?.flagForTogglingFilter && reduceState?.selectedValue && (
           <FullCalendar
+            // customButtons={{
+            //   legendBM: {
+            //     text: `🔴 BM`,
+            //   },
+            //   legendCM: {
+            //     text: `🟠 CM`,
+            //     click: null,
+            //   },
+            // }}
             plugins={[multiMonthPlugin, dayGridPlugin]}
-            // dateClick={handleDateClick}
             initialView="dayGridMonth"
             multiMonthMaxColumns={3}
-            height={600}
             buttonText={{ month: "Month", year: "Year" }}
             headerToolbar={{
               right: "multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
               left: "title",
-              center: "",
+              // center: "legendBM,legendCM",
             }}
             ref={calendarRef}
             events={allEvents}
@@ -170,7 +225,7 @@ const FullCalenderForActivity = () => {
                 dayMaxEventRows: 3,
               },
               multiMonthYear: {
-                dayMaxEventRows: 2,
+                dayMaxEventRows: 3,
               },
             }}
             datesSet={handleViewChange}

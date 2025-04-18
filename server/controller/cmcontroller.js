@@ -1669,14 +1669,17 @@ router.get(
   async (req, res) => {
     try {
       delete req.queryObj["commonDataFilledByAssignUser"];
-      let yearConvert =
-        req?.query?.selectedMonth * 1 < 3
-          ? `${req?.query?.selectedYear * 1 - 1}-${req?.query?.selectedYear}`
-          : `${req?.query?.selectedYear}-${req?.query?.selectedYear * 1 + 1}`;
 
       let findYearObject = [];
 
-      console.log(getFinancialQuarterByMonth(req?.query?.selectedMonth), req?.query?.selectedMonth, req?.query?.calendarViewType);
+      // console.log(
+      //   getFinancialQuarterByMonth(req?.query?.selectedMonth),
+      //   req?.query?.selectedMonth,
+      //   req?.query?.calendarViewType,
+      //   `${req?.query?.selectedYear?.split("-")[0] - 1}-${
+      //     req?.query?.selectedYear?.split("-")[0]
+      //   }`
+      // );
 
       if (req?.query?.calendarViewType === "multiMonthYear") {
         findYearObject = [
@@ -1691,7 +1694,12 @@ router.get(
                       cond: {
                         $in: [
                           "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                          [req?.query?.selectedYear, "2024-2025"],
+                          [
+                            req?.query?.selectedYear,
+                            `${req?.query?.selectedYear?.split("-")[0] - 1}-${
+                              req?.query?.selectedYear?.split("-")[0]
+                            }`,
+                          ],
                         ],
                       },
                     },
@@ -1706,7 +1714,12 @@ router.get(
                           {
                             $eq: [
                               "$$filterQuatrlyData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-                              "2024-2025",
+                              [
+                                req?.query?.selectedYear,
+                                `${
+                                  req?.query?.selectedYear?.split("-")[0] - 1
+                                }-${req?.query?.selectedYear?.split("-")[0]}`,
+                              ],
                             ],
                           },
                           {
@@ -1784,7 +1797,7 @@ router.get(
       const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
         {
           $match: {
-            // _id: mongoose.Types.ObjectId("67dba4f57b637eac3f4b9576"),
+            // _id: mongoose.Types.ObjectId("67ea5782471cb0c7afd4f20d"),
             ...req?.queryObj,
           },
         },
@@ -1821,6 +1834,15 @@ router.get(
                 },
                 timezone,
               },
+            },
+            backgroundColor: {
+              $cond: [
+                {
+                  $eq: ["$requestSheetOfBMRef", "null"],
+                },
+                "#FF9D23",
+                "#D91656",
+              ],
             },
           },
         },
