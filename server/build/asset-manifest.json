@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.97e7988e.css",
-    "main.js": "/static/js/main.e3692672.js",
+    "main.js": "/static/js/main.054299c1.js",
     "static/js/760.e2b88412.chunk.js": "/static/js/760.e2b88412.chunk.js",
     "static/js/790.d5242918.chunk.js": "/static/js/790.d5242918.chunk.js",
     "static/js/544.61f3db26.chunk.js": "/static/js/544.61f3db26.chunk.js",
@@ -20,6 +20,7 @@
     "static/media/machine_manual_5.png": "/static/media/machine_manual_5.5777b950c2c0c45d0cdb.png",
     "static/media/consumable_spare_10.png": "/static/media/consumable_spare_10.dfd8e306c6426d56bb02.png",
     "static/media/other_documents_12.png": "/static/media/other_documents_12.7edcaac351e3f01517ee.png",
+    "static/media/ACTIVITY_CAL.png": "/static/media/ACTIVITY_CAL.6e9b90e430b07b5cba3b.png",
     "static/media/user.png": "/static/media/user.0c95baeb87678cfdf54d.png",
     "static/media/PM_history_4.png": "/static/media/PM_history_4.73fbc374f9e6440682b3.png",
     "static/media/MTD_KPI.png": "/static/media/MTD_KPI.ab11d69e05b28a4aae48.png",
@@ -31,6 +32,6 @@
   },
   "entrypoints": [
     "static/css/main.97e7988e.css",
-    "static/js/main.e3692672.js"
+    "static/js/main.054299c1.js"
   ]
 }

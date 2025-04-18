@@ -88,7 +88,9 @@ import PM from "./static/Icons/PM_history_4.png";
 import BM from "./static/Icons/BM_History_1.png";
 import CM from "./static/Icons/CM.png";
 import MTD_KPI from "./static/Icons/MTD_KPI.png";
+import ACTIVITY_Cal from './static/Icons/ACTIVITY_CAL.png'
 import CM_Routes from "./CM/CM_Routes";
+import ActivityRoutes from "./CM/Pages/ActivityCalendar/ActivityRoutes";
 
 function App() {
   //DENSO-HARYANA
@@ -223,6 +225,14 @@ function App() {
         icon: MTD_KPI,
         dashboardAndRoutes: (
           <KPI_Routes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+        ),
+      },
+      {
+        name: "MTD EVENTS",
+        keyUrl: "activityCal",
+        icon: ACTIVITY_Cal,
+        dashboardAndRoutes: (
+          <ActivityRoutes commonRoutes={commonRoutes} loggedUser={loggedUser} />
         ),
       },
     ];

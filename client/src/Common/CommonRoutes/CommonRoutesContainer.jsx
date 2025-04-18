@@ -7,7 +7,7 @@ import { Routes, Route } from "react-router-dom";
 const CommonRoutesContainer = ({ routes, sideBarProp }) => {
   return (
     <div className="App">
-      <BMSidebar {...sideBarProp} />
+      {sideBarProp && <BMSidebar {...sideBarProp} />}
 
       {/* Render main container based on the user's routes */}
       <Container
