@@ -11,12 +11,22 @@ import multiMonthPlugin from "@fullcalendar/multimonth";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import moment from "moment";
 import "./calendar.css";
+import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 
 const FullCalenderForActivity = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const calendarRef = useRef(null);
   const [allEvents, setAllEvents] = useState([]);
   const [calendarView, setCalendarView] = useState("");
+
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
 
   const monthKeyArray = [
     "Jan",
@@ -132,6 +142,18 @@ const FullCalenderForActivity = () => {
     setCalendarView(arg.view.type);
   };
 
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
+
+  const getModalOpenForReqSheet = async (event) => {
+    console.log(event)
+    setSelectedCMRequestSheetPopupData((selectedCMRequestSheetPopupData) => ({
+      ...selectedCMRequestSheetPopupData,
+      cmReqSheetView: true,
+      selectedRowRequestSheetId: event.id,
+    }));
+  };
+
   return (
     <>
       <div className="m-2">
@@ -217,9 +239,11 @@ const FullCalenderForActivity = () => {
               left: "title",
               // center: "legendBM,legendCM",
             }}
+            eventClick={(info) => {
+              getModalOpenForReqSheet(info);
+            }}
             ref={calendarRef}
             events={allEvents}
-            dayMaxEventRows
             views={{
               dayGridMonth: {
                 dayMaxEventRows: 3,
@@ -232,6 +256,15 @@ const FullCalenderForActivity = () => {
           />
         )}
       </div>
+
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
+        <ExistingMachineReqSheetView
+          handlePopupStatus={handlePopupStatus}
+          selectedYear={reduceState?.selectedYear}
+          {...selectedCMRequestSheetPopupData}
+          selectedMonth={reduceState?.selectedMonth}
+        />
+      )}
     </>
   );
 };

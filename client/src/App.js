@@ -228,7 +228,7 @@ function App() {
         ),
       },
       {
-        name: "MTD EVENTS",
+        name: "ACTIVITY CALENDAR",
         keyUrl: "activityCal",
         icon: ACTIVITY_Cal,
         dashboardAndRoutes: (
