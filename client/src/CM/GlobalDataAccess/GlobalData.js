@@ -12,6 +12,7 @@ export const FREQUENCY_OF_CM = [
       "1/2 Y",
       "1/3 Y",
       "1/4 Y",
+      "1/5 Y",
     ],
   },
 ];

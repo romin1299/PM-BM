@@ -401,6 +401,7 @@ router.post(
       req?.plantToMachineHierarchyRef,
       req?.rootUser
     );
+    successResponse(res, "CM Request-sheet generated successfully");
   }
 );
 
@@ -769,9 +770,30 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
           },
           as: "quarterObj",
           cond: {
-            // need to add more status when RS status is Skipped or other-status
-            // $ne: ["$$quarterObj.requestSheetStatusOfCM", "Completed"],
-            $lte: ["$$quarterObj.targetDateOfCM", new Date()],
+            $lte: [
+              {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: {
+                    $dateFromString: {
+                      dateString: "$$quarterObj.targetDateOfCM",
+                    },
+                  },
+                },
+              },
+              {
+                $dateToString: {
+                  format: "%Y-%m-%d",
+                  date: {
+                    $dateFromString: {
+                      dateString:
+                        req?.query?.selectedDateFromCal ||
+                        new Date().toISOString(),
+                    },
+                  },
+                },
+              },
+            ],
           },
         },
       },
@@ -1234,7 +1256,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     },
     ...otherPipelines?.aggregationPipeline,
   ]);
-
   if (requestSheetData?.length === 0) {
     return res.status(400).json({
       message: "No data to display",
@@ -1838,7 +1859,7 @@ router.get(
             backgroundColor: {
               $cond: [
                 {
-                  $eq: ["$requestSheetOfBMRef", "null"],
+                  $eq: ["$requestSheetOfBMRef", null],
                 },
                 "#FF9D23",
                 "#D91656",

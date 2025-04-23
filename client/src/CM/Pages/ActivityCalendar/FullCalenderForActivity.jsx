@@ -11,12 +11,24 @@ import multiMonthPlugin from "@fullcalendar/multimonth";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import moment from "moment";
 import "./calendar.css";
+import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
 
 const FullCalenderForActivity = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const calendarRef = useRef(null);
   const [allEvents, setAllEvents] = useState([]);
   const [calendarView, setCalendarView] = useState("");
+
+  const defaultState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+    selectedYear: "",
+    selectedDateFromCal: "",
+  };
+
+  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
+    useState(defaultState);
 
   const monthKeyArray = [
     "Jan",
@@ -132,6 +144,29 @@ const FullCalenderForActivity = () => {
     setCalendarView(arg.view.type);
   };
 
+  const handlePopupStatus = () =>
+    setSelectedCMRequestSheetPopupData(defaultState);
+
+  const getModalOpenForReqSheet = async (info) => {
+    const closeBtn = document.querySelector(".fc-popover-close");
+    if (closeBtn) {
+      closeBtn.click();
+    }
+
+    setSelectedCMRequestSheetPopupData((selectedCMRequestSheetPopupData) => ({
+      ...selectedCMRequestSheetPopupData,
+      cmReqSheetView: true,
+      selectedRowRequestSheetId: info?.event?.id,
+      selectedDateFromCal: info?.event?.startStr,
+      selectedYear:
+        moment(info?.event?.startStr).month() < 3
+          ? `${reduceState?.selectedYear?.split("-")[0] - 1}-${
+              reduceState?.selectedYear?.split("-")[0]
+            }`
+          : reduceState?.selectedYear,
+    }));
+  };
+
   return (
     <>
       <div className="m-2">
@@ -199,15 +234,6 @@ const FullCalenderForActivity = () => {
         </div>
         {reduceState?.flagForTogglingFilter && reduceState?.selectedValue && (
           <FullCalendar
-            // customButtons={{
-            //   legendBM: {
-            //     text: `🔴 BM`,
-            //   },
-            //   legendCM: {
-            //     text: `🟠 CM`,
-            //     click: null,
-            //   },
-            // }}
             plugins={[multiMonthPlugin, dayGridPlugin]}
             initialView="dayGridMonth"
             multiMonthMaxColumns={3}
@@ -217,9 +243,11 @@ const FullCalenderForActivity = () => {
               left: "title",
               // center: "legendBM,legendCM",
             }}
+            eventClick={(info) => {
+              getModalOpenForReqSheet(info);
+            }}
             ref={calendarRef}
             events={allEvents}
-            dayMaxEventRows
             views={{
               dayGridMonth: {
                 dayMaxEventRows: 3,
@@ -232,6 +260,14 @@ const FullCalenderForActivity = () => {
           />
         )}
       </div>
+
+      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
+        <ExistingMachineReqSheetView
+          handlePopupStatus={handlePopupStatus}
+          {...selectedCMRequestSheetPopupData}
+          selectedMonth={reduceState?.selectedMonth}
+        />
+      )}
     </>
   );
 };

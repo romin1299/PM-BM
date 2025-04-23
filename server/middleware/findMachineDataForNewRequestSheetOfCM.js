@@ -24,22 +24,22 @@ const quarterlyDataAdd = (
   const totalYears = 5; // Generate data for 4 years
   // let currentDate = moment(new Date()).tz(timezone);
   let currentDate = targetDateOfCM;
-  
+
   let currentYear = moment(currentDate).year();
-  
+
   if ([0, 1, 2]?.includes(moment(currentDate).month())) {
     currentYear -= 1;
   }
-  
+
   const currentQuarterIndex = Math.floor(moment(currentDate).month() / 3);
   let modifiedPlannedDateAndTimeOfCM;
-  
+
   let yearlyDataObject1 = {
     preAggregationTimeStampOfRequestSheet: {},
     quarterlyDataOfTheCM: [],
   };
-  
-  if (frequencyValue === "1/1 M" || frequencyValue === "1/3 M") {
+
+  if (["1/1 M", "1/3 M", "1/6 M", "1/Y", "1/5 Y"]?.includes(frequencyValue)) {
     yearlyDataObject1.preAggregationTimeStampOfRequestSheet = {
       requestSheet_year: `${currentYear}-${currentYear + 1}`,
       requestSheet_month: gettingMonthForSelectedDate(targetDateOfCM),
@@ -67,10 +67,7 @@ const quarterlyDataAdd = (
         const quarter = QUARTERS[i];
         let isPlanned = false;
 
-        if (frequencyValue === "1/Y") {
-          // Plan only the starting quarter each year
-          isPlanned = i === plannedQuarterIndex;
-        } else if (frequencyValue === "1/2 Y") {
+        if (frequencyValue === "1/2 Y") {
           // Plan the starting quarter every two years
           const currentQuarter = (year - currentYear) * 4 + i;
           isPlanned = currentQuarter % 8 === plannedQuarterIndex;
@@ -85,32 +82,33 @@ const quarterlyDataAdd = (
           if (year - currentYear >= 4 && (year - currentYear) % 4 === 0) {
             isPlanned = i === plannedQuarterIndex;
           }
-        } else if (frequencyValue === "1/6 M") {
-          // Alternate quarters based on the starting quarter
-          const alternatingQuarters = [
-            plannedQuarterIndex,
-            (plannedQuarterIndex + 2) % 4, // Alternate quarters
-          ];
-          if (year === currentYear) {
-            // Current year: exclude past quarters
-
-            if (
-              alternatingQuarters.includes(i) &&
-              i >= currentQuarterIndex &&
-              currentQuarterIndex !== 0
-            ) {
-              isPlanned = true;
-              modifiedPlannedDateAndTimeOfCM = targetDateOfCM;
-            }
-            // isPlanned =
-            //   alternatingQuarters.includes(i) && i >= currentQuarterIndex;
-
-            // if (alternatingQuarters.includes(i) && i >= currentQuarterIndex)
-          } else {
-            // Future years: alternate as per the pattern
-            isPlanned = alternatingQuarters.includes(i);
-          }
         }
+        // else if (frequencyValue === "1/6 M") {
+        //   // Alternate quarters based on the starting quarter
+        //   const alternatingQuarters = [
+        //     plannedQuarterIndex,
+        //     (plannedQuarterIndex + 2) % 4, // Alternate quarters
+        //   ];
+        //   if (year === currentYear) {
+        //     // Current year: exclude past quarters
+
+        //     if (
+        //       alternatingQuarters.includes(i) &&
+        //       i >= currentQuarterIndex &&
+        //       currentQuarterIndex !== 0
+        //     ) {
+        //       isPlanned = true;
+        //       modifiedPlannedDateAndTimeOfCM = targetDateOfCM;
+        //     }
+        //     // isPlanned =
+        //     //   alternatingQuarters.includes(i) && i >= currentQuarterIndex;
+
+        //     // if (alternatingQuarters.includes(i) && i >= currentQuarterIndex)
+        //   } else {
+        //     // Future years: alternate as per the pattern
+        //     isPlanned = alternatingQuarters.includes(i);
+        //   }
+        // }
         let assignUserOnlyForFirstQuarterWhileGenerate = {};
         // Ensure that the starting quarter is planned for the current year
         if (year === currentYear && i === plannedQuarterIndex) {
@@ -128,17 +126,17 @@ const quarterlyDataAdd = (
           //   year,
           //   currentYear,
           // );
-          if (frequencyValue !== "1/6 M") {
-            const changeTheYearOfThePlannedDateBasedOnTheFY = (passingYear) => {
-              return [0, 1, 2]?.includes(moment(currentDate).month())
-                ? passingYear + 1
-                : passingYear;
-            };
-            modifiedPlannedDateAndTimeOfCM = targetDateOfCM.replace(
-              changeTheYearOfThePlannedDateBasedOnTheFY(currentYear),
-              changeTheYearOfThePlannedDateBasedOnTheFY(year)
-            );
-          }
+          // if (frequencyValue !== "1/6 M") {
+          // }
+          const changeTheYearOfThePlannedDateBasedOnTheFY = (passingYear) => {
+            return [0, 1, 2]?.includes(moment(currentDate).month())
+              ? passingYear + 1
+              : passingYear;
+          };
+          modifiedPlannedDateAndTimeOfCM = targetDateOfCM.replace(
+            changeTheYearOfThePlannedDateBasedOnTheFY(currentYear),
+            changeTheYearOfThePlannedDateBasedOnTheFY(year)
+          );
           yearlyDataObject?.quarterlyDataOfTheCM?.push({
             targetDateOfCM: generalDateFormat(
               modifiedPlannedDateAndTimeOfCM || targetDateOfCM
@@ -148,11 +146,11 @@ const quarterlyDataAdd = (
             ...assignUserOnlyForFirstQuarterWhileGenerate,
           });
 
-          if (frequencyValue === "1/6 M") {
-            modifiedPlannedDateAndTimeOfCM = moment(
-              modifiedPlannedDateAndTimeOfCM || targetDateOfCM
-            ).add(6, "month");
-          }
+          // if (frequencyValue === "1/6 M") {
+          //   modifiedPlannedDateAndTimeOfCM = moment(
+          //     modifiedPlannedDateAndTimeOfCM || targetDateOfCM
+          //   ).add(6, "month");
+          // }
         }
       }
 
@@ -245,9 +243,7 @@ exports.newRequestSheetDataStore = async (
       commonDataFilledByAssignUser,
       requestSheetOfBMRef: requestSheetIdOfBM,
     });
-    await requestSheetOfCM.save();
-
-    successResponse(res, "CM Request-sheet generated successfully");
+    return await requestSheetOfCM.save();
   } catch (error) {
     console.error();
   }
