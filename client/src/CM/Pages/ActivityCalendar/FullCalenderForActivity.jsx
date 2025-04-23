@@ -23,6 +23,8 @@ const FullCalenderForActivity = () => {
     cmReqSheetView: false,
     isEditable: false,
     selectedRowRequestSheetId: "",
+    selectedYear: "",
+    selectedDateFromCal: "",
   };
 
   const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
@@ -145,12 +147,23 @@ const FullCalenderForActivity = () => {
   const handlePopupStatus = () =>
     setSelectedCMRequestSheetPopupData(defaultState);
 
-  const getModalOpenForReqSheet = async (event) => {
-    console.log(event)
+  const getModalOpenForReqSheet = async (info) => {
+    const closeBtn = document.querySelector(".fc-popover-close");
+    if (closeBtn) {
+      closeBtn.click();
+    }
+
     setSelectedCMRequestSheetPopupData((selectedCMRequestSheetPopupData) => ({
       ...selectedCMRequestSheetPopupData,
       cmReqSheetView: true,
-      selectedRowRequestSheetId: event.id,
+      selectedRowRequestSheetId: info?.event?.id,
+      selectedDateFromCal: info?.event?.startStr,
+      selectedYear:
+        moment(info?.event?.startStr).month() < 3
+          ? `${reduceState?.selectedYear?.split("-")[0] - 1}-${
+              reduceState?.selectedYear?.split("-")[0]
+            }`
+          : reduceState?.selectedYear,
     }));
   };
 
@@ -221,15 +234,6 @@ const FullCalenderForActivity = () => {
         </div>
         {reduceState?.flagForTogglingFilter && reduceState?.selectedValue && (
           <FullCalendar
-            // customButtons={{
-            //   legendBM: {
-            //     text: `🔴 BM`,
-            //   },
-            //   legendCM: {
-            //     text: `🟠 CM`,
-            //     click: null,
-            //   },
-            // }}
             plugins={[multiMonthPlugin, dayGridPlugin]}
             initialView="dayGridMonth"
             multiMonthMaxColumns={3}
@@ -260,7 +264,6 @@ const FullCalenderForActivity = () => {
       {selectedCMRequestSheetPopupData?.cmReqSheetView && (
         <ExistingMachineReqSheetView
           handlePopupStatus={handlePopupStatus}
-          selectedYear={reduceState?.selectedYear}
           {...selectedCMRequestSheetPopupData}
           selectedMonth={reduceState?.selectedMonth}
         />

@@ -20,13 +20,14 @@ import ButtonCMRequestSheetHistory from "../HistoryOfCMRequestSheet/ButtonCMRequ
 
 const ExistingMachineReqSheetView = ({
   handlePopupStatus,
-  selectedYear,
+  selectedYear = "",
   selectedRowRequestSheetId,
-  quarterOfSelectedRq,
-  selectedMonth,
+  quarterOfSelectedRq = "",
+  selectedMonth = "",
   isEditable = false,
   assignUserCondition = false,
   cmReqSheetView,
+  selectedDateFromCal = "",
 }) => {
   const {
     watch,
@@ -43,7 +44,7 @@ const ExistingMachineReqSheetView = ({
     defaultValues: async () => {
       try {
         const response = await axios.get(
-          `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}&&selectedQuarter=${quarterOfSelectedRq}&&selectedMonth=${selectedMonth}`
+          `/getReqSheetDataByID/${selectedRowRequestSheetId}?selectedYear=${selectedYear}&&selectedQuarter=${quarterOfSelectedRq}&&selectedMonth=${selectedMonth}&&selectedDateFromCal=${selectedDateFromCal}`
         );
         if (response.status === 201) {
           const { requestSheet } = response.data;
