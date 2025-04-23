@@ -1,33 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
-const multer = require("multer");
-const fs = require("fs");
-let path = require("path");
 const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
-const SubSection = require("../model/subSectionSchema");
-const Cell = require("../model/cellSchema");
-const Line = require("../model/lineSchema");
-const LogHistory = require("../model/logHistorySchema");
 const NoLossBD = require("../model/noLossBDSheetData");
 
 const authenticate = require("../middleware/authenticate");
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
-const factory = require("./handleFactory");
-const sendMailForBD = require("../sendMailForBM/sendMailForBDRequestSheet");
-const moment = require("moment-timezone");
 
 const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 const filterMiddleware = require("../middleware/filterMiddleware");
 const truncValue = require("../utils/truncValue");
 const logger = require("../utils/LoggingController/loggers");
 const maintenanceType = require("../utils/maintenanceType");
-
-const timezone = "Asia/Kolkata";
 
 router.use(cookieParser());
 router.use(authenticate);

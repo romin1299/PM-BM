@@ -565,77 +565,92 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                         </p>
                       </Col>
                       <Col lg={7}>
-                        {FREQUENCY_OF_CM?.map((value, idx) => (
-                          <div key={idx}>
-                            <Col>
-                              <input
-                                type="radio"
-                                id={`frequencyType_${idx}`}
-                                name="cmBasicDataFilledByMTD_TL.frequencyType"
-                                className="m-1 mb-2"
-                                value={value?.frequencyType}
-                                {...register(
-                                  "cmBasicDataFilledByMTD_TL.frequencyType",
-                                  {
-                                    required: "Please select frequency type",
-                                  }
-                                )}
-                              />
-                              <label htmlFor={`frequencyType_${idx}`}>
-                                {value?.frequencyType}
-                              </label>
-                            </Col>
-
-                            {watch(
-                              "cmBasicDataFilledByMTD_TL.frequencyType"
-                            ) === value?.frequencyType &&
-                              value?.frequencyType === "Scheduled" && (
-                                <Col className="d-flex justify-content-center align-items-center">
-                                  {value?.frequencyValue?.length > 0 &&
-                                    value?.frequencyValue?.map((type, idx1) => (
-                                      <Col key={idx1}>
-                                        <input
-                                          type="radio"
-                                          id={`frequencyValue_${idx1}`}
-                                          name="cmBasicDataFilledByMTD_TL.frequencyValue"
-                                          className="m-1 mb-2"
-                                          value={type}
-                                          {...register(
-                                            "cmBasicDataFilledByMTD_TL.frequencyValue",
-                                            {
-                                              required: {
-                                                value:
-                                                  watch(
-                                                    "cmBasicDataFilledByMTD_TL.frequencyType"
-                                                  ) === "Scheduled",
-                                                message:
-                                                  "Please select frequency value",
-                                              },
-                                            }
-                                          )}
-                                        />
-                                        <label
-                                          htmlFor={`frequencyValue_${idx1}`}
-                                        >
-                                          {type}
-                                        </label>
-                                      </Col>
-                                    ))}
-
-                                  {/* Error for frequency value (only for Scheduled) */}
-                                  {errors?.cmBasicDataFilledByMTD_TL
-                                    ?.frequencyValue && (
-                                    <p className="text-error">
-                                      {
-                                        errors?.cmBasicDataFilledByMTD_TL
-                                          ?.frequencyValue?.message
-                                      }
-                                    </p>
+                        {FREQUENCY_OF_CM?.map((value, idx) => {
+                          if (
+                            watch("cmBasicDataFilledByMTD_TL.categories") ===
+                              "LTPM" &&
+                            idx === 0
+                          ) {
+                            return;
+                          }
+                          return (
+                            <div key={idx}>
+                              <Col>
+                                <input
+                                  type="radio"
+                                  id={`frequencyType_${idx}`}
+                                  name="cmBasicDataFilledByMTD_TL.frequencyType"
+                                  className="m-1 mb-2"
+                                  value={value?.frequencyType}
+                                  {...register(
+                                    "cmBasicDataFilledByMTD_TL.frequencyType",
+                                    {
+                                      required: "Please select frequency type",
+                                    }
                                   )}
-                                </Col>
-                              )}
-                          </div>
-                        ))}
+                                />
+                                <label htmlFor={`frequencyType_${idx}`}>
+                                  {value?.frequencyType}
+                                </label>
+                              </Col>
+
+                              {watch(
+                                "cmBasicDataFilledByMTD_TL.frequencyType"
+                              ) === value?.frequencyType &&
+                                value?.frequencyType === "Scheduled" && (
+                                  <Col className="d-flex justify-content-center align-items-center">
+                                    {value?.frequencyValue?.length > 0 &&
+                                      value?.frequencyValue?.map((type, idx1) =>
+                                        watch(
+                                          "cmBasicDataFilledByMTD_TL.categories"
+                                        ) === "LTPM" && idx1 < 4 ? (
+                                          ""
+                                        ) : (
+                                          <Col key={idx1}>
+                                            <input
+                                              type="radio"
+                                              id={`frequencyValue_${idx1}`}
+                                              name="cmBasicDataFilledByMTD_TL.frequencyValue"
+                                              className="m-1 mb-2"
+                                              value={type}
+                                              {...register(
+                                                "cmBasicDataFilledByMTD_TL.frequencyValue",
+                                                {
+                                                  required: {
+                                                    value:
+                                                      watch(
+                                                        "cmBasicDataFilledByMTD_TL.frequencyType"
+                                                      ) === "Scheduled",
+                                                    message:
+                                                      "Please select frequency value",
+                                                  },
+                                                }
+                                              )}
+                                            />
+                                            <label
+                                              htmlFor={`frequencyValue_${idx1}`}
+                                            >
+                                              {type}
+                                            </label>
+                                          </Col>
+                                        )
+                                      )}
+
+                                    {/* Error for frequency value (only for Scheduled) */}
+                                    {errors?.cmBasicDataFilledByMTD_TL
+                                      ?.frequencyValue && (
+                                      <p className="text-error">
+                                        {
+                                          errors?.cmBasicDataFilledByMTD_TL
+                                            ?.frequencyValue?.message
+                                        }
+                                      </p>
+                                    )}
+                                  </Col>
+                                )}
+                            </div>
+                          );
+                        })}
 
                         {/* Error for frequency type */}
                         {errors?.cmBasicDataFilledByMTD_TL?.frequencyType && (
