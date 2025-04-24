@@ -6,7 +6,7 @@ import {
   tableIcons,
   useContext,
 } from "../../../modules/PageModules";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 
 import { Col } from "reactstrap";
 
@@ -30,7 +30,12 @@ const ImplementationApprovalDashboard = () => {
   const context = useContext(RoutingContext);
   const [tableData, setTableData] = useState([]);
 
-  const [selectedYear, setSelectedYear] = useState(currentYear);
+  let [searchParams, setSearchParams] = useSearchParams({
+    selectedYear: currentYear,
+  });
+  const [selectedYear, setSelectedYear] = useState(
+    searchParams.get("selectedYear")
+  );
 
   const navigate = useNavigate();
 
@@ -266,6 +271,7 @@ const ImplementationApprovalDashboard = () => {
               <YearDropDown
                 selectedYear={selectedYear}
                 setSelectedYear={setSelectedYear}
+                setSearchParams={setSearchParams}
               />
             </Col>
             {tableData?.length > 0 ? (

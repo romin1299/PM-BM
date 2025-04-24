@@ -40,7 +40,7 @@ const allusers = [
   "TL/HOSS",
   "Operator",
 ];
-console.log(process.env.REACT_APP_BASE_URL_FOR)
+// console.log(process.env.REACT_APP_BASE_URL_FOR)
 const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
 
 // let menuItemsForDensoIndia = [];

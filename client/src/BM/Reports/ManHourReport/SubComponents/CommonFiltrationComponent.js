@@ -119,6 +119,7 @@ export const ACTION = {
   HANDLE_SELECT_MAINTENANCE_TYPE: "handle-selected-maintenanceType",
   HANDLE_SELECT_QUARTER: "handle-selected-quarter",
   HANDLE_SELECT_STATUS: "handle-selected-status",
+  HANDLE_RESET: "reset-filters",
 };
 
 export const getFiltrationValue = async ({ url }) => {

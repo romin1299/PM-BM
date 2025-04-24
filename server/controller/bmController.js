@@ -39,6 +39,7 @@ const {
 const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
 const PlantToMachineHierarchy = require("../model/plantToMachineHierarchySchema");
+const SafetyForm = require("../model/safetyFormSchema");
 
 const statusArray = [
   "Generated",
@@ -498,6 +499,12 @@ router.post(
               requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD,
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
+
+            //for safety check
+            machineSafetyCheckedByPRD:
+              requestSheetDataFilledByMTDUser?.machineSafetyCheckedByPRD,
+            machineSafetyCheckedByMTD:
+              requestSheetDataFilledByMTDUser?.machineSafetyCheckedByMTD,
             requestSheetStatus:
               // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
               getRequestSheetData?.getDataForApprovalDashboard?.Id ||
@@ -685,7 +692,7 @@ router.post(
             ..._idObject,
             // ...req.body,
             requestSheetNoOfBM,
-            requestSheetCreatedBy: req.rootUser._id,
+            requestSheetCreatedBy: req?.rootUser?._id,
             priorityCode: requestSheetDataFilledByPRDUser?.priorityCode,
             qualityRelated: requestSheetDataFilledByPRDUser?.qualityRelated,
             shiftOfBM: requestSheetDataFilledByPRDUser?.shiftOfBM,
@@ -841,6 +848,15 @@ router.post(
 
 const findRequestSheetMiddleware = async (req, res, next) => {
   try {
+    // const page = parseInt(req.query.page) || 1; // Default to page 1
+    // const pageSize = parseInt(req.query.pageSize) || 10; // Default to 10 records per page
+
+    // // Calculate the number of documents to skip
+    // const skip = (page - 1) * pageSize;
+
+    // // Get the total number of documents (for pagination)
+    // const total = await RequestSheetOfBM.countDocuments();
+
     const requestSheetData = await RequestSheetOfBM.aggregate([
       ...req.queryPipeline,
       {
@@ -918,6 +934,9 @@ const findRequestSheetMiddleware = async (req, res, next) => {
       {
         $sort: { _id: -1 },
       },
+
+      // { $skip: skip },
+      // { $limit: pageSize },
       {
         $project: {
           requestSheetNoOfBM: 1,
@@ -956,6 +975,10 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           handOverUserId: {
             $arrayElemAt: ["$handoverUserDetails._id", 0],
           },
+          approvalStatusOfMTD_TL: {
+            $arrayElemAt: ["$approvalStatusOfMTD_TL", -1],
+          },
+          getDataForApprovalDashboard: 1,
         },
       },
     ]);
@@ -4046,6 +4069,40 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $lookup: {
           from: "users",
+          localField: "machineSafetyCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNamePRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "machineSafetyCheckedByMTD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNameMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
           localField: "assignUser",
           foreignField: "_id",
           pipeline: [
@@ -4516,6 +4573,10 @@ const getRequestSheetData = async (req, res, next) => {
           partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
           partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
 
+          //for safety
+          machineSafetyCheckedByPRD: { $arrayElemAt: ["$safetyNamePRD", 0] },
+          machineSafetyCheckedByMTD: { $arrayElemAt: ["$safetyNameMTD", 0] },
+
           dataSheetOfBM: 1,
           drawingOfBM: 1,
           sparePartUsedOrNot: 1,
@@ -4540,6 +4601,7 @@ const getRequestSheetData = async (req, res, next) => {
           categoriesOfRequestSheet: 1,
           preventive_corrective_maintenance: 1,
           yokotenkai: 1,
+          IsSafetyFormCreated: 1,
         },
       },
     ]);
@@ -4836,6 +4898,40 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
       {
         $lookup: {
           from: "users",
+          localField: "machineSafetyCheckedByPRD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNamePRD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "machineSafetyCheckedByMTD",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                tm_name: 1,
+                tm_no: 1,
+                email: 1,
+              },
+            },
+          ],
+          as: "safetyNameMTD",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
           localField: "assignUser",
           foreignField: "_id",
           pipeline: [
@@ -5039,6 +5135,10 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
           partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
 
+          //for safety
+          machineSafetyCheckedByPRD: { $arrayElemAt: ["$safetyNamePRD", 0] },
+          machineSafetyCheckedByMTD: { $arrayElemAt: ["$safetyNameMTD", 0] },
+
           dataSheetOfBM: 1,
           drawingOfBM: 1,
           sparePartUsedOrNot: 1,
@@ -5056,6 +5156,7 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           categoriesOfRequestSheet: 1,
           preventive_corrective_maintenance: 1,
           yokotenkai: 1,
+          IsSafetyFormCreated: 1,
         },
       },
     ]);
@@ -9124,13 +9225,13 @@ const hourlyMonthlyBdTrendMiddleware = async (req, res, next) => {
     return res.status(200).json({
       message: "Monthly BD trend data for hourly get successfully",
       bdTrendData: [
-        { label: "<1", data: bdTrendData?.[0].lessThanOne },
-        { label: "<2", data: bdTrendData?.[0].lessThanTwo },
-        { label: ">2", data: bdTrendData?.[0].greaterThanTwo },
+        { label: "<1", data: bdTrendData?.[0]?.lessThanOne },
+        { label: "<2", data: bdTrendData?.[0]?.lessThanTwo },
+        { label: ">2", data: bdTrendData?.[0]?.greaterThanTwo },
         // { label: "Total", data: bdTrendData?.[0].totalCount },
       ],
-      totalCount: bdTrendData?.[0].totalCount,
-      bdTrendDataTarget: req.target,
+      totalCount: bdTrendData?.[0]?.totalCount,
+      bdTrendDataTarget: req?.target,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -9173,6 +9274,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
           pipeline: [
             {
               $match: {
+                maintenanceType: "BM",
                 $expr: {
                   $eq: ["$$subsection", "$subSectionRef"],
                 },
@@ -9501,7 +9603,7 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
 
       bdTrendData,
       bdTrendDataTarget: req.target,
-      averageData: averageData?.[0].data,
+      averageData: averageData?.[0]?.data,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -9961,8 +10063,8 @@ const lineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       message: "Line Wise Monthly BD trend data for line get successfully",
 
       bdTrendData,
-      bdTrendDataTarget: req.target,
-      averageData: averageData?.[0].data,
+      bdTrendDataTarget: req?.target,
+      averageData: averageData?.[0]?.data,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -9997,6 +10099,7 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
                 },
                 "preAggregationTimeStampOfRequestSheet.requestSheet_year":
                   req.query.selectedYear,
+                maintenanceType: "BM",
               },
             },
 
@@ -10189,8 +10292,8 @@ const machineMonthlyBdTrendForSectionMiddleware = async (req, res, next) => {
       message: "Machine Wise Monthly BD trend data for line get successfully",
 
       bdTrendData,
-      bdTrendDataTarget: req.target,
-      averageData: averageData?.[0].data,
+      bdTrendDataTarget: req?.target,
+      averageData: averageData?.[0]?.data,
     });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -10885,9 +10988,7 @@ router.get(
 
       if (req.params.selectedId) {
         const sections = await Section.find({
-          plant_names: mongoose.Types.ObjectId(
-            req.queryObj.plantRef.toString()
-          ),
+          plant_names: mongoose.Types.ObjectId(req.queryObj.plantRef),
         });
         // console.log(sections);
 
@@ -12279,9 +12380,9 @@ router.get(
           ],
         bdTrendData: bdTrendData?.[0],
         machineHistoryCardData: machineHistoryCardData?.[0],
-        totalCount: bdTrendData?.[0].totalCount,
+        totalCount: bdTrendData?.[0]?.totalCount,
 
-        bdTrendDataTarget: req.target,
+        bdTrendDataTarget: req?.target,
       });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -19363,12 +19464,8 @@ router.post(
           lineRef: noLossRequestSheetData?.selectedLine || null,
           machineRef: noLossRequestSheetData?.selectedMachine || null,
           preAggregationTimeStampOfRequestSheet: {
-            requestSheet_year: gettingFYYearForSelectedDate(
-              noLossRequestSheetData?.DateOfNoLossBD
-            ),
-            requestSheet_month: gettingMonthForSelectedDate(
-              noLossRequestSheetData?.DateOfNoLossBD
-            ),
+            requestSheet_year: gettingFYYearForSelectedDate(new Date()),
+            requestSheet_month: gettingMonthForSelectedDate(new Date()),
           },
         });
 
@@ -19666,6 +19763,62 @@ router.post(
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+// safety form CRUD Operations
+
+router.post(
+  "/addSafetyForm/:requestSheetRef",
+  authenticate,
+  async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.create({
+        requestSheetRef: req.params?.requestSheetRef,
+        safetyFormFilledUpBy: req?.rootUser?.tm_name,
+        ...req.body,
+      });
+      const reqSheetBM = await RequestSheetOfBM.findOneAndUpdate(
+        { _id: req.params?.requestSheetRef },
+        {
+          $set: {
+            IsSafetyFormCreated: true,
+          },
+        }
+      );
+      if (!safetyForm) {
+        return res
+          .status(400)
+          .json({ message: "Error in creating safety form" });
+      }
+      res
+        .status(201)
+        .json({ message: "Safety form created successfully", safetyForm });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get(
+  "/getSafetyForm/:requestSheetRef",
+  authenticate,
+  async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.findOne({
+        requestSheetRef: mongoose.Types.ObjectId(req?.params?.requestSheetRef),
+      });
+      if (!safetyForm) {
+        return res.status(400).json({ message: "Not Found!!!" });
+      }
+      res.status(200).json({
+        message: "Safety form fetched successfully",
+        safetyForm,
+      });
+    } catch (error) {
+      console.log(error);
     }
   }
 );

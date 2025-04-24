@@ -106,6 +106,10 @@ const UpdateRequestSheetForAnyStatus = () => {
       if (res.status === 201) {
         const data = await res.json();
         reset(data?.requestSheetDataOfBM);
+        setValue(
+          "IsSafetyFormCreated",
+          data?.requestSheetDataOfBM?.IsSafetyFormCreated ? "Yes" : "No"
+        );
         setProblems(
           data?.requestSheetDataOfBM?.maintenanceReportFilledByMTD?.problemsOfBM
         );
@@ -998,13 +1002,17 @@ const UpdateRequestSheetForAnyStatus = () => {
                     sm={6}
                     className="border text-center pb-2 pt-2"
                   >
-                    <small className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>BREAKDOWN</b>
-                    </small>
-                    <p>
-                      {watch("maintenanceReportFilledByMTD.breakDownTime") ||
-                        null}
-                    </p>
+                    <Col className="h-50">
+                      <small className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>BREAKDOWN</b>
+                      </small>
+                    </Col>
+                    <Col>
+                      <p>
+                        {watch("maintenanceReportFilledByMTD.breakDownTime") ||
+                          null}
+                      </p>
+                    </Col>
                   </Col>
                   <Col
                     lg={3}
@@ -1012,15 +1020,21 @@ const UpdateRequestSheetForAnyStatus = () => {
                     sm={6}
                     className="border text-center pb-2 pt-2"
                   >
-                    <small className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>ANALYSIS</b>
-                    </small>
-                    <input
-                      type="number"
-                      style={{ width: "100%" }}
-                      id="analysisTime"
-                      {...register("maintenanceReportFilledByMTD.analysisTime")}
-                    />
+                    <Col className="h-50">
+                      <small className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>ANALYSIS</b>
+                      </small>
+                    </Col>
+                    <Col>
+                      <input
+                        type="number"
+                        style={{ width: "100%" }}
+                        id="analysisTime"
+                        {...register(
+                          "maintenanceReportFilledByMTD.analysisTime"
+                        )}
+                      />
+                    </Col>
                   </Col>
                   <Col
                     lg={3}
@@ -1028,19 +1042,23 @@ const UpdateRequestSheetForAnyStatus = () => {
                     sm={6}
                     className="border text-center pb-2 pt-2"
                   >
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>SPARE WAITING</b>
-                    </p>
-                    <input
-                      type="number"
-                      className="mb-2"
-                      style={{ width: "100%" }}
-                      id="spareWaitingTime"
-                      name="spareWaitingTime"
-                      {...register(
-                        "maintenanceReportFilledByMTD.spareWaitingTime"
-                      )}
-                    />
+                    <Col className="h-50">
+                      <small className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>SPARE WAITING</b>
+                      </small>
+                    </Col>
+                    <Col>
+                      <input
+                        type="number"
+                        className="mb-2"
+                        style={{ width: "100%" }}
+                        id="spareWaitingTime"
+                        name="spareWaitingTime"
+                        {...register(
+                          "maintenanceReportFilledByMTD.spareWaitingTime"
+                        )}
+                      />
+                    </Col>
                   </Col>
                   <Col
                     lg={3}
@@ -1048,19 +1066,23 @@ const UpdateRequestSheetForAnyStatus = () => {
                     sm={6}
                     className="border text-center pb-2 pt-2"
                   >
-                    <small className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>REPLACEMENT</b>
-                    </small>
-                    <input
-                      type="number"
-                      className="mb-2"
-                      style={{ width: "100%" }}
-                      id="replacementTime"
-                      name="replacementTime"
-                      {...register(
-                        "maintenanceReportFilledByMTD.replacementTime"
-                      )}
-                    />
+                    <Col className="h-50">
+                      <small className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>REPLACEMENT</b>
+                      </small>
+                    </Col>
+                    <Col>
+                      <input
+                        type="number"
+                        className="mb-2"
+                        style={{ width: "100%" }}
+                        id="replacementTime"
+                        name="replacementTime"
+                        {...register(
+                          "maintenanceReportFilledByMTD.replacementTime"
+                        )}
+                      />
+                    </Col>
                   </Col>
                 </Row>
                 <Row className="m-0">
@@ -1070,19 +1092,26 @@ const UpdateRequestSheetForAnyStatus = () => {
                     sm={6}
                     className="border text-center pb-2 pt-2"
                   >
-                    <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>MAINTENANCE</b> <br /> <b>(No Loss)</b>
-                    </small>
-                    <input
-                      type="number"
-                      className="mb-2"
-                      style={{ width: "100%" }}
-                      id="maintenanceTime"
-                      name="maintenanceTime"
-                      {...register(
-                        "maintenanceReportFilledByMTD.maintenanceTime"
-                      )}
-                    />
+                    <Col className="h-50">
+                      <small className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>MAINTENANCE</b> <br />{" "}
+                        <p>
+                          <b>(No Loss)</b>
+                        </p>
+                      </small>
+                    </Col>
+                    <Col>
+                      <input
+                        type="number"
+                        className="mb-2"
+                        style={{ width: "100%" }}
+                        id="maintenanceTime"
+                        name="maintenanceTime"
+                        {...register(
+                          "maintenanceReportFilledByMTD.maintenanceTime"
+                        )}
+                      />
+                    </Col>
                   </Col>
                   <Col
                     lg={3}
@@ -1090,18 +1119,22 @@ const UpdateRequestSheetForAnyStatus = () => {
                     sm={6}
                     className="border text-center pb-2 pt-2"
                   >
-                    <small className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>ADJUSTMENT</b>
-                    </small>
-                    <input
-                      type="number"
-                      style={{ width: "100%" }}
-                      id="mainTime"
-                      name="mainTime"
-                      {...register(
-                        "maintenanceReportFilledByMTD.adjustmentTime"
-                      )}
-                    />
+                    <Col className="h-50">
+                      <small className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>ADJUSTMENT</b>
+                      </small>
+                    </Col>
+                    <Col>
+                      <input
+                        type="number"
+                        style={{ width: "100%" }}
+                        id="mainTime"
+                        name="mainTime"
+                        {...register(
+                          "maintenanceReportFilledByMTD.adjustmentTime"
+                        )}
+                      />
+                    </Col>
                   </Col>
                   <Col
                     lg={3}
@@ -1109,19 +1142,23 @@ const UpdateRequestSheetForAnyStatus = () => {
                     sm={6}
                     className="border text-center pb-2 pt-2"
                   >
-                    <p className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>QUALITY CHECK</b>
-                    </p>
-                    <input
-                      type="number"
-                      className="mb-2"
-                      style={{ width: "100%" }}
-                      id="qualityTime"
-                      name="qualityTime"
-                      {...register(
-                        "maintenanceReportFilledByMTD.qualityCheckTime"
-                      )}
-                    />
+                    <Col className="h-50">
+                      <small className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>QUALITY CHECK</b>
+                      </small>
+                    </Col>
+                    <Col>
+                      <input
+                        type="number"
+                        className="mb-2"
+                        style={{ width: "100%" }}
+                        id="qualityTime"
+                        name="qualityTime"
+                        {...register(
+                          "maintenanceReportFilledByMTD.qualityCheckTime"
+                        )}
+                      />
+                    </Col>
                   </Col>
                   <Col
                     lg={3}
@@ -1129,17 +1166,21 @@ const UpdateRequestSheetForAnyStatus = () => {
                     sm={6}
                     className="border text-center pb-2 pt-2"
                   >
-                    <small className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>BREAK</b>
-                    </small>
-                    <input
-                      type="number"
-                      className="mb-2"
-                      style={{ width: "100%" }}
-                      id="breakTime"
-                      name="breakTime"
-                      {...register("maintenanceReportFilledByMTD.breakTime")}
-                    />
+                    <Col className="h-50">
+                      <small className="mb-0" style={{ fontSize: "12px" }}>
+                        <b>BREAK</b>
+                      </small>
+                    </Col>
+                    <Col>
+                      <input
+                        type="number"
+                        className="mb-2"
+                        style={{ width: "100%" }}
+                        id="breakTime"
+                        name="breakTime"
+                        {...register("maintenanceReportFilledByMTD.breakTime")}
+                      />
+                    </Col>
                   </Col>
                 </Row>
                 {errors?.["totalTimeValidation"] && (
@@ -1408,8 +1449,46 @@ const UpdateRequestSheetForAnyStatus = () => {
                     </Form>
                   </Col>
                 </Row>
+                {/* <Row className="m-0">
+                  <Col className="border p-2">
+                    <small className="mb-0 d-flex align-items-center justify-content-start">
+                      <b>SAFETY CHECK</b>&nbsp;&nbsp;&nbsp;
+                    </small>
+                  </Col>
+                  <Col className="border p-2 d-flex align-items-center">
+                    <Form>
+                      <div className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="IsSafetyFormCreated"
+                          type="radio"
+                          value="Yes"
+                          disabled
+                          id="IsSafetyFormCreated"
+                          {...register("IsSafetyFormCreated", {
+                            // required: "This field is required",
+                          })}
+                        />
+                        &nbsp;&nbsp;
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="IsSafetyFormCreated"
+                          type="radio"
+                          value="No"
+                          id="IsSafetyFormCreated-1"
+                          {...register("IsSafetyFormCreated", {
+                            // required: "This field is required",
+                          })}
+                          disabled
+                        />
+                      </div>
+                    </Form>
+                  </Col>
+                </Row> */}
                 <Row className="m-0 border border-bottom-0">
-                  <p className="text-center mb-0">**PART QUALITY CHECKED</p>
+                  <p className="text-center mb-0">**PART QUALITY CHECKED (IPP)</p>
                 </Row>
                 <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
                   <Col lg={6} md={6} className="border pb-2 pt-1">
@@ -1455,6 +1534,54 @@ const UpdateRequestSheetForAnyStatus = () => {
                     )}
                   </Col>
                 </Row>
+                {/* <Row className="m-0 border border-bottom-0">
+                  <p className="text-center mb-0">***MACHINE SAFETY CHECKED</p>
+                </Row>
+                <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
+                  <Col lg={6} md={6} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>PRD</b>
+                    </small>
+                    {watch("machineSafetyCheckedByPRD") ? (
+                      <p className="mb-0">
+                        {watch("machineSafetyCheckedByPRD.tm_name")}
+                      </p>
+                    ) : (
+                      <DropdownElem
+                        name={"machineSafetyCheckedByPRD"}
+                        options={functionForUserDropdown({
+                          tm_department: "PRD",
+                          user_type: "TL/HOSS",
+                        })}
+                        className={"d-inline"}
+                        register={register}
+                        errors={errors}
+                      />
+                    )}
+                  </Col>
+                  <Col lg={6} md={6} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>MTD</b>
+                    </small>
+                    {watch("machineSafetyCheckedByMTD") ? (
+                      <p className="mb-0">
+                        {watch("machineSafetyCheckedByMTD.tm_name")}
+                      </p>
+                    ) : (
+                      <DropdownElem
+                        name={"machineSafetyCheckedByMTD"}
+                        options={functionForUserDropdown({
+                          tm_department: "MTD",
+                          user_type: "TL/HOSS",
+                        })}
+                        className={"d-inline"}
+                        register={register}
+                        errors={errors}
+                      />
+                    )}
+                  </Col>
+                </Row> */}
+
                 <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -1526,9 +1653,9 @@ const UpdateRequestSheetForAnyStatus = () => {
                               <Button
                                 target="_blank"
                                 // href={`http://localhost:7000/${watch("attachedDataSheets")}`}
-                                href={`${process.env.REACT_APP_BASE_URL}${watch(
-                                  "attachedDataSheets"
-                                )}`}
+                                href={`${
+                                  process.env.REACT_APP_BASE_URL
+                                }/${watch("attachedDataSheets")}`}
                                 disableElevation
                                 size="small"
                                 variant="contained"
@@ -1610,7 +1737,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                                   <a
                                     target="_blank"
                                     // href={`http://localhost:7000/${image}`}
-                                    href={`${process.env.REACT_APP_BASE_URL}${image}`}
+                                    href={`${process.env.REACT_APP_BASE_URL}/${image}`}
                                     style={{
                                       width: "100%",
                                       display: "flex",
@@ -1621,7 +1748,7 @@ const UpdateRequestSheetForAnyStatus = () => {
                                   >
                                     <img
                                       // src={`http://localhost:7000/${image}`}
-                                      src={`${process.env.REACT_APP_BASE_URL}${image}`}
+                                      src={`${process.env.REACT_APP_BASE_URL}/${image}`}
                                       style={{
                                         maxWidth: "100px",
                                         maxHeight: "100px",

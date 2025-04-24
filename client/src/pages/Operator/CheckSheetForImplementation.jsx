@@ -1259,7 +1259,7 @@ const CheckSheet = ({
                                                     colData?.value?.[0]
                                                   }
                                                   remarksCompulsoryOrNot={
-                                                    rData[11].value
+                                                    rData[10].value
                                                   }
                                                 />
                                               );

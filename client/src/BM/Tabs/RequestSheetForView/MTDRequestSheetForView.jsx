@@ -748,28 +748,32 @@ function MTDRequestSheetForView({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>BREAKDOWN</b>
-                  </small>
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>BREAKDOWN</b>
+                    </small>
+                  </Col>
                   {/* <p>{timeDifferenceMinutes || null}</p> */}
-                  <input
-                    disabled
-                    type="number"
-                    style={{ width: "100%" }}
-                    id="breakDownTime"
-                    name="breakDownTime"
-                    {...register("breakDownTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("breakDownTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("breakDownTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handlebreakDownTime}
-                  />
+                  <Col>
+                    <input
+                      disabled
+                      type="number"
+                      style={{ width: "100%" }}
+                      id="breakDownTime"
+                      name="breakDownTime"
+                      {...register("breakDownTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("breakDownTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("breakDownTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handlebreakDownTime}
+                    />
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -777,32 +781,36 @@ function MTDRequestSheetForView({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>ANALYSIS</b>
-                  </small>
-                  <input
-                    disabled
-                    type="number"
-                    style={{ width: "100%" }}
-                    id="analysisTime"
-                    name="analysisTime"
-                    {...register("analysisTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("analysisTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("analysisTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handleanalysisTime}
-                  />
-                  {errors?.["analysisTime"] && (
-                    <p className="text-error">
-                      {errors?.["analysisTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>ANALYSIS</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      disabled
+                      type="number"
+                      style={{ width: "100%" }}
+                      id="analysisTime"
+                      name="analysisTime"
+                      {...register("analysisTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("analysisTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("analysisTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handleanalysisTime}
+                    />
+                    {errors?.["analysisTime"] && (
+                      <p className="text-error">
+                        {errors?.["analysisTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -810,33 +818,37 @@ function MTDRequestSheetForView({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <p className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>SPARE WAITING</b>
-                  </p>
-                  <input
-                    disabled
-                    type="number"
-                    className="mb-2"
-                    style={{ width: "100%" }}
-                    id="spareWaitingTime"
-                    name="spareWaitingTime"
-                    {...register("spareWaitingTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("spareWaitingTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("spareWaitingTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handlespareWaitingTime}
-                  />
-                  {errors?.["spareWaitingTime"] && (
-                    <p className="text-error">
-                      {errors?.["spareWaitingTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>SPARE WAITING</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      disabled
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="spareWaitingTime"
+                      name="spareWaitingTime"
+                      {...register("spareWaitingTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("spareWaitingTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("spareWaitingTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handlespareWaitingTime}
+                    />
+                    {errors?.["spareWaitingTime"] && (
+                      <p className="text-error">
+                        {errors?.["spareWaitingTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -844,33 +856,37 @@ function MTDRequestSheetForView({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>REPLACEMENT</b>
-                  </small>
-                  <input
-                    disabled
-                    type="number"
-                    className="mb-2"
-                    style={{ width: "100%" }}
-                    id="replacementTime"
-                    name="replacementTime"
-                    {...register("replacementTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("replacementTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("replacementTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handlereplacementTime}
-                  />
-                  {errors?.["replacementTime"] && (
-                    <p className="text-error">
-                      {errors?.["replacementTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>REPLACEMENT</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      disabled
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="replacementTime"
+                      name="replacementTime"
+                      {...register("replacementTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("replacementTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("replacementTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handlereplacementTime}
+                    />
+                    {errors?.["replacementTime"] && (
+                      <p className="text-error">
+                        {errors?.["replacementTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
               </Row>
               <Row className="m-0">
@@ -880,32 +896,39 @@ function MTDRequestSheetForView({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>MAINTENANCE</b> <br /> <b>(No Loss)</b>
-                  </small>
-                  <input
-                    type="number"
-                    disabled
-                    style={{ width: "100%" }}
-                    id="maintenance"
-                    name="maintenance"
-                    {...register("maintenanceTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("maintenanceTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("maintenanceTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handlemaintenanceTime}
-                  />
-                  {errors?.["maintenanceTime"] && (
-                    <p className="text-error">
-                      {errors?.["maintenanceTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>MAINTENANCE</b> <br />{" "}
+                      <p>
+                        <b>(No Loss)</b>
+                      </p>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      type="number"
+                      disabled
+                      style={{ width: "100%" }}
+                      id="maintenance"
+                      name="maintenance"
+                      {...register("maintenanceTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("maintenanceTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("maintenanceTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handlemaintenanceTime}
+                    />
+                    {errors?.["maintenanceTime"] && (
+                      <p className="text-error">
+                        {errors?.["maintenanceTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -913,32 +936,36 @@ function MTDRequestSheetForView({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>ADJUSTMENT</b>
-                  </small>
-                  <input
-                    disabled
-                    type="number"
-                    style={{ width: "100%" }}
-                    id="mainTime"
-                    name="mainTime"
-                    {...register("adjustmentTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("adjustmentTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("adjustmentTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handleadjustmentTime}
-                  />
-                  {errors?.["adjustmentTime"] && (
-                    <p className="text-error">
-                      {errors?.["adjustmentTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>ADJUSTMENT</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      disabled
+                      type="number"
+                      style={{ width: "100%" }}
+                      id="mainTime"
+                      name="mainTime"
+                      {...register("adjustmentTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("adjustmentTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("adjustmentTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handleadjustmentTime}
+                    />
+                    {errors?.["adjustmentTime"] && (
+                      <p className="text-error">
+                        {errors?.["adjustmentTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -946,33 +973,37 @@ function MTDRequestSheetForView({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <p className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>QUALITY CHECK</b>
-                  </p>
-                  <input
-                    disabled
-                    type="number"
-                    className="mb-2"
-                    style={{ width: "100%" }}
-                    id="qualityTime"
-                    name="qualityTime"
-                    {...register("qualityCheckTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("qualityCheckTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("qualityCheckTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handleQualityCheckTime}
-                  />
-                  {errors?.["qualityCheckTime"] && (
-                    <p className="text-error">
-                      {errors?.["qualityCheckTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>QUALITY CHECK</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      disabled
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="qualityTime"
+                      name="qualityTime"
+                      {...register("qualityCheckTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("qualityCheckTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("qualityCheckTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handleQualityCheckTime}
+                    />
+                    {errors?.["qualityCheckTime"] && (
+                      <p className="text-error">
+                        {errors?.["qualityCheckTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
                 <Col
                   lg={3}
@@ -980,33 +1011,37 @@ function MTDRequestSheetForView({
                   sm={6}
                   className="border text-center pb-2 pt-2"
                 >
-                  <small className="mb-0" style={{ fontSize: "12px" }}>
-                    <b>BREAK</b>
-                  </small>
-                  <input
-                    disabled
-                    type="number"
-                    className="mb-2"
-                    style={{ width: "100%" }}
-                    id="breakTime"
-                    name="breakTime"
-                    {...register("breakTime", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("breakTime", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("breakTime");
-                      clearErrors("totalTimeValidation");
-                    }}
-                    // onChange={handleBreakTime}
-                  />
-                  {errors?.["breakTime"] && (
-                    <p className="text-error">
-                      {errors?.["breakTime"]?.message}
-                    </p>
-                  )}
+                  <Col className="h-50">
+                    <small className="mb-0" style={{ fontSize: "12px" }}>
+                      <b>BREAK</b>
+                    </small>
+                  </Col>
+                  <Col>
+                    <input
+                      disabled
+                      type="number"
+                      className="mb-2"
+                      style={{ width: "100%" }}
+                      id="breakTime"
+                      name="breakTime"
+                      {...register("breakTime", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("breakTime", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("breakTime");
+                        clearErrors("totalTimeValidation");
+                      }}
+                      // onChange={handleBreakTime}
+                    />
+                    {errors?.["breakTime"] && (
+                      <p className="text-error">
+                        {errors?.["breakTime"]?.message}
+                      </p>
+                    )}
+                  </Col>
                 </Col>
               </Row>
 
@@ -1366,9 +1401,19 @@ function MTDRequestSheetForView({
                   {requestSheetDataOfBM?.qualityConfirmed}
                 </Col>
               </Row>
+              <Row className="m-0">
+                <Col className="border p-2">
+                  <small className="mb-0 d-flex align-items-center justify-content-start">
+                    <b>SAFETY CHECK</b>&nbsp;&nbsp;&nbsp;
+                  </small>
+                </Col>
+                <Col className="border p-2 d-flex align-items-center">
+                  {requestSheetDataOfBM?.IsSafetyFormCreated ? "Yes" : "No"}
+                </Col>
+              </Row>
 
               <Row className="m-0 border border-bottom-0">
-                <p className="text-center mb-0">**PART QUALITY CHECKED</p>
+                <p className="text-center mb-0">**PART QUALITY CHECKED (IPP)</p>
               </Row>
               <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
                 <Col lg={6} md={6} className="border pb-2 pt-1">
@@ -1397,6 +1442,36 @@ function MTDRequestSheetForView({
                   )}
                 </Col>
               </Row>
+              <Row className="m-0 border border-bottom-0">
+                <p className="text-center mb-0">***MACHINE SAFETY CHECKED</p>
+              </Row>
+              <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
+                <Col lg={6} md={6} className="border pb-2 pt-1">
+                  <small className="mb-0">
+                    <b>PRD</b>
+                  </small>
+                  {requestSheetDataOfBM?.machineSafetyCheckedByPRD ? (
+                    <p className="mb-0">
+                      {requestSheetDataOfBM?.machineSafetyCheckedByPRD?.tm_name}
+                    </p>
+                  ) : (
+                    <input className="w-100" disabled />
+                  )}
+                </Col>
+
+                <Col lg={6} md={6} className="border pb-2 pt-1">
+                  <small className="mb-0">
+                    <b>MTD</b>
+                  </small>
+                  {requestSheetDataOfBM?.machineSafetyCheckedByMTD ? (
+                    <p className="mb-0">
+                      {requestSheetDataOfBM?.machineSafetyCheckedByMTD?.tm_name}
+                    </p>
+                  ) : (
+                    <input className="w-100" disabled />
+                  )}
+                </Col>
+              </Row>
               <Row className="m-0">
                 <Col className="border p-2">
                   <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -1413,7 +1488,7 @@ function MTDRequestSheetForView({
                         <Button
                           target="_blank"
                           // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                          href={`${process.env.REACT_APP_BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
+                          href={`${process.env.REACT_APP_BASE_URL}/${requestSheetDataOfBM?.attachedDataSheets}`}
                           disableElevation
                           size="small"
                           variant="contained"
@@ -1452,7 +1527,7 @@ function MTDRequestSheetForView({
                             <a
                               target="_blank"
                               // href={`http://localhost:7000/${image}`}
-                              href={`${process.env.REACT_APP_BASE_URL}${image}`}
+                              href={`${process.env.REACT_APP_BASE_URL}/${image}`}
                               style={{
                                 width: "100%",
                                 display: "flex",
@@ -1463,7 +1538,7 @@ function MTDRequestSheetForView({
                             >
                               <img
                                 // src={`http://localhost:7000/${image}`}
-                                src={`${process.env.REACT_APP_BASE_URL}${image}`}
+                                src={`${process.env.REACT_APP_BASE_URL}/${image}`}
                                 style={{
                                   maxWidth: "100px",
                                   maxHeight: "100px",

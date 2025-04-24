@@ -4,6 +4,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   requestSheetNoOfBM: {
     type: String,
   },
+  //If safety form is created
+  IsSafetyFormCreated: {
+    type: Boolean,
+    default: false,
+  },
 
   //If require else byDefault is BM
   maintenanceType: {
@@ -277,6 +282,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
+  machineSafetyCheckedByPRD: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
   partQualityStatusOfPRD: {
     type: String, //yes no
   },
@@ -286,6 +295,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //part quality checked by MTD
   partQualityCheckedByMTD: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
+  machineSafetyCheckedByMTD: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },

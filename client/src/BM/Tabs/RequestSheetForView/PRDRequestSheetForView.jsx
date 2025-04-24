@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import { Box, Button, Tooltip } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
-
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import RoutingContext from "../../../context/routing/RoutingContext";
@@ -16,6 +17,7 @@ import { denso_logo } from "../../../modules/LoginModules";
 import { exportPDF } from "../../Utils/exportPDF/exportPDF";
 import ProblemModeHistory from "../../../Common/Machine/ProblemModeHistory";
 import ShiftInputField from "../../../CM/Components/ReqestSheetOfCM/RSComponents/ShiftInputField";
+import SafetyForm from "../SafetyForm/SafetyForm";
 
 function MyTable({
   requestSheetDataOfBM,
@@ -25,6 +27,7 @@ function MyTable({
   selectedYear,
 }) {
   const [problemModeCardModal, setProblemModeCardModal] = useState(false);
+  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
 
   const { register, watch, setValue } = useForm({
     defaultValues: {
@@ -107,6 +110,16 @@ function MyTable({
           }}
         />
       )}
+      {requestSheetDataOfBM?._id && safetyFormModalOpen && (
+        <SafetyForm
+          id={requestSheetDataOfBM?._id}
+          lineName={requestSheetDataOfBM?.lineRef?.line_name}
+          machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
+          setSafetyFormModalOpen={setSafetyFormModalOpen}
+          safetyFormModalOpen={safetyFormModalOpen}
+          machineSafetyCheckedByMTD ={requestSheetDataOfBM?.machineSafetyCheckedByMTD}
+        />
+      )}
       <form>
         <Table>
           <tbody className="m-1 border p-3">
@@ -147,7 +160,9 @@ function MyTable({
                         className="btn bg-button"
                         onClick={(e) => {
                           e.preventDefault();
-
+                          // navigate(
+                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                          // );
                           window.open(
                             `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,
                             "_blank"
@@ -188,6 +203,17 @@ function MyTable({
                       >
                         Problem History
                       </Button>
+                      <button
+                        // variant="contained"
+                        // color="error"
+                        className="btn btn-danger"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSafetyFormModalOpen(true);
+                        }}
+                      >
+                        <HealthAndSafetyIcon /> &nbsp;Safety Form
+                      </button>
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
@@ -538,7 +564,8 @@ function MyTable({
                       (imageOrVideo, idx) => (
                         <a
                           target="_blank"
-                          href={`${process.env.REACT_APP_BASE_URL}${imageOrVideo}`}
+                          // href={`http://localhost:7000/${image}`}
+                          href={`${process.env.REACT_APP_BASE_URL}/${imageOrVideo}`}
                           style={{
                             width: "100%",
                             display: "flex",

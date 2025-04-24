@@ -44,6 +44,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import SparePartsRequestForm from "../SparePartsRequest/SparePartsRequestForm";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
+import SafetyForm from "../Tabs/SafetyForm/SafetyForm";
 
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
@@ -319,6 +321,7 @@ const RequestSheetMainDashboard = () => {
       console.log(error);
     }
   };
+  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
 
   useEffect(() => {
     if (reduceState?.selectedValue) getAllRequestSheetData();
@@ -328,6 +331,7 @@ const RequestSheetMainDashboard = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
+    safetyFormModalOpen,
   ]);
 
   const handleGenerateBMNavigation = async () => {
@@ -656,7 +660,12 @@ const RequestSheetMainDashboard = () => {
       disabled:
         (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)
+        // RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)
+        (row?.requestSheetStatus === "Fill Sheet" ||
+          row?.requestSheetStatus === "Work Order Pending" ||
+          row?.requestSheetStatus === "Work Order Closed" ||
+          row?.approvalStatusOfMTD_TL === "Rejected") &&
+        row?.IsSafetyFormCreated
           ? false
           : true,
       onClick: (event, selectedRow) =>
@@ -690,6 +699,16 @@ const RequestSheetMainDashboard = () => {
         //     },
         //   }
         // );
+      },
+    }),
+    //Open Safety Form
+    (row) => ({
+      icon: () => <HealthAndSafetyIcon />,
+      tooltip: "Safety Form",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        setSafetyFormModalOpen(true);
       },
     }),
 
@@ -1281,6 +1300,18 @@ const RequestSheetMainDashboard = () => {
             show: sparePartsRequestModal,
             onHide: handleSparePartsModelState,
           }}
+        />
+      )}
+
+      {safetyFormModalOpen && (
+        <SafetyForm
+          id={selectedRow?._id}
+          lineName={selectedRow?.line}
+          machineNo={selectedRow?.machineNo}
+          machineName={selectedRow?.machineName}
+          setSafetyFormModalOpen={setSafetyFormModalOpen}
+          safetyFormModalOpen={safetyFormModalOpen}
+          machineSafetyCheckedByMTD={selectedRow?.machineSafetyCheckedByMTD}
         />
       )}
     </>

@@ -1,9 +1,9 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
-
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
@@ -13,6 +13,8 @@ import { Box } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
 import ShiftInputField from "../../../CM/Components/ReqestSheetOfCM/RSComponents/ShiftInputField";
+import SafetyForm from "../SafetyForm/SafetyForm";
+import axios from "axios";
 
 function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   const navigate = useNavigate();
@@ -21,20 +23,18 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   const {
     register,
     handleSubmit,
-    formState: { errors, dirtyFields },
+    formState: { errors },
     watch,
     reset,
     setValue,
-    setError,
-    clearErrors,
   } = useForm({
     defaultValues: {
       ...requestSheetDataOfBM,
     },
   });
-
-  const selectedRequestSheetData = useLocation();
   const loggedUserDetails = useContext(RoutingContext);
+  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
+
   const newRequestSheetRegistration = async (requestSheetData) => {
     const formData = new FormData();
     let { ...otherFields } = requestSheetData;
@@ -145,6 +145,16 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   return (
     <>
       <ToastContainer />
+      {requestSheetDataOfBM?._id && safetyFormModalOpen && (
+        <SafetyForm
+          id={requestSheetDataOfBM?._id}
+          lineName={requestSheetDataOfBM?.lineRef?.line_name}
+          machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
+          setSafetyFormModalOpen={setSafetyFormModalOpen}
+          safetyFormModalOpen={safetyFormModalOpen}
+          machineSafetyCheckedByMTD ={requestSheetDataOfBM?.machineSafetyCheckedByMTD}
+        />
+      )}
       <Row>
         {/* <Col>
           <button className="btn bg-button m-2" onClick={handleBack}>
@@ -200,6 +210,18 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                         }}
                       >
                         Machine Details
+                      </button>
+
+                      <button
+                        // variant="contained"
+                        // color="error"
+                        className="btn btn-danger"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSafetyFormModalOpen(true);
+                        }}
+                      >
+                        <HealthAndSafetyIcon /> &nbsp;Safety Form
                       </button>
                     </Col>
 
