@@ -401,6 +401,25 @@ const MasterLogTable = ({
         record?.actionTemporaryOrNot?.startsWith(value),
     },
     {
+      title: "First Time/ Repeat",
+      dataIndex: "firstTimeOrRepeat",
+      filters: [
+        {
+          value: "First Time",
+          text: "First Time",
+        },
+        {
+          value: "Repeat",
+          text: "Repeat",
+        },
+      ],
+
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) =>
+        record?.firstTimeOrRepeat?.startsWith(value),
+    },
+    {
       title: "Done By",
       dataIndex: "doneBy",
       render: (_, { doneBy }) =>

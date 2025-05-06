@@ -108,7 +108,7 @@ function MainRequestSheetForView({
         aria-labelledby="contained-modal-title-vcenter"
         centered
       >
-        <Modal.Header>
+        <Modal.Header className="d-flex justify-content-between">
           <Modal.Title id="contained-modal-title-vcenter">
             Breakdown Request-Sheet
           </Modal.Title>

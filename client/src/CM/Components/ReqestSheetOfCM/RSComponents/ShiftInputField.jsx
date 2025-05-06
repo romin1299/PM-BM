@@ -78,10 +78,11 @@ const ShiftInputField = ({ dateAndTime, shiftOfBM, setValue }) => {
             >
               {plantShiftsData?.map((shiftInfo) => (
                 <FormControlLabel
-                  value={shiftInfo.shiftName}
+                  value={shiftInfo?.shiftName}
                   control={<Radio color="default" size="small" />}
-                  label={shiftInfo.shiftName}
-                  disabled={shiftOfBM !== shiftInfo.shiftName}
+                  label={shiftInfo?.shiftName}
+                  disabled={true}
+                  defaultChecked={shiftInfo === shiftInfo?.shiftName}
                 />
               ))}
             </RadioGroup>

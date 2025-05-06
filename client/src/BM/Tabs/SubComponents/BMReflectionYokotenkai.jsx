@@ -19,6 +19,7 @@ const initialState = {
     lineId: "",
     machineId: "",
     other_categories: "",
+    attachedFilesByMTDUser: "",
   },
   targetDateOfCM: "",
 };
@@ -79,7 +80,6 @@ const BMReflectionYokotenkai = ({
     }
   };
   const editData = (event, data) => {
-    console.log(data);
     event.preventDefault();
     setEditedDataOfCM({ ...data });
   };
@@ -94,7 +94,7 @@ const BMReflectionYokotenkai = ({
       editedDataOfCM?.cmBasicDataFilledByMTD_TL?.categories &&
       editedDataOfCM?.targetDateOfCM
     ) {
-      let updatedDataOfCM = dataOfTheCM.map((data, index) =>
+      let updatedDataOfCM = dataOfTheCM?.map((data, index) =>
         (data.id || index) === editedDataOfCM.id ? editedDataOfCM : data
       );
       updatedDataOfCM[0].cmBasicDataFilledByMTD_TL.line =
@@ -175,13 +175,13 @@ const BMReflectionYokotenkai = ({
     getAllLineAndMachineForCM();
   }, [
     newDataOfCM?.cmBasicDataFilledByMTD_TL?.lineId,
-    editedDataOfCM?.cmBasicDataFilledByMTD_TL.lineId,
+    editedDataOfCM?.cmBasicDataFilledByMTD_TL?.lineId,
   ]);
 
   return (
     <div className="mtd-parts-section">
       <Row className="m-0 d-flex">
-        <Col sm={2} className="border col-auto d-flex align-items-center gap-1">
+        <Col sm={1} className="border col-auto d-flex align-items-center gap-1">
           <small>
             <b>LINE</b>
           </small>
@@ -211,6 +211,11 @@ const BMReflectionYokotenkai = ({
             <b>TARGET DATE</b>
           </small>
         </Col>
+        <Col sm={1} className="border col-auto d-flex align-items-center gap-1">
+          <small>
+            <b>ATTACHMENT</b>
+          </small>
+        </Col>
         <Col
           sm={1}
           className="border col-auto d-flex align-items-center gap-1 "
@@ -227,7 +232,7 @@ const BMReflectionYokotenkai = ({
         editedDataOfCM && editedDataOfCM?.id === index ? (
           <Row key={index} className="m-0 d-flex">
             {/* Render input fields for editing */}
-            <Col sm={2} className="border">
+            <Col sm={1} className="border">
               <select
                 aria-label=".form-select-sm example"
                 id="standard-select-currency"
@@ -472,6 +477,25 @@ const BMReflectionYokotenkai = ({
                 }
               />
             </Col>
+            <Col sm={1} className="border">
+              <input
+                type="file"
+                name="attachedFilesByMTDUser"
+                id="attachedFilesByMTDUser"
+                className="mt-2 mb-2 w-100"
+                multiple
+                value={editedDataOfCM?.attachedFilesByMTDUser}
+                onChange={(e) =>
+                  setEditedDataOfCM({
+                    ...editedDataOfCM,
+                    cmBasicDataFilledByMTD_TL: {
+                      ...editedDataOfCM?.cmBasicDataFilledByMTD_TL,
+                      attachedFilesByMTDUser: e.target.files,
+                    },
+                  })
+                }
+              />
+            </Col>
             <Col sm={1} className="border d-block align-items-center gap-1 p-1">
               <button class="bg-info text-white border-0" onClick={updateData}>
                 Update
@@ -488,7 +512,7 @@ const BMReflectionYokotenkai = ({
         ) : (
           <Row key={index} className="m-0">
             {/* Render part information */}
-            <Col sm={2} className="border">
+            <Col sm={1} className="border">
               {data?.cmBasicDataFilledByMTD_TL?.line}
             </Col>
             <Col sm={2} className="border">
@@ -523,6 +547,63 @@ const BMReflectionYokotenkai = ({
             <Col sm={2} className="border">
               {data?.targetDateOfCM}
             </Col>
+            <Col sm={1} className="border">
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                {(() => {
+                  const maybeFiles =
+                    data?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser;
+
+                  // Normalize to array
+                  const files = maybeFiles
+                    ? maybeFiles instanceof FileList
+                      ? Array.from(maybeFiles)
+                      : Array.isArray(maybeFiles)
+                      ? maybeFiles
+                      : []
+                    : [];
+
+                  return files.length > 0
+                    ? files.map((file, idx) => {
+                        const fileName =
+                          typeof file === "string" ? file : file.name;
+                        const href =
+                          typeof file === "string"
+                            ? `${process.env.REACT_APP_BASE_URL}${file}`
+                            : URL.createObjectURL(file); // Preview for uploaded file
+
+                        return (
+                          <a
+                            key={idx}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={href}
+                            title={fileName} // Tooltip for full name
+                            style={{
+                              width: "100%",
+                              maxWidth: "200px",
+                              overflow: "hidden",
+                              whiteSpace: "nowrap",
+                              textOverflow: "ellipsis",
+                              textAlign: "center",
+                            }}
+                          >
+                            {fileName}
+                          </a>
+                        );
+                      })
+                    : null;
+                })()}
+              </div>
+            </Col>
+
             <Col sm={1} className="d-flex border col-auto gap-1 p-1 flex-wrap">
               {!data?._id && (
                 <>
@@ -559,8 +640,8 @@ const BMReflectionYokotenkai = ({
       )}
 
       {isAdding ? (
-        <Row className="m-0">
-          <Col sm={2} className="border">
+        <Row className="m-0 d-flex">
+          <Col sm={1} className="border">
             <select
               aria-label=".form-select-sm example"
               id="standard-select-currency"
@@ -707,64 +788,77 @@ const BMReflectionYokotenkai = ({
             )}
           </Col>
           <Col sm={1} className="border">
-            {FREQUENCY_OF_CM?.map((value, idx) => (
-              <div key={idx}>
-                <Col>
-                  <input
-                    type="radio"
-                    id={`frequencyType_${idx}`}
-                    name="frequencyType"
-                    className="m-1 mb-2"
-                    value={value?.frequencyType}
-                    onChange={(e) =>
-                      setNewDataOfCM({
-                        ...newDataOfCM,
-                        cmBasicDataFilledByMTD_TL: {
-                          ...newDataOfCM?.cmBasicDataFilledByMTD_TL,
-                          frequencyType: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                  <label htmlFor={`frequencyType_${idx}`}>
-                    {value?.frequencyType}
-                  </label>
-                </Col>
+            {FREQUENCY_OF_CM?.map((value, idx) => {
+              if (
+                newDataOfCM?.cmBasicDataFilledByMTD_TL?.categories === "LTPM" &&
+                idx === 0
+              ) {
+                return;
+              }
+              return (
+                <div key={idx}>
+                  <Col>
+                    <input
+                      type="radio"
+                      id={`frequencyType_${idx}`}
+                      name="frequencyType"
+                      className="m-1 mb-2"
+                      value={value?.frequencyType}
+                      onChange={(e) =>
+                        setNewDataOfCM({
+                          ...newDataOfCM,
+                          cmBasicDataFilledByMTD_TL: {
+                            ...newDataOfCM?.cmBasicDataFilledByMTD_TL,
+                            frequencyType: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                    <label htmlFor={`frequencyType_${idx}`}>
+                      {value?.frequencyType}
+                    </label>
+                  </Col>
 
-                {newDataOfCM?.cmBasicDataFilledByMTD_TL?.frequencyType ===
-                  value?.frequencyType &&
-                  value?.frequencyType === "Scheduled" && (
-                    <Col className="justify-content-center align-items-center">
-                      {value?.frequencyValue?.length > 0 &&
-                        value?.frequencyValue?.map((type, idx1) => (
-                          <>
-                            <Col key={idx1}>
-                              <input
-                                type="radio"
-                                id={`frequencyValue_${idx1}`}
-                                name="frequencyValue"
-                                className="m-1 mb-2"
-                                value={type}
-                                onChange={(e) =>
-                                  setNewDataOfCM({
-                                    ...newDataOfCM,
-                                    cmBasicDataFilledByMTD_TL: {
-                                      ...newDataOfCM?.cmBasicDataFilledByMTD_TL,
-                                      frequencyValue: e.target.value,
-                                    },
-                                  })
-                                }
-                              />
-                              <label htmlFor={`frequencyValue_${idx1}`}>
-                                {type}
-                              </label>
-                            </Col>
-                          </>
-                        ))}
-                    </Col>
-                  )}
-              </div>
-            ))}
+                  {newDataOfCM?.cmBasicDataFilledByMTD_TL?.frequencyType ===
+                    value?.frequencyType &&
+                    value?.frequencyType === "Scheduled" && (
+                      <Col className="justify-content-center align-items-center">
+                        {value?.frequencyValue?.length > 0 &&
+                          value?.frequencyValue?.map((type, idx1) =>
+                            newDataOfCM?.cmBasicDataFilledByMTD_TL
+                              ?.categories === "LTPM" && idx1 < 4 ? (
+                              ""
+                            ) : (
+                              <>
+                                <Col key={idx1}>
+                                  <input
+                                    type="radio"
+                                    id={`frequencyValue_${idx1}`}
+                                    name="frequencyValue"
+                                    className="m-1 mb-2"
+                                    value={type}
+                                    onChange={(e) =>
+                                      setNewDataOfCM({
+                                        ...newDataOfCM,
+                                        cmBasicDataFilledByMTD_TL: {
+                                          ...newDataOfCM?.cmBasicDataFilledByMTD_TL,
+                                          frequencyValue: e.target.value,
+                                        },
+                                      })
+                                    }
+                                  />
+                                  <label htmlFor={`frequencyValue_${idx1}`}>
+                                    {type}
+                                  </label>
+                                </Col>
+                              </>
+                            )
+                          )}
+                      </Col>
+                    )}
+                </div>
+              );
+            })}
           </Col>
           <Col sm={2} className="border">
             <input
@@ -776,6 +870,24 @@ const BMReflectionYokotenkai = ({
                 setNewDataOfCM({
                   ...newDataOfCM,
                   targetDateOfCM: e.target.value,
+                })
+              }
+            />
+          </Col>
+          <Col sm={1} className="border">
+            <input
+              type="file"
+              name="attachedFilesByMTDUser"
+              id="attachedFilesByMTDUser"
+              className="mt-2 mb-2 w-100"
+              multiple
+              onChange={(e) =>
+                setNewDataOfCM({
+                  ...newDataOfCM,
+                  cmBasicDataFilledByMTD_TL: {
+                    ...newDataOfCM?.cmBasicDataFilledByMTD_TL,
+                    attachedFilesByMTDUser: e.target.files,
+                  },
                 })
               }
             />

@@ -171,6 +171,12 @@ export const reducer = (state, action) => {
         localStorage.setItem("lines", JSON.stringify(action?.lines));
         localStorage.setItem("selectedMachine", action?.selectedMachine);
         localStorage.setItem("machines", JSON.stringify(action?.machines));
+        if (action?.isReset) {
+          localStorage.setItem("selectedQuarter", "");
+          localStorage.setItem("selectedRSStatus", "");
+          localStorage.setItem("selectedMaintenanceType", "");
+        }
+
         localStorage.setItem(
           "selectedYear",
           new Date().getMonth() < 3
@@ -180,6 +186,14 @@ export const reducer = (state, action) => {
         localStorage.setItem("selectedMonth", action?.selectedMonth);
       }
 
+      let resetTheFilterValue = {};
+      if (action?.isReset) {
+        resetTheFilterValue = {
+          selectedQuarter: "",
+          selectedRSStatus: "",
+          selectedMaintenanceType: "",
+        };
+      }
       return {
         ...state,
         isLoading: false,
@@ -201,6 +215,7 @@ export const reducer = (state, action) => {
         lines: action?.lines,
         selectedMachine: action?.selectedMachine,
         machines: action?.machines,
+        ...resetTheFilterValue,
         selectedYear:
           new Date().getMonth() < 3
             ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`

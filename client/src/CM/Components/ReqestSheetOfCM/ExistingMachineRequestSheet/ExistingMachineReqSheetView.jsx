@@ -186,7 +186,13 @@ const ExistingMachineReqSheetView = ({
         },
       };
       const response = await axios.patch(
-        `/sendApprovalForRequestSheetOfCM/${watch("_id")}`,
+        `/sendApprovalForRequestSheetOfCM/${watch(
+          "_id"
+        )}/?requestSheetStatusOfCM=${watch(
+          "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+        )}&&getDataForApprovalDashboard=${watch(
+          "current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id"
+        )}`,
         formData,
         config
       );

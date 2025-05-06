@@ -199,7 +199,6 @@ router.get(
 
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
-    // console.log(file.fieldname);
     if (file.fieldname === "attachedDataSheets") {
       cb(null, "./DataSheetOfBD/");
     } else if (file.fieldname === "attachedDrawings") {
@@ -208,6 +207,8 @@ const storageForDataSheetsOfBD = multer.diskStorage({
       cb(null, "./ImagesOrVideoOfPRD/");
     } else if (file.fieldname === "attachedFilesForOtherLoss") {
       cb(null, "./OtherLossFiles/");
+    } else if (file.fieldname === "attachedFilesByMTDUser") {
+      cb(null, "./AttachedFilesByAssignedUser/");
     }
   },
   filename: function (req, file, cb) {
@@ -324,6 +325,10 @@ router.post(
   dashboardLevelUserCheckMiddleware,
   uploadDataSheetsOfBD.fields([
     { name: "attachedDataSheets", maxCount: 1 },
+    {
+      name: "attachedFilesByMTDUser",
+      maxCount: 10,
+    },
     { name: "attachedDrawings", maxCount: 10 },
     { name: "attachedImagesOrVideoByPRDUser", maxCount: 10 },
   ]),
@@ -607,8 +612,7 @@ router.post(
               new: true,
             }
           );
-
-          //for New CM request generation for BM reflaction
+          // for New CM request generation for BM reflaction
           if (requestSheet?._id) {
             for (
               let index = 0;
@@ -624,7 +628,6 @@ router.post(
                     requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index]
                       ?.cmBasicDataFilledByMTD_TL?.machineId
                   );
-
                 await newRequestSheetDataStore(
                   machineDataUseInCretionOfCM,
                   requestSheet?._id,
@@ -633,7 +636,8 @@ router.post(
                   await findPlantToMachineHierarchyObj(
                     machineDataUseInCretionOfCM
                   ),
-                  req?.rootUser
+                  req?.rootUser,
+                  dataSheet?.attachedFilesByMTDUser
                 );
               }
             }
@@ -961,6 +965,8 @@ const findRequestSheetMiddleware = async (req, res, next) => {
               timezone: "Asia/Kolkata",
             },
           },
+          finalActivity: 1,
+          IsSafetyFormCreated: 1,
           assignUser: {
             $arrayElemAt: ["$namesOperators.tm_name", 0],
           },
@@ -1001,258 +1007,9 @@ router.patch(
   authenticate,
   async (req, res, next) => {
     try {
-      // ____________ 1 ____________
-
-      // if (mongoose.Types.ObjectId.isValid(req.body?.Operator)) {
-      //   queryObj = {
-      //     ...queryObj,
-      //     assignOperator: req.body?.Operator,
-      //   };
-      // }
-
-      // if (
-      //   req.rootUser?.tm_department === "PRD" &&
-      //   req.rootUser?.user_type === "TL/HOSS"
-      // ) {
-      //   if (req.body?.PRDUser === "Yes" || req.body?.PRDUser === "No") {
-      //     queryObj = {
-      //       ...queryObj,
-      //       partQualityStatusOfPRD: req.body?.PRDUser,
-      //       "maintenanceReportFilledByMTD.partQualityCheckedByPRD":
-      //         req.rootUser?._id,
-      //     };
-      //   }
-
-      //   if (mongoose.Types.ObjectId.isValid(req.body?.MTDUser)) {
-      //     queryObj = {
-      //       ...queryObj,
-      //       partQualityCheckedByMTD: req.body?.MTDUser,
-      //     };
-      //   }
-
-      //   queryObj = {
-      //     ...queryObj,
-      //     finalActivity: req.body?.finalActivity,
-      //     workEndedDateOfBM: new Date(req.body?.problemOccurredDateAndTimeOfBM),
-      //     statusPRD_TL: req.body?.statusPRD_TL,
-      //   };
-      // }
-
-      // const requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-      //   req.query,
-      //   {
-      //     $set: queryObj,
-      //   },
-      //   {
-      //     new: true,
-      //   }
-      // );
-
-      // ____________ 2 ____________
-
-      // let queryObj = {};
-
-      // const isRequestSheetExist = await RequestSheetOfBM.findOne(req.query);
-
-      // if (!isRequestSheetExist) {
-      //   return res.status(400).json({ message: "Request-sheet not exist" });
-      // }
-
-      // if (
-      //   req.rootUser?.tm_department === "MTD" &&
-      //   req.rootUser?.user_type === "TL/HOSS"
-      // ) {
-      //   if (isRequestSheetExist?.requestSheetStatus === statusArray[0]) {
-      //     queryObj = {
-      //       assignOperator: req.body?.Operator,
-      //       requestSheetStatus: statusArray[1],
-      //     };
-      //   }
-
-      //   if (isRequestSheetExist?.requestSheetStatus === statusArray[3]) {
-      //     queryObj = {
-      //       requestSheetStatus: statusArray[4],
-      //     };
-      //   }
-      // }
-
-      // if (
-      //   req.rootUser?.tm_department === "PRD" &&
-      //   req.rootUser?.user_type === "TL/HOSS"
-      // ) {
-      //   if (isRequestSheetExist?.requestSheetStatus === statusArray[1]) {
-      //     queryObj = {
-      //       finalActivity: req.body?.finalActivity,
-      //       workEndedDateOfBM: new Date(req.body?.problemOccurredDateAndTimeOfBM),
-      //       requestSheetStatus: statusArray[2],
-      //     };
-      //   }
-
-      //   if (isRequestSheetExist?.requestSheetStatus === statusArray[2]) {
-      //     if (req.body?.PRDUser === "Yes" || req.body?.PRDUser === "No") {
-      //       queryObj = {
-      //         partQualityStatusOfPRD: req.body?.PRDUser,
-      //         "maintenanceReportFilledByMTD.partQualityCheckedByPRD":
-      //           req.rootUser?._id,
-      //       };
-      //     }
-
-      //     if (mongoose.Types.ObjectId.isValid(req.body?.MTDUser)) {
-      //       queryObj = {
-      //         ...queryObj,
-      //         partQualityCheckedByMTD: req.body?.MTDUser,
-      //       };
-      //     }
-
-      //     queryObj = {
-      //       ...queryObj,
-      //       statusPRD_TL: req.body?.statusPRD_TL,
-      //       requestSheetStatus: statusArray[3],
-      //     };
-      //   }
-      // }
-
-      // const requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-      //   req.query,
-      //   {
-      //     $set: queryObj,
-      //   },
-      //   {
-      //     new: true,
-      //   }
-      // );
-
-      // ____________ 3 ____________
-
-      // let queryObj = {};
-
-      // if (req.rootUser?.tm_department === "MTD") {
-      //   queryObj = {
-      //     finalActivity: req.body?.finalActivity,
-      //     "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
-      //       req.body?.handOverTime
-      //     ),
-      //     "maintenanceReportFilledByMTD.refHandOverTime": new Date(
-      //       req.body?.handOverTime
-      //     ),
-      //   };
-
-      //   if (mongoose.Types.ObjectId.isValid(req.body?.assignUser)) {
-      //     queryObj = {
-      //       ...queryObj,
-      //       assignUser: req.body?.assignUser,
-      //     };
-      //   }
-
-      //   if (mongoose.Types.ObjectId.isValid(req.body?.MTDUser?.[0]?._id)) {
-      //     queryObj = {
-      //       ...queryObj,
-      //       partQualityCheckedByMTD: req.body?.MTDUser?.map(
-      //         (item) => item?._id
-      //       ),
-      //       partQualityDateAndTimeOfMTD: new Date(),
-      //     };
-      //   }
-      // } else if (req.rootUser?.tm_department === "PRD") {
-      //   queryObj = {
-      //     statusPRD_TL: req.body?.statusPRD_TL,
-      //   };
-      //   if (mongoose.Types.ObjectId.isValid(req.body?.PRDUser)) {
-      //     queryObj = {
-      //       ...queryObj,
-      //       partQualityCheckedByPRD: req.body?.PRDUser,
-      //       partQualityDateAndTimeOfPRD: new Date(),
-      //     };
-      //   }
-      // }
-
-      // await RequestSheetOfBM.findOneAndUpdate(
-      //   req.query,
-      //   {
-      //     $set: queryObj,
-      //   },
-      //   {
-      //     new: true,
-      //   }
-      // );
-
-      // next();
-
-      // ____________ 4 ____________
-
-      // let queryObj = {};
-
-      // if (req.rootUser?.tm_department !== "MTD") {
-      //   return res.status(401).json({
-      //     message: "You are not valid user",
-      //   });
-      // }
-
-      // const isRequestSheetExist = await RequestSheetOfBM.findOne(req.query);
-
-      // if (!isRequestSheetExist) {
-      //   return res.status(400).json({ message: "Request-sheet not exist" });
-      // }
-
-      // if (isRequestSheetExist?.requestSheetStatus === statusArray[0]) {
-      //   // if (mongoose.Types.ObjectId.isValid(req.body?.assignUser)) {
-      //   // }
-      //   queryObj = {
-      //     ...queryObj,
-      //     assignUser: req.body?.assignUser,
-      //     requestSheetStatus: statusArray[1],
-      //   };
-      // } else if (
-      //   [
-      //     statusArray[1],
-      //     statusArray[2],
-      //     statusArray[3],
-      //     statusArray[4],
-      //   ].includes(isRequestSheetExist?.requestSheetStatus)
-      //   // isRequestSheetExist?.requestSheetStatus === statusArray[1]
-      // ) {
-      //   let requestSheetStatus = "";
-      //   if (req.body?.work_order_status === "Open") {
-      //     requestSheetStatus = statusArray[2];
-      //   } else if (req.body?.work_order_status === "Pending") {
-      //     requestSheetStatus = statusArray[3];
-      //   } else {
-      //     requestSheetStatus = statusArray[4];
-      //   }
-
-      //   queryObj = {
-      //     finalActivity: req.body?.finalActivity,
-      //     "maintenanceReportFilledByMTD.workEndedDateOfBM": new Date(
-      //       req.body?.handOverTime
-      //     ),
-      //     "maintenanceReportFilledByMTD.refHandOverTime": new Date(
-      //       req.body?.handOverTime
-      //     ),
-      //     requestSheetStatus,
-      //     work_order_status: req.body?.work_order_status,
-      //   };
-      // }
-
-      // await RequestSheetOfBM.findOneAndUpdate(
-      //   req.query,
-      //   {
-      //     $set: queryObj,
-      //   },
-      //   {
-      //     new: true,
-      //   }
-      // );
-      // next();
-
       // ____________ 5 ____________
 
       let queryObj = {};
-
-      // if (req.rootUser?.tm_department !== "MTD") {
-      //   return res.status(401).json({
-      //     message: "You are not valid user",
-      //   });
-      // }
 
       const isRequestSheetExist = await RequestSheetOfBM.findOne(req.query);
 
@@ -1261,17 +1018,6 @@ router.patch(
       }
 
       if (isRequestSheetExist?.requestSheetStatus === statusArray[0]) {
-        // if (mongoose.Types.ObjectId.isValid(req.body?.assignUser)) {
-        //   queryObj = {
-        //     assignUser: req.body?.assignUser,
-        //   };
-        // }
-        // if (mongoose.Types.ObjectId.isValid(req.body?.handOverUser)) {
-        //   queryObj = {
-        //     ...queryObj,
-        //     handOverUser: req.body?.handOverUser,
-        //   };
-        // }
         queryObj = {
           ...queryObj,
           assignUser: req.body?.assignUser,
@@ -1687,7 +1433,10 @@ const filterMiddleware = async (req, res, next) => {
       };
     }
 
-    if (req.query?.selectedRSStatus) {
+    if (
+      req.query?.selectedRSStatus &&
+      req.query?.selectedRSStatus !== "undefined"
+    ) {
       queryObj = {
         ...queryObj,
         requestSheetStatus: req.query?.selectedRSStatus,
@@ -1967,7 +1716,10 @@ router.get(
     try {
       delete req.queryObj.maintenanceType;
 
-      if (req.query?.selectedMaintenanceType) {
+      if (
+        req.query?.selectedMaintenanceType &&
+        req.query?.selectedMaintenanceType !== "undefined"
+      ) {
         req.queryObj = {
           ...req?.queryObj,
           maintenanceType: req?.query?.selectedMaintenanceType,

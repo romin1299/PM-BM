@@ -31,7 +31,7 @@ const quarterlyDataAdd = (
     currentYear -= 1;
   }
 
-  const currentQuarterIndex = Math.floor(moment(currentDate).month() / 3);
+  // const currentQuarterIndex = Math.floor(moment(currentDate).month() / 3);
   let modifiedPlannedDateAndTimeOfCM;
 
   let yearlyDataObject1 = {
@@ -170,7 +170,8 @@ exports.newRequestSheetDataStore = async (
   shiftOfCMFromBM,
   requestSheetDataFilledByMTDUserForCM,
   plantToMachineHierarchyRef,
-  rootUser
+  rootUser,
+  attachedFilesByMTDUser
 ) => {
   try {
     const generalDateFormat = (propDate = new Date()) =>
@@ -209,7 +210,6 @@ exports.newRequestSheetDataStore = async (
           userRef,
         };
       });
-
     const commonDataFilledByAssignUser = quarterlyDataAdd(
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
         ?.frequencyValue,
@@ -229,6 +229,9 @@ exports.newRequestSheetDataStore = async (
         cmBasicDataFilledByMTD_TL: {
           ...requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL,
           plannedDateAndTimeOfCM: generalDateFormat(new Date()),
+          attachedFilesByMTDUser: attachedFilesByMTDUser?.map(
+            (value) => value?.filename
+          )
         },
       };
     }

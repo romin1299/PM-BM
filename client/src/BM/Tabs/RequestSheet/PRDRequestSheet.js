@@ -92,7 +92,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   };
 
   const isEnable = selectedMachineDetails?.machine_problems_faced?.length > 0;
-
   return (
     <>
       <ToastContainer />
@@ -617,7 +616,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
 
               <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
                 <ShiftInputField
-                  plannedDateAndTimeOfCM={watch(
+                  dateAndTime={watch(
                     "problemOccurredDateAndTimeOfBM"
                   )}
                   shiftOfBM={watch("shiftOfBM")}

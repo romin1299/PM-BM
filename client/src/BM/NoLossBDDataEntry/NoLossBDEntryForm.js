@@ -124,7 +124,7 @@ const NoLossBDEntryForm = () => {
       });
     }
   };
-  
+
   useEffect(() => {
     getListOfTheTLAndOperatorForNoLossBDEntryForm();
   }, []);
@@ -728,7 +728,11 @@ const NoLossBDEntryForm = () => {
             <ProblemList problems={problems} setProblems={setProblems} />
           </Col>
           <Col sm={12} md={12} lg={6} xxl={4}>
-            <ActionList actions={actions} setActions={setActions} />
+            <ActionList
+              actions={actions}
+              setActions={setActions}
+              isEditable={true}
+            />
           </Col>
           <Col sm={12} md={12} lg={6} xxl={4}>
             <div className="d-block align-items-center border p-2">

@@ -84,7 +84,6 @@ function MyTable({
       //   ...rest,
       // }));
       requestSheetData.changedParts = parts;
-      requestSheetData.dataOfTheCM = dataOfTheCM;
       requestSheetData.supportingTM =
         // selectedSupportedTM?.length > 0
         //   ?
@@ -115,6 +114,23 @@ function MyTable({
           : requestSheetData.dataSheetOfRequestSheet;
 
       const formData = new FormData();
+
+      dataOfTheCM.forEach((row, index) => {
+        if (row.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser) {
+          for (
+            let i = 0;
+            i < row?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.length;
+            i++
+          ) {
+            formData.append(
+              "attachedFilesByMTDUser",
+              row?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.[i]
+            );
+          }
+        }
+      });
+      requestSheetData.dataOfTheCM = dataOfTheCM;
+
       formData.append("prdDataUpdatedByOtherUser", false);
       // Append the file field
       formData.append(
@@ -2533,6 +2549,7 @@ function MyTable({
                   actions={actions}
                   setActions={setActions}
                   clearErrors={clearErrors}
+                  isEditable={true}
                 />
                 <input
                   {...register("actionValidation", {
@@ -2551,6 +2568,60 @@ function MyTable({
                   <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
                 </small>
                 <br />
+                {watch("preventive_corrective_maintenance") && (
+                  <Row className="m-0">
+                    <Col className="border col-lg-12 col-md-12 col-sm-12">
+                      <br />
+                      <textarea
+                        rows={2}
+                        type="text"
+                        id="preventive_corrective_maintenance"
+                        name="preventive_corrective_maintenance"
+                        style={{ width: "80%" }}
+                        {...register("preventive_corrective_maintenance", {
+                          // required: "This field is required",
+                        })}
+                        onChange={(e) => {
+                          setValue(
+                            "preventive_corrective_maintenance",
+                            e.target.value,
+                            { shouldDirty: true }
+                          );
+                          clearErrors("preventive_corrective_maintenance");
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                )}
+                {watch("yokotenkai") && (
+                  <Row className="m-0">
+                    <Col className="border col-lg-12 col-md-12 col-sm-12">
+                      <small>
+                        {" "}
+                        <b>YOKOTENKAI</b>
+                      </small>
+
+                      <br />
+                      <textarea
+                        rows={2}
+                        type="text"
+                        id="yokotenkai"
+                        name="yokotenkai"
+                        className="m-1"
+                        style={{ width: "80%" }}
+                        {...register("yokotenkai", {
+                          // required: "This field is required",
+                        })}
+                        onChange={(e) => {
+                          setValue("yokotenkai", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("yokotenkai");
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                )}
                 <div className="mtd-parts-section">
                   <Row className="m-0 d-flex">
                     <Col
@@ -2656,33 +2727,37 @@ function MyTable({
                     </Form>
                   </Col>
                 </Row>
-                {watch("actionTemporaryOrNot") === "Yes" && (
-                  <tr>
-                    <td className="col-lg-12 col-md-12 col-sm-12">
-                      <Row className="m-0">
-                        <Col className="border col-lg-12 col-md-12 col-sm-12">
-                          <small>
-                            {" "}
-                            <b>YOKOTENKAI</b>
-                          </small>
-                          <BMReflectionYokotenkai
-                            dataOfTheCM={dataOfTheCM}
-                            setDataOfTheCM={setDataOfTheCM}
-                            setActions={setActions}
-                            clearErrors={clearErrors}
-                            isEditable={true}
-                          />
-                          {errors?.["yokotenkai"] && (
-                            <p className="text-error">
-                              {errors?.["yokotenkai"]?.message}
-                            </p>
-                          )}
-                        </Col>
-                      </Row>
-                    </td>
-                  </tr>
-                )}
+              </td>
+            </tr>
+            {watch("actionTemporaryOrNot") === "Yes" && (
+              <tr>
+                <td className="col-lg-12 col-md-12 col-sm-12">
+                  <Row className="m-0">
+                    <Col className="border col-lg-12 col-md-12 col-sm-12">
+                      <small>
+                        {" "}
+                        <b>YOKOTENKAI</b>
+                      </small>
+                      <BMReflectionYokotenkai
+                        dataOfTheCM={dataOfTheCM}
+                        setDataOfTheCM={setDataOfTheCM}
+                        setActions={setActions}
+                        clearErrors={clearErrors}
+                        isEditable={true}
+                      />
+                      {errors?.["yokotenkai"] && (
+                        <p className="text-error">
+                          {errors?.["yokotenkai"]?.message}
+                        </p>
+                      )}
+                    </Col>
+                  </Row>
+                </td>
+              </tr>
+            )}
 
+            <tr className="row m-0">
+              <td className="col-sm-12 col-md-6">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -2808,7 +2883,11 @@ function MyTable({
                   </Col>
                   <Col lg={11} md={11}>
                     <Row className="">
-                      <PartList parts={parts} setParts={setParts} />
+                      <PartList
+                        parts={parts}
+                        setParts={setParts}
+                        isEditable={true}
+                      />
                     </Row>
                   </Col>
                 </Row>

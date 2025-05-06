@@ -91,6 +91,7 @@ import MTD_KPI from "./static/Icons/MTD_KPI.png";
 import ACTIVITY_Cal from './static/Icons/ACTIVITY_CAL.png'
 import CM_Routes from "./CM/CM_Routes";
 import ActivityRoutes from "./CM/Pages/ActivityCalendar/ActivityRoutes";
+import { clearLocalStorage } from "./BM/Component/GlobalDataDisplayOrHandle";
 
 function App() {
   //DENSO-HARYANA
@@ -110,6 +111,7 @@ function App() {
     navigate(k);
     localStorage.setItem("activeKey", k);
     setActiveKey(k);
+    clearLocalStorage()
   };
 
   useEffect(() => {

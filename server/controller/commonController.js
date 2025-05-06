@@ -269,7 +269,7 @@ router.get(
       ];
     }
 
-    const pmLog = Machine.aggregate([
+    const pmLog = await Machine.aggregate([
       // {
       //   $match: req.queryObjForPM,
       // },
@@ -371,7 +371,7 @@ router.get(
       //   },
     ]);
 
-    const bmLog = RequestSheetOfBM.aggregate([
+    const bmLog = await RequestSheetOfBM.aggregate([
       {
         $match: req.queryObj,
       },
@@ -409,7 +409,7 @@ router.get(
           action: "$maintenanceReportFilledByMTD.actionAndCounterMeasureStep",
           counterMeasure: "$preventive_corrective_maintenance",
           category: "$categoriesOfRequestSheet",
-
+          firstTimeOrRepeat: "$maintenanceReportFilledByMTD.firstTimeOrRepeat",
           actionTemporaryOrNot: 1,
           doneBy: 1,
           status: "$requestSheetStatus",
@@ -522,12 +522,6 @@ router.get(
       TLHOSS_and_TM_user_list,
       shifts,
     ]);
-
-    let updatedCsvDataForMasterLog = [
-      ...values?.[0],
-      ...values?.[1],
-      ...values?.[2],
-    ];
 
     successResponse(res, "Master log get successfully", {
       getShifts: values?.[4]?.[0]?.shiftOfBM,

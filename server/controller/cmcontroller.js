@@ -643,10 +643,22 @@ router.patch(
           [allKeys?.requestSheetStatusOfCM]: "Under MTD TL Approval",
         };
       } else {
-        updateObj.$set = {
-          ...updateObj.$set,
-          [allKeys?.requestSheetStatusOfCM]: "Ongoing",
-        };
+        if (
+          req?.query?.requestSheetStatusOfCM === "Completed" ||
+          req?.query?.requestSheetStatusOfCM === "Rejected" ||
+          req?.query?.getDataForApprovalDashboard
+        ) {
+          updateObj.$set = {
+            ...updateObj.$set,
+            [allKeys?.requestSheetStatusOfCM]:
+              req?.query?.requestSheetStatusOfCM,
+          };
+        } else {
+          updateObj.$set = {
+            ...updateObj.$set,
+            [allKeys?.requestSheetStatusOfCM]: "Ongoing",
+          };
+        }
       }
 
       updateObj.$set = {
@@ -801,17 +813,19 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     ],
   };
 
-  if (req.query?.selectedQuarter) {
+  if (req.query?.selectedQuarter !== "undefined") {
     let middlewareForGetQuarterWiseOrUptoCurrentDate = {
       $eq: [
         "$$quarterWiseData.requestSheet_quarter",
         //need to change this quarter when user select previous year filter
 
         req.query?.selectedQuarter !== "undefined" &&
-        req.query?.selectedQuarter !== ""
+        req.query?.selectedQuarter !== "" &&
+        req.query?.selectedQuarter
           ? req.query?.selectedQuarter
           : req?.query?.selectedMonth !== "undefined" &&
-            req?.query?.selectedMonth !== ""
+            req?.query?.selectedMonth !== "" &&
+            req?.query?.selectedMonth
           ? getFinancialQuarterByMonth(req?.query?.selectedMonth)
           : getFinancialQuarter(new Date()),
       ],
@@ -1240,6 +1254,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "cmBasicDataFilledByMTD_TL.frequencyType": 1,
         "cmBasicDataFilledByMTD_TL.frequencyValue": 1,
         "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM": 1,
+        "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser": 1,
         "current_commonDataFilledByAssignUser.requestSheetStatusOfCM": 1,
         "current_commonDataFilledByAssignUser.targetDateOfCM": 1,
 
@@ -1264,6 +1279,8 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
   }
 
   req.requestSheetData = requestSheetData;
+  req.lastQuarterOrSelectedQuarter = lastQuarterOrSelectedQuarter;
+  req.otherPipelines = otherPipelines;
   next();
 });
 
@@ -1326,6 +1343,13 @@ router.get(
         $match: req.queryObj,
       },
       {
+        $addFields: {
+          current_commonDataFilledByAssignUser:
+            req?.lastQuarterOrSelectedQuarter,
+        },
+      },
+      ...req?.otherPipelines?.aggregationPipeline,
+      {
         $group: {
           _id: null,
           total_request_sheet_count: {
@@ -1333,12 +1357,30 @@ router.get(
           },
           open_request_sheet_count: {
             $sum: {
-              $cond: [{ $ne: ["$requestSheetStatusOfCM", "Completed"] }, 1, 0],
+              $cond: [
+                {
+                  $ne: [
+                    "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
+                    "Completed",
+                  ],
+                },
+                1,
+                0,
+              ],
             },
           },
           closed_request_sheet_count: {
             $sum: {
-              $cond: [{ $eq: ["$requestSheetStatusOfCM", "Completed"] }, 1, 0],
+              $cond: [
+                {
+                  $eq: [
+                    "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
+                    "Completed",
+                  ],
+                },
+                1,
+                0,
+              ],
             },
           },
         },
@@ -1824,10 +1866,41 @@ router.get(
         },
         ...findYearObject,
         {
+          $lookup: {
+            from: "planttomachinehierarchies",
+            localField: "plantToMachineHierarchyRef",
+            foreignField: "_id",
+            as: "plantToMachineHierarchy",
+          },
+        },
+        {
           $project: {
             id: "$_id",
             _id: 0,
-            title: "$cmBasicDataFilledByMTD_TL.activityOfCM",
+            machineNo: {
+              $arrayElemAt: [
+                "$plantToMachineHierarchy.machine.machine_code",
+                0,
+              ],
+            },
+            machineName: {
+              $arrayElemAt: [
+                "$plantToMachineHierarchy.machine.machine_name",
+                0,
+              ],
+            },
+            title: {
+              $concat: [
+                {
+                  $arrayElemAt: [
+                    "$plantToMachineHierarchy.machine.machine_name",
+                    0,
+                  ],
+                },
+                " - ",
+                "$cmBasicDataFilledByMTD_TL.activityOfCM",
+              ],
+            },
             start: {
               $dateToString: {
                 format: "%Y-%m-%d",
@@ -2517,64 +2590,13 @@ router.get(
   })
 );
 
-// router.get(
-//   "/LTPM/getLineWiseLTPM/:filter/:selectedId",
-//   authenticate,
-//   filterMiddleware,
-//   tryCatchHandler(async (req, res, next) => {
-//     const listOfLine = await RequestSheetOfCM.aggregate([
-//       {
-//         $match: {
-//           ...req?.queryObj,
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: { lineName: "$lineRef", cellName: "$cellRef" },
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "lines",
-//           localField: "_id.lineName",
-//           foreignField: "_id",
-//           as: "lines",
-//           pipeline: [
-//             {
-//               $project: {
-//                 line_name: 1,
-//               },
-//             },
-//           ],
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "cells",
-//           localField: "_id.cellName",
-//           foreignField: "_id",
-//           as: "cells",
-//           pipeline: [
-//             {
-//               $project: {
-//                 cell_name: 1,
-//               },
-//             },
-//           ],
-//         },
-//       },
-//       {
-//         $project: {
-//           cellName: { $arrayElemAt: ["$cells.cell_name", 0] },
-//           lineName: { $arrayElemAt: ["$lines.line_name", 0] },
-//         },
-//       },
-//     ]);
-
-//     successResponse(res, "LTPM Line wise data get successfully", {
-//       listOfLine,
-//     });
-//   })
-// );
+router.get(
+  "/getDataOfPlanVsActualMonthWise/:filter/:selectedId",
+  authenticate,
+  filterMiddleware,
+  tryCatchHandler(async (req, res, next) => {
+    console.log(req?.params?.filter);
+  })
+);
 
 module.exports = router;

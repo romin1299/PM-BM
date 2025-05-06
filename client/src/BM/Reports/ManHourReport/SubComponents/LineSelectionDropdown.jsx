@@ -81,11 +81,11 @@ export default function LineSelectionDropdown({
   yearFiltration,
   yearFiltrationWithoutFY,
   RSStatusFiltration,
-  selectedRSStatus,
+  selectedRSStatus = "",
   maintenanceTypeFiltration,
-  selectedMaintenanceType,
+  selectedMaintenanceType = "",
   quarterFiltration,
-  selectedQuarter,
+  selectedQuarter = "",
 
   sectionFiltration,
   subSectionFiltration,
@@ -301,7 +301,7 @@ export default function LineSelectionDropdown({
     }
   };
 
-  const getFiltrationValueByDefault = async () => {
+  const getFiltrationValueByDefault = async (isReset = false) => {
     const { res, data } = await getFiltrationValue({
       url: `${baseUrlForFiltering}/byDefault/?selectedLineOrNot=${selectedLineOrNot}`,
     });
@@ -322,7 +322,6 @@ export default function LineSelectionDropdown({
       lines,
       selectedMachine,
       machines,
-      selectedRSStatus,
     } = data;
 
     if (res?.status === 201) {
@@ -344,8 +343,8 @@ export default function LineSelectionDropdown({
         selectedMachine,
         machines,
         message,
-        selectedRSStatus,
         selectedMonth: defaultSelectedMonth,
+        isReset
       });
     }
   };
@@ -353,10 +352,10 @@ export default function LineSelectionDropdown({
   useEffect(() => {
     if (
       !localStorage.getItem("selectedValue") &&
-      isWithLocalStorageForFiltration
+      isWithLocalStorageForFiltration === "Yes"
     ) {
       getFiltrationValueByDefault();
-    } else if (!isWithLocalStorageForFiltration) {
+    } else if (isWithLocalStorageForFiltration !== "Yes") {
       getFiltrationValueByDefault();
     }
   }, []);
@@ -872,7 +871,7 @@ export default function LineSelectionDropdown({
           disableElevation
           className="bg-button"
           onClick={async () => {
-            getFiltrationValueByDefault();
+            getFiltrationValueByDefault(true);
           }}
         >
           Reset
