@@ -40,7 +40,15 @@ const {
   newRequestSheetDataStore,
 } = require("../middleware/findMachineDataForNewRequestSheetOfCM");
 const { format } = require("path");
-
+const {
+  ALL_MONTHS,
+  MONTH_LABELS,
+} = require("../GlobalData/RequestSheetApprovalStatus");
+const QRCode = require("qrcode");
+const path = require("path");
+const fs = require("fs");
+const { exec } = require("child_process");
+const SubSection = require("../model/subSectionSchema");
 // const {
 //   CM_PLANNED_STATUS,
 // } = require("../GlobalData/RequestSheetApprovalStatus");
@@ -86,8 +94,14 @@ const successResponse = (res, message = "", data = {}) => {
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
     // console.log(file.fieldname);
-    if (file.fieldname === "attachedFileByAssignedUser") {
+    if (
+      file.fieldname === "attachedFilesByAssignedUser" ||
+      file.fieldname === "attachedFilesByMTDUser"
+    ) {
       cb(null, "./AttachedFilesByAssignedUser/");
+    }
+    if (file.fieldname === "attachedFilesByOperatorUser") {
+      cb(null, "./AttachedFilesByOperatorUser/");
     }
   },
   filename: function (req, file, cb) {
@@ -399,7 +413,8 @@ router.post(
       null,
       requestSheetDataFilledByMTDUserForCM,
       req?.plantToMachineHierarchyRef,
-      req?.rootUser
+      req?.rootUser,
+      []
     );
     successResponse(res, "CM Request-sheet generated successfully");
   }
@@ -427,14 +442,15 @@ router.patch(
   "/sendApprovalForRequestSheetOfCM/:reqId",
   authenticate,
   uploadDataSheetsOfBD.fields([
-    { name: "attachedFileByAssignedUser", maxCount: 10 },
+    { name: "attachedFilesByAssignedUser", maxCount: 10 },
+    { name: "attachedFilesByOperatorUser", maxCount: 10 },
   ]),
   commonKeyGenerationMiddleware,
   async (req, res, next) => {
     try {
       const allKeys = {
         ...req.allKeys,
-        attachedFileByAssignedUser: `${req?.commonKey}.attachedFileByAssignedUser`,
+        attachedFilesByAssignedUser: `${req?.commonKey}.attachedFilesByAssignedUser`,
         assignUserForCM: `${req?.commonKey}.assignUserForCM`,
         targetDateOfCM: `${req?.commonKey}.targetDateOfCM`,
         getDataForApprovalDashboard: `${req?.commonKey}.getDataForApprovalDashboard`,
@@ -444,6 +460,8 @@ router.patch(
         actionAndCounterMeasureStep: `${req?.commonKey}.actionAndCounterMeasureStep`,
         isPermissionOfMTDTL: `${req?.commonKey}.isPermissionOfMTDTL`,
         isPermissionOfPRDTL: `${req?.commonKey}.isPermissionOfPRDTL`,
+        attachedFilesByOperatorUser: `${req?.commonKey}.attachedFilesByOperatorUser`,
+        pullFileFromTheExistingFiles: `${req?.commonKey}.attachedFilesByOperatorUser`,
       };
 
       let commonApprovalStatusObj = {
@@ -456,15 +474,15 @@ router.patch(
       );
 
       if (
-        req.files?.attachedFileByAssignedUser?.[0]?.filename ||
-        req.files?.attachedFileByAssignedUser
+        req.files?.attachedFilesByAssignedUser?.[0]?.filename ||
+        req.files?.attachedFilesByAssignedUser
       ) {
-        requestSheetDataFilledByMTDUserForCM["attachedFileByAssignedUser"] =
-          req.files?.attachedFileByAssignedUser?.[0]?.filename;
+        requestSheetDataFilledByMTDUserForCM["attachedFilesByAssignedUser"] =
+          req.files?.attachedFilesByAssignedUser?.[0]?.filename;
 
         updateObj.$set = {
-          [allKeys?.attachedFileByAssignedUser]:
-            req.files?.attachedFileByAssignedUser?.[0]?.filename,
+          [allKeys?.attachedFilesByAssignedUser]:
+            req.files?.attachedFilesByAssignedUser?.[0]?.filename,
         };
       }
 
@@ -682,7 +700,7 @@ router.patch(
               "minutes"
             ) /
               60) *
-            element?.user?.length;
+            (element?.user?.length >= 1 || 1);
         }
 
         updateObj.$set = {
@@ -704,6 +722,53 @@ router.patch(
           ...updateObj.$set,
           [allKeys?.actionAndCounterMeasureStep]:
             requestSheetDataFilledByMTDUserForCM?.actionAndCounterMeasureStep,
+        };
+      }
+      if (
+        requestSheetDataFilledByMTDUserForCM?.deletedFile &&
+        requestSheetDataFilledByMTDUserForCM?.deletedFile?.length > 0
+      ) {
+        requestSheetDataFilledByMTDUserForCM?.deletedFile?.forEach(
+          (filename) => {
+            fs.unlink(
+              path.join(
+                __dirname,
+                `../AttachedFilesByOperatorUser/${filename}`
+              ),
+              function (err) {
+                if (err) {
+                  console.error(err);
+                } else {
+                  console.log("Work files Removed Successfully");
+                }
+              }
+            );
+          }
+        );
+
+        updateObj.$pull = {
+          ...updateObj.$pull,
+          [allKeys?.pullFileFromTheExistingFiles]: {
+            $in: requestSheetDataFilledByMTDUserForCM?.deletedFile,
+          },
+        };
+      }
+
+      if (
+        req.files?.attachedFilesByOperatorUser?.[0]?.filename ||
+        req.files?.attachedFilesByOperatorUser
+      ) {
+        requestSheetDataFilledByMTDUserForCM["attachedFilesByOperatorUser"] =
+          req.files?.attachedFilesByOperatorUser?.map(
+            (value) => value?.filename
+          );
+
+        updateObj.$push = {
+          ...updateObj.$push,
+          [allKeys?.attachedFilesByOperatorUser]:
+            req.files?.attachedFilesByOperatorUser?.map(
+              (value) => value?.filename
+            ),
         };
       }
       const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
@@ -738,6 +803,22 @@ router.patch(
     }
   }
 );
+
+router.delete("/deleteRequestSheetOfCM/:id", async (req, res, next) => {
+  try {
+    const deletedRequestSheet = await RequestSheetOfCM.findByIdAndDelete(
+      req.params.id
+    );
+
+    return res.status(201).json({
+      message: "RequestSheet Deleted successfully",
+      deletedRequestSheet,
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[3] });
+    res.status(500).json({ message: error?.message, error });
+  }
+});
 
 const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
   let otherPipelines = {
@@ -1143,6 +1224,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.workDetails": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.totalTimeBasedOnWork": 1,
         "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.actionAndCounterMeasureStep": 1,
+        "upto_currentYear_current_commonDataFilledByAssignUser.quarterlyDataOfTheCM.attachedFilesByOperatorUser": 1,
 
         approvalObj_MTD_TL: getUserApprovalObj("approvalOfMTD_TL"),
         approvalObj_MTD_HOSS: getUserApprovalObj("approvalOfMTD_HOSS"),
@@ -1186,6 +1268,18 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "$cmBasicDataFilledByMTD_TL.actionForLTPM"
       ),
     };
+
+    if (req?.query?.selectedRSStatus) {
+      otherPipelines.aggregationPipeline = [
+        ...otherPipelines.aggregationPipeline,
+        {
+          $match: {
+            "current_commonDataFilledByAssignUser.requestSheetStatusOfCM":
+              req?.query?.selectedRSStatus,
+          },
+        },
+      ];
+    }
   } else if (reqUrl?.includes("getApprovalLogsForCM")) {
     otherPipelines.project = {
       "current_commonDataFilledByAssignUser.assignUserForCM": 1,
@@ -1332,6 +1426,16 @@ router.get(
             userRef: mongoose.Types.ObjectId(req.rootUser?._id),
           },
         },
+      };
+    }
+    if (
+      req.query?.selectedCategoryType &&
+      req.query?.selectedCategoryType !== "undefined"
+    ) {
+      req.queryObj = {
+        ...req?.queryObj,
+        "cmBasicDataFilledByMTD_TL.categories":
+          req?.query?.selectedCategoryType,
       };
     }
     return next();
@@ -1921,7 +2025,7 @@ router.get(
                 date: {
                   $toDate: {
                     $getField: {
-                      field: "targetDateOfCM",
+                      field: "activityEndDateOfCM",
                       input: "$allQuartelyData",
                     },
                   },
@@ -2563,11 +2667,26 @@ router.get(
       section_id: req?.rootUser?.section_data?.split("-")?.[0],
     });
 
+    let queryObj = {};
+    if (sectionDashboardLevel?.dashboardLevel === "Yes") {
+      queryObj = {
+        section_names: sectionDashboardLevel?._id,
+      };
+    } else {
+      const subSectionsData = await SubSection.find({
+        subSection_id: {
+          $in: req.rootUser?.subSection_data?.map(
+            (item) => item?.split("-")?.[0]
+          ),
+        },
+      });
+      queryObj = {
+        subSection_names: { $in: subSectionsData?.map((item) => item?._id) },
+      };
+    }
     const allLinesList = await Line?.find(
       {
-        [sectionDashboardLevel?.dashboardLevel === "Yes"
-          ? "section_names"
-          : "subSection_names"]: sectionDashboardLevel?._id,
+        ...queryObj,
       },
       { line_name: 1 }
     );
@@ -2595,8 +2714,242 @@ router.get(
   authenticate,
   filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
-    console.log(req?.params?.filter);
+    console.log(req?.queryObj);
+    const PlanVsActualMonthWiseDataForTheChartAndPPT =
+      await RequestSheetOfCM.aggregate([
+        {
+          $match: {
+            ...req?.queryObj,
+            commonDataFilledByAssignUser: {
+              $ne: undefined,
+            },
+          },
+        },
+        {
+          $addFields: {
+            getQuaterlyTargetDate: {
+              $getField: {
+                field: "quarterlyDataOfTheCM",
+                input: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$commonDataFilledByAssignUser",
+                        as: "yearWiseData",
+                        cond: {
+                          $eq: [
+                            "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                            req?.query?.selectedYear,
+                          ],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+        {
+          $unwind: "$getQuaterlyTargetDate",
+        },
+        {
+          $match: {
+            "getQuaterlyTargetDate.targetDateOfCM": {
+              $ne: undefined,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%m",
+                date: {
+                  $toDate: {
+                    $getField: {
+                      field: "targetDateOfCM",
+                      input: "$getQuaterlyTargetDate",
+                    },
+                  },
+                },
+                timezone: timezone,
+              },
+            },
+            plannedCountOfCM: {
+              $sum: 1,
+            },
+            actualCountOfCM: {
+              $sum: {
+                $cond: [
+                  {
+                    $eq: [
+                      "$getQuaterlyTargetDate.requestSheetStatusOfCM",
+                      "Completed",
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            array: { $push: "$$ROOT" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            planMonthWise: {
+              name: "Plan",
+              lables: MONTH_LABELS,
+              values: {
+                $map: {
+                  input: ALL_MONTHS,
+                  as: "month",
+                  in: {
+                    $cond: [
+                      { $in: ["$$month.monthInDecimal", "$array._id"] },
+                      {
+                        $arrayElemAt: [
+                          "$array.plannedCountOfCM",
+                          {
+                            $indexOfArray: [
+                              "$array._id",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+            actualMonthWise: {
+              name: "Actual",
+              lables: MONTH_LABELS,
+              values: {
+                $map: {
+                  input: ALL_MONTHS,
+                  as: "month",
+                  in: {
+                    $cond: [
+                      { $in: ["$$month.monthInDecimal", "$array._id"] },
+                      {
+                        $arrayElemAt: [
+                          "$array.actualCountOfCM",
+                          {
+                            $indexOfArray: [
+                              "$array._id",
+                              "$$month.monthInDecimal",
+                            ],
+                          },
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+    console.log(PlanVsActualMonthWiseDataForTheChartAndPPT);
+
+    successResponse(res, "Get data of PlanVsActualMonthWise successfully", {
+      PlanVsActualMonthWiseDataForTheChartAndPPT,
+    });
   })
 );
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "UploadQRFile"),
+  filename: (req, file, cb) => {
+    const fileName = Date.now() + "-" + file.originalname;
+    cb(null, fileName);
+  },
+});
+const upload = multer({ storage });
+
+router.post("/upload-excel", upload.single("excelFile"), async (req, res) => {
+  try {
+    const filePath = req.file.path;
+    const fileName = req.file.filename;
+    const fileUrl = `http://localhost:7000/UploadQRFile/${fileName}`;
+
+    // 1. Generate QR for URL
+    const qrImagePath = `UploadQRFile/${Date.now()}_qr.png`;
+    await QRCode.toFile(qrImagePath, fileUrl);
+
+    const pythonScript = `
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
+
+wb = load_workbook('${req.file.path.replace(/\\/g, "\\\\")}')
+ws = wb.worksheets[0]  # or specify by name: wb['Sheet1']
+
+# Add QR code image
+img = Image('${qrImagePath.replace(/\\/g, "\\\\")}')
+img.width = 50
+img.height = 50
+ws.add_image(img, 'O1')
+
+wb.save('${req.file.path.replace(/\\/g, "\\\\")}_modified.xlsx')
+    `;
+
+    const pythonScriptPath = path.join(__dirname, "add_qr.py");
+    fs.writeFileSync(pythonScriptPath, pythonScript);
+
+    // Execute Python script
+    await new Promise((resolve, reject) => {
+      exec(`python ${pythonScriptPath}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return reject(error);
+        }
+        resolve();
+      });
+    });
+
+    // // 2. Open workbook and insert QR
+    // const workbook = new ExcelJS.Workbook();
+    // await workbook.xlsx.readFile(filePath, {
+    //   ignoreNodes: ['picture', 'hyperlinks', 'tableParts']
+    // });
+    // const worksheet = workbook.worksheets[0];
+
+    // const imageId = workbook.addImage({
+    //   filename: qrImagePath,
+    //   extension: "png",
+    // });
+
+    // worksheet.addImage(imageId, {
+    //   tl: { col: 14, row: 0 }, // O1
+    //   ext: { width: 50, height: 50 },
+    //   editAs: 'oneCell'
+    // });
+
+    // // 3. Overwrite original file
+    // await workbook.xlsx.writeFile(filePath,{
+    //   ignoreNodes: ['picture', 'hyperlinks', 'tableParts']
+    // });
+    fs.unlinkSync(qrImagePath); // cleanup
+
+    // 5. Response
+    res.status(200).json({ message: "File uploaded and QR added", fileUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to process Excel file");
+  }
+});
 
 module.exports = router;

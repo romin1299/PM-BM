@@ -105,8 +105,8 @@ const RequestSheetMainDashboard = () => {
     "Work Order Closed",
     "Fill Sheet",
     "Rejected",
-    "Under MTD TL approval",
-    "Under MTD HOSS approval",
+    "Under MTD TL Approval",
+    "Under MTD HOSS Approval",
     "Under PRD TL Approval",
     "Under PRD HOS Approval",
     "Under MTD HOS Approval",
@@ -653,7 +653,7 @@ const RequestSheetMainDashboard = () => {
       disabled:
         (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        (row?.requestSheetStatus === "Fill Sheet" ||  
+        (row?.requestSheetStatus === "Fill Sheet" ||
           row?.requestSheetStatus === "Work Order Pending" ||
           row?.requestSheetStatus === "Work Order Closed" ||
           row?.approvalStatusOfMTD_TL === "Rejected") &&
@@ -1208,7 +1208,7 @@ const RequestSheetMainDashboard = () => {
               ...MaterialTableOptions,
               pageSize:
                 reduceStateForRequestSheetData?.requestSheetData?.length > 10
-                  ? 10
+                  ? 50
                   : reduceStateForRequestSheetData?.requestSheetData?.length,
               maxBodyHeight: "auto",
               showTitle: true,

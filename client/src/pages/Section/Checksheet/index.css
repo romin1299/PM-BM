@@ -345,7 +345,7 @@ screen and (min-width: 1000px) and (max-width: 1055px) {
 
 
 .table-col-bg-ongoing {
-    background-color: rgb(241, 127, 127);
+    background-color: rgb(255, 226, 226);
     border: 2px solid rgb(80, 80, 80);
 
 }
@@ -357,7 +357,7 @@ screen and (min-width: 1000px) and (max-width: 1055px) {
 }
 
 .table-col-bg-skip {
-    background-color: rgb(241, 127, 127);
+    background-color: rgb(255, 231, 231);
     border: 2px solid rgb(80, 80, 80);
 
 }

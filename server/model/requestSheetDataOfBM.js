@@ -414,6 +414,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
 
+  IsYokotenkai: {
+    type: String,
+  },
+
   machineRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "MachinesAllData",

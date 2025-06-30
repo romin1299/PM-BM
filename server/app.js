@@ -3,8 +3,8 @@ const express = require("express");
 const app = express();
 const path = require("path");
 dotenv.config({ path: "./config.env" });
-const https= require('https')
-const fs = require('fs')
+const https = require("https");
+const fs = require("fs");
 
 require("./db/conn");
 
@@ -82,6 +82,12 @@ app.use(express.static(path.join(__dirname, "manuals")));
 
 //for CM Files uploaded by MTD user while creation of the CM sheet
 app.use(express.static(path.join(__dirname, "AttachedFilesByAssignedUser")));
+
+//for CM Files uploaded by MTD OperATOR user while filling the CM request-sheet
+app.use(express.static(path.join(__dirname, "AttachedFilesByOperatorUser")));
+
+//for User manual
+app.use(express.static(path.join(__dirname, "UploadQRFile")));
 
 // index file path
 app.get("/*", (req, res) => {

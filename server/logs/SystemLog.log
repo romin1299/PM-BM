@@ -7336,3 +7336,883 @@
     at Socket.ondata (node:internal/streams/readable:754:22)
     at Socket.emit (node:events:390:28)
 >>>>>>> 158191d25431c17ed9f0eb4c1bc6ea71802d25b1
+2025-05-13T10:11 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11868:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8897:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10363:5)
+2025-05-13T10:11 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11868:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8897:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10363:5)
+2025-05-13T12:46 | CM | The field 'plannedCountOfCM' must be an accumulator object
+		MongoServerError: The field 'plannedCountOfCM' must be an accumulator object
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-05-13T15:28 | BM | Cannot read properties of undefined (reading 'save')
+		TypeError: Cannot read properties of undefined (reading 'save')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:738:64
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-13T15:29 | BM | Cannot read properties of undefined (reading 'save')
+		TypeError: Cannot read properties of undefined (reading 'save')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:738:64
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-13T15:29 | BM | Cannot read properties of undefined (reading 'save')
+		TypeError: Cannot read properties of undefined (reading 'save')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:738:64
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-13T15:30 | BM | Cannot read properties of undefined (reading 'save')
+		TypeError: Cannot read properties of undefined (reading 'save')
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:738:64
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-13T16:07 | CM | PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-05-16T08:50 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-19T17:05 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-19T17:05 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-19T17:06 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-19T17:06 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-19T17:09 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-19T17:09 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-20T16:19 | CM | Invalid $project :: caused by :: FieldPath field names may not start with '$'. Consider using $getField or $setField.
+		MongoServerError: Invalid $project :: caused by :: FieldPath field names may not start with '$'. Consider using $getField or $setField.
+    at Connection.onMessage (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+    at addChunk (node:internal/streams/readable:315:12)
+    at readableAddChunk (node:internal/streams/readable:289:9)
+    at Socket.Readable.push (node:internal/streams/readable:228:10)
+    at TCP.onStreamRead (node:internal/stream_base_commons:199:23)
+2025-05-22T09:15 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:15 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:15 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:15 | PM | user not found
+		Error: user not found
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:21:13)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:16 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11868:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8897:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10363:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:16 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11868:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8897:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10363:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:17 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11868:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8897:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10363:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:17 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11868:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8897:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10363:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:17 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11868:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8897:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10363:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:17 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11868:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8897:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10363:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:23 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T09:38 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T09:38 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T09:54 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T09:56 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11871:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8898:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10364:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T09:56 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11871:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8898:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10364:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T10:06 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:11878:38
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at bdHourTrendMiddleware (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:8905:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at targetMiddlewareForMBD (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\controller\bmController.js:10371:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-05-22T20:26 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T20:26 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T20:27 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T20:27 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T20:30 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T20:31 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T20:31 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-22T20:31 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:39 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:39 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:39 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:39 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:40 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:40 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:40 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:40 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:40 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T06:40 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T16:03 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T16:03 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T16:04 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T16:04 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-23T16:04 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T09:31 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T09:32 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:08 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:08 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:09 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:09 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:12 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:12 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:12 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:12 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:12 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-27T18:13 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-30T09:30 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-30T09:30 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-30T09:30 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-30T09:30 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-30T09:30 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-05-30T09:31 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-06-02T09:10 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+2025-06-03T09:46 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:286:9
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:328:13)
+2025-06-03T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-03T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-03T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-03T09:47 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at Object.module.exports [as verify] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\middleware\authenticate.js:15:29)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\Romin\Projects\DENSO BM\denso_pm_bm\server\node_modules\cookie-parser\index.js:71:5)
+2025-06-11T17:47 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1377:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-11T17:47 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1377:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-11T17:47 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1377:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-11T17:47 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1377:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-11T18:00 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1379:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-11T18:00 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1379:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-11T18:00 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1379:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-11T18:01 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1379:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-11T18:01 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1379:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-18T09:14 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)
+2025-06-19T14:44 | BM | addNewNoLossBD is not defined
+		ReferenceError: addNewNoLossBD is not defined
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:19243:9
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-06-19T14:45 | BM | addNewNoLossBD is not defined
+		ReferenceError: addNewNoLossBD is not defined
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:19243:9
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-06-23T15:22 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1380:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-23T15:22 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1380:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-23T15:23 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1380:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-23T15:23 | CM | (intermediate value) is not iterable
+		TypeError: (intermediate value) is not iterable
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1:1
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1380:12
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\filterMiddleware.js:109:5
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2025-06-23T15:52 | CM | PlanExecutor error during aggregation :: caused by :: Error parsing date string '20/4/2025 - 12:29 PM'; 12: passing a time zone identifier as part of the string is not allowed '1'; 14: Trailing data ':'
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: Error parsing date string '20/4/2025 - 12:29 PM'; 12: passing a time zone identifier as part of the string is not allowed '1'; 14: Trailing data ':'
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-06-23T15:52 | CM | PlanExecutor error during aggregation :: caused by :: Error parsing date string '3/5/2025 - 3:07 am'; 11: passing a time zone identifier as part of the string is not allowed '3'; 12: Trailing data ':'
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: Error parsing date string '3/5/2025 - 3:07 am'; 11: passing a time zone identifier as part of the string is not allowed '3'; 12: Trailing data ':'
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-06-26T09:28 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:158:23)
+    at listOnTimeout (node:internal/timers:557:17)
+    at processTimers (node:internal/timers:500:7)

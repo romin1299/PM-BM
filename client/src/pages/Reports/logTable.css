@@ -238,7 +238,7 @@ tbody {
 }
 
 .table-col-bg-ongoing {
-    background-color: rgb(241, 127, 127);
+    background-color: rgb(255, 231, 231);
     border: 1px solid rgb(0, 0, 0);
 
 }
@@ -250,7 +250,7 @@ tbody {
 }
 
 .table-col-bg-skip {
-    background-color: rgb(241, 127, 127);
+    background-color: rgb(255, 231, 231);
     border: 1px solid rgb(0, 0, 0);
 
 }

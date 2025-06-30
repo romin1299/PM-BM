@@ -25,11 +25,14 @@ const ChartsToolbar = ({
   RSStatusFiltration,
   maintenanceTypeArrayForFilter,
   maintenanceTypeFiltration,
+  CM_Category,
+  CM_CategoryFiltration,
   quarterFiltration,
   resetButtonFiltration,
   isWithLocalStorageForFiltration,
   selectedLineOrNot,
-  defaultSelectedMonth
+  defaultSelectedMonth,
+  plantLevel
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -119,7 +122,9 @@ const ChartsToolbar = ({
           RSStatusFiltration={RSStatusFiltration}
           maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
           maintenanceTypeFiltration={maintenanceTypeFiltration}
-          quarterFiltration= {quarterFiltration}
+          CM_Category={CM_Category}
+          CM_CategoryFiltration={CM_CategoryFiltration}
+          quarterFiltration={quarterFiltration}
           resetButtonFiltration={resetButtonFiltration}
           isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
           selectedLineOrNot={selectedLineOrNot}

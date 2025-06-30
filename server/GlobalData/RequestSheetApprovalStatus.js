@@ -36,19 +36,84 @@ exports.APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM = [
   },
 ];
 
+exports.NAME_OF_THE_COMPANY = "DNHA";
 
-exports.NAME_OF_THE_COMPANY = 'DNHA';
+exports.LIST_OF_COMPANY = ["DNHA", "DNIN"];
 
-exports.LIST_OF_COMPANY = ['DNHA', 'DNIN'];
-
-exports.CM_PLANNED_STATUS =[
-  'Planned',
-  'In progress',
-  'Completed',
-  'Done with delay'
-]
+exports.CM_PLANNED_STATUS = [
+  "Planned",
+  "In progress",
+  "Completed",
+  "Done with delay",
+];
 
 exports.currentYear =
   new Date().getMonth() < 3
     ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
     : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+exports.ALL_MONTHS = [
+  {
+    monthName: "Apr",
+    monthInDecimal: "04",
+  },
+  {
+    monthName: "May",
+    monthInDecimal: "05",
+  },
+  {
+    monthName: "June",
+    monthInDecimal: "06",
+  },
+  {
+    monthName: "July",
+    monthInDecimal: "07",
+  },
+  {
+    monthName: "Aug",
+    monthInDecimal: "08",
+  },
+  {
+    monthName: "Sep",
+    monthInDecimal: "09",
+  },
+  {
+    monthName: "Oct",
+    monthInDecimal: "10",
+  },
+  {
+    monthName: "Nov",
+    monthInDecimal: "11",
+  },
+  {
+    monthName: "Dec",
+    monthInDecimal: "12",
+  },
+  {
+    monthName: "Jan",
+    monthInDecimal: "01",
+  },
+  {
+    monthName: "Feb",
+    monthInDecimal: "02",
+  },
+  {
+    monthName: "Mar",
+    monthInDecimal: "03",
+  },
+];
+
+exports.MONTH_LABELS = [
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+];

@@ -23,12 +23,12 @@ const CM_Routes = ({ commonRoutes }) => {
     {
       user_type: "Plant-Admin",
       routes: [
+        // {
+        //   path: "/cm",
+        //   element: <ActivityStatusDashboardOfCM />,
+        // },
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM />,
-        },
-        {
-          path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
@@ -44,12 +44,12 @@ const CM_Routes = ({ commonRoutes }) => {
     {
       user_type: "Section-Admin",
       routes: [
+        // {
+        //   path: "/cm",
+        //   element: <ActivityStatusDashboardOfCM />,
+        // },
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM />,
-        },
-        {
-          path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
@@ -74,12 +74,12 @@ const CM_Routes = ({ commonRoutes }) => {
     {
       user_type: "TL/HOSS",
       routes: [
+        // {
+        //   path: "/cm",
+        //   element: <ActivityStatusDashboardOfCM />,
+        // },
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM />,
-        },
-        {
-          path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
@@ -112,12 +112,12 @@ const CM_Routes = ({ commonRoutes }) => {
     {
       user_type: "Operator",
       routes: [
+        // {
+        //   path: "/cm",
+        //   element: <ActivityStatusDashboardOfCM />,
+        // },
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM />,
-        },
-        {
-          path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
         {

@@ -219,7 +219,6 @@ async function genSlide02(pptx, urlOptions) {
    *
    */
   let data = await fetchLineTrendData(urlOptions);
-  console.log("pptx.charts.BAR:", pptx.charts.LINE);
   let lineTrendData = [
     {
       type: pptx.charts.BAR,

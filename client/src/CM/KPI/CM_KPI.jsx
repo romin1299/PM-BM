@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import ChartsToolbar from "../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
@@ -13,14 +13,56 @@ import PlanVsActualMonthWiseBarChart from "./Chart_Component/PlanVsActualMonthWi
 import PlanVsActualLineWiseBarChart from "./Chart_Component/PlanVsActualLineWiseBarChart";
 import ActivityTimeStackedBarChart from "./Chart_Component/ActivityTimeStackedBarChart";
 import ActivityManHourStackedBarChart from "./Chart_Component/ActivityManHourStackedBarChart";
+import axios from "axios";
 
 const CM_KPI = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
-
+  const [file, setFile] = useState(null);
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
+  //for PlanVsActualMonthWiseBarChartData
+  const PlanVsActualMonthWiseBarChartData = async () => {
+    try {
+      const url = `/getDataOfPlanVsActualMonthWise/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}?selectedYear=${reduceState?.selectedYear}`;
+      const res = await axios.get(url, {
+        withCredentials: true,
+        credentials: "include",
+      });
+      if (res.status === 201) {
+        console.log(res?.data);
+      }
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (reduceState?.selectedValue && reduceState?.selectedYear)
+      PlanVsActualMonthWiseBarChartData();
+  }, [reduceState?.selectedValue, reduceState?.selectedYear]);
+
+  const handleUpload = async () => {
+    const formData = new FormData();
+    formData.append("excelFile", file);
+
+    const response = await axios.post("/upload-excel", formData, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    console.log(url);
+  };
 
   return (
     <Container fluid>
+      <div>
+        <input
+          type="file"
+          accept=".xlsx"
+          onChange={(e) => setFile(e.target.files[0])}
+        />
+        <button onClick={handleUpload}>Upload & Add QR</button>
+      </div>
       <Box>
         <ReportTitleBar
           title="CM KPI"
@@ -51,7 +93,6 @@ const CM_KPI = () => {
         <Row className="mt-3 gx-3 pb-4">
           <Col md={12} lg={6}>
             <PlanVsActualMonthWiseBarChart
-              // userDetails={loggedUserDetails}
               filterValues={reduceState}
               selectedValue={reduceState?.selectedValue}
               flagForTogglingFilter={reduceState?.flagForTogglingFilter}

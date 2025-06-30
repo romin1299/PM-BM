@@ -441,7 +441,7 @@ const NoLossBDEntryForm = () => {
                       flex
                       label={shiftInfo.shiftName}
                       type="radio"
-                      // value={shiftInfo.shiftName}
+                      value={shiftInfo.shiftName}
                       // name={`shiftOfBM`}
                       {...register(`shiftOfBM`, {
                         required: "This field is required",

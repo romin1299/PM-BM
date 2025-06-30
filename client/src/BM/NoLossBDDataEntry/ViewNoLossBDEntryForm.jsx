@@ -23,6 +23,7 @@ const ViewNoLossBDEntryForm = ({
   plantCategories,
   supportingTMList,
   removeDataFromMaster,
+  modelPropForDelete,
 }) => {
   const {
     register,
@@ -145,7 +146,7 @@ const ViewNoLossBDEntryForm = ({
         aria-labelledby="contained-modal-title-vcenter"
         centered
       >
-        <Modal.Header>
+        <Modal.Header className="d-flex justify-content-between">
           <Modal.Title id="contained-modal-title-vcenter">
             Other Loss BD Entry Form
           </Modal.Title>
@@ -185,7 +186,7 @@ const ViewNoLossBDEntryForm = ({
                   <DeleteIcon
                     className="text-danger"
                     role="button"
-                    onClick={deleteNoLossRequestSheet}
+                    onClick={modelPropForDelete?.onHide}
                   />
                 </Tooltip>
               </Col>
@@ -677,6 +678,21 @@ const ViewNoLossBDEntryForm = ({
               Submit Data
             </Button>
           </form>
+
+          <Modal {...modelPropForDelete} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>Modal heading</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>Are you want to delete the No Loss BD ?</Modal.Body>
+            <Modal.Footer>
+              <Button onClick={deleteNoLossRequestSheet} className="btn-danger">
+                Yes
+              </Button>
+              <Button variant="primary" onClick={modelPropForDelete?.onHide}>
+                No
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </Modal.Body>
       </Modal>
     </>

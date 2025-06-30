@@ -50,6 +50,8 @@ export const initialState = (isWithLocalStorageForFiltration) => {
       selectedMaintenanceType:
         localStorage.getItem("selectedMaintenanceType") || "",
 
+      selectedCategoryType: localStorage.getItem("selectedCategoryType") || "",
+
       selectedQuarter: localStorage.getItem("selectedQuarter") || "",
 
       selectedMonth: localStorage.getItem("selectedMonth") || "",
@@ -89,6 +91,8 @@ export const initialState = (isWithLocalStorageForFiltration) => {
 
     selectedMaintenanceType: "",
 
+    selectedCategoryType: "",
+
     selectedQuarter: "",
 
     selectedMonth: "",
@@ -117,6 +121,7 @@ export const ACTION = {
   HANDLE_SELECT_YEAR: "handle-selected-year",
   HANDLE_SELECT_MONTH: "handle-selected-month",
   HANDLE_SELECT_MAINTENANCE_TYPE: "handle-selected-maintenanceType",
+  HANDLE_SELECT_CM_CATEGORY: "handle-selected-category",
   HANDLE_SELECT_QUARTER: "handle-selected-quarter",
   HANDLE_SELECT_STATUS: "handle-selected-status",
   HANDLE_RESET: "reset-filters",
@@ -175,6 +180,7 @@ export const reducer = (state, action) => {
           localStorage.setItem("selectedQuarter", "");
           localStorage.setItem("selectedRSStatus", "");
           localStorage.setItem("selectedMaintenanceType", "");
+          localStorage.setItem("selectedCategoryType", "");
         }
 
         localStorage.setItem(
@@ -192,6 +198,7 @@ export const reducer = (state, action) => {
           selectedQuarter: "",
           selectedRSStatus: "",
           selectedMaintenanceType: "",
+          selectedCategoryType: "",
         };
       }
       return {
@@ -551,6 +558,7 @@ export const reducer = (state, action) => {
           localStorage.removeItem("selectedMonth");
         localStorage.removeItem("selectedRSStatus");
         localStorage.removeItem("selectedMaintenanceType");
+        localStorage.removeItem("selectedCategoryType");
         localStorage.removeItem("selectedQuarter");
       }
 
@@ -566,6 +574,7 @@ export const reducer = (state, action) => {
         selectedYear: action?.selectedYear,
         selectedRSStatus: "",
         selectedMaintenanceType: "",
+        selectedCategoryType: "",
         selectedQuarter: "",
       };
 
@@ -619,6 +628,19 @@ export const reducer = (state, action) => {
       return {
         ...state,
         selectedMaintenanceType: action?.selectedMaintenanceType,
+      };
+
+    case ACTION?.HANDLE_SELECT_CM_CATEGORY:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem(
+          "selectedCategoryType",
+          action?.selectedCategoryType
+        );
+      }
+
+      return {
+        ...state,
+        selectedCategoryType: action?.selectedCategoryType,
       };
 
     case ACTION?.HANDLE_SELECT_QUARTER:

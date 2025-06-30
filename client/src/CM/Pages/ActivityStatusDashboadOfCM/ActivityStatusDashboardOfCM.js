@@ -67,7 +67,7 @@ const ActivityStatusDashboardOfCM = () => {
         loading: true,
       });
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}&&selectedQuarter=${reduceState?.selectedQuarter}`
+        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`
       );
 
       if (response?.status === 201) {
@@ -91,7 +91,7 @@ const ActivityStatusDashboardOfCM = () => {
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
-    reduceState?.selectedMaintenanceType,
+    reduceState?.selectedCategoryType,
     reduceState?.selectedQuarter,
   ]);
   const cmApprovalHeaders = [
@@ -179,21 +179,20 @@ const ActivityStatusDashboardOfCM = () => {
   const RSStatusArray = [
     "Generated",
     "Assigned",
-    "Work Order Open",
-    "Work Order Pending",
-    "Work Order Closed",
-    "Fill Sheet",
     "Rejected",
-    "Under MTD TL approval",
-    "Under MTD HOSS approval",
+    "Under MTD TL Approval",
+    "Under MTD HOSS Approval",
     "Under PRD TL Approval",
-    "Under PRD HOS Approval",
     "Under MTD HOS Approval",
-    "Under MTD HOD Approval",
-    "Under PRD HOD Approval",
     "Completed",
   ];
-  const maintenanceTypeArrayForFilter = ["PM", "BM", "CM", "TPM"];
+  const CM_CategoryArrayForFilter = [
+    "Overhauling",
+    "Upgradation",
+    "BM Reflection",
+    "LTPM",
+    "Others",
+  ];
   // ==============================================================
 
   const filtration = [
@@ -212,8 +211,8 @@ const ActivityStatusDashboardOfCM = () => {
           machineFiltration
           RSStatusArray={RSStatusArray}
           RSStatusFiltration
-          maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
-          maintenanceTypeFiltration
+          CM_Category={CM_CategoryArrayForFilter}
+          CM_CategoryFiltration
           quarterFiltration
           resetButtonFiltration
           isWithLocalStorageForFiltration="Yes"
@@ -398,7 +397,7 @@ const ActivityStatusDashboardOfCM = () => {
               editable={{}}
               options={{
                 ...MaterialTableOptions,
-                pageSize: 5,
+                pageSize: 50,
                 showTitle: true,
                 exportMenu: [
                   {

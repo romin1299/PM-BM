@@ -78,6 +78,7 @@ const ExistingMachineReqSheetView = ({
           "changedParts",
           "actionAndCounterMeasureStep",
           "workDetails",
+          "attachedFilesByOperatorUser"
         ]?.includes(key)
       ) {
         newVal[key] = requestSheetDataOfCM[key];
@@ -109,16 +110,16 @@ const ExistingMachineReqSheetView = ({
     workDetails,
   }) => {
     return (
-      (await generateError(
-        changedParts,
-        "changedParts",
-        "Part list is required"
-      )) +
+      // (await generateError(
+      //   changedParts,
+      //   "changedParts",
+      //   "Part list is required"
+      // )) <= 0 ||
       (await generateError(
         workDetails,
         "workDetails",
         "Work details is required"
-      ))
+      )) <= 0
     );
     // generateError(
     //   actionAndCounterMeasureStep,
@@ -130,7 +131,7 @@ const ExistingMachineReqSheetView = ({
   const updateRequestOfCM = async (requestSheetDataOfCM) => {
     try {
       if (requestSheetDataOfCM?.wantToSendForApproval === "Yes") {
-        if ((await handleCustomError(requestSheetDataOfCM)) <= 0) {
+        if (await handleCustomError(requestSheetDataOfCM)) {
           return;
         }
       }
@@ -141,6 +142,8 @@ const ExistingMachineReqSheetView = ({
       otherFields.plannedDateAndTimeOfCM = watch(
         "current_commonDataFilledByAssignUser.targetDateOfCM"
       );
+
+      otherFields.deletedFile = watch("deletedFile")
 
       // otherFields.approvalObj_MTD_HOS =
       //   requestSheetDataOfCM?.approvalObj_MTD_HOS;
@@ -162,6 +165,17 @@ const ExistingMachineReqSheetView = ({
         if (requestSheetDataOfCM?.approvalObj_PRD_TL) {
           prdApproval();
         }
+      }
+
+      for (
+        let i = 0;
+        i < requestSheetDataOfCM?.attachedFilesByOperatorUser?.length;
+        i++
+      ) {
+        formData.append(
+          "attachedFilesByOperatorUser",
+          requestSheetDataOfCM?.attachedFilesByOperatorUser[i]
+        );
       }
 
       for (
@@ -367,7 +381,9 @@ const ExistingMachineReqSheetView = ({
                             <b>TL/HoSS [MTD]</b>
                           </small>
                           <br />
-                          <small>{context?.tm_name}</small>
+                          <small>
+                            {watch("requestSheetCreatedBy.tm_name")}
+                          </small>
                         </Col>
                       </Row>
                     </div>
@@ -402,12 +418,13 @@ const ExistingMachineReqSheetView = ({
                       <Col lg={9}>
                         <div className="d-block align-items-center">
                           {" "}
-                          <input
-                            type="text"
+                          <textarea
+                            rows={2}
+                            cols={60}
                             id="cmBasicDataFilledByMTD_TL.activityOfCM"
                             className="m-1 mb-2"
                             disabled={!isEditable}
-                            style={{ width: "350px" }}
+                            // style={{ width: "350px" }}
                             {...register(
                               "cmBasicDataFilledByMTD_TL.activityOfCM",
                               {
@@ -851,18 +868,7 @@ const ExistingMachineReqSheetView = ({
                               {...register(
                                 "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser"
                               )}
-                              // onChange={(e) => {
-                              //   setValue(
-                              //     "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser",
-                              //     e.target.files,
-                              //     {
-                              //       shouldDirty: true,
-                              //     }
-                              //   );
-                              //   clearErrors(
-                              //     "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser"
-                              //   );
-                              // }}
+                              disabled={!isEditable}
                             />
                           </Form.Group>
                         </Col>
@@ -998,6 +1004,7 @@ const TableMappingComponent = ({
               workData={quarter?.workDetails}
               actionData={quarter?.actionAndCounterMeasureStep}
               totalTimeBasedOnWork={quarter?.totalTimeBasedOnWork}
+              attachedFilesByOperatorUser={quarter?.attachedFilesByOperatorUser}
             />
           ))
       )}

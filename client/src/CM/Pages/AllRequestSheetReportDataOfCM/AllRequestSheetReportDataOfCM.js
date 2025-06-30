@@ -1,8 +1,16 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { Box, Grid, Slide, Typography, SvgIcon, Paper } from "@mui/material";
+import React, { useContext, useEffect, useReducer, useState } from "react";
+import {
+  Box,
+  Grid,
+  Slide,
+  Typography,
+  SvgIcon,
+  Paper,
+  Button,
+} from "@mui/material";
 import { FaEye } from "react-icons/fa";
 import { ReactComponent as EditSheetIcon } from "../../../static/svg/edit-sheet-2.svg";
-
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import moment from "moment";
 import { Container } from "react-bootstrap";
@@ -20,6 +28,9 @@ import {
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import MaterialTable from "@material-table/core";
 import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const AllRequestSheetReportDataOfCM = () => {
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
@@ -28,6 +39,9 @@ const AllRequestSheetReportDataOfCM = () => {
     reducer,
     initialState("Yes")
   );
+  const navigate = useNavigate();
+
+  const context = useContext(RoutingContext);
 
   const [loading, setLoading] = useState(false);
   const [counters, setCounters] = useState([]);
@@ -49,7 +63,7 @@ const AllRequestSheetReportDataOfCM = () => {
       setLoading(true);
       setApprovalRequestSheetDataOfCM();
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}&&selectedQuarter=${reduceState?.selectedQuarter}`
+        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`
       );
       setCounters(response.data.counters);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
@@ -65,7 +79,7 @@ const AllRequestSheetReportDataOfCM = () => {
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
-    reduceState?.selectedMaintenanceType,
+    reduceState?.selectedCategoryType,
     selectedCMRequestSheetPopupData?.cmReqSheetView,
     reduceState?.selectedQuarter,
   ]);
@@ -130,6 +144,32 @@ const AllRequestSheetReportDataOfCM = () => {
     },
   ];
 
+  const notifyForDeleteChecksheet = () => {
+    toast.success("CM CheckSheet deleted successfully", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
+  const deleteRequestSheetOfCM = async (selectedRow) => {
+    try {
+      const res = await fetch(`/deleteRequestSheetOfCM/${selectedRow?._id}`, {
+        method: "DELETE",
+      });
+      if (res?.status === 201) {
+        notifyForDeleteChecksheet();
+        getAllCMSheetData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   // const [greaterValue, setGreaterValue] = useState(
   //   localStorage.getItem("greaterValue")
   // );
@@ -177,21 +217,20 @@ const AllRequestSheetReportDataOfCM = () => {
   const RSStatusArray = [
     "Generated",
     "Assigned",
-    "Work Order Open",
-    "Work Order Pending",
-    "Work Order Closed",
-    "Fill Sheet",
     "Rejected",
-    "Under MTD TL approval",
-    "Under MTD HOSS approval",
+    "Under MTD TL Approval",
+    "Under MTD HOSS Approval",
     "Under PRD TL Approval",
-    "Under PRD HOS Approval",
     "Under MTD HOS Approval",
-    "Under MTD HOD Approval",
-    "Under PRD HOD Approval",
     "Completed",
   ];
-  const maintenanceTypeArrayForFilter = ["PM", "BM", "CM", "TPM"];
+  const CM_CategoryArrayForFilter = [
+    "Overhauling",
+    "Upgradation",
+    "BM Reflection",
+    "LTPM",
+    "Others",
+  ];
   // ==============================================================
 
   const filtration = [
@@ -210,96 +249,30 @@ const AllRequestSheetReportDataOfCM = () => {
           machineFiltration
           RSStatusArray={RSStatusArray}
           RSStatusFiltration
-          maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          // maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          CM_Category={CM_CategoryArrayForFilter}
           quarterFiltration
-          maintenanceTypeFiltration
+          CM_CategoryFiltration
+          // maintenanceTypeFiltration
           resetButtonFiltration
           isWithLocalStorageForFiltration="Yes"
         />
       </Box>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      {/* <Box
-        component="form"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-        }}
-      >
-        <TextField
-          type="number"
-          id="outlined-basic"
-          // sx={{ width: "80px" }}
-          placeholder="From"
-          variant="outlined"
-          sx={{
-            // width: "12ch",
-            width: "5rem",
-            pl: 0,
-            "& .MuiOutlinedInput-root": { pl: 0 },
-            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
-          }}
-          InputProps={{
-            sx: { fontSize: 14 },
-            startAdornment: (
-              <InputAdornment position="start">&gt; &#61;</InputAdornment>
-            ),
-          }}
-          size="small"
-          onChange={(e) => {
-            setLesserValue(e.target.value);
-            localStorage.setItem("lesserValue", e.target.value);
-          }}
-          value={lesserValue}
-        />
-        <TextField
-          type="number"
-          id="outlined-basic"
-          // sx={{ width: "80px" }}
-          placeholder="To"
-          variant="outlined"
-          sx={{
-            // width: "12ch",
-            width: "5rem",
-            pl: 0,
-            "& .MuiOutlinedInput-root": { pl: 0 },
-            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
-          }}
-          InputProps={{
-            sx: { fontSize: 14 },
-            startAdornment: (
-              <InputAdornment position="start">&lt; &#61;</InputAdornment>
-            ),
-          }}
-          size="small"
-          onChange={(e) => {
-            setGreaterValue(e.target.value);
-            localStorage.setItem("greaterValue", e.target.value);
-          }}
-          value={greaterValue}
-        />
-        <Button
-          // size="small"
-          disableElevation
-          className="bg-button text-center"
-          variant="contained"
-          style={{
-            minWidth: "25px",
-            height: "33px",
-            paddingInline: "10px",
-          }}
-          // onClick={getAllRequestSheetData} //This will be used when we will use the api
-        >
-          Go
-        </Button>
-      </Box> */}
     </div>,
   ];
   const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="down" ref={ref} {...props} />;
   });
+
+  const handleGenerateBMNavigation = async () => {
+    navigate(`/cm/generateCMRequestSheetMainDashboard`);
+  };
+
   return (
     <>
+      <ToastContainer style={{ width: "30rem" }} />
+
       <Container fluid>
         <Grid
           container
@@ -316,6 +289,22 @@ const AllRequestSheetReportDataOfCM = () => {
             >
               CM Reports
             </Typography>
+            <Box display="flex" gap="16px" className="col-auto">
+              <Button
+                variant="contained"
+                disableElevation
+                onClick={handleGenerateBMNavigation}
+                disabled={context?.user_type !== "TL/HOSS"}
+                sx={{
+                  fontWeight: 400,
+                  bgcolor: "#004b5b",
+                  "&:hover": { bgcolor: "#026378" },
+                }}
+              >
+                <AddCircleIcon sx={{ mr: "8px" }} />
+                Generate Existing Machine CM RS
+              </Button>
+            </Box>
           </Grid>
         </Grid>
         <Box display="flex" gap="16px" className="mt-3 cell p-2 overflow-auto">
@@ -394,18 +383,27 @@ const AllRequestSheetReportDataOfCM = () => {
               // title="User Management"
               // tableRef={this.tableRef.current.onQueryChange()}
 
-              editable={
-                {
-                  // onRowUpdate: (updatedRow, oldRow) =>
-                  // new Promise(async (resolve, reject) => {
-                  //   //   await updateRequestSheet(updatedRow);
-                  //   resolve();
-                  // }),
-                }
-              }
+              editable={{
+                // onRowUpdate: (updatedRow, oldRow) =>
+                // new Promise(async (resolve, reject) => {
+                //   //   await updateRequestSheet(updatedRow);
+                //   resolve();
+                // }),
+                isDeleteHidden: (rowData) =>
+                  context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
+                  "Yes",
+
+                onRowDelete: (selectedRow) =>
+                  new Promise(async (resolve, reject) => {
+                    // setTimeout(() => {
+                    await deleteRequestSheetOfCM(selectedRow);
+                    resolve();
+                    // }, 500);
+                  }),
+              }}
               options={{
                 ...MaterialTableOptions,
-                pageSize: 5,
+                pageSize: 50,
                 showTitle: true,
                 exportMenu: [
                   {

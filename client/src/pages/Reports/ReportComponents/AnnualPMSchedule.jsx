@@ -73,7 +73,7 @@ const AnnualPMSchedule = () => {
         },
         body: JSON.stringify({
           selectedYear,
-          section: context.section_data,
+          section: context?.section_data,
         }),
       });
       const data = await res.json();
@@ -106,7 +106,7 @@ const AnnualPMSchedule = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          plant: context.plant_data,
+          plant: context?.plant_data,
         }),
       });
       const data = await res.json();
@@ -161,7 +161,7 @@ const AnnualPMSchedule = () => {
         setLineDropdown(data.lineInfo);
         // console.log("Data post", data);
         if (data?.lineInfo.length > 0) {
-          postLineToGetMachineList(selectedLine || data?.lineInfo?.[0]._id);
+          postLineToGetMachineList(data?.lineInfo?.[0]._id);
         } else {
           setTableData([]);
         }
@@ -340,7 +340,7 @@ const AnnualPMSchedule = () => {
     supportingKey,
     objOfAnnualPmScheduleApproval
   ) => {
-    const res = await fetch("/approveRequestForAnnualPmSchedule", {
+    const res = await fetch(`/approveRequestForAnnualPmSchedule/?selectedYear=${selectedYear}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -384,6 +384,7 @@ const AnnualPMSchedule = () => {
     //   lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval
     // );
     if (lineDropdown?.length > 0) {
+      setObjOfAnnualPmScheduleApproval()
       if (
         lineDropdown?.[indexOfSelectedLine]?.annualPmScheduleApproval?.length >
         0
@@ -440,7 +441,7 @@ const AnnualPMSchedule = () => {
               funForRefreshingDataAfterApproval
             }
           />
-        );
+        ); 
       }
     } else {
       setStateForMonthlyApprovalComponent(<DefaultMonthlyApprovalComponent />);
@@ -601,8 +602,10 @@ const AnnualPMSchedule = () => {
                       lineDropdown?.length > 0 ? (
                         lineDropdown?.[indexOfSelectedLine]
                           ?.annualPmScheduleApproval?.length > 0 &&
-                        objOfAnnualPmScheduleApproval?.mtdTlId ? (
-                          selectedYear === currentYear ? (
+                        objOfAnnualPmScheduleApproval?.mtdTlId 
+                        ? (
+                          // selectedYear === currentYear 
+                          // ? (
                             <tr>
                               <td className={"td-padding"}>
                                 <div className="p-1 d-flex justify-content-center align-items-center">
@@ -644,9 +647,6 @@ const AnnualPMSchedule = () => {
                                       }
                                       <br />
                                       Status:{" "}
-                                      {console.log(
-                                        objOfAnnualPmScheduleApproval?.prdHos
-                                      )}
                                       {
                                         objOfAnnualPmScheduleApproval?.prdHos
                                           ?.prdHosApprovalStatus
@@ -722,7 +722,7 @@ const AnnualPMSchedule = () => {
                                       }
                                     </>
                                   ) : objOfAnnualPmScheduleApproval?.mtdHos
-                                      ?.mtdHosId._id === context?._id &&
+                                      ?.mtdHosId?._id === context?._id &&
                                     objOfAnnualPmScheduleApproval?.mtdTlId
                                       ?.tm_name ? (
                                     <Button
@@ -763,63 +763,64 @@ const AnnualPMSchedule = () => {
                                 </div>
                               </td>
                             </tr>
-                          ) : (
-                            <tr>
-                              <td className={"td-padding"}>
-                                <div className="p-1 d-flex justify-content-center align-items-center">
-                                  {
-                                    objOfAnnualPmScheduleApproval?.prdHos
-                                      ?.prdHosId?.tm_name
-                                  }
-                                  <br />
-                                  Status:{" "}
-                                  {
-                                    objOfAnnualPmScheduleApproval?.prdHos
-                                      ?.prdHosApprovalStatus
-                                  }
-                                </div>
-                              </td>
+                          // ) 
+                          // : (
+                          //   <tr>
+                          //     <td className={"td-padding"}>
+                          //       <div className="p-1 d-flex justify-content-center align-items-center">
+                          //         {
+                          //           objOfAnnualPmScheduleApproval?.prdHos
+                          //             ?.prdHosId?.tm_name
+                          //         }
+                          //         <br />
+                          //         Status:{" "}
+                          //         {
+                          //           objOfAnnualPmScheduleApproval?.prdHos
+                          //             ?.prdHosApprovalStatus
+                          //         }
+                          //       </div>
+                          //     </td>
 
-                              <td className={"td-padding"}>
-                                <div className="p-1 d-flex justify-content-center align-items-center">
-                                  {
-                                    objOfAnnualPmScheduleApproval?.mtdHod
-                                      ?.mtdHodId?.tm_name
-                                  }
-                                  <br />
-                                  Status:{" "}
-                                  {
-                                    objOfAnnualPmScheduleApproval?.mtdHod
-                                      ?.mtdHodApprovalStatus
-                                  }
-                                </div>
-                              </td>
+                          //     <td className={"td-padding"}>
+                          //       <div className="p-1 d-flex justify-content-center align-items-center">
+                          //         {
+                          //           objOfAnnualPmScheduleApproval?.mtdHod
+                          //             ?.mtdHodId?.tm_name
+                          //         }
+                          //         <br />
+                          //         Status:{" "}
+                          //         {
+                          //           objOfAnnualPmScheduleApproval?.mtdHod
+                          //             ?.mtdHodApprovalStatus
+                          //         }
+                          //       </div>
+                          //     </td>
 
-                              <td className={"td-padding"}>
-                                <div className="p-1 d-flex justify-content-center align-items-center">
-                                  {
-                                    objOfAnnualPmScheduleApproval?.mtdHos
-                                      ?.mtdHosId?.tm_name
-                                  }
-                                  <br />
-                                  Status:{" "}
-                                  {
-                                    objOfAnnualPmScheduleApproval?.mtdHos
-                                      ?.mtdHosApprovalStatus
-                                  }
-                                </div>
-                              </td>
+                          //     <td className={"td-padding"}>
+                          //       <div className="p-1 d-flex justify-content-center align-items-center">
+                          //         {
+                          //           objOfAnnualPmScheduleApproval?.mtdHos
+                          //             ?.mtdHosId?.tm_name
+                          //         }
+                          //         <br />
+                          //         Status:{" "}
+                          //         {
+                          //           objOfAnnualPmScheduleApproval?.mtdHos
+                          //             ?.mtdHosApprovalStatus
+                          //         }
+                          //       </div>
+                          //     </td>
 
-                              <td className={"td-padding"}>
-                                <div className="p-1 d-flex justify-content-center align-items-center">
-                                  {
-                                    objOfAnnualPmScheduleApproval?.mtdTlId
-                                      ?.tm_name
-                                  }
-                                </div>
-                              </td>
-                            </tr>
-                          )
+                          //     <td className={"td-padding"}>
+                          //       <div className="p-1 d-flex justify-content-center align-items-center">
+                          //         {
+                          //           objOfAnnualPmScheduleApproval?.mtdTlId
+                          //             ?.tm_name
+                          //         }
+                          //       </div>
+                          //     </td>
+                          //   </tr>
+                          // )
                         ) : context?.tm_department === "MTD" &&
                           context?.user_type === "TL/HOSS" ? (
                           selectedYear === currentYear ? (

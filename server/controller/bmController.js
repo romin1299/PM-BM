@@ -529,6 +529,7 @@ router.post(
             //   : getRequestSheetData?.requestSheetStatus,
             actionTemporaryOrNot:
               requestSheetDataFilledByMTDUser?.actionTemporaryOrNot,
+            IsYokotenkai: requestSheetDataFilledByMTDUser?.IsYokotenkai,
             dataSheetOfRequestSheet:
               requestSheetDataFilledByMTDUser?.dataSheetOfRequestSheet,
             attachedDataSheets: dataSheet?.attachedDataSheets?.[0]?.filename,
@@ -620,8 +621,9 @@ router.post(
               index++
             ) {
               if (
-                requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index]
-                  ?.cmBasicDataFilledByMTD_TL?.id
+                requestSheetDataFilledByMTDUser?.dataOfTheCM?.[
+                  index
+                ]?.cmBasicDataFilledByMTD_TL?.id?.toString()
               ) {
                 let machineDataUseInCretionOfCM =
                   await findMachineDataWithParentHierarchy(
@@ -862,12 +864,19 @@ const findRequestSheetMiddleware = async (req, res, next) => {
     // const total = await RequestSheetOfBM.countDocuments();
 
     const requestSheetData = await RequestSheetOfBM.aggregate([
-      ...req.queryPipeline,
+      ...req?.queryPipeline,
       {
         $lookup: {
           from: "machinesalldatas",
           localField: "machineRef",
           foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                checkSheet_data: 0,
+              },
+            },
+          ],
           as: "machines",
         },
       },
@@ -946,6 +955,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           requestSheetNoOfBM: 1,
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
           line: { $arrayElemAt: ["$lines.line_name", 0] },
+          machines: 1,
           machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
           machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
@@ -956,6 +966,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
               timezone: "Asia/Kolkata",
             },
           },
+          firstTimeOrRepeat: "$maintenanceReportFilledByMTD.firstTimeOrRepeat",
           maintenanceType: 1,
           requestSheetStatus: 1,
           handOverTime: {
@@ -1715,7 +1726,6 @@ router.get(
   async (req, res, next) => {
     try {
       delete req.queryObj.maintenanceType;
-
       if (
         req.query?.selectedMaintenanceType &&
         req.query?.selectedMaintenanceType !== "undefined"
@@ -3707,6 +3717,13 @@ const getRequestSheetData = async (req, res, next) => {
           localField: "machineRef",
           foreignField: "_id",
           as: "machines",
+          pipeline: [
+            {
+              $project: {
+                checkSheet_data: 0,
+              },
+            },
+          ],
         },
       },
       {
@@ -4345,6 +4362,7 @@ const getRequestSheetData = async (req, res, next) => {
           getDataForApprovalDashboard: 1,
 
           actionTemporaryOrNot: 1,
+          IsYokotenkai: 1,
           dataSheetOfRequestSheet: 1,
           drawingOfRequestSheet: 1,
           supportingTM: 1,
@@ -11864,9 +11882,9 @@ router.get(
           groupId: "$preAggregationTimeStampOfRequestSheet.requestSheet_year",
         },
         queryObj = {
-          machineRef: mongoose.Types.ObjectId(req.params.machineId),
+          machineRef: mongoose.Types.ObjectId(req?.params?.machineId),
           "preAggregationTimeStampOfRequestSheet.requestSheet_year":
-            req.query?.selectedYear,
+            req?.query?.selectedYear,
           "maintenanceReportFilledByMTD.breakDownTime": {
             $gt: 0,
           },

@@ -11,7 +11,8 @@ const quarterlyDataAdd = (
   frequencyValue,
   assignUserForCM,
   frequencyType,
-  targetDateOfCM
+  targetDateOfCM,
+  activityEndDateOfCM
 ) => {
   const generalDateFormat = (propDate = new Date()) =>
     moment(propDate).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
@@ -144,6 +145,15 @@ const quarterlyDataAdd = (
             requestSheet_quarter: quarter,
             statusOfPlannedCM: "Planned",
             ...assignUserOnlyForFirstQuarterWhileGenerate,
+            activityEndDateOfCM: activityEndDateOfCM
+              ? generalDateFormat(
+                  moment(
+                    generalDateFormat(
+                      modifiedPlannedDateAndTimeOfCM || targetDateOfCM
+                    )
+                  ).add(activityEndDateOfCM, "days")
+                )
+              : targetDateOfCM,
           });
 
           // if (frequencyValue === "1/6 M") {
@@ -171,7 +181,7 @@ exports.newRequestSheetDataStore = async (
   requestSheetDataFilledByMTDUserForCM,
   plantToMachineHierarchyRef,
   rootUser,
-  attachedFilesByMTDUser
+  attachedFilesByMTDUser = []
 ) => {
   try {
     const generalDateFormat = (propDate = new Date()) =>
@@ -216,9 +226,10 @@ exports.newRequestSheetDataStore = async (
       assignUserForCM || [],
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
         ?.frequencyType,
-      requestSheetDataFilledByMTDUserForCM?.targetDateOfCM
+      requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+        ?.activityEndDateOfCM
     );
-
     // requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
     //   generalDateFormat(
     //     requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM
@@ -231,7 +242,7 @@ exports.newRequestSheetDataStore = async (
           plannedDateAndTimeOfCM: generalDateFormat(new Date()),
           attachedFilesByMTDUser: attachedFilesByMTDUser?.map(
             (value) => value?.filename
-          )
+          ),
         },
       };
     }
@@ -241,8 +252,10 @@ exports.newRequestSheetDataStore = async (
       ..._idObject,
       plantToMachineHierarchyRef,
       requestSheetCreatedBy: rootUser,
-      shiftOfCM: shiftOfCMFromBM,
-      ...requestSheetDataFilledByMTDUserForCM,
+      cmBasicDataFilledByMTD_TL:
+        requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL,
+      shiftOfCM:
+        shiftOfCMFromBM || requestSheetDataFilledByMTDUserForCM?.shiftOfBM,
       commonDataFilledByAssignUser,
       requestSheetOfBMRef: requestSheetIdOfBM,
     });

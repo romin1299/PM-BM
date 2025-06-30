@@ -366,7 +366,7 @@ const CheckSheetEditAfterApproval = ({
         enforceFocus={false}
         scrollable={true}
       >
-        <Modal.Header>
+        <Modal.Header className="d-flex justify-content-between">
           <Modal.Title id="contained-modal-title-vcenter">
             Check-Sheet Edit After Approval
           </Modal.Title>

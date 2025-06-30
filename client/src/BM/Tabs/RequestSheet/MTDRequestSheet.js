@@ -375,6 +375,18 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
+      if (!watch("IsYokotenkai")) {
+        setError(
+          "IsYokotenkai",
+          {
+            message: "This field is required !",
+          },
+          { shouldFocus: true }
+        );
+        flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
+      }
+
       // if (
       //   !watch("preventive_corrective_maintenance") &&
       //   timeDifferenceMinutes > 120
@@ -390,17 +402,17 @@ function MyTable({
       //   // console.log(flagCountForHandlingError);
       // }
 
-      if (!watch("yokotenkai") && timeDifferenceMinutes > 120) {
-        setError(
-          "yokotenkai",
-          {
-            message: "This field is required !",
-          },
-          { shouldFocus: true }
-        );
-        flagCountForHandlingError++;
-        // console.log(flagCountForHandlingError);
-      }
+      // if (!watch("yokotenkai") && timeDifferenceMinutes > 120) {
+      //   setError(
+      //     "yokotenkai",
+      //     {
+      //       message: "This field is required !",
+      //     },
+      //     { shouldFocus: true }
+      //   );
+      //   flagCountForHandlingError++;
+      //   // console.log(flagCountForHandlingError);
+      // }
 
       if (problems?.length === 0) {
         setError(
@@ -834,6 +846,8 @@ function MyTable({
         "actionTemporaryOrNot",
         requestSheetDataOfBM?.actionTemporaryOrNot
       );
+
+      setValue("IsYokotenkai", requestSheetDataOfBM?.IsYokotenkai);
 
       requestSheetDataOfBM?.categoriesOfRequestSheet?.map((obj) => {
         setValue(`categories.${obj?.category}`, obj?.subCategory);
@@ -2671,8 +2685,8 @@ function MyTable({
             </tr>
 
             <tr className="row m-0">
-              <td className="col-sm-12 col-md-12">
-                <Row className="m-0 col-sm-12 col-md-6">
+              <td className="col-sm-12 col-md-6">
+                <Row className="m-0 col-sm-12 col-md-12">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>Is Action Temporary?</b>&nbsp;&nbsp;&nbsp;
@@ -2728,15 +2742,73 @@ function MyTable({
                   </Col>
                 </Row>
               </td>
+              <td className="col-sm-12 col-md-6">
+                <Row className="m-0 col-sm-12 col-md-12">
+                  <Col className="border p-2">
+                    <small className="mb-0 d-flex align-items-center justify-content-start">
+                      <b>Is YOKOTENKAI required?</b>&nbsp;&nbsp;&nbsp;
+                    </small>
+                  </Col>
+                  <Col className="border p-2 d-flex align-items-center">
+                    <Form>
+                      <div className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="IsYokotenkai"
+                          type="radio"
+                          value="Yes"
+                          id="IsYokotenkai"
+                          // onChange={handleactionTemporaryOrNot}
+                          {...register("IsYokotenkai", {
+                            // required: "This field is required",
+                          })}
+                          onChange={(e) => {
+                            setValue("IsYokotenkai", e.target.value, {
+                              shouldDirty: true,
+                            });
+                            clearErrors("IsYokotenkai");
+                          }}
+                        />{" "}
+                        &nbsp;&nbsp;
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="IsYokotenkai"
+                          type="radio"
+                          value="No"
+                          id="IsYokotenkai"
+                          // onChange={handleactionTemporaryOrNot}
+                          {...register("IsYokotenkai", {
+                            // required: "This field is required",
+                          })}
+                          onChange={(e) => {
+                            setValue("IsYokotenkai", e.target.value, {
+                              shouldDirty: true,
+                            });
+                            clearErrors("IsYokotenkai");
+                          }}
+                        />
+                      </div>
+                      {errors?.["IsYokotenkai"] && (
+                        <p className="text-error">
+                          {errors?.["IsYokotenkai"]?.message}
+                        </p>
+                      )}
+                    </Form>
+                  </Col>
+                </Row>
+              </td>
             </tr>
-            {watch("actionTemporaryOrNot") === "Yes" && (
+            {(watch("actionTemporaryOrNot") === "Yes" ||
+              watch("IsYokotenkai") === "Yes") && (
               <tr>
                 <td className="col-lg-12 col-md-12 col-sm-12">
                   <Row className="m-0">
                     <Col className="border col-lg-12 col-md-12 col-sm-12">
                       <small>
                         {" "}
-                        <b>YOKOTENKAI</b>
+                        <b>Permanent Countermeasure/YOKOTENKAI</b>
                       </small>
                       <BMReflectionYokotenkai
                         dataOfTheCM={dataOfTheCM}
@@ -2744,12 +2816,14 @@ function MyTable({
                         setActions={setActions}
                         clearErrors={clearErrors}
                         isEditable={true}
+                        lineId={requestSheetDataOfBM?.lineRef?._id}
+                        machineId={requestSheetDataOfBM?.machineRef?._id}
                       />
-                      {errors?.["yokotenkai"] && (
+                      {/* {errors?.["yokotenkai"] && (
                         <p className="text-error">
                           {errors?.["yokotenkai"]?.message}
                         </p>
-                      )}
+                      )} */}
                     </Col>
                   </Row>
                 </td>

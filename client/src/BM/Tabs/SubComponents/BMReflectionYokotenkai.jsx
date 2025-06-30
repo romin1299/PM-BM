@@ -31,6 +31,8 @@ const BMReflectionYokotenkai = ({
   isEditable,
   clearErrors,
   setValue,
+  lineId,
+  machineId
 }) => {
   // console.clear();
 
@@ -907,7 +909,20 @@ const BMReflectionYokotenkai = ({
           <Col lg={4}>
             <button
               class="bg-warning text-white border-0"
-              onClick={() => setIsAdding(true)}
+              onClick={() => {
+                setIsAdding(true);
+                setNewDataOfCM({
+                  ...newDataOfCM,
+                  cmBasicDataFilledByMTD_TL: {
+                    ...newDataOfCM?.cmBasicDataFilledByMTD_TL,
+                    lineId,
+                    machineId
+                  },
+                });
+              }}
+              style={{
+                display: isEditable ? "block" : "none",
+              }}
             >
               Add CM Data
             </button>

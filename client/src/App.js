@@ -88,7 +88,7 @@ import PM from "./static/Icons/PM_history_4.png";
 import BM from "./static/Icons/BM_History_1.png";
 import CM from "./static/Icons/CM.png";
 import MTD_KPI from "./static/Icons/MTD_KPI.png";
-import ACTIVITY_Cal from './static/Icons/ACTIVITY_CAL.png'
+import ACTIVITY_Cal from "./static/Icons/ACTIVITY_CAL.png";
 import CM_Routes from "./CM/CM_Routes";
 import ActivityRoutes from "./CM/Pages/ActivityCalendar/ActivityRoutes";
 import { clearLocalStorage } from "./BM/Component/GlobalDataDisplayOrHandle";
@@ -111,7 +111,7 @@ function App() {
     navigate(k);
     localStorage.setItem("activeKey", k);
     setActiveKey(k);
-    clearLocalStorage()
+    clearLocalStorage();
   };
 
   useEffect(() => {
@@ -229,14 +229,6 @@ function App() {
           <KPI_Routes commonRoutes={commonRoutes} loggedUser={loggedUser} />
         ),
       },
-      {
-        name: "ACTIVITY CALENDAR",
-        keyUrl: "activityCal",
-        icon: ACTIVITY_Cal,
-        dashboardAndRoutes: (
-          <ActivityRoutes commonRoutes={commonRoutes} loggedUser={loggedUser} />
-        ),
-      },
     ];
   }
 
@@ -260,6 +252,14 @@ function App() {
       dashboardAndRoutes: <CM_Routes commonRoutes={commonRoutes} />,
     },
     ...displayKPIDashboard,
+    {
+      name: "ACTIVITY CALENDAR",
+      keyUrl: "activityCal",
+      icon: ACTIVITY_Cal,
+      dashboardAndRoutes: (
+        <ActivityRoutes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+      ),
+    },
     // {
     //   name: "MTD KPI",
     //   keyUrl: "kpi",

@@ -51,6 +51,7 @@ import {
   NAME_OF_THE_COMPANY,
   LIST_OF_COMPANY,
 } from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import AllTheRequestSheetOfBMatOnePlacePlantWise from "./RequestSheet/AllTheRequestSheetOfBMatOnePlacePlantWise";
 
 function BM_Routes({ commonRoutes }) {
   let reportRoutes = [];
@@ -182,6 +183,10 @@ function BM_Routes({ commonRoutes }) {
           element: <ApprovalDashboardOfRequestSheet />,
         },
         {
+          path: "/bm/allRequestSheetOfBM",
+          element: <AllTheRequestSheetOfBMatOnePlacePlantWise />,
+        },
+        {
           path: "/bm/requestSheetMonitoring",
           element: <RequestSheetMonitoring />,
         },
@@ -240,6 +245,10 @@ function BM_Routes({ commonRoutes }) {
         {
           path: "/bm/requestSheetMonitoring",
           element: <RequestSheetMonitoring />,
+        },
+        {
+          path: "/bm/allRequestSheetOfBM",
+          element: <AllTheRequestSheetOfBMatOnePlacePlantWise />,
         },
         {
           path: "/bm",
@@ -312,6 +321,10 @@ function BM_Routes({ commonRoutes }) {
         {
           path: "/bm/generateRequestSheetMainDashboard",
           element: <GenerateRequestSheetMainDashboard />,
+        },
+        {
+          path: "/bm/allRequestSheetOfBM",
+          element: <AllTheRequestSheetOfBMatOnePlacePlantWise />,
         },
         {
           path: "/bm/request-sheet/:generateType/:machine_code/:selectedYear",
@@ -422,7 +435,7 @@ function BM_Routes({ commonRoutes }) {
     context?.user_type,
     context?.tm_department
   );
-  console.log("this is rfgr",filteredRoutes)
+
   return (
     <CommonRoutesContainer
       routes={filteredRoutes?.routes}

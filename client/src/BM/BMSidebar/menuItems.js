@@ -98,6 +98,12 @@ const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
 // }
 
 export const menuItems = [
+    {
+    title: "Plant Breakdown Status",
+    icon: <FactCheckIcon className="text-white" />,
+    route: "/bm/allRequestSheetOfBM",
+    allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
+  },
   {
     title: "Dashboard",
     icon: <DashboardIcon className="text-white" />,
@@ -149,6 +155,7 @@ export const menuItems = [
   //   route: "/bm",
   //   allowedRoles: reportAccess,
   // },
+
   {
     title: "Approval Dashboard",
     icon: <FactCheckIcon className="text-white" />,

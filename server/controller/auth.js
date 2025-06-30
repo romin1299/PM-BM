@@ -13829,7 +13829,6 @@ router.post(
             },
           ]);
           if (groupData.length > 0) {
-            // console.log("---------------------------", groupData)
             sumVariableForTotalSchedule =
               sumVariableForTotalSchedule + groupData[0].total_pmSchedule;
             sumVariableForTotalCompleted =
@@ -14438,8 +14437,8 @@ router.post(
             // }
 
             let cycleValue =
-              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
-                ?.checkSheet?.[k]?.cycle === "1/1M"
+              previousYearCheckCheetDataOfPeraticularSection?.[i]
+                ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/1M"
                 ? 1
                 : previousYearCheckCheetDataOfPeraticularSection?.[i]
                     ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/2M"
@@ -14483,14 +14482,14 @@ router.post(
               Mar: ["0"],
             };
             let startMonthForCopyData =
-              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
-                ?.checkSheet?.[k]?.start_month;
+              previousYearCheckCheetDataOfPeraticularSection?.[i]
+                ?.checkSheet_data?.checkSheet?.[k]?.start_month;
             // console.log("before update ----> ", previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2)
             for (
               let l = 0;
               l < 12 / Cycle &&
-              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
-                ?.checkSheet?.[k]?.start_month < 12;
+              previousYearCheckCheetDataOfPeraticularSection?.[i]
+                ?.checkSheet_data?.checkSheet?.[k]?.start_month < 12;
               l++
             ) {
               // console.log("=====>", previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].start_month )
@@ -14524,7 +14523,8 @@ router.post(
           copyCheckSheetData = await Machine.updateOne(
             {
               machine_code:
-                previousYearCheckCheetDataOfPeraticularSection?.[i]?.machine_code,
+                previousYearCheckCheetDataOfPeraticularSection?.[i]
+                  ?.machine_code,
             },
             {
               $push: {
@@ -14538,7 +14538,8 @@ router.post(
           removeFieldsFromPreviousYear = await Machine.updateOne(
             {
               machine_code:
-                previousYearCheckCheetDataOfPeraticularSection?.[i].machine_code,
+                previousYearCheckCheetDataOfPeraticularSection?.[i]
+                  .machine_code,
             },
             {
               $unset: {
@@ -20535,7 +20536,7 @@ router.post("/approveRequestForAnnualPmSchedule", async (req, res) => {
         },
       },
       {
-        arrayFilters: [{ "outer.current_year": currentYear }],
+        arrayFilters: [{ "outer.current_year": req?.query?.selectedYear }],
       }
     );
 
@@ -22809,7 +22810,6 @@ router.post(
           `implementation_assign_${userDepAndType}_tm_no`,
         ];
 
-        
         const updateFieldForEmptyOrSomeFieldsContainOfApprover = async (
           keyForAddEmptyArrayofMonthsOfImplementationApprovalFields,
           updateFieldWithAllMonthOrSix
@@ -22870,7 +22870,7 @@ router.post(
 
                 Mar: [],
               });
-        
+
           let keyForAddEmptyArrayofMonthsOfImplementationApprovalFields;
           if (
             machineCheckSheetData?.[0]?.checkSheet_data?.[

@@ -139,6 +139,7 @@ function MainRequestSheetForView({
                 approvalListOfBM={approvalListOfBM}
                 requestSheetDataOfBM={requestSheetDataOfBM}
                 supportingTMList={supportingTMList}
+                selectedYear={selectedYear}
               />
             </div>
           </div>

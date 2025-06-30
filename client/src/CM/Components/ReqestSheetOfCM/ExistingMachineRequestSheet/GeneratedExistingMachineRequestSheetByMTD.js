@@ -472,11 +472,12 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                       <Col lg={7}>
                         <div className="d-block align-items-center">
                           {" "}
-                          <input
-                            type="text"
+                          <textarea
+                            rows={2}
+                            cols={60}
                             id="cmBasicDataFilledByMTD_TL.activityOfCM"
                             className="m-1 mb-2"
-                            style={{ width: "350px" }}
+                            // style={{ width: "350px" }}
                             {...register(
                               "cmBasicDataFilledByMTD_TL.activityOfCM",
                               {
@@ -780,13 +781,12 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                     )}
 
                     <Row className="m-0 border d-flex align-items-center">
-                      <Col lg={5}>
+                      <Col sm={6}>
                         <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                           <b>Target Date: </b>
                         </p>
                       </Col>
-
-                      <Col lg={7}>
+                      <Col sm={6}>
                         <div className="d-block align-items-center">
                           {" "}
                           <input
@@ -808,9 +808,45 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                           </p>
                         )}
                       </Col>
+
+                      <Col sm={6}>
+                        <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
+                          <b>Activity End Date: </b>
+                        </p>
+                      </Col>
+                      <Col sm={6}>
+                        <div>
+                          {" "}
+                          <input
+                            id="activityEndDateOfCM"
+                            type="number"
+                            className="m-1 mb-2"
+                            name="cmBasicDataFilledByMTD_TL.activityEndDateOfCM"
+                            style={{
+                              fontSize: "15px",
+                            }}
+                            {...register(
+                              "cmBasicDataFilledByMTD_TL.activityEndDateOfCM",
+                              {
+                                required:
+                                  "Please enter in how many days you complete the activity.",
+                              }
+                            )}
+                          />
+                        </div>
+                        {errors?.cmBasicDataFilledByMTD_TL
+                          ?.activityEndDateOfCM && (
+                          <p className="text-error">
+                            {
+                              errors?.cmBasicDataFilledByMTD_TL
+                                ?.activityEndDateOfCM?.message
+                            }
+                          </p>
+                        )}
+                      </Col>
                     </Row>
                     <Row className="m-0 border d-flex align-items-center justify-content-start">
-                      <Col lg={5}>
+                      <Col sm={5}>
                         <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                           <b>Part Required: </b>
                         </p>
@@ -859,43 +895,164 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                       </Col>
                     </Row>
                     {watch("partRequiredByMTDTL") === "Yes" && (
-                      <Row className="m-0 border d-flex align-items-center">
-                        <Col lg={5}>
-                          <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                            <b>Part Suggestion: </b>
-                          </p>
-                        </Col>
-
-                        <Col lg={7}>
-                          <div className="d-block align-items-center">
-                            {" "}
-                            <input
-                              type="text"
-                              id="partSuggestionByMTDTL"
-                              className="m-1 mb-2"
-                              {...register(
-                                "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
-
-                                {
-                                  required:
-                                    watch("partRequiredByMTDTL") === "Yes"
-                                      ? "Please enter part name"
-                                      : false,
-                                }
-                              )}
-                            />
-                          </div>
-                          {errors?.cmBasicDataFilledByMTD_TL
-                            ?.partSuggestionByMTDTL && (
-                            <p className="text-error">
-                              {
-                                errors?.cmBasicDataFilledByMTD_TL
-                                  ?.partSuggestionByMTDTL?.message
-                              }
+                      <>
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Part Suggestion: </b>
                             </p>
-                          )}
-                        </Col>
-                      </Row>
+                          </Col>
+
+                          <Col lg={7}>
+                            <div className="d-block align-items-center">
+                              {" "}
+                              <input
+                                type="text"
+                                id="partSuggestionByMTDTL"
+                                className="m-1 mb-2"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL",
+
+                                  {
+                                    required:
+                                      watch("partRequiredByMTDTL") === "Yes"
+                                        ? "Please enter part name"
+                                        : false,
+                                  }
+                                )}
+                              />
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.partSuggestionByMTDTL && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.partSuggestionByMTDTL?.message
+                                }
+                              </p>
+                            )}
+                          </Col>
+                        </Row>
+
+                        <Row className="m-0 border d-flex align-items-center justify-content-start">
+                          <Col sm={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Part Available: </b>
+                            </p>
+                          </Col>
+
+                          <Col lg={7} className="d-flex align-items-center">
+                            <Col>
+                              {" "}
+                              <input
+                                type="radio"
+                                id="partAvailableOrNotByMTDTL"
+                                value="Yes"
+                                className="m-1 mb-2"
+                                name="cmBasicDataFilledByMTD_TL.partAvailableOrNotByMTDTL"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.partAvailableOrNotByMTDTL",
+                                  {
+                                    required:
+                                      watch("partRequiredByMTDTL") === "Yes"
+                                        ? "Please select"
+                                        : false,
+                                  }
+                                )}
+                                onInput={() => {
+                                  clearErrors(
+                                    "cmBasicDataFilledByMTD_TL.partAvailableOrNotByMTDTL"
+                                  );
+                                }}
+                              />
+                              <label>Yes</label>
+                            </Col>
+                            <Col>
+                              {" "}
+                              <input
+                                type="radio"
+                                id="partAvailableOrNotByMTDTL"
+                                value="No"
+                                className="m-1 mb-2"
+                                name="cmBasicDataFilledByMTD_TL.partAvailableOrNotByMTDTL"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.partAvailableOrNotByMTDTL",
+                                  {
+                                    required:
+                                      watch("partRequiredByMTDTL") === "Yes"
+                                        ? "Please select"
+                                        : false,
+                                  }
+                                )}
+                                onInput={() => {
+                                  clearErrors(
+                                    "cmBasicDataFilledByMTD_TL.partAvailableOrNotByMTDTL"
+                                  );
+                                }}
+                              />
+                              <label>No</label>
+                            </Col>
+                            <br />
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.partAvailableOrNotByMTDTL && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.partAvailableOrNotByMTDTL?.message
+                                }
+                              </p>
+                            )}
+                          </Col>
+                        </Row>
+
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={5}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Part Cost: </b>
+                            </p>
+                          </Col>
+
+                          <Col lg={7}>
+                            <div className="d-block align-items-center">
+                              {" "}
+                              <input
+                                type="number"
+                                id="partSuggestionCostByMTDTL"
+                                className="m-1 mb-2"
+                                {...register(
+                                  "cmBasicDataFilledByMTD_TL.partSuggestionCostByMTDTL",
+
+                                  {
+                                    required:
+                                      watch("partAvailableOrNotByMTDTL") ===
+                                      "Yes"
+                                        ? "Please enter cost"
+                                        : false,
+                                  }
+                                )}
+                              />
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.partSuggestionCostByMTDTL && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.partSuggestionCostByMTDTL?.message
+                                }
+                              </p>
+                            )}
+                          </Col>
+                        </Row>
+                      </>
                     )}
                   </td>
 

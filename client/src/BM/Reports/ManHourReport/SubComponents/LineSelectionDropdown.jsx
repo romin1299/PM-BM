@@ -74,7 +74,9 @@ export default function LineSelectionDropdown({
   selectedMonth,
   RSStatusArray,
   maintenanceTypeArrayForFilter,
-
+  CM_Category,
+  CM_CategoryFiltration,
+  selectedCategoryType = "",
   reducerDispatch,
   baseUrlForFiltering,
   monthFiltration,
@@ -344,7 +346,7 @@ export default function LineSelectionDropdown({
         machines,
         message,
         selectedMonth: defaultSelectedMonth,
-        isReset
+        isReset,
       });
     }
   };
@@ -807,6 +809,52 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item,
                   selectedMaintenanceType,
+                  "for-array-value"
+                )}
+              >
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
+      <FormControl size="small">
+        {CM_CategoryFiltration && (
+          <Select
+            displayEmpty
+            value={selectedCategoryType}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_CM_CATEGORY,
+                isWithLocalStorageForFiltration,
+                selectedCategoryType: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "CM Categories";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {CM_Category?.map((item) => (
+              <MenuItem
+                key={item}
+                value={item}
+                style={getStyleForSelectedValue(
+                  item,
+                  selectedCategoryType,
                   "for-array-value"
                 )}
               >

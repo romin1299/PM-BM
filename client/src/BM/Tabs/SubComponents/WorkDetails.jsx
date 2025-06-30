@@ -67,10 +67,15 @@ const WorkDetails = ({
 
   const addWorkDetail = () => {
     if (new Date(newWork?.fromDate) > new Date(newWork?.toDate)) {
-      setDateError("From date cannot be later than To date");
+      setDateError("From date cannot be less than To date");
       return;
     }
-    if (newWork?.work?.trim() !== "") {
+    if (
+      newWork?.work?.trim() !== "" &&
+      // selectedSupportingTM?.length > 0 &&
+      newWork?.fromDate !== "" &&
+      newWork?.toDate !== ""
+    ) {
       const newWorkDetail = {
         ...newWork,
         user: selectedSupportingTM,
@@ -91,7 +96,7 @@ const WorkDetails = ({
             "minutes"
           ) /
             60) *
-            selectedSupportingTM?.length
+            (selectedSupportingTM?.length >= 1 || 1)
       );
 
       setSelectedSupportingTM([]);
@@ -102,7 +107,6 @@ const WorkDetails = ({
       setDateError("Please enter all the fields");
     }
   };
-
   const cancelEdit = () => {
     setEditedWork(null);
     setSelectedSupportingTM([]);
@@ -132,7 +136,7 @@ const WorkDetails = ({
           "minutes"
         ) /
           60) *
-        finalWork?.user?.length;
+        (finalWork?.user?.length >= 1 || 1);
 
       return finalWork;
     });
@@ -161,7 +165,8 @@ const WorkDetails = ({
     setWorkTotalTime(
       (workTotalTime) =>
         workTotalTime -
-        (moment(toDate).diff(moment(fromDate), "minutes") / 60) * user?.length
+        (moment(toDate).diff(moment(fromDate), "minutes") / 60) *
+          (user?.length >= 1 || 1)
     );
 
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");

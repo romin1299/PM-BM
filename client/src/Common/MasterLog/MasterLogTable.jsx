@@ -32,11 +32,13 @@ const MasterLogTable = ({
   const initialState = {
     requestSheetModalOpenClose: false,
     noLossBMEntryModalOpenClose: false,
+    noLossBMEntryModalDeleteOpenClose: false,
   };
 
   const ACTION = {
     OPEN_CLOSE_RS: "request-sheet-open-close",
     OPEN_CLOSE_NO_LOSS_BD: "no-loss-bd-open-close",
+    OPEN_CLOSE_NO_LOSS_BD_DELETE: "no-loss-bd-open-close-delete",
   };
 
   const reducer = (state, action) => {
@@ -49,6 +51,12 @@ const MasterLogTable = ({
       return {
         ...state,
         noLossBMEntryModalOpenClose: !state?.noLossBMEntryModalOpenClose,
+      };
+    } else if (action?.type === ACTION?.OPEN_CLOSE_NO_LOSS_BD_DELETE) {
+      return {
+        ...state,
+        noLossBMEntryModalDeleteOpenClose:
+          !state?.noLossBMEntryModalDeleteOpenClose,
       };
     } else {
       return state;
@@ -72,6 +80,10 @@ const MasterLogTable = ({
 
   const handleNoLossBMEntryShowAndCloseState = () => {
     handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_NO_LOSS_BD });
+  };
+
+  const handleNoLossBMEntryDeleteShowAndCloseState = () => {
+    handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_NO_LOSS_BD_DELETE });
   };
 
   const getMasterLog = async () => {
@@ -416,8 +428,7 @@ const MasterLogTable = ({
 
       filterMode: "tree",
       filterSearch: true,
-      onFilter: (value, record) =>
-        record?.firstTimeOrRepeat?.startsWith(value),
+      onFilter: (value, record) => record?.firstTimeOrRepeat?.startsWith(value),
     },
     {
       title: "Done By",
@@ -652,6 +663,10 @@ const MasterLogTable = ({
               modelProp={{
                 show: handleAllModals?.noLossBMEntryModalOpenClose,
                 onHide: () => handleNoLossBMEntryShowAndCloseState(),
+              }}
+              modelPropForDelete={{
+                show: handleAllModals?.noLossBMEntryModalDeleteOpenClose,
+                onHide: () => handleNoLossBMEntryDeleteShowAndCloseState(),
               }}
               supportingTMList={supportingTMList}
               plantCategories={plantCategories}
