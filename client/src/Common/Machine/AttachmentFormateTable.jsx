@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import FileDownload from "js-file-download";
@@ -22,6 +22,7 @@ import {
 } from "../../BM/Utils/TableUtils/MaterialTableProps";
 import { MachineNameTypography } from "./MachineDocument";
 import { BASE_URL } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import RoutingContext from "../../context/routing/RoutingContext";
 const pageInfo = {
   // "bm-history": {
   //   name: "BM History",
@@ -85,6 +86,8 @@ const pageInfo = {
 const AttachmentFormateTable = () => {
   const [attachmentDetails, setAttachmentDetails] = useState([]);
   let { page, machine_code } = useParams();
+
+  const context = useContext(RoutingContext);
 
   const { state } = useLocation();
   const machineName = state?.selectedMachineDetails?.machine_name;
@@ -258,6 +261,8 @@ const AttachmentFormateTable = () => {
           columns={columns}
           data={attachmentDetails}
           editable={{
+            isDeleteHidden: () => context?.tm_no === Number("9999"),
+
             onRowDelete: (selectedRow) =>
               new Promise((resolve, reject) => {
                 handleDeleteAttachment(selectedRow);

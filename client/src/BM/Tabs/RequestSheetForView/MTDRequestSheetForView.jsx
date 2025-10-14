@@ -17,6 +17,7 @@ function MTDRequestSheetForView({
   requestSheetDataOfBM,
   supportingTMList,
   selectedYear,
+  currentCount
 }) {
   const loggedUserDetails = useContext(RoutingContext);
 
@@ -213,6 +214,7 @@ function MTDRequestSheetForView({
 
   const getAllCMSheetData = async () => {
     try {
+      setDataOfTheCM([])
       const response = await axios.get(
         `/getAllCmReqSheet/based-on-requestSheetIdOfBM/${requestSheetDataOfBM?._id}/?selectedYear=${selectedYear}`
       );
@@ -223,10 +225,10 @@ function MTDRequestSheetForView({
   };
 
   useEffect(() => {
-    if (requestSheetDataOfBM?._id) {
+    if (requestSheetDataOfBM?._id || currentCount) {
       getAllCMSheetData();
     }
-  }, [requestSheetDataOfBM?._id]);
+  }, [requestSheetDataOfBM?._id, currentCount]);
 
   return (
     <form className="">
@@ -1644,74 +1646,79 @@ function MTDRequestSheetForView({
               </div>
             </td>
             <td className="col-lg-6 col-md-12 col-sm-12">
-              <Row className="m-0">
-                <Col className="border col-lg-12 col-md-12 col-sm-12">
-                  <small>
-                    <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
-                  </small>
-                  <br />
-                  <textarea
-                    disabled
-                    rows={2}
-                    type="text"
-                    id="preventive_corrective_maintenance"
-                    name="preventive_corrective_maintenance"
-                    style={{ width: "100%" }}
-                    {...register("preventive_corrective_maintenance", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue(
-                        "preventive_corrective_maintenance",
-                        e.target.value,
-                        { shouldDirty: true }
-                      );
-                      clearErrors("preventive_corrective_maintenance");
-                    }}
-                  />
-                  {errors?.["preventive_corrective_maintenance"] && (
-                    <p className="text-error">
-                      {errors?.["preventive_corrective_maintenance"]?.message}
-                    </p>
-                  )}
-                </Col>
-              </Row>
+              {watch("preventive_corrective_maintenance") && (
+                <Row className="m-0">
+                  <Col className="border col-lg-12 col-md-12 col-sm-12">
+                    <small>
+                      <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
+                    </small>
+                    <br />
+                    <textarea
+                      disabled
+                      rows={2}
+                      type="text"
+                      id="preventive_corrective_maintenance"
+                      name="preventive_corrective_maintenance"
+                      style={{ width: "100%" }}
+                      {...register("preventive_corrective_maintenance", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue(
+                          "preventive_corrective_maintenance",
+                          e.target.value,
+                          { shouldDirty: true }
+                        );
+                        clearErrors("preventive_corrective_maintenance");
+                      }}
+                    />
+                    {errors?.["preventive_corrective_maintenance"] && (
+                      <p className="text-error">
+                        {errors?.["preventive_corrective_maintenance"]?.message}
+                      </p>
+                    )}
+                  </Col>
+                </Row>
+              )}
 
               {/* <Row className="m-0 p-1 border">
                 <AddBoxIcon onClick={() => {}} />
               </Row> */}
-              <Row className="m-0">
-                <Col className="border col-lg-12 col-md-12 col-sm-12">
-                  <small>
-                    {" "}
-                    <b>YOKOTENKAI</b>
-                  </small>
 
-                  <br />
-                  <textarea
-                    disabled
-                    rows={2}
-                    type="text"
-                    id="yokotenkai"
-                    name="yokotenkai"
-                    style={{ width: "100%" }}
-                    {...register("yokotenkai", {
-                      // required: "This field is required",
-                    })}
-                    onChange={(e) => {
-                      setValue("yokotenkai", e.target.value, {
-                        shouldDirty: true,
-                      });
-                      clearErrors("yokotenkai");
-                    }}
-                  />
-                  {errors?.["yokotenkai"] && (
-                    <p className="text-error">
-                      {errors?.["yokotenkai"]?.message}
-                    </p>
-                  )}
-                </Col>
-              </Row>
+              {watch("yokotenkai") && (
+                <Row className="m-0">
+                  <Col className="border col-lg-12 col-md-12 col-sm-12">
+                    <small>
+                      {" "}
+                      <b>YOKOTENKAI</b>
+                    </small>
+
+                    <br />
+                    <textarea
+                      disabled
+                      rows={2}
+                      type="text"
+                      id="yokotenkai"
+                      name="yokotenkai"
+                      style={{ width: "100%" }}
+                      {...register("yokotenkai", {
+                        // required: "This field is required",
+                      })}
+                      onChange={(e) => {
+                        setValue("yokotenkai", e.target.value, {
+                          shouldDirty: true,
+                        });
+                        clearErrors("yokotenkai");
+                      }}
+                    />
+                    {errors?.["yokotenkai"] && (
+                      <p className="text-error">
+                        {errors?.["yokotenkai"]?.message}
+                      </p>
+                    )}
+                  </Col>
+                </Row>
+              )}
 
               <div className="mtd-parts-section">
                 <Row className="m-0 d-flex">

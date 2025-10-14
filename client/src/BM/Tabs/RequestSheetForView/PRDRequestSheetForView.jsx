@@ -25,6 +25,8 @@ function MyTable({
   machineStatus,
   machine_code,
   selectedYear,
+  previousAndNextRequestSheetOfTheBM,
+  currentCount,
 }) {
   const [problemModeCardModal, setProblemModeCardModal] = useState(false);
   const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
@@ -96,7 +98,7 @@ function MyTable({
 
   return (
     <>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       {problemModeCardModal && (
         <ProblemModeHistory
           machineId={machineId}
@@ -117,7 +119,9 @@ function MyTable({
           machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
           setSafetyFormModalOpen={setSafetyFormModalOpen}
           safetyFormModalOpen={safetyFormModalOpen}
-          machineSafetyCheckedByMTD ={requestSheetDataOfBM?.machineSafetyCheckedByMTD}
+          machineSafetyCheckedByMTD={
+            requestSheetDataOfBM?.machineSafetyCheckedByMTD
+          }
         />
       )}
       <form>
@@ -214,6 +218,27 @@ function MyTable({
                       >
                         <HealthAndSafetyIcon /> &nbsp;Safety Form
                       </button>
+                      <button
+                        className="btn bg-button"
+                        type="button"
+                        onClick={() =>
+                          previousAndNextRequestSheetOfTheBM("previous")
+                        }
+                        disabled={currentCount >= "total" - 1}
+                      >
+                        &lt;
+                      </button>
+                      &nbsp;
+                      <button
+                        className="btn bg-button"
+                        type="button"
+                        onClick={() =>
+                          previousAndNextRequestSheetOfTheBM("next")
+                        }
+                        disabled={currentCount <= 0}
+                      >
+                        &gt;
+                      </button>
                     </Col>
 
                     <Col className="d-flex align-items-center justify-content-center text-center">
@@ -250,7 +275,7 @@ function MyTable({
                   <b>MAINT. TYPE</b>
                 </small>
                 <div className="value">
-                  {requestSheetDataOfBM.maintenanceType}
+                  {requestSheetDataOfBM?.maintenanceType}
                 </div>
               </td>
 
@@ -258,7 +283,7 @@ function MyTable({
                 <small>
                   <b>PRIORITY CODE</b>
                 </small>
-                <div className="value">{requestSheetDataOfBM.priorityCode}</div>
+                <div className="value">{requestSheetDataOfBM?.priorityCode}</div>
               </td>
 
               <td className="mb-0 border col-12 col-md-6">

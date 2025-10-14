@@ -55,14 +55,6 @@ const CM_KPI = () => {
 
   return (
     <Container fluid>
-      <div>
-        <input
-          type="file"
-          accept=".xlsx"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
-        <button onClick={handleUpload}>Upload & Add QR</button>
-      </div>
       <Box>
         <ReportTitleBar
           title="CM KPI"

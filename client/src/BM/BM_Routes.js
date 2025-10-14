@@ -218,6 +218,10 @@ function BM_Routes({ commonRoutes }) {
           path: "/bm/noLossDataOfBD",
           element: <NoLossBDEntryForm />,
         },
+        {
+          path: "/bm/generateRequestSheetMainDashboard",
+          element: <GenerateRequestSheetMainDashboard />,
+        },
 
         ...reportRoutes,
       ],
@@ -249,6 +253,10 @@ function BM_Routes({ commonRoutes }) {
         {
           path: "/bm/allRequestSheetOfBM",
           element: <AllTheRequestSheetOfBMatOnePlacePlantWise />,
+        },
+        {
+          path: "/bm/generateRequestSheetMainDashboard",
+          element: <GenerateRequestSheetMainDashboard />,
         },
         {
           path: "/bm",

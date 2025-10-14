@@ -56,6 +56,7 @@ const MachineAgeReport = () => {
               setGetDataForOtherComponentBasedOnMachineAgeGroupChange={
                 setGetDataForOtherComponentBasedOnMachineAgeGroupChange
               }
+              notEditable={loggedUserDetails?.tm_no === Number("9999")}
             />
           </Col>
           <Col xxl={6} lg={6} md={12} className="mb-2">

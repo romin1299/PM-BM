@@ -99,6 +99,9 @@ export default function LineSelectionDropdown({
   isWithLocalStorageForFiltration,
   selectedLineOrNot = "",
   defaultSelectedMonth = "",
+  currentStatusOfRSFiltration,
+  currentStatusOfRequestSheet,
+  selectedCurrentStatusOfRS = "",
 }) {
   const context = useContext(RoutingContext);
 
@@ -820,6 +823,52 @@ export default function LineSelectionDropdown({
       </FormControl>
 
       <FormControl size="small">
+        {currentStatusOfRSFiltration && (
+          <Select
+            displayEmpty
+            value={selectedCurrentStatusOfRS}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_CURRENT_RS_STATUS,
+                isWithLocalStorageForFiltration,
+                selectedCurrentStatusOfRS: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "Current RS Status";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {currentStatusOfRequestSheet?.map((item) => (
+              <MenuItem
+                key={item?.title}
+                value={item?.title}
+                style={getStyleForSelectedValue(
+                  item?.title,
+                  selectedCurrentStatusOfRS,
+                  "for-array-value"
+                )}
+              >
+                {item?.title}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
+      <FormControl size="small">
         {CM_CategoryFiltration && (
           <Select
             displayEmpty
@@ -850,15 +899,15 @@ export default function LineSelectionDropdown({
           >
             {CM_Category?.map((item) => (
               <MenuItem
-                key={item}
-                value={item}
+                key={item?.title}
+                value={item?.title}
                 style={getStyleForSelectedValue(
-                  item,
+                  item?.title,
                   selectedCategoryType,
                   "for-array-value"
                 )}
               >
-                {item}
+                {item?.title}
               </MenuItem>
             ))}
           </Select>

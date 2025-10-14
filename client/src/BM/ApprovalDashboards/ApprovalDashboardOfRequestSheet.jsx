@@ -121,6 +121,7 @@ const ApprovalDashboardOfRequestSheet = () => {
       icon: () => <DescriptionIcon className="text-primary" />,
       tooltip: "Update Action",
       position: "row",
+      hidden: loggedUserDetails?.tm_no === "9999",
       // disabled:
       //   row?.assignUserId === context?._id &&
       //   (row?.work_order_status === "Pending" ||
@@ -246,7 +247,7 @@ const ApprovalDashboardOfRequestSheet = () => {
               }
               options={{
                 ...MaterialTableOptions,
-                pageSize: 5,
+                pageSize: 50,
                 exportMenu: [
                   {
                     label: "Export PDF",

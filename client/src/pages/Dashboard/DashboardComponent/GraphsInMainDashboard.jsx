@@ -180,28 +180,28 @@ const GraphsInMainDashboard = ({
     {
       name: "Pending(Previous Month)",
       // colorClass: "table-danger",
-      value: currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending,
+      value: currentMonthGraphAndTableData?.total_previous_pending,
     },
     {
       name: "Completed",
       bgColor: "table-success",
       // colorClass: "#789c50",
-      value: currentMonthGraphAndTableData?.sumVariableForTotalCompleted,
+      value: currentMonthGraphAndTableData?.total_completed,
     },
     {
       name: "Ongoing",
       bgColor: "table-warning",
       // colorClass: "#ddb14d",
-      value: currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
+      value: currentMonthGraphAndTableData?.total_ongoing,
     },
     {
       name: "Remaining(Current Month)",
       // colorClass: "table-danger",
       value:
-        currentMonthGraphAndTableData?.sumVariableForTotalSchedule +
-        currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending -
-        currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
-        currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
+        currentMonthGraphAndTableData?.total_pmSchedule +
+        currentMonthGraphAndTableData?.total_previous_pending -
+        currentMonthGraphAndTableData?.total_completed -
+        currentMonthGraphAndTableData?.total_ongoing,
     },
   ];
 
@@ -210,22 +210,22 @@ const GraphsInMainDashboard = ({
       name: "Completed",
       bgColor: "table-success",
       // colorClass: "#789c50",
-      value: currentMonthGraphAndTableData?.sumVariableForTotalCompleted,
+      value: currentMonthGraphAndTableData?.total_completed,
     },
     {
       name: "Ongoing",
       bgColor: "table-warning",
       // colorClass: "#ddb14d",
-      value: currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
+      value: currentMonthGraphAndTableData?.total_ongoing,
     },
     {
       name: "Pending",
       // colorClass: "table-danger",
       value:
-        currentMonthGraphAndTableData?.sumVariableForTotalSchedule +
-        currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending -
-        currentMonthGraphAndTableData?.sumVariableForTotalCompleted -
-        currentMonthGraphAndTableData?.sumVariableForTotalOngoing,
+        currentMonthGraphAndTableData?.total_pmSchedule +
+        currentMonthGraphAndTableData?.total_previous_pending -
+        currentMonthGraphAndTableData?.total_completed -
+        currentMonthGraphAndTableData?.total_ongoing,
     },
   ];
 
@@ -233,7 +233,7 @@ const GraphsInMainDashboard = ({
     name: "Planned",
     bgColor: "table-primary",
     // colorClass: "#5bc0de",
-    value: currentMonthGraphAndTableData?.sumVariableForTotalSchedule,
+    value: currentMonthGraphAndTableData?.total_pmSchedule,
   };
   return (
     <div className="mx-2 mt-2">
@@ -248,8 +248,8 @@ const GraphsInMainDashboard = ({
           <Row>
             <Col className="d-flex justify-content-center align-items-center">
               <div style={{ width: "14rem" }}>
-                {currentMonthGraphAndTableData?.sumVariableForTotalSchedule ||
-                currentMonthGraphAndTableData?.sumVariableForTotalPreviousPending ? (
+                {currentMonthGraphAndTableData?.total_pmSchedule ||
+                currentMonthGraphAndTableData?.total_previous_pending ? (
                   <CurrentMonthStatusGraph TableData={TableDataOfCharts} />
                 ) : (
                   // <div className="p-3">{loadingAnimation}</div>

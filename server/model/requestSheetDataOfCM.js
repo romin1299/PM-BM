@@ -197,7 +197,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
 
           requestSheetStatusOfCM: {
             type: String,
-            default: "Generated",
           },
         },
       ],

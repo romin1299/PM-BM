@@ -6,13 +6,15 @@ const { globalReqSheetNo } = require("./globalReqSheetNo");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
+const mongoose = require("mongoose");
 
 const quarterlyDataAdd = (
   frequencyValue,
   assignUserForCM,
   frequencyType,
   targetDateOfCM,
-  activityEndDateOfCM
+  activityEndDateOfCM,
+  requestSheetStatusOfCM
 ) => {
   const generalDateFormat = (propDate = new Date()) =>
     moment(propDate).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
@@ -145,6 +147,7 @@ const quarterlyDataAdd = (
             requestSheet_quarter: quarter,
             statusOfPlannedCM: "Planned",
             ...assignUserOnlyForFirstQuarterWhileGenerate,
+            requestSheetStatusOfCM,
             activityEndDateOfCM: activityEndDateOfCM
               ? generalDateFormat(
                   moment(
@@ -187,6 +190,8 @@ exports.newRequestSheetDataStore = async (
     const generalDateFormat = (propDate = new Date()) =>
       moment(propDate).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
 
+    console.log(requestSheetDataFilledByMTDUserForCM);
+
     let _idObject = {},
       machineIdToPlantId = machineDataUseInCretionOfCM;
 
@@ -228,7 +233,8 @@ exports.newRequestSheetDataStore = async (
         ?.frequencyType,
       requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-        ?.activityEndDateOfCM
+        ?.activityEndDateOfCM,
+      requestSheetIdOfBM ? "Generated" : "Assigned"
     );
     // requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
     //   generalDateFormat(
@@ -247,19 +253,60 @@ exports.newRequestSheetDataStore = async (
       };
     }
 
-    let requestSheetOfCM = new RequestSheetOfCM({
-      requestSheetNoOfCM,
-      ..._idObject,
-      plantToMachineHierarchyRef,
-      requestSheetCreatedBy: rootUser,
-      cmBasicDataFilledByMTD_TL:
-        requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL,
-      shiftOfCM:
-        shiftOfCMFromBM || requestSheetDataFilledByMTDUserForCM?.shiftOfBM,
-      commonDataFilledByAssignUser,
-      requestSheetOfBMRef: requestSheetIdOfBM,
-    });
-    return await requestSheetOfCM.save();
+    if (
+      requestSheetDataFilledByMTDUserForCM?._id !== "" &&
+      requestSheetDataFilledByMTDUserForCM?._id !== undefined
+    ) {
+      const updateTheAlredygeneratedRequestSheetOfCM =
+        await RequestSheetOfCM?.findOneAndUpdate(
+          {
+            _id: mongoose?.Types?.ObjectId(
+              requestSheetDataFilledByMTDUserForCM?._id
+            ),
+          },
+          {
+            $set: {
+              ..._idObject,
+              plantToMachineHierarchyRef,
+              requestSheetCreatedBy: rootUser,
+              cmBasicDataFilledByMTD_TL:
+                requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL,
+              commonDataFilledByAssignUser,
+            },
+          },
+          { new: true }
+        );
+
+      return updateTheAlredygeneratedRequestSheetOfCM;
+    } else {
+      delete requestSheetDataFilledByMTDUserForCM?._id;
+      // console.log(
+      //   "Inside else---------",
+      //   requestSheetNoOfCM,
+      //   _idObject,
+      //   plantToMachineHierarchyRef,
+      //   requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL,
+      //   requestSheetDataFilledByMTDUserForCM?.shiftOfBM || shiftOfCMFromBM,
+      //   commonDataFilledByAssignUser,
+      //   requestSheetIdOfBM,
+      //   { ...requestSheetDataFilledByMTDUserForCM }
+      // );
+      let requestSheetOfCM = new RequestSheetOfCM({
+        requestSheetNoOfCM,
+        ..._idObject,
+        plantToMachineHierarchyRef,
+        requestSheetCreatedBy: rootUser,
+        cmBasicDataFilledByMTD_TL:
+          requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL,
+        shiftOfCM:
+          requestSheetDataFilledByMTDUserForCM?.shiftOfBM || shiftOfCMFromBM,
+        commonDataFilledByAssignUser,
+        requestSheetOfBMRef: requestSheetIdOfBM,
+        ...requestSheetDataFilledByMTDUserForCM,
+      });
+
+      return await requestSheetOfCM.save();
+    }
   } catch (error) {
     console.error();
   }

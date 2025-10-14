@@ -183,11 +183,12 @@ const ViewNoLossBDEntryForm = ({
               </Col>
               <Col className="d-flex justify-content-end">
                 <Tooltip title="Delete Other Loss Request-sheet">
-                  <DeleteIcon
+                  <button className="btn btn-warning" onClick={modelPropForDelete?.onHide}>Delete</button>
+                  {/* <DeleteIcon
                     className="text-danger"
                     role="button"
                     onClick={modelPropForDelete?.onHide}
-                  />
+                  /> */}
                 </Tooltip>
               </Col>
             </Row>
@@ -681,7 +682,7 @@ const ViewNoLossBDEntryForm = ({
 
           <Modal {...modelPropForDelete} centered>
             <Modal.Header closeButton>
-              <Modal.Title>Modal heading</Modal.Title>
+              <Modal.Title>Delete No Loss BD</Modal.Title>
             </Modal.Header>
             <Modal.Body>Are you want to delete the No Loss BD ?</Modal.Body>
             <Modal.Footer>

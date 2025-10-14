@@ -9,7 +9,7 @@ import { Box } from "@mui/system";
 import { Divider, Typography } from "@mui/material";
 import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 
-const RequestSheetCustomizedApproval = () => {
+const RequestSheetCustomizedApproval = ({notEditable}) => {
   const {
     register,
     handleSubmit,
@@ -100,6 +100,7 @@ const RequestSheetCustomizedApproval = () => {
                         {...register("minorApprovalList", {
                           required: "Please select approval list",
                         })}
+                        disabled={notEditable}
                       />{" "}
                       &nbsp;
                       <label>{obj?.value}</label> <br />
@@ -128,6 +129,7 @@ const RequestSheetCustomizedApproval = () => {
                         {...register("majorApprovalList", {
                           required: "Please select approval list",
                         })}
+                        disabled={notEditable}
                       />{" "}
                       &nbsp;
                       <label>{obj?.value}</label> <br />
@@ -145,7 +147,7 @@ const RequestSheetCustomizedApproval = () => {
             className="m-2"
             sx={{ display: "flex", justifyContent: "center" }}
           >
-            <button type="submit" className="btn bg-succ ">
+            <button type="submit" className="btn bg-succ " disabled={notEditable}>
               Submit Approval List
             </button>
           </Box>

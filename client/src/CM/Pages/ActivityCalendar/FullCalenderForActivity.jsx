@@ -17,7 +17,11 @@ const FullCalenderForActivity = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const calendarRef = useRef(null);
   const [allEvents, setAllEvents] = useState([]);
-  const [calendarView, setCalendarView] = useState("");
+  const [calendarView, setCalendarView] = useState({
+    view: "",
+    start: "",
+    end: "",
+  });
 
   const defaultState = {
     cmReqSheetView: false,
@@ -52,96 +56,119 @@ const FullCalenderForActivity = () => {
 
   const getReqSheetDataForCalendar = async () => {
     try {
-      setAllEvents([]);
+      const fromDate = moment(calendarView?.start).format("YYYY-MM-DD");
+      const toDate = moment(calendarView?.end).format("YYYY-MM-DD");
+
+      console.log(calendarView?.end, toDate);
       const response = await axios.get(
-        `/getReqSheetDataForCalendar/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&calendarViewType=${calendarView}`,
+        `/getReqSheetDataForCalendar/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&calendarViewType=${calendarView?.view}&&fromDate=${fromDate}&toDate=${toDate}`,
         {
           withCredentials: true,
           credentials: "include",
         }
       );
       if (response.status === 200) {
-        // const events = response.data.reqSheetDataForCalendar?.map((event) => ({
-        //   start: moment(event.start).format("YYYY-MM-DD"),
-        //   end: moment(event.end).format("YYYY-MM-DD"),
-        //   title: event.title,
-        //   id: event._id,
-        //   textColor: "black",
-        //   backgroundColor: "#76ced1",
-        //   borderColor: "#9176d1",
-        // }));
         setAllEvents(response.data.reqSheetDataForCalendar);
+      } else {
+        setAllEvents([]);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  // const handleDatesSet = (arg) => {
-  //   const currentDate = arg.view.currentStart;
-  //   const month = moment(currentDate).month();
-  //   const year = moment(currentDate).year();
-  //   getReqSheetDataForCalendar(month, year);
-  // };
-
   useEffect(() => {
-    if (reduceState?.selectedValue) {
-      const calendarApi = calendarRef.current?.getApi();
+    const calendarApi = calendarRef.current?.getApi();
 
-      let dateToGo;
-      if (
-        (calendarApi ||
-          reduceState?.selectedMonth ||
-          reduceState?.selectedYear) &&
-        calendarView === "dayGridMonth"
-      ) {
-        const monthIndex = monthKeyArray.indexOf(reduceState.selectedMonth);
+    let dateToGo;
+    if (
+      (calendarApi ||
+        reduceState?.selectedMonth ||
+        reduceState?.selectedYear) &&
+      calendarView?.view === "dayGridMonth"
+    ) {
+      const monthIndex = monthKeyArray.indexOf(reduceState.selectedMonth);
 
-        if (monthIndex === -1) {
-          console.error("Invalid month selected:", reduceState.selectedMonth);
-          return;
-        }
-
-        // Financial year logic: Apr–Mar
-        const adjustedYear =
-          monthIndex >= 0 && monthIndex <= 2 // Jan, Feb, Mar
-            ? parseInt(reduceState.selectedYear) + 1
-            : reduceState.selectedYear;
-
-        dateToGo = moment({
-          year: adjustedYear,
-          month: monthIndex,
-        }).toDate();
-
-        calendarApi.setOption("height", 600);
-        calendarApi.gotoDate(dateToGo);
-      } else if (calendarView === "multiMonthYear") {
-        dateToGo = moment({
-          year: reduceState.selectedYear,
-          month: 0, // January
-          day: 1,
-        }).toDate();
-        calendarApi.gotoDate(dateToGo);
-        calendarApi.setOption("height", 1000);
-      } else if (
-        calendarView === "dayGridWeek" ||
-        calendarView === "dayGridDay"
-      ) {
-        dateToGo = new Date();
-        calendarApi.gotoDate(dateToGo);
-        calendarApi.setOption("height", 550);
+      if (monthIndex === -1) {
+        console.error("Invalid month selected:", reduceState.selectedMonth);
+        return;
       }
-      getReqSheetDataForCalendar();
+
+      // Financial year logic: Apr–Mar
+      const adjustedYear =
+        monthIndex >= 0 && monthIndex <= 2 // Jan, Feb, Mar
+          ? parseInt(reduceState.selectedYear) + 1
+          : reduceState.selectedYear;
+
+      dateToGo = moment({
+        year: adjustedYear,
+        month: monthIndex,
+      }).toDate();
+      calendarApi.setOption("height", 600);
+      calendarApi.gotoDate(dateToGo);
+    } else if (calendarView?.view === "multiMonthYear") {
+      dateToGo = moment({
+        year: reduceState.selectedYear,
+        month: 0, // January
+        day: 1,
+      }).toDate();
+      calendarApi.gotoDate(dateToGo);
+      calendarApi.setOption("height", 1000);
+    } else if (
+      calendarView?.view === "dayGridWeek" ||
+      calendarView?.view === "dayGridDay"
+    ) {
+      dateToGo = new Date();
+      calendarApi.gotoDate(dateToGo);
+      calendarApi.setOption("height", 550);
+    }
+
+    //for apply next and previous button for the month, week, day
+    if (
+      calendarApi.view.type === "dayGridWeek" ||
+      calendarApi.view.type === "dayGridDay" ||
+      calendarApi.view.type === "dayGridMonth"
+    ) {
+      calendarApi.setOption("headerToolbar", {
+        left: "prev,next title",
+        right: "today,multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
+      });
+    } else {
+      calendarApi.setOption("headerToolbar", {
+        left: "title",
+        right: "multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
+      });
     }
   }, [
-    reduceState?.selectedValue,
-    reduceState?.selectedYear,
+    calendarView?.view,
     reduceState?.selectedMonth,
-    calendarView,
+    reduceState?.selectedYear,
   ]);
 
+  useEffect(() => {
+    if (
+      calendarView?.view &&
+      calendarView?.start &&
+      calendarView?.end &&
+      reduceState?.selectedValue
+    ) {
+      getReqSheetDataForCalendar();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    calendarView?.start,
+    calendarView?.end,
+    calendarView?.view,
+    reduceState?.selectedValue,
+  ]);
+
+  // 1️⃣ Handle view change from FullCalendar
   const handleViewChange = (arg) => {
-    setCalendarView(arg.view.type);
+    setCalendarView({
+      view: arg.view.type,
+      start: arg.start,
+      end: arg.end,
+    });
   };
 
   const handlePopupStatus = () =>
@@ -239,7 +266,7 @@ const FullCalenderForActivity = () => {
             multiMonthMaxColumns={3}
             buttonText={{ month: "Month", year: "Year" }}
             headerToolbar={{
-              right: "multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
+              right: "today multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
               left: "title",
               // center: "legendBM,legendCM",
             }}
@@ -249,6 +276,12 @@ const FullCalenderForActivity = () => {
             ref={calendarRef}
             events={allEvents}
             views={{
+              dayGridWeek: {
+                headerToolbar: {
+                  left: "prev,next today title", // only for dayGridWeek
+                  right: "multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
+                },
+              },
               dayGridMonth: {
                 dayMaxEventRows: 3,
               },

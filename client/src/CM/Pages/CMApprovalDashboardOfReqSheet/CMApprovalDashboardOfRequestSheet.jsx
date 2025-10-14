@@ -19,6 +19,7 @@ import tableIcons from "../../../components/MatrialTableIcon";
 
 import axios from "axios";
 import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import MonthlyGeneratedAndCompletedCount from "../../../BM/RequestSheetMonitoring/MonthlyGeneratedAndCompletedCount";
 
 const CMApprovalDashboardOfRequestSheet = () => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
@@ -32,6 +33,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
     cmReqSheetView: false,
     isEditable: false,
     selectedRowRequestSheetId: "",
+    targetDateOfCM: "",
   };
 
   const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
@@ -54,9 +56,24 @@ const CMApprovalDashboardOfRequestSheet = () => {
           isEditable: true,
           cmReqSheetView: true,
           selectedRowRequestSheetId: selectedRow?._id,
+          targetDateOfCM: selectedRow?.targetDateOfCM,
         });
       },
     }),
+  ];
+  const allMonths = [
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
   ];
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
     useState([]);
@@ -156,17 +173,26 @@ const CMApprovalDashboardOfRequestSheet = () => {
               baseUrlForFiltering={baseUrlForFiltering}
               reduceState={reduceState}
               reducerDispatch={reducerDispatch}
-              monthFiltration
+              // monthFiltration
               yearFiltration
               sectionFiltration
               subSectionFiltration
               cellFiltration
               lineFiltration
               resetButtonFiltration
+              // quarterFiltration
               isWithLocalStorageForFiltration="Yes"
             />
           }
         />
+        <Row className="mt-3 gap-2 g-0">
+          <MonthlyGeneratedAndCompletedCount
+            selectedValue={reduceState?.selectedValue}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedYear={reduceState?.selectedYear}
+            allMonths={allMonths}
+          />
+        </Row>
         <Row>
           <Col>
             <MaterialTable
@@ -198,7 +224,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
               }
               options={{
                 ...MaterialTableOptions,
-                pageSize: 5,
+                pageSize: 50,
                 exportMenu: [
                   {
                     label: "Export PDF",
@@ -236,6 +262,7 @@ const CMApprovalDashboardOfRequestSheet = () => {
           handlePopupStatus={handlePopupStatus}
           selectedYear={reduceState?.selectedYear}
           {...selectedCMRequestSheetPopupData}
+          quarterOfSelectedRq={reduceState?.selectedQuarter}
         />
       )}
     </>

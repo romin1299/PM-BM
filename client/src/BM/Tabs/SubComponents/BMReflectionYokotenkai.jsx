@@ -6,6 +6,7 @@ import {
   CATEGORIES_OF_CM,
   FREQUENCY_OF_CM,
 } from "../../../CM/GlobalDataAccess/GlobalData";
+import { ToastContainer, toast } from "react-toastify";
 
 const initialState = {
   cmBasicDataFilledByMTD_TL: {
@@ -21,6 +22,7 @@ const initialState = {
     other_categories: "",
     attachedFilesByMTDUser: "",
   },
+  _id: "",
   targetDateOfCM: "",
 };
 
@@ -32,7 +34,7 @@ const BMReflectionYokotenkai = ({
   clearErrors,
   setValue,
   lineId,
-  machineId
+  machineId,
 }) => {
   // console.clear();
 
@@ -46,12 +48,14 @@ const BMReflectionYokotenkai = ({
   const addData = (event) => {
     event.preventDefault();
     if (
-      newDataOfCM?.cmBasicDataFilledByMTD_TL?.lineId &&
-      newDataOfCM?.cmBasicDataFilledByMTD_TL?.machineId &&
-      newDataOfCM?.cmBasicDataFilledByMTD_TL?.activityOfCM &&
-      newDataOfCM?.cmBasicDataFilledByMTD_TL?.frequencyType &&
-      newDataOfCM?.cmBasicDataFilledByMTD_TL?.categories &&
-      newDataOfCM?.targetDateOfCM
+      (newDataOfCM?.cmBasicDataFilledByMTD_TL?.lineId &&
+        newDataOfCM?.cmBasicDataFilledByMTD_TL?.machineId &&
+        newDataOfCM?.cmBasicDataFilledByMTD_TL?.activityOfCM &&
+        newDataOfCM?.cmBasicDataFilledByMTD_TL?.frequencyType &&
+        newDataOfCM?.cmBasicDataFilledByMTD_TL?.categories &&
+        newDataOfCM?.targetDateOfCM) ||
+      (newDataOfCM?.cmBasicDataFilledByMTD_TL?.categories === "Others" &&
+        newDataOfCM?.cmBasicDataFilledByMTD_TL?.other_categories !== "")
     ) {
       // Assign a new id by incrementing the maximum id
       newDataOfCM.cmBasicDataFilledByMTD_TL.id = dataOfTheCM?.length;
@@ -126,8 +130,47 @@ const BMReflectionYokotenkai = ({
     setIsAdding(false);
   };
 
-  const deleteData = (event, CMdataID) => {
+  const notifyForDeleteChecksheet = () => {
+    toast.success("CM CheckSheet deleted successfully", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
+  const deleteRequestSheetOfCM = async (requestSheetIdOfCM) => {
+    try {
+      const res = await fetch(`/deleteRequestSheetOfCM/${requestSheetIdOfCM}`, {
+        method: "DELETE",
+      });
+      if (res?.status === 201) {
+        notifyForDeleteChecksheet();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteData = async (event, CMdataID) => {
     event.preventDefault();
+
+    const target = dataOfTheCM.find(
+      (data, index) => (data?.id || index) === CMdataID
+    );
+
+    if (target?._id) {
+      try {
+        await deleteRequestSheetOfCM(target._id);
+        console.log("Deleted from DB:", target._id);
+      } catch (err) {
+        console.error("Error deleting request sheet:", err);
+      }
+    }
 
     const updatedDataOfCM = dataOfTheCM.filter(
       (data, index) => (data?.id || index) !== CMdataID
@@ -578,7 +621,7 @@ const BMReflectionYokotenkai = ({
                           typeof file === "string" ? file : file.name;
                         const href =
                           typeof file === "string"
-                            ? `${process.env.REACT_APP_BASE_URL}${file}`
+                            ? `${process.env.REACT_APP_BASE_URL}/${file}`
                             : URL.createObjectURL(file); // Preview for uploaded file
 
                         return (
@@ -607,35 +650,35 @@ const BMReflectionYokotenkai = ({
             </Col>
 
             <Col sm={1} className="d-flex border col-auto gap-1 p-1 flex-wrap">
-              {!data?._id && (
-                <>
-                  <button
-                    class="bg-warning text-white border-0"
-                    style={{
-                      display: isEditable ? "block" : "none",
-                    }}
-                    onClick={(event) => {
-                      editData(event, {
-                        ...data,
-                        id: index,
-                      });
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="bg-danger text-white border-0"
-                    style={{
-                      display: isEditable ? "block" : "none",
-                    }}
-                    onClick={(event) => {
-                      deleteData(event, index);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </>
-              )}
+              {/* {!data?._id && ( */}
+              <>
+                <button
+                  class="bg-warning text-white border-0"
+                  style={{
+                    display: isEditable ? "block" : "none",
+                  }}
+                  onClick={(event) => {
+                    editData(event, {
+                      ...data,
+                      id: index,
+                    });
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  class="bg-danger text-white border-0"
+                  style={{
+                    display: isEditable ? "block" : "none",
+                  }}
+                  onClick={(event) => {
+                    deleteData(event, index);
+                  }}
+                >
+                  Delete
+                </button>
+              </>
+              {/* )} */}
             </Col>
           </Row>
         )
@@ -916,7 +959,7 @@ const BMReflectionYokotenkai = ({
                   cmBasicDataFilledByMTD_TL: {
                     ...newDataOfCM?.cmBasicDataFilledByMTD_TL,
                     lineId,
-                    machineId
+                    machineId,
                   },
                 });
               }}

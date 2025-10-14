@@ -82,3 +82,27 @@
     color: BLACK;
     text-decoration-line: none;
 }
+
+.fc-popover .fc-daygrid-event {
+  display: block !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1 !important;
+  padding: 4px 6px !important;
+  margin-bottom: 4px;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.fc-header-toolbar {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fc-toolbar-chunk {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+}

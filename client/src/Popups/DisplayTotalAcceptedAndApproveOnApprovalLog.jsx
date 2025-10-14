@@ -23,7 +23,7 @@ const DisplayTotalAcceptedAndApproveOnApprovalLog = ({
             <tr style={{ background: "#0fa3b1" }}>
               <th>User Type</th>
               <th>TM Name</th>
-              <th style={{ textAlign: "center" }}>Approved / Total Approval</th>
+              <th style={{ textAlign: "center" }}>Approved / Pending</th>
             </tr>
           </thead>
           <tbody>

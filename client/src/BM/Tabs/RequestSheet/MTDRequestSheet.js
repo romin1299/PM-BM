@@ -1266,9 +1266,7 @@ function MyTable({
                           className="widthwhy"
                           id="feedbackMTD_HOS"
                           name="feedbackMTD_HOS"
-                          // {...register("feedbackMTD_HOS", {
-                          //   required: "This field is required",
-                          // })}
+                          {...register("feedbackMTD_HOS")}
                           onChange={(e) => {
                             setValue("feedbackMTD_HOS", e.target.value, {
                               shouldDirty: true,
@@ -2392,7 +2390,7 @@ function MyTable({
                           <Button
                             target="_blank"
                             // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                            href={`${process.env.REACT_APP_BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
+                            href={`${process.env.REACT_APP_BASE_URL}/${requestSheetDataOfBM?.attachedDataSheets}`}
                             disableElevation
                             size="small"
                             variant="contained"
@@ -2491,7 +2489,7 @@ function MyTable({
                               <a
                                 target="_blank"
                                 // href={`http://localhost:7000/${image}`}
-                                href={`${process.env.REACT_APP_BASE_URL}${image}`}
+                                href={`${process.env.REACT_APP_BASE_URL}/${image}`}
                                 style={{
                                   width: "100%",
                                   display: "flex",

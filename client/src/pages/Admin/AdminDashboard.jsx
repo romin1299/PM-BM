@@ -37,7 +37,6 @@ function AdminDashboard() {
       render: (rowData) => `${rowData.tableData.id + 1}`,
       align: "center",
       width: "6%",
-
     },
     {
       title: "TM No.",
@@ -172,7 +171,19 @@ function AdminDashboard() {
     const doc = new jsPDF();
     let rows = [];
     tableData?.map((item, idx) => {
-      let rowArrayOfTable = [++idx, item.tm_no, item.tm_name, item.email, item.plant_data, item.user_type, item.tm_grade, item.tm_department, item.joining_date, item.contact_no, item.address];
+      let rowArrayOfTable = [
+        ++idx,
+        item.tm_no,
+        item.tm_name,
+        item.email,
+        item.plant_data,
+        item.user_type,
+        item.tm_grade,
+        item.tm_department,
+        item.joining_date,
+        item.contact_no,
+        item.address,
+      ];
       rows.push(rowArrayOfTable);
     });
     doc.text(`User Data`, 15, 10);
@@ -205,12 +216,11 @@ function AdminDashboard() {
     },
     {
       // icon: () => <button className="addbutton">Add</button>,
-      icon: () =>
-        
-          <button className="btn-warning" style={{ marginRight: "-1px " }}>
-            Email Configuration
-          </button>,
-        
+      icon: () => (
+        <button className="btn-warning" style={{ marginRight: "-1px " }}>
+          Email Configuration
+        </button>
+      ),
 
       // tooltip: "Add User",
       isFreeAction: true,

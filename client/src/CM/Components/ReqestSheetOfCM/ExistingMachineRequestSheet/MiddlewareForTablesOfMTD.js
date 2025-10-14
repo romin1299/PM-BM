@@ -55,7 +55,7 @@ const MiddlewareForTablesOfMTD = ({
         </Col>
       </Row>
       <Row className="d-flex align-items-center">
-        <Col sm={12}>
+        <Col sm={12} className="m-1">
           <Row className="">
             <PartListMiddleware
               setValue={setValue}
@@ -77,7 +77,7 @@ const MiddlewareForTablesOfMTD = ({
             />
           </Row>
         </Col> */}
-        <Col sm={12}>
+        <Col sm={12} className="m-1">
           <Row className="">
             <WorkDetailsMiddleware
               setValue={setValue}
@@ -118,7 +118,7 @@ const MiddlewareForTablesOfMTD = ({
                     <td>
                       <Button
                         target="_blank"
-                        href={`${process.env.REACT_APP_BASE_URL}${value}`}
+                        href={`${process.env.REACT_APP_BASE_URL}/${value}`}
                         disableElevation
                         size="small"
                         variant="contained"

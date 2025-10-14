@@ -144,7 +144,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
 
   return (
     <>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       {requestSheetDataOfBM?._id && safetyFormModalOpen && (
         <SafetyForm
           id={requestSheetDataOfBM?._id}
@@ -630,7 +630,7 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                     </select>
                   </Col> */}
 
-                      <select {...register("select_problemFaced")}>
+                      <select {...register("select_problemFaced")} className="w-50">
                         <option selected disabled value="">
                           Please select
                         </option>

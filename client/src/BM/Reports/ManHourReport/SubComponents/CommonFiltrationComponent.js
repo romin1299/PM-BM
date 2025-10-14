@@ -50,6 +50,9 @@ export const initialState = (isWithLocalStorageForFiltration) => {
       selectedMaintenanceType:
         localStorage.getItem("selectedMaintenanceType") || "",
 
+      selectedCurrentStatusOfRS:
+        localStorage.getItem("selectedCurrentStatusOfRS") || "",
+
       selectedCategoryType: localStorage.getItem("selectedCategoryType") || "",
 
       selectedQuarter: localStorage.getItem("selectedQuarter") || "",
@@ -91,6 +94,8 @@ export const initialState = (isWithLocalStorageForFiltration) => {
 
     selectedMaintenanceType: "",
 
+    selectedCurrentStatusOfRS: "",
+
     selectedCategoryType: "",
 
     selectedQuarter: "",
@@ -121,6 +126,7 @@ export const ACTION = {
   HANDLE_SELECT_YEAR: "handle-selected-year",
   HANDLE_SELECT_MONTH: "handle-selected-month",
   HANDLE_SELECT_MAINTENANCE_TYPE: "handle-selected-maintenanceType",
+  HANDLE_SELECT_CURRENT_RS_STATUS: "handle-selected-current-rs-status",
   HANDLE_SELECT_CM_CATEGORY: "handle-selected-category",
   HANDLE_SELECT_QUARTER: "handle-selected-quarter",
   HANDLE_SELECT_STATUS: "handle-selected-status",
@@ -180,6 +186,7 @@ export const reducer = (state, action) => {
           localStorage.setItem("selectedQuarter", "");
           localStorage.setItem("selectedRSStatus", "");
           localStorage.setItem("selectedMaintenanceType", "");
+          localStorage.setItem("selectedCurrentStatusOfRS", "");
           localStorage.setItem("selectedCategoryType", "");
         }
 
@@ -198,6 +205,7 @@ export const reducer = (state, action) => {
           selectedQuarter: "",
           selectedRSStatus: "",
           selectedMaintenanceType: "",
+          selectedCurrentStatusOfRS: "",
           selectedCategoryType: "",
         };
       }
@@ -558,6 +566,7 @@ export const reducer = (state, action) => {
           localStorage.removeItem("selectedMonth");
         localStorage.removeItem("selectedRSStatus");
         localStorage.removeItem("selectedMaintenanceType");
+        localStorage.removeItem("selectedCurrentStatusOfRS");
         localStorage.removeItem("selectedCategoryType");
         localStorage.removeItem("selectedQuarter");
       }
@@ -574,6 +583,7 @@ export const reducer = (state, action) => {
         selectedYear: action?.selectedYear,
         selectedRSStatus: "",
         selectedMaintenanceType: "",
+        selectedCurrentStatusOfRS: "",
         selectedCategoryType: "",
         selectedQuarter: "",
       };
@@ -628,6 +638,19 @@ export const reducer = (state, action) => {
       return {
         ...state,
         selectedMaintenanceType: action?.selectedMaintenanceType,
+      };
+
+    case ACTION?.HANDLE_SELECT_CURRENT_RS_STATUS:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem(
+          "selectedCurrentStatusOfRS",
+          action?.selectedCurrentStatusOfRS
+        );
+      }
+
+      return {
+        ...state,
+        selectedCurrentStatusOfRS: action?.selectedCurrentStatusOfRS,
       };
 
     case ACTION?.HANDLE_SELECT_CM_CATEGORY:

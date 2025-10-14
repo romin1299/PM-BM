@@ -15,6 +15,8 @@ const filterMiddleware = require("../middleware/filterMiddleware");
 const truncValue = require("../utils/truncValue");
 const logger = require("../utils/LoggingController/loggers");
 const maintenanceType = require("../utils/maintenanceType");
+const moment = require("moment");
+const { default: mongoose } = require("mongoose");
 
 router.use(cookieParser());
 router.use(authenticate);
@@ -371,11 +373,16 @@ router.get(
       //   },
     ]);
 
+    //for filter only BM data
+    if (
+      req?.queryObj?.['preAggregationTimeStampOfRequestSheet.requestSheet_month']
+    )
+      delete req?.queryObj?.commonDataFilledByAssignUser;
+    
     const bmLog = await RequestSheetOfBM.aggregate([
       {
-        $match: req.queryObj,
+        $match: req?.queryObj,
       },
-
       {
         $addFields: {
           users: {
@@ -515,7 +522,7 @@ router.get(
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     });
 
-    const values = await Promise.all([
+    let values = await Promise.all([
       bmLog,
       pmLog,
       noLossLog,
@@ -523,11 +530,44 @@ router.get(
       shifts,
     ]);
 
+    const moment = require("moment");
+
+    const dateFormats = [
+      "DD-MM-YYYY[T]HH:mm", // 01-04-2025T00:00
+      "DD-MM-YYYY [T]HH:mm", // 01-04-2025 T00:00
+      "DD-MM-YYYY HH:mm", // 01-04-2025 16:35
+      "D/M/YYYY - h:mm a", // 11/6/2025 - 4:39 am
+      "DD-MM-YYYY", // 01-04-2025
+      "D/M/YYYY", // 1/4/2025
+    ];
+
+    const normalizeDate = (input) => {
+      if (!input) return null;
+
+      const stringInput =
+        typeof input === "string" ? input.trim() : String(input);
+      const parsed = moment(stringInput, dateFormats, true);
+      return parsed.isValid() ? parsed.toISOString() : null;
+    };
+
+    const mergedData = [...values?.[0], ...values?.[1], ...values?.[2]];
+
+    const masterLogData = mergedData.map((item) => ({
+      ...item,
+      normalizedDate: normalizeDate(item.date),
+    }));
+
+    masterLogData.sort((a, b) => {
+      const dateA = a.normalizedDate ? new Date(a.normalizedDate).getTime() : 0;
+      const dateB = b.normalizedDate ? new Date(b.normalizedDate).getTime() : 0;
+      return dateB - dateA; // descending
+    });
+
     successResponse(res, "Master log get successfully", {
       getShifts: values?.[4]?.[0]?.shiftOfBM,
       categories: values?.[4]?.[0]?.categories,
       TLHOSS_and_TM_user_list: values?.[3],
-      masterLogData: [...values?.[0], ...values?.[1], ...values?.[2]],
+      masterLogData,
     });
   })
 );
@@ -1019,12 +1059,13 @@ router.get(
                   partNo: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.partNo`,
                   cost: `$checkSheet_data.checkSheet.spareDetails.${req.query.selectedMonth}.cost`,
                   doneBy: `$checkSheet_data.checkSheet.inspectionCompletionBy.${req.query.selectedMonth}`,
-                  date: {
-                    $dateFromString: {
-                      dateString: `$checkSheet_data.checkSheet.completionDateOfInspection.${req.query.selectedMonth}`,
-                      format: "%d/%m/%Y - %z",
-                    },
-                  },
+                  date: `$checkSheet_data.checkSheet.completionDateOfInspection.${req.query.selectedMonth}`,
+                  // {
+                  //   $dateFromString: {
+                  //     dateString: `$checkSheet_data.checkSheet.completionDateOfInspection.${req.query.selectedMonth}`,
+                  //     format: "%d/%m/%Y - %z",
+                  //   },
+                  // },
                 },
                 else: 0,
               },

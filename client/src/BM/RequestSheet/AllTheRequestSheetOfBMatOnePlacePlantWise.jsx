@@ -21,8 +21,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import tableIcons from "../../components/MatrialTableIcon";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
-import { cyan, deepPurple, green, indigo } from "@mui/material/colors";
+import { cyan, deepPurple, green, indigo, yellow } from "@mui/material/colors";
 import { lightBlue, lightGreen, orange, red, teal } from "@mui/material/colors";
+import CircleIcon from "@mui/icons-material/Circle";
 import {
   initialState,
   reducer,
@@ -34,6 +35,7 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
   const [selectedRow, setSelectedRow] = useState();
   const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
     useState(false);
+  const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
 
   const [betweenValue, setBetweenValue] = useState({
     greaterValue: localStorage.getItem("greaterValue"),
@@ -120,6 +122,24 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
   ];
   const maintenanceTypeArrayForFilter = ["PM", "BM", "CM", "TPM"];
 
+  const currentStatusOfRequestSheet = [
+    {
+      title: "Repair Under Progress",
+      icon: <CircleIcon sx={{ color: red[500] }} />,
+      count: reduceStateForRequestSheetData?.counters?.repairUnderProgress,
+    },
+    {
+      title: "Waiting For Spare",
+      icon: <CircleIcon sx={{ color: yellow[700] }} />,
+      count: reduceStateForRequestSheetData?.counters?.waitingForSpare,
+    },
+    {
+      title: "Machine Running",
+      icon: <CircleIcon sx={{ color: green[500] }} />,
+      count: reduceStateForRequestSheetData?.counters?.machineRunning,
+    },
+  ];
+
   const filtration = [
     <div className="d-flex">
       <Box sx={{ mx: "10px", my: "10px" }}>
@@ -139,6 +159,8 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
           maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
           maintenanceTypeFiltration
           resetButtonFiltration
+          currentStatusOfRequestSheet={currentStatusOfRequestSheet}
+          currentStatusOfRSFiltration
         />
       </Box>
 
@@ -146,10 +168,10 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
         <Tooltip title="Show/Hide Column">
           <Switch
             size="medium"
-            // checked={displayColumnOrNot}
-            // onClick={() =>
-            //   setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
-            // }
+            checked={displayColumnOrNot}
+            onClick={() =>
+              setDisplayColumnOrNot((displayColumnOrNot) => !displayColumnOrNot)
+            }
           />
         </Tooltip>
       </Box>
@@ -234,6 +256,43 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
     </div>,
   ];
 
+  let displayColumnBasedOnShowAndHide = [];
+
+  if (displayColumnOrNot)
+    displayColumnBasedOnShowAndHide = [
+      {
+        title: "Assign",
+        field: "assignUser",
+        editable: false,
+      },
+      {
+        title: "Handover To",
+        field: "handOverUser",
+        editable: false,
+      },
+      {
+        title: "Final Action",
+        field: "finalActivity",
+        editable: false,
+        width: "20%",
+      },
+      {
+        title: "H/O Time Work End", //hand-over time
+        field: "handOverTime",
+        idth: "10%",
+        headerStyle: {
+          width: 90,
+          minWidth: 90,
+        },
+      },
+      {
+        title: "First Time/ Repeat",
+        field: "firstTimeOrRepeat",
+        width: "10%",
+        editable: false,
+      },
+    ];
+
   const requestSheetHeader = [
     {
       title: "Sr. No.",
@@ -309,7 +368,33 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
       ),
       width: "15%",
     },
-    // ...displayColumnBasedOnShowAndHide,
+    ...displayColumnBasedOnShowAndHide,
+    {
+      title: "Current Status",
+      field: "currentStatusOfBD.status",
+      editable: false,
+      cellStyle: {
+        textAlign: "center",
+      },
+      render: (rowData) =>
+        rowData?.currentStatusOfBD?.status === "Repair Under Progress" ? (
+          <CircleIcon sx={{ color: red[500] }} />
+        ) : rowData?.currentStatusOfBD?.status === "Waiting For Spare" ? (
+          <CircleIcon sx={{ color: yellow[700] }} />
+        ) : rowData?.currentStatusOfBD?.status === "Machine Running" ? (
+          <CircleIcon sx={{ color: green[500] }} />
+        ) : (
+          ""
+        ),
+    },
+    {
+      title: "Estimated Time",
+      field: "currentStatusOfBD.estimatedTime",
+    },
+    {
+      title: "Reason",
+      field: "currentStatusOfBD.remarks",
+    },
     {
       title: "Loss Time",
       field: "lossTime",
@@ -374,6 +459,8 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
           reduceState?.selectedRSStatus
         }&&selectedMaintenanceType=${
           reduceState?.selectedMaintenanceType
+        }&&selectedCurrentStatusOfRS=${
+          reduceState?.selectedCurrentStatusOfRS
         }&&greaterValue=${betweenValue?.greaterValue || 1000}&&lesserValue=${
           betweenValue?.lesserValue || 0
         }`,
@@ -425,6 +512,7 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
+    reduceState?.selectedCurrentStatusOfRS,
   ]);
 
   return (
@@ -444,66 +532,100 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
             </Typography>
           </Col>
         </Row>
-        <Box display="flex" gap="16px" className="mt-3 cell p-2 overflow-auto">
-          {[
-            {
-              title: "Total Requests",
-              value:
-                reduceStateForRequestSheetData?.counters
-                  ?.total_request_sheet_count || 0,
-              backgroundColor: "#c7defb",
-            },
-            {
-              title: "Open Requests",
-              value:
-                reduceStateForRequestSheetData?.counters
-                  ?.open_request_sheet_count || 0,
-              backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
-            },
-            {
-              title: "Closed Requests",
-              value:
-                reduceStateForRequestSheetData?.counters
-                  ?.closed_request_sheet_count || 0,
-              backgroundColor: "#c6efce",
-            },
-          ].map((item) => (
-            <Box className="col-auto">
-              <Paper
-                variant="outlined"
-                sx={{
-                  backgroundColor: item.backgroundColor,
-                  // maxWidth: "100px",
-                  p: "4px",
-                  px: "10px",
-                  borderRadius: "8px",
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  component="div"
-                  textAlign="center"
-                  // width={120}
-                  fontWeight={500}
-                  // color={"#15005c"}
-                  // pt={"4px"}
-                  // mb={"2px"}
+        <Box
+          display="flex"
+          className="mt-3 cell p-2 overflow-auto justify-content-between"
+        >
+          <div className="d-flex gap-2">
+            {[
+              {
+                title: "Total Requests",
+                value:
+                  reduceStateForRequestSheetData?.counters
+                    ?.total_request_sheet_count || 0,
+                backgroundColor: "#c7defb",
+              },
+              {
+                title: "Open Requests",
+                value:
+                  reduceStateForRequestSheetData?.counters
+                    ?.open_request_sheet_count || 0,
+                backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
+              },
+              {
+                title: "Closed Requests",
+                value:
+                  reduceStateForRequestSheetData?.counters
+                    ?.closed_request_sheet_count || 0,
+                backgroundColor: "#c6efce",
+              },
+            ].map((item) => (
+              <Box className="col-auto">
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    backgroundColor: item.backgroundColor,
+                    // maxWidth: "100px",
+                    p: "4px",
+                    px: "10px",
+                    borderRadius: "8px",
+                  }}
                 >
-                  {item.title}
-                </Typography>
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    textAlign="center"
+                    // width={120}
+                    fontWeight={500}
+                    // color={"#15005c"}
+                    // pt={"4px"}
+                    // mb={"2px"}
+                  >
+                    {item.title}
+                  </Typography>
 
-                <Typography
-                  variant="h5"
-                  component="h5"
-                  textAlign="center"
-                  fontWeight={600}
-                  // pb={"4px"}
+                  <Typography
+                    variant="h5"
+                    component="h5"
+                    textAlign="center"
+                    fontWeight={600}
+                    // pb={"4px"}
+                  >
+                    {item.value}
+                  </Typography>
+                </Paper>
+              </Box>
+            ))}
+          </div>
+          <div className="d-flex gap-2 m-3">
+            {currentStatusOfRequestSheet.map((value) => (
+              <Box className="col-auto">
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: "4px",
+                    px: "10px",
+                    borderRadius: "8px",
+                  }}
                 >
-                  {item.value}
-                </Typography>
-              </Paper>
-            </Box>
-          ))}
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    textAlign="center"
+                    // width={120}
+                    fontWeight={600}
+                    // color={"#15005c"}
+                    // pt={"4px"}
+                    // mb={"2px"}
+                  >
+                    {value?.icon} &nbsp;
+                    {value.title} {" - "}
+                    {value?.count}
+                  </Typography>
+                </Paper>
+              </Box>
+            ))}
+          </div>
         </Box>
         <Box className="mt-1 cell p-0 border-0">
           <MaterialTable

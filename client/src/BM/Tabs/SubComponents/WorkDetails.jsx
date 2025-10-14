@@ -530,30 +530,34 @@ const WorkDetails = ({
           )}
         </Row>
       ) : (
-        isEditable && (
+        <>
+          {isEditable && (
+            <Row className="m-0 p-1 border">
+              <Col lg={7}>
+                <button
+                  type="button"
+                  className="bg-warning text-white border-0"
+                  onClick={() =>
+                    setNewWork({
+                      ...initialState,
+                      id: new Date(),
+                    })
+                  }
+                >
+                  Add Work Detail
+                </button>
+              </Col>
+            </Row>
+          )}
           <Row className="m-0 p-1 border">
-            <Col lg={7}>
-              <button
-                type="button"
-                className="bg-warning text-white border-0"
-                onClick={() =>
-                  setNewWork({
-                    ...initialState,
-                    id: new Date(),
-                  })
-                }
-              >
-                Add Work Detail
-              </button>
-            </Col>
-            <Col lg={2} className="border">
+            <Col lg={7} className="border">
               <b>Total time Difference</b>
             </Col>
-            <Col lg={2} className="border">
+            <Col lg={4} className="border">
               <b>{workTotalTime.toFixed(2)} Hr</b>
             </Col>
           </Row>
-        )
+        </>
       )}
 
       {Array.from({ length: 2 - workDetails?.length }).map((_, index) => (

@@ -853,6 +853,7 @@ const NoLossBDEntryForm = () => {
           type="submit"
           className="btn bg-primary"
           style={{ marginTop: "1rem" }}
+          disabled={loggedUserDetails?.tm_no === Number("9999")}
         >
           Submit Data
         </Button>

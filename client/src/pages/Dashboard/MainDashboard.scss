@@ -195,8 +195,30 @@ select {
     flex-wrap: wrap;
 }
 
-
-
+.status-red {
+  background-color: #f44336 !important;
+  color: white;
+}
+.status-yellow {
+  background-color: #ffeb3b !important;
+  color: black;
+}
+.status-blue {
+  background-color: #64b5f6 !important;
+  color: black;
+}
+.status-green {
+  background-color: #4caf50 !important;
+  color: white;
+}
+.status-orange {
+  background-color: #ffb300 !important;
+  color: black;
+}
+.status-default {
+  background-color: rgb(175, 175, 175) !important;
+  color: black;
+}
 
 .machine:hover {
     background-position: right center;
@@ -211,3 +233,4 @@ select {
         flex: 1;
     }
 }
+

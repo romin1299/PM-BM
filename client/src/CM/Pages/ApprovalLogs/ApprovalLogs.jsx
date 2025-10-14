@@ -1,27 +1,36 @@
 import React, { useEffect, useState, useReducer } from "react";
-import { Table, ConfigProvider } from "antd";
+import { Table, Input, ConfigProvider } from "antd";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
   reducer,
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
-
+import { Row, Col } from "react-bootstrap";
 import { Container } from "react-bootstrap";
 import BMTitlebar from "../../../BM/Component/BMTitlebar";
 import axios from "axios";
+import moment from "moment-timezone";
+const Search = Input.Search;
+
 const ApprovalLogs = () => {
   const [approvalLogs, setApprovalLogs] = useState([]);
+  const [searchResult, setSearchResult] = useState([]);
 
-  const renderApprovalUser = (userArray) =>
-    userArray?.map((value) => (
+  const renderApprovalUser = (userArray, rejectedRemarks) =>
+    userArray?.map((value, idx) => (
       <>
         <span>
-          <b>{value?.approvalStatus}</b> -{value?.tm_name},
-          {value?.approvalDateAndTime}
+          <b>{value?.approvalStatus}</b> -{value?.tm_name}
+          {", "}
+          {value?.approvalDateAndTime
+            ? moment(value?.approvalDateAndTime)
+                .tz("Asia/Kolkata")
+                .format("DD-MM-YYYY THH:mm")
+            : ""}
           {value?.approvalStatus === "Rejected" && (
             <>
               {", "}
-              <b>Remarks:</b> {value?.rejectedRemarks}
+              <b>Remarks:</b> {rejectedRemarks?.[idx]}
             </>
           )}
         </span>
@@ -169,7 +178,9 @@ const ApprovalLogs = () => {
       title: "MTD TL",
       render: (text, record) =>
         renderApprovalUser(
-          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_TL
+          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_TL,
+          record?.current_commonDataFilledByAssignUser
+            ?.rejectedRemarksOfRequestSheet
         ),
       width: "20%",
     },
@@ -177,7 +188,9 @@ const ApprovalLogs = () => {
       title: "MTD HOSS",
       render: (text, record) =>
         renderApprovalUser(
-          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_HOSS
+          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_HOSS,
+          record?.current_commonDataFilledByAssignUser
+            ?.rejectedRemarksOfRequestSheet
         ),
       width: "20%",
     },
@@ -185,7 +198,9 @@ const ApprovalLogs = () => {
       title: "MTD HOS",
       render: (text, record) =>
         renderApprovalUser(
-          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_HOS
+          record?.current_commonDataFilledByAssignUser?.approvalOfMTD_HOS,
+          record?.current_commonDataFilledByAssignUser
+            ?.rejectedRemarksOfRequestSheet
         ),
 
       width: "20%",
@@ -194,7 +209,9 @@ const ApprovalLogs = () => {
       title: "PRD TL",
       render: (text, record) =>
         renderApprovalUser(
-          record?.current_commonDataFilledByAssignUser?.approvalOfPRD_TL
+          record?.current_commonDataFilledByAssignUser?.approvalOfPRD_TL,
+          record?.current_commonDataFilledByAssignUser
+            ?.rejectedRemarksOfRequestSheet
         ),
 
       width: "20%",
@@ -206,7 +223,7 @@ const ApprovalLogs = () => {
   const getApprovalLogDetails = async () => {
     try {
       const response = await axios.get(
-        `/getApprovalLogsForCM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}`
+        `/getApprovalLogsForCM/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedQuarter=${reduceState?.selectedQuarter}`
       );
       setApprovalLogs(response?.data?.approvalDataLogs);
       console.log(response.data);
@@ -227,7 +244,17 @@ const ApprovalLogs = () => {
     reduceState?.selectedValue,
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
+    reduceState?.selectedQuarter,
   ]);
+
+  const findSearchValue = (value) => {
+    let searchResultFind = approvalLogs.filter((obj) => {
+      return obj?.requestSheetNoOfCM
+        ?.toLowerCase()
+        ?.startsWith(value?.toLowerCase());
+    });
+    setSearchResult(searchResultFind);
+  };
   return (
     <Container fluid>
       <BMTitlebar
@@ -237,17 +264,29 @@ const ApprovalLogs = () => {
             baseUrlForFiltering={baseUrlForFiltering}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
-            monthFiltration
+            // monthFiltration
             yearFiltration
             sectionFiltration
             subSectionFiltration
             cellFiltration
             lineFiltration
             machineFiltration
+            quarterFiltration
             resetButtonFiltration
           />
         }
       />
+      <Row className="p-1">
+        <Col></Col>
+        <Col xs={6}></Col>
+        <Col>
+          <Search
+            allowClear
+            placeholder="Search..."
+            onSearch={(value) => findSearchValue(value)}
+          />
+        </Col>
+      </Row>
       <ConfigProvider
         theme={{
           components: {
@@ -264,8 +303,7 @@ const ApprovalLogs = () => {
       >
         <Table
           columns={commonColumns}
-          //   dataSource={searchResult?.length > 0 ? searchResult : approvalLogs}
-          dataSource={approvalLogs}
+          dataSource={searchResult?.length > 0 ? searchResult : approvalLogs}
           //   onChange={onChange}
           // width={"100%"}
           scroll={{ x: 3000, y: 600 }}

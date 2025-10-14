@@ -52,7 +52,11 @@ const UserApprovalSelectFields = ({
             ) : (
               <>
                 <b>MTD TL:</b>&nbsp;
-                {watch("approvalObj_MTD_TL.approvalOfMTD_TL.tm_name")}
+                {(watch("approvalObj_MTD_TL.approvalOfMTD_TL.tm_name") || "") +
+                  " - " +
+                  (watch(
+                    "approvalObj_MTD_TL.approvalOfMTD_TL.approvalStatus"
+                  ) || "")}
               </>
             )}
             {errors?.approvalObj_MTD_TL?.approvalOfMTD_TL?.[`userRef`] && (
@@ -82,7 +86,12 @@ const UserApprovalSelectFields = ({
             ) : (
               <>
                 <b>MTD HOSS:</b>&nbsp;
-                {watch("approvalObj_MTD_HOSS.approvalOfMTD_HOSS.tm_name")}
+                {(watch("approvalObj_MTD_HOSS.approvalOfMTD_HOSS.tm_name") ||
+                  "") +
+                  " - " +
+                  (watch(
+                    "approvalObj_MTD_HOSS.approvalOfMTD_HOSS.approvalStatus"
+                  ) || "")}
               </>
             )}
             {errors?.approvalObj_MTD_HOSS?.approvalOfMTD_HOSS?.[`userRef`] && (
@@ -112,7 +121,12 @@ const UserApprovalSelectFields = ({
             ) : (
               <>
                 <b>MTD HOS:</b>&nbsp;
-                {watch("approvalObj_MTD_HOS.approvalOfMTD_HOS.tm_name")}
+                {(watch("approvalObj_MTD_HOS.approvalOfMTD_HOS.tm_name") ||
+                  "") +
+                  " - " +
+                  (watch(
+                    "approvalObj_MTD_HOS.approvalOfMTD_HOS.approvalStatus"
+                  ) || "")}
               </>
             )}
             {errors?.approvalObj_MTD_HOS?.approvalOfMTD_HOS?.[`userRef`] && (
@@ -195,7 +209,13 @@ const UserApprovalSelectFields = ({
                     ) : (
                       <>
                         <b>PRD TL: </b>&nbsp;
-                        {watch("approvalObj_PRD_TL.approvalOfPRD_TL.tm_name")}
+                        {(watch(
+                          "approvalObj_PRD_TL.approvalOfPRD_TL.tm_name"
+                        ) || "") +
+                          " - " +
+                          (watch(
+                            "approvalObj_PRD_TL.approvalOfPRD_TL.approvalStatus"
+                          ) || "")}
                       </>
                     )}
                   </Col>

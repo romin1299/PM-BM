@@ -138,6 +138,12 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
 
+  currentStatusOfBD: {
+    status: { type: String, default: "Repair Under Progress" },
+    estimatedTime: { type: String },
+    remarks: { type: String },
+  },
+
   assignUser: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",

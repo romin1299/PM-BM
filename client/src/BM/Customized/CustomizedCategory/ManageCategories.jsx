@@ -79,7 +79,7 @@ const initialState = [
   },
 ];
 
-const ManageCategories = () => {
+const ManageCategories = ({notEditable}) => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -189,6 +189,7 @@ const ManageCategories = () => {
         onAddCategory={handleAddCategory}
         onEditCategory={handleEditCategory}
         onDeleteCategory={handleDeleteCategory}
+        notEditable={notEditable}
       />
     </Box>
   );

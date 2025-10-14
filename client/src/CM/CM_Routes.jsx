@@ -39,6 +39,10 @@ const CM_Routes = ({ commonRoutes }) => {
           path: "/cm/dashboard/ltpm",
           element: <DashboardOfLTPM />,
         },
+        {
+          path: "/cm/activity-calendar",
+          element: <FullCalenderForActivity/>
+        },
       ],
     },
     {

@@ -32,7 +32,9 @@ const ChartsToolbar = ({
   isWithLocalStorageForFiltration,
   selectedLineOrNot,
   defaultSelectedMonth,
-  plantLevel
+  plantLevel,
+  currentStatusOfRSFiltration,
+  currentStatusOfRequestSheet
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -129,6 +131,8 @@ const ChartsToolbar = ({
           isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
           selectedLineOrNot={selectedLineOrNot}
           defaultSelectedMonth={defaultSelectedMonth}
+          currentStatusOfRequestSheet={currentStatusOfRequestSheet}
+          currentStatusOfRSFiltration={currentStatusOfRSFiltration}
         />
       </Box>
 

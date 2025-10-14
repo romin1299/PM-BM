@@ -355,6 +355,7 @@ const MasterLogTable = ({
         ) : (
           ""
         ),
+      width: 250,
     },
     {
       title: "Counter Measure",
