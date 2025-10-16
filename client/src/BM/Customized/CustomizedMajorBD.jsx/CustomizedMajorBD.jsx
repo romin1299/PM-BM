@@ -59,7 +59,7 @@ const CustomizedMajorBD = ({
       console.log(error);
     }
   };
-  console.log(majorBDTime)
+  // console.log(majorBDTime)
   return (
     <div className="cell p-3">
       <div>
