@@ -104,37 +104,37 @@ const FullCalenderForActivity = () => {
         year: adjustedYear,
         month: monthIndex,
       }).toDate();
-      calendarApi.setOption("height", 600);
-      calendarApi.gotoDate(dateToGo);
+      calendarApi?.setOption("height", 600);
+      calendarApi?.gotoDate(dateToGo);
     } else if (calendarView?.view === "multiMonthYear") {
       dateToGo = moment({
         year: reduceState.selectedYear,
         month: 0, // January
         day: 1,
       }).toDate();
-      calendarApi.gotoDate(dateToGo);
-      calendarApi.setOption("height", 1000);
+      calendarApi?.gotoDate(dateToGo);
+      calendarApi?.setOption("height", 1000);
     } else if (
       calendarView?.view === "dayGridWeek" ||
       calendarView?.view === "dayGridDay"
     ) {
       dateToGo = new Date();
-      calendarApi.gotoDate(dateToGo);
-      calendarApi.setOption("height", 550);
+      calendarApi?.gotoDate(dateToGo);
+      calendarApi?.setOption("height", 550);
     }
 
     //for apply next and previous button for the month, week, day
     if (
-      calendarApi.view.type === "dayGridWeek" ||
-      calendarApi.view.type === "dayGridDay" ||
-      calendarApi.view.type === "dayGridMonth"
+      calendarApi?.view.type === "dayGridWeek" ||
+      calendarApi?.view.type === "dayGridDay" ||
+      calendarApi?.view.type === "dayGridMonth"
     ) {
-      calendarApi.setOption("headerToolbar", {
+      calendarApi?.setOption("headerToolbar", {
         left: "prev,next title",
         right: "today,multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
       });
     } else {
-      calendarApi.setOption("headerToolbar", {
+      calendarApi?.setOption("headerToolbar", {
         left: "title",
         right: "multiMonthYear,dayGridMonth,dayGridWeek,dayGridDay",
       });
