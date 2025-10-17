@@ -32,6 +32,8 @@ ChartJS.register(
   PointElement,
   Legend
 );
+  console.log("For update----");
+
 
 export const options = {
   responsive: true,
@@ -321,6 +323,8 @@ const LineTrend = ({
   };
 
   let isDataExists = isChartDataExist(data);
+
+  console.log("For update----");
 
   return (
     <>

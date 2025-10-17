@@ -29,6 +29,9 @@ const list = [
   { key: "D", value: "D" },
 ];
 
+  console.log("For update----");
+
+
 function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   // let [searchParams] = useSearchParams();
   const navigate = useNavigate();

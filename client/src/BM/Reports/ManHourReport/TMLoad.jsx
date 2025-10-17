@@ -32,6 +32,9 @@ ChartJS.register(
   Legend
 );
 
+  console.log("For update----");
+
+
 export const options = {
   responsive: true,
   maintainAspectRatio: false,

@@ -12,6 +12,8 @@ const PptxMonthlyBDReport = ({
   sectionId,
   selectedYear,
 }) => {
+    console.log("For update----");
+
   const fetchMonthlyBDChartData = async () => {
     const url =
       currentTabViewName === "Plant"

@@ -29,6 +29,7 @@ const maintenanceType = require("../utils/maintenanceType");
 
 router.use(cookieParser());
 // router.use(authenticate);
+  console.log("For update----");
 
 const {
   APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM,

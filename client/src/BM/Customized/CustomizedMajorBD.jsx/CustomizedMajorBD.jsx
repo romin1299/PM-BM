@@ -18,6 +18,8 @@ const CustomizedMajorBD = ({
   setSelectedSubSection,
   majorBDTime,
 }) => {
+    console.log("For update----");
+
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const [reduceState, reducerDispatch] = useReducer(
     reducer,

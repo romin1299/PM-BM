@@ -26,6 +26,7 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+  console.log("For update----");
 
 export const options = {
   responsive: true,

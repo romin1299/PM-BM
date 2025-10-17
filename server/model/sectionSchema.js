@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 
 const { TmMttrSkillScoresAndLimit } = require("./common");
 
+  console.log("For update----");
+
+
 const sectionSchema = new mongoose.Schema({
   section_id: {
     type: String,

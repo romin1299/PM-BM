@@ -1,6 +1,8 @@
 import axios from "axios";
 
 export const initialState = (isWithLocalStorageForFiltration) => {
+    console.log("For update----");
+
   if (isWithLocalStorageForFiltration === "Yes")
   return {
     selectedValue: localStorage.getItem("selectedValue") || "",
