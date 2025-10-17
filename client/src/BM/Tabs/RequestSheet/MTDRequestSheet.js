@@ -22,6 +22,8 @@ function MyTable({
   requestSheetDataOfBM,
   supportingTMList,
 }) {
+  // console.log("this ius mb dnalj", requestSheetDataOfBM);
+  const [majorBDTime, setMajorBDTime] = useState(120);
   const loggedUserDetails = useContext(RoutingContext);
 
   const navigate = useNavigate();

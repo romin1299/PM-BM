@@ -36,6 +36,8 @@ const ChartsToolbar = ({
   currentStatusOfRSFiltration,
   currentStatusOfRequestSheet
 }) => {
+    console.log("For update----");
+
   const generatePPT = () => {
     const pptx = new pptxgen();
     const slide = pptx.addSlide();

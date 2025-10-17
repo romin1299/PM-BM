@@ -16,6 +16,9 @@ import ShiftInputField from "../../../CM/Components/ReqestSheetOfCM/RSComponents
 import SafetyForm from "../SafetyForm/SafetyForm";
 import axios from "axios";
 
+  console.log("For update----");
+
+
 function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   const navigate = useNavigate();
   const { machine_code, generateType, requestSheetID, selectedYear } =
