@@ -5,6 +5,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: String,
   },
 
+  //If safety form is created
+  IsSafetyFormCreated: {
+    type: Boolean,
+    default: false,
+  },
   //If require else byDefault is BM
   maintenanceType: {
     type: String,

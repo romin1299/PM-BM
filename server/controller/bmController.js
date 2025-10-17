@@ -15928,7 +15928,92 @@ const filtrationMiddleware = async (req, res, next) => {
     res.status(500).json({ message: error?.message, error });
   }
 };
-
+const monthsPipeLine = [
+  {
+    $group: {
+      _id: null,
+      noLossData: {
+        $push: "$$ROOT",
+      },
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+      noLossData: {
+        $map: {
+          input: [
+            {
+              monthName: "Apr",
+              monthInDecimal: "04",
+            },
+            {
+              monthName: "May",
+              monthInDecimal: "05",
+            },
+            {
+              monthName: "June",
+              monthInDecimal: "06",
+            },
+            {
+              monthName: "July",
+              monthInDecimal: "07",
+            },
+            {
+              monthName: "Aug",
+              monthInDecimal: "08",
+            },
+            {
+              monthName: "Sep",
+              monthInDecimal: "09",
+            },
+            {
+              monthName: "Oct",
+              monthInDecimal: "10",
+            },
+            {
+              monthName: "Nov",
+              monthInDecimal: "11",
+            },
+            {
+              monthName: "Dec",
+              monthInDecimal: "12",
+            },
+            {
+              monthName: "Jan",
+              monthInDecimal: "01",
+            },
+            {
+              monthName: "Feb",
+              monthInDecimal: "02",
+            },
+            {
+              monthName: "Mar",
+              monthInDecimal: "03",
+            },
+          ],
+          as: "month",
+          in: {
+            $cond: [
+              {
+                $in: ["$$month.monthName", "$noLossData._id"],
+              },
+              {
+                $arrayElemAt: [
+                  "$noLossData.hours",
+                  {
+                    $indexOfArray: ["$noLossData._id", "$$month.monthName"],
+                  },
+                ],
+              },
+              0,
+            ],
+          },
+        },
+      },
+    },
+  },
+];
 router.get(
   "/manHourReport/hourTrend/:filter/:selectedId",
   authenticate,
@@ -16091,6 +16176,38 @@ router.get(
           },
         },
       ]);
+
+      const noLossTrend = await NoLossBD.aggregate([
+        {
+          $match: {
+            "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+              req.query.selectedYear,
+            sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+          },
+        },
+        {
+          $group: {
+            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            hours: {
+              $sum: {
+                $trunc: [
+                  {
+                    $divide: [
+                      {
+                        $add: ["$breakDownTime"],
+                      },
+                      60,
+                    ],
+                  },
+                  1,
+                ],
+              },
+            },
+          },
+        },
+        ...monthsPipeLine,
+      ]);
+      // console.log(noLossTrend);
 
       return res.status(201).json({
         message: "HourTrend data get successfully",
@@ -16316,6 +16433,44 @@ router.get(
             },
           },
         },
+      ]);
+
+      const NoLossDataTrend = await NoLossBD.aggregate([
+        {
+          $match: {
+            "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+              req.query.selectedYear,
+            sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+          },
+        },
+        {
+          $group: {
+            _id: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
+            hours: {
+              $sum: {
+                $trunc: [
+                  {
+                    $multiply: [
+                      {
+                        $divide: [
+                          {
+                            $add: ["$breakDownTime"],
+                          },
+                          60,
+                        ],
+                      },
+                      {
+                        $size: "$supportingTM",
+                      },
+                    ],
+                  },
+                  1,
+                ],
+              },
+            },
+          },
+        },
+        ...monthsPipeLine,
       ]);
 
       return res.status(201).json({
@@ -19667,4 +19822,58 @@ router.post(
   }
 );
 
+<<<<<<< HEAD
+=======
+// safety form CRUD Operations
+
+router.post(
+  "/addSafetyForm/:requestSheetRef",
+  authenticate,
+  async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.create({
+        requestSheetRef: req.params?.requestSheetRef,
+        ...req.body,
+      });
+      const reqSheetBM = await RequestSheetOfBM.findOneAndUpdate(
+        { _id: req.params?.requestSheetRef },
+        {
+          $set: {
+            IsSafetyFormCreated: true,
+          },
+        }
+      );
+      if (!safetyForm) {
+        return res
+          .status(400)
+          .json({ message: "Error in creating safety form" });
+      }
+      res
+        .status(201)
+        .json({ message: "Safety form created successfully", safetyForm });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  }
+);
+
+router.get("/getSafetyForm", authenticate, async (req, res) => {
+  try {
+    const safetyForm = await SafetyForm.findById({
+      requestSheetRef: req.params?.requestSheetRef,
+    });
+    if (!safetyForm) {
+      return res.status(400).json({ message: "Not Found!!!" });
+    }
+    res.status(200).json({
+      message: "Safety form fetched successfully",
+      safetyForm,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+>>>>>>> 830f5f8c3bfe823f1527a06978dbcf9f1cc770c6
 module.exports = router;
