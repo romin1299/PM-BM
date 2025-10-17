@@ -186,7 +186,7 @@ const PmMachineWiseTimeMonitoring = ({
   return (
     <>
       <BarChart
-        title="Top Machine Wise Time Monitoring"
+        title="PM-Time Monitoring (Top Machine)"
         loading={loading}
         dataset={topMachineTimeMonitoring}
         AppendToolComponents={TopDataFilterInput}

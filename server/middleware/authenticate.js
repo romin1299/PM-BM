@@ -23,7 +23,6 @@ const authenticate = async (req, res, next) => {
     req.jwtToken = jwtToken;
     req.rootUser = rootUser;
 
-    //console.log(rootUser.user_type);
     /* if(rootUser.user_type == 0){
             console.log(rootUser.user_type);
             next();

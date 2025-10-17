@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { Table } from "reactstrap";
-
+import { useLocation } from "react-router-dom";
 const MonthlyGeneratedAndCompletedCount = ({
   selectedValue,
   flagForTogglingFilter,
@@ -14,10 +14,12 @@ const MonthlyGeneratedAndCompletedCount = ({
       data: [],
     },
   ]);
+
+  const location = useLocation();
   const getRequestSheetMonitoringData = async () => {
     try {
       const res = await fetch(
-        `/getRequestSheetMonitoringData/generated-and-completed-count/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}`,
+        `/getRequestSheetMonitoringData/generated-and-completed-count/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&inWhichSection=${location?.pathname?.split("/")?.[1]}`,
         {
           method: "GET",
           headers: {

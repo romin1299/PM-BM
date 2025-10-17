@@ -17,33 +17,34 @@ const sendMailForBD = async ({
     // console.log("ccEmailIds ===========> ", ccEmailIds)
 
     let transporter = nodemailer.createTransport({
-      service: "smtp-mail.outlook.com",
-      pool: true,
-      host: emailConfData.serverIP,
-      port: emailConfData.emailPort,
-      secureConnection: false,
-      secure: false,
-      // logger: false,
-      // debug: false,
-      // ignoreTLS: true,
-      tls: {
-        ciphers: "SSLv3",
-      },
+      // service: "smtp-mail.outlook.com",
+      // pool: true,
+      // host: emailConfData.serverIP,
+      // port: emailConfData.emailPort,
+      // secureConnection: false,
+      // secure: false,
+      // // logger: false,
+      // // debug: false,
+      // // ignoreTLS: true,
+      // tls: {
+      //   ciphers: "SSLv3",
+      // },
 
       //for local-development
-      // host: "smtp-mail.outlook.com",
-      // port: 587,
-      // requireTLS: true,
-      // auth: {
-      //     user: "sm_sample11@outlook.com",
-      //     pass: "Sendemail@111"
-      // }
+      host: "smtp-mail.outlook.com",
+      port: 587,
+      requireTLS: true,
+      auth: {
+          user: "sm_sample11@outlook.com",
+          pass: "Sendemail@111"
+      }
     });
 
     let mailOptions = {
-      from: emailConfData.fromEmailId,
-      // from: "sm_sample11@outlook.com",
-      to: toEmailIds,
+      // from: emailConfData.fromEmailId,
+      from: "sm_sample11@outlook.com",
+      // to: toEmailIds,
+      to:"romin301.osl@gmail.com",
       cc: ccEmailIds,
       subject: subject,
       html: `

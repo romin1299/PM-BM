@@ -231,14 +231,6 @@ const ChartToPPTExample = ({
         //borderColor: "#312A7D",
         //borderWidth: 2,
       },
-      {
-        label: "No Loss Data",
-        data: HourTrendData?.noLossTrend,
-        backgroundColor: chartColors.bmpm[2],
-        borderRadius: 4,
-        //borderColor: "#312A7D",
-        //borderWidth: 2,
-      },
     ],
 
     // serverResDataset.map((dataset, i) => ({

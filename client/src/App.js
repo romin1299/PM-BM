@@ -57,11 +57,11 @@
 
 import React, { useEffect, useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Tabs, Tab, Container, Row, Col } from "react-bootstrap";
+import { Tabs, Tab, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import PMTabdashboard from "./BM/Tabs/PMTabdashboard";
 import BM_Routes from "./BM/BM_Routes";
-import { BsWrench, BsHammer } from "react-icons/bs";
+// import { BsWrench, BsHammer } from "react-icons/bs";
 import { denso_logo } from "./modules/LoginModules";
 
 import MachineHistoryComponent from "./Common/Machine/MachineHistoryComponent";
@@ -78,16 +78,20 @@ import RightNavbar from "./components/RightNavbar/RightNavbar";
 
 import KPI_Routes from "./KPI_Tab/KPI_Routes";
 import MainPageComponent from "./KPI_Tab/MainPage/MainPageComponent";
-import OperatorDashboard from "./pages/Operator/OperatorDashboard";
-import {
-  NAME_OF_THE_COMPANY,
-  LIST_OF_COMPANY,
-} from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
+// import {
+//   NAME_OF_THE_COMPANY,
+//   LIST_OF_COMPANY,
+// } from "./ConditionsForDNINandDNHA/ConditionBasedDisplay";
 import RoutingContext from "./context/routing/RoutingContext";
-import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
+// import RequestSheetMainDashboard from "./BM/RequestSheet/RequestSheetMainDashboard";
 import PM from "./static/Icons/PM_history_4.png";
 import BM from "./static/Icons/BM_History_1.png";
+import CM from "./static/Icons/CM.png";
 import MTD_KPI from "./static/Icons/MTD_KPI.png";
+import ACTIVITY_Cal from "./static/Icons/ACTIVITY_CAL.png";
+import CM_Routes from "./CM/CM_Routes";
+import ActivityRoutes from "./CM/Pages/ActivityCalendar/ActivityRoutes";
+import { clearLocalStorage } from "./BM/Component/GlobalDataDisplayOrHandle";
 
 function App() {
   //DENSO-HARYANA
@@ -107,6 +111,7 @@ function App() {
     navigate(k);
     localStorage.setItem("activeKey", k);
     setActiveKey(k);
+    clearLocalStorage();
   };
 
   useEffect(() => {
@@ -240,7 +245,21 @@ function App() {
       icon: BM,
       dashboardAndRoutes: <BM_Routes commonRoutes={commonRoutes} />,
     },
+    {
+      name: "CM",
+      keyUrl: "cm",
+      icon: CM,
+      dashboardAndRoutes: <CM_Routes commonRoutes={commonRoutes} />,
+    },
     ...displayKPIDashboard,
+    {
+      name: "ACTIVITY CALENDAR",
+      keyUrl: "activityCal",
+      icon: ACTIVITY_Cal,
+      dashboardAndRoutes: (
+        <ActivityRoutes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+      ),
+    },
     // {
     //   name: "MTD KPI",
     //   keyUrl: "kpi",

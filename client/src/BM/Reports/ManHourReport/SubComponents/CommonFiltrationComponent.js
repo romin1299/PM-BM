@@ -1,67 +1,73 @@
-import axios from "axios";
-
 export const initialState = (isWithLocalStorageForFiltration) => {
   if (isWithLocalStorageForFiltration === "Yes")
-  return {
-    selectedValue: localStorage.getItem("selectedValue") || "",
-    flagForTogglingFilter: localStorage.getItem("flagForTogglingFilter") || "",
+    return {
+      selectedValue: localStorage.getItem("selectedValue") || "",
+      flagForTogglingFilter:
+        localStorage.getItem("flagForTogglingFilter") || "",
 
-    selectedValueForLineAnTMLoadGraph:
-      localStorage.getItem("selectedValueForLineAnTMLoadGraph") || "",
-    togglingFilterFlagForLineAnTMLoadGraph:
-      localStorage.getItem("togglingFilterFlagForLineAnTMLoadGraph") || "",
+      selectedValueForLineAnTMLoadGraph:
+        localStorage.getItem("selectedValueForLineAnTMLoadGraph") || "",
+      togglingFilterFlagForLineAnTMLoadGraph:
+        localStorage.getItem("togglingFilterFlagForLineAnTMLoadGraph") || "",
 
-    selectedSection: localStorage.getItem("selectedSection") || "",
-    sections:
-      (localStorage.getItem("sections") &&
-        typeof JSON.parse(localStorage.getItem("sections")) === "object" &&
-        JSON.parse(localStorage.getItem("sections"))) ||
-      [],
+      selectedSection: localStorage.getItem("selectedSection") || "",
+      sections:
+        (localStorage.getItem("sections") &&
+          typeof JSON.parse(localStorage.getItem("sections")) === "object" &&
+          JSON.parse(localStorage.getItem("sections"))) ||
+        [],
 
-    selectedSubSection: localStorage.getItem("selectedSubSection") || "",
-    subSections:
-      (localStorage.getItem("subSections") &&
-        typeof JSON.parse(localStorage.getItem("subSections")) === "object" &&
-        JSON.parse(localStorage.getItem("subSections"))) ||
-      [],
+      selectedSubSection: localStorage.getItem("selectedSubSection") || "",
+      subSections:
+        (localStorage.getItem("subSections") &&
+          typeof JSON.parse(localStorage.getItem("subSections")) === "object" &&
+          JSON.parse(localStorage.getItem("subSections"))) ||
+        [],
 
-    selectedCell: localStorage.getItem("selectedCell") || "",
-    cells:
-      (localStorage.getItem("cells") &&
-        typeof JSON.parse(localStorage.getItem("cells")) === "object" &&
-        JSON.parse(localStorage.getItem("cells"))) ||
-      [],
+      selectedCell: localStorage.getItem("selectedCell") || "",
+      cells:
+        (localStorage.getItem("cells") &&
+          typeof JSON.parse(localStorage.getItem("cells")) === "object" &&
+          JSON.parse(localStorage.getItem("cells"))) ||
+        [],
 
-    selectedLine: localStorage.getItem("selectedLine") || "",
-    lines:
-      (localStorage.getItem("lines") &&
-        typeof JSON.parse(localStorage.getItem("lines")) === "object" &&
-        JSON.parse(localStorage.getItem("lines"))) ||
-      [],
+      selectedLine: localStorage.getItem("selectedLine") || "",
+      lines:
+        (localStorage.getItem("lines") &&
+          typeof JSON.parse(localStorage.getItem("lines")) === "object" &&
+          JSON.parse(localStorage.getItem("lines"))) ||
+        [],
 
-    selectedMachine: localStorage.getItem("selectedMachine") || "",
-    machines:
-      (localStorage.getItem("machines") &&
-        typeof JSON.parse(localStorage.getItem("machines")) === "object" &&
-        JSON.parse(localStorage.getItem("machines"))) ||
-      [],
+      selectedMachine: localStorage.getItem("selectedMachine") || "",
+      machines:
+        (localStorage.getItem("machines") &&
+          typeof JSON.parse(localStorage.getItem("machines")) === "object" &&
+          JSON.parse(localStorage.getItem("machines"))) ||
+        [],
 
-    selectedRSStatus: localStorage.getItem("selectedRSStatus") || "",
+      selectedRSStatus: localStorage.getItem("selectedRSStatus") || "",
 
-    selectedMaintenanceType:
-      localStorage.getItem("selectedMaintenanceType") || "",
+      selectedMaintenanceType:
+        localStorage.getItem("selectedMaintenanceType") || "",
 
-    selectedMonth: localStorage.getItem("selectedMonth") || "",
-    selectedYear:
-      localStorage.getItem("selectedYear") ||
-      (new Date().getMonth() < 3
-        ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-        : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`),
+      selectedCurrentStatusOfRS:
+        localStorage.getItem("selectedCurrentStatusOfRS") || "",
 
-    message: "",
-    isLoading: true,
-    isError: false,
-  };
+      selectedCategoryType: localStorage.getItem("selectedCategoryType") || "",
+
+      selectedQuarter: localStorage.getItem("selectedQuarter") || "",
+
+      selectedMonth: localStorage.getItem("selectedMonth") || "",
+      selectedYear:
+        localStorage.getItem("selectedYear") ||
+        (new Date().getMonth() < 3
+          ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+          : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`),
+
+      message: "",
+      isLoading: true,
+      isError: false,
+    };
   return {
     selectedValue: "",
     flagForTogglingFilter: "",
@@ -88,6 +94,12 @@ export const initialState = (isWithLocalStorageForFiltration) => {
 
     selectedMaintenanceType: "",
 
+    selectedCurrentStatusOfRS: "",
+
+    selectedCategoryType: "",
+
+    selectedQuarter: "",
+
     selectedMonth: "",
     selectedYear:
       new Date().getMonth() < 3
@@ -99,15 +111,6 @@ export const initialState = (isWithLocalStorageForFiltration) => {
     isError: false,
   };
 };
-
-export const getMajorBDTime = async({section, subSection})=>{
-  try {
-    const response = await axios.get(`/getMajorBDTime?section=${section}&subSection=${subSection}`);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 export const ACTION = {
   GET_DATA: "get-data",
@@ -122,7 +125,12 @@ export const ACTION = {
   HANDLE_SELECT_MACHINE: "handle-selected-machine",
   HANDLE_SELECT_YEAR: "handle-selected-year",
   HANDLE_SELECT_MONTH: "handle-selected-month",
+  HANDLE_SELECT_MAINTENANCE_TYPE: "handle-selected-maintenanceType",
+  HANDLE_SELECT_CURRENT_RS_STATUS: "handle-selected-current-rs-status",
+  HANDLE_SELECT_CM_CATEGORY: "handle-selected-category",
+  HANDLE_SELECT_QUARTER: "handle-selected-quarter",
   HANDLE_SELECT_STATUS: "handle-selected-status",
+  HANDLE_RESET: "reset-filters",
 };
 
 export const getFiltrationValue = async ({ url }) => {
@@ -174,8 +182,33 @@ export const reducer = (state, action) => {
         localStorage.setItem("lines", JSON.stringify(action?.lines));
         localStorage.setItem("selectedMachine", action?.selectedMachine);
         localStorage.setItem("machines", JSON.stringify(action?.machines));
+        if (action?.isReset) {
+          localStorage.setItem("selectedQuarter", "");
+          localStorage.setItem("selectedRSStatus", "");
+          localStorage.setItem("selectedMaintenanceType", "");
+          localStorage.setItem("selectedCurrentStatusOfRS", "");
+          localStorage.setItem("selectedCategoryType", "");
+        }
+
+        localStorage.setItem(
+          "selectedYear",
+          new Date().getMonth() < 3
+            ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+            : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`
+        );
+        localStorage.setItem("selectedMonth", action?.selectedMonth);
       }
 
+      let resetTheFilterValue = {};
+      if (action?.isReset) {
+        resetTheFilterValue = {
+          selectedQuarter: "",
+          selectedRSStatus: "",
+          selectedMaintenanceType: "",
+          selectedCurrentStatusOfRS: "",
+          selectedCategoryType: "",
+        };
+      }
       return {
         ...state,
         isLoading: false,
@@ -197,6 +230,12 @@ export const reducer = (state, action) => {
         lines: action?.lines,
         selectedMachine: action?.selectedMachine,
         machines: action?.machines,
+        ...resetTheFilterValue,
+        selectedYear:
+          new Date().getMonth() < 3
+            ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+            : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+        selectedMonth: action?.selectedMonth,
       };
 
     case ACTION?.GET_DATA_BASED_ON_SECTION:
@@ -523,18 +562,50 @@ export const reducer = (state, action) => {
     case ACTION?.HANDLE_SELECT_YEAR:
       if (action?.isWithLocalStorageForFiltration === "Yes") {
         localStorage.setItem("selectedYear", action?.selectedYear);
-        localStorage.removeItem("selectedMonth");
+        !action?.defaultSelectedMonth &&
+          localStorage.removeItem("selectedMonth");
         localStorage.removeItem("selectedRSStatus");
         localStorage.removeItem("selectedMaintenanceType");
+        localStorage.removeItem("selectedCurrentStatusOfRS");
+        localStorage.removeItem("selectedCategoryType");
+        localStorage.removeItem("selectedQuarter");
+      }
+
+      if (!action?.defaultSelectedMonth) {
+        state = {
+          ...state,
+          selectedMonth: "",
+        };
       }
 
       return {
         ...state,
         selectedYear: action?.selectedYear,
-        selectedMonth: "",
         selectedRSStatus: "",
         selectedMaintenanceType: "",
+        selectedCurrentStatusOfRS: "",
+        selectedCategoryType: "",
+        selectedQuarter: "",
       };
+
+    // case ACTION?.HANDLE_SELECT_YEAR_WITHOUT_FY:
+    //   if (action?.isWithLocalStorageForFiltration === "Yes") {
+    //     localStorage.setItem(
+    //       "selectedYearWithoutFY",
+    //       action?.selectedYearWithoutFY
+    //     );
+    //     localStorage.removeItem("selectedRSStatus");
+    //     localStorage.removeItem("selectedMaintenanceType");
+    //     localStorage.removeItem("selectedQuarter");
+    //   }
+
+    //   return {
+    //     ...state,
+    //     selectedYearWithoutFY: action?.selectedYearWithoutFY,
+    //     selectedRSStatus: "",
+    //     selectedMaintenanceType: "",
+    //     selectedQuarter: "",
+    //   };
 
     case ACTION?.HANDLE_SELECT_MONTH:
       if (action?.isWithLocalStorageForFiltration === "Yes") {
@@ -567,6 +638,42 @@ export const reducer = (state, action) => {
       return {
         ...state,
         selectedMaintenanceType: action?.selectedMaintenanceType,
+      };
+
+    case ACTION?.HANDLE_SELECT_CURRENT_RS_STATUS:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem(
+          "selectedCurrentStatusOfRS",
+          action?.selectedCurrentStatusOfRS
+        );
+      }
+
+      return {
+        ...state,
+        selectedCurrentStatusOfRS: action?.selectedCurrentStatusOfRS,
+      };
+
+    case ACTION?.HANDLE_SELECT_CM_CATEGORY:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem(
+          "selectedCategoryType",
+          action?.selectedCategoryType
+        );
+      }
+
+      return {
+        ...state,
+        selectedCategoryType: action?.selectedCategoryType,
+      };
+
+    case ACTION?.HANDLE_SELECT_QUARTER:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem("selectedQuarter", action?.selectedQuarter);
+      }
+
+      return {
+        ...state,
+        selectedQuarter: action?.selectedQuarter,
       };
 
     default:

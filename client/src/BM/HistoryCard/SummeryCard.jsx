@@ -106,9 +106,9 @@ const CellSummaryCard = ({ summeryCardData, item }) => {
     { name: "MTBF", key: "mtbf" },
   ];
 
-  const machineData = summeryCardData.machineSummaryCardData.find(
-    (item1) => item?._id === item1?._id?.cell
-  );
+  const machineData = summeryCardData.machineSummaryCardData.find((item1) => {
+    return item?._id === item1?._id?.cell;
+  });
 
   const pmStatus = summeryCardData?.cellWiseCount.find(
     (item1) => item1?._id === item?._id
@@ -275,8 +275,6 @@ const SummeryCardModal = ({
     getSummaryCard();
   }, []);
 
-  console.log("modelProp:", modelProp);
-
   return (
     <Modal
       {...modelProp}
@@ -300,11 +298,16 @@ const SummeryCardModal = ({
         </Row> */}
 
         <Row className="flex-nowrap overflow-auto gx-3 pt-3 pb-3">
-          {summeryCardData?.cells?.map((item) => (
-            <Col style={{ minWidth: "260px", maxWidth: "380px" }}>
-              <CellSummaryCard summeryCardData={summeryCardData} item={item} />
-            </Col>
-          ))}
+          {summeryCardData?.cells?.map((item) => {
+            return (
+              <Col style={{ minWidth: "260px", maxWidth: "380px" }}>
+                <CellSummaryCard
+                  summeryCardData={summeryCardData}
+                  item={item}
+                />
+              </Col>
+            );
+          })}
         </Row>
       </Modal.Body>
 

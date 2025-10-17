@@ -1,7 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState } from "react";
 import TextField from "@material-ui/core/TextField";
-import RoutingContext from "../context/routing/RoutingContext";
-import ContextAPI from "../context/ContextAPI/ContextAPI";
 import { useFormik } from "formik";
 import * as yup from "yup";
 
@@ -20,9 +18,6 @@ const MachineAdd = ({ line, refreshForMachineData }) => {
     formik.resetForm({
       values: "",
     });
-  };
-  const refreshPage = () => {
-    window.location.reload();
   };
 
   function unSetMessageValue() {
@@ -62,7 +57,6 @@ const MachineAdd = ({ line, refreshForMachineData }) => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      console.log(values);
       const res = await fetch("/addNewMachine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -107,7 +101,7 @@ const MachineAdd = ({ line, refreshForMachineData }) => {
           ""
         )}
         <div>
-          <h3 style={{ textAlign: "left", color:"#dc3545"}}>Add Machine</h3>
+          <h3 style={{ textAlign: "left", color: "#dc3545" }}>Add Machine</h3>
           <form onSubmit={formik.handleSubmit}>
             <div className="pwd-container">
               <span>Machine Code: </span>
@@ -366,7 +360,7 @@ const MachineAdd = ({ line, refreshForMachineData }) => {
                   type="button"
                   className="btn-primary1"
                   onClick={reset}
-                //   style={{ marginRight: "5rem" }}
+                  //   style={{ marginRight: "5rem" }}
                 >
                   Reset
                 </button>

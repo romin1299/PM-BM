@@ -42,7 +42,6 @@ const SendApprovalComponent = ({
     "Feb",
     "Mar",
   ];
-
   let refArrayForUserApproval =
     objOfAnnualPmScheduleApproval?.monthlyApprovalData
       ? Object?.values(objOfAnnualPmScheduleApproval?.monthlyApprovalData)
@@ -68,12 +67,13 @@ const SendApprovalComponent = ({
         </th>
         {refArrayForUserApproval?.map((item, index) => (
           <td className="td-padding">
-            {index < upToCurrentMonthIndex ||
-            (moment().isSame(moment().endOf("month"), "day") &&
+            {/* {index < upToCurrentMonthIndex ||
+            (
+              moment().isSame(moment().endOf("month"), "day") &&
               index === upToCurrentMonthIndex) ? (
               item?.checkedByTL ? (
                 ""
-              ) : (
+              ) : ( */}
                 <button
                   className="btn-primary2  "
                   onClick={() =>
@@ -94,10 +94,10 @@ const SendApprovalComponent = ({
                 >
                   Edit
                 </button>
-              )
+              {/* )
             ) : (
               ""
-            )}
+            )} */}
           </td>
         ))}
       </tr>

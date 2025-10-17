@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
-import RoutingContext from "../context/routing/RoutingContext";
 import { Container, Row, Col } from "react-bootstrap";
 import EastIcon from "@mui/icons-material/East";
 import moment from "moment";
@@ -296,12 +295,15 @@ const CheckSheetEditAfterApproval = ({
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch(
-        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${selectedRow?.machine_code}&&selectedYear=${selectedYear}`,
+        `/postMachineIdToGetAllDetailsOfMachine/?selectedYear=${selectedYear}&&getAllUser=${true}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            machine_code: selectedRow?.machine_code,
+          }),
         }
       );
       const data = await res.json();
@@ -364,7 +366,7 @@ const CheckSheetEditAfterApproval = ({
         enforceFocus={false}
         scrollable={true}
       >
-        <Modal.Header>
+        <Modal.Header className="d-flex justify-content-between">
           <Modal.Title id="contained-modal-title-vcenter">
             Check-Sheet Edit After Approval
           </Modal.Title>
@@ -517,14 +519,29 @@ const CheckSheetEditAfterApproval = ({
                         </th>
                         {machineAllData?.checkSheet_data
                           ?.implementation_approved_by_MTD_TL
-                          ? Object?.values(
+                          ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implementation_approved_by_MTD_TL
-                            )?.map((index) => (
-                              <td className="ar-table-col1">
-                                {index[index?.length - 1]}
-                              </td>
-                            ))
+                                ?.implemetation_mtd_tl_approval_status
+                            ).map(([month, statusArray]) =>
+                              statusArray[statusArray.length - 1] ===
+                              "Accepted" ? (
+                                <td className="ar-table-col1">
+                                  {
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_MTD_TL_name[
+                                      month
+                                    ][
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_MTD_TL_name[
+                                        month
+                                      ].length - 1
+                                    ]
+                                  }
+                                </td>
+                              ) : (
+                                <td className="ar-table-col1"></td>
+                              )
+                            )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>
                             ))}
@@ -574,14 +591,29 @@ const CheckSheetEditAfterApproval = ({
                         </th>
                         {machineAllData?.checkSheet_data
                           ?.implementation_approved_by_MTD_HOS
-                          ? Object?.values(
+                          ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implementation_approved_by_MTD_HOS
-                            )?.map((index) => (
-                              <td className="ar-table-col1">
-                                {index[index?.length - 1]}
-                              </td>
-                            ))
+                                ?.implemetation_mtd_hos_approval_status
+                            ).map(([month, statusArray]) =>
+                              statusArray[statusArray.length - 1] ===
+                              "Accepted" ? (
+                                <td className="ar-table-col1">
+                                  {
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_MTD_HOS_name[
+                                      month
+                                    ][
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_MTD_HOS_name[
+                                        month
+                                      ].length - 1
+                                    ]
+                                  }
+                                </td>
+                              ) : (
+                                <td className="ar-table-col1"></td>
+                              )
+                            )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>
                             ))}
@@ -676,8 +708,8 @@ const CheckSheetEditAfterApproval = ({
                       {newTableData?.map((rData, rIndex) => (
                         <tr
                           className={
-                            rData[11]?.["key"] === "isDeleted" &&
-                            rData[11]?.["value"] === true
+                            rData[10]?.["key"] === "isDeleted" &&
+                            rData[10]?.["value"] === true
                               ? "ar-table-row table-col-mid-year-delete"
                               : "ar-table-row"
                           }
@@ -739,8 +771,8 @@ const CheckSheetEditAfterApproval = ({
                                     colData.key !== "action" ? (
                                     colData.value.length === 1 ? (
                                       <>
-                                        <p style={{ fontWeight: "900" }}>--></p>
-                                        {rData[11]?.["key"] !== "isDeleted" &&
+                                        <p style={{ fontWeight: "900" }}>--&gt;</p>
+                                        {rData[10]?.["key"] !== "isDeleted" &&
                                         new Date().getMonth() > 2
                                           ? moment()
                                               .month(colData.key)
@@ -751,7 +783,7 @@ const CheckSheetEditAfterApproval = ({
                                               .month(colData.key)
                                               .format("M") > 3 && (
                                               <button
-                                                className="pmImplementationBtn"
+                                                className="commonBtn pmImplementationBtn"
                                                 id={rData[0].value}
                                                 onClick={() => {
                                                   setWorkOnImplementationPM(
@@ -787,10 +819,10 @@ const CheckSheetEditAfterApproval = ({
                                           : moment()
                                               .month(colData.key)
                                               .format("M") > 3 &&
-                                            rData[11]?.["key"] !==
+                                            rData[10]?.["key"] !==
                                               "isDeleted" && (
                                               <button
-                                                className="pmImplementationBtn"
+                                                className="commonBtn pmImplementationBtn"
                                                 id={rData[0].value}
                                                 onClick={() => {
                                                   setWorkOnImplementationPM(
@@ -827,10 +859,10 @@ const CheckSheetEditAfterApproval = ({
                                     ) : colData.value.length === 1 &&
                                       colData.value[0] === "1" ? (
                                       <>
-                                        <p style={{ fontWeight: "900" }}>--></p>
-                                        {rData[11]?.["key"] !== "isDeleted" && (
+                                        <p style={{ fontWeight: "900" }}>--&gt;</p>
+                                        {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
@@ -867,7 +899,7 @@ const CheckSheetEditAfterApproval = ({
                                         colData.value[1] === "Rectify") ? (
                                       <>
                                         <div style={{ fontWeight: "900" }}>
-                                          -->
+                                          --&gt;
                                           <br />
                                           <EastIcon fontSize="small" />
                                           <br />
@@ -879,7 +911,7 @@ const CheckSheetEditAfterApproval = ({
                                         ) : (
                                           ""
                                         )}
-                                        {rData[11]?.["key"] !== "isDeleted" &&
+                                        {rData[10]?.["key"] !== "isDeleted" &&
                                           moment()
                                             .month(colData.key)
                                             .format("M") -
@@ -889,7 +921,7 @@ const CheckSheetEditAfterApproval = ({
                                             .month(colData.key)
                                             .format("M") > 3 && (
                                             <button
-                                              className="pmImplementationBtn"
+                                              className="commonBtn pmImplementationBtn"
                                               id={rData[0].value}
                                               onClick={() => {
                                                 setWorkOnImplementationPM(
@@ -936,9 +968,9 @@ const CheckSheetEditAfterApproval = ({
                                         ) : (
                                           ""
                                         )}
-                                        {rData[11]?.["key"] !== "isDeleted" && (
+                                        {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
@@ -979,7 +1011,7 @@ const CheckSheetEditAfterApproval = ({
                                         style={{ fontWeight: "900" }}
                                       >
                                         {" "}
-                                        -->
+                                        --&gt;
                                       </p>
                                     ) : colData.value.length === 2 &&
                                       colData.value[0] === "1" &&
@@ -989,7 +1021,7 @@ const CheckSheetEditAfterApproval = ({
                                         style={{ fontWeight: "900" }}
                                       >
                                         {" "}
-                                        -->
+                                        --&gt;
                                       </p>
                                     ) : colData.value.length === 1 &&
                                       colData.value[0] === "2" ? (
@@ -999,11 +1031,11 @@ const CheckSheetEditAfterApproval = ({
                                           style={{ fontWeight: "900" }}
                                         >
                                           {" "}
-                                          -->
+                                          --&gt;
                                         </p>
-                                        {rData[11]?.["key"] !== "isDeleted" && (
+                                        {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
@@ -1043,12 +1075,12 @@ const CheckSheetEditAfterApproval = ({
                                         style={{ fontWeight: "900" }}
                                       >
                                         {" "}
-                                        -->
+                                        --&gt;
                                       </p>
                                     ) : (
                                       <>
                                         <div style={{ fontWeight: "900" }}>
-                                          --> *
+                                          --&gt; *
                                           <br />
                                         </div>
                                         {colData.value[2] ? (
@@ -1066,9 +1098,9 @@ const CheckSheetEditAfterApproval = ({
                                         ) : (
                                           ""
                                         )}
-                                        {rData[11]?.["key"] !== "isDeleted" && (
+                                        {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
-                                            className="pmImplementationBtn"
+                                            className="commonBtn pmImplementationBtn"
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
@@ -1150,13 +1182,29 @@ const CheckSheetEditAfterApproval = ({
                           (MTD TM's)
                         </th>
                         {machineAllData?.checkSheet_data?.PMworkedTMName
-                          ? Object?.values(
-                              machineAllData?.checkSheet_data?.PMworkedTMName
-                            )?.map((index) => (
-                              <td className="ar-table-col1">
-                                {index.join(" ,")}
-                              </td>
-                            ))
+                          ? Object.keys({
+                              ...machineAllData?.checkSheet_data
+                                ?.implemetation_completed_tm_name,
+                              ...machineAllData?.checkSheet_data
+                                ?.PMworkedTMName,
+                            }).map((month) => {
+                              const uniqueNames = [
+                                ...new Set([
+                                  ...(machineAllData?.checkSheet_data
+                                    ?.implemetation_completed_tm_name?.[month] ||
+                                    []),
+                                  ...(machineAllData?.checkSheet_data
+                                    ?.PMworkedTMName?.[month] || []),
+                                ]),
+                              ];
+                              return (
+                                <td key={month} className="ar-table-col1">
+                                  {uniqueNames.length > 0
+                                    ? uniqueNames.join(" ,")
+                                    : "-"}
+                                </td>
+                              );
+                            })
                           : refArrayForTDMapping.map((index) => (
                               <td className="ar-table-col1"></td>
                             ))}
@@ -1170,14 +1218,29 @@ const CheckSheetEditAfterApproval = ({
                         </th>
                         {machineAllData?.checkSheet_data
                           ?.implementation_approved_by_PRD_TL
-                          ? Object.values(
+                          ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implementation_approved_by_PRD_TL
-                            )?.map((index) => (
-                              <td className="ar-table-col1">
-                                {index[index?.length - 1]}
-                              </td>
-                            ))
+                                ?.implemetation_prd_tl_approval_status
+                            ).map(([month, statusArray]) =>
+                              statusArray[statusArray.length - 1] ===
+                              "Accepted" ? (
+                                <td className="ar-table-col1">
+                                  {
+                                    machineAllData?.checkSheet_data
+                                      ?.implementation_assign_PRD_TL_name[
+                                      month
+                                    ][
+                                      machineAllData?.checkSheet_data
+                                        ?.implementation_assign_PRD_TL_name[
+                                        month
+                                      ].length - 1
+                                    ]
+                                  }
+                                </td>
+                              ) : (
+                                <td className="ar-table-col1"></td>
+                              )
+                            )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>
                             ))}

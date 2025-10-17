@@ -443,7 +443,7 @@ function PMSheetApproval() {
                 className="btn btn-primary"
                 onClick={handleDisplayAcceptedAndApproveCount}
               >
-                Show Approved / Total Approval
+                Show Approved / Pending
               </button>
             </div>
           </div>

@@ -7,18 +7,11 @@ import { useForm } from "react-hook-form";
 const DownloadLineWiseCustomizedQRCodeOfMachine = ({
   showQRCode,
   displayAndHideModalOfLineWiseMachineQR,
-  selectedRow,
   setSelectedRow,
   machine,
   line,
 }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    reset,
-  } = useForm({
+  const { register, handleSubmit, reset } = useForm({
     defaultValues: {},
   });
   //get the date and time

@@ -40,6 +40,7 @@ import styled from "styled-components";
 
 import Logout from "../../Integration/Logout/Logout";
 import CancelScheduleSendIcon from "@mui/icons-material/CancelScheduleSend";
+import handleProSideBarWidthVarForMainDashboard from "./handleProSideBarWidthVarForMainDashboard";
 
 import {
   Menu,
@@ -88,6 +89,7 @@ const Section = ({ userData, userDepartment }) => {
   };
   const onClickMenuIcon = () => {
     // setCollapsed(!collapsed);
+    handleProSideBarWidthVarForMainDashboard(menuCollapse);
     menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
   };
 

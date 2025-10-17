@@ -148,7 +148,7 @@ exports.getUserData =
           tm_department: "MTD",
           tm_grade: "HOS",
         },
-        { tm_name: 1, line_names: 1, email: 1 }
+        { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
       );
       const mtdTL = await userModel.find(
         {
@@ -156,7 +156,7 @@ exports.getUserData =
           tm_department: "MTD",
           user_type: "TL/HOSS",
         },
-        { tm_name: 1, line_names: 1, email: 1 }
+        { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
       );
       const mtdHOD = await userModel.find(
         {
@@ -190,7 +190,7 @@ exports.getUserData =
           tm_department: "PRD",
           user_type: "TL/HOSS",
         },
-        { tm_name: 1, line_names: 1, email: 1 }
+        { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
       );
 
       const requestSheetApprovalList = {

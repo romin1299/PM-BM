@@ -112,6 +112,7 @@ const MonthlyBDTrendChart = ({
     datasets: [],
   });
 
+  
   const { flagForTogglingFilter, selectedValue } = filterState;
 
   useEffect(() => {
@@ -124,7 +125,7 @@ const MonthlyBDTrendChart = ({
   const { filteredValuesWithHOD, filteredValues } = findFilters(
     flagForTogglingFilter,
     filterState,
-    selectedValue
+    // selectedValue
   );
 
   let arrayItems;
@@ -262,8 +263,6 @@ const MonthlyBDTrendChart = ({
   }, [flagForTogglingFilter, selectedValue, filter, selectedYear]);
 
   const isDataExists = isChartDataExist(chartData);
-
-  // console.count("render");
 
   return (
     <Box className="container-fluid cell p-3">

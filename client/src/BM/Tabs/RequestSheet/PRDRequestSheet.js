@@ -1,38 +1,21 @@
-// import React from "react";
-// import Table from "react-bootstrap/Table";
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import { denso_logo } from "../../../components/NavbarComponent/ImportModules";
 
 import moment from "moment-timezone";
 import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import { Box, Divider, Paper, Typography } from "@mui/material";
-import { useLocation } from "react-router-dom";
-import axios from "axios";
+import { Box } from "@mui/material";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
-
-const list = [
-  { key: "A", value: "A" },
-  { key: "B", value: "B" },
-  { key: "C", value: "C" },
-  { key: "D", value: "D" },
-];
+import ShiftInputField from "../../../CM/Components/ReqestSheetOfCM/RSComponents/ShiftInputField";
 
 function MyTable({ selectedMachineDetails, machineStatus }) {
-  // let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { machine_code, generateType, selectedYear } = useParams();
+  const { machine_code, selectedYear } = useParams();
   const context = useContext(RoutingContext);
 
   const {
@@ -49,55 +32,11 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
       problemOccurredDateAndTimeOfBM: moment(new Date()).format(
         "YYYY-MM-DDTHH:mm"
       ),
-      // requestSheettime: new Date().toLocaleString("en-US", {
-      //   timeZone: "Asia/Kolkata",
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      //   hour12: false,
-      // }),
       sheetIssuedDateAndTimeOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
-      // sheetIssuedTime: new Date().toLocaleString("en-US", {
-      //   timeZone: "Asia/Kolkata",
-      //   hour: "2-digit",
-      //   minute: "2-digit",
-      //   hour12: false,
-      // }),
     },
   });
 
-  const selectedRequestSheetData = useLocation();
-
-  const [plantShiftsData, setPlantShiftsData] = useState([]);
-  // const [problemOccurredDateAndTimeOfBM, setProblemOccurredDateAndTimeOfBM] =
-  useState("");
-
-  // const [selectedShift, setSelectedShift] = useState("");
-  // const [selectedMaintenanceType, setSelectedMaintenanceType] = useState("");
-  // const [selectedPriorityCode, setSelectedPriorityCode] = useState("");
-  // const [selectedQuality, setSelectedQuality] = useState("");
-  // const [selectedMachineDetails, setMachineDetails] = useState("");
-
-  // const handleSelectShift = (key, event) => {
-  //   setSelectedShift({ key, value: event.target.value });
-  // };
-
-  // const handleMaintenanceType = (event) => {
-  //   setSelectedMaintenanceType(event.target.value);
-  // };
-  // const handlePriorityCode = (event) => {
-  //   setSelectedPriorityCode(event.target.value);
-  // };
-  // const handleQuality = (event) => {
-  //   setSelectedQuality(event.target.value);
-  // };
-
   const newRequestSheetRegistration = async (requestSheetData) => {
-    // const machineRef = "63b67ccea716e21c95cd471a";
-    // requestSheetData.maintenanceType = selectedMaintenanceType;
-    // requestSheetData.priorityCode = selectedPriorityCode;
-    // requestSheetData.qualityRelated = selectedQuality;
-    // requestSheetData.shiftOfBM = selectedShift;
-
     try {
       if (errors?.["problemFaced"]) {
         return;
@@ -130,9 +69,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
         `/newRequestSheetRegistration/?machineRef=${machine_code}`,
         {
           method: "POST",
-          // headers: {
-          //   "Content-Type": "application/json",
-          // },
           body: formData,
         }
       );
@@ -142,11 +78,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
       if (res.status === 201) {
         SuccessToast(data?.message);
         reset();
-        // if (generateType === "scanned") {
-        //   navigate("/", { replace: true });
-        // } else {
         navigate("/bm", { replace: true });
-        // }
       } else {
         WarningToast(data?.message);
       }
@@ -155,99 +87,18 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     }
   };
 
-  const timezone = "Asia/Kolkata";
-  const startedDate = moment().tz(timezone).month() + 1;
-
-  let sheetIssuedTime = new Date().toLocaleString("en-US", {
-    timeZone: "Asia/Kolkata",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-
-  // console.log("watch", defaultValues);
-  // const momentTime = moment(sheetIssuedTime, "HH:mm");
-  const problemOccurredDateAndTimeOfBM = watch(
-    "problemOccurredDateAndTimeOfBM"
-  );
-  const [date, time] = problemOccurredDateAndTimeOfBM.split("T");
-  const momentTime = moment(time, "HH:mm");
-
-  useEffect(() => {
-    const getCurrentShiftName = () => {
-      for (let shiftInfo of plantShiftsData) {
-        const startTime = moment(shiftInfo.shiftStartTime, "HH:mm");
-        const endTime = moment(shiftInfo.shiftEndTime, "HH:mm");
-
-        // if (
-        //   momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
-        //   momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
-        // )
-
-        if (endTime.isBefore(startTime)) {
-          if (
-            momentTime.isSameOrAfter(startTime) ||
-            momentTime.isSameOrBefore(endTime)
-          ) {
-            return shiftInfo.shiftName;
-          }
-        } else {
-          if (momentTime.isBetween(startTime, endTime)) {
-            return shiftInfo.shiftName;
-          }
-        }
-      }
-
-      return "";
-    };
-
-    setValue("shiftOfBM", getCurrentShiftName());
-  }, [problemOccurredDateAndTimeOfBM, plantShiftsData]);
-
-  React.useEffect(() => {
-    const fetchShiftData = async () => {
-      const url = "/getAllShifts";
-
-      try {
-        const res = await axios.get(url, {
-          withCredentials: true,
-          credentials: "include",
-        });
-
-        // console.log("fetch shifts res:", res);
-        setPlantShiftsData(res?.data?.getShifts);
-      } catch (error) {
-        console.log("error:", error);
-      }
-    };
-
-    fetchShiftData();
-  }, []);
-
   const handleBack = () => {
     navigate("/bm", { replace: true });
   };
 
   const isEnable = selectedMachineDetails?.machine_problems_faced?.length > 0;
-
   return (
     <>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="m-0">
           <tbody className="m-1 border p-3">
             <tr class="">
-              {/* <td width={100}>
-              <img
-                src={denso_logo}
-                width="120"
-                height="30"
-                className="d-inline-block align-top"
-                alt="React Bootstrap logo"
-              />
-              
-            </td> */}
-
               <td className="">
                 <Container fluid>
                   <Row>
@@ -263,13 +114,14 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                         className="btn bg-button"
                         onClick={(e) => {
                           e.preventDefault();
-                          // navigate(
-                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
-                          // );
-                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`,"_blank")
+
+                          window.open(
+                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`,
+                            "_blank"
+                          );
                         }}
                       >
-                       Machine Details
+                        Machine Details
                       </button>
                     </Col>
 
@@ -278,12 +130,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                     </Col>
 
                     <Col className="col-auto">
-                      <Box
-                        display="flex"
-                        justifyContent="end"
-                        gap={1}
-                        // sx={{ position: "absolute", top: "10px", right: "20px" }}
-                      >
+                      <Box display="flex" justifyContent="end" gap={1}>
                         <MachineStatusBox
                           title="PM Status"
                           bodyText1={machineStatus?.pmStatusData?.PMStatus}
@@ -324,8 +171,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       {...register("maintenanceType", {
                         required: "Please select maintenance type",
                       })}
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "BM"}
                     />
                     <Form.Check
                       flex
@@ -335,8 +180,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       type="radio"
                       id={`inline-radio-2`}
                       value="PM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "PM"}
                       {...register("maintenanceType", {
                         required: "Please select maintenance type",
                       })}
@@ -349,8 +192,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       name="maintenanceType"
                       id={`inline-radio-3`}
                       value="CM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "CM"}
                       {...register("maintenanceType", {
                         required: "Please select maintenance type",
                       })}
@@ -363,8 +204,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       name="maintenanceType"
                       id={`inline-radio-4`}
                       value="TPM"
-                      // onChange={handleMaintenanceType}
-                      // checked={selectedMaintenanceType === "TPM"}
                       {...register("maintenanceType", {
                         required: "Please select maintenance type",
                       })}
@@ -393,8 +232,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       type="radio"
                       id={`inline-radio-1`}
                       value="EMERGENCY"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "EMERGENCY"}
                       {...register("priorityCode", {
                         required: "Please select priority code",
                       })}
@@ -407,8 +244,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       type="radio"
                       id={`inline-radio-2`}
                       value="IMPORTANT"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "IMPORTANT"}
                       {...register("priorityCode", {
                         required: "Please select priority code",
                       })}
@@ -421,8 +256,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       type="radio"
                       id={`inline-radio-3`}
                       value="DATA NEEDED"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "DATA NEEDED"}
                       {...register("priorityCode", {
                         required: "Please select priority code",
                       })}
@@ -435,8 +268,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       type="radio"
                       id={`inline-radio-4`}
                       value="KAIZEN"
-                      // onChange={handlePriorityCode}
-                      // checked={selectedPriorityCode === "KAIZEN"}
                       {...register("priorityCode", {
                         required: "Please select priority code",
                       })}
@@ -475,7 +306,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                               ?.substring(0, 2)
                               ?.toUpperCase()}
                         -{selectedMachineDetails?.line_names?.line_name?.trim()}
-                        -{startedDate}-
+                        -{moment().tz("Asia/Kolkata").month() + 1}-
                         {selectedMachineDetails?.line_names?.requestSheetNos +
                           1 || 1}
                       </small>
@@ -494,9 +325,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                               <br />
                               <input
                                 type="datetime-local"
-                                // min={moment(new Date() - 1)
-                                //   .subtract(1, "days")
-                                //   .format("YYYY-MM-DDTHH:mm")}
                                 {...register("problemOccurredDateAndTimeOfBM", {
                                   required: "RequestSheet date is required",
                                   onChange: (event) =>
@@ -516,24 +344,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                               )}
                             </p>
                           </div>{" "}
-                          {/* &nbsp;&nbsp;&nbsp;&nbsp;
-                          <div className="text-center">
-                            <p className="mb-0">
-                              <b>TIME: </b>
-                              <br />
-                              <input
-                                type="time"
-                                {...register("requestSheettime", {
-                                  required: "RequestSheet time is required",
-                                })}
-                              />
-                              {errors?.["requestSheettime"] && (
-                                <p className="text-error">
-                                  {errors?.["requestSheettime"]?.message}
-                                </p>
-                              )}
-                            </p>
-                          </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -549,36 +359,12 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                               <br />
                               <input
                                 type="datetime-local"
-                                {...register(
-                                  "sheetIssuedDateAndTimeOfBM"
-                                  //  {
-                                  //   required: "Sheet Issued date is required",
-                                  // }
-                                )}
+                                {...register("sheetIssuedDateAndTimeOfBM")}
                                 disabled
                               />
-                              {/* {errors?.["sheetIssuedDateAndTimeOfBM"] && (
-                              <p className="text-error">{errors?.["sheetIssuedDateAndTimeOfBM"]?.message}</p>
-                            )} */}
                             </small>
                           </div>{" "}
                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                          {/* <div className="text-center">
-                            <p className="mb-0">
-                              <b>TIME: </b>
-                              <br />
-                              <input
-                                type="time"
-                                {...register(
-                                  "sheetIssuedTime"
-                                  //  {
-                                  //   required: "Sheet Issued time is required",
-                                  // }
-                                )}
-                                disabled
-                              />
-                            </p>
-                          </div> */}
                         </div>
                       </Row>
                     </Col>
@@ -587,24 +373,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
               </td>
 
               <td className="border mb-0 col-12 col-md-2">
-                {/* <Row className="pt-0 pb-0" style={{ marginLeft: "-8px" }}>
-                <Col className="border border-left-0">
-                  <p className="mb-0">
-                    <b>Sr. No.</b>
-                  </p>
-                  <p className="fs-6 fw-normal">
-                    <input
-                      style={{ width: "100%" }}
-                      {...register("serialNo", {
-                        required: "Serial No. is required",
-                      })}
-                    />
-                    {errors?.["serialNo"] && (
-                      <p className="text-error">{errors?.["serialNo"]?.message}</p>
-                    )}
-                  </p>
-                </Col>
-              </Row> */}
                 <div className="border">
                   <Row className="m-0">
                     <Col className="border pb-2 pt-1">
@@ -629,13 +397,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       </small>
                       <br />
                       <small>{context?.tm_name}</small>
-                      {/* <input
-                    style={{ width: "100%" }}
-                    {...register("TLName", {
-                      required: "Team Leader Name is required",
-                    })}
-                  />
-                  {errors?.["TLName"] && <p className="text-error">{errors?.["TLName"]?.message}</p>} */}
                     </Col>
                   </Row>
                 </div>
@@ -673,7 +434,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       {isEnable && (
                         <>
                           <select
-                            className="mb-1"
+                            className="mb-1 w-50"
                             {...register("select_problemFaced")}
                             onInput={() => {
                               clearErrors("error_problemFaced");
@@ -762,13 +523,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       name="why"
                       className="m-1 mb-2"
                       style={{ width: "350px" }}
-                      {...register("why_5M_1E", {
-                        // required: "Please fill this field",
-                      })}
+                      {...register("why_5M_1E")}
                     />
-                    {/* {errors?.["why_5M_1E"] && (
-                      <p className="text-error">{errors?.["why_5M_1E"]?.message}</p>
-                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -784,13 +540,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       name="where"
                       className="m-1 mb-2"
                       style={{ width: "350px" }}
-                      {...register("where_process", {
-                        // required: "Please fill this field",
-                      })}
+                      {...register("where_process")}
                     />
-                    {/* {errors?.["where_process"] && (
-                      <p className="text-error">{errors?.["where_process"]?.message}</p>
-                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -806,13 +557,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       name="when"
                       className="m-1 mb-2"
                       style={{ width: "350px" }}
-                      {...register("when_frequency", {
-                        // required: "Please fill this field",
-                      })}
+                      {...register("when_frequency")}
                     />
-                    {/* {errors?.["when_frequency"] && (
-                      <p className="text-error">{errors?.["when_frequency"]?.message}</p>
-                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -828,13 +574,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       name="who"
                       className="m-1 mb-2"
                       style={{ width: "350px" }}
-                      {...register("who_person", {
-                        // required: "Please fill this field",
-                      })}
+                      {...register("who_person")}
                     />
-                    {/* {errors?.["who_person"] && (
-                      <p className="text-error">{errors?.["who_person"]?.message}</p>
-                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -850,13 +591,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       name="which"
                       className="m-1 mb-2"
                       style={{ width: "350px" }}
-                      {...register("which_defectLocation", {
-                        // required: "Please fill this field",
-                      })}
+                      {...register("which_defectLocation")}
                     />
-                    {/* {errors?.["which_defectLocation"] && (
-                      <p className="text-error">{errors?.["which_defectLocation"]?.message}</p>
-                    )} */}
                   </Col>
                 </Row>
                 <Row className="m-0 border d-flex align-items-center">
@@ -872,50 +608,18 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       name="how"
                       className="m-1 mb-2"
                       style={{ width: "350px" }}
-                      {...register("how_details", {
-                        // required: "Please fill this field",
-                      })}
+                      {...register("how_details")}
                     />
-                    {/* {errors?.["how_details"] && (
-                      <p className="text-error">{errors?.["how_details"]?.message}</p>
-                    )} */}
                   </Col>
                 </Row>
               </td>
 
               <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
-                <Row className="m-0">
-                  <Col className="border p-2">
-                    <FormControl>
-                      <FormLabel id="demo-radio-buttons-group-label">
-                        <small>
-                          <b>SHIFT</b>
-                        </small>
-                      </FormLabel>
-
-                      {watch("shiftOfBM") && (
-                        <RadioGroup
-                          row
-                          value={watch("shiftOfBM")}
-                          // value={"B"}
-                          aria-labelledby="demo-radio-buttons-group-label"
-                          name="radio-buttons-group"
-                        >
-                          {plantShiftsData?.map((shiftInfo) => (
-                            <FormControlLabel
-                              value={shiftInfo.shiftName}
-                              control={<Radio color="default" size="small" />}
-                              label={shiftInfo.shiftName}
-                              disabled={
-                                watch("shiftOfBM") !== shiftInfo.shiftName
-                              }
-                            />
-                          ))}
-                        </RadioGroup>
-                      )}
-                    </FormControl>
-                  </Col>
-                </Row>
+                <ShiftInputField
+                  dateAndTime={watch("problemOccurredDateAndTimeOfBM")}
+                  shiftOfBM={watch("shiftOfBM")}
+                  setValue={setValue}
+                />
 
                 <Row className="m-0">
                   <Col className="border p-2">
@@ -965,7 +669,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       <b>BREAKDOWN ATTENDED BY</b>
                     </small>
                     <br />
-                    {/* {selectedAttendee} */}
                   </Col>
                   <Col lg={12} className="border pb-2 pt-1">
                     <small className="mb-0">
@@ -976,7 +679,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       <Form.Control
                         type="file"
                         multiple
-                        // accept="image/png, image/gif, image/jpeg"
                         onChange={(e) => {
                           setValue(
                             "attachedImagesOrVideoByPRDUser",
@@ -988,11 +690,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                           clearErrors("attachedImagesOrVideoByPRDUser");
                         }}
                       />
-                      {/* {errors?.["attachedImagesOrVideoByPRDUser"] && (
-                        <p className="text-error">{"This field is required"}</p>
-                      )} */}
                     </Form.Group>
-                    {/* {selectedAttendee} */}
                   </Col>
                 </Row>
               </td>

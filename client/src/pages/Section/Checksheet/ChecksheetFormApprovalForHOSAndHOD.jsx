@@ -30,16 +30,19 @@ function ChecksheetFormApprovalForHOSAndHOD() {
   const [stateForOpeningSummeryPopups, setStateForOpeningSummeryPopups] =
     useState("");
   const [machineAllData, setMachineAllData] = useState([]);
-  console.log(selectedMachineCheckSheetData)
+  console.log(selectedMachineCheckSheetData);
   const postMachineIdToGetAllDetailsOfMachine = async () => {
     try {
       const res = await fetch(
-        `/postMachineIdToGetAllDetailsOfMachine/?machine_code=${selectedMachineCheckSheetData?.state?.selectedRowForViewForm?.machine_code}&&selectedYear=${selectedMachineCheckSheetData?.state?.selectedYear}`,
+        `/postMachineIdToGetAllDetailsOfMachine/?selectedYear=${selectedMachineCheckSheetData?.state?.selectedYear}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            machine_code: selectedMachineCheckSheetData?.state?.selectedRowForViewForm?.machine_code,
+          }),
         }
       );
       const data = await res.json();
@@ -491,7 +494,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
               implementation_approved_by_MTD_HOD: context.tm_name,
               implementation_approved_MTD_HOD_date: timeStamp(),
               senderApprovalMonth,
-              selectedYear: selectedMachineCheckSheetData?.state?.selectedYear
+              selectedYear: selectedMachineCheckSheetData?.state?.selectedYear,
             }
           : {
               request: formik.values.request,
@@ -505,7 +508,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
               implementation_approved_by_MTD_HOS: context.tm_name,
               implementation_approved_MTD_HOS_date: timeStamp(),
               senderApprovalMonth,
-              selectedYear: selectedMachineCheckSheetData?.state?.selectedYear
+              selectedYear: selectedMachineCheckSheetData?.state?.selectedYear,
             };
 
       // console.log("________");
@@ -531,7 +534,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           : selectedMachineCheckSheetData?.state?.dashboardID ===
             "FromPlanningApprovalDashboard"
           ? navigate("/pm/planningApproval")
-          : navigate("/pm/implementationApproval");
+          : navigate(-1);
       }
     },
   });
@@ -608,7 +611,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       : selectedMachineCheckSheetData?.state?.dashboardID ===
                         "FromPlanningApprovalDashboard"
                       ? navigate("/pm/planningApproval")
-                      : navigate("/pm/implementationApproval");
+                      : navigate(-1);
 
                     // if (
                     //   selectedMachineCheckSheetData?.state?.dashboardID ===
@@ -928,7 +931,11 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     colSpan={3}
                     rowSpan={5}
                   >
-                    Line:- {selectedMachineCheckSheetData?.state?.selectedRowForViewForm?.line_name}
+                    Line:-{" "}
+                    {
+                      selectedMachineCheckSheetData?.state
+                        ?.selectedRowForViewForm?.line_name
+                    }
                     <br />
                     M/c No : {machineAllData?.machine_code}
                   </th>
@@ -966,14 +973,25 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   </th>
                   {machineAllData?.checkSheet_data
                     ?.implementation_approved_by_MTD_TL
-                    ? Object.values(
+                    ? Object.entries(
                         machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                          ?.implemetation_mtd_tl_approval_status
+                      ).map(([month, statusArray]) =>
+                        statusArray[statusArray.length - 1] === "Accepted" ? (
+                          <td className="ar-table-col1">
+                            {
+                              machineAllData?.checkSheet_data
+                                ?.implementation_assign_MTD_TL_name[month][
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_assign_MTD_TL_name[month]
+                                  .length - 1
+                              ]
+                            }
+                          </td>
+                        ) : (
+                          <td className="ar-table-col1"></td>
+                        )
+                      )
                     : refArrayForTDMapping.map((index) => (
                         <td className="ar-table-col1"></td>
                       ))}
@@ -1021,14 +1039,25 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   </th>
                   {machineAllData?.checkSheet_data
                     ?.implementation_approved_by_MTD_HOS
-                    ? Object.values(
+                    ? Object.entries(
                         machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_MTD_HOS
-                      )?.map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                          ?.implemetation_mtd_hos_approval_status
+                      ).map(([month, statusArray]) =>
+                        statusArray[statusArray.length - 1] === "Accepted" ? (
+                          <td className="ar-table-col1">
+                            {
+                              machineAllData?.checkSheet_data
+                                ?.implementation_assign_MTD_HOS_name[month][
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_assign_MTD_HOS_name[month]
+                                  .length - 1
+                              ]
+                            }
+                          </td>
+                        ) : (
+                          <td className="ar-table-col1"></td>
+                        )
+                      )
                     : refArrayForTDMapping.map((index) => (
                         <td className="ar-table-col1"></td>
                       ))}
@@ -1119,12 +1148,29 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                     <br />
                     (MTD TM's)
                   </th>
-                  {machineAllData?.checkSheet_data?.PMworkedTMName
-                    ? Object.values(
-                        machineAllData?.checkSheet_data?.PMworkedTMName
-                      )?.map((index) => (
-                        <td className="ar-table-col1">{index.join(" ,")}</td>
-                      ))
+                  {machineAllData?.checkSheet_data
+                    ?.implemetation_completed_tm_name
+                    ? Object.keys({
+                        ...machineAllData?.checkSheet_data
+                          ?.implemetation_completed_tm_name,
+                        ...machineAllData?.checkSheet_data?.PMworkedTMName,
+                      }).map((month) => {
+                        const uniqueNames = [
+                          ...new Set([
+                            ...(machineAllData?.checkSheet_data
+                              ?.implemetation_completed_tm_name?.[month] || []),
+                            ...(machineAllData?.checkSheet_data
+                              ?.PMworkedTMName?.[month] || []),
+                          ]),
+                        ];
+                        return (
+                          <td key={month} className="ar-table-col1">
+                            {uniqueNames.length > 0
+                              ? uniqueNames.join(" ,")
+                              : "-"}
+                          </td>
+                        );
+                      })
                     : refArrayForTDMapping.map((index) => (
                         <td className="ar-table-col1"></td>
                       ))}
@@ -1138,14 +1184,25 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                   </th>
                   {machineAllData?.checkSheet_data
                     ?.implementation_approved_by_PRD_TL
-                    ? Object.values(
+                    ? Object.entries(
                         machineAllData?.checkSheet_data
-                          ?.implementation_approved_by_PRD_TL
-                      ).map((index) => (
-                        <td className="ar-table-col1">
-                          {index[index.length - 1]}
-                        </td>
-                      ))
+                          ?.implemetation_prd_tl_approval_status
+                      ).map(([month, statusArray]) =>
+                        statusArray[statusArray.length - 1] === "Accepted" ? (
+                          <td className="ar-table-col1">
+                            {
+                              machineAllData?.checkSheet_data
+                                ?.implementation_assign_PRD_TL_name[month][
+                                machineAllData?.checkSheet_data
+                                  ?.implementation_assign_PRD_TL_name[month]
+                                  .length - 1
+                              ]
+                            }
+                          </td>
+                        ) : (
+                          <td className="ar-table-col1"></td>
+                        )
+                      )
                     : refArrayForTDMapping.map((index) => (
                         <td className="ar-table-col1"></td>
                       ))}

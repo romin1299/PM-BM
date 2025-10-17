@@ -32,6 +32,8 @@ const products = [
   "Product 5",
 ];
 
+const QUARTER_LIST = ["Q1", "Q2", "Q3", "Q4"];
+
 function getStyles(name, personName, theme) {
   return {
     fontWeight:
@@ -68,18 +70,24 @@ export default function LineSelectionDropdown({
   selectedMachine,
   machines,
   selectedYear,
+  selectedYearWithoutFY,
   selectedMonth,
   RSStatusArray,
   maintenanceTypeArrayForFilter,
-
+  CM_Category,
+  CM_CategoryFiltration,
+  selectedCategoryType = "",
   reducerDispatch,
   baseUrlForFiltering,
   monthFiltration,
   yearFiltration,
+  yearFiltrationWithoutFY,
   RSStatusFiltration,
-  selectedRSStatus,
+  selectedRSStatus = "",
   maintenanceTypeFiltration,
-  selectedMaintenanceType,
+  selectedMaintenanceType = "",
+  quarterFiltration,
+  selectedQuarter = "",
 
   sectionFiltration,
   subSectionFiltration,
@@ -89,6 +97,11 @@ export default function LineSelectionDropdown({
 
   resetButtonFiltration,
   isWithLocalStorageForFiltration,
+  selectedLineOrNot = "",
+  defaultSelectedMonth = "",
+  currentStatusOfRSFiltration,
+  currentStatusOfRequestSheet,
+  selectedCurrentStatusOfRS = "",
 }) {
   const context = useContext(RoutingContext);
 
@@ -110,6 +123,12 @@ export default function LineSelectionDropdown({
     setFinancialYears(financialYears);
   };
 
+  const yearsWithoutFY = Array.from({ length: 20 }, (_, i) => {
+    const startYear = new Date().getFullYear() - 10 + i;
+    const endYear = startYear + 1;
+    return `${startYear}-${endYear}`;
+  });
+
   useEffect(() => {
     fetchFYYearData();
   }, []);
@@ -117,7 +136,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/sectionBased/${section}`,
+        url: `${baseUrlForFiltering}/sectionBased/${section}?selectedLineOrNot=${selectedLineOrNot}`,
       });
 
       const {
@@ -167,7 +186,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnSubSection = async ({ subSection }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/subSectionBased/${subSection}`,
+        url: `${baseUrlForFiltering}/subSectionBased/${subSection}?selectedLineOrNot=${selectedLineOrNot}`,
       });
 
       const {
@@ -213,7 +232,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnCell = async ({ cell }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/cellBased/${cell}`,
+        url: `${baseUrlForFiltering}/cellBased/${cell}?selectedLineOrNot=${selectedLineOrNot}`,
       });
       const {
         message,
@@ -253,7 +272,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnLine = async ({ line }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/lineBased/${line}`,
+        url: `${baseUrlForFiltering}/lineBased/${line}?selectedLineOrNot=${selectedLineOrNot}`,
       });
       const {
         message,
@@ -287,9 +306,9 @@ export default function LineSelectionDropdown({
     }
   };
 
-  const getFiltrationValueByDefault = async () => {
+  const getFiltrationValueByDefault = async (isReset = false) => {
     const { res, data } = await getFiltrationValue({
-      url: `${baseUrlForFiltering}/byDefault`,
+      url: `${baseUrlForFiltering}/byDefault/?selectedLineOrNot=${selectedLineOrNot}`,
     });
 
     const {
@@ -308,7 +327,6 @@ export default function LineSelectionDropdown({
       lines,
       selectedMachine,
       machines,
-      selectedRSStatus,
     } = data;
 
     if (res?.status === 201) {
@@ -330,7 +348,8 @@ export default function LineSelectionDropdown({
         selectedMachine,
         machines,
         message,
-        selectedRSStatus,
+        selectedMonth: defaultSelectedMonth,
+        isReset,
       });
     }
   };
@@ -338,10 +357,10 @@ export default function LineSelectionDropdown({
   useEffect(() => {
     if (
       !localStorage.getItem("selectedValue") &&
-      isWithLocalStorageForFiltration
+      isWithLocalStorageForFiltration === "Yes"
     ) {
       getFiltrationValueByDefault();
-    } else if (!isWithLocalStorageForFiltration) {
+    } else if (isWithLocalStorageForFiltration !== "Yes") {
       getFiltrationValueByDefault();
     }
   }, []);
@@ -584,6 +603,7 @@ export default function LineSelectionDropdown({
                 type: ACTION.HANDLE_SELECT_YEAR,
                 isWithLocalStorageForFiltration,
                 selectedYear: e.target.value,
+                defaultSelectedMonth,
               });
             }}
             input={<OutlinedInput />}
@@ -601,7 +621,53 @@ export default function LineSelectionDropdown({
             MenuProps={MenuProps}
             inputProps={{ "aria-label": "Without label" }}
           >
-            {financialYears.map((item) => (
+            {(defaultSelectedMonth ? yearsWithoutFY : financialYears)?.map(
+              (item) => (
+                <MenuItem
+                  key={item}
+                  value={item}
+                  style={getStyleForSelectedValue(
+                    item,
+                    selectedYear,
+                    "for-array-value"
+                  )}
+                >
+                  {item}
+                </MenuItem>
+              )
+            )}
+          </Select>
+        </FormControl>
+      )}
+
+      {/* {yearFiltrationWithoutFY && (
+        <FormControl size="small">
+          <Select
+            displayEmpty
+            value={selectedYearWithoutFY}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_YEAR_WITHOUT_FY,
+                isWithLocalStorageForFiltration,
+                selectedYearWithoutFY: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 130,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) return value;
+              return "Year";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {yearsWithoutFY.map((item) => (
               <MenuItem
                 key={item}
                 value={item}
@@ -616,7 +682,7 @@ export default function LineSelectionDropdown({
             ))}
           </Select>
         </FormControl>
-      )}
+      )} */}
 
       <FormControl size="small">
         {monthFiltration && (
@@ -756,6 +822,144 @@ export default function LineSelectionDropdown({
         )}
       </FormControl>
 
+      <FormControl size="small">
+        {currentStatusOfRSFiltration && (
+          <Select
+            displayEmpty
+            value={selectedCurrentStatusOfRS}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_CURRENT_RS_STATUS,
+                isWithLocalStorageForFiltration,
+                selectedCurrentStatusOfRS: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "Current RS Status";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {currentStatusOfRequestSheet?.map((item) => (
+              <MenuItem
+                key={item?.title}
+                value={item?.title}
+                style={getStyleForSelectedValue(
+                  item?.title,
+                  selectedCurrentStatusOfRS,
+                  "for-array-value"
+                )}
+              >
+                {item?.title}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
+      <FormControl size="small">
+        {CM_CategoryFiltration && (
+          <Select
+            displayEmpty
+            value={selectedCategoryType}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_CM_CATEGORY,
+                isWithLocalStorageForFiltration,
+                selectedCategoryType: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "CM Categories";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {CM_Category?.map((item) => (
+              <MenuItem
+                key={item?.title}
+                value={item?.title}
+                style={getStyleForSelectedValue(
+                  item?.title,
+                  selectedCategoryType,
+                  "for-array-value"
+                )}
+              >
+                {item?.title}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
+      <FormControl size="small">
+        {quarterFiltration && (
+          <Select
+            displayEmpty
+            value={selectedQuarter}
+            onChange={(e) => {
+              reducerDispatch({
+                type: ACTION.HANDLE_SELECT_QUARTER,
+                isWithLocalStorageForFiltration,
+                selectedQuarter: e.target.value,
+              });
+            }}
+            input={<OutlinedInput />}
+            sx={{
+              width: 170,
+              "& .MuiSelect-select": {
+                paddingTop: "5px",
+                paddingBottom: "5px",
+              },
+            }}
+            renderValue={(value) => {
+              if (value) {
+                return value;
+              }
+              return "Quarter";
+            }}
+            MenuProps={MenuProps}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            {QUARTER_LIST?.map((item) => (
+              <MenuItem
+                key={item}
+                value={item}
+                style={getStyleForSelectedValue(
+                  item,
+                  selectedQuarter,
+                  "for-array-value"
+                )}
+              >
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </FormControl>
+
       {resetButtonFiltration && (
         <Button
           // className="btn bg-button"
@@ -764,18 +968,7 @@ export default function LineSelectionDropdown({
           disableElevation
           className="bg-button"
           onClick={async () => {
-            let selectedYear =
-              new Date().getMonth() < 3
-                ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-                : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-
-            await reducerDispatch({
-              type: ACTION.HANDLE_SELECT_YEAR,
-              isWithLocalStorageForFiltration,
-              selectedYear,
-            });
-
-            getFiltrationValueByDefault(selectedYear);
+            getFiltrationValueByDefault(true);
           }}
         >
           Reset

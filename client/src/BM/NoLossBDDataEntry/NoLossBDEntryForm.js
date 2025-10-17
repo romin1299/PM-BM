@@ -1,8 +1,15 @@
-import React, { useReducer, useState, useEffect, useContext } from "react";
+import React, {
+  useReducer,
+  useState,
+  useEffect,
+  useContext,
+  forwardRef,
+} from "react";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   reducer,
   initialState,
+  getFiltrationValue,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import { Controller, useForm } from "react-hook-form";
 import { Row, Col, Form, Container } from "react-bootstrap";
@@ -23,9 +30,11 @@ const NoLossBDEntryForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
     watch,
     reset,
     control,
+    clearErrors,
     setValue,
   } = useForm({
     defaultValues: {
@@ -69,9 +78,58 @@ const NoLossBDEntryForm = () => {
     }
   };
 
+  const getFiltrationValueByDefault = async () => {
+    const { res, data } = await getFiltrationValue({
+      url: `${baseUrlForFiltering}/byDefault`,
+    });
+
+    const {
+      message,
+
+      flagForTogglingFilter,
+      selectedValue,
+
+      selectedSection,
+      sections,
+      selectedSubSection,
+      subSections,
+      selectedCell,
+      cells,
+      selectedLine,
+      lines,
+      selectedMachine,
+      machines,
+      selectedRSStatus,
+    } = data;
+
+    if (res?.status === 201) {
+      reducerDispatch({
+        type: "get-data",
+
+        flagForTogglingFilter,
+        selectedValue,
+
+        selectedSection,
+        sections,
+        selectedSubSection,
+        subSections,
+        cells,
+        selectedCell,
+        selectedLine,
+        lines,
+        selectedMachine,
+        machines,
+        message,
+        selectedRSStatus,
+      });
+    }
+  };
+
   useEffect(() => {
     getListOfTheTLAndOperatorForNoLossBDEntryForm();
   }, []);
+
+  // console.log("this is reduce", reduceState);
 
   const timezone = "Asia/Kolkata";
   const currentMonth = moment().format("MMM");
@@ -104,7 +162,7 @@ const NoLossBDEntryForm = () => {
 
   useEffect(() => {
     const fetchShiftData = async () => {
-      const url = "/getAllShifts";
+      const url = "/getAllShifts?wantCategories=Yes";
 
       try {
         const res = await axios.get(url, {
@@ -112,9 +170,10 @@ const NoLossBDEntryForm = () => {
           credentials: "include",
         });
 
-        // console.log("fetch shifts res:", res);
-        setPlantShiftsData(res?.data?.getShifts);
-        setPlantCategories(res?.data?.categories);
+        if (res.status === 201) {
+          setPlantShiftsData(res?.data?.getShifts);
+          setPlantCategories(res?.data?.categories);
+        }
       } catch (error) {
         console.log("error:", error);
       }
@@ -125,6 +184,19 @@ const NoLossBDEntryForm = () => {
 
   const postNoLossBDFormData = async (noLossData) => {
     try {
+      if (
+        !reduceState?.selectedCell ||
+        !reduceState?.selectedLine ||
+        !reduceState?.selectedMachine
+      ) {
+        return setError(
+          "selectedValue",
+          {
+            message: "Cell / Line/ Machine selection is required !",
+          },
+          { shouldFocus: true }
+        );
+      }
       const formData = new FormData();
       noLossData.problemsOfBM = problems;
       noLossData.actionAndCounterMeasureStep = actions;
@@ -148,7 +220,7 @@ const NoLossBDEntryForm = () => {
         );
       }
 
-      formData.append("otherData", JSON.stringify({...noLossData}));
+      formData.append("otherData", JSON.stringify({ ...noLossData }));
 
       const res = await fetch(`/postNewNoLossBDData`, {
         method: "POST",
@@ -161,12 +233,30 @@ const NoLossBDEntryForm = () => {
       const data = await res.json();
 
       if (res.status === 201) {
+        // const result = initialState();
+        // console.log("this is result", result);
+
         SuccessToast(data?.message);
-        reset();
+        reset({
+          doneByNoLossBD: loggedUserDetails?._id,
+          actionTemporaryOrNot: "",
+          maintenanceType: "",
+          shiftOfBM: "",
+          machineStatus: "",
+          workStartedDateOfBM: "",
+          workEndedDateOfBM: "",
+          causeOfNoLoss: "",
+          counterMeasureStep: "",
+          attachedFilesForOtherLoss: "",
+        });
         setProblems([]);
         setActions([]);
         setSelectedSupportedTM([]);
-        setInc(inc + 1);
+        setInc((inc) => inc + 1);
+        getFiltrationValueByDefault();
+        for (const categoryObj of plantCategories) {
+          setValue(`categories.${categoryObj?.name}`, "");
+        }
       } else {
         WarningToast(data?.message);
       }
@@ -174,6 +264,12 @@ const NoLossBDEntryForm = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (reduceState?.selectedMachine !== "") {
+      clearErrors("selectedValue");
+    }
+  }, [reduceState?.selectedMachine]);
 
   return (
     <Container fluid>
@@ -197,8 +293,12 @@ const NoLossBDEntryForm = () => {
               cellFiltration
               lineFiltration
               machineFiltration
+              // isWithLocalStorageForFiltration={"Yes"}
             />
           </Col>
+          {errors?.selectedValue && (
+            <p className="text-error">{errors?.selectedValue?.message}</p>
+          )}
         </Row>
 
         <Row className="gx-0">
@@ -342,13 +442,17 @@ const NoLossBDEntryForm = () => {
                       label={shiftInfo.shiftName}
                       type="radio"
                       value={shiftInfo.shiftName}
-                      name={`shiftOfBM`}
+                      // name={`shiftOfBM`}
+                      {...register(`shiftOfBM`, {
+                        required: "This field is required",
+                      })}
+
                       // {...register(`shiftOfBM.${shiftInfo.shiftName}`)}
-                      onChange={(e) => {
-                        setValue(`shiftOfBM`, e.target.value, {
-                          shouldDirty: true,
-                        });
-                      }}
+                      // onChange={(e) => {
+                      //   setValue(`shiftOfBM`, e.target.value, {
+                      //     shouldDirty: true,
+                      //   });
+                      // }}
                     />
                   ))}
                   {errors?.["shiftOfBM"] && (
@@ -587,7 +691,7 @@ const NoLossBDEntryForm = () => {
                             width: "15rem",
                           },
                         }}
-                        // selectedValues={requestSheetDataOfBM?.supportingTM}
+                        selectedValues={selectedSupportedTM}
                       />
                     )}
                   />
@@ -624,7 +728,11 @@ const NoLossBDEntryForm = () => {
             <ProblemList problems={problems} setProblems={setProblems} />
           </Col>
           <Col sm={12} md={12} lg={6} xxl={4}>
-            <ActionList actions={actions} setActions={setActions} />
+            <ActionList
+              actions={actions}
+              setActions={setActions}
+              isEditable={true}
+            />
           </Col>
           <Col sm={12} md={12} lg={6} xxl={4}>
             <div className="d-block align-items-center border p-2">
@@ -745,6 +853,7 @@ const NoLossBDEntryForm = () => {
           type="submit"
           className="btn bg-primary"
           style={{ marginTop: "1rem" }}
+          disabled={loggedUserDetails?.tm_no === Number("9999")}
         >
           Submit Data
         </Button>

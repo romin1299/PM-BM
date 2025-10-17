@@ -22,6 +22,7 @@ import {
 } from "../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import ReportTitleBar from "../../BM/Reports/Common/ReportTitleBar";
 import ChartsToolbar from "../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
+import { useContext } from "react";
 const SixMonthApprovalDashboard = () => {
   //----------------------------------------------------------------
   const navigate = useNavigate();
@@ -31,6 +32,8 @@ const SixMonthApprovalDashboard = () => {
     initialState("Yes")
   );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
+
+  const context = useContext(RoutingContext);
 
   //----------------------------------------------------------------
   const [tableData, setTableData] = useState([]);
@@ -104,6 +107,8 @@ const SixMonthApprovalDashboard = () => {
   const actions = [
     {
       icon: () => <button className="btn-reset">Implementation</button>,
+      hidden: context?.tm_no === Number("9999"),
+
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
         // console.log(selectedRow);
@@ -255,7 +260,7 @@ const SixMonthApprovalDashboard = () => {
                   exportAllData: true,
                   draggable: false,
                   actionsColumnIndex: -1,
-                  pageSize: 10,
+                  pageSize: 50,
                   pageSizeOptions: false,
                   paginationType: "stepped",
                   addRowPosition: "first",

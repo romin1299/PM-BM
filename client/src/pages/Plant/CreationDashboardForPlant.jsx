@@ -122,7 +122,7 @@ const CreationDashboardForPlant = () => {
       label: "Dashboard Level",
       key: "dashboardLevel",
     },
-  ]
+  ];
 
   const subSectionHeader = [
     {
@@ -161,56 +161,66 @@ const CreationDashboardForPlant = () => {
       label: "Sequence",
       key: "subSection_sequence",
     },
-  ]
+  ];
 
-    //get the date and time
-    const timeStamp = () => {
-      let date = new Date();
-      let getTime = date
-        .toLocaleTimeString("en-IN", {
-          hour12: true,
-        })
-        .replace(/(.*)\D\d+/, "$1");
-      const year = date.getFullYear(); // 2019
-      const month = date.getMonth() + 1;
-      const day = date.getDate(); // 23
-  
-      return `${day}/${month}/${year} - ${getTime}`;
-    };
+  //get the date and time
+  const timeStamp = () => {
+    let date = new Date();
+    let getTime = date
+      .toLocaleTimeString("en-IN", {
+        hour12: true,
+      })
+      .replace(/(.*)\D\d+/, "$1");
+    const year = date.getFullYear(); // 2019
+    const month = date.getMonth() + 1;
+    const day = date.getDate(); // 23
 
-    const downloadPDFOfSectionData = () => {
-      const doc = new jsPDF();
-      let rows = [];
-      sectionList?.sectionsInfo?.map((item, idx) => {
-        let rowArrayOfTable = [++idx, item.section_id, item.section_name, item.dashboardLevel];
-        rows.push(rowArrayOfTable);
-      });
-      doc.text(`Section Data`, 15, 10);
-  
-      autoTable(doc, {
-        head: [sectionHeader?.map((value) => value.title)],
-        body: rows,
-      });
-      // doc.autoTable(columns, csvData);
-      doc.save(`Section_Data_${timeStamp()}`);
-    };
+    return `${day}/${month}/${year} - ${getTime}`;
+  };
 
-    const downloadPDFOfSubSectionData = () => {
-      const doc = new jsPDF();
-      let rows = [];
-      subSectionList?.subSectionsInfo?.map((item, idx) => {
-        let rowArrayOfTable = [++idx, item.subSection_id, item.subSection_name, item.subSection_sequence];
-        rows.push(rowArrayOfTable);
-      });
-      doc.text(`Sub Section Data`, 15, 10);
-  
-      autoTable(doc, {
-        head: [subSectionHeader?.map((value) => value.title)],
-        body: rows,
-      });
-      // doc.autoTable(columns, csvData);
-      doc.save(`Sub_Section_Data_${timeStamp()}`);
-    };
+  const downloadPDFOfSectionData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    sectionList?.sectionsInfo?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.section_id,
+        item.section_name,
+        item.dashboardLevel,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Section Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [sectionHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Section_Data_${timeStamp()}`);
+  };
+
+  const downloadPDFOfSubSectionData = () => {
+    const doc = new jsPDF();
+    let rows = [];
+    subSectionList?.subSectionsInfo?.map((item, idx) => {
+      let rowArrayOfTable = [
+        ++idx,
+        item.subSection_id,
+        item.subSection_name,
+        item.subSection_sequence,
+      ];
+      rows.push(rowArrayOfTable);
+    });
+    doc.text(`Sub Section Data`, 15, 10);
+
+    autoTable(doc, {
+      head: [subSectionHeader?.map((value) => value.title)],
+      body: rows,
+    });
+    // doc.autoTable(columns, csvData);
+    doc.save(`Sub_Section_Data_${timeStamp()}`);
+  };
 
   const sectionAction = [
     {
@@ -221,7 +231,6 @@ const CreationDashboardForPlant = () => {
         downloadPDFOfSectionData();
       },
     },
-
     {
       icon: () => (
         <CSVLink
@@ -397,24 +406,27 @@ const CreationDashboardForPlant = () => {
                   // tableRef={this.tableRef.current.onQueryChange()}
 
                   editable={{
-                    onRowAdd: (newRow) =>
-                      new Promise((resolve, reject) => {
-                        // const updatedRows = [
-                        //   ...sectionList.sectionsInfo,
-                        //   { user_id: "", ...newRow },
-                        // ];
+                    isEditHidden: () => context?.tm_no === Number("9999"),
+                    isDeleteHidden: () => context?.tm_no === Number("9999"),
+                    ...(context?.tm_no !== 9999 && {
+                      onRowAdd: (newRow) =>
+                        new Promise((resolve, reject) => {
+                          // const updatedRows = [
+                          //   ...sectionList.sectionsInfo,
+                          //   { user_id: "", ...newRow },
+                          // ];
 
-                        // postNewPlantData(newRow);
-                        newSubSection(newRow, sections);
+                          // postNewPlantData(newRow);
+                          newSubSection(newRow, sections);
 
-                        setTimeout(() => {
-                          // setSectionList(updatedRows);
-                          setRefKey2((refKey2) => refKey2 + 1);
-                          resolve();
-                        }, 500);
-                        //refreshPage();
-                      }),
-
+                          setTimeout(() => {
+                            // setSectionList(updatedRows);
+                            setRefKey2((refKey2) => refKey2 + 1);
+                            resolve();
+                          }, 500);
+                          //refreshPage();
+                        }),
+                    }),
                     onRowDelete: (selectedRow) =>
                       new Promise((resolve, reject) => {
                         // const index = selectedRow.tableData.id;
@@ -479,8 +491,8 @@ const CreationDashboardForPlant = () => {
                     },
                     headerStyle: {
                       fontSize: "14px",
-                      fontWeight: "bold"
-                    }
+                      fontWeight: "bold",
+                    },
                   }}
                 />
               ) : (
@@ -503,35 +515,22 @@ const CreationDashboardForPlant = () => {
                 data={sectionList.sectionsInfo}
                 // title="User Management"
                 // tableRef={this.tableRef.current.onQueryChange()}
-
                 editable={{
-                  onRowAdd: (newRow) =>
-                    new Promise((resolve, reject) => {
-                      const updatedRows = [
-                        ...sectionList.sectionsInfo,
-                        { user_id: "", ...newRow },
-                      ];
-
-                      // postNewPlantData(newRow);
-                      newSection(newRow, context.plant_data);
-
-                      setTimeout(() => {
-                        // setSectionList(updatedRows);
-                        setRefKey((refKey) => refKey + 1);
-                        resolve();
-                      }, 500);
-                      //refreshPage();
-                    }),
+                  isEditHidden: () => context?.tm_no === Number("9999"),
+                  isDeleteHidden: () => context?.tm_no === Number("9999"),
+                  ...(context?.tm_no !== 9999 && {
+                    onRowAdd: (newRow) =>
+                      new Promise((resolve, reject) => {
+                        newSection(newRow, context.plant_data);
+                        setTimeout(() => {
+                          setRefKey((refKey) => refKey + 1);
+                          resolve();
+                        }, 500);
+                      }),
+                  }),
 
                   onRowDelete: (selectedRow) =>
                     new Promise((resolve, reject) => {
-                      // const index = selectedRow.tableData.id;
-                      // console.log(index);
-                      // const updatedRows = [...sectionList.sectionsInfo];
-                      // updatedRows.splice(index, 1);
-
-                      //call the delete user function and pass the user data
-                      // deleteUserInfo(selectedRow);
                       deleteSection(selectedRow);
                       setTimeout(() => {
                         setRefKey((refKey) => refKey + 1);
@@ -541,11 +540,6 @@ const CreationDashboardForPlant = () => {
 
                   onRowUpdate: (updatedRow, oldRow) =>
                     new Promise((resolve, reject) => {
-                      // const index = oldRow.tableData.id;
-                      // const updatedRows = [...sectionList.sectionsInfo];
-                      // updatedRows[index] = updatedRow;
-                      //call the update user function and pass the user data
-                      // updateUserInfo(updatedRow);
                       updateSection(updatedRow, oldRow);
                       setTimeout(() => {
                         setRefKey((refKey) => refKey + 1);
@@ -587,8 +581,8 @@ const CreationDashboardForPlant = () => {
                   },
                   headerStyle: {
                     fontSize: "14px",
-                    fontWeight: "bold"
-                  }
+                    fontWeight: "bold",
+                  },
                 }}
               />
             ) : (
@@ -600,7 +594,7 @@ const CreationDashboardForPlant = () => {
       <br />
       <br />
       <br />
-      <Footer/>
+      <Footer />
     </>
   );
 };

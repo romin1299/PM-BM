@@ -205,7 +205,7 @@ const SparePartUsageHistory = () => {
   }, []);
 
   useEffect(() => {
-    setStateForAnimationAndNotFound(<LoadingAnimation/>)
+    setStateForAnimationAndNotFound(<LoadingAnimation />);
     if (context?.user_type === "Plant-Admin") {
       postPlantToGetSectionDataBasedOnDashboardLevel();
     } else {

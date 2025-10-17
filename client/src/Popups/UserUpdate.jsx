@@ -9,7 +9,6 @@ import {
   Select,
   ListItemText,
   MenuItem,
-  OutlinedInput,
   InputLabel,
   FormControl,
 } from "@material-ui/core";
@@ -31,8 +30,6 @@ const UserUpdate = ({ selectedRow }) => {
   //for selected list of value
   const [grade, setGrade] = useState();
 
-  const [plants, setplants] = useState();
-  const [sections, setsections] = useState();
   const [subsections, setsubsections] = useState([]);
   const [cells, setcells] = useState([]);
   const [usertype, setUsertype] = useState();

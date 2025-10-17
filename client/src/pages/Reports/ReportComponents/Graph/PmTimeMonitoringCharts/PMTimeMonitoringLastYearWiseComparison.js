@@ -120,7 +120,7 @@ const PMTimeMonitoringLastYearWiseComparison = ({
   return (
     <>
       <BarChart
-        title="Yearly Trend Time Monitoring"
+        title="PM-Time Monitoring (Year)"
         loading={loading}
         dataset={yearlyTrendMachineTimeMonitoring}
         AppendToolComponents={TopDataFilterInput}

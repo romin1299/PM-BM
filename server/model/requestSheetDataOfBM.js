@@ -4,6 +4,11 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   requestSheetNoOfBM: {
     type: String,
   },
+  //If safety form is created
+  IsSafetyFormCreated: {
+    type: Boolean,
+    default: false,
+  },
 
   //If safety form is created
   IsSafetyFormCreated: {
@@ -38,7 +43,7 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     default: new Date(),
   },
 
-  attachedImagesOrVideoByPRDUser: {type: [String]},
+  attachedImagesOrVideoByPRDUser: { type: [String] },
 
   breakDownBasicDataFilledByPRD: {
     problemFaced: { type: String },
@@ -136,6 +141,12 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   },
   breakDownAttendedStatus: {
     type: String,
+  },
+
+  currentStatusOfBD: {
+    status: { type: String, default: "Repair Under Progress" },
+    estimatedTime: { type: String },
+    remarks: { type: String },
   },
 
   assignUser: {
@@ -282,6 +293,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
+  machineSafetyCheckedByPRD: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
   partQualityStatusOfPRD: {
     type: String, //yes no
   },
@@ -291,6 +306,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
 
   //part quality checked by MTD
   partQualityCheckedByMTD: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
+  machineSafetyCheckedByMTD: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
@@ -403,6 +422,10 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   //With multi lines and machines selection. (Need to discussion on it).
 
   actionTemporaryOrNot: {
+    type: String,
+  },
+
+  IsYokotenkai: {
     type: String,
   },
 

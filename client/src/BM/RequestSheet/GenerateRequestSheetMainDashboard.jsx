@@ -1,10 +1,68 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useContext, useState } from "react";
 
 import { Container, Row, Col } from "reactstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
+import LoadingAnimation from "../../pages/Reports/ReportComponents/LoadingAnimation";
+import RoutingContext from "../../context/routing/RoutingContext";
+import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
 
-const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
+const MapComponent = ({
+  propsArray,
+  handleNavigationToRequestSheet,
+  handleRequestSheetShowAndCloseState,
+  reducerDispatch,
+  ACTION,
+  context,
+  searchParams,
+  setSearchParams,
+}) => {
+  const requestSheetStatusNotIncludeForCurrent = [
+    "Generated",
+    "Work Order Open",
+    "Work Order Pending",
+    "Work Order Closed",
+    "Completed",
+  ];
+
+  const newParams = new URLSearchParams(searchParams);
+
+  const getStatusClass = (
+    currentStatusOfBD,
+    requestSheetStatus,
+    assignUser,
+    work_order_status
+  ) => {
+    // First check currentStatusOfBD values
+
+    //Under BD
+    if (
+      (currentStatusOfBD === "Repair Under Progress" ||
+        assignUser === "" ||
+        assignUser === undefined) &&
+      (requestSheetStatus === "Generated" || work_order_status === "Pending") &&
+      currentStatusOfBD !== undefined
+    )
+      return "status-red border border-warning border-3";
+    //Waiting
+    else if (currentStatusOfBD === "Waiting For Spare") return "status-yellow";
+    //Running
+    else if (
+      currentStatusOfBD === "Machine Running" ||
+      requestSheetStatus === "Completed"
+    )
+      return "status-green";
+    // Then check requestSheetStatus values
+    //Under Monitoring
+    else if (
+      !requestSheetStatusNotIncludeForCurrent?.includes(requestSheetStatus) &&
+      requestSheetStatus !== undefined
+    )
+      return "status-blue";
+
+    // return "status-default";
+  };
+
   return (
     <>
       {propsArray?.map((cell, index) => (
@@ -33,12 +91,34 @@ const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
                     {line?.machines?.map((machine, index) => (
                       <button
                         key={index}
-                        className="machine"
-                        onClick={() =>
+                        className={`machine ${
+                          context?.tm_department === "MTD" && localStorage.getItem("activeKey") === "bm"
+                            ? getStatusClass(
+                                machine?.requestSheet?.[0]?.currentStatusOfBD,
+                                machine?.requestSheet?.[0]?.requestSheetStatus,
+                                machine?.requestSheet?.[0]?.assignUser,
+                                machine?.requestSheet?.[0]?.work_order_status
+                              )
+                            : ""
+                        }`}
+                        onClick={() => {
                           handleNavigationToRequestSheet({
                             machine_code: machine?.machine_code,
-                          })
-                        }
+                          });
+                          reducerDispatch({
+                            type: ACTION.SET_BD_DATA,
+                            machineCode: machine?.machine_code,
+                            requestSheetId: machine?.requestSheet?.[0]?._id,
+                          });
+                          if (
+                            context?.tm_department === "MTD" &&
+                            localStorage.getItem("activeKey") === "bm"
+                          ) {
+                            handleRequestSheetShowAndCloseState();
+                            newParams.set("machineCode", machine?.machine_code);
+                            setSearchParams(newParams);
+                          }
+                        }}
                       >
                         {machine?.machine_nickname}
                       </button>
@@ -55,7 +135,12 @@ const MapComponent = ({ propsArray, handleNavigationToRequestSheet }) => {
 };
 
 const GenerateRequestSheetMainDashboard = () => {
+  const context = useContext(RoutingContext);
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
+    useState(false);
   const navigate = useNavigate();
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const initialState = {
     dashboardLevel: "",
@@ -67,12 +152,14 @@ const GenerateRequestSheetMainDashboard = () => {
     isError: false,
 
     selectedSubSection: "",
+    machineCode: "",
+    requestSheetId: "",
   };
 
   const ACTION = {
     GET: "get-main-dashboard-request-sheet-data",
-    SUB_SECTION_EVENT: "handle-sub-section-dropdown-change",
     LOADING: "handle-loading-state",
+    SET_BD_DATA: "set-request-sheet-id-for-current-BD-status",
   };
 
   const reducer = (state, action) => {
@@ -87,19 +174,19 @@ const GenerateRequestSheetMainDashboard = () => {
           dashboardLevel: action?.dashboardLevel,
           subSectionArr: action?.subSectionArr,
         };
-      case ACTION?.SUB_SECTION_EVENT:
-        return {
-          ...state,
-          isLoading: false,
-          selectedSubSection: action?.selectedSubSection,
-          message: action?.message,
-        };
 
       case ACTION?.LOADING:
         return {
           ...state,
           isLoading: true,
           isError: false,
+        };
+
+      case ACTION?.SET_BD_DATA:
+        return {
+          ...state,
+          machineCode: action?.machine_code,
+          requestSheetId: action?.requestSheetId,
         };
       default:
         return state;
@@ -109,7 +196,7 @@ const GenerateRequestSheetMainDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState);
 
   const getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel =
-    async ({ url }) => {
+    async (url) => {
       try {
         reducerDispatch({
           type: ACTION.LOADING,
@@ -123,21 +210,11 @@ const GenerateRequestSheetMainDashboard = () => {
           credentials: "include",
         });
 
-        const {
-          allDataBasedOnDashboardLevel,
-          subSectionArr,
-          selectedSubSection,
-          dashboardLevel,
-          message,
-        } = await res.json();
+        const data = await res.json();
 
         reducerDispatch({
           type: ACTION.GET,
-          message,
-          allDataBasedOnDashboardLevel,
-          selectedSubSection,
-          dashboardLevel,
-          subSectionArr,
+          ...data,
         });
       } catch (error) {
         console.log(error);
@@ -145,21 +222,34 @@ const GenerateRequestSheetMainDashboard = () => {
     };
 
   useEffect(() => {
-    let url = `/getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel`;
-    if (reduceState?.selectedSubSection) {
-      url = `/getAllDataBasedOnSelectedSubSection/${reduceState?.selectedSubSection}/${reduceState?.dashboardLevel}`;
-    }
-    getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel({
-      url,
-    });
-  }, [reduceState?.selectedSubSection]);
+    getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel(
+      `/getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel`
+    );
+  }, []);
 
   const handleBack = () => {
-    navigate("/bm");
+    localStorage.getItem("activeKey") === "bm"
+      ? navigate("/bm")
+      : navigate("/cm");
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
-    navigate(`/bm/request-sheet/manual/${machine_code}/${currentYear}`);
+    
+      const urlForSelectMachineForOpenRequestSheet =
+        localStorage.getItem("activeKey") === "bm" && context?.tm_department === "PRD"
+          ? "/bm/request-sheet/manual"
+          : "/cm/request-sheet";
+      navigate(
+        `${urlForSelectMachineForOpenRequestSheet}/${machine_code}/${currentYear}`
+      );
+    
+  };
+  const handleRequestSheetShowAndCloseState = () => {
+    if (context?.tm_department === "MTD") {
+      setRequestSheetModalOpenClose(
+        (requestSheetModalOpenClose) => !requestSheetModalOpenClose
+      );
+    }
   };
 
   if (reduceState?.dashboardLevel === "Yes") {
@@ -175,31 +265,85 @@ const GenerateRequestSheetMainDashboard = () => {
           </Row>
           <Row>
             {reduceState?.isLoading ? (
-              <h3>Loading...</h3>
+              <div className="justify-content-center d-flex align-items-center">
+                <LoadingAnimation />
+              </div>
             ) : (
-              <Col xs={12} md={12} lg={12} className="gx-0">
-                <div className="p-3">
-                  {reduceState?.allDataBasedOnDashboardLevel?.section_name}
-                </div>
-                {reduceState?.allDataBasedOnDashboardLevel?.subSections?.map(
-                  (subSection, index) => (
-                    <div className="subSection" key={index}>
-                      <div className="subSectionText">
-                        {subSection?.subSection_name}
+              <>
+                <Col className="cell p-2 m-1 d-flex justify-content-between align-items-center">
+                  <div className="me-4">
+                    <b>
+                      {reduceState?.allDataBasedOnDashboardLevel?.section_name}
+                    </b>
+                  </div>
+
+                  {context?.tm_department === "MTD" && localStorage.getItem("activeKey") === "bm" && (
+                    <div className="d-flex flex-wrap gap-3">
+                      <div className="d-flex align-items-center gap-1">
+                        <div className="color-box red"></div> Under BD
                       </div>
-                      <MapComponent
-                        propsArray={subSection?.cells}
-                        handleNavigationToRequestSheet={
-                          handleNavigationToRequestSheet
-                        }
-                      />
+                      <div className="d-flex align-items-center gap-1">
+                        <div className="color-box yellow"></div> Waiting
+                      </div>
+                      <div className="d-flex align-items-center gap-1">
+                        <div className="color-box blue"></div> Under Monitoring
+                      </div>
+                      <div className="d-flex align-items-center gap-1">
+                        <div className="color-box green"></div> Running
+                      </div>
+                      <div className="d-flex align-items-center gap-1">
+                        <div className="color-box red border border-warning border-3"></div>{" "}
+                        Not Assigned
+                      </div>
+                      {/* <div className="d-flex align-items-center gap-1">
+                        <div className="color-box status-default"></div> Not
+                        Generated
+                      </div> */}
                     </div>
-                  )
-                )}
-              </Col>
+                  )}
+                </Col>
+
+                <Col xs={12} md={12} lg={12} className="gx-0">
+                  {reduceState?.allDataBasedOnDashboardLevel?.subSections?.map(
+                    (subSection, index) => (
+                      <div className="subSection" key={index}>
+                        <div className="subSectionText">
+                          {subSection?.subSection_name}
+                        </div>
+                        <MapComponent
+                          propsArray={subSection?.cells}
+                          handleNavigationToRequestSheet={
+                            handleNavigationToRequestSheet
+                          }
+                          handleRequestSheetShowAndCloseState={
+                            handleRequestSheetShowAndCloseState
+                          }
+                          reducerDispatch={reducerDispatch}
+                          ACTION={ACTION}
+                          context={context}
+                          searchParams={searchParams}
+                          setSearchParams={setSearchParams}
+                        />
+                      </div>
+                    )
+                  )}
+                </Col>
+              </>
             )}
           </Row>
         </Container>
+
+        {requestSheetModalOpenClose && (
+          <MainRequestSheetForView
+            selectedYear={searchParams?.get("selectedYear")}
+            machine_code={searchParams.get("machineCode")}
+            requestSheetID={reduceState?.requestSheetId}
+            modelProp={{
+              show: requestSheetModalOpenClose,
+              onHide: () => handleRequestSheetShowAndCloseState(),
+            }}
+          />
+        )}
       </>
     );
   }
@@ -230,10 +374,9 @@ const GenerateRequestSheetMainDashboard = () => {
                 autoComplete="off"
                 value={reduceState?.selectedSubSection}
                 onChange={(e) => {
-                  reducerDispatch({
-                    type: ACTION.SUB_SECTION_EVENT,
-                    selectedSubSection: e.target.value,
-                  });
+                  getAllDataForGenerateNewRequestSheetDashboardBasedOnDashboardLevel(
+                    `/getAllDataBasedOnSelectedSubSection/${e.target.value}/${reduceState?.dashboardLevel}`
+                  );
                 }}
                 variant="standard"
               >
@@ -253,18 +396,39 @@ const GenerateRequestSheetMainDashboard = () => {
         )}
 
         {reduceState?.isLoading ? (
-          <h3>Loading...</h3>
+          <div className="justify-content-center d-flex align-items-center">
+            <LoadingAnimation />
+          </div>
         ) : (
           <Row>
             <Col>
               <MapComponent
                 propsArray={reduceState?.allDataBasedOnDashboardLevel?.cells}
                 handleNavigationToRequestSheet={handleNavigationToRequestSheet}
+                handleRequestSheetShowAndCloseState={
+                  handleRequestSheetShowAndCloseState
+                }
+                reducerDispatch={reducerDispatch}
+                ACTION={ACTION}
+                context={context}
+                searchParams={searchParams}
               />
             </Col>
           </Row>
         )}
       </Container>
+
+      {requestSheetModalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={reduceState?.selectedYear}
+          machine_code={reduceState?.machineCode}
+          requestSheetID={reduceState?.requestSheetId}
+          modelProp={{
+            show: requestSheetModalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
+      )}
     </>
   );
 };

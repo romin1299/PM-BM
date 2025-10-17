@@ -13,7 +13,12 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function MuiDeleteDialog({ item, handleSubmit }) {
+export default function MuiDeleteDialog({
+  item,
+  handleSubmit,
+  context,
+  notEditable,
+}) {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -33,7 +38,11 @@ export default function MuiDeleteDialog({ item, handleSubmit }) {
   return (
     <React.Fragment>
       <Tooltip title="Delete" disableInteractive>
-        <IconButton size="small" onClick={handleClickOpen}>
+        <IconButton
+          size="small"
+          onClick={handleClickOpen}
+          disabled={notEditable}
+        >
           <DeleteIcon fontSize="inherit" />
         </IconButton>
       </Tooltip>

@@ -12,6 +12,18 @@
 # production
 #/build
 
+/client/package-lock.json
+/server/package-lock.json
+
+/server/AttachedFilesByAssignedUser
+/server/attachments
+/server/data_sheets
+/server/DataSheetOfBD
+/server/DrawingsOfBD
+/server/images
+/server/logs
+/server/manuals
+
 # misc
 .DS_Store
 .env.local

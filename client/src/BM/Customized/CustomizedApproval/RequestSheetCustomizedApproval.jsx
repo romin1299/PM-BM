@@ -8,10 +8,8 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { Box } from "@mui/system";
 import { Divider, Typography } from "@mui/material";
 import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
-// import { MonthDropdown } from "../..//ManHourReport/SubComponents/LineSelectionDropdown";
-// import { CommonDropdown } from "../../Reports/ManHourReport/SubComponents/LineSelectionDropdown";
 
-const RequestSheetCustomizedApproval = ({ majorBDTime }) => {
+const RequestSheetCustomizedApproval = ({notEditable}) => {
   const {
     register,
     handleSubmit,
@@ -88,10 +86,7 @@ const RequestSheetCustomizedApproval = ({ majorBDTime }) => {
             <Col className="cell m-2 p-2">
               <h6 style={{ marginLeft: "0px" }}>
                 Minor BD Approval Selection (
-                <span className="text-success">
-                  {"<"} {(majorBDTime/60).toFixed(1)} Hrs.
-                </span>
-                )
+                <span className="text-success">{"<"} 2 Hrs.</span>)
               </h6>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (
@@ -105,6 +100,7 @@ const RequestSheetCustomizedApproval = ({ majorBDTime }) => {
                         {...register("minorApprovalList", {
                           required: "Please select approval list",
                         })}
+                        disabled={notEditable}
                       />{" "}
                       &nbsp;
                       <label>{obj?.value}</label> <br />
@@ -119,10 +115,7 @@ const RequestSheetCustomizedApproval = ({ majorBDTime }) => {
             <Col className="cell m-2 p-2">
               <h6 style={{ marginLeft: "0px" }}>
                 Major BD Approval Selection (
-                <span className="text-danger">
-                  {">"} {(majorBDTime/60).toFixed(1)} Hrs.
-                </span>
-                )
+                <span className="text-danger">{">"} 2 Hrs.</span>)
               </h6>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (
@@ -136,6 +129,7 @@ const RequestSheetCustomizedApproval = ({ majorBDTime }) => {
                         {...register("majorApprovalList", {
                           required: "Please select approval list",
                         })}
+                        disabled={notEditable}
                       />{" "}
                       &nbsp;
                       <label>{obj?.value}</label> <br />
@@ -153,7 +147,7 @@ const RequestSheetCustomizedApproval = ({ majorBDTime }) => {
             className="m-2"
             sx={{ display: "flex", justifyContent: "center" }}
           >
-            <button type="submit" className="btn bg-succ ">
+            <button type="submit" className="btn bg-succ " disabled={notEditable}>
               Submit Approval List
             </button>
           </Box>

@@ -1,1 +1,1 @@
-module.exports = ["PM", "BM", "KPI"];
+module.exports = ["PM", "BM", "KPI", "CM"];

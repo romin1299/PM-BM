@@ -1,0 +1,12 @@
+[
+  {
+    "_id": {
+      "$oid": "63ef381ce25a34c3a926baf7"
+    },
+    "emailConfID": "EmailConf1",
+    "serverIP": "172.28.41.9",
+    "emailPort": 25,
+    "fromEmailId": "dnkipm@ap.denso.com",
+    "__v": 0
+  }
+]

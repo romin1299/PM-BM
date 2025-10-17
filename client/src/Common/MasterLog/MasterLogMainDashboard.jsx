@@ -94,12 +94,20 @@ const MasterLogInnerComponent = () => {
       key: "counterMeasure",
     },
     {
-      label: "Category",
-      key: "category",
+      label: "Problem Category",
+      key: "category[0].subCategory",
+    },
+    {
+      label: "Breakdown Category",
+      key: "category[1].subCategory",
     },
     {
       label: "Is Action Temporary?",
       key: "actionTemporaryOrNot",
+    },
+    {
+      label: "First Time/ Repeat",
+      key:"firstTimeOrRepeat"
     },
     {
       label: "Done By",

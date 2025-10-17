@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import RoutingContext from "../context/routing/RoutingContext";
 import { SuccessToast } from "../BM/Component/ShowTostify";
-import { selectClasses } from "@mui/material";
 
 function MoveMachineOneLineToAnotherModal({
   modelProp,
@@ -17,7 +16,7 @@ function MoveMachineOneLineToAnotherModal({
     formState: { errors },
   } = useForm({});
   const context = useContext(RoutingContext);
-  console.log(selectedRow)
+  console.log(selectedRow);
   const [lineInfoForDropdown, setLineInfoForDropdown] = useState([]);
 
   const handleSubmitDataOfMoveMachineFromOneLineToAnother = async (

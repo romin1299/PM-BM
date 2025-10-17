@@ -24,6 +24,7 @@ import TargetDashboard from "../BM/TargetOfBD/TargetDashboard";
 import MainRequestSheetForView from "../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { BASE_URL } from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import CM_KPI from "../CM/KPI/CM_KPI";
 const KPI_Routes = ({ commonRoutes, loggedUser }) => {
   const userData = useContext(RoutingContext);
   const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
@@ -46,6 +47,10 @@ const KPI_Routes = ({ commonRoutes, loggedUser }) => {
     {
       path: "/kpi",
       element: <MainPageComponent />,
+    },
+    {
+      path: "/kpi/CM_KPI",
+      element: <CM_KPI />,
     },
     // {
     //   path: "/kpi/view/request-sheet/:machine_code/:requestSheetID/:selectedYear",
@@ -170,6 +175,11 @@ const KPI_Routes = ({ commonRoutes, loggedUser }) => {
           route: "/kpi/report/machine-age",
         },
       ],
+    },
+    {
+      title: "CM KPI",
+      icon: <SummarizeIcon className="text-white" />,
+      route: "/kpi/CM_KPI",
     },
     ...targetDashboardDisplay,
     {

@@ -13,10 +13,6 @@ const ViewGeneratedQROfMachine = ({
   const [customWidth, setCustomWidth] = useState(200); // Default width
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const printQRCodeOfTheSelectedMachine = () => {
-    window.print();
-  };
-
   useEffect(() => {
     const generateQRCode = async () => {
       try {

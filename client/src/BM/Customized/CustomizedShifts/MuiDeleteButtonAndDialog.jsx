@@ -18,6 +18,7 @@ export default function MuiDeleteDialog({
   handleSubmit,
   warningText,
   disableTooltip,
+  notEditable = false
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -38,7 +39,7 @@ export default function MuiDeleteDialog({
   return (
     <React.Fragment>
       <Tooltip title={!disableTooltip && "Delete"} disableInteractive>
-        <IconButton size="small" onClick={handleClickOpen}>
+        <IconButton size="small" onClick={handleClickOpen} disabled={notEditable}>
           <DeleteIcon fontSize="inherit" />
         </IconButton>
       </Tooltip>

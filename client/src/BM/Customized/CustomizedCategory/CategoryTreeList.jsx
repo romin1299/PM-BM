@@ -27,6 +27,7 @@ const CategoryTreeList = ({
   onAddCategory,
   onEditCategory,
   onDeleteCategory,
+  notEditable
 }) => {
   const [expandedCategories, setExpandedCategories] = useState([]);
   //adding and editing is similar, can be optimized by using only one but for better understanding there are two states
@@ -127,6 +128,7 @@ const CategoryTreeList = ({
                       setAddingId(parentCategoryId);
                       setExpandedCategories([category._id]);
                     }}
+                    disabled={notEditable}
                   >
                     <AddIcon fontSize="inherit" />
                   </IconButton>
@@ -139,8 +141,9 @@ const CategoryTreeList = ({
                   onClick={() => {
                     setAddingId(null);
                     setEditingId(category._id);
-                    console.log("editing id:", category._id);
+                    // console.log("editing id:", category._id);
                   }}
+                  disabled={notEditable}
                 >
                   <EditIcon fontSize="inherit" />
                 </IconButton>
@@ -149,6 +152,7 @@ const CategoryTreeList = ({
               <MuiDeleteDialog
                 item={{ ...category, parentCategoryId }}
                 handleSubmit={onDeleteCategory}
+                notEditable={notEditable}
               />
             </ListItemSecondaryAction>
           </ListItem>
@@ -204,6 +208,7 @@ const CategoryTreeList = ({
                 setEditingId(-1);
                 toggleCategory(-1);
               }}
+              disabled={notEditable}
             >
               <Typography sx={{ pt: "2px" }} variant="body1">
                 Add new Category

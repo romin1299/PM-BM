@@ -37,7 +37,8 @@ const MachineAgeGroupTable = ({
   selectedSubSection,
   groupData,
   setGroupData,
-  setGetDataForOtherComponentBasedOnMachineAgeGroupChange
+  setGetDataForOtherComponentBasedOnMachineAgeGroupChange,
+  notEditable,
 }) => {
   // const [data, setData] = React.useState([
   //   { _id: "", group: 0, from: 0, to: 0 },
@@ -77,7 +78,7 @@ const MachineAgeGroupTable = ({
 
       if (res.status === 201) {
         setGroupData([...groupData, payload]);
-        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true)
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true);
       }
       setNewData(initialState);
       setIsAdding(false);
@@ -99,14 +100,14 @@ const MachineAgeGroupTable = ({
           group._id === editedData._id ? editedData : group
         );
         setGroupData(updatedScores);
-        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true)
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true);
       }
 
       setEditedData(null);
     } catch (error) {
       console.log("error:", error);
     }
-    
+
     fetchData();
   };
 
@@ -116,15 +117,15 @@ const MachineAgeGroupTable = ({
     try {
       const res = await axios.delete(url);
 
-      if (res.status === 201) {        
+      if (res.status === 201) {
         const updatedScores = groupData?.filter((group) => group._id !== id);
         setGroupData(updatedScores);
-        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true)
+        setGetDataForOtherComponentBasedOnMachineAgeGroupChange(true);
       }
     } catch (error) {
       console.log("error:", error);
     }
-    
+
     fetchData();
   };
 
@@ -166,7 +167,12 @@ const MachineAgeGroupTable = ({
         aria-label={tooltipTitle}
         disableInteractive
       >
-        <IconButton size="small" type={type || "button"} onClick={onClick}>
+        <IconButton
+          size="small"
+          type={type || "button"}
+          onClick={onClick}
+          disabled={notEditable}
+        >
           <Icon fontSize="small" />
         </IconButton>
       </Tooltip>
@@ -184,6 +190,7 @@ const MachineAgeGroupTable = ({
               setEditedData(null);
               setIsAdding(true);
             }}
+            disabled={notEditable}
           >
             Add New Group
           </Button>
@@ -243,6 +250,7 @@ const MachineAgeGroupTable = ({
                         handleSubmit={() => {
                           deleteAPI(group._id);
                         }}
+                        notEditable
                         warningText={
                           <div>
                             Do you really want to delete Group{" "}
@@ -303,10 +311,7 @@ const MachineAgeGroupTable = ({
   );
 };
 
-const TmSkillScoreTable = ({
-  selectedSection,
-  selectedSubSection,
-}) => {
+const TmSkillScoreTable = ({ selectedSection, selectedSubSection }) => {
   const [data, setData] = React.useState([
     { _id: "", group: 0, from: 0, to: 0 },
   ]);

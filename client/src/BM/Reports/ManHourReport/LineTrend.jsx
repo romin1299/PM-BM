@@ -113,7 +113,6 @@ const LineTrend = ({
 }) => {
   const [loading, setLoading] = React.useState(true);
   const [labels, setLabels] = useState([]);
-  console.log("Selected value", selectedValue);
 
   const [lineTrendData, setLineTrendData] = useState({
     lines: [],
@@ -145,10 +144,7 @@ const LineTrend = ({
     ];
     // filterHeaders = ["Plant", "Section", "Sub-Section", "Cell", "Line"];
   }
-  console.log("filter",flagForTogglingFilter)
-  console.log("selected value", selectedValue)
-  console.log("selected year", selectedYear)
-  console.log("selected month", selectedMonth)
+
   const getLineTrendData = async () => {
     setLoading(true);
 
@@ -269,17 +265,6 @@ const LineTrend = ({
         label: "BM",
         data: lineTrendData?.totalSumOf_BM,
         backgroundColor: chartColors.bmpm[0],
-        borderRadius: 4,
-        //borderColor: "#312A7D",
-        //borderWidth: 2,
-        yAxisID: "y2",
-      },
-      {
-        type: "bar",
-        stack: "bar-stacked",
-        label: "No Loss Data",
-        data: lineTrendData?.lossData,
-        backgroundColor: chartColors.bmpm[2],
         borderRadius: 4,
         //borderColor: "#312A7D",
         //borderWidth: 2,

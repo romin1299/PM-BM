@@ -1,14 +1,9 @@
-import denso_log from "../../../static/images/denso_logo.png";
 import { Row, Col, Form } from "react-bootstrap";
-import { DropdownButton, Dropdown } from "react-bootstrap";
-
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Table } from "react-bootstrap";
 import DownloadIcon from "@mui/icons-material/Download";
-import { AddBoxIcon } from "../../../modules/PageModules";
 import ProblemList from "../SubComponents/ProblemList";
 import ActionList from "../SubComponents/ActionList";
-import { FaFileUpload } from "react-icons/fa";
 import PartList from "../SubComponents/PartList";
 import { Controller, useForm } from "react-hook-form";
 import moment from "moment";
@@ -17,18 +12,9 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import Multiselect from "multiselect-react-dropdown";
-import { Box, Button, Typography } from "@mui/material";
-import { BASE_URL } from "../../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import { Button, Typography } from "@mui/material";
+import BMReflectionYokotenkai from "../SubComponents/BMReflectionYokotenkai";
 import axios from "axios";
-import SafetyForm from "../SafetyForm/SafetyForm";
-import { toast } from "react-toastify";
-
-const list = [
-  { key: "A", value: "A" },
-  { key: "B", value: "B" },
-  { key: "C", value: "C" },
-  { key: "D", value: "D" },
-];
 
 function MyTable({
   selectedMachineDetails,
@@ -36,40 +22,17 @@ function MyTable({
   requestSheetDataOfBM,
   supportingTMList,
 }) {
-  console.log("this ius mb dnalj", requestSheetDataOfBM);
-  const [majorBDTime, setMajorBDTime] = useState(120);
   const loggedUserDetails = useContext(RoutingContext);
 
   const navigate = useNavigate();
-  const getMajorBDTime = async () => {
-    try {
-      const url = `/getMajorBDTime?section=${requestSheetDataOfBM?.sectionRef?._id}`;
-      if (requestSheetDataOfBM?.subSectionref?._id) {
-        url += `&subSection=${requestSheetDataOfBM?.subSectionref?._id}`;
-      }
-      console.log(
-        requestSheetDataOfBM?.sectionRef?._id,
-        requestSheetDataOfBM?.subSectionref?._id
-      );
-      console.log(url);
-      const response = await axios.get(url);
-      setMajorBDTime(
-        response?.data?.majorBDTime ? response?.data?.majorBDTime : 120
-      );
-      console.log("this is majortimer res", response.data.majorBDTime);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  useEffect(() => {
-    getMajorBDTime();
-  }, []);
 
-  const { machine_code, requestSheetID, generateType } = useParams();
+  const { machine_code, requestSheetID, generateType, selectedYear } =
+    useParams();
 
   const [actions, setActions] = useState([]);
   const [problems, setProblems] = useState([]);
   const [parts, setParts] = useState([]);
+  const [dataOfTheCM, setDataOfTheCM] = useState([]);
   const [selectedMinor, setSelectedMinor] = useState();
   const [selectedMajor, setSelectedMajor] = useState();
 
@@ -82,76 +45,23 @@ function MyTable({
     watch,
     setValue,
     setError,
+    setFocus,
     control,
     clearErrors,
-    // reset,
+    reset,
   } = useForm({
     defaultValues: {
       workEndedDateOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
       spareWaitingTime: 0,
+      actionTemporaryOrNot: "No",
+      "cmBasicDataFilledByMTD_TL.targetDateOfCM": moment(new Date()).format(
+        "YYYY-MM-DDTHH:mm"
+      ),
     },
   });
 
   var curr = new Date();
   var currentDate = curr.toISOString().substring(0, 10);
-  const fileInputRef = useRef(null);
-
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  };
-  const [fileName, setFileName] = useState("");
-  const [images, setImages] = useState([]);
-  console.log("this is images", images);
-  useEffect(() => {}, [images]);
-  console.log("current", requestSheetDataOfBM?.attachedDataSheets);
-  const handleFileChange = async (event) => {
-    const attachedDataSheets = event.target.files[0];
-    const formData = new FormData();
-    formData.append("attachedDataSheets", attachedDataSheets);
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      };
-      const response = await axios.patch(
-        `/updateDataSheetsOfReqSheet/${requestSheetDataOfBM?._id}?prevDataSheet=${requestSheetDataOfBM?.attachedDataSheets}`,
-        formData,
-        config
-      );
-      console.log(response);
-      setFileName(response?.data?.requestSheet?.attachedDataSheets);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleImageChange = async (event) => {
-    console.log(event.target.files);
-    const attachedDrawings = event.target.files;
-    const formData = new FormData();
-    for (let i = 0; i < attachedDrawings.length; i++) {
-      formData.append("attachedDrawings", attachedDrawings[i]);
-    }
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      };
-      const response = await axios.patch(
-        `/updateDrawingsOfReqSheet/${requestSheetDataOfBM?._id}`,
-        formData,
-        config
-      );
-      console.log(response);
-      setImages(response?.data?.updatedReqSheet?.attachedDrawings);
-      console.log(config);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   let timeDifferenceMinutes =
     moment(watch("workEndedDateOfBM"))
@@ -168,10 +78,8 @@ function MyTable({
       requestSheetData.problemsOfBM = problems;
       requestSheetData.actionAndCounterMeasureStep = actions;
       requestSheetData.breakDownTime = timeDifferenceMinutes;
-      requestSheetData.minorBD =
-        timeDifferenceMinutes <= majorBDTime ? "Yes" : "No";
-      requestSheetData.majorBD =
-        timeDifferenceMinutes > majorBDTime ? "Yes" : "No";
+      requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
+      requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
       // requestSheetData.changedParts = parts?.map(({ _id, ...rest }) => ({
       //   ...rest,
       // }));
@@ -189,19 +97,46 @@ function MyTable({
         approvalListOfBM?.mtdTL?.[
           requestSheetData?.partQualityCheckedByMTD
         ]?._id;
+
+      //for safety
+      requestSheetData.machineSafetyCheckedByPRD =
+        approvalListOfBM?.prdTL?.[
+          requestSheetData?.machineSafetyCheckedByPRD
+        ]?._id;
+      requestSheetData.machineSafetyCheckedByMTD =
+        approvalListOfBM?.mtdTL?.[
+          requestSheetData?.machineSafetyCheckedByMTD
+        ]?._id;
+
       requestSheetData.dataSheetOfRequestSheet =
-        timeDifferenceMinutes > majorBDTime
+        timeDifferenceMinutes > 120
           ? "Yes"
           : requestSheetData.dataSheetOfRequestSheet;
 
       const formData = new FormData();
+
+      dataOfTheCM.forEach((row, index) => {
+        if (row.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser) {
+          for (
+            let i = 0;
+            i < row?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.length;
+            i++
+          ) {
+            formData.append(
+              "attachedFilesByMTDUser",
+              row?.cmBasicDataFilledByMTD_TL?.attachedFilesByMTDUser?.[i]
+            );
+          }
+        }
+      });
+      requestSheetData.dataOfTheCM = dataOfTheCM;
+
       formData.append("prdDataUpdatedByOtherUser", false);
       // Append the file field
       formData.append(
         "attachedDataSheets",
         requestSheetData?.attachedDataSheets?.[0]
       );
-
       for (let i = 0; i < requestSheetData?.attachedDrawings?.length; i++) {
         formData.append(
           "attachedDrawings",
@@ -240,7 +175,6 @@ function MyTable({
       console.log(error);
     }
   };
-  console.log("this is user: ", loggedUserDetails);
 
   const deleteDirtyFieldsWhichIsNotRequiredToValidate = () => {
     delete dirtyFields?.["approvalOfRequestSheet"];
@@ -290,7 +224,7 @@ function MyTable({
         !watch("feedbackMTD_HOS") &&
         loggedUserDetails?.tm_department === "MTD" &&
         loggedUserDetails?.tm_grade === "HOS" &&
-        timeDifferenceMinutes > majorBDTime
+        timeDifferenceMinutes > 120
       ) {
         setError(
           "feedbackMTD_HOS",
@@ -306,6 +240,7 @@ function MyTable({
       if (watch("analysisTime") === undefined) {
         setError(
           "analysisTime",
+
           {
             message: "This field is required !",
           },
@@ -404,17 +339,17 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (!watch("qualityConfirmed")) {
-        setError(
-          "qualityConfirmed",
-          {
-            message: "This field is required !",
-          },
-          { shouldFocus: true }
-        );
-        flagCountForHandlingError++;
-        // console.log(flagCountForHandlingError);
-      }
+      // if (!watch("qualityConfirmed")) {
+      //   setError(
+      //     "qualityConfirmed",
+      //     {
+      //       message: "This field is required !",
+      //     },
+      //     { shouldFocus: true }
+      //   );
+      //   flagCountForHandlingError++;
+      //   // console.log(flagCountForHandlingError);
+      // }
 
       if (!watch("firstTimeOrRepeat")) {
         setError(
@@ -440,12 +375,9 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (
-        !watch("preventive_corrective_maintenance") &&
-        timeDifferenceMinutes > majorBDTime
-      ) {
+      if (!watch("IsYokotenkai")) {
         setError(
-          "preventive_corrective_maintenance",
+          "IsYokotenkai",
           {
             message: "This field is required !",
           },
@@ -455,17 +387,32 @@ function MyTable({
         // console.log(flagCountForHandlingError);
       }
 
-      if (!watch("yokotenkai") && timeDifferenceMinutes > majorBDTime) {
-        setError(
-          "yokotenkai",
-          {
-            message: "This field is required !",
-          },
-          { shouldFocus: true }
-        );
-        flagCountForHandlingError++;
-        // console.log(flagCountForHandlingError);
-      }
+      // if (
+      //   !watch("preventive_corrective_maintenance") &&
+      //   timeDifferenceMinutes > 120
+      // ) {
+      //   setError(
+      //     "preventive_corrective_maintenance",
+      //     {
+      //       message: "This field is required !",
+      //     },
+      //     { shouldFocus: true }
+      //   );
+      //   flagCountForHandlingError++;
+      //   // console.log(flagCountForHandlingError);
+      // }
+
+      // if (!watch("yokotenkai") && timeDifferenceMinutes > 120) {
+      //   setError(
+      //     "yokotenkai",
+      //     {
+      //       message: "This field is required !",
+      //     },
+      //     { shouldFocus: true }
+      //   );
+      //   flagCountForHandlingError++;
+      //   // console.log(flagCountForHandlingError);
+      // }
 
       if (problems?.length === 0) {
         setError(
@@ -483,7 +430,7 @@ function MyTable({
         setError(
           "actionValidation",
           {
-            message: "This field is required !",
+            message: "This field is required!",
           },
           { shouldFocus: true }
         );
@@ -495,7 +442,7 @@ function MyTable({
         !watch("dataSheetOfRequestSheet") &&
         !requestSheetDataOfBM?.dataSheetOfRequestSheet
         //    ||
-        // (timeDifferenceMinutes > majorBDTime &&
+        // (timeDifferenceMinutes > 120 &&
         //   requestSheetDataOfBM?.dataSheetOfRequestSheet === "Yes")
       ) {
         setError("dataSheetOfRequestSheet", {
@@ -518,7 +465,7 @@ function MyTable({
       }
 
       if (
-        (timeDifferenceMinutes > majorBDTime ||
+        (timeDifferenceMinutes > 120 ||
           watch("dataSheetOfRequestSheet") === "Yes") &&
         !requestSheetDataOfBM?.attachedDataSheets &&
         !watch("attachedDataSheets")
@@ -554,6 +501,25 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
+        // console.log(flagCountForHandlingError);
+      }
+
+      //for safety
+      if (!watch("machineSafetyCheckedByPRD")) {
+        setError("machineSafetyCheckedByPRD", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+        setFocus("machineSafetyCheckedByPRD");
+        // console.log(flagCountForHandlingError);
+      }
+
+      if (!watch("machineSafetyCheckedByMTD")) {
+        setError("machineSafetyCheckedByMTD", {
+          message: "This field is required !",
+        });
+        flagCountForHandlingError++;
+        setFocus("machineSafetyCheckedByMTD");
         // console.log(flagCountForHandlingError);
       }
     }
@@ -736,6 +702,17 @@ function MyTable({
     }
   };
 
+  const getAllCMSheetData = async () => {
+    try {
+      const response = await axios.get(
+        `/getAllCmReqSheet/based-on-requestSheetIdOfBM/${requestSheetDataOfBM?._id}/?selectedYear=${selectedYear}`
+      );
+      setDataOfTheCM(response?.data?.reqSheetCM);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (requestSheetDataOfBM?._id) {
       setValue(
@@ -755,6 +732,11 @@ function MyTable({
         )
           .tz("Asia/Kolkata")
           .format("YYYY-MM-DDTHH:mm")
+      );
+
+      setValue(
+        "IsSafetyFormCreated",
+        requestSheetDataOfBM?.IsSafetyFormCreated ? "Yes" : "No"
       );
 
       setValue(
@@ -828,7 +810,7 @@ function MyTable({
       );
 
       // setValue('MTD_TL', requestSheetDataOfBM?.approvalOfMTD_TL)
-      setValue("qualityConfirmed", requestSheetDataOfBM?.qualityConfirmed);
+      // setValue("qualityConfirmed", requestSheetDataOfBM?.qualityConfirmed);
       setValue(
         "partQualityCheckedByPRD",
         requestSheetDataOfBM?.partQualityCheckedByPRD
@@ -836,6 +818,16 @@ function MyTable({
       setValue(
         "partQualityCheckedByMTD",
         requestSheetDataOfBM?.partQualityCheckedByMTD
+      );
+
+      //for safety
+      setValue(
+        "machineSafetyCheckedByPRD",
+        requestSheetDataOfBM?.machineSafetyCheckedByPRD
+      );
+      setValue(
+        "machineSafetyCheckedByMTD",
+        requestSheetDataOfBM?.machineSafetyCheckedByMTD
       );
 
       setValue(
@@ -854,6 +846,8 @@ function MyTable({
         "actionTemporaryOrNot",
         requestSheetDataOfBM?.actionTemporaryOrNot
       );
+
+      setValue("IsYokotenkai", requestSheetDataOfBM?.IsYokotenkai);
 
       requestSheetDataOfBM?.categoriesOfRequestSheet?.map((obj) => {
         setValue(`categories.${obj?.category}`, obj?.subCategory);
@@ -877,10 +871,10 @@ function MyTable({
 
       setSelectedSupportedTM(requestSheetDataOfBM?.supportingTM);
     }
-  }, [requestSheetDataOfBM]);
+  }, [requestSheetDataOfBM?._id, setValue]);
 
   useEffect(() => {
-    if (timeDifferenceMinutes > majorBDTime) {
+    if (timeDifferenceMinutes > 120) {
       setSelectedMajor("Yes");
       setSelectedMinor("No");
     } else {
@@ -888,6 +882,12 @@ function MyTable({
       setSelectedMinor("Yes");
     }
   }, [timeDifferenceMinutes]);
+
+  useEffect(() => {
+    if (requestSheetDataOfBM?._id) {
+      getAllCMSheetData();
+    }
+  }, [requestSheetDataOfBM?._id]);
 
   return (
     <>
@@ -1255,7 +1255,7 @@ function MyTable({
                   >
                     {loggedUserDetails?.tm_department === "MTD" &&
                     loggedUserDetails?.tm_grade === "HOS" &&
-                    timeDifferenceMinutes > majorBDTime ? (
+                    timeDifferenceMinutes > 120 ? (
                       <>
                         <small className="mb-0">
                           <b>FEEDBACK</b>
@@ -1266,9 +1266,7 @@ function MyTable({
                           className="widthwhy"
                           id="feedbackMTD_HOS"
                           name="feedbackMTD_HOS"
-                          // {...register("feedbackMTD_HOS", {
-                          //   required: "This field is required",
-                          // })}
+                          {...register("feedbackMTD_HOS")}
                           onChange={(e) => {
                             setValue("feedbackMTD_HOS", e.target.value, {
                               shouldDirty: true,
@@ -1389,7 +1387,7 @@ function MyTable({
                   </Col>
                   {loggedUserDetails?.tm_department === "MTD" &&
                   loggedUserDetails?.tm_grade === "HOS" &&
-                  timeDifferenceMinutes > majorBDTime ? (
+                  timeDifferenceMinutes > 120 ? (
                     <Col lg={6} md={6} sm={12} className="border">
                       <p className="fs-6 mb-0">
                         <b>FEEDBACK</b>
@@ -1579,7 +1577,7 @@ function MyTable({
                     className="border text-center pb-2 pt-2"
                   >
                     <small className="mb-0" style={{ fontSize: "12px" }}>
-                      <b>MAINTENANCE</b>
+                      <b>MAINTENANCE</b> <br /> <b>(No Loss)</b>
                     </small>
                     <input
                       type="number"
@@ -1739,9 +1737,7 @@ function MyTable({
                               id="majorBD"
                               disabled
                               checked={
-                                timeDifferenceMinutes > majorBDTime
-                                  ? true
-                                  : false
+                                timeDifferenceMinutes > 120 ? true : false
                               }
                             />
                             &nbsp;&nbsp;
@@ -1754,9 +1750,7 @@ function MyTable({
                               id="majorBD"
                               disabled
                               checked={
-                                timeDifferenceMinutes > majorBDTime
-                                  ? false
-                                  : true
+                                timeDifferenceMinutes > 120 ? false : true
                               }
                             />
                           </div>
@@ -1836,9 +1830,7 @@ function MyTable({
                               value="Yes"
                               id="minorBD"
                               checked={
-                                timeDifferenceMinutes <= majorBDTime
-                                  ? true
-                                  : false
+                                timeDifferenceMinutes <= 120 ? true : false
                               }
                             />
                             &nbsp;&nbsp;
@@ -1852,9 +1844,7 @@ function MyTable({
                               value="No"
                               id="minorBD"
                               checked={
-                                timeDifferenceMinutes <= majorBDTime
-                                  ? false
-                                  : true
+                                timeDifferenceMinutes <= 120 ? false : true
                               }
                             />
                           </div>
@@ -1972,7 +1962,7 @@ function MyTable({
                             value="Yes"
                             id="minorBD"
                             checked={
-                              timeDifferenceMinutes <= majorBDTime ? true : false
+                              timeDifferenceMinutes <= 120 ? true : false
                             }
                           />
                           {/* {console.log(selectedMinor === "Yes")}
@@ -1985,7 +1975,7 @@ function MyTable({
                             value="No"
                             id="minorBD"
                             checked={
-                              timeDifferenceMinutes <= majorBDTime ? false : true
+                              timeDifferenceMinutes <= 120 ? false : true
                             }
                           />
                         </div>
@@ -2146,7 +2136,7 @@ function MyTable({
               </td>
 
               <td className="col-lg-4 col-md-12 col-sm-12  border-bottom">
-                <Row className="m-0">
+                {/* <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>QUALITY CONFIRMED (IPP)</b>&nbsp;&nbsp;&nbsp;
@@ -2200,9 +2190,49 @@ function MyTable({
                       )}
                     </Form>
                   </Col>
-                </Row>
+                </Row> */}
+                {/* <Row className="m-0">
+                  <Col className="border p-2">
+                    <small className="mb-0 d-flex align-items-center justify-content-start">
+                      <b>SAFETY CHECK</b>&nbsp;&nbsp;&nbsp;
+                    </small>
+                  </Col>
+                  <Col className="border p-2 d-flex align-items-center">
+                    <Form>
+                      <div className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="IsSafetyFormCreated"
+                          type="radio"
+                          value="Yes"
+                          disabled
+                          id="IsSafetyFormCreated"
+                          {...register("IsSafetyFormCreated", {
+                            // required: "This field is required",
+                          })}
+                        />
+                        &nbsp;&nbsp;
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="IsSafetyFormCreated"
+                          type="radio"
+                          value="No"
+                          id="IsSafetyFormCreated-1"
+                          {...register("IsSafetyFormCreated", {
+                            // required: "This field is required",
+                          })}
+                          disabled
+                        />
+                      </div>
+                    </Form>
+                  </Col>
+                </Row> */}
                 <Row className="m-0 border border-bottom-0">
-                  <p className="text-center mb-0">**PART QUALITY CHECKED</p>
+                  <p className="text-center mb-0">
+                    **PART QUALITY CHECKED (IPP)
+                  </p>
                 </Row>
                 <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
                   <Col lg={6} md={6} className="border pb-2 pt-1">
@@ -2242,6 +2272,53 @@ function MyTable({
                     )}
                   </Col>
                 </Row>
+                <Row className="m-0 border border-bottom-0">
+                  <p className="text-center mb-0">***MACHINE SAFETY CHECKED</p>
+                </Row>
+                <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
+                  <Col lg={6} md={6} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>PRD</b>
+                    </small>
+                    {requestSheetDataOfBM?.machineSafetyCheckedByPRD ? (
+                      <p className="mb-0">
+                        {
+                          requestSheetDataOfBM?.machineSafetyCheckedByPRD
+                            ?.tm_name
+                        }
+                      </p>
+                    ) : (
+                      <DropdownElem
+                        name={"machineSafetyCheckedByPRD"}
+                        options={approvalListOfBM?.prdTL}
+                        className={"d-inline"}
+                        register={register}
+                        errors={errors}
+                      />
+                    )}
+                  </Col>
+                  <Col lg={6} md={6} className="border pb-2 pt-1">
+                    <small className="mb-0">
+                      <b>MTD</b>
+                    </small>
+                    {requestSheetDataOfBM?.machineSafetyCheckedByMTD ? (
+                      <p className="mb-0">
+                        {
+                          requestSheetDataOfBM?.machineSafetyCheckedByMTD
+                            ?.tm_name
+                        }
+                      </p>
+                    ) : (
+                      <DropdownElem
+                        name={"machineSafetyCheckedByMTD"}
+                        options={approvalListOfBM?.mtdTL}
+                        className={"d-inline"}
+                        register={register}
+                        errors={errors}
+                      />
+                    )}
+                  </Col>
+                </Row>
                 <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -2259,7 +2336,7 @@ function MyTable({
                           value="Yes"
                           id="dataSheetOfRequestSheet"
                           checked={
-                            timeDifferenceMinutes > majorBDTime
+                            timeDifferenceMinutes > 120
                               ? true
                               : watch("dataSheetOfRequestSheet") === "Yes"
                               ? true
@@ -2285,7 +2362,7 @@ function MyTable({
                           type="radio"
                           value="No"
                           id="dataSheetOfRequestSheet"
-                          disabled={timeDifferenceMinutes > majorBDTime && true}
+                          disabled={timeDifferenceMinutes > 120 && true}
                           {...register("dataSheetOfRequestSheet")}
                           onChange={(e) => {
                             setValue(
@@ -2308,19 +2385,12 @@ function MyTable({
                       {requestSheetDataOfBM?.attachedDataSheets ? (
                         <>
                           <Typography mt={2} variant="body2">
-                            {fileName !== ""
-                              ? fileName
-                              : requestSheetDataOfBM?.attachedDataSheets}
+                            {requestSheetDataOfBM?.attachedDataSheets}
                           </Typography>
-
                           <Button
                             target="_blank"
                             // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                            href={`${process.env.REACT_APP_BASE_URL}${
-                              fileName !== ""
-                                ? fileName
-                                : requestSheetDataOfBM?.attachedDataSheets
-                            }`}
+                            href={`${process.env.REACT_APP_BASE_URL}/${requestSheetDataOfBM?.attachedDataSheets}`}
                             disableElevation
                             size="small"
                             variant="contained"
@@ -2329,32 +2399,8 @@ function MyTable({
                           >
                             Download
                           </Button>
-                          <br />
-                          {(loggedUserDetails?.tm_department === "MTD" ||
-                            loggedUserDetails?.user_type === "Operator") && (
-                            <Button
-                              disableElevation
-                              size="small"
-                              variant="contained"
-                              color="warning"
-                              startIcon={<FaFileUpload fontSize="small" />}
-                              sx={{ mt: 1 }}
-                              onClick={handleButtonClick}
-                            >
-                              Re-Upload
-                              <input
-                                type="file"
-                                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                                ref={fileInputRef}
-                                onChange={(e) => {
-                                  handleFileChange(e);
-                                }}
-                                style={{ display: "none" }}
-                              />
-                            </Button>
-                          )}
                         </>
-                      ) : timeDifferenceMinutes > majorBDTime ||
+                      ) : timeDifferenceMinutes > 120 ||
                         watch("dataSheetOfRequestSheet") === "Yes" ? (
                         <Form.Group
                           controlId="formFileMultiple"
@@ -2364,14 +2410,14 @@ function MyTable({
                             type="file"
                             // {...register("attachedDataSheets", {
                             //   // required:
-                            //   //   timeDifferenceMinutes > majorBDTime ||
+                            //   //   timeDifferenceMinutes > 120 ||
                             //   //   watch("dataSheetOfRequestSheet") === "Yes"
                             //   //     ? true
                             //   //     : false,
                             // })}
                             // {...register("attachedDataSheets", {
                             //   // required:
-                            //   //   timeDifferenceMinutes > majorBDTime ||
+                            //   //   timeDifferenceMinutes > 120 ||
                             //   //   watch("dataSheetOfRequestSheet") === "Yes"
                             //   //     ? true
                             //   //     : false,
@@ -2428,131 +2474,51 @@ function MyTable({
                         />
                       </div>
 
-                      {requestSheetDataOfBM?.attachedDrawings?.length > 0 &&
-                      (loggedUserDetails?.tm_department === "MTD" ||
-                        loggedUserDetails?.user_type === "Operator") ? (
-                        <>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              gap: "10px",
-                            }}
-                          >
-                            {images.length === 0
-                              ? requestSheetDataOfBM?.attachedDrawings?.map(
-                                  (image) => (
-                                    <a
-                                      target="_blank"
-                                      // href={`http://localhost:7000/${image}`}
-                                      href={`${process.env.REACT_APP_BASE_URL}${image}`}
-                                      style={{
-                                        width: "100%",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                      }}
-                                    >
-                                      <img
-                                        // src={`http://localhost:7000/${image}`}
-                                        src={`${process.env.REACT_APP_BASE_URL}/${image}`}
-                                        style={{
-                                          maxWidth: "100px",
-                                          maxHeight: "100px",
-                                        }}
-                                      />
-                                      <span
-                                        style={{
-                                          fontSize: "10px",
-                                          textAlign: "center",
-                                        }}
-                                      >
-                                        {image}
-                                      </span>
-                                    </a>
-                                  )
-                                )
-                              : images.map((image) => (
-                                  <a
-                                    target="_blank"
-                                    // href={`http://localhost:7000/${image}`}
-                                    href={`${process.env.REACT_APP_BASE_URL}${image}`}
-                                    style={{
-                                      width: "100%",
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      justifyContent: "center",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <img
-                                      // src={`http://localhost:7000/${image}`}
-                                      src={`${process.env.REACT_APP_BASE_URL}/${image}`}
-                                      style={{
-                                        maxWidth: "100px",
-                                        maxHeight: "100px",
-                                      }}
-                                    />
-                                    <span
-                                      style={{
-                                        fontSize: "10px",
-                                        textAlign: "center",
-                                      }}
-                                    >
-                                      {image}
-                                    </span>
-                                  </a>
-                                ))}
-                          </div>
-                          <Button
-                            disableElevation
-                            size="small"
-                            variant="contained"
-                            color="warning"
-                            startIcon={<FaFileUpload fontSize="small" />}
-                            sx={{ mt: 1 }}
-                            onClick={handleButtonClick}
-                          >
-                            Re-Upload
-                            <input
-                              type="file"
-                              multiple
-                              ref={fileInputRef}
-                              onChange={(e) => {
-                                handleImageChange(e);
-                              }}
-                              style={{ display: "none" }}
-                            />
-                          </Button>
-                        </>
-                      ) : //   ()
-                      // (loggedUserDetails?.tm_department === "MTD" ||
-                      //   loggedUserDetails?.user_type === "Operator") && (
-                      //   <Button
-                      //     disableElevation
-                      //     size="small"
-                      //     variant="contained"
-                      //     color="warning"
-                      //     startIcon={<FaFileUpload fontSize="small" />}
-                      //     sx={{ mt: 1 }}
-                      //     onClick={handleButtonClick}
-                      //   >
-                      //     Re-Upload
-                      //     <input
-                      //       type="file"
-                      //       accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                      //       ref={fileInputRef}
-                      //       onChange={(e) => {
-                      //         handleFileChange(e);
-                      //       }}
-                      //       style={{ display: "none" }}
-                      //     />
-                      //   </Button>
-                      // )
-                      watch("drawingOfRequestSheet") === "Yes" ? (
+                      {requestSheetDataOfBM?.attachedDrawings?.length > 0 ? (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          {requestSheetDataOfBM?.attachedDrawings?.map(
+                            (image) => (
+                              <a
+                                target="_blank"
+                                // href={`http://localhost:7000/${image}`}
+                                href={`${process.env.REACT_APP_BASE_URL}/${image}`}
+                                style={{
+                                  width: "100%",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <img
+                                  // src={`http://localhost:7000/${image}`}
+                                  src={`${process.env.REACT_APP_BASE_URL}/${image}`}
+                                  style={{
+                                    maxWidth: "100px",
+                                    maxHeight: "100px",
+                                  }}
+                                />
+                                <span
+                                  style={{
+                                    fontSize: "10px",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {image}
+                                </span>
+                              </a>
+                            )
+                          )}
+                        </div>
+                      ) : watch("drawingOfRequestSheet") === "Yes" ? (
                         <Form.Group
                           controlId="formFileMultiple"
                           className="mb-3"
@@ -2595,6 +2561,7 @@ function MyTable({
                   actions={actions}
                   setActions={setActions}
                   clearErrors={clearErrors}
+                  isEditable={true}
                 />
                 <input
                   {...register("actionValidation", {
@@ -2609,79 +2576,115 @@ function MyTable({
                 )}
               </td>
               <td className="col-lg-6 col-md-12 col-sm-12">
-                <Row className="m-0">
-                  <Col className="border col-lg-12 col-md-12 col-sm-12">
-                    <small>
-                      <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
-                    </small>
-                    <br />
-                    <textarea
-                      rows={2}
-                      type="text"
-                      id="preventive_corrective_maintenance"
-                      name="preventive_corrective_maintenance"
-                      style={{ width: "80%" }}
-                      {...register("preventive_corrective_maintenance", {
-                        // required: "This field is required",
-                      })}
-                      onChange={(e) => {
-                        setValue(
-                          "preventive_corrective_maintenance",
-                          e.target.value,
-                          { shouldDirty: true }
-                        );
-                        clearErrors("preventive_corrective_maintenance");
-                      }}
-                    />
-                    {errors?.["preventive_corrective_maintenance"] && (
-                      <p className="text-error">
-                        {errors?.["preventive_corrective_maintenance"]?.message}
-                      </p>
-                    )}
-                  </Col>
-                </Row>
+                <small>
+                  <b>PREVENTIVE / CORRECTIVE MAINTENANCE</b>
+                </small>
+                <br />
+                {watch("preventive_corrective_maintenance") && (
+                  <Row className="m-0">
+                    <Col className="border col-lg-12 col-md-12 col-sm-12">
+                      <br />
+                      <textarea
+                        rows={2}
+                        type="text"
+                        id="preventive_corrective_maintenance"
+                        name="preventive_corrective_maintenance"
+                        style={{ width: "80%" }}
+                        {...register("preventive_corrective_maintenance", {
+                          // required: "This field is required",
+                        })}
+                        onChange={(e) => {
+                          setValue(
+                            "preventive_corrective_maintenance",
+                            e.target.value,
+                            { shouldDirty: true }
+                          );
+                          clearErrors("preventive_corrective_maintenance");
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                )}
+                {watch("yokotenkai") && (
+                  <Row className="m-0">
+                    <Col className="border col-lg-12 col-md-12 col-sm-12">
+                      <small>
+                        {" "}
+                        <b>YOKOTENKAI</b>
+                      </small>
 
-                {/* <Row className="m-0 p-1 border">
-                <AddBoxIcon onClick={() => {}} />
-              </Row> */}
-                <Row className="m-0">
-                  <Col className="border col-lg-12 col-md-12 col-sm-12">
-                    <small>
-                      {" "}
-                      <b>YOKOTENKAI</b>
-                    </small>
-
-                    <br />
-                    <textarea
-                      rows={2}
-                      type="text"
-                      id="yokotenkai"
-                      name="yokotenkai"
-                      className="m-1"
-                      style={{ width: "80%" }}
-                      {...register("yokotenkai", {
-                        // required: "This field is required",
-                      })}
-                      onChange={(e) => {
-                        setValue("yokotenkai", e.target.value, {
-                          shouldDirty: true,
-                        });
-                        clearErrors("yokotenkai");
-                      }}
-                    />
-                    {errors?.["yokotenkai"] && (
-                      <p className="text-error">
-                        {errors?.["yokotenkai"]?.message}
-                      </p>
-                    )}
-                  </Col>
-                </Row>
+                      <br />
+                      <textarea
+                        rows={2}
+                        type="text"
+                        id="yokotenkai"
+                        name="yokotenkai"
+                        className="m-1"
+                        style={{ width: "80%" }}
+                        {...register("yokotenkai", {
+                          // required: "This field is required",
+                        })}
+                        onChange={(e) => {
+                          setValue("yokotenkai", e.target.value, {
+                            shouldDirty: true,
+                          });
+                          clearErrors("yokotenkai");
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                )}
+                <div className="mtd-parts-section">
+                  <Row className="m-0 d-flex">
+                    <Col
+                      sm={2}
+                      className="border col-auto d-flex align-items-center gap-1"
+                    >
+                      <small>
+                        <b>LINE</b>
+                      </small>
+                    </Col>
+                    <Col
+                      sm={2}
+                      className="border col-auto d-flex align-items-center gap-1"
+                    >
+                      <small>
+                        <b>MACHINE</b>
+                      </small>
+                    </Col>
+                    <Col
+                      sm={2}
+                      className="border col-auto d-flex align-items-center gap-1"
+                    >
+                      <small>
+                        <b>ACTIVITY</b>
+                      </small>
+                    </Col>
+                  </Row>
+                </div>
+                {dataOfTheCM?.map(
+                  (data, index) =>
+                    data?.machineId ===
+                      requestSheetDataOfBM?.machineRef?._id && (
+                      <Row key={index} className="m-0 d-flex">
+                        <Col sm={2} className="border">
+                          {data?.cmBasicDataFilledByMTD_TL?.line}
+                        </Col>
+                        <Col sm={2} className="border">
+                          {data?.cmBasicDataFilledByMTD_TL?.machineName}
+                        </Col>
+                        <Col sm={2} className="border">
+                          {data?.cmBasicDataFilledByMTD_TL?.activityOfCM}
+                        </Col>
+                      </Row>
+                    )
+                )}
               </td>
             </tr>
 
             <tr className="row m-0">
               <td className="col-sm-12 col-md-6">
-                <Row className="m-0">
+                <Row className="m-0 col-sm-12 col-md-12">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
                       <b>Is Action Temporary?</b>&nbsp;&nbsp;&nbsp;
@@ -2736,6 +2739,97 @@ function MyTable({
                     </Form>
                   </Col>
                 </Row>
+              </td>
+              <td className="col-sm-12 col-md-6">
+                <Row className="m-0 col-sm-12 col-md-12">
+                  <Col className="border p-2">
+                    <small className="mb-0 d-flex align-items-center justify-content-start">
+                      <b>Is YOKOTENKAI required?</b>&nbsp;&nbsp;&nbsp;
+                    </small>
+                  </Col>
+                  <Col className="border p-2 d-flex align-items-center">
+                    <Form>
+                      <div className="d-flex">
+                        <Form.Check
+                          flex
+                          label="Yes"
+                          name="IsYokotenkai"
+                          type="radio"
+                          value="Yes"
+                          id="IsYokotenkai"
+                          // onChange={handleactionTemporaryOrNot}
+                          {...register("IsYokotenkai", {
+                            // required: "This field is required",
+                          })}
+                          onChange={(e) => {
+                            setValue("IsYokotenkai", e.target.value, {
+                              shouldDirty: true,
+                            });
+                            clearErrors("IsYokotenkai");
+                          }}
+                        />{" "}
+                        &nbsp;&nbsp;
+                        <Form.Check
+                          flex
+                          label="No"
+                          name="IsYokotenkai"
+                          type="radio"
+                          value="No"
+                          id="IsYokotenkai"
+                          // onChange={handleactionTemporaryOrNot}
+                          {...register("IsYokotenkai", {
+                            // required: "This field is required",
+                          })}
+                          onChange={(e) => {
+                            setValue("IsYokotenkai", e.target.value, {
+                              shouldDirty: true,
+                            });
+                            clearErrors("IsYokotenkai");
+                          }}
+                        />
+                      </div>
+                      {errors?.["IsYokotenkai"] && (
+                        <p className="text-error">
+                          {errors?.["IsYokotenkai"]?.message}
+                        </p>
+                      )}
+                    </Form>
+                  </Col>
+                </Row>
+              </td>
+            </tr>
+            {(watch("actionTemporaryOrNot") === "Yes" ||
+              watch("IsYokotenkai") === "Yes") && (
+              <tr>
+                <td className="col-lg-12 col-md-12 col-sm-12">
+                  <Row className="m-0">
+                    <Col className="border col-lg-12 col-md-12 col-sm-12">
+                      <small>
+                        {" "}
+                        <b>Permanent Countermeasure/YOKOTENKAI</b>
+                      </small>
+                      <BMReflectionYokotenkai
+                        dataOfTheCM={dataOfTheCM}
+                        setDataOfTheCM={setDataOfTheCM}
+                        setActions={setActions}
+                        clearErrors={clearErrors}
+                        isEditable={true}
+                        lineId={requestSheetDataOfBM?.lineRef?._id}
+                        machineId={requestSheetDataOfBM?.machineRef?._id}
+                      />
+                      {/* {errors?.["yokotenkai"] && (
+                        <p className="text-error">
+                          {errors?.["yokotenkai"]?.message}
+                        </p>
+                      )} */}
+                    </Col>
+                  </Row>
+                </td>
+              </tr>
+            )}
+
+            <tr className="row m-0">
+              <td className="col-sm-12 col-md-6">
                 <Row className="m-0">
                   <Col className="border p-2">
                     <small className="mb-0 d-flex align-items-center justify-content-start">
@@ -2861,7 +2955,11 @@ function MyTable({
                   </Col>
                   <Col lg={11} md={11}>
                     <Row className="">
-                      <PartList parts={parts} setParts={setParts} />
+                      <PartList
+                        parts={parts}
+                        setParts={setParts}
+                        isEditable={true}
+                      />
                     </Row>
                   </Col>
                 </Row>
@@ -3179,10 +3277,10 @@ function MyTable({
                     "Rejected" ||
                   requestSheetDataOfBM?.approvalStatusOfMTD_HOD ===
                     "Rejected") &&
-                  (requestSheetDataOfBM?.assignUser?._id !==
-                    loggedUserDetails?._id ||
-                    requestSheetDataOfBM?.handOverUser?._id !==
-                      loggedUserDetails?._id)) ? (
+                  requestSheetDataOfBM?.assignUser?._id !==
+                    loggedUserDetails?._id &&
+                  requestSheetDataOfBM?.handOverUser?._id !==
+                    loggedUserDetails?._id) ? (
                   <>
                     <Row className="m-1 d-flex justify-content-start">
                       <Col className="col-lg-6 col-md-6 m-1 p-0">
@@ -3408,7 +3506,6 @@ function MyTable({
           </tbody>
         </Table>
       </form>
-      <SafetyForm id={requestSheetDataOfBM?._id} />
     </>
   );
 }

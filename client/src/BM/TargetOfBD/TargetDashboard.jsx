@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useContext } from "react";
 import { Box, Button } from "@mui/material";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
@@ -11,10 +11,12 @@ import { useForm } from "react-hook-form";
 import { SuccessToast, WarningToast } from "../Component/ShowTostify";
 import "./TargetDashboard.scss";
 import ReportTitleBar from "../Reports/Common/ReportTitleBar";
+import RoutingContext from "../../context/routing/RoutingContext";
 
 const TargetDashboard = () => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/cell-level-filtration";
+  const context = useContext(RoutingContext);
 
   const {
     register,
@@ -242,6 +244,7 @@ const TargetDashboard = () => {
                               type="number"
                               step=".01"
                               className="target-table-input"
+                              disabled={context?.tm_no === Number("9999")}
                               style={{ width: "100%", minWidth: "50px" }}
                               id={`${month?.key}`}
                               defaultValue={0}
@@ -268,6 +271,7 @@ const TargetDashboard = () => {
                 variant="contained"
                 disableElevation
                 className="bg-button mt-3"
+                disabled={context?.tm_no === Number("9999")}
               >
                 Submit Target
               </Button>

@@ -172,7 +172,7 @@ function SectionPage() {
       <NewUserRegistration />
 
       <div style={{ margin: "1rem" }}>
-        <h4>{location.state.selectedRows.plant_name}</h4>
+        <h4>{location.state?.selectedRows?.plant_name}</h4>
         <MaterialTable
           localization={{
             header: {
