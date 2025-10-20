@@ -16,9 +16,6 @@ import ShiftInputField from "../../../CM/Components/ReqestSheetOfCM/RSComponents
 import SafetyForm from "../SafetyForm/SafetyForm";
 import axios from "axios";
 
-  console.log("For update----");
-
-
 function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
   const navigate = useNavigate();
   const { machine_code, generateType, requestSheetID, selectedYear } =
@@ -155,7 +152,9 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
           machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
           setSafetyFormModalOpen={setSafetyFormModalOpen}
           safetyFormModalOpen={safetyFormModalOpen}
-          machineSafetyCheckedByMTD ={requestSheetDataOfBM?.machineSafetyCheckedByMTD}
+          machineSafetyCheckedByMTD={
+            requestSheetDataOfBM?.machineSafetyCheckedByMTD
+          }
         />
       )}
       <Row>
@@ -633,7 +632,10 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
                     </select>
                   </Col> */}
 
-                      <select {...register("select_problemFaced")} className="w-50">
+                      <select
+                        {...register("select_problemFaced")}
+                        className="w-50"
+                      >
                         <option selected disabled value="">
                           Please select
                         </option>

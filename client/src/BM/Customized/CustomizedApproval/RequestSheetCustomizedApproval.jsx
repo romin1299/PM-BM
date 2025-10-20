@@ -9,7 +9,7 @@ import { Box } from "@mui/system";
 import { Divider, Typography } from "@mui/material";
 import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 
-const RequestSheetCustomizedApproval = ({notEditable}) => {
+const RequestSheetCustomizedApproval = ({ notEditable }) => {
   const {
     register,
     handleSubmit,
@@ -19,8 +19,6 @@ const RequestSheetCustomizedApproval = ({notEditable}) => {
   } = useForm({});
 
   const context = useContext(RoutingContext);
-  console.log("For update----");
-
 
   const dynamicApprovalFlowOfRequestSheetOfBM = async (approvalList) => {
     try {
@@ -149,7 +147,11 @@ const RequestSheetCustomizedApproval = ({notEditable}) => {
             className="m-2"
             sx={{ display: "flex", justifyContent: "center" }}
           >
-            <button type="submit" className="btn bg-succ " disabled={notEditable}>
+            <button
+              type="submit"
+              className="btn bg-succ "
+              disabled={notEditable}
+            >
               Submit Approval List
             </button>
           </Box>

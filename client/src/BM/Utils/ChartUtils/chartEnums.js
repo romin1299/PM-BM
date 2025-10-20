@@ -15,9 +15,6 @@ export const MONTH_LABELS = [
   "Mar",
 ];
 
-  console.log("For update----");
-
-
 export const chartColors = {
   0: "#fdb515",
   1: "#40aeb6",

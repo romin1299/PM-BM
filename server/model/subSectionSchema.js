@@ -1,9 +1,6 @@
 const mongoose = require("mongoose");
 const { allTargetData, TmMttrSkillScoresAndLimit } = require("./common");
 
-  console.log("For update----");
-
-
 const subSectionSchema = new mongoose.Schema({
   subSection_id: {
     type: String,
@@ -30,7 +27,7 @@ const subSectionSchema = new mongoose.Schema({
     {
       group: { type: String },
       from: { type: Number },
-      to: { type: Number, default: null},
+      to: { type: Number, default: null },
     },
   ],
 });

@@ -18,8 +18,6 @@ const CustomizedMajorBD = ({
   setSelectedSubSection,
   majorBDTime,
 }) => {
-    console.log("For update----");
-
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
@@ -48,7 +46,7 @@ const CustomizedMajorBD = ({
       const response = await axios.post(
         `/add-major-BD?section=${reduceState?.selectedSection}&subSection=${reduceState?.selectedSubSection}`,
         {
-          majorBD: data.majorBD
+          majorBD: data.majorBD,
         },
         config
       );

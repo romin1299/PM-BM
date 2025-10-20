@@ -10,7 +10,6 @@ import axios from "axios";
 import CustomizedMajorBD from "./CustomizedMajorBD.jsx/CustomizedMajorBD";
 
 const MainCustomized = () => {
-
   const context = useContext(RoutingContext);
   const notEditable = context?.tm_no === Number("9999");
 
@@ -23,8 +22,6 @@ const MainCustomized = () => {
   const [selectedSubSection, setSelectedSubSection] = useState(
     "6322e5b1fdb4a3119153b9d9"
   );
-    console.log("For update----");
-
 
   const getMajorBDTime = async () => {
     try {

@@ -34,10 +34,8 @@ const ChartsToolbar = ({
   defaultSelectedMonth,
   plantLevel,
   currentStatusOfRSFiltration,
-  currentStatusOfRequestSheet
+  currentStatusOfRequestSheet,
 }) => {
-    console.log("For update----");
-
   const generatePPT = () => {
     const pptx = new pptxgen();
     const slide = pptx.addSlide();
