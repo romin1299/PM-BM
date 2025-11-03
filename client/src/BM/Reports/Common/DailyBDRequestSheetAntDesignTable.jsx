@@ -11,6 +11,8 @@ const BDRequestSheetAntDesignTable = ({
   requestSheetData,
   downloadFileName,
   selectedYear,
+  selectedValue,
+  flagForTogglingFilter
 }) => {
   const [searchResult, setSearchResult] = useState([]);
 
@@ -149,6 +151,8 @@ const BDRequestSheetAntDesignTable = ({
             show: requestSheetModalOpenClose,
             onHide: () => handleRequestSheetShowAndCloseState(),
           }}
+          selectedValue
+          flagForTogglingFilter
         />
       )}
       <Row className="p-1">

@@ -684,6 +684,8 @@ const AllTheRequestSheetOfBMatOnePlacePlantWise = () => {
             show: requestSheetModalOpenClose,
             onHide: () => handleRequestSheetShowAndCloseState(),
           }}
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedValue={reduceState?.selectedValue}
         />
       )}
     </>

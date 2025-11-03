@@ -83,6 +83,8 @@ const BDRSTableWithDateFiltration = ({
           requestSheetData={requestSheetData}
           downloadFileName={"Daily breakdown trend"}
           selectedYear={selectedYear}
+          flagForTogglingFilter={flagForTogglingFilter}
+          selectedValue={selectedValue}
         />
       </Paper>
     </>

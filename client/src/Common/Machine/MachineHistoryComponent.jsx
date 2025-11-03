@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Col, Container } from "react-bootstrap";
 
-import CustomHooksForBackNavigation, {
+import {
   MuiNavigateBack,
 } from "../ButtonComponents/CustomHooksForBackNavigation";
 import MachineDetails from "./MachineDetails";

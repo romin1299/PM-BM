@@ -18,6 +18,9 @@ const subSectionSchema = new mongoose.Schema({
   remarksOnMainDashboard: {
     type: String,
   },
+    majorBDTime:{
+    type: Number,
+  },
 
   allTargetData,
 

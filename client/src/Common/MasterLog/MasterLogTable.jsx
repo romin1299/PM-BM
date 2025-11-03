@@ -654,6 +654,8 @@ const MasterLogTable = ({
                 show: handleAllModals?.requestSheetModalOpenClose,
                 onHide: () => handleRequestSheetShowAndCloseState(),
               }}
+              flagForTogglingFilter={flagForTogglingFilter}
+              selectedValue={selectedValue}
             />
           )}
           {handleAllModals?.noLossBMEntryModalOpenClose && (

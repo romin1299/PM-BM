@@ -10745,3 +10745,271 @@
     at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\cmcontroller.js:1945:7
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
 >>>>>>> aec20e3107342059289765607a8ee0f785c64afb
+2025-10-24T10:33 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T10:49 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T10:52 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T10:56 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T10:57 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T10:57 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T10:58 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T10:59 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "Sections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T11:01 | undefined | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:3663:31
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\authenticate.js:33:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at runNextTicks (node:internal/process/task_queues:65:3)
+    at processImmediate (node:internal/timers:437:9)
+2025-10-24T11:01 | undefined | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:3663:31
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\authenticate.js:33:5)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T11:05 | undefined | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:3663:31
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\authenticate.js:33:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-24T11:08 | undefined | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at ObjectId (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:3663:31
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\authenticate.js:33:5)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-27T12:17 | BM | Cannot read properties of null (reading 'dashboardLevel')
+		TypeError: Cannot read properties of null (reading 'dashboardLevel')
+    at dashboardLevelUserCheckMiddleware (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:248:19)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-27T14:24 | undefined | Cast to ObjectId failed for value "{ subSection_id: undefined }" (type Object) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "{ subSection_id: undefined }" (type Object) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-27T14:24 | undefined | Cast to ObjectId failed for value "{ subSection_id: undefined }" (type Object) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "{ subSection_id: undefined }" (type Object) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-27T14:50 | undefined | Cast to ObjectId failed for value "{ subSection_id: undefined }" (type Object) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "{ subSection_id: undefined }" (type Object) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-27T14:50 | undefined | Cast to ObjectId failed for value "{ subSection_id: undefined }" (type Object) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "{ subSection_id: undefined }" (type Object) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-27T15:42 | undefined | Cast to ObjectId failed for value "{ subSection_id: 'SS1' }" (type Object) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "{ subSection_id: 'SS1' }" (type Object) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at runNextTicks (node:internal/process/task_queues:65:3)
+    at processImmediate (node:internal/timers:437:9)
+2025-10-27T15:42 | undefined | Cast to ObjectId failed for value "{ subSection_id: 'SS1' }" (type Object) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "{ subSection_id: 'SS1' }" (type Object) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-27T15:42 | undefined | Cast to ObjectId failed for value "{ subSection_id: 'SS1' }" (type Object) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "{ subSection_id: 'SS1' }" (type Object) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-27T15:42 | undefined | Cast to ObjectId failed for value "{ subSection_id: 'SS1' }" (type Object) at path "_id" for model "SubSections"
+		CastError: Cast to ObjectId failed for value "{ subSection_id: 'SS1' }" (type Object) at path "_id" for model "SubSections"
+    at model.Query.exec (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at model.Query.Query.then (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-10-30T00:00 | PM | The "path" argument must be of type string. Received undefined
+		TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+    at new NodeError (node:internal/errors:371:5)
+    at validateString (node:internal/validators:119:11)
+    at Object.join (node:path:429:7)
+    at Task._execution (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\everyDayAutoBackup.js:14:12)
+    at Task.execute (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\node-cron\src\task.js:17:25)
+    at ScheduledTask.now (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:38:33)
+    at Scheduler.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduled-task.js:25:18)
+    at Scheduler.emit (node:events:390:28)
+    at Timeout.matchTime [as _onTimeout] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\node-cron\src\scheduler.js:30:26)
+    at listOnTimeout (node:internal/timers:557:17)
+2025-10-30T10:47 | BM | PlanExecutor error during aggregation :: caused by :: $in requires an array as a second argument, found: string
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $in requires an array as a second argument, found: string
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-10-30T10:47 | BM | FieldPath field names may not start with '$'. Consider using $getField or $setField.
+		MongoServerError: FieldPath field names may not start with '$'. Consider using $getField or $setField.
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-10-30T10:49 | BM | PlanExecutor error during aggregation :: caused by :: $in requires an array as a second argument, found: string
+		MongoServerError: PlanExecutor error during aggregation :: caused by :: $in requires an array as a second argument, found: string
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-10-30T10:50 | BM | must specify 'as' field for a $lookup
+		MongoServerError: must specify 'as' field for a $lookup
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-10-30T13:32 | BM | Invalid $project :: caused by :: FieldPath field names may not start with '$'. Consider using $getField or $setField.
+		MongoServerError: Invalid $project :: caused by :: FieldPath field names may not start with '$'. Consider using $getField or $setField.
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-11-01T11:30 | BM | ObjectId is not defined
+		ReferenceError: ObjectId is not defined
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:17823:10
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-11-01T11:31 | BM | '$' by itself is not a valid FieldPath
+		MongoServerError: '$' by itself is not a valid FieldPath
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-11-03T10:41 | BM | Cannot convert undefined or null to object
+		TypeError: Cannot convert undefined or null to object
+    at D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:17165:7
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filtrationMiddleware (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:16507:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at queryPipelineMiddleware (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\controller\bmController.js:17102:5)
+    at Layer.handle [as handle_request] (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\middleware\authenticate.js:33:5)
+2025-11-03T10:42 | BM | the match filter must be an expression in an object
+		MongoServerError: the match filter must be an expression in an object
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-11-03T10:50 | BM | the match filter must be an expression in an object
+		MongoServerError: the match filter must be an expression in an object
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)
+2025-11-03T10:51 | BM | the match filter must be an expression in an object
+		MongoServerError: the match filter must be an expression in an object
+    at Connection.onMessage (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:390:28)
+    at processIncomingData (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\Romin\Projects\DENSO_BM\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:389:12)
+    at _write (node:internal/streams/writable:330:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:334:10)
+    at Socket.ondata (node:internal/streams/readable:754:22)
+    at Socket.emit (node:events:390:28)

@@ -6,7 +6,6 @@ import ChartTitleBar from "../../BM/Reports/Common/ChartTitleBar";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { barChartOptions } from "../../BM/Utils/ChartUtils/chartOptions";
 import { chartColors } from "../../BM/Utils/ChartUtils/chartEnums";
-import { useLocation, useNavigate } from "react-router-dom";
 import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 import MainRequestSheetForView from "../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
 
@@ -26,16 +25,8 @@ const BreakdownTrend = ({ machine_code, selectedYear, search }) => {
     setRequestSheetModalOpenClose(!requestSheetModalOpenClose);
   };
 
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const getBreakdownTrendData = async () => {
     try {
-      let currentYear =
-        new Date().getMonth() < 3
-          ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
-          : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-
       const res = await fetch(
         `/getBreakdownTrendData/${search}&&selectedYear=${selectedYear}`,
         {
@@ -74,8 +65,6 @@ const BreakdownTrend = ({ machine_code, selectedYear, search }) => {
       },
     ],
   };
-
-  console.log(requestSheetModalOpenClose);
 
   return (
     <>

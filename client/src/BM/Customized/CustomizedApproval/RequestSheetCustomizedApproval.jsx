@@ -1,21 +1,18 @@
-import React, { useEffect, useContext, useState } from "react";
+import { useEffect, useContext } from "react";
 import { Row, Col } from "react-bootstrap";
 import { APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM } from "./GlobalApprovalList";
 import { useForm } from "react-hook-form";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
-import { ToastContainer } from "react-toastify";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { Box } from "@mui/system";
-import { Divider, Typography } from "@mui/material";
 import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 
-const RequestSheetCustomizedApproval = ({ notEditable }) => {
+const RequestSheetCustomizedApproval = ({ notEditable, majorBDTime }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
   } = useForm({});
 
   const context = useContext(RoutingContext);
@@ -115,7 +112,10 @@ const RequestSheetCustomizedApproval = ({ notEditable }) => {
             <Col className="cell m-2 p-2">
               <h6 style={{ marginLeft: "0px" }}>
                 Major BD Approval Selection (
-                <span className="text-danger">{">"} 2 Hrs.</span>)
+                <span className="text-danger">
+                  {">"} {(majorBDTime / 60).toFixed(1)} Hrs.
+                </span>
+                )
               </h6>
               {APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM.map((obj, idx) => {
                 return (

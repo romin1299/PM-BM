@@ -148,6 +148,8 @@ const AntDesignRSTableWithFiltration = ({
             requestSheetData={requestSheetDataForProductAndLineWise}
             downloadFileName={downloadFileName}
             selectedYear={selectedYear}
+            selectedValue={selectedValue}
+            flagForTogglingFilter={flagForTogglingFilter}
           />
         )}
       </Paper>

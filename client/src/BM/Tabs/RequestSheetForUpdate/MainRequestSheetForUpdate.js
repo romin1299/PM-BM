@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import PRDRequestSheetForUpdate from "./PRDRequestSheetForUpdate";
-import { useParams, useNavigate } from "react-router-dom";
-import RoutingContext from "../../../context/routing/RoutingContext";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import MTDRequestSheet from "../RequestSheet/MTDRequestSheet";
 
 function MyTable() {
   const navigate = useNavigate();
-  const context = useContext(RoutingContext);
 
   const { machine_code, requestSheetID, generateType, selectedYear } =
     useParams();
@@ -17,6 +15,10 @@ function MyTable() {
     pmStatusData: "",
     bmStatusData: "",
   });
+
+  const [searchParams] = useSearchParams();
+  const flagForTogglingFilter = searchParams.get("flagForTogglingFilter");
+  const selectedValue = searchParams.get("selectedValue");
 
   const [approvalListOfBM, setApprovalListOfBM] = useState([]);
   const [supportingTMList, setSupportingTMList] = useState([]);
@@ -109,6 +111,8 @@ function MyTable() {
           approvalListOfBM={approvalListOfBM}
           requestSheetDataOfBM={requestSheetDataOfBM}
           supportingTMList={supportingTMList}
+          flagForTogglingFilter={flagForTogglingFilter}
+          selectedValue={selectedValue}
         />
       </div>
     </div>

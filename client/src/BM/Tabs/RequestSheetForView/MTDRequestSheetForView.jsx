@@ -17,7 +17,9 @@ function MTDRequestSheetForView({
   requestSheetDataOfBM,
   supportingTMList,
   selectedYear,
-  currentCount
+  currentCount,
+  selectedValue,
+  flagForTogglingFilter,
 }) {
   const loggedUserDetails = useContext(RoutingContext);
 
@@ -27,6 +29,9 @@ function MTDRequestSheetForView({
   const [selectedMinor, setSelectedMinor] = useState();
   const [selectedMajor, setSelectedMajor] = useState();
   const [dataOfTheCM, setDataOfTheCM] = useState([]);
+  const [majorBDTime, setMajorBDTime] = useState({
+    sectionWiseMajorBD: 120,
+  });
 
   const {
     register,
@@ -203,7 +208,7 @@ function MTDRequestSheetForView({
   }, [requestSheetDataOfBM]);
 
   useEffect(() => {
-    if (timeDifferenceMinutes > 120) {
+    if (timeDifferenceMinutes > majorBDTime?.sectionWiseMajorBD) {
       setSelectedMajor("Yes");
       setSelectedMinor("No");
     } else {
@@ -214,7 +219,7 @@ function MTDRequestSheetForView({
 
   const getAllCMSheetData = async () => {
     try {
-      setDataOfTheCM([])
+      setDataOfTheCM([]);
       const response = await axios.get(
         `/getAllCmReqSheet/based-on-requestSheetIdOfBM/${requestSheetDataOfBM?._id}/?selectedYear=${selectedYear}`
       );
@@ -229,6 +234,26 @@ function MTDRequestSheetForView({
       getAllCMSheetData();
     }
   }, [requestSheetDataOfBM?._id, currentCount]);
+
+  const getMajorBDTime = async () => {
+    try {
+      // console.log(selectedSection, selectedSubSection);
+      const response = await axios.get(
+        `/getMajorBDTime/${flagForTogglingFilter || undefined}/${
+          selectedValue || undefined
+        }`
+      );
+      setMajorBDTime({
+        ...majorBDTime,
+        sectionWiseMajorBD: response?.data?.getMajorBDTimeSectionWise,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getMajorBDTime();
+  }, [selectedValue]);
 
   return (
     <form className="">
@@ -536,7 +561,7 @@ function MTDRequestSheetForView({
                 >
                   {loggedUserDetails?.tm_department === "MTD" &&
                   loggedUserDetails?.tm_grade === "HOS" &&
-                  timeDifferenceMinutes > 120 ? (
+                  timeDifferenceMinutes > majorBDTime?.sectionWiseMajorBD ? (
                     <>
                       <small className="mb-0">
                         <b>FEEDBACK</b>
@@ -1089,7 +1114,11 @@ function MTDRequestSheetForView({
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>MAJOR B/D </b>
                       </p>
-                      <div>{timeDifferenceMinutes > 120 ? "Yes" : "No"}</div>
+                      <div>
+                        {timeDifferenceMinutes > majorBDTime?.sectionWiseMajorBD
+                          ? "Yes"
+                          : "No"}
+                      </div>
                     </Col>
 
                     <Col
@@ -1118,7 +1147,11 @@ function MTDRequestSheetForView({
                       <p className="mb-0" style={{ fontSize: "12px" }}>
                         <b>MINOR B/D </b>
                       </p>
-                      <div>{timeDifferenceMinutes < 120 ? "Yes" : "No"}</div>
+                      <div>
+                        {timeDifferenceMinutes < majorBDTime?.sectionWiseMajorBD
+                          ? "Yes"
+                          : "No"}
+                      </div>
                     </Col>
                     {/* <Col
                         lg={6}

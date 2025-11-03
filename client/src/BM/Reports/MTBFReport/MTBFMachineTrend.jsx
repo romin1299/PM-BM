@@ -427,6 +427,8 @@ const MTBFMachineTrend = ({
             requestSheetData={reduceState?.requestSheetData}
             downloadFileName={"MTBF Report"}
             selectedYear={selectedYear}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedValue={reduceState?.selectedValue}
           />
         </Col>
       </Row>

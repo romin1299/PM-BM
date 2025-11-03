@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 import { Box, Button, TextField } from "@mui/material";
 import { CommonDropdown } from "../../Reports/ManHourReport/SubComponents/LineSelectionDropdown";
@@ -6,37 +6,34 @@ import ChartsToolbar from "../../Reports/ManHourReport/SubComponents/ChartsToolb
 
 import { useForm } from "react-hook-form";
 import {
-  getMajorBDTime,
   initialState,
   reducer,
 } from "../../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import axios from "axios";
-import { Bounce, toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const CustomizedMajorBD = ({
-  setSelectedSection,
-  setSelectedSubSection,
   majorBDTime,
+  notEditable,
+  setMajorBDTime,
+  reduceState,
+  reducerDispatch,
 }) => {
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-  const [reduceState, reducerDispatch] = useReducer(
-    reducer,
-    initialState("Yes")
-    // getMajorBDTime(reduceState?.selectedSection, reduceState?.selectedSubSection)
-  );
+  // const [reduceState, reducerDispatch] = useReducer(
+  //   reducer,
+  //   initialState("Yes")
+  //   // getMajorBDTime(reduceState?.selectedSection, reduceState?.selectedSubSection)
+  // );
+  // const [majorBDTime, setMajorBDTime] = useState(120);
+
   const {
     register,
     handleSubmit,
     reset,
-    setValue,
-    clearErrors,
     formState: { errors },
   } = useForm();
-  // console.log("this is reduce ", reduceState);
-  setSelectedSection(reduceState?.selectedSection);
-  setSelectedSubSection(reduceState?.selectedSubSection);
   const onFinish = async (data) => {
-    console.log(data);
     try {
       const config = {
         headers: {
@@ -44,7 +41,7 @@ const CustomizedMajorBD = ({
         },
       };
       const response = await axios.post(
-        `/add-major-BD?section=${reduceState?.selectedSection}&subSection=${reduceState?.selectedSubSection}`,
+        `/add-major-BD/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}`,
         {
           majorBD: data.majorBD,
         },
@@ -52,14 +49,34 @@ const CustomizedMajorBD = ({
       );
 
       toast.success(response.data.message);
+      setMajorBDTime({
+        ...majorBDTime,
+        setMajorBDTime: response?.data?.majorBDTime,
+      });
       reset();
-      console.log(response);
     } catch (error) {
       toast.error("Major BD time failed to set");
       console.log(error);
     }
   };
-  // console.log(majorBDTime)
+
+  // const getMajorBDTime = async () => {
+  //   try {
+  //     // console.log(selectedSection, selectedSubSection);
+  //     const response = await axios.get(
+  //       `/getMajorBDTime/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}`
+  //     );
+  //     setMajorBDTime(
+  //       response?.data?.majorBDTime ? response?.data?.majorBDTime : 120
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   getMajorBDTime();
+  // }, [reduceState?.selectedValue]);
+
   return (
     <div className="cell p-3">
       <div>
@@ -84,7 +101,9 @@ const CustomizedMajorBD = ({
             id="standard-basic"
             // label="Minutes"
             variant="standard"
-            placeholder={majorBDTime ? majorBDTime : 120}
+            placeholder={
+              majorBDTime?.setMajorBDTime ? majorBDTime?.setMajorBDTime : 120
+            }
             {...register("majorBD", { required: true })}
             helperText={
               errors.majorBD && (
@@ -97,6 +116,7 @@ const CustomizedMajorBD = ({
             variant="contained"
             color="primary"
             size="small"
+            disabled={notEditable}
           >
             Set
           </Button>

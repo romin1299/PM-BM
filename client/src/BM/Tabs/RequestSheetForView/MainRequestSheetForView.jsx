@@ -11,6 +11,8 @@ function MainRequestSheetForView({
   modelProp,
   generateType,
   selectedYear,
+  selectedValue,
+  flagForTogglingFilter
 }) {
   const navigate = useNavigate();
   // const { machine_code, requestSheetID, generateType, selectedYear } =
@@ -156,6 +158,8 @@ function MainRequestSheetForView({
                 supportingTMList={supportingTMList}
                 selectedYear={selectedYear}
                 currentCount={currentCount}
+                flagForTogglingFilter={flagForTogglingFilter}
+                selectedValue={selectedValue}
               />
             </div>
           </div>

@@ -739,7 +739,7 @@ const RequestSheetMainDashboard = () => {
           : true,
       onClick: (event, selectedRow) =>
         navigate(
-          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}`,
+          `/bm/update/request-sheet/${selectedRow?.machineNo}/${selectedRow?._id}/${reduceState?.selectedYear}?flagForTogglingFilter=${reduceState?.flagForTogglingFilter}&selectedValue=${reduceState?.selectedValue}`,
           {
             state: {
               supportingTM:
@@ -1281,6 +1281,8 @@ const RequestSheetMainDashboard = () => {
             show: requestSheetModalOpenClose,
             onHide: () => handleRequestSheetShowAndCloseState(),
           }}
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedValue={reduceState?.selectedValue}
         />
       )}
 

@@ -708,6 +708,8 @@ const AllRequestSheetReportDataOfCM = () => {
             show: requestSheetModalOpenClose?.modalOpenClose,
             onHide: () => handleRequestSheetShowAndCloseState(),
           }}
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedValue={reduceState?.selectedValue}
         />
       )}
     </>

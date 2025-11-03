@@ -281,6 +281,17 @@ const LineTrend = ({
         //borderWidth: 2,
         yAxisID: "y2",
       },
+      {
+        type: "bar",
+        stack: "bar-stacked",
+        label: "No Loss Data",
+        data: lineTrendData?.lossData,
+        backgroundColor: chartColors.bmpm[2],
+        borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
+        yAxisID: "y2",
+      },
     ],
   };
 

@@ -312,6 +312,17 @@ const TMLoad = ({
         //borderColor: "#312A7D",
         //borderWidth: 2,
       },
+      {
+        type: "bar",
+        stack: "bar-stacked",
+        label: "No Loss Data",
+        data: tmLoadData?.totalLoss,
+        backgroundColor: chartColors.bmpm[2],
+        borderRadius: 4,
+        //borderColor: "#312A7D",
+        //borderWidth: 2,
+        yAxisID: "y2",
+      },
     ],
   };
 

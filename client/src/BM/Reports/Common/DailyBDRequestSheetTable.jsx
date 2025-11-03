@@ -4,7 +4,6 @@ import MaterialTable from "@material-table/core";
 import tableIcons from "../../../components/MatrialTableIcon";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
-import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
 import {
   MaterialTableOptions,
@@ -20,9 +19,9 @@ const BDRequestSheetTable = ({
   loading = false,
   selectedYear,
   filters = null,
+  flagForTogglingFilter,
+  selectedValue,
 }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
   // console.log("location:", location);
   const [selectedRow, setSelectedRow] = useState();
 
@@ -108,7 +107,7 @@ const BDRequestSheetTable = ({
   ];
   return (
     <>
-    {requestSheetModalOpenClose && (
+      {requestSheetModalOpenClose && (
         <MainRequestSheetForView
           selectedYear={selectedYear}
           machine_code={selectedRow?.machineNo}
@@ -117,6 +116,8 @@ const BDRequestSheetTable = ({
             show: requestSheetModalOpenClose,
             onHide: () => handleRequestSheetShowAndCloseState(),
           }}
+          selectedValue={selectedValue}
+          flagForTogglingFilter={flagForTogglingFilter}
         />
       )}
       <Box className="mt-1 cell p-0 border-0">

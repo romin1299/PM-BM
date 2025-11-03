@@ -28,7 +28,7 @@ const initialState = {
 //   { _id: 3, shiftName: "C", shiftStartTime: "22:45", shiftEndTime: "06:15" },
 // ];
 
-const CustomManageShifts = ({notEditable}) => {
+const CustomManageShifts = ({ notEditable }) => {
   const [shifts, setShifts] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editedShift, setEditedShift] = useState(null);
@@ -181,7 +181,12 @@ const CustomManageShifts = ({notEditable}) => {
         aria-label={tooltipTitle}
         disableInteractive
       >
-        <IconButton size="small" type={type || "button"} onClick={onClick} disabled={notEditable}>
+        <IconButton
+          size="small"
+          type={type || "button"}
+          onClick={onClick}
+          disabled={notEditable}
+        >
           <Icon fontSize="small" />
         </IconButton>
       </Tooltip>
@@ -190,7 +195,7 @@ const CustomManageShifts = ({notEditable}) => {
 
   return (
     <div className="cell p-3">
-      <ChartTitleBar disableDivider title="Manage Shifts" mb={1}/>
+      <ChartTitleBar disableDivider title="Manage Shifts" mb={1} />
 
       {/* <Typography variant="h4" fontSize={"1.5rem"} fontWeight={500} mb={1}>
         Manage Shifts
@@ -274,7 +279,7 @@ const CustomManageShifts = ({notEditable}) => {
                             ?
                           </div>
                         }
-                        notEditable
+                        notEditable={notEditable}
                       />
                     </td>
                   </tr>

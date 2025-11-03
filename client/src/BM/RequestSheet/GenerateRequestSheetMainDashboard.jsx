@@ -92,7 +92,8 @@ const MapComponent = ({
                       <button
                         key={index}
                         className={`machine ${
-                          context?.tm_department === "MTD" && localStorage.getItem("activeKey") === "bm"
+                          context?.tm_department === "MTD" &&
+                          localStorage.getItem("activeKey") === "bm"
                             ? getStatusClass(
                                 machine?.requestSheet?.[0]?.currentStatusOfBD,
                                 machine?.requestSheet?.[0]?.requestSheetStatus,
@@ -234,15 +235,14 @@ const GenerateRequestSheetMainDashboard = () => {
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
-    
-      const urlForSelectMachineForOpenRequestSheet =
-        localStorage.getItem("activeKey") === "bm" && context?.tm_department === "PRD"
-          ? "/bm/request-sheet/manual"
-          : "/cm/request-sheet";
-      navigate(
-        `${urlForSelectMachineForOpenRequestSheet}/${machine_code}/${currentYear}`
-      );
-    
+    const urlForSelectMachineForOpenRequestSheet =
+      localStorage.getItem("activeKey") === "bm" &&
+      context?.tm_department === "PRD"
+        ? "/bm/request-sheet/manual"
+        : "/cm/request-sheet";
+    navigate(
+      `${urlForSelectMachineForOpenRequestSheet}/${machine_code}/${currentYear}`
+    );
   };
   const handleRequestSheetShowAndCloseState = () => {
     if (context?.tm_department === "MTD") {
@@ -277,30 +277,32 @@ const GenerateRequestSheetMainDashboard = () => {
                     </b>
                   </div>
 
-                  {context?.tm_department === "MTD" && localStorage.getItem("activeKey") === "bm" && (
-                    <div className="d-flex flex-wrap gap-3">
-                      <div className="d-flex align-items-center gap-1">
-                        <div className="color-box red"></div> Under BD
-                      </div>
-                      <div className="d-flex align-items-center gap-1">
-                        <div className="color-box yellow"></div> Waiting
-                      </div>
-                      <div className="d-flex align-items-center gap-1">
-                        <div className="color-box blue"></div> Under Monitoring
-                      </div>
-                      <div className="d-flex align-items-center gap-1">
-                        <div className="color-box green"></div> Running
-                      </div>
-                      <div className="d-flex align-items-center gap-1">
-                        <div className="color-box red border border-warning border-3"></div>{" "}
-                        Not Assigned
-                      </div>
-                      {/* <div className="d-flex align-items-center gap-1">
+                  {context?.tm_department === "MTD" &&
+                    localStorage.getItem("activeKey") === "bm" && (
+                      <div className="d-flex flex-wrap gap-3">
+                        <div className="d-flex align-items-center gap-1">
+                          <div className="color-box red"></div> Under BD
+                        </div>
+                        <div className="d-flex align-items-center gap-1">
+                          <div className="color-box yellow"></div> Waiting
+                        </div>
+                        <div className="d-flex align-items-center gap-1">
+                          <div className="color-box blue"></div> Under
+                          Monitoring
+                        </div>
+                        <div className="d-flex align-items-center gap-1">
+                          <div className="color-box green"></div> Running
+                        </div>
+                        <div className="d-flex align-items-center gap-1">
+                          <div className="color-box red border border-warning border-3"></div>{" "}
+                          Not Assigned
+                        </div>
+                        {/* <div className="d-flex align-items-center gap-1">
                         <div className="color-box status-default"></div> Not
                         Generated
                       </div> */}
-                    </div>
-                  )}
+                      </div>
+                    )}
                 </Col>
 
                 <Col xs={12} md={12} lg={12} className="gx-0">
@@ -342,6 +344,10 @@ const GenerateRequestSheetMainDashboard = () => {
               show: requestSheetModalOpenClose,
               onHide: () => handleRequestSheetShowAndCloseState(),
             }}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedValue={reduceState?.selectedValue}
+            searchParams={searchParams}
+            setSearchParams={setSearchParams}
           />
         )}
       </>
@@ -412,6 +418,7 @@ const GenerateRequestSheetMainDashboard = () => {
                 ACTION={ACTION}
                 context={context}
                 searchParams={searchParams}
+                setSearchParams={setSearchParams}
               />
             </Col>
           </Row>
@@ -427,6 +434,8 @@ const GenerateRequestSheetMainDashboard = () => {
             show: requestSheetModalOpenClose,
             onHide: () => handleRequestSheetShowAndCloseState(),
           }}
+          flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+          selectedValue={reduceState?.selectedValue}
         />
       )}
     </>

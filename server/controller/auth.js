@@ -13318,7 +13318,6 @@ router.post(
           },
         },
       ]);
-
       let GetAllPlanAndCompletedHours;
       if (req?.query?.filter === "Hours") {
         const commonMiddleware = [

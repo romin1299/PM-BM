@@ -1,5 +1,5 @@
 import { Row, Col, Form } from "react-bootstrap";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Table } from "react-bootstrap";
 import DownloadIcon from "@mui/icons-material/Download";
 import ProblemList from "../SubComponents/ProblemList";
@@ -15,6 +15,7 @@ import Multiselect from "multiselect-react-dropdown";
 import { Button, Typography } from "@mui/material";
 import BMReflectionYokotenkai from "../SubComponents/BMReflectionYokotenkai";
 import axios from "axios";
+import { FaFileUpload } from "react-icons/fa";
 
 function MyTable({
   selectedMachineDetails,
@@ -65,6 +66,54 @@ function MyTable({
   var curr = new Date();
   var currentDate = curr.toISOString().substring(0, 10);
 
+  const [fileName, setFileName] = useState("");
+  const [images, setImages] = useState([]);
+
+  const handleFileChange = async (event) => {
+    const attachedDataSheets = event.target.files[0];
+    const formData = new FormData();
+    formData.append("attachedDataSheets", attachedDataSheets);
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      };
+      const response = await axios.patch(
+        `/updateDataSheetsOfReqSheet/${requestSheetDataOfBM?._id}?prevDataSheet=${requestSheetDataOfBM?.attachedDataSheets}`,
+        formData,
+        config
+      );
+      setFileName(response?.data?.requestSheet?.attachedDataSheets);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleImageChange = async (event) => {
+    const attachedDrawings = event.target.files;
+    const formData = new FormData();
+    for (let i = 0; i < attachedDrawings.length; i++) {
+      formData.append("attachedDrawings", attachedDrawings[i]);
+    }
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      };
+      const response = await axios.patch(
+        `/updateDrawingsOfReqSheet/${requestSheetDataOfBM?._id}`,
+        formData,
+        config
+      );
+      setImages(response?.data?.updatedReqSheet?.attachedDrawings);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   let timeDifferenceMinutes =
     moment(watch("workEndedDateOfBM"))
       .tz("Asia/Kolkata")
@@ -80,8 +129,10 @@ function MyTable({
       requestSheetData.problemsOfBM = problems;
       requestSheetData.actionAndCounterMeasureStep = actions;
       requestSheetData.breakDownTime = timeDifferenceMinutes;
-      requestSheetData.minorBD = timeDifferenceMinutes <= 120 ? "Yes" : "No";
-      requestSheetData.majorBD = timeDifferenceMinutes > 120 ? "Yes" : "No";
+      requestSheetData.minorBD =
+        timeDifferenceMinutes <= majorBDTime ? "Yes" : "No";
+      requestSheetData.majorBD =
+        timeDifferenceMinutes > majorBDTime ? "Yes" : "No";
       // requestSheetData.changedParts = parts?.map(({ _id, ...rest }) => ({
       //   ...rest,
       // }));
@@ -111,7 +162,7 @@ function MyTable({
         ]?._id;
 
       requestSheetData.dataSheetOfRequestSheet =
-        timeDifferenceMinutes > 120
+        timeDifferenceMinutes > majorBDTime
           ? "Yes"
           : requestSheetData.dataSheetOfRequestSheet;
 
@@ -226,7 +277,7 @@ function MyTable({
         !watch("feedbackMTD_HOS") &&
         loggedUserDetails?.tm_department === "MTD" &&
         loggedUserDetails?.tm_grade === "HOS" &&
-        timeDifferenceMinutes > 120
+        timeDifferenceMinutes > majorBDTime
       ) {
         setError(
           "feedbackMTD_HOS",
@@ -391,7 +442,7 @@ function MyTable({
 
       // if (
       //   !watch("preventive_corrective_maintenance") &&
-      //   timeDifferenceMinutes > 120
+      //   timeDifferenceMinutes > majorBDTime
       // ) {
       //   setError(
       //     "preventive_corrective_maintenance",
@@ -404,7 +455,7 @@ function MyTable({
       //   // console.log(flagCountForHandlingError);
       // }
 
-      // if (!watch("yokotenkai") && timeDifferenceMinutes > 120) {
+      // if (!watch("yokotenkai") && timeDifferenceMinutes > majorBDTime ) {
       //   setError(
       //     "yokotenkai",
       //     {
@@ -444,7 +495,7 @@ function MyTable({
         !watch("dataSheetOfRequestSheet") &&
         !requestSheetDataOfBM?.dataSheetOfRequestSheet
         //    ||
-        // (timeDifferenceMinutes > 120 &&
+        // (timeDifferenceMinutes > majorBDTime  &&
         //   requestSheetDataOfBM?.dataSheetOfRequestSheet === "Yes")
       ) {
         setError("dataSheetOfRequestSheet", {
@@ -467,7 +518,7 @@ function MyTable({
       }
 
       if (
-        (timeDifferenceMinutes > 120 ||
+        (timeDifferenceMinutes > majorBDTime ||
           watch("dataSheetOfRequestSheet") === "Yes") &&
         !requestSheetDataOfBM?.attachedDataSheets &&
         !watch("attachedDataSheets")
@@ -660,6 +711,24 @@ function MyTable({
       console.log(error);
     }
   };
+
+  const getMajorBDTime = async () => {
+    try {
+      let url = `/getMajorBDTime?section=${requestSheetDataOfBM?.sectionRef?._id}`;
+      if (requestSheetDataOfBM?.subSectionref?._id) {
+        url += `&subSection=${requestSheetDataOfBM?.subSectionref?._id}`;
+      }
+      const response = await axios.get(url);
+      setMajorBDTime(
+        response?.data?.majorBDTime ? response?.data?.majorBDTime : 120
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getMajorBDTime();
+  }, []);
 
   const approveRequestSheetFromHigherAuthority = async (
     updatedRequestSheetData
@@ -876,7 +945,7 @@ function MyTable({
   }, [requestSheetDataOfBM?._id, setValue]);
 
   useEffect(() => {
-    if (timeDifferenceMinutes > 120) {
+    if (timeDifferenceMinutes > majorBDTime) {
       setSelectedMajor("Yes");
       setSelectedMinor("No");
     } else {
@@ -1257,7 +1326,7 @@ function MyTable({
                   >
                     {loggedUserDetails?.tm_department === "MTD" &&
                     loggedUserDetails?.tm_grade === "HOS" &&
-                    timeDifferenceMinutes > 120 ? (
+                    timeDifferenceMinutes > majorBDTime ? (
                       <>
                         <small className="mb-0">
                           <b>FEEDBACK</b>
@@ -1389,7 +1458,7 @@ function MyTable({
                   </Col>
                   {loggedUserDetails?.tm_department === "MTD" &&
                   loggedUserDetails?.tm_grade === "HOS" &&
-                  timeDifferenceMinutes > 120 ? (
+                  timeDifferenceMinutes > majorBDTime  ? (
                     <Col lg={6} md={6} sm={12} className="border">
                       <p className="fs-6 mb-0">
                         <b>FEEDBACK</b>
@@ -1739,7 +1808,9 @@ function MyTable({
                               id="majorBD"
                               disabled
                               checked={
-                                timeDifferenceMinutes > 120 ? true : false
+                                timeDifferenceMinutes > majorBDTime
+                                  ? true
+                                  : false
                               }
                             />
                             &nbsp;&nbsp;
@@ -1752,7 +1823,9 @@ function MyTable({
                               id="majorBD"
                               disabled
                               checked={
-                                timeDifferenceMinutes > 120 ? false : true
+                                timeDifferenceMinutes > majorBDTime
+                                  ? false
+                                  : true
                               }
                             />
                           </div>
@@ -1832,7 +1905,9 @@ function MyTable({
                               value="Yes"
                               id="minorBD"
                               checked={
-                                timeDifferenceMinutes <= 120 ? true : false
+                                timeDifferenceMinutes <= majorBDTime
+                                  ? true
+                                  : false
                               }
                             />
                             &nbsp;&nbsp;
@@ -1846,7 +1921,9 @@ function MyTable({
                               value="No"
                               id="minorBD"
                               checked={
-                                timeDifferenceMinutes <= 120 ? false : true
+                                timeDifferenceMinutes <= majorBDTime
+                                  ? false
+                                  : true
                               }
                             />
                           </div>
@@ -1964,7 +2041,7 @@ function MyTable({
                             value="Yes"
                             id="minorBD"
                             checked={
-                              timeDifferenceMinutes <= 120 ? true : false
+                              timeDifferenceMinutes <= majorBDTime  ? true : false
                             }
                           />
                           {/* {console.log(selectedMinor === "Yes")}
@@ -1977,7 +2054,7 @@ function MyTable({
                             value="No"
                             id="minorBD"
                             checked={
-                              timeDifferenceMinutes <= 120 ? false : true
+                              timeDifferenceMinutes <= majorBDTime  ? false : true
                             }
                           />
                         </div>
@@ -2338,7 +2415,7 @@ function MyTable({
                           value="Yes"
                           id="dataSheetOfRequestSheet"
                           checked={
-                            timeDifferenceMinutes > 120
+                            timeDifferenceMinutes > majorBDTime
                               ? true
                               : watch("dataSheetOfRequestSheet") === "Yes"
                               ? true
@@ -2364,7 +2441,7 @@ function MyTable({
                           type="radio"
                           value="No"
                           id="dataSheetOfRequestSheet"
-                          disabled={timeDifferenceMinutes > 120 && true}
+                          disabled={timeDifferenceMinutes > majorBDTime && true}
                           {...register("dataSheetOfRequestSheet")}
                           onChange={(e) => {
                             setValue(
@@ -2387,12 +2464,18 @@ function MyTable({
                       {requestSheetDataOfBM?.attachedDataSheets ? (
                         <>
                           <Typography mt={2} variant="body2">
-                            {requestSheetDataOfBM?.attachedDataSheets}
+                            {fileName !== ""
+                              ? fileName
+                              : requestSheetDataOfBM?.attachedDataSheets}
                           </Typography>
                           <Button
                             target="_blank"
                             // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                            href={`${process.env.REACT_APP_BASE_URL}/${requestSheetDataOfBM?.attachedDataSheets}`}
+                            href={`${process.env.REACT_APP_BASE_URL}/${
+                              fileName !== ""
+                                ? fileName
+                                : requestSheetDataOfBM?.attachedDataSheets
+                            }`}
                             disableElevation
                             size="small"
                             variant="contained"
@@ -2401,8 +2484,37 @@ function MyTable({
                           >
                             Download
                           </Button>
+                          <br />
+                          {(loggedUserDetails?.tm_department === "MTD" ||
+                            loggedUserDetails?.user_type === "Operator") && (
+                            <Button
+                              disableElevation
+                              size="small"
+                              variant="contained"
+                              color="warning"
+                              startIcon={<FaFileUpload fontSize="small" />}
+                              sx={{
+                                mt: 1,
+                                position: "relative",
+                                overflow: "hidden",
+                              }}
+                              id="dataSheet"
+                              component="label"
+                            >
+                              Re-Upload
+                              <input
+                                type="file"
+                                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                id="dataSheet"
+                                onChange={(e) => {
+                                  handleFileChange(e);
+                                }}
+                                style={{ display: "none" }}
+                              />
+                            </Button>
+                          )}
                         </>
-                      ) : timeDifferenceMinutes > 120 ||
+                      ) : timeDifferenceMinutes > majorBDTime ||
                         watch("dataSheetOfRequestSheet") === "Yes" ? (
                         <Form.Group
                           controlId="formFileMultiple"
@@ -2412,14 +2524,14 @@ function MyTable({
                             type="file"
                             // {...register("attachedDataSheets", {
                             //   // required:
-                            //   //   timeDifferenceMinutes > 120 ||
+                            //   //   timeDifferenceMinutes > majorBDTime  ||
                             //   //   watch("dataSheetOfRequestSheet") === "Yes"
                             //   //     ? true
                             //   //     : false,
                             // })}
                             // {...register("attachedDataSheets", {
                             //   // required:
-                            //   //   timeDifferenceMinutes > 120 ||
+                            //   //   timeDifferenceMinutes > majorBDTime  ||
                             //   //   watch("dataSheetOfRequestSheet") === "Yes"
                             //   //     ? true
                             //   //     : false,
@@ -2477,49 +2589,108 @@ function MyTable({
                       </div>
 
                       {requestSheetDataOfBM?.attachedDrawings?.length > 0 ? (
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "10px",
-                          }}
-                        >
-                          {requestSheetDataOfBM?.attachedDrawings?.map(
-                            (image) => (
-                              <a
-                                target="_blank"
-                                // href={`http://localhost:7000/${image}`}
-                                href={`${process.env.REACT_APP_BASE_URL}/${image}`}
-                                style={{
-                                  width: "100%",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <img
-                                  // src={`http://localhost:7000/${image}`}
-                                  src={`${process.env.REACT_APP_BASE_URL}/${image}`}
-                                  style={{
-                                    maxWidth: "100px",
-                                    maxHeight: "100px",
-                                  }}
-                                />
-                                <span
-                                  style={{
-                                    fontSize: "10px",
-                                    textAlign: "center",
-                                  }}
-                                >
-                                  {image}
-                                </span>
-                              </a>
-                            )
-                          )}
-                        </div>
+                        <>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              gap: "10px",
+                            }}
+                          >
+                            {images.length === 0
+                              ? requestSheetDataOfBM?.attachedDrawings?.map(
+                                  (image) => (
+                                    <a
+                                      target="_blank"
+                                      // href={`http://localhost:7000/${image}`}
+                                      href={`${process.env.REACT_APP_BASE_URL}/${image}`}
+                                      style={{
+                                        width: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <img
+                                        // src={`http://localhost:7000/${image}`}
+                                        src={`${process.env.REACT_APP_BASE_URL}/${image}`}
+                                        style={{
+                                          maxWidth: "100px",
+                                          maxHeight: "100px",
+                                        }}
+                                      />
+                                      <span
+                                        style={{
+                                          fontSize: "10px",
+                                          textAlign: "center",
+                                        }}
+                                      >
+                                        {image}
+                                      </span>
+                                    </a>
+                                  )
+                                )
+                              : images.map((image) => (
+                                  <a
+                                    target="_blank"
+                                    // href={`http://localhost:7000/${image}`}
+                                    href={`${process.env.REACT_APP_BASE_URL}/${image}`}
+                                    style={{
+                                      width: "100%",
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      justifyContent: "center",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <img
+                                      // src={`http://localhost:7000/${image}`}
+                                      src={`${process.env.REACT_APP_BASE_URL}/${image}`}
+                                      style={{
+                                        maxWidth: "100px",
+                                        maxHeight: "100px",
+                                      }}
+                                    />
+                                    <span
+                                      style={{
+                                        fontSize: "10px",
+                                        textAlign: "center",
+                                      }}
+                                    >
+                                      {image}
+                                    </span>
+                                  </a>
+                                ))}
+                          </div>
+                          <Button
+                            disableElevation
+                            size="small"
+                            variant="contained"
+                            color="warning"
+                            startIcon={<FaFileUpload fontSize="small" />}
+                            sx={{
+                              mt: 1,
+                              position: "relative",
+                              overflow: "hidden",
+                            }}
+                            component="label"
+                            id="drawingSheet"
+                          >
+                            Re-Upload
+                            <input
+                              type="file"
+                              multiple
+                              id="drawingSheet"
+                              onChange={(e) => {
+                                handleImageChange(e);
+                              }}
+                              style={{ display: "none" }}
+                            />
+                          </Button>
+                        </>
                       ) : watch("drawingOfRequestSheet") === "Yes" ? (
                         <Form.Group
                           controlId="formFileMultiple"

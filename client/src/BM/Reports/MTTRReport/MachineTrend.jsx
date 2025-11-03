@@ -464,6 +464,8 @@ const MachineTrend = ({
             requestSheetData={reduceState?.requestSheetData}
             downloadFileName={"MTTR trend"}
             selectedYear={selectedYear}
+            flagForTogglingFilter={reduceState?.flagForTogglingFilter}
+            selectedValue={reduceState?.selectedValue}
           />
         </Col>
       </Row>
