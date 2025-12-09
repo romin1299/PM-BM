@@ -61,9 +61,31 @@ To set up the server-side for this project, follow these steps:
 
 This will install all the necessary packages and dependencies required for the server-side of the project to run successfully.
 
-Replace `<repository-url>` with the URL of this Git repository. This combined installation guide will help users set up both the client and server environments with all the required dependencies specified in their respective `package.json` files.
+Important: create directories used for file uploads before running the server so multer can write files:
 
-For the `Usage` section in your README.md file, you can provide instructions on how to run the client and server applications. Here's how you can structure it:
+```bash
+mkdir -p server/images server/PMimages server/data_sheets server/data_sheets
+```
+
+(Adjust the paths if you run the server from a different working directory.)
+
+### Environment / Configuration
+
+The server expects a MongoDB connection and other configuration via environment variables. Create a `.env` (or otherwise ensure env vars are set) in the `server` directory with at minimum:
+
+- MONGODB_URI (or the DB connection string used by `server/db/conn`)
+- COMMON_PASSWORD (default/operator password used for new users)
+
+Optional / mail-related (used by email/send modules referenced by the server):
+
+- SERVER_IP (SMTP host or mail server IP)
+- EMAIL_PORT
+- FROM_EMAIL (email used as sender)
+- EMAIL_FOR_SPARE_REQUEST (recipient / CC for spare requests)
+
+Make sure your process has write permissions for the image and data_sheets folders used by the server.
+
+Replace `<repository-url>` with the URL of this Git repository. This combined installation guide will help users set up both the client and server environments with all the required dependencies specified in their respective `package.json` files.
 
 ## Usage
 
@@ -95,13 +117,23 @@ To run the server-side of the project, follow these steps:
    cd server
    ```
 
-2. Start the server:
+2. Start the server. Common options are:
 
-   ```bash
-   nodemon app
-   ```
+   - Using nodemon (if installed globally or as dev dependency):
 
-This will start the server application. It will listen for incoming requests on the specified `port 9099` .
+     ```bash
+     nodemon app
+     ```
+
+   - Or using npm script (if defined):
+
+     ```bash
+     npm start
+     ```
+
+The server will read the configuration/environment variables you set (DB connection, common password, email configuration, etc.). The server includes endpoints that handle file uploads (profile images, PM images, data sheets) and expects the folders listed above to exist.
+
+Note: the server code uses multer to store uploaded files under `./images/`, `./PMimages/`, and `./data_sheets/` relative to the server working directory.
 
 ## Contributions
 
