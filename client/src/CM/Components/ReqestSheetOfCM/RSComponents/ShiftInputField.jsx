@@ -8,7 +8,12 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import axios from "axios";
 
-const ShiftInputField = ({ dateAndTime, shiftOfBM, setValue }) => {
+const ShiftInputField = ({
+  dateAndTime,
+  shiftOfBM,
+  setValue,
+  keyOfShift = "shiftOfBM",
+}) => {
   const [plantShiftsData, setPlantShiftsData] = useState([]);
 
   useEffect(() => {
@@ -54,7 +59,7 @@ const ShiftInputField = ({ dateAndTime, shiftOfBM, setValue }) => {
 
     return () => {
       if (dateAndTime) {
-        setValue("shiftOfBM", getCurrentShiftName());
+        setValue(keyOfShift, getCurrentShiftName());
       }
     };
   }, [dateAndTime, plantShiftsData]);

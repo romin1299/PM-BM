@@ -193,6 +193,32 @@ exports.getUserData =
         { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
       );
 
+      const pedHOD = await userModel.find(
+        {
+          plant_data: req?.rootUser?.plant_data,
+          _id: { $ne: req?.rootUser?._id },
+          tm_department: "PED",
+          tm_grade: "HOD",
+        },
+        { tm_name: 1, line_names: 1, email: 1 }
+      );
+      const pedHOS = await userModel.find(
+        {
+          ...queryObj,
+          tm_department: "PED",
+          tm_grade: "HOS",
+        },
+        { tm_name: 1, line_names: 1, email: 1 }
+      );
+      const pedTL = await userModel.find(
+        {
+          ...queryObj,
+          tm_department: "PED",
+          user_type: "TL/HOSS",
+        },
+        { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
+      );
+
       const requestSheetApprovalList = {
         mtdHOS,
         mtdTL,
@@ -200,6 +226,9 @@ exports.getUserData =
         prdHOD,
         prdHOS,
         prdTL,
+        pedHOD,
+        pedHOS,
+        pedTL,
       };
 
       if (machine) {

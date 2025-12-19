@@ -11,6 +11,7 @@ import {
   initialState,
   reducer,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import CustomizedJobAddition from "./CustomizedJobCreation/CustomizedJobAddition";
 
 const MainCustomized = () => {
   const context = useContext(RoutingContext);
@@ -71,6 +72,7 @@ const MainCustomized = () => {
         </Col>
         <Col md={12} lg={6} className="mt-2">
           <CustomManageShifts notEditable={notEditable} />
+          <CustomizedJobAddition />
         </Col>
       </Row>
     </Container>

@@ -500,6 +500,27 @@ const UserUpdate = ({ selectedRow }) => {
                         MTD
                       </span>
 
+                      <input
+                        type="radio"
+                        name="tm_department"
+                        id="outlined-number"
+                        value="PED"
+                        onChange={(e) => {
+                          formik.setFieldValue("user_type", "");
+                          setUsertype();
+                          formik.handleChange(e);
+                        }}
+                      />
+                      <span
+                        style={{
+                          paddingLeft: "0.5rem",
+                          fontWeight: "550",
+                          color: "black",
+                        }}
+                      >
+                        PED
+                      </span>
+
                       <div>
                         <p
                           style={{
@@ -590,93 +611,8 @@ const UserUpdate = ({ selectedRow }) => {
                 ) : (
                   ""
                 )}
-
-                {/* 
-<div className="pwd-container">
-  <span>User Type:</span>
-  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-    <TextField
-      id="outlined-number"
-      name="user_type"
-      className="textField"
-      autoComplete="off"
-      value="TL/HOSS"
-      fullWidth
-      // onChange={formik.handleChange}
-      // label="Number"
-      type="text"
-    />
-  </div>
-</div>
-
-<div className="pwd-container">
-  <span>TM Department:</span>
-  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-    <TextField
-      id="outlined-number"
-      className="textField"
-      autoComplete="off"
-      fullWidth
-      // onChange={formik.handleChange}
-      // label="Number"
-      type="text"
-      name="tm_department"
-      value="MTD"
-    />
-  </div>
-</div> */}
               </div>
-            ) : // <div className="pwd-container">
-            //   <span>User Type:</span>
-            //   <div style={{ width: "100%", marginTop: "0.5rem" }}>
-            //     <TextField
-            //       id="outlined-number"
-            //       name="user_type"
-            //       className="textField"
-            //       autoComplete="off"
-            //       value={selectedRow.user_type}
-            //       fullWidth
-            //       // onChange={formik.handleChange}
-            //       // label="Number"
-            //       type="text"
-            //     />
-            //   </div>
-            // </div>
-
-            // <div>
-            //   <div className="pwd-container">
-            //     <span>User Type:</span>
-            //     <div style={{ width: "100%", marginTop: "0.5rem" }}>
-            //       <TextField
-            //         id="outlined-number"
-            //         name="user_type"
-            //         className="textField"
-            //         autoComplete="off"
-            //         value={selectedRow.user_type}
-            //         fullWidth
-            //         // onChange={formik.handleChange}
-            //         // label="Number"
-            //         type="text"
-            //       />
-            //     </div>
-            //   </div>
-            //   <div className="pwd-container">
-            //     <span>TM Department:</span>
-            //     <div style={{ width: "100%", marginTop: "0.5rem" }}>
-            //       <TextField
-            //         id="outlined-number"
-            //         className="textField"
-            //         autoComplete="off"
-            //         fullWidth
-            //         value={selectedRow.tm_department}
-            //         // onChange={formik.handleChange}
-            //         // label="Number"
-            //         type="text"
-            //         name="tm_department"
-            //       />
-            //     </div>
-            //   </div>
-            // </div>
+            ) :
             context.user_type === "TL/HOSS" &&
               context.tm_department === "MTD" ? (
               <div>
@@ -765,55 +701,6 @@ const UserUpdate = ({ selectedRow }) => {
                 )}
               </div>
             ) : (
-              // <div className="pwd-container">
-              //   <span>User Type:</span>
-              //   <div style={{ width: "100%", marginTop: "0.5rem" }}>
-              //     <p
-              //       style={{
-              //         textAlign: "left",
-              //         color: "black",
-              //         fontSize: "13px",
-              //         fontWeight: "normal",
-              //       }}
-              //     >
-              //       {`Previous User-Type: `}
-              //       <span
-              //         style={{ fontWeight: "bold" }}
-              //       >{`${selectedRow.user_type} `}</span>
-              //     </p>
-              //     <select
-              //       class="form-select form-select-sm"
-              //       aria-label=".form-select-sm example"
-              //       style={{ width: "100%" }}
-              //       id="standard-select-currency"
-              //       name="user_type"
-              //       className="textField"
-              //       fullWidth
-              //       select // label="Select"
-              //       autoComplete="off"
-              //       value={formik.values.user_type}
-              //       onChange={(e) => {
-              //         setUsertype(e.target.value);
-              //         formik.handleChange(e);
-              //       }}
-              //       variant="standard"
-              //     >
-              //       <option selected disabled value="">
-              //         Please select
-              //       </option>
-              //       {userType.map((option) => {
-              //         return (
-              //           <option value={option.label}>{option.value}</option>
-              //         );
-              //       })}
-              //     </select>
-              //     <div>
-              //       {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-              //     {formik.touched.emp_group && formik.errors.emp_group}
-              //   </p> */}
-              //     </div>
-              //   </div>
-              // </div>
               <div>
                 <div className="pwd-container">
                   <span>User Type:</span>
@@ -891,7 +778,9 @@ const UserUpdate = ({ selectedRow }) => {
               </div>
             )}
 
-            {grade === "HOS" || grade === "HOD" ? (
+            {grade === "HOS" ||
+            grade === "HOD" ||
+            context?.tm_grade === "HOD" ? (
               // || selectedRow.user_type === "TL/HOSS"
               <div className="pwd-container">
                 <span>TM Department:</span>
@@ -946,6 +835,25 @@ const UserUpdate = ({ selectedRow }) => {
                       }}
                     >
                       MTD
+                    </span>
+
+                    <input
+                      type="radio"
+                      name="tm_department"
+                      style={{ float: "left" }}
+                      id="outlined-number"
+                      value="PED"
+                      onChange={formik.handleChange}
+                    />
+                    <span
+                      style={{
+                        margin: "0 0 0.5rem 0.5rem",
+                        fontWeight: "550",
+                        color: "black",
+                        float: "left",
+                      }}
+                    >
+                      PED
                     </span>
                   </div>
                 </div>

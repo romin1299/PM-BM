@@ -1,14 +1,9 @@
 import React, { useEffect, useReducer, useState } from "react";
 import ChartTitleBar from "../../Reports/Common/ChartTitleBar";
 import { Box, Button, TextField } from "@mui/material";
-import { CommonDropdown } from "../../Reports/ManHourReport/SubComponents/LineSelectionDropdown";
 import ChartsToolbar from "../../Reports/ManHourReport/SubComponents/ChartsToolbar";
 
 import { useForm } from "react-hook-form";
-import {
-  initialState,
-  reducer,
-} from "../../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import axios from "axios";
 import { toast } from "react-toastify";
 

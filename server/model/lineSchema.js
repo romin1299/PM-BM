@@ -109,6 +109,10 @@ const lineSchema = new mongoose.Schema({
     type: Number,
   },
 
+  requestSheetNoOfNewMachineCM: {
+    type: Number,
+  },
+
   LTPMApproval: {
     preparationApproval: {
       status: commonVarForTypeString,

@@ -157,7 +157,7 @@ const UserAdd = () => {
       cell_data: "",
       contact_no: "",
       address: "",
-      isAuthorizedUserForUpdatingRequestSheetInAnyStatus: "",
+      isAuthorizedUserForUpdatingRequestSheetInAnyStatus: "No",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -519,6 +519,27 @@ const UserAdd = () => {
                         MTD
                       </span>
 
+                      <input
+                        type="radio"
+                        name="tm_department"
+                        id="outlined-number"
+                        value="PED"
+                        onChange={(e) => {
+                          formik.setFieldValue("user_type", "");
+                          setUsertype();
+                          formik.handleChange(e);
+                        }}
+                      />
+                      <span
+                        style={{
+                          paddingLeft: "0.5rem",
+                          fontWeight: "550",
+                          color: "black",
+                        }}
+                      >
+                        PED
+                      </span>
+
                       <div>
                         <p
                           style={{
@@ -800,7 +821,9 @@ const UserAdd = () => {
               </div>
             )}
 
-            {grade === "HOS" || grade === "HOD" ? (
+            {grade === "HOS" ||
+            grade === "HOD" ||
+            context?.tm_grade === "HOD" ? (
               <div className="pwd-container">
                 <span>TM Department:</span>
                 <div>
@@ -837,6 +860,22 @@ const UserAdd = () => {
                       }}
                     >
                       MTD
+                    </span>
+                    <input
+                      type="radio"
+                      name="tm_department"
+                      id="outlined-number"
+                      value="PED"
+                      onChange={formik.handleChange}
+                    />
+                    <span
+                      style={{
+                        paddingLeft: "0.5rem",
+                        fontWeight: "550",
+                        color: "black",
+                      }}
+                    >
+                      PED
                     </span>
                   </div>
                 </div>

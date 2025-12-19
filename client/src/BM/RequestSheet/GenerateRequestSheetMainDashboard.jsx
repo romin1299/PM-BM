@@ -229,9 +229,10 @@ const GenerateRequestSheetMainDashboard = () => {
   }, []);
 
   const handleBack = () => {
-    localStorage.getItem("activeKey") === "bm"
-      ? navigate("/bm")
-      : navigate("/cm");
+    navigate(-1)
+    // localStorage.getItem("activeKey") === "bm"
+    //   ? navigate("/bm")
+    //   : navigate("/cm");
   };
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
@@ -239,6 +240,8 @@ const GenerateRequestSheetMainDashboard = () => {
       localStorage.getItem("activeKey") === "bm" &&
       context?.tm_department === "PRD"
         ? "/bm/request-sheet/manual"
+        : context?.tm_department === "PED"
+        ? "/cm/new-machine-request-sheet"
         : "/cm/request-sheet";
     navigate(
       `${urlForSelectMachineForOpenRequestSheet}/${machine_code}/${currentYear}`

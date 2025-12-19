@@ -36,8 +36,9 @@ import Multiselect from "multiselect-react-dropdown";
 import { SuccessToast } from "../../../BM/Component/ShowTostify";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MainRequestSheetForView from "../../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
+import NewMachineRequestForViewAndUpdate from "./NewMachineRequestForViewAndUpdate";
 
-const AllRequestSheetReportDataOfCM = () => {
+const NewMachineCMRequestSheetReport = () => {
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
     useState([]);
   const [reduceState, reducerDispatch] = useReducer(
@@ -53,15 +54,17 @@ const AllRequestSheetReportDataOfCM = () => {
   const [counters, setCounters] = useState([]);
 
   const defaultState = {
-    cmReqSheetView: false,
+    newMachineCmReqSheetView: false,
     isEditable: false,
     selectedRowRequestSheetId: "",
     isOtherFieldsEditableOrNot: "No",
-    targetDateOfCM: "",
+    // targetDateOfCM: "",
   };
 
-  const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
-    useState(defaultState);
+  const [
+    selectedNewMachineCMRequestSheetPopupData,
+    setSelectedNewMachineCMRequestSheetPopupData,
+  ] = useState(defaultState);
 
   const defaultStateForBmRequestSheet = {
     requestSheetID: "",
@@ -74,17 +77,17 @@ const AllRequestSheetReportDataOfCM = () => {
   );
 
   const handlePopupStatus = () =>
-    setSelectedCMRequestSheetPopupData(defaultState);
+    setSelectedNewMachineCMRequestSheetPopupData(defaultState);
 
   const getAllCMSheetData = async () => {
     try {
       setLoading(true);
       setApprovalRequestSheetDataOfCM();
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`
+        `/getAllNewMachineCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}`
       );
-      setCounters(response.data.counters);
-      setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
+      // setCounters(response.data.counters);
+      setApprovalRequestSheetDataOfCM(response.data.newMachineReqSheetCM);
     } catch (error) {
       console.log(error);
     }
@@ -98,7 +101,7 @@ const AllRequestSheetReportDataOfCM = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedCategoryType,
-    selectedCMRequestSheetPopupData?.cmReqSheetView,
+    selectedNewMachineCMRequestSheetPopupData?.newMachineCmReqSheetView,
     reduceState?.selectedQuarter,
   ]);
 
@@ -174,54 +177,43 @@ const AllRequestSheetReportDataOfCM = () => {
     },
     {
       title: "Req No.",
-      field: "requestSheetNoOfCM",
+      field: "requestSheetNoOfNewMachineCM",
+      editable: false,
+      width: "10%",
+    },
+    {
+      title: "Scope of CM",
+      field: "newMachineRequestFilledByPED.scopeOfCM",
+      editable: false,
+      width: "15%",
+    },
+    {
+      title: "Request On",
+      field: "newMachineRequestFilledByPED.requestOn",
       editable: false,
     },
     {
-      title: "Category",
-      field: "cmBasicDataFilledByMTD_TL.categories",
+      title: "Required On",
+      field: "newMachineRequestFilledByPED.requiredOn",
       editable: false,
     },
     {
-      title: "Activity",
-      field: "cmBasicDataFilledByMTD_TL.activityOfCM",
+      title: "Request-Sheet Status",
+      field: "statusOfNewRequestOfCM",
       editable: false,
     },
-    {
-      title: "status",
-      field: "current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
-      editable: false,
-    },
-    {
-      title: "Planned Date",
-      field: "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
-      type: "date",
-      editable: false,
-      // customFilterAndSearch: (search, rowData) => {
-      //   const issueDate =
-      //     rowData?.cmBasicDataFilledByMTD_TL?.plannedDateAndTimeOfCM;
-      //   if (!issueDate) return false;
-
-      //   // Convert both to strings for comparison (you can format as needed)
-      //   const dateStr = new Date(issueDate).toLocaleDateString(); // e.g., "10/3/2025"
-      //   return dateStr.includes(search);
-      // },
-    },
-    {
-      title: "Target Date",
-      field: "current_commonDataFilledByAssignUser.targetDateOfCM",
-      type: "date",
-      editable: false,
-      // customFilterAndSearch: (search, rowData) => {
-      //   const targetDate =
-      //     rowData?.current_commonDataFilledByAssignUser?.targetDateOfCM;
-      //   if (!targetDate) return false;
-
-      //   // Convert both to strings for comparison (you can format as needed)
-      //   const dateStr = new Date(targetDate).toLocaleDateString(); // e.g., "10/3/2025"
-      //   return dateStr.includes(search);
-      // },
-    },
+    // {
+    //   title: "Planned Date",
+    //   field: "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
+    //   type: "date",
+    //   editable: false,
+    // },
+    // {
+    //   title: "Target Date",
+    //   field: "current_commonDataFilledByAssignUser.targetDateOfCM",
+    //   type: "date",
+    //   editable: false,
+    // },
     {
       title: "Assigned To",
       field: `assignUserForCM`,
@@ -293,13 +285,15 @@ const AllRequestSheetReportDataOfCM = () => {
       position: "row",
       disabled: !row?.isEditableRS || context?.tm_no === Number("9999"),
       onClick: (event, selectedRow) => {
-        setSelectedCMRequestSheetPopupData({
-          isEditable: row?.isEditableRS && row?.assignUserForCM?.length > 0,
-          assignUserCondition: row?.assignUserForCM?.length <= 0,
-          cmReqSheetView: true,
+        setSelectedNewMachineCMRequestSheetPopupData({
+          ...selectedNewMachineCMRequestSheetPopupData,
+          isEditable: selectedRow?.isEditableRS,
+          // assignUserCondition: row?.assignUserForCM?.length <= 0,
+          newMachineCmReqSheetView: true,
           selectedRowRequestSheetId: selectedRow?._id,
-          targetDateOfCM:
-            selectedRow?.current_commonDataFilledByAssignUser.targetDateOfCM,
+          machine_code: selectedRow?.machineNo,
+          isOtherFieldsEditableOrNot:
+            context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
         });
       },
     }),
@@ -308,48 +302,45 @@ const AllRequestSheetReportDataOfCM = () => {
       tooltip: "View",
       position: "row",
       onClick: (event, selectedRow) => {
-        setSelectedCMRequestSheetPopupData({
+        setSelectedNewMachineCMRequestSheetPopupData({
+          ...selectedNewMachineCMRequestSheetPopupData,
           isEditable: false,
-          cmReqSheetView: true,
+          newMachineCmReqSheetView: true,
           selectedRowRequestSheetId: selectedRow?._id,
-          targetDateOfCM:
-            selectedRow?.current_commonDataFilledByAssignUser.targetDateOfCM,
-        });
-      },
-    }),
-    (row) => ({
-      icon: () => <ReceiptLongIcon className="text-primary" />,
-      tooltip: "BD Sheet",
-      position: "row",
-      hidden: row?.requestSheetOfBMRef === null,
-      onClick: (event, selectedRow) => {
-        setRequestSheetModalOpenClose({
-          ...requestSheetModalOpenClose,
-          requestSheetID: selectedRow?.requestSheetOfBMRef,
           machine_code: selectedRow?.machineNo,
-          modalOpenClose: true,
         });
       },
     }),
+    // (row) => ({
+    //   icon: () => <ReceiptLongIcon className="text-primary" />,
+    //   tooltip: "BD Sheet",
+    //   position: "row",
+    //   hidden: row?.requestSheetOfBMRef === null,
+    //   onClick: (event, selectedRow) => {
+    //     setRequestSheetModalOpenClose({
+    //       ...requestSheetModalOpenClose,
+    //       requestSheetID: selectedRow?.requestSheetOfBMRef,
+    //       machine_code: selectedRow?.machineNo,
+    //       modalOpenClose: true,
+    //     });
+    //   },
+    // }),
   ];
   if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
     requestSheetApprovalAction?.push((row) => ({
       icon: () =>
-        row?.current_commonDataFilledByAssignUser?.requestSheetStatusOfCM ===
-        "Completed" ? (
+        row?.statusOfNewRequestOfCM === "Completed" ? (
           <DriveFileRenameOutlineIcon color="primary" />
         ) : (
           <DriveFileRenameOutlineIcon color="disabled" />
         ),
       tooltip: "Edit After All Approval",
       position: "row",
-      disabled:
-        row?.current_commonDataFilledByAssignUser?.requestSheetStatusOfCM !==
-        "Completed",
+      disabled: row?.statusOfNewRequestOfCM !== "Completed",
       onClick: (event, selectedRow) => {
-        setSelectedCMRequestSheetPopupData({
+        setSelectedNewMachineCMRequestSheetPopupData({
           isEditable: true,
-          assignUserCondition: row?.assignUserForCM?.length <= 0,
+          // assignUserCondition: row?.assignUserForCM?.length <= 0,
           cmReqSheetView: true,
           selectedRowRequestSheetId: selectedRow?._id,
           isOtherFieldsEditableOrNot:
@@ -411,9 +402,9 @@ const AllRequestSheetReportDataOfCM = () => {
           RSStatusArray={RSStatusArray}
           RSStatusFiltration
           // maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
-          CM_Category={CM_CategoryArrayForFilter}
-          quarterFiltration
-          CM_CategoryFiltration
+          // CM_Category={CM_CategoryArrayForFilter}
+          // quarterFiltration
+          // CM_CategoryFiltration
           // maintenanceTypeFiltration
           resetButtonFiltration
           isWithLocalStorageForFiltration="Yes"
@@ -422,9 +413,6 @@ const AllRequestSheetReportDataOfCM = () => {
       &nbsp;&nbsp;&nbsp;&nbsp;
     </div>,
   ];
-  const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="down" ref={ref} {...props} />;
-  });
 
   const handleGenerateBMNavigation = async () => {
     navigate(`/cm/generateCMRequestSheetMainDashboard`);
@@ -481,10 +469,10 @@ const AllRequestSheetReportDataOfCM = () => {
               fontWeight={600}
               sx={{ mr: 3 }}
             >
-              CM Reports
+              New Machine CM Reports
             </Typography>
             <Box display="flex" gap="16px" className="col-auto">
-              <Button
+              {/* <Button
                 variant="contained"
                 disableElevation
                 onClick={handleGenerateBMNavigation}
@@ -500,6 +488,23 @@ const AllRequestSheetReportDataOfCM = () => {
               >
                 <AddCircleIcon sx={{ mr: "8px" }} />
                 Generate Existing Machine CM RS
+              </Button> */}
+              <Button
+                variant="contained"
+                disableElevation
+                onClick={handleGenerateBMNavigation}
+                disabled={
+                  context?.user_type !== "TL/HOSS" ||
+                  context?.tm_department !== "PED"
+                }
+                sx={{
+                  fontWeight: 400,
+                  bgcolor: "#ff8432ff",
+                  "&:hover": { bgcolor: "#ff9c59ff" },
+                }}
+              >
+                <AddCircleIcon sx={{ mr: "8px" }} />
+                Generate New Machine CM RS
               </Button>
             </Box>
           </Grid>
@@ -563,7 +568,7 @@ const AllRequestSheetReportDataOfCM = () => {
               </Box>
             ))}
           </div>
-          <div className="d-flex gap-2 m-3">
+          {/* <div className="d-flex gap-2 m-3">
             {CM_CategoryArrayForFilter.map((value) => (
               <Box className="col-auto">
                 <Paper
@@ -592,7 +597,7 @@ const AllRequestSheetReportDataOfCM = () => {
                 </Paper>
               </Box>
             ))}
-          </div>
+          </div> */}
         </Box>
         <Grid container>
           <Grid item xs={12} className="mt-1 cell p-0 border-0">
@@ -627,8 +632,7 @@ const AllRequestSheetReportDataOfCM = () => {
                 isEditHidden: (selectedRow) =>
                   context?.tm_no === Number("9999") ||
                   !["Generated", "Assigned"].includes(
-                    selectedRow?.current_commonDataFilledByAssignUser
-                      .requestSheetStatusOfCM
+                    selectedRow?.statusOfNewRequestOfCM
                   ),
 
                 onRowDelete: (selectedRow) =>
@@ -640,7 +644,7 @@ const AllRequestSheetReportDataOfCM = () => {
                   }),
 
                 isEditable: () =>
-                  context?.tm_department === "MTD" &&
+                  context?.tm_department === "PED" &&
                   context?.user_type === "TL/HOSS",
 
                 onRowUpdate: (updatedRow) =>
@@ -688,21 +692,19 @@ const AllRequestSheetReportDataOfCM = () => {
           </Grid>
         </Grid>
       </Container>
-      {selectedCMRequestSheetPopupData?.cmReqSheetView && (
-        <>
-          <div>
-            {selectedCMRequestSheetPopupData?.cmReqSheetView && (
-              <ExistingMachineReqSheetView
-                handlePopupStatus={handlePopupStatus}
-                selectedYear={reduceState?.selectedYear}
-                {...selectedCMRequestSheetPopupData}
-                quarterOfSelectedRq={reduceState?.selectedQuarter}
-              />
-            )}
-          </div>
-        </>
-      )}
-      {requestSheetModalOpenClose?.modalOpenClose && (
+      <>
+        <div>
+          {selectedNewMachineCMRequestSheetPopupData?.newMachineCmReqSheetView && (
+            <NewMachineRequestForViewAndUpdate
+              handlePopupStatus={handlePopupStatus}
+              selectedYear={reduceState?.selectedYear}
+              {...selectedNewMachineCMRequestSheetPopupData}
+              // quarterOfSelectedRq={reduceState?.selectedQuarter}
+            />
+          )}
+        </div>
+      </>
+      {/* {requestSheetModalOpenClose?.modalOpenClose && (
         <MainRequestSheetForView
           selectedYear={reduceState?.selectedYear}
           machine_code={requestSheetModalOpenClose?.machine_code}
@@ -714,9 +716,9 @@ const AllRequestSheetReportDataOfCM = () => {
           flagForTogglingFilter={reduceState?.flagForTogglingFilter}
           selectedValue={reduceState?.selectedValue}
         />
-      )}
+      )} */}
     </>
   );
 };
 
-export default AllRequestSheetReportDataOfCM;
+export default NewMachineCMRequestSheetReport;

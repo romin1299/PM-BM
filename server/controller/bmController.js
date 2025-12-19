@@ -17114,7 +17114,7 @@ router.get(
   async (req, res, next) => {
     try {
       let queryObjForNoLoss = req?.queryObjForBM;
-      
+
       delete queryObjForNoLoss?.maintenanceType;
       delete queryObjForNoLoss?.["maintenanceReportFilledByMTD.breakDownTime"];
 

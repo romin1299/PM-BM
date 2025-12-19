@@ -89,17 +89,16 @@ const upload = multer({
 });
 
 //upload profile image
+/**
+ * POST: /updateUserProfile
+ * Updates user profile name and optionally profile photo
+ */
 router.post("/updateUserProfile", upload.single("photo"), async (req, res) => {
   try {
-    // console.log(req.photo)
-
     const tm_name = req.body.tm_name;
     const tm_no = req.body.tm_no;
 
-    // console.log(tm_no);
-    // console.log(tm_name);
-    // console.log(req.file);
-
+    // Update with or without photo depending on upload
     if (req.file === undefined) {
       await User.updateOne({ tm_no: tm_no }, { $set: { tm_name: tm_name } });
     } else {
@@ -113,8 +112,6 @@ router.post("/updateUserProfile", upload.single("photo"), async (req, res) => {
     res.status(200).send("User name updated");
   } catch (err) {
     logger.error(err, { maintenanceType: maintenanceType?.[0] });
-    console.log("err");
-    // res.status(400).send("error")
   }
 });
 //for PM images
@@ -136,7 +133,10 @@ const upload1 = multer({
   fileFilter: fileFilter,
 });
 
-//SignIN API
+/**
+ * POST: /signIn
+ * Authenticates user with employee number and password, returns JWT token
+ */
 router.post("/signIn", async (req, res) => {
   try {
     let jwtToken;
@@ -193,7 +193,10 @@ router.post("/signIn", async (req, res) => {
   }
 });
 
-//reset password page ( enter email for validation )
+/**
+ * POST: /resetPass
+ * Sends password reset token to user email for validation
+ */
 router.post("/resetPass", (req, res) => {
   try {
     crypto.randomBytes(32, async (error, buffer) => {
@@ -225,7 +228,10 @@ router.post("/resetPass", (req, res) => {
   }
 });
 
-//new password generation
+/**
+ * POST: /newPassword
+ * Sets new password using valid reset token
+ */
 router.post("/newPassword", async (req, res) => {
   const newPassword = req.body.newPassword;
   const confirmPassword = req.body.confirmPassword;
@@ -257,7 +263,10 @@ router.post("/newPassword", async (req, res) => {
   }
 });
 
-//update the password
+/**
+ * POST: /updatePassword
+ * Updates password for authenticated user (requires old password verification)
+ */
 router.post("/updatePassword", authenticate, async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -297,7 +306,10 @@ router.post("/updatePassword", authenticate, async (req, res) => {
   }
 });
 
-//API for create and save user
+/**
+ * POST: /newUser
+ * Creates a new user account
+ */
 router.post("/newUser", async (req, res) => {
   try {
     const userExist = await User.findOne({ tm_no: req.body.tm_no });
@@ -315,7 +327,10 @@ router.post("/newUser", async (req, res) => {
   }
 });
 
-//update the user in User management table
+/**
+ * POST: /updateUser
+ * Updates user details (name, email, address)
+ */
 router.post("/updateUser", async (req, res) => {
   try {
     const { tm_no, tm_name, email, address } = req.body;
@@ -335,7 +350,10 @@ router.post("/updateUser", async (req, res) => {
   }
 });
 
-//delete the user in User management table
+/**
+ * POST: /deleteUser
+ * Deletes a user account by employee number
+ */
 router.post("/deleteUser", async (req, res) => {
   try {
     const { tm_no } = req.body;
@@ -358,7 +376,10 @@ router.post("/deleteUser", async (req, res) => {
   }
 });
 
-//Get the data from database and show on User management table
+/**
+ * GET: /displayUser
+ * Retrieves all Plant-Admin users for display in User Management table
+ */
 router.get("/displayUser", authenticate, async (req, res) => {
   try {
     const usersInfo = await User.find({ user_type: "Plant-Admin" }).sort({
@@ -384,7 +405,10 @@ router.get("/loggedUserDetails", authenticate, async (req, res) => {
   }
 });
 
-//API for create and save plant
+/**
+ * POST: /addNewPlant
+ * Creates a new plant with auto-generated plant ID
+ */
 router.post("/addNewPlant", authenticate, async (req, res) => {
   const { plant_name } = req.body;
 
@@ -412,7 +436,10 @@ router.post("/addNewPlant", authenticate, async (req, res) => {
   }
 });
 
-//Get the data from database and show on plant management table
+/**
+ * GET: /displayPlant/:plant_data
+ * Retrieves plant information by plant ID
+ */
 router.get("/displayPlant/:plant_data", authenticate, async (req, res) => {
   try {
     let plantInfo;
@@ -431,7 +458,10 @@ router.get("/displayPlant/:plant_data", authenticate, async (req, res) => {
   }
 });
 
-//update the plant in plant management table
+/**
+ * POST: /updatePlant
+ * Updates plant name and refreshes user plant_data references
+ */
 router.post("/updatePlant", authenticate, async (req, res) => {
   try {
     const { plant_id, plant_name, oldRow } = req.body;
@@ -456,6 +486,10 @@ router.post("/updatePlant", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /deletePlant
+ * Deletes a plant by plant ID
+ */
 router.post("/deletePlant", authenticate, async (req, res) => {
   try {
     const { _id, plant_id } = req.body;
@@ -483,7 +517,10 @@ router.post("/deletePlant", authenticate, async (req, res) => {
   }
 });
 
-//API for create and save Section
+/**
+ * POST: /addNewSection
+ * Creates new section with auto-generated section ID under a plant
+ */
 router.post("/addNewSection", authenticate, async (req, res) => {
   try {
     const { section_name, plant_names, dashboardLevel } = req.body;
@@ -526,7 +563,10 @@ router.post("/addNewSection", authenticate, async (req, res) => {
   }
 });
 
-//update the plant in plant management table
+/**
+ * POST: /updateSection
+ * Updates section name and dashboard level, updates user references
+ */
 router.post("/updateSection", authenticate, async (req, res) => {
   try {
     const { section_id, section_name, oldRow, updateRow } = req.body;
@@ -556,6 +596,10 @@ router.post("/updateSection", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /deleteSection
+ * Deletes section by section ID
+ */
 router.post("/deleteSection", authenticate, async (req, res) => {
   try {
     const { _id, section_id } = req.body;
@@ -585,7 +629,10 @@ router.post("/deleteSection", authenticate, async (req, res) => {
   }
 });
 
-//Get the data from database and show on Section management table
+/**
+ * GET: /displaySection
+ * Retrieves all sections for display in management table
+ */
 router.get("/displaySection", authenticate, async (req, res) => {
   try {
     const plantInfo = await Section.find({}).sort({ _id: -1 });
@@ -597,7 +644,10 @@ router.get("/displaySection", authenticate, async (req, res) => {
   }
 });
 
-//API for create and save SubSection
+/**
+ * POST: /addNewSubSection
+ * Creates subsection with auto-generated ID, manages sequence numbering
+ */
 router.post("/addNewSubSection", authenticate, async (req, res) => {
   try {
     const { subSection_name, section_names, subSection_sequence } = req.body;
@@ -667,6 +717,10 @@ router.post("/addNewSubSection", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /updateSubSection
+ * Updates subsection name and sequence, adjusts other subsections' sequences
+ */
 router.post("/updateSubSection", authenticate, async (req, res) => {
   try {
     const { subSection_id, subSection_name, subSection_sequence, oldRow } =
@@ -724,6 +778,10 @@ router.post("/updateSubSection", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /deleteSubSection
+ * Deletes subsection and reorders remaining subsections by sequence
+ */
 router.post("/deleteSubSection", authenticate, async (req, res) => {
   try {
     const { _id, subSection_id, deleteRow } = req.body;
@@ -772,6 +830,10 @@ router.post("/deleteSubSection", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /addNewCell
+ * Creates cell with auto-generated ID and sequence management
+ */
 router.post("/addNewCell", authenticate, async (req, res) => {
   try {
     const { cell_name, subSection, cell_sequence } = req.body;
@@ -848,6 +910,10 @@ router.post("/addNewCell", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /updateCell
+ * Updates cell name and sequence, adjusts other cells' sequences
+ */
 router.post("/updateCell", authenticate, async (req, res) => {
   try {
     const { cell_id, cell_name, cell_sequence, oldRow } = req.body;
@@ -895,6 +961,10 @@ router.post("/updateCell", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /deleteCell
+ * Deletes cell and reorders remaining cells by sequence
+ */
 router.post("/deleteCell", authenticate, async (req, res) => {
   try {
     const { _id, cell_id, deleteRow } = req.body;
@@ -940,6 +1010,10 @@ router.post("/deleteCell", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /addNewLine
+ * Creates production line with auto-generated ID, initializes monthly approval structure
+ */
 router.post("/addNewLine", authenticate, async (req, res) => {
   try {
     const { line_name, cell, line_sequence } = req.body;
@@ -1058,6 +1132,10 @@ router.post("/addNewLine", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /updateLine
+ * Updates line name and sequence, adjusts other lines' sequences
+ */
 router.post("/updateLine", authenticate, async (req, res) => {
   try {
     const { line_id, line_name, line_sequence, oldRow } = req.body;
@@ -1099,6 +1177,10 @@ router.post("/updateLine", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /deleteLine
+ * Deletes line and reorders remaining lines by sequence
+ */
 router.post("/deleteLine", authenticate, async (req, res) => {
   try {
     const { _id, line_id, deleteRow } = req.body;
@@ -1144,7 +1226,10 @@ router.post("/deleteLine", authenticate, async (req, res) => {
   }
 });
 
-//clear all token of logged user
+/**
+ * POST: /clearTokens
+ * Clears JWT tokens and module type for a user (logout across sessions)
+ */
 router.post("/clearTokens", async (req, res) => {
   try {
     const { tm_no } = req.body;
@@ -1165,10 +1250,12 @@ router.post("/clearTokens", async (req, res) => {
   }
 });
 
-// logout functionality (clear the cookie from the browser)
+/**
+ * GET: /logout
+ * Clears authentication cookie and logs out user
+ */
 router.get("/logout", (req, res) => {
   try {
-    // console.log('Logout page ....');
     res.clearCookie("Token", { path: "/" });
     res.status(200).send("user Logout");
   } catch (error) {
@@ -1177,6 +1264,10 @@ router.get("/logout", (req, res) => {
   }
 });
 
+/**
+ * GET: /checking
+ * Debug endpoint for testing database queries and connection
+ */
 router.get("/checking", async (req, res) => {
   try {
     const result = await Section.findOne({
@@ -1195,7 +1286,10 @@ router.get("/checking", async (req, res) => {
   }
 });
 
-//fetch all section head for showing or selecting in dropdown by common user
+/**
+ * GET: /fetchPlantList
+ * Returns list of plants accessible to authenticated user
+ */
 router.get("/fetchPlantList", authenticate, async (req, res) => {
   try {
     const plantLists = await Plant.find({});
@@ -1212,6 +1306,10 @@ router.get("/fetchPlantList", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /postPlantToGetSectionList
+ * Returns sections belonging to a selected plant
+ */
 router.post("/postPlantToGetSectionList", authenticate, async (req, res) => {
   try {
     let { plants } = req.body;
@@ -1291,6 +1389,10 @@ router.post(
   }
 );
 
+/**
+ * POST: /postSubSectionToGetCellList
+ * Returns cells belonging to a selected subsection
+ */
 router.post("/postSubSectionToGetCellList", authenticate, async (req, res) => {
   try {
     let { subSection } = req.body;
@@ -1322,6 +1424,10 @@ router.post("/postSubSectionToGetCellList", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /postCellToGetLineList
+ * Returns lines belonging to a selected cell
+ */
 router.post("/postCellToGetLineList", authenticate, async (req, res) => {
   try {
     let { cell } = req.body;
@@ -1349,6 +1455,10 @@ router.post("/postCellToGetLineList", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /postLineToGetMachineList
+ * Returns machines belonging to a selected line
+ */
 router.post("/postLineToGetMachineList", authenticate, async (req, res) => {
   try {
     let { line, selectedRequest, yearOfCheckSheet } = req.body;
@@ -1443,6 +1553,10 @@ router.post("/postLineToGetMachineList", authenticate, async (req, res) => {
 });
 
 //based on plant selection section list will display on section list dropdown in User Assign in plant user
+/**
+ * POST: /postPlantToGetSectionListOfUserAssign
+ * Retrieves sections for selected plant in user assignment workflow
+ */
 router.post(
   "/postPlantToGetSectionListOfUserAssign",
   authenticate,
@@ -1477,6 +1591,10 @@ router.post(
 );
 
 //based on section selection sub-section list will display on sub-section list dropdown in User Assign in plant user
+/**
+ * POST: /postSectionToGetSubSectionListOfUserAssign
+ * Retrieves subsections for selected section in user assignment workflow
+ */
 router.post(
   "/postSectionToGetSubSectionListOfUserAssign",
   authenticate,
@@ -1511,6 +1629,10 @@ router.post(
 );
 
 //based on sub-section selection cell list will display on cell list dropdown in User Assign in plant user
+/**
+ * POST: /postSubSectionToGetCellListOfUserAssign
+ * Retrieves cells for selected subsection(s) in user assignment workflow
+ */
 router.post(
   "/postSubSectionToGetCellListOfUserAssign",
   authenticate,
@@ -1553,6 +1675,10 @@ router.post(
 );
 
 //post new user in user management in plant & section user
+/**
+ * POST: /postUserAssign
+ * Assigns user to line/cell/section hierarchy levels
+ */
 router.post("/postUserAssign", async (req, res) => {
   try {
     const {
@@ -1622,6 +1748,10 @@ router.post("/postUserAssign", async (req, res) => {
 });
 
 //Get the data from database and show on User management table in plant user
+/**
+ * GET: /displayAssignUser
+ * Retrieves assigned users with their hierarchy details
+ */
 router.get("/displayAssignUser", authenticate, async (req, res) => {
   try {
     let loggedUserData = req.rootUser;
@@ -1638,6 +1768,10 @@ router.get("/displayAssignUser", authenticate, async (req, res) => {
 });
 
 //update the user in User management table in plant & section user
+/**
+ * POST: /updateAssignUser
+ * Updates user assignment details for hierarchy levels
+ */
 router.post("/updateAssignUser", authenticate, async (req, res) => {
   try {
     let {
@@ -1805,6 +1939,10 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
 });
 
 //delete the user in User management table in plant & section user
+/**
+ * POST: /deleteAssignUser
+ * Removes user assignment from hierarchy
+ */
 router.post("/deleteAssignUser", async (req, res) => {
   try {
     const { tm_no } = req.body;
@@ -1827,6 +1965,10 @@ router.post("/deleteAssignUser", async (req, res) => {
 });
 
 //Get the data from database and show on User management table in section user
+/**
+ * GET: /displaySectionAssignUser
+ * Retrieves users assigned to current user's section
+ */
 router.get("/displaySectionAssignUser", authenticate, async (req, res) => {
   try {
     let sectionId = req.rootUser.section_data;
@@ -1871,6 +2013,10 @@ router.get("/displaySectionAssignUser", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * GET: /displayTLHOSSAssignUser
+ * Retrieves TL/HOSS users assigned to section
+ */
 router.get("/displayTLHOSSAssignUser", authenticate, async (req, res) => {
   try {
     let sectionId = req.rootUser.section_data;
@@ -1907,6 +2053,10 @@ router.get("/displayTLHOSSAssignUser", authenticate, async (req, res) => {
 });
 
 //post new machine in machine management in section admin
+/**
+ * POST: /addNewMachine
+ * Creates new machine with auto-generated ID
+ */
 router.post("/addNewMachine", async (req, res) => {
   try {
     const {
@@ -1988,6 +2138,10 @@ router.post("/addNewMachine", async (req, res) => {
 });
 
 //delete machine based on machine_code
+/**
+ * POST: /deleteMachine
+ * Deletes machine by ID
+ */
 router.post("/deleteMachine", authenticate, async (req, res) => {
   try {
     const { _id, machine_code, deleteRow } = req.body;
@@ -2028,6 +2182,10 @@ router.post("/deleteMachine", authenticate, async (req, res) => {
 });
 
 //update machine based on machine-code
+/**
+ * POST: /updateMachine
+ * Updates machine details and hierarchy references
+ */
 router.post("/updateMachine", authenticate, async (req, res) => {
   try {
     const {
@@ -2097,6 +2255,10 @@ router.post("/updateMachine", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /postPlantToGetCellData
+ * Returns cell data for a selected plant
+ */
 router.post("/postPlantToGetCellData", authenticate, async (req, res) => {
   try {
     let { plant } = req.body;
@@ -2368,6 +2530,10 @@ router.post(
 //     }
 // })
 
+/**
+ * POST: /postSectionToGetAllData
+ * Returns comprehensive hierarchy data (sections, subsections, cells, lines, machines) for a section
+ */
 router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
   try {
     let { section, selectedYear } = req.body;
@@ -2792,6 +2958,10 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /postSectionToGetPMSheetApprovalData/:dashboard
+ * Retrieves PM request sheets for approval by section and role-based filtering
+ */
 router.post(
   "/postSectionToGetPMSheetApprovalData/:dashboard",
   authenticate,
@@ -3413,6 +3583,10 @@ router.post(
 );
 
 //for main dashboard of meters display for operator user
+/**
+ * POST: /postSectionToGetAllDataForMainDashboard
+ * Retrieves complete hierarchy and machine data for main dashboard display
+ */
 router.post(
   "/postSectionToGetAllDataForMainDashboard",
   authenticate,
@@ -4009,6 +4183,10 @@ router.post(
 );
 
 //for main dashboard of meters display for other users
+/**
+ * POST: /postSectionToGetAllDataForMainDashboardForOtherUser
+ * Retrieves hierarchy and machine checksheet data for other users' dashboard view
+ */
 router.post(
   "/postSectionToGetAllDataForMainDashboardForOtherUser",
   authenticate,
@@ -4132,6 +4310,10 @@ router.post(
 );
 
 //add new checksheet data for perticular machine
+/**
+ * POST: /addNewChecksheetData
+ * Creates new PM checksheet with questions and observations
+ */
 router.post("/addNewChecksheetData", async (req, res) => {
   try {
     const {
@@ -4472,6 +4654,10 @@ router.post("/addNewChecksheetData", async (req, res) => {
 });
 
 //get the checksheet table data of the selected machine
+/**
+ * POST: /fetchSelectedMachineChecksheetTableData
+ * Fetches checksheet questions and data for selected machine and year
+ */
 router.post(
   "/fetchSelectedMachineChecksheetTableData",
   authenticate,
@@ -4696,6 +4882,10 @@ router.post(
 );
 
 //delete selcted machine checksheet data row
+/**
+ * POST: /deleteSelectedMachineChecksheetTableRowData
+ * Deletes or marks checksheet row as deleted with revision tracking
+ */
 router.post(
   "/deleteSelectedMachineChecksheetTableRowData",
   async (req, res) => {
@@ -4776,6 +4966,10 @@ router.post(
 );
 
 //get TL/HOSS and MTD HOS list for approval
+/**
+ * GET: /getListForApproval
+ * Retrieves pending approval list for current user (PM/BM requests)
+ */
 router.get("/getListForApproval", authenticate, async (req, res) => {
   try {
     let loggedUserData = req.rootUser;
@@ -5044,6 +5238,10 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
 });
 
 //send request for approval for ALL checksheet approval flow
+/**
+ * POST: /sendRequestForApproval
+ * Submits PM/BM request for approval to next level (TL/HOS/HOD)
+ */
 router.post("/sendRequestForApproval", authenticate, async (req, res) => {
   try {
     let loggedUserData = req.rootUser;
@@ -5742,6 +5940,10 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
 });
 
 //get approval request data for perticular user which was asssign by TL or Operator
+/**
+ * GET: /getSixMonthApprovalRequestData/:filter/:selectedId
+ * Retrieves six-month implementation approval requests for MTD HOS
+ */
 router.get(
   "/getSixMonthApprovalRequestData/:filter/:selectedId",
   authenticate,
@@ -5903,6 +6105,10 @@ router.get(
 );
 
 //get approval request data for Preparation phase
+/**
+ * GET: /getApprovalRequestDataForPreparationPhase
+ * Retrieves pending approval requests for preparation phase (TL/HOS)
+ */
 router.get(
   "/getApprovalRequestDataForPreparationPhase",
   authenticate,
@@ -6075,6 +6281,10 @@ router.get(
 );
 
 //get approval request data for Planning phase
+/**
+ * GET: /getApprovalRequestDataForPlanningPhase
+ * Retrieves pending approval requests for planning phase (PRD TL)
+ */
 router.get(
   "/getApprovalRequestDataForPlanningPhase",
   authenticate,
@@ -6584,6 +6794,10 @@ router.get(
 );
 
 //Request approval from TL and HOS
+/**
+ * POST: /approveRequestFromTL_HOS_HOD
+ * Approves or rejects PM/BM requests with optional delay remarks
+ */
 router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
   try {
     const {
@@ -9102,6 +9316,10 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
 });
 
 //update selcted machine checksheet data row
+/**
+ * POST: /updateSelectedMachineCheckSheetTableRowDataForStartingMonth
+ * Updates PM schedule starting month and planning animation array based on cycle
+ */
 router.post(
   "/updateSelectedMachineCheckSheetTableRowDataForStartingMonth",
   async (req, res) => {
@@ -9313,6 +9531,10 @@ router.post(
 
 let fileNameForLogHistory;
 //add data of implementation when operator worked on machine PM
+/**
+ * POST: /postImplementationWorkedData/:dashboardName
+ * Records PM work execution with status updates, abnormality tracking, and email notifications
+ */
 router.post(
   "/postImplementationWorkedData/:dashboardName",
   upload1.single("photoUpload"),
@@ -10280,6 +10502,10 @@ router.post(
   }
 );
 
+/**
+ * POST: /submitLogHistory
+ * Records maintenance activity log with actual work details
+ */
 router.post("/submitLogHistory", authenticate, async (req, res) => {
   try {
     //-----------------------------------------------------
@@ -11241,6 +11467,10 @@ router.post(
   }
 );
 
+/**
+ * POST: /savedWorkedPMData
+ * Saves PM work completion data with actual vs planned metrics
+ */
 router.post("/savedWorkedPMData", async (req, res) => {
   try {
     const {
@@ -11479,6 +11709,10 @@ router.post("/savedWorkedPMData", async (req, res) => {
   }
 });
 
+/**
+ * POST: /deleteCheckSheet
+ * Deletes checksheet and clears associated work data
+ */
 router.post("/deleteCheckSheet", authenticate, async (req, res) => {
   try {
     const { selectedRow } = req.body;
@@ -11749,6 +11983,10 @@ router.post("/deleteCheckSheet", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /PMCarryOnToNextMonth
+ * Carries over incomplete PM tasks to next month
+ */
 router.post("/PMCarryOnToNextMonth", async (req, res) => {
   try {
     const {
@@ -12997,9 +13235,11 @@ router.post(
 
 let downloadFileName;
 
+/**
+ * POST: /postFileName
+ * Stores filename reference for report download
+ */
 router.post("/postFileName", authenticate, async (req, res) => {
-  // const file = fs.createWriteStream(filePath);
-
   try {
     const { fileName } = req.body;
     let filePath = path.join(__dirname, `../PMimages/${fileName}`);
@@ -13013,6 +13253,10 @@ router.post("/postFileName", authenticate, async (req, res) => {
     console.log("Filename not received");
   }
 });
+/**
+ * GET: /downloadFile
+ * Downloads previously generated report file
+ */
 router.get("/downloadFile", authenticate, async (req, res) => {
   try {
     // console.log(downloadFileName)
@@ -13024,6 +13268,10 @@ router.get("/downloadFile", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /updateOpenPMData
+ * Updates open PM checksheet with new observations and work details
+ */
 router.post("/updateOpenPMData", authenticate, async (req, res) => {
   try {
     let { updateRow, oldRow } = req.body;
@@ -13088,6 +13336,10 @@ router.post("/updateOpenPMData", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * POST: /updateOpenPMToClose
+ * Marks PM checksheet as completed/closed
+ */
 router.post("/updateOpenPMToClose", authenticate, async (req, res) => {
   try {
     const { selectedRow } = req.body;
@@ -13917,6 +14169,10 @@ router.post(
   }
 );
 
+/**
+ * POST: /postSectionToGetSectionInfo
+ * Returns detailed section info including users and hierarchy
+ */
 router.post("/postSectionToGetSectionInfo", authenticate, async (req, res) => {
   try {
     let { section } = req.body;
@@ -14948,6 +15204,10 @@ router.post(
   }
 );
 
+/**
+ * GET: /getFinancialYears
+ * Retrieves available financial years for reporting and planning
+ */
 router.get("/getFinancialYears", authenticate, async (req, res) => {
   try {
     const plantInfo = await Plant.findOne({
@@ -16372,6 +16632,10 @@ router.post(
   }
 );
 
+/**
+ * GET: /fetchAllSummeryData
+ * Retrieves comprehensive PM/BM metrics and summary data for dashboard
+ */
 router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
   try {
     const financialYearWiseMonthKeyArray = [
@@ -18348,7 +18612,10 @@ router.post(
     }
   }
 );
-
+/**
+ * POST: /deleteBackUpData
+ * Deletes backup copy of maintenance data
+ */
 router.post("/deleteBackUpData", authenticate, async (req, res) => {
   try {
     const { selectedRow } = req.body;
@@ -18379,7 +18646,10 @@ router.post("/deleteBackUpData", authenticate, async (req, res) => {
 });
 
 let downloadDataSheetFileName;
-
+/**
+ * POST: /postDataSheetFileName
+ * Stores datasheet file reference for maintenance records
+ */
 router.post("/postDataSheetFileName", authenticate, async (req, res) => {
   // const file = fs.createWriteStream(filePath);
 
@@ -18396,7 +18666,10 @@ router.post("/postDataSheetFileName", authenticate, async (req, res) => {
     console.log("Filename not received");
   }
 });
-
+/**
+ * GET: /downloadDataSheetFile
+ * Downloads datasheet file for maintenance records
+ */
 router.get("/downloadDataSheetFile", authenticate, async (req, res) => {
   try {
     // console.log(downloadDataSheetFileName)
@@ -20089,7 +20362,10 @@ router.post(
     }
   }
 );
-
+/**
+ * POST: /addRevisionContent
+ * Adds revision or amendment to existing PM checksheet data
+ */
 router.post("/addRevisionContent", authenticate, async (req, res) => {
   // const file = fs.createWriteStream(filePath);
 
@@ -20155,7 +20431,10 @@ router.post("/deleteRevisionContentData", authenticate, async (req, res) => {
     res.status(400).json("TableRow not updated!!!");
   }
 });
-
+/**
+ * POST: /postSectionToGetLineData
+ * Retrieves line and machine checksheet data for section-based dashboard view
+ */
 router.post("/postSectionToGetLineData", authenticate, async (req, res) => {
   try {
     let { section, selectedYear } = req.body;
@@ -20597,7 +20876,10 @@ router.post("/postSectionToGetLineData", authenticate, async (req, res) => {
     console.log("User id not received!!!");
   }
 });
-
+/**
+ * POST: /newOperatorDataEntry
+ * Records new operator maintenance activity and schedule data
+ */
 router.post("/newOperatorDataEntry", async (req, res) => {
   try {
     const {
@@ -20696,7 +20978,10 @@ router.post("/newOperatorDataEntry", async (req, res) => {
     console.log("Data not valid or received !!!");
   }
 });
-
+/**
+ * POST: /annualPmScheduleApproval
+ * Initiates annual PM schedule approval workflow
+ */
 router.post("/annualPmScheduleApproval", async (req, res) => {
   try {
     const {
@@ -20765,7 +21050,10 @@ router.post("/annualPmScheduleApproval", async (req, res) => {
     console.log("Data not valid or received !!!");
   }
 });
-
+/**
+ * POST: /approveRequestForAnnualPmSchedule
+ * Approves or rejects annual PM schedule request
+ */
 router.post("/approveRequestForAnnualPmSchedule", async (req, res) => {
   try {
     const { lineData, ID, supportingKey, objOfAnnualPmScheduleApproval } =
@@ -21898,7 +22186,10 @@ router.post(
     }
   }
 );
-
+/**
+ * POST: /submitRemarksAfterTLOrHosRejection
+ * Records remarks and resubmits data after TL/HOS rejection
+ */
 router.post("/submitRemarksAfterTLOrHosRejection", async (req, res) => {
   try {
     const { machineData, updatedRow, senderApprovalMonth } = req.body;
@@ -21929,7 +22220,10 @@ router.post("/submitRemarksAfterTLOrHosRejection", async (req, res) => {
     console.log("Data not valid or received !!!");
   }
 });
-
+/**
+ * POST: /deleteCategoryPoint
+ * Deletes maintenance category or evaluation point from checksheet
+ */
 router.post("/deleteCategoryPoint", async (req, res) => {
   try {
     const { rowValue } = req.body;
@@ -22855,6 +23149,10 @@ router.get(
 //     }
 // })
 
+/**
+ * POST: /postEmailConfiguration
+ * Configures email server settings for notification system
+ */
 router.post("/postEmailConfiguration", async (req, res) => {
   try {
     const { values } = req.body;
@@ -22902,6 +23200,10 @@ router.post("/postEmailConfiguration", async (req, res) => {
 });
 
 //Get the data from database and show on User management table
+/**
+ * GET: /fetchEmailConfigurationData
+ * Retrieves current email server configuration
+ */
 router.get("/fetchEmailConfigurationData", authenticate, async (req, res) => {
   try {
     const addEmailConf = await EmailConfigurations.findOne({

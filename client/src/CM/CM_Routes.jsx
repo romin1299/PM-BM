@@ -13,6 +13,9 @@ import DashboardOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/Dash
 import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
 import ApprovalLogs from "./Pages/ApprovalLogs/ApprovalLogs";
 import FullCalenderForActivity from "./Pages/ActivityCalendar/FullCalenderForActivity";
+import NewMachineRequestSheetByPED from "./Pages/NewMachineCMRequestReport/NewMachineRequestSheetByPED";
+import NewMachineCMRequestSheetReport from "./Pages/NewMachineCMRequestReport/NewMachineCMRequestSheetReport";
+import ApprovalDashboardOfNewMachineCM from "./Pages/CMApprovalDashboardOfReqSheet/ApprovalDashboardOfNewMachineCM";
 
 const CM_Routes = ({ commonRoutes }) => {
   let reportRoutes = [];
@@ -30,6 +33,14 @@ const CM_Routes = ({ commonRoutes }) => {
         {
           path: "/cm",
           element: <AllRequestSheetReportDataOfCM />,
+        },
+        {
+          path: "/cm/new-machine-cm",
+          element: <NewMachineCMRequestSheetReport />,
+        },
+        {
+          path: "/cm/new-machine/approval",
+          element: <ApprovalDashboardOfNewMachineCM />,
         },
         {
           path: "/cm/approvalLogs",
@@ -57,8 +68,16 @@ const CM_Routes = ({ commonRoutes }) => {
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
+          path: "/cm/new-machine-cm",
+          element: <NewMachineCMRequestSheetReport />,
+        },
+        {
           path: "/cm/approval",
           element: <CMApprovalDashboardOfRequestSheet />,
+        },
+        {
+          path: "/cm/new-machine/approval",
+          element: <ApprovalDashboardOfNewMachineCM />,
         },
         {
           path: "/cm/activity-calendar",
@@ -87,6 +106,10 @@ const CM_Routes = ({ commonRoutes }) => {
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
+          path: "/cm/new-machine-cm",
+          element: <NewMachineCMRequestSheetReport />,
+        },
+        {
           path: "/cm/generateCMRequestSheetMainDashboard",
           element: <GenerateRequestSheetMainDashboard />,
         },
@@ -99,6 +122,10 @@ const CM_Routes = ({ commonRoutes }) => {
           element: <CMApprovalDashboardOfRequestSheet />,
         },
         {
+          path: "/cm/new-machine/approval",
+          element: <ApprovalDashboardOfNewMachineCM />,
+        },
+        {
           path: "/cm/activity-calendar",
           element: <FullCalenderForActivity/>
         },
@@ -109,6 +136,10 @@ const CM_Routes = ({ commonRoutes }) => {
         {
           path: "/cm/approvalLogs",
           element: <ApprovalLogs />,
+        },
+        {
+          path: "/cm/new-machine-request-sheet/:machine_code/:selectedYear",
+          element: <NewMachineRequestSheetByPED />,
         },
         ...reportRoutes,
       ],

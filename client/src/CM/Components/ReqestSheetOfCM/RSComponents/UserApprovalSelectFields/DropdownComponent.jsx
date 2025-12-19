@@ -21,6 +21,8 @@ const DropdownComponent = ({
     return;
   }, [watch, formKey, userDropdown, watch(`${formKey}.userRef`)]);
 
+  // console.log(watch(`${formKey}.userRef`), userDropdown)
+
   return (
     <>
       <small
@@ -43,8 +45,8 @@ const DropdownComponent = ({
           required: requiredMSG,
         })}
       >
-        <option value="">{label} </option>
-        {userDropdown.map((value) => (
+        <option value="" selected disabled>{label} </option>
+        {userDropdown?.map((value) => (
           <option value={value?.userRef}>{value?.tm_name}</option>
         ))}
       </select>
