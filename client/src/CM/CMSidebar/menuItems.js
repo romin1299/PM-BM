@@ -20,20 +20,20 @@ const allusers = [
 const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
 
 export const menuItems = [
-  {
-    title: "Dashboard",
-    icon: (
-      <MdFormatListBulletedAdd className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/cm",
-    allowedRoles: allusers,
-  },
+  // {
+  //   title: "Dashboard",
+  //   icon: (
+  //     <MdFormatListBulletedAdd className="text-white h4 mt-2 align-items-center justify-content-center" />
+  //   ),
+  //   route: "/cm",
+  //   allowedRoles: allusers,
+  // },
   {
     title: "CM Report",
     icon: (
       <PiListBulletsFill className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
-    route: "/cm/allRequestSheetReportDataOfCM",
+    route: "/cm",
     allowedRoles: allusers,
   },
   {

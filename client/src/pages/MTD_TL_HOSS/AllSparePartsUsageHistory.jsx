@@ -470,7 +470,7 @@ const AllSparePartsUsageHistory = () => {
                       colSpan={9}
                     ></Table.Summary.Cell>
                     <Table.Summary.Cell index={9} className="bg-info">
-                      {sumOfCost}
+                      {sumOfCost.toFixed(2)}
                     </Table.Summary.Cell>
                     <Table.Summary.Cell
                       index={0}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { cyan, deepPurple, green, indigo } from "@mui/material/colors";
+import { cyan, deepPurple, green, indigo, yellow } from "@mui/material/colors";
 import { lightBlue, lightGreen, orange, red, teal } from "@mui/material/colors";
+import CircleIcon from "@mui/icons-material/Circle";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
@@ -17,14 +18,7 @@ import moment from "moment";
 import ChartsToolbar from "../Reports/ManHourReport/SubComponents/ChartsToolbar";
 import { InputAdornment, TextField } from "@mui/material";
 
-import {
-  Box,
-  Button,
-  Tooltip,
-  Typography,
-  Paper,
-  Switch,
-} from "@mui/material";
+import { Box, Button, Tooltip, Typography, Paper, Switch } from "@mui/material";
 import {
   MaterialTableOptions,
   MaterialTableSX,
@@ -44,6 +38,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import SparePartsRequestForm from "../SparePartsRequest/SparePartsRequestForm";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
+import SafetyForm from "../Tabs/SafetyForm/SafetyForm";
 
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
@@ -110,14 +106,21 @@ const RequestSheetMainDashboard = () => {
     "Work Order Closed",
     "Fill Sheet",
     "Rejected",
-    "Under MTD TL approval",
-    "Under MTD HOSS approval",
+    "Under MTD TL Approval",
+    "Under MTD HOSS Approval",
     "Under PRD TL Approval",
     "Under PRD HOS Approval",
     "Under MTD HOS Approval",
     "Under MTD HOD Approval",
     "Under PRD HOD Approval",
     "Completed",
+  ];
+
+  const reasonArray = [
+    "Assembly is critical",
+    "Obsolete-> Arranging from OGC",
+    "Waiting for maker",
+    "Waiting for spare",
   ];
 
   const maintenanceTypeArrayForFilter = ["PM", "BM", "CM", "TPM"];
@@ -190,6 +193,8 @@ const RequestSheetMainDashboard = () => {
           reduceState?.selectedRSStatus
         }&&selectedMaintenanceType=${
           reduceState?.selectedMaintenanceType
+        }&&selectedCurrentStatusOfRS=${
+          reduceState?.selectedCurrentStatusOfRS
         }&&greaterValue=${greaterValue || 1000}&&lesserValue=${
           lesserValue || 0
         }`,
@@ -319,6 +324,7 @@ const RequestSheetMainDashboard = () => {
       console.log(error);
     }
   };
+  const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
 
   useEffect(() => {
     if (reduceState?.selectedValue) getAllRequestSheetData();
@@ -328,10 +334,14 @@ const RequestSheetMainDashboard = () => {
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
     reduceState?.selectedMaintenanceType,
+    reduceState?.selectedCurrentStatusOfRS,
+    safetyFormModalOpen,
   ]);
 
   const handleGenerateBMNavigation = async () => {
-    navigate(`/bm/generateRequestSheetMainDashboard`);
+    navigate(
+      `/bm/generateRequestSheetMainDashboard/?selectedYear=${reduceState?.selectedYear}`
+    );
   };
 
   const handleSparePartsModelState = () =>
@@ -585,6 +595,70 @@ const RequestSheetMainDashboard = () => {
     },
     ...displayColumnBasedOnShowAndHide,
     {
+      title: "Current Status",
+      field: "currentStatusOfBD.status",
+      editable: false,
+      cellStyle: {
+        textAlign: "center",
+      },
+      render: (rowData) =>
+        rowData?.currentStatusOfBD?.status === "Repair Under Progress" ? (
+          <CircleIcon sx={{ color: red[500] }} />
+        ) : rowData?.currentStatusOfBD?.status === "Waiting For Spare" ? (
+          <CircleIcon sx={{ color: yellow[700] }} />
+        ) : rowData?.currentStatusOfBD?.status === "Machine Running" ? (
+          <CircleIcon sx={{ color: green[500] }} />
+        ) : (
+          ""
+        ),
+    },
+    {
+      title: "Estimated Time",
+      field: "currentStatusOfBD.estimatedTime",
+      editable: (col, row) =>
+        (context?.tm_department === "MTD" ||
+          context?.user_type === "Operator" ||
+          context?.tm_department === "PRD") &&
+        (row?.requestSheetStatus === RSStatusArray[2] ||
+          row?.requestSheetStatus === RSStatusArray[3] ||
+          row?.requestSheetStatus === RSStatusArray[4])
+          ? true
+          : false,
+    },
+    {
+      title: "Reason",
+      field: "currentStatusOfBD.remarks",
+      editable: (col, row) =>
+        (context?.tm_department === "MTD" ||
+          context?.user_type === "Operator" ||
+          context?.tm_department === "PRD") &&
+        (row?.requestSheetStatus === RSStatusArray[2] ||
+          row?.requestSheetStatus === RSStatusArray[3] ||
+          row?.requestSheetStatus === RSStatusArray[4])
+          ? true
+          : false,
+
+      editComponent: ({ value, onChange, rowData }) => (
+        <select
+          aria-label=".form-select-sm example"
+          id="standard-select-currency"
+          fullWidth
+          select
+          defaultValue={rowData?.currentStatusOfBD?.remarks}
+          autoComplete="off"
+          onChange={(e) => onChange(e.target.value)}
+          variant="standard"
+        >
+          <option selected disabled value="">
+            Please select
+          </option>
+          {reasonArray.map((option) => {
+            return <option value={option}>{option}</option>;
+          })}
+        </select>
+      ),
+    },
+    {
       title: "Loss Time",
       field: "lossTime",
       editable: false,
@@ -656,7 +730,11 @@ const RequestSheetMainDashboard = () => {
       disabled:
         (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)
+        (row?.requestSheetStatus === "Fill Sheet" ||
+          row?.requestSheetStatus === "Work Order Pending" ||
+          row?.requestSheetStatus === "Work Order Closed" ||
+          row?.approvalStatusOfMTD_TL === "Rejected") &&
+        row?.IsSafetyFormCreated
           ? false
           : true,
       onClick: (event, selectedRow) =>
@@ -690,6 +768,16 @@ const RequestSheetMainDashboard = () => {
         //     },
         //   }
         // );
+      },
+    }),
+    //Open Safety Form
+    (row) => ({
+      icon: () => <HealthAndSafetyIcon />,
+      tooltip: "Safety Form",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        setSelectedRow(selectedRow);
+        setSafetyFormModalOpen(true);
       },
     }),
 
@@ -763,6 +851,24 @@ const RequestSheetMainDashboard = () => {
     });
   }
 
+  const currentStatusOfRequestSheet = [
+    {
+      title: "Repair Under Progress",
+      icon: <CircleIcon sx={{ color: red[500] }} />,
+      count: reduceStateForRequestSheetData?.counters?.repairUnderProgress,
+    },
+    {
+      title: "Waiting For Spare",
+      icon: <CircleIcon sx={{ color: yellow[700] }} />,
+      count: reduceStateForRequestSheetData?.counters?.waitingForSpare,
+    },
+    {
+      title: "Machine Running",
+      icon: <CircleIcon sx={{ color: green[500] }} />,
+      count: reduceStateForRequestSheetData?.counters?.machineRunning,
+    },
+  ];
+
   const filtration = [
     <div className="d-flex">
       <Box sx={{ mx: "10px", my: "10px" }}>
@@ -782,7 +888,8 @@ const RequestSheetMainDashboard = () => {
           maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
           maintenanceTypeFiltration
           resetButtonFiltration
-          isWithLocalStorageForFiltration="Yes"
+          currentStatusOfRequestSheet={currentStatusOfRequestSheet}
+          currentStatusOfRSFiltration
         />
       </Box>
 
@@ -900,7 +1007,11 @@ const RequestSheetMainDashboard = () => {
               variant="contained"
               disableElevation
               onClick={handleGenerateBMNavigation}
-              disabled={context?.tm_department !== "PRD"}
+              disabled={
+                (context?.tm_department !== "PRD" &&
+                  context?.tm_department !== "MTD") ||
+                context?.tm_grade === "HOD"
+              }
               sx={{
                 fontWeight: 400,
                 bgcolor: "#004b5b",
@@ -922,205 +1033,101 @@ const RequestSheetMainDashboard = () => {
           </Box>
         </Row>
 
-        <Box display="flex" gap="16px" className="mt-3 cell p-2 overflow-auto">
-          {[
-            {
-              title: "Total Requests",
-              value:
-                reduceStateForRequestSheetData?.counters
-                  ?.total_request_sheet_count || 0,
-              backgroundColor: "#c7defb",
-            },
-            {
-              title: "Open Requests",
-              value:
-                reduceStateForRequestSheetData?.counters
-                  ?.open_request_sheet_count || 0,
-              backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
-            },
-            {
-              title: "Closed Requests",
-              value:
-                reduceStateForRequestSheetData?.counters
-                  ?.closed_request_sheet_count || 0,
-              backgroundColor: "#c6efce",
-            },
-          ].map((item) => (
-            <Box className="col-auto">
-              <Paper
-                variant="outlined"
-                sx={{
-                  backgroundColor: item.backgroundColor,
-                  // maxWidth: "100px",
-                  p: "4px",
-                  px: "10px",
-                  borderRadius: "8px",
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  component="div"
-                  textAlign="center"
-                  // width={120}
-                  fontWeight={500}
-                  // color={"#15005c"}
-                  // pt={"4px"}
-                  // mb={"2px"}
+        <Box
+          display="flex"
+          className="mt-3 cell p-2 overflow-auto justify-content-between"
+        >
+          <div className="d-flex gap-2">
+            {[
+              {
+                title: "Total Requests",
+                value:
+                  reduceStateForRequestSheetData?.counters
+                    ?.total_request_sheet_count || 0,
+                backgroundColor: "#c7defb",
+              },
+              {
+                title: "Open Requests",
+                value:
+                  reduceStateForRequestSheetData?.counters
+                    ?.open_request_sheet_count || 0,
+                backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
+              },
+              {
+                title: "Closed Requests",
+                value:
+                  reduceStateForRequestSheetData?.counters
+                    ?.closed_request_sheet_count || 0,
+                backgroundColor: "#c6efce",
+              },
+            ].map((item) => (
+              <Box className="col-auto">
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    backgroundColor: item.backgroundColor,
+                    // maxWidth: "100px",
+                    p: "4px",
+                    px: "10px",
+                    borderRadius: "8px",
+                  }}
                 >
-                  {item.title}
-                </Typography>
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    textAlign="center"
+                    // width={120}
+                    fontWeight={500}
+                    // color={"#15005c"}
+                    // pt={"4px"}
+                    // mb={"2px"}
+                  >
+                    {item.title}
+                  </Typography>
 
-                <Typography
-                  variant="h5"
-                  component="h5"
-                  textAlign="center"
-                  fontWeight={600}
-                  // pb={"4px"}
+                  <Typography
+                    variant="h5"
+                    component="h5"
+                    textAlign="center"
+                    fontWeight={600}
+                    // pb={"4px"}
+                  >
+                    {item.value}
+                  </Typography>
+                </Paper>
+              </Box>
+            ))}
+          </div>
+          <div className="d-flex gap-2 m-3">
+            {currentStatusOfRequestSheet.map((value) => (
+              <Box className="col-auto">
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: "4px",
+                    px: "10px",
+                    borderRadius: "8px",
+                  }}
                 >
-                  {item.value}
-                </Typography>
-              </Paper>
-            </Box>
-          ))}
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    textAlign="center"
+                    // width={120}
+                    fontWeight={600}
+                    // color={"#15005c"}
+                    // pt={"4px"}
+                    // mb={"2px"}
+                  >
+                    {value?.icon} &nbsp;
+                    {value.title} {" - "}
+                    {value?.count}
+                  </Typography>
+                </Paper>
+              </Box>
+            ))}
+          </div>
         </Box>
-
-        {/* Btns with new styles with mui Box */}
-        {/* <Row className="mt-3 gx-3 justify-content-end">
-          <Col className="col-auto">
-            <Button
-              variant="contained"
-              disableElevation
-              onClick={handleGenerateBMNavigation}
-              className={
-                context?.tm_department !== "PRD"
-                  ? `bg-button d-inline`
-                  : "d-none"
-              }
-              sx={{ fontWeight: 400 }}
-            >
-              <AddCircleIcon sx={{ mr: "8px" }} />
-              Generate Request-Sheet
-            </Button>
-          </Col>
-          <Col className="col-auto">
-            <Button
-              variant="contained"
-              disableElevation
-              onClick={handleSummeryCardState}
-              className={`bg-button d-inline`}
-              sx={{ fontWeight: 400 }}
-            >
-              Summary
-            </Button>
-          </Col>
-        </Row> */}
-
-        {/* <Row className="d-flex align-items-center justify-content-center cell mt-3 p-2 g-0">
-          <Col lg={4} md={4}>
-            <Typography
-              noWrap
-              variant="h4"
-              component="h4"
-              fontSize={25}
-              fontWeight={600}
-              // sx={{ mr: 3 }}
-            >
-              Request-Sheet Dashboard
-            </Typography>
-          </Col>
-          <Col md={{ span: 4, offset: 4 }}>
-            <Row className="text-center">
-              <Col lg={4} md={4}>
-                <span>
-                  <b>Total Request</b>
-                </span>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ justifyContent: "center" }}
-                >
-                  <Chip
-                    icon={<InsertDriveFileIcon />}
-                    label={
-                      reduceStateForRequestSheetData?.counters
-                        ?.total_request_sheet_count || 0
-                    }
-                    color="primary"
-                    sx={{ padding: 2.5, textAlign: "center", fontSize: 20 }}
-                  />
-                </Stack>
-              </Col>
-              <Col lg={4} md={4}>
-                <b> Open Request</b>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ justifyContent: "center" }}
-                >
-                  <Chip
-                    icon={<ArrowCircleRightIcon />}
-                    label={
-                      reduceStateForRequestSheetData?.counters
-                        ?.open_request_sheet_count || 0
-                    }
-                    color="secondary"
-                    sx={{ padding: 2.5, textAlign: "center", fontSize: 20 }}
-                  />
-                </Stack>
-              </Col>
-              <Col lg={4} md={4}>
-                <b>Closed Request</b>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ justifyContent: "center" }}
-                >
-                  <Chip
-                    icon={<FactCheckIcon />}
-                    label={
-                      reduceStateForRequestSheetData?.counters
-                        ?.closed_request_sheet_count || 0
-                    }
-                    color="success"
-                    sx={{ padding: 2.5, textAlign: "center", fontSize: 20 }}
-                  />
-                </Stack>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-
-        <Row className="justify-content-end mt-3">
-          <Col className="col-auto">
-            <button
-              onClick={handleGenerateBMNavigation}
-              className={
-                context?.tm_department === "PRD"
-                  ? `btn bg-button d-inline`
-                  : "d-none"
-              }
-            >
-              <AddCircleIcon /> &nbsp; Generate Request-Sheet
-            </button>
-          </Col>
-          <Col className="col-auto">
-            <button
-              onClick={handleSummeryCardState}
-              className={
-                `btn bg-button d-inline`
-                // context?.tm_department === "PRD"
-                //   ? `btn bg-button d-inline`
-                //   : "d-none"
-              }
-            >
-              Summary
-            </button>
-          </Col>
-        </Row> */}
-
-        {/* <Row>
-          <NewRequestSheetRegistration />
-        </Row> */}
 
         <Box className="mt-1 cell p-0 border-0">
           <MaterialTable
@@ -1152,16 +1159,19 @@ const RequestSheetMainDashboard = () => {
 
               isDeleteHidden: (rowData) =>
                 context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
-                "Yes",
+                  "Yes" || context?.tm_no === Number("9999"),
 
               isEditHidden: (rowData) =>
                 (rowData?.requestSheetStatus !== RSStatusArray[0] &&
                   rowData?.requestSheetStatus !== RSStatusArray[1] &&
                   rowData?.requestSheetStatus !== RSStatusArray[2] &&
                   rowData?.requestSheetStatus !== RSStatusArray[3] &&
-                  rowData?.requestSheetStatus !== RSStatusArray[4] &&
-                  rowData?.requestSheetStatus !== RSStatusArray[5]) ||
-                context?.tm_department === "PRD",
+                  rowData?.requestSheetStatus !== RSStatusArray[4]) ||
+                (context?.tm_department === "PRD" &&
+                  rowData?.requestSheetStatus !== RSStatusArray[2] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[3] &&
+                  rowData?.requestSheetStatus !== RSStatusArray[4]) ||
+                context?.tm_no === Number("9999"),
 
               onRowDelete: (selectedRow) =>
                 new Promise(async (resolve, reject) => {
@@ -1197,7 +1207,7 @@ const RequestSheetMainDashboard = () => {
               ...MaterialTableOptions,
               pageSize:
                 reduceStateForRequestSheetData?.requestSheetData?.length > 10
-                  ? 10
+                  ? 50
                   : reduceStateForRequestSheetData?.requestSheetData?.length,
               maxBodyHeight: "auto",
               showTitle: true,
@@ -1281,6 +1291,18 @@ const RequestSheetMainDashboard = () => {
             show: sparePartsRequestModal,
             onHide: handleSparePartsModelState,
           }}
+        />
+      )}
+
+      {safetyFormModalOpen && (
+        <SafetyForm
+          id={selectedRow?._id}
+          lineName={selectedRow?.line}
+          machineNo={selectedRow?.machineNo}
+          machineName={selectedRow?.machineName}
+          setSafetyFormModalOpen={setSafetyFormModalOpen}
+          safetyFormModalOpen={safetyFormModalOpen}
+          machineSafetyCheckedByMTD={selectedRow?.machineSafetyCheckedByMTD}
         />
       )}
     </>

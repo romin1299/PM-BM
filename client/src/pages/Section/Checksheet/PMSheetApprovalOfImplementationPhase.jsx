@@ -97,6 +97,10 @@ function PMSheetApprovalOfImplementationPhase() {
       header: "Plan Month",
       sortKey: "true",
     },
+    // {
+    //   header: "All Worked TM Name",
+    //   sortKey: "true",
+    // },
     {
       header: "TM Name",
       sortKey: "true",
@@ -596,7 +600,7 @@ function PMSheetApprovalOfImplementationPhase() {
                 className="btn btn-primary"
                 onClick={handleDisplayAcceptedAndApproveCount}
               >
-                Show Approved / Total Approval
+                Show Approved / Pending
               </button>
             </div>
           </div>
@@ -646,9 +650,10 @@ function PMSheetApprovalOfImplementationPhase() {
               {financialYearWiseMonthKeyArray?.map((monthKey) =>
                 tableData?.map((index) => {
                   const hasData =
-                    index?.checkSheet_data?.implementation_assign_PRD_TL?.[
-                      monthKey
-                    ]?.length > 0 ||
+                    index?.checkSheet_data?.PMStatus?.[monthKey] !== "" ||
+                    // index?.checkSheet_data?.implementation_assign_PRD_TL?.[
+                    //   monthKey
+                    // ]?.length > 0 ||
                     index?.checkSheet_data
                       ?.implemetation_mtd_hod_approval_status?.[monthKey]
                       ?.length > 0;
@@ -683,7 +688,78 @@ function PMSheetApprovalOfImplementationPhase() {
                       <td className="td-padding">{index.machine_name}</td>
                       <td className="td-padding">{monthKey}</td>
 
+                      {/* <td className="td-padding">
+                          {[
+                            ...new Set(
+                              index?.checkSheet_data?.checkSheet
+                                ?.map(
+                                  (checksheetValue) =>
+                                    checksheetValue?.inspectionCompletionBy?.[
+                                      monthKey
+                                    ]
+                                )
+                                ?.filter(Boolean),
+                            ),
+                            
+                          ].join(", ")}{" "}
+                          -
+                          {index?.checkSheet_data
+                            ?.implementation_assign_PRD_TL?.[monthKey]?.length >
+                          0 ? (
+                            <b>Processed</b>
+                          ) : (
+                            <b>Pending</b>
+                          )}
+                        </td> */}
+
                       <td className="td-padding">
+                        {/* Status */}
+                        {index?.checkSheet_data?.implementation_assign_PRD_TL?.[
+                          monthKey
+                        ]?.length > 0 ? (
+                          <b>Processed</b>
+                        ) : (
+                          <b>Pending</b>
+                        )} -
+                        {[
+                          ...new Map(
+                            [
+                              // names from inspectionCompletionBy (no date)
+                              ...(index?.checkSheet_data?.checkSheet
+                                ?.map((checksheetValue) => [
+                                  checksheetValue?.inspectionCompletionBy?.[
+                                    monthKey
+                                  ],
+                                  null,
+                                ])
+                                ?.filter(([name]) => Boolean(name)) || []),
+
+                              // names from implemetation_completed_tm_name + date
+                              ...((
+                                index?.checkSheet_data
+                                  ?.implemetation_completed_tm_name?.[
+                                  monthKey
+                                ] || []
+                              ).map((value, idx) => [
+                                value,
+                                index?.checkSheet_data
+                                  ?.implemetation_completed_date?.[monthKey]?.[
+                                  idx
+                                ] || null,
+                              ]) || []),
+                            ]
+                            // Map ensures unique names
+                          ).entries(),
+                        ].map(([name, date], idx) => (
+                          <p key={idx}>
+                            {name} {date ? `- ${date}` : ""}
+                          </p>
+                        ))}
+
+                        
+                      </td>
+
+                      {/* <td className="td-padding">
                         {index?.checkSheet_data?.implemetation_completed_tm_name?.[
                           monthKey
                         ]?.map((value, idx) => (
@@ -697,7 +773,7 @@ function PMSheetApprovalOfImplementationPhase() {
                             }
                           </p>
                         ))}
-                      </td>
+                      </td> */}
 
                       {/* PRD Approval */}
                       <td className="td-padding">

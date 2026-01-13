@@ -92,10 +92,9 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   };
 
   const isEnable = selectedMachineDetails?.machine_problems_faced?.length > 0;
-
   return (
     <>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="m-0">
           <tbody className="m-1 border p-3">
@@ -435,7 +434,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                       {isEnable && (
                         <>
                           <select
-                            className="mb-1"
+                            className="mb-1 w-50"
                             {...register("select_problemFaced")}
                             onInput={() => {
                               clearErrors("error_problemFaced");
@@ -617,9 +616,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
 
               <td className="border p-2 col-lg-4 col-md-4 col-sm-12">
                 <ShiftInputField
-                  plannedDateAndTimeOfCM={watch(
-                    "problemOccurredDateAndTimeOfBM"
-                  )}
+                  dateAndTime={watch("problemOccurredDateAndTimeOfBM")}
                   shiftOfBM={watch("shiftOfBM")}
                   setValue={setValue}
                 />

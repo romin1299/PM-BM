@@ -1,8 +1,17 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { Box, Grid, Slide, Typography, SvgIcon, Paper } from "@mui/material";
+import React, { useContext, useEffect, useReducer, useState } from "react";
+import {
+  Box,
+  Grid,
+  Slide,
+  Typography,
+  SvgIcon,
+  Paper,
+  Button,
+} from "@mui/material";
 import { FaEye } from "react-icons/fa";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { ReactComponent as EditSheetIcon } from "../../../static/svg/edit-sheet-2.svg";
-
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import moment from "moment";
 import { Container } from "react-bootstrap";
@@ -20,6 +29,13 @@ import {
 } from "../../../BM/Utils/TableUtils/MaterialTableProps";
 import MaterialTable from "@material-table/core";
 import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
+import RoutingContext from "../../../context/routing/RoutingContext";
+import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import Multiselect from "multiselect-react-dropdown";
+import { SuccessToast } from "../../../BM/Component/ShowTostify";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
+import MainRequestSheetForView from "../../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
 
 const AllRequestSheetReportDataOfCM = () => {
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
@@ -28,6 +44,10 @@ const AllRequestSheetReportDataOfCM = () => {
     reducer,
     initialState("Yes")
   );
+  const navigate = useNavigate();
+  const [supportingTMList, setSupportingTMList] = useState([]);
+
+  const context = useContext(RoutingContext);
 
   const [loading, setLoading] = useState(false);
   const [counters, setCounters] = useState([]);
@@ -36,10 +56,22 @@ const AllRequestSheetReportDataOfCM = () => {
     cmReqSheetView: false,
     isEditable: false,
     selectedRowRequestSheetId: "",
+    isOtherFieldsEditableOrNot: "No",
+    targetDateOfCM: "",
   };
 
   const [selectedCMRequestSheetPopupData, setSelectedCMRequestSheetPopupData] =
     useState(defaultState);
+
+  const defaultStateForBmRequestSheet = {
+    requestSheetID: "",
+    machine_code: "",
+    modalOpenClose: false,
+  };
+
+  const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] = useState(
+    defaultStateForBmRequestSheet
+  );
 
   const handlePopupStatus = () =>
     setSelectedCMRequestSheetPopupData(defaultState);
@@ -49,7 +81,7 @@ const AllRequestSheetReportDataOfCM = () => {
       setLoading(true);
       setApprovalRequestSheetDataOfCM();
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedMaintenanceType=${reduceState?.selectedMaintenanceType}&&selectedQuarter=${reduceState?.selectedQuarter}`
+        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`
       );
       setCounters(response.data.counters);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
@@ -65,10 +97,59 @@ const AllRequestSheetReportDataOfCM = () => {
     reduceState?.selectedYear,
     reduceState?.selectedMonth,
     reduceState?.selectedRSStatus,
-    reduceState?.selectedMaintenanceType,
+    reduceState?.selectedCategoryType,
     selectedCMRequestSheetPopupData?.cmReqSheetView,
     reduceState?.selectedQuarter,
   ]);
+
+  const getMachineDetails = async () => {
+    try {
+      const res = await fetch(`/getSupportingTMDetailsForRequestSheetOfCM`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (res.status === 201) {
+        const { TLHOSS_and_TM_user_list } = await res.json();
+        setSupportingTMList(TLHOSS_and_TM_user_list);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getMachineDetails();
+  }, []);
+
+  const dropDownComponent = ({ value = [], onChange, dropDownArray = [] }) => {
+    const selectedValues = dropDownArray.filter((item) =>
+      value?.includes(item._id)
+    );
+
+    return (
+      <Multiselect
+        options={dropDownArray}
+        selectedValues={selectedValues}
+        displayValue="tm_name"
+        onSelect={(selectedList) => {
+          onChange(selectedList);
+        }}
+        onRemove={(selectedList) => {
+          onChange(selectedList);
+        }}
+        style={{
+          chips: { background: "#007bff" },
+          searchBox: { border: "1px solid #ccc", borderRadius: "4px" },
+        }}
+      />
+    );
+  };
+
   const cmApprovalHeaders = [
     {
       title: "Sr. No.",
@@ -116,20 +197,78 @@ const AllRequestSheetReportDataOfCM = () => {
       field: "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM",
       type: "date",
       editable: false,
+      // customFilterAndSearch: (search, rowData) => {
+      //   const issueDate =
+      //     rowData?.cmBasicDataFilledByMTD_TL?.plannedDateAndTimeOfCM;
+      //   if (!issueDate) return false;
+
+      //   // Convert both to strings for comparison (you can format as needed)
+      //   const dateStr = new Date(issueDate).toLocaleDateString(); // e.g., "10/3/2025"
+      //   return dateStr.includes(search);
+      // },
     },
     {
       title: "Target Date",
       field: "current_commonDataFilledByAssignUser.targetDateOfCM",
       type: "date",
       editable: false,
+      // customFilterAndSearch: (search, rowData) => {
+      //   const targetDate =
+      //     rowData?.current_commonDataFilledByAssignUser?.targetDateOfCM;
+      //   if (!targetDate) return false;
+
+      //   // Convert both to strings for comparison (you can format as needed)
+      //   const dateStr = new Date(targetDate).toLocaleDateString(); // e.g., "10/3/2025"
+      //   return dateStr.includes(search);
+      // },
     },
     {
       title: "Assigned To",
+      field: `assignUserForCM`,
       render: (rowData) =>
         rowData?.assignUserForCM?.map((users) => users?.tm_name)?.join(", "),
+      editComponent: ({ value, onChange, rowData }) =>
+        dropDownComponent({
+          value: value || [],
+          onChange,
+          dropDownArray: supportingTMList,
+          rowData,
+        }),
+      customFilterAndSearch: (search, rowData) =>
+        rowData?.assignUserForCM?.some((user) =>
+          user?.tm_name?.toLowerCase().includes(search.toLowerCase())
+        ),
+      exportTransformer: (rowData) =>
+        rowData?.assignUserForCM?.map((u) => u?.tm_name).join(", ") || "",
     },
   ];
 
+  const notifyForDeleteChecksheet = () => {
+    toast.success("CM CheckSheet deleted successfully", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
+  const deleteRequestSheetOfCM = async (selectedRow) => {
+    try {
+      const res = await fetch(`/deleteRequestSheetOfCM/${selectedRow?._id}`, {
+        method: "DELETE",
+      });
+      if (res?.status === 201) {
+        notifyForDeleteChecksheet();
+        getAllCMSheetData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   // const [greaterValue, setGreaterValue] = useState(
   //   localStorage.getItem("greaterValue")
   // );
@@ -137,25 +276,30 @@ const AllRequestSheetReportDataOfCM = () => {
   //   localStorage.getItem("lesserValue")
   // );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
-  const requestSheetApprovalAction = [
+  let requestSheetApprovalAction = [
     (row) => ({
       icon: () => (
         <SvgIcon
           component={EditSheetIcon}
           sx={{
-            color: row?.isEditableRS ? "#FF6F00" : "",
+            color:
+              row?.isEditableRS && context?.tm_no !== Number("9999")
+                ? "#FF6F00"
+                : "",
           }}
         />
       ),
       tooltip: "Update Req-sheet",
       position: "row",
-      disabled: !row?.isEditableRS,
+      disabled: !row?.isEditableRS || context?.tm_no === Number("9999"),
       onClick: (event, selectedRow) => {
         setSelectedCMRequestSheetPopupData({
           isEditable: row?.isEditableRS && row?.assignUserForCM?.length > 0,
           assignUserCondition: row?.assignUserForCM?.length <= 0,
           cmReqSheetView: true,
           selectedRowRequestSheetId: selectedRow?._id,
+          targetDateOfCM:
+            selectedRow?.current_commonDataFilledByAssignUser.targetDateOfCM,
         });
       },
     }),
@@ -168,30 +312,86 @@ const AllRequestSheetReportDataOfCM = () => {
           isEditable: false,
           cmReqSheetView: true,
           selectedRowRequestSheetId: selectedRow?._id,
+          targetDateOfCM:
+            selectedRow?.current_commonDataFilledByAssignUser.targetDateOfCM,
+        });
+      },
+    }),
+    (row) => ({
+      icon: () => <ReceiptLongIcon className="text-primary" />,
+      tooltip: "BD Sheet",
+      position: "row",
+      hidden: row?.requestSheetOfBMRef === null,
+      onClick: (event, selectedRow) => {
+        setRequestSheetModalOpenClose({
+          ...requestSheetModalOpenClose,
+          requestSheetID: selectedRow?.requestSheetOfBMRef,
+          machine_code: selectedRow?.machineNo,
+          modalOpenClose: true,
         });
       },
     }),
   ];
+  if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
+    requestSheetApprovalAction?.push((row) => ({
+      icon: () =>
+        row?.current_commonDataFilledByAssignUser?.requestSheetStatusOfCM ===
+        "Completed" ? (
+          <DriveFileRenameOutlineIcon color="primary" />
+        ) : (
+          <DriveFileRenameOutlineIcon color="disabled" />
+        ),
+      tooltip: "Edit After All Approval",
+      position: "row",
+      disabled:
+        row?.current_commonDataFilledByAssignUser?.requestSheetStatusOfCM !==
+        "Completed",
+      onClick: (event, selectedRow) => {
+        setSelectedCMRequestSheetPopupData({
+          isEditable: true,
+          assignUserCondition: row?.assignUserForCM?.length <= 0,
+          cmReqSheetView: true,
+          selectedRowRequestSheetId: selectedRow?._id,
+          isOtherFieldsEditableOrNot:
+            context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
+        });
+      },
+    }));
+  }
 
   // ============== This might change in CM =================
   const RSStatusArray = [
     "Generated",
     "Assigned",
-    "Work Order Open",
-    "Work Order Pending",
-    "Work Order Closed",
-    "Fill Sheet",
     "Rejected",
-    "Under MTD TL approval",
-    "Under MTD HOSS approval",
+    "Under MTD TL Approval",
+    "Under MTD HOSS Approval",
     "Under PRD TL Approval",
-    "Under PRD HOS Approval",
     "Under MTD HOS Approval",
-    "Under MTD HOD Approval",
-    "Under PRD HOD Approval",
     "Completed",
   ];
-  const maintenanceTypeArrayForFilter = ["PM", "BM", "CM", "TPM"];
+  const CM_CategoryArrayForFilter = [
+    {
+      title: "Overhauling",
+      background: "#ffb4a1ff",
+      count: counters?.overhaulingCMCategory,
+    },
+    {
+      title: "Upgradation",
+      background: "#FFFF9D",
+      count: counters?.upgradationCMCategory,
+    },
+    {
+      title: "BM Reflection",
+      background: "#BEEB9F",
+      count: counters?.BM_ReflectionCMCategory,
+    },
+    {
+      title: "Others",
+      background: "#9fbfe0ff",
+      count: counters?.othersCMCategory,
+    },
+  ];
   // ==============================================================
 
   const filtration = [
@@ -210,96 +410,63 @@ const AllRequestSheetReportDataOfCM = () => {
           machineFiltration
           RSStatusArray={RSStatusArray}
           RSStatusFiltration
-          maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          // maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
+          CM_Category={CM_CategoryArrayForFilter}
           quarterFiltration
-          maintenanceTypeFiltration
+          CM_CategoryFiltration
+          // maintenanceTypeFiltration
           resetButtonFiltration
           isWithLocalStorageForFiltration="Yes"
         />
       </Box>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      {/* <Box
-        component="form"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-        }}
-      >
-        <TextField
-          type="number"
-          id="outlined-basic"
-          // sx={{ width: "80px" }}
-          placeholder="From"
-          variant="outlined"
-          sx={{
-            // width: "12ch",
-            width: "5rem",
-            pl: 0,
-            "& .MuiOutlinedInput-root": { pl: 0 },
-            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
-          }}
-          InputProps={{
-            sx: { fontSize: 14 },
-            startAdornment: (
-              <InputAdornment position="start">&gt; &#61;</InputAdornment>
-            ),
-          }}
-          size="small"
-          onChange={(e) => {
-            setLesserValue(e.target.value);
-            localStorage.setItem("lesserValue", e.target.value);
-          }}
-          value={lesserValue}
-        />
-        <TextField
-          type="number"
-          id="outlined-basic"
-          // sx={{ width: "80px" }}
-          placeholder="To"
-          variant="outlined"
-          sx={{
-            // width: "12ch",
-            width: "5rem",
-            pl: 0,
-            "& .MuiOutlinedInput-root": { pl: 0 },
-            "& .MuiOutlinedInput-input": { pt: "6px", pb: "6px" },
-          }}
-          InputProps={{
-            sx: { fontSize: 14 },
-            startAdornment: (
-              <InputAdornment position="start">&lt; &#61;</InputAdornment>
-            ),
-          }}
-          size="small"
-          onChange={(e) => {
-            setGreaterValue(e.target.value);
-            localStorage.setItem("greaterValue", e.target.value);
-          }}
-          value={greaterValue}
-        />
-        <Button
-          // size="small"
-          disableElevation
-          className="bg-button text-center"
-          variant="contained"
-          style={{
-            minWidth: "25px",
-            height: "33px",
-            paddingInline: "10px",
-          }}
-          // onClick={getAllRequestSheetData} //This will be used when we will use the api
-        >
-          Go
-        </Button>
-      </Box> */}
     </div>,
   ];
   const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="down" ref={ref} {...props} />;
   });
+
+  const handleGenerateBMNavigation = async () => {
+    navigate(`/cm/generateCMRequestSheetMainDashboard`);
+  };
+
+  const updateAssignUser = async (updatedRow) => {
+    try {
+      const response = await axios.patch(
+        `/updateAssignUser/?requestSheet_id=${updatedRow?._id}`,
+        {
+          data: {
+            targetDateOfCM: updatedRow?.targetDateOfCM,
+            assignUserForCM: updatedRow?.assignUserForCM,
+          },
+        },
+        {
+          withCredentials: true,
+          credentials: "include",
+        }
+      );
+      if (response.status === 201) {
+        handlePopupStatus();
+        SuccessToast("Assign user updated successfully");
+        getAllCMSheetData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //Open and close BM request-sheet
+  const handleRequestSheetShowAndCloseState = () => {
+    setRequestSheetModalOpenClose({
+      ...requestSheetModalOpenClose,
+      modalOpenClose: !requestSheetModalOpenClose?.modalOpenClose,
+    });
+  };
+
   return (
     <>
+      <ToastContainer style={{ width: "30rem" }} />
+
       <Container fluid>
         <Grid
           container
@@ -316,62 +483,113 @@ const AllRequestSheetReportDataOfCM = () => {
             >
               CM Reports
             </Typography>
-          </Grid>
-        </Grid>
-        <Box display="flex" gap="16px" className="mt-3 cell p-2 overflow-auto">
-          {[
-            {
-              title: "Total Requests",
-              value: counters?.total_request_sheet_count || 0,
-              backgroundColor: "#c7defb",
-            },
-            {
-              title: "Open Requests",
-              value: counters?.open_request_sheet_count || 0,
-              backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
-            },
-            {
-              title: "Closed Requests",
-              value: counters?.closed_request_sheet_count || 0,
-              backgroundColor: "#c6efce",
-            },
-          ].map((item) => (
-            <Box className="col-auto">
-              <Paper
-                variant="outlined"
+            <Box display="flex" gap="16px" className="col-auto">
+              <Button
+                variant="contained"
+                disableElevation
+                onClick={handleGenerateBMNavigation}
+                disabled={context?.user_type !== "TL/HOSS"}
                 sx={{
-                  backgroundColor: item.backgroundColor,
-                  // maxWidth: "100px",
-                  p: "4px",
-                  px: "10px",
-                  borderRadius: "8px",
+                  fontWeight: 400,
+                  bgcolor: "#004b5b",
+                  "&:hover": { bgcolor: "#026378" },
                 }}
               >
-                <Typography
-                  variant="body2"
-                  component="div"
-                  textAlign="center"
-                  // width={120}
-                  fontWeight={500}
-                  // color={"#15005c"}
-                  // pt={"4px"}
-                  // mb={"2px"}
-                >
-                  {item.title}
-                </Typography>
-
-                <Typography
-                  variant="h5"
-                  component="h5"
-                  textAlign="center"
-                  fontWeight={600}
-                  // pb={"4px"}
-                >
-                  {item.value}
-                </Typography>
-              </Paper>
+                <AddCircleIcon sx={{ mr: "8px" }} />
+                Generate Existing Machine CM RS
+              </Button>
             </Box>
-          ))}
+          </Grid>
+        </Grid>
+        <Box
+          display="flex"
+          className="mt-3 cell p-2 overflow-auto justify-content-between"
+        >
+          <div className="d-flex gap-2">
+            {[
+              {
+                title: "Total Requests",
+                value: counters?.total_request_sheet_count || 0,
+                backgroundColor: "#c7defb",
+              },
+              {
+                title: "Open Requests",
+                value: counters?.open_request_sheet_count || 0,
+                backgroundColor: "#feb4b4ba", // d6c7fbba, e1c7fb , d6c7fb
+              },
+              {
+                title: "Closed Requests",
+                value: counters?.closed_request_sheet_count || 0,
+                backgroundColor: "#c6efce",
+              },
+            ].map((item) => (
+              <Box className="col-auto">
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    backgroundColor: item.backgroundColor,
+                    // maxWidth: "100px",
+                    p: "4px",
+                    px: "10px",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    textAlign="center"
+                    // width={120}
+                    fontWeight={500}
+                    // color={"#15005c"}
+                    // pt={"4px"}
+                    // mb={"2px"}
+                  >
+                    {item.title}
+                  </Typography>
+
+                  <Typography
+                    variant="h5"
+                    component="h5"
+                    textAlign="center"
+                    fontWeight={600}
+                    // pb={"4px"}
+                  >
+                    {item.value}
+                  </Typography>
+                </Paper>
+              </Box>
+            ))}
+          </div>
+          <div className="d-flex gap-2 m-3">
+            {CM_CategoryArrayForFilter.map((value) => (
+              <Box className="col-auto">
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: "4px",
+                    px: "10px",
+                    borderRadius: "8px",
+                    background: value?.background,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    component="div"
+                    textAlign="center"
+                    // width={120}
+                    fontWeight={600}
+                    // color={"#15005c"}
+                    // pt={"4px"}
+                    // mb={"2px"}
+                  >
+                    {value?.icon} &nbsp;
+                    {value.title} {" - "}
+                    {value?.count}
+                  </Typography>
+                </Paper>
+              </Box>
+            ))}
+          </div>
         </Box>
         <Grid container>
           <Grid item xs={12} className="mt-1 cell p-0 border-0">
@@ -394,18 +612,47 @@ const AllRequestSheetReportDataOfCM = () => {
               // title="User Management"
               // tableRef={this.tableRef.current.onQueryChange()}
 
-              editable={
-                {
-                  // onRowUpdate: (updatedRow, oldRow) =>
-                  // new Promise(async (resolve, reject) => {
-                  //   //   await updateRequestSheet(updatedRow);
-                  //   resolve();
-                  // }),
-                }
-              }
+              editable={{
+                // onRowUpdate: (updatedRow, oldRow) =>
+                // new Promise(async (resolve, reject) => {
+                //   //   await updateRequestSheet(updatedRow);
+                //   resolve();
+                // }),
+                isDeleteHidden: () =>
+                  context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus !==
+                  "Yes",
+                isEditHidden: (selectedRow) =>
+                  context?.tm_no === Number("9999") ||
+                  !["Generated", "Assigned"].includes(
+                    selectedRow?.current_commonDataFilledByAssignUser
+                      .requestSheetStatusOfCM
+                  ),
+
+                onRowDelete: (selectedRow) =>
+                  new Promise(async (resolve, reject) => {
+                    // setTimeout(() => {
+                    await deleteRequestSheetOfCM(selectedRow);
+                    resolve();
+                    // }, 500);
+                  }),
+
+                isEditable: () =>
+                  context?.tm_department === "MTD" &&
+                  context?.user_type === "TL/HOSS",
+
+                onRowUpdate: (updatedRow) =>
+                  new Promise(async (resolve, reject) => {
+                    await updateAssignUser(updatedRow);
+                    resolve();
+                  }),
+              }}
               options={{
                 ...MaterialTableOptions,
-                pageSize: 5,
+                maxBodyHeight: "auto",
+                pageSize:
+                  approvalRequestSheetDataOfCM?.length > 10
+                    ? 50
+                    : approvalRequestSheetDataOfCM?.length,
                 showTitle: true,
                 exportMenu: [
                   {
@@ -451,6 +698,17 @@ const AllRequestSheetReportDataOfCM = () => {
             )}
           </div>
         </>
+      )}
+      {requestSheetModalOpenClose?.modalOpenClose && (
+        <MainRequestSheetForView
+          selectedYear={reduceState?.selectedYear}
+          machine_code={requestSheetModalOpenClose?.machine_code}
+          requestSheetID={requestSheetModalOpenClose?.requestSheetID}
+          modelProp={{
+            show: requestSheetModalOpenClose?.modalOpenClose,
+            onHide: () => handleRequestSheetShowAndCloseState(),
+          }}
+        />
       )}
     </>
   );

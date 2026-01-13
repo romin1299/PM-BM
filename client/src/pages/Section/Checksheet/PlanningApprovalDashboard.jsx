@@ -333,7 +333,7 @@ const PlanningApprovalDashboard = () => {
                   exportAllData: true,
                   draggable: false,
                   actionsColumnIndex: -1,
-                  pageSize: 10,
+                  pageSize: 50,
                   pageSizeOptions: false,
                   paginationType: "stepped",
                   addRowPosition: "first",

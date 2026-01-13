@@ -16,11 +16,14 @@ import { CSVLink, CSVDownload } from "react-csv";
 import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
+import { useContext } from "react";
+import RoutingContext from "../../context/routing/RoutingContext";
 
 function UserAssigns() {
   const [tableData, setTableData] = useState([]);
   const [selectedRow, setSelectedRow] = useState([]);
   const [refKey2, setRefKey2] = useState(0);
+  const context = useContext(RoutingContext);
 
   //fetch the user data and show on user management table
 
@@ -196,7 +199,7 @@ function UserAssigns() {
         ) : (
           <AddBoxIcon />
         ),
-
+      hidden: context?.tm_no === Number("9999"),
       tooltip: "Add User",
       isFreeAction: true,
       onClick: (event, rowData) => {
@@ -207,6 +210,7 @@ function UserAssigns() {
     },
     {
       icon: () => <ModeEditIcon />,
+      hidden: context?.tm_no === Number("9999"),
       // tooltip: <h1>I am a tooltip</h1>,
       onClick: (event, selectedRow) => {
         setSelectedRow(selectedRow);
@@ -374,7 +378,8 @@ function UserAssigns() {
               // tableRef={this.tableRef.current.onQueryChange()}
 
               editable={{
-                isDeleteHidden: (rowData) => rowData.user_type === 0,
+                isDeleteHidden: (rowData) =>
+                  rowData.user_type === 0 || context?.tm_no === Number("9999"),
 
                 onRowDelete: (selectedRow) =>
                   new Promise((resolve, reject) => {

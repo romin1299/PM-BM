@@ -6,12 +6,15 @@ const { globalReqSheetNo } = require("./globalReqSheetNo");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
+const mongoose = require("mongoose");
 
 const quarterlyDataAdd = (
   frequencyValue,
   assignUserForCM,
   frequencyType,
-  targetDateOfCM
+  targetDateOfCM,
+  activityEndDateOfCM,
+  requestSheetStatusOfCM
 ) => {
   const generalDateFormat = (propDate = new Date()) =>
     moment(propDate).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
@@ -31,7 +34,7 @@ const quarterlyDataAdd = (
     currentYear -= 1;
   }
 
-  const currentQuarterIndex = Math.floor(moment(currentDate).month() / 3);
+  // const currentQuarterIndex = Math.floor(moment(currentDate).month() / 3);
   let modifiedPlannedDateAndTimeOfCM;
 
   let yearlyDataObject1 = {
@@ -144,6 +147,16 @@ const quarterlyDataAdd = (
             requestSheet_quarter: quarter,
             statusOfPlannedCM: "Planned",
             ...assignUserOnlyForFirstQuarterWhileGenerate,
+            requestSheetStatusOfCM,
+            activityEndDateOfCM: activityEndDateOfCM
+              ? generalDateFormat(
+                  moment(
+                    generalDateFormat(
+                      modifiedPlannedDateAndTimeOfCM || targetDateOfCM
+                    )
+                  ).add(activityEndDateOfCM, "days")
+                )
+              : targetDateOfCM,
           });
 
           // if (frequencyValue === "1/6 M") {
@@ -170,11 +183,14 @@ exports.newRequestSheetDataStore = async (
   shiftOfCMFromBM,
   requestSheetDataFilledByMTDUserForCM,
   plantToMachineHierarchyRef,
-  rootUser
+  rootUser,
+  attachedFilesByMTDUser = []
 ) => {
   try {
     const generalDateFormat = (propDate = new Date()) =>
       moment(propDate).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
+
+    console.log(requestSheetDataFilledByMTDUserForCM);
 
     let _idObject = {},
       machineIdToPlantId = machineDataUseInCretionOfCM;
@@ -209,16 +225,17 @@ exports.newRequestSheetDataStore = async (
           userRef,
         };
       });
-
     const commonDataFilledByAssignUser = quarterlyDataAdd(
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
         ?.frequencyValue,
       assignUserForCM || [],
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
         ?.frequencyType,
-      requestSheetDataFilledByMTDUserForCM?.targetDateOfCM
+      requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
+      requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
+        ?.activityEndDateOfCM,
+      requestSheetIdOfBM ? "Generated" : "Assigned"
     );
-
     // requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
     //   generalDateFormat(
     //     requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM
@@ -229,21 +246,67 @@ exports.newRequestSheetDataStore = async (
         cmBasicDataFilledByMTD_TL: {
           ...requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL,
           plannedDateAndTimeOfCM: generalDateFormat(new Date()),
+          attachedFilesByMTDUser: attachedFilesByMTDUser?.map(
+            (value) => value?.filename
+          ),
         },
       };
     }
 
-    let requestSheetOfCM = new RequestSheetOfCM({
-      requestSheetNoOfCM,
-      ..._idObject,
-      plantToMachineHierarchyRef,
-      requestSheetCreatedBy: rootUser,
-      shiftOfCM: shiftOfCMFromBM,
-      ...requestSheetDataFilledByMTDUserForCM,
-      commonDataFilledByAssignUser,
-      requestSheetOfBMRef: requestSheetIdOfBM,
-    });
-    return await requestSheetOfCM.save();
+    if (
+      requestSheetDataFilledByMTDUserForCM?._id !== "" &&
+      requestSheetDataFilledByMTDUserForCM?._id !== undefined
+    ) {
+      const updateTheAlredygeneratedRequestSheetOfCM =
+        await RequestSheetOfCM?.findOneAndUpdate(
+          {
+            _id: mongoose?.Types?.ObjectId(
+              requestSheetDataFilledByMTDUserForCM?._id
+            ),
+          },
+          {
+            $set: {
+              ..._idObject,
+              plantToMachineHierarchyRef,
+              requestSheetCreatedBy: rootUser,
+              cmBasicDataFilledByMTD_TL:
+                requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL,
+              commonDataFilledByAssignUser,
+            },
+          },
+          { new: true }
+        );
+
+      return updateTheAlredygeneratedRequestSheetOfCM;
+    } else {
+      delete requestSheetDataFilledByMTDUserForCM?._id;
+      // console.log(
+      //   "Inside else---------",
+      //   requestSheetNoOfCM,
+      //   _idObject,
+      //   plantToMachineHierarchyRef,
+      //   requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL,
+      //   requestSheetDataFilledByMTDUserForCM?.shiftOfBM || shiftOfCMFromBM,
+      //   commonDataFilledByAssignUser,
+      //   requestSheetIdOfBM,
+      //   { ...requestSheetDataFilledByMTDUserForCM }
+      // );
+      let requestSheetOfCM = new RequestSheetOfCM({
+        requestSheetNoOfCM,
+        ..._idObject,
+        plantToMachineHierarchyRef,
+        requestSheetCreatedBy: rootUser,
+        cmBasicDataFilledByMTD_TL:
+          requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL,
+        shiftOfCM:
+          requestSheetDataFilledByMTDUserForCM?.shiftOfBM || shiftOfCMFromBM,
+        commonDataFilledByAssignUser,
+        requestSheetOfBMRef: requestSheetIdOfBM,
+        ...requestSheetDataFilledByMTDUserForCM,
+      });
+
+      return await requestSheetOfCM.save();
+    }
   } catch (error) {
     console.error();
   }

@@ -28,7 +28,7 @@ const initialState = {
 //   { _id: 3, shiftName: "C", shiftStartTime: "22:45", shiftEndTime: "06:15" },
 // ];
 
-const CustomManageShifts = () => {
+const CustomManageShifts = ({notEditable}) => {
   const [shifts, setShifts] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editedShift, setEditedShift] = useState(null);
@@ -181,7 +181,7 @@ const CustomManageShifts = () => {
         aria-label={tooltipTitle}
         disableInteractive
       >
-        <IconButton size="small" type={type || "button"} onClick={onClick}>
+        <IconButton size="small" type={type || "button"} onClick={onClick} disabled={notEditable}>
           <Icon fontSize="small" />
         </IconButton>
       </Tooltip>
@@ -205,6 +205,7 @@ const CustomManageShifts = () => {
               setEditedShift(null);
               setIsAdding(true);
             }}
+            disabled={notEditable}
           >
             Add New Shift
           </Button>
@@ -273,6 +274,7 @@ const CustomManageShifts = () => {
                             ?
                           </div>
                         }
+                        notEditable
                       />
                     </td>
                   </tr>

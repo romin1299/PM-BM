@@ -366,7 +366,7 @@ const CheckSheetEditAfterApproval = ({
         enforceFocus={false}
         scrollable={true}
       >
-        <Modal.Header>
+        <Modal.Header className="d-flex justify-content-between">
           <Modal.Title id="contained-modal-title-vcenter">
             Check-Sheet Edit After Approval
           </Modal.Title>
@@ -1191,7 +1191,7 @@ const CheckSheetEditAfterApproval = ({
                               const uniqueNames = [
                                 ...new Set([
                                   ...(machineAllData?.checkSheet_data
-                                    ?.implemetation_completed_tm_name[month] ||
+                                    ?.implemetation_completed_tm_name?.[month] ||
                                     []),
                                   ...(machineAllData?.checkSheet_data
                                     ?.PMworkedTMName?.[month] || []),

@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import PRDRequestSheetForUpdate from "./PRDRequestSheetForView";
-import { useParams, useNavigate } from "react-router-dom";
-import RoutingContext from "../../../context/routing/RoutingContext";
+import { useNavigate } from "react-router-dom";
 import MTDRequestSheet from "./MTDRequestSheetForView";
 import { Modal, Button } from "react-bootstrap";
+import { WarningToast } from "../../Component/ShowTostify";
 
 function MainRequestSheetForView({
   machine_code,
@@ -13,11 +13,11 @@ function MainRequestSheetForView({
   selectedYear,
 }) {
   const navigate = useNavigate();
-  const context = useContext(RoutingContext);
   // const { machine_code, requestSheetID, generateType, selectedYear } =
   //   useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
   const [requestSheetDataOfBM, setRequestSheetDataOfBM] = useState("");
+  const [currentCount, setCurrentCount] = useState(0);
 
   const [approvalListOfBM, setApprovalListOfBM] = useState([]);
   const [supportingTMList, setSupportingTMList] = useState([]);
@@ -70,7 +70,7 @@ function MainRequestSheetForView({
   const getRequestSheetDetails = async () => {
     try {
       const res = await fetch(
-        `/getMachineRequestSheetDetails/?_id=${requestSheetID}`,
+        `/getMachineRequestSheetDetails/?_id=${requestSheetID}&&currentCount=${currentCount}&&machineId=${selectedMachineDetails?._id}&&selectedYear=${selectedYear}`,
         {
           method: "GET",
           headers: {
@@ -82,7 +82,11 @@ function MainRequestSheetForView({
       );
       const data = await res.json();
       if (res.status === 404) {
-        console.log("error", data?.message);
+        WarningToast(data?.message);
+      } else if (res.status === 500) {
+        WarningToast(
+          data?.message || "No any request-sheet found for this machine !!!"
+        );
       } else {
         setRequestSheetDataOfBM(data?.requestSheetData?.[0]);
         setSupportingTMList(data?.TLHOSS_and_TM_user_list);
@@ -92,13 +96,19 @@ function MainRequestSheetForView({
     }
   };
 
+  const previousAndNextRequestSheetOfTheBM = (value) => {
+    if (value === "previous")
+      setCurrentCount((currentCount) => currentCount + 1);
+    else setCurrentCount((currentCount) => currentCount - 1);
+  };
+
   useEffect(() => {
     getMachineDetails();
   }, [machine_code]);
 
   useEffect(() => {
-    getRequestSheetDetails();
-  }, [requestSheetID]);
+    if (selectedMachineDetails?._id) getRequestSheetDetails();
+  }, [requestSheetID, selectedMachineDetails?._id, currentCount]);
 
   return (
     <>
@@ -108,7 +118,7 @@ function MainRequestSheetForView({
         aria-labelledby="contained-modal-title-vcenter"
         centered
       >
-        <Modal.Header>
+        <Modal.Header className="d-flex justify-content-between">
           <Modal.Title id="contained-modal-title-vcenter">
             Breakdown Request-Sheet
           </Modal.Title>
@@ -130,6 +140,11 @@ function MainRequestSheetForView({
                 machineStatus={machineStatus}
                 selectedYear={selectedYear}
                 machine_code={machine_code}
+                previousAndNextRequestSheetOfTheBM={
+                  previousAndNextRequestSheetOfTheBM
+                }
+                currentCount={currentCount}
+                setCurrentCount={setCurrentCount}
                 // approvalListOfBM={approvalListOfBM}
               />
 
@@ -139,6 +154,8 @@ function MainRequestSheetForView({
                 approvalListOfBM={approvalListOfBM}
                 requestSheetDataOfBM={requestSheetDataOfBM}
                 supportingTMList={supportingTMList}
+                selectedYear={selectedYear}
+                currentCount={currentCount}
               />
             </div>
           </div>

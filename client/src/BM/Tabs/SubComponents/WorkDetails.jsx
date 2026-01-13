@@ -67,10 +67,15 @@ const WorkDetails = ({
 
   const addWorkDetail = () => {
     if (new Date(newWork?.fromDate) > new Date(newWork?.toDate)) {
-      setDateError("From date cannot be later than To date");
+      setDateError("From date cannot be less than To date");
       return;
     }
-    if (newWork?.work?.trim() !== "") {
+    if (
+      newWork?.work?.trim() !== "" &&
+      // selectedSupportingTM?.length > 0 &&
+      newWork?.fromDate !== "" &&
+      newWork?.toDate !== ""
+    ) {
       const newWorkDetail = {
         ...newWork,
         user: selectedSupportingTM,
@@ -91,7 +96,7 @@ const WorkDetails = ({
             "minutes"
           ) /
             60) *
-            selectedSupportingTM?.length
+            (selectedSupportingTM?.length >= 1 || 1)
       );
 
       setSelectedSupportingTM([]);
@@ -102,7 +107,6 @@ const WorkDetails = ({
       setDateError("Please enter all the fields");
     }
   };
-
   const cancelEdit = () => {
     setEditedWork(null);
     setSelectedSupportingTM([]);
@@ -132,7 +136,7 @@ const WorkDetails = ({
           "minutes"
         ) /
           60) *
-        finalWork?.user?.length;
+        (finalWork?.user?.length >= 1 || 1);
 
       return finalWork;
     });
@@ -161,7 +165,8 @@ const WorkDetails = ({
     setWorkTotalTime(
       (workTotalTime) =>
         workTotalTime -
-        (moment(toDate).diff(moment(fromDate), "minutes") / 60) * user?.length
+        (moment(toDate).diff(moment(fromDate), "minutes") / 60) *
+          (user?.length >= 1 || 1)
     );
 
     handleOnchangeFlag && handleOnchangeFlag("work_details_val_flag");
@@ -525,30 +530,34 @@ const WorkDetails = ({
           )}
         </Row>
       ) : (
-        isEditable && (
+        <>
+          {isEditable && (
+            <Row className="m-0 p-1 border">
+              <Col lg={7}>
+                <button
+                  type="button"
+                  className="bg-warning text-white border-0"
+                  onClick={() =>
+                    setNewWork({
+                      ...initialState,
+                      id: new Date(),
+                    })
+                  }
+                >
+                  Add Work Detail
+                </button>
+              </Col>
+            </Row>
+          )}
           <Row className="m-0 p-1 border">
-            <Col lg={7}>
-              <button
-                type="button"
-                className="bg-warning text-white border-0"
-                onClick={() =>
-                  setNewWork({
-                    ...initialState,
-                    id: new Date(),
-                  })
-                }
-              >
-                Add Work Detail
-              </button>
-            </Col>
-            <Col lg={2} className="border">
+            <Col lg={7} className="border">
               <b>Total time Difference</b>
             </Col>
-            <Col lg={2} className="border">
+            <Col lg={4} className="border">
               <b>{workTotalTime.toFixed(2)} Hr</b>
             </Col>
           </Row>
-        )
+        </>
       )}
 
       {Array.from({ length: 2 - workDetails?.length }).map((_, index) => (

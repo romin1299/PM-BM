@@ -271,18 +271,18 @@ function WorkOnImplementationPM({
 
             {formik.values.workedOnPM === "Yes" ? (
               <div>
-                {remarksCompulsoryOrNot === "Yes" && (
-                  <div className="mb-3">
-                    <span>Input Only Value: </span>
-                    <input
-                      type="text"
-                      // maxLength={5}
-                      // id={rData[0].value}
-                      name="remarksOfImplementation"
-                      onChange={formik.handleChange}
-                    />
-                  </div>
-                )}
+                {/* {remarksCompulsoryOrNot === "Yes" && ( */}
+                <div className="mb-3">
+                  <span>Input Only Value: </span>
+                  <input
+                    type="text"
+                    // maxLength={5}
+                    // id={rData[0].value}
+                    name="remarksOfImplementation"
+                    onChange={formik.handleChange}
+                  />
+                </div>
+                {/* )} */}
                 <div className="mb-3">
                   <span>Photo Upload: </span>
                   <input

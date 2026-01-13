@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "reactstrap";
 import { fetchFinancialYears } from "../../../Integration/APIExports";
 
-const YearDropDown = ({ selectedYear, setSelectedYear }) => {
+const YearDropDown = ({
+  selectedYear,
+  setSelectedYear,
+  setSearchParams = "",
+}) => {
   const [financialYear, setFinancialYear] = useState();
 
   let current_year =
@@ -33,6 +37,10 @@ const YearDropDown = ({ selectedYear, setSelectedYear }) => {
         // className="textField"
         onChange={(e) => {
           setSelectedYear(e.target.value);
+          setSearchParams &&
+            setSearchParams(
+              `?${new URLSearchParams({ selectedYear: e.target.value })}`
+            );
         }}
         // fullWidth
         select // label="Select"

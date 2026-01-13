@@ -50,6 +50,12 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     partSuggestionByMTDTL: {
       type: String,
     },
+    partAvailableOrNotByMTDTL: {
+      type: String
+    },
+    partSuggestionCostByMTDTL: {
+      type: Number
+    },
     attachedFilesByMTDUser: { type: [String] },
   },
 
@@ -79,6 +85,8 @@ const requestSheetOfCMSchema = new mongoose.Schema({
             type: String,
           },
           targetDateOfCM: { type: String },
+          activityEndDateOfCM: { type: String },
+
           //Spare parts related fields
           sparePartUsedOrNot: { type: String },
           changedParts: [
@@ -111,6 +119,8 @@ const requestSheetOfCMSchema = new mongoose.Schema({
               },
             },
           ],
+
+          attachedFilesByOperatorUser: { type: [String] },
 
           totalTimeBasedOnWork: {
             type: Number,
@@ -187,7 +197,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
 
           requestSheetStatusOfCM: {
             type: String,
-            default: "Generated",
           },
         },
       ],

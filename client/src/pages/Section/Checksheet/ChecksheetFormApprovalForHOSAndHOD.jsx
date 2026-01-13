@@ -534,7 +534,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
           : selectedMachineCheckSheetData?.state?.dashboardID ===
             "FromPlanningApprovalDashboard"
           ? navigate("/pm/planningApproval")
-          : navigate("/pm/implementationApproval");
+          : navigate(-1);
       }
     },
   });
@@ -611,7 +611,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                       : selectedMachineCheckSheetData?.state?.dashboardID ===
                         "FromPlanningApprovalDashboard"
                       ? navigate("/pm/planningApproval")
-                      : navigate("/pm/implementationApproval");
+                      : navigate(-1);
 
                     // if (
                     //   selectedMachineCheckSheetData?.state?.dashboardID ===
@@ -1158,7 +1158,7 @@ function ChecksheetFormApprovalForHOSAndHOD() {
                         const uniqueNames = [
                           ...new Set([
                             ...(machineAllData?.checkSheet_data
-                              ?.implemetation_completed_tm_name[month] || []),
+                              ?.implemetation_completed_tm_name?.[month] || []),
                             ...(machineAllData?.checkSheet_data
                               ?.PMworkedTMName?.[month] || []),
                           ]),

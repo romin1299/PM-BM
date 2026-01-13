@@ -51,7 +51,6 @@ exports.globalReqSheetNo = tryCatchHandler(
         { $set: generateRequestSheetNo },
         { new: true }
       );
-      // console.log(increaseCountOfRequestSheetInLine);
 
       const requestSheetNo =
         machine?.line_names?.cell_names?.subSection_names?.section_names
@@ -62,7 +61,9 @@ exports.globalReqSheetNo = tryCatchHandler(
               .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
               moment().tz("Asia/Kolkata").month() + 1
             }-${maintenanceType}-${
-              increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
+              maintenanceType === "BM"
+                ? increaseCountOfRequestSheetInLine?.requestSheetNos
+                : increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
             }`.trim()
           : `${(machine?.line_names?.cell_names?.subSection_names?.subSection_name)
               .trim()
@@ -70,7 +71,9 @@ exports.globalReqSheetNo = tryCatchHandler(
               .toUpperCase()}-${(machine?.line_names?.line_name).trim()}-${
               moment().tz("Asia/Kolkata").month() + 1
             }-${maintenanceType}-${
-              increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
+              maintenanceType === "BM"
+                ? increaseCountOfRequestSheetInLine?.requestSheetNos
+                : increaseCountOfRequestSheetInLine?.requestSheetNoOfCM
             }`.trim();
 
       return requestSheetNo;

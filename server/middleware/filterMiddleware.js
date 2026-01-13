@@ -9,24 +9,34 @@ module.exports = tryCatchHandler(async (req, res, next) => {
 
     if (req.query?.selectedYear) {
       queryObj = {
-        commonDataFilledByAssignUser: {
-          $elemMatch: {
+        $or: [
+          {
+            commonDataFilledByAssignUser: {
+              $elemMatch: {
+                "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  req.query?.selectedYear,
+              },
+            },
+          },
+          {
             "preAggregationTimeStampOfRequestSheet.requestSheet_year":
               req.query?.selectedYear,
           },
-        },
+        ],
       };
     }
 
     if (req.query?.selectedMonth) {
       queryObj = {
+        ...queryObj,
         commonDataFilledByAssignUser: {
           $elemMatch: {
-            ...queryObj?.commonDataFilledByAssignUser?.$elemMatch,
             "preAggregationTimeStampOfRequestSheet.requestSheet_month":
               req.query?.selectedMonth,
           },
         },
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
       };
     }
 
@@ -84,7 +94,12 @@ module.exports = tryCatchHandler(async (req, res, next) => {
       queryObjForPM = {
         _id: mongoose.Types.ObjectId(req.params?.selectedId),
       };
-    } else if(req.params?.filter === "based-on-requestSheetIdOfBM"){
+    } else if (req.params?.filter === "based-on-requestSheetIdOfBM") {
+      queryObj = {
+        ...queryObj,
+        requestSheetOfBMRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-requestSheetIdOfBM") {
       queryObj = {
         ...queryObj,
         requestSheetOfBMRef: mongoose.Types.ObjectId(req.params?.selectedId),

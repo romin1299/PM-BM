@@ -1,0 +1,108 @@
+/* Reset FullCalendar button base style */
+.fc .fc-button {
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 16px;
+  transition: all 0.3s ease;
+  margin-right: 10px;    /* Space between buttons */
+  margin-bottom: 6px;    /* Space if they wrap */
+}
+
+/* MONTH Button */
+.fc .fc-dayGridMonth-button {
+  background-color: #5bbf0d; /* Bright Green */
+  color: white;
+}
+.fc .fc-dayGridMonth-button:hover {
+  background-color: #4aa609;
+  color: white;
+}
+.fc .fc-dayGridMonth-button.fc-button-active {
+  background-color: #3d8907;
+  color: white;
+}
+
+/* WEEK Button */
+.fc .fc-dayGridWeek-button {
+  background-color: #f9b32a; /* Orange-Yellow */
+  color: white;
+}
+.fc .fc-dayGridWeek-button:hover {
+  background-color: #e5a324;
+  color: white;
+}
+.fc .fc-dayGridWeek-button.fc-button-active {
+  background-color: #c98a17;
+  color: white;
+}
+
+/* DAY Button */
+.fc .fc-dayGridDay-button {
+  background-color: #f42b67; /* Hot Pink */
+  color: white;
+}
+.fc .fc-dayGridDay-button:hover {
+  background-color: #d11a51;
+  color: white;
+}
+.fc .fc-dayGridDay-button.fc-button-active {
+  background-color: #a9133f;
+  color: white;
+}
+
+/* MULTI-MONTH / AGENDA Button */
+.fc .fc-multiMonthYear-button {
+  background-color: #007bff; /* Bootstrap Blue */
+  color: white;
+}
+.fc .fc-multiMonthYear-button:hover {
+  background-color: #0056b3;
+  color: white;
+}
+.fc .fc-multiMonthYear-button.fc-button-active {
+  background-color: #004494;
+  color: white;
+}
+
+
+/* Change day name font and color */
+.fc .fc-col-header-cell {
+    background-color: #c5d1dd;  /* Background for day names row */
+    font-size: 16px;            /* Font size */
+    font-weight: bold;          /* Make them bold */
+    text-transform: uppercase;  /* Optional: SUN MON TUE... */
+    padding: 10px 0;
+    border: 1px solid #e0e0e0;  /* Optional: border around day cells */
+  }
+  
+.fc a {
+    color: BLACK;
+    text-decoration-line: none;
+}
+
+.fc-popover .fc-daygrid-event {
+  display: block !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1 !important;
+  padding: 4px 6px !important;
+  margin-bottom: 4px;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+.fc-header-toolbar {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fc-toolbar-chunk {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+}

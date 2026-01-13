@@ -1,5 +1,3 @@
-import { selectClasses } from "@mui/material";
-
 export const initialState = (isWithLocalStorageForFiltration) => {
   if (isWithLocalStorageForFiltration === "Yes")
     return {
@@ -52,6 +50,11 @@ export const initialState = (isWithLocalStorageForFiltration) => {
       selectedMaintenanceType:
         localStorage.getItem("selectedMaintenanceType") || "",
 
+      selectedCurrentStatusOfRS:
+        localStorage.getItem("selectedCurrentStatusOfRS") || "",
+
+      selectedCategoryType: localStorage.getItem("selectedCategoryType") || "",
+
       selectedQuarter: localStorage.getItem("selectedQuarter") || "",
 
       selectedMonth: localStorage.getItem("selectedMonth") || "",
@@ -91,6 +94,10 @@ export const initialState = (isWithLocalStorageForFiltration) => {
 
     selectedMaintenanceType: "",
 
+    selectedCurrentStatusOfRS: "",
+
+    selectedCategoryType: "",
+
     selectedQuarter: "",
 
     selectedMonth: "",
@@ -119,8 +126,11 @@ export const ACTION = {
   HANDLE_SELECT_YEAR: "handle-selected-year",
   HANDLE_SELECT_MONTH: "handle-selected-month",
   HANDLE_SELECT_MAINTENANCE_TYPE: "handle-selected-maintenanceType",
+  HANDLE_SELECT_CURRENT_RS_STATUS: "handle-selected-current-rs-status",
+  HANDLE_SELECT_CM_CATEGORY: "handle-selected-category",
   HANDLE_SELECT_QUARTER: "handle-selected-quarter",
   HANDLE_SELECT_STATUS: "handle-selected-status",
+  HANDLE_RESET: "reset-filters",
 };
 
 export const getFiltrationValue = async ({ url }) => {
@@ -172,8 +182,33 @@ export const reducer = (state, action) => {
         localStorage.setItem("lines", JSON.stringify(action?.lines));
         localStorage.setItem("selectedMachine", action?.selectedMachine);
         localStorage.setItem("machines", JSON.stringify(action?.machines));
+        if (action?.isReset) {
+          localStorage.setItem("selectedQuarter", "");
+          localStorage.setItem("selectedRSStatus", "");
+          localStorage.setItem("selectedMaintenanceType", "");
+          localStorage.setItem("selectedCurrentStatusOfRS", "");
+          localStorage.setItem("selectedCategoryType", "");
+        }
+
+        localStorage.setItem(
+          "selectedYear",
+          new Date().getMonth() < 3
+            ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+            : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`
+        );
+        localStorage.setItem("selectedMonth", action?.selectedMonth);
       }
 
+      let resetTheFilterValue = {};
+      if (action?.isReset) {
+        resetTheFilterValue = {
+          selectedQuarter: "",
+          selectedRSStatus: "",
+          selectedMaintenanceType: "",
+          selectedCurrentStatusOfRS: "",
+          selectedCategoryType: "",
+        };
+      }
       return {
         ...state,
         isLoading: false,
@@ -195,6 +230,12 @@ export const reducer = (state, action) => {
         lines: action?.lines,
         selectedMachine: action?.selectedMachine,
         machines: action?.machines,
+        ...resetTheFilterValue,
+        selectedYear:
+          new Date().getMonth() < 3
+            ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+            : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+        selectedMonth: action?.selectedMonth,
       };
 
     case ACTION?.GET_DATA_BASED_ON_SECTION:
@@ -521,20 +562,50 @@ export const reducer = (state, action) => {
     case ACTION?.HANDLE_SELECT_YEAR:
       if (action?.isWithLocalStorageForFiltration === "Yes") {
         localStorage.setItem("selectedYear", action?.selectedYear);
-        localStorage.removeItem("selectedMonth");
+        !action?.defaultSelectedMonth &&
+          localStorage.removeItem("selectedMonth");
         localStorage.removeItem("selectedRSStatus");
         localStorage.removeItem("selectedMaintenanceType");
+        localStorage.removeItem("selectedCurrentStatusOfRS");
+        localStorage.removeItem("selectedCategoryType");
         localStorage.removeItem("selectedQuarter");
+      }
+
+      if (!action?.defaultSelectedMonth) {
+        state = {
+          ...state,
+          selectedMonth: "",
+        };
       }
 
       return {
         ...state,
         selectedYear: action?.selectedYear,
-        selectedMonth: "",
         selectedRSStatus: "",
         selectedMaintenanceType: "",
+        selectedCurrentStatusOfRS: "",
+        selectedCategoryType: "",
         selectedQuarter: "",
       };
+
+    // case ACTION?.HANDLE_SELECT_YEAR_WITHOUT_FY:
+    //   if (action?.isWithLocalStorageForFiltration === "Yes") {
+    //     localStorage.setItem(
+    //       "selectedYearWithoutFY",
+    //       action?.selectedYearWithoutFY
+    //     );
+    //     localStorage.removeItem("selectedRSStatus");
+    //     localStorage.removeItem("selectedMaintenanceType");
+    //     localStorage.removeItem("selectedQuarter");
+    //   }
+
+    //   return {
+    //     ...state,
+    //     selectedYearWithoutFY: action?.selectedYearWithoutFY,
+    //     selectedRSStatus: "",
+    //     selectedMaintenanceType: "",
+    //     selectedQuarter: "",
+    //   };
 
     case ACTION?.HANDLE_SELECT_MONTH:
       if (action?.isWithLocalStorageForFiltration === "Yes") {
@@ -567,6 +638,32 @@ export const reducer = (state, action) => {
       return {
         ...state,
         selectedMaintenanceType: action?.selectedMaintenanceType,
+      };
+
+    case ACTION?.HANDLE_SELECT_CURRENT_RS_STATUS:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem(
+          "selectedCurrentStatusOfRS",
+          action?.selectedCurrentStatusOfRS
+        );
+      }
+
+      return {
+        ...state,
+        selectedCurrentStatusOfRS: action?.selectedCurrentStatusOfRS,
+      };
+
+    case ACTION?.HANDLE_SELECT_CM_CATEGORY:
+      if (action?.isWithLocalStorageForFiltration === "Yes") {
+        localStorage.setItem(
+          "selectedCategoryType",
+          action?.selectedCategoryType
+        );
+      }
+
+      return {
+        ...state,
+        selectedCategoryType: action?.selectedCategoryType,
       };
 
     case ACTION?.HANDLE_SELECT_QUARTER:

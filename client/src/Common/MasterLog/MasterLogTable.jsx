@@ -7,6 +7,7 @@ import { Box } from "@mui/material";
 import MainRequestSheetForView from "../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
 import ViewNoLossBDEntryForm from "../../BM/NoLossBDDataEntry/ViewNoLossBDEntryForm";
 import moment from "moment";
+import Loading from "../../components/Loading/Loading";
 
 const MasterLogTable = ({
   flagForTogglingFilter,
@@ -24,17 +25,20 @@ const MasterLogTable = ({
   const [plantShiftsData, setPlantShiftsData] = useState([]);
   const [plantCategories, setPlantCategories] = useState([]);
   const [supportingTMList, setSupportingTMList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedRow, setSelectedRow] = useState();
 
   const initialState = {
     requestSheetModalOpenClose: false,
     noLossBMEntryModalOpenClose: false,
+    noLossBMEntryModalDeleteOpenClose: false,
   };
 
   const ACTION = {
     OPEN_CLOSE_RS: "request-sheet-open-close",
     OPEN_CLOSE_NO_LOSS_BD: "no-loss-bd-open-close",
+    OPEN_CLOSE_NO_LOSS_BD_DELETE: "no-loss-bd-open-close-delete",
   };
 
   const reducer = (state, action) => {
@@ -47,6 +51,12 @@ const MasterLogTable = ({
       return {
         ...state,
         noLossBMEntryModalOpenClose: !state?.noLossBMEntryModalOpenClose,
+      };
+    } else if (action?.type === ACTION?.OPEN_CLOSE_NO_LOSS_BD_DELETE) {
+      return {
+        ...state,
+        noLossBMEntryModalDeleteOpenClose:
+          !state?.noLossBMEntryModalDeleteOpenClose,
       };
     } else {
       return state;
@@ -72,7 +82,12 @@ const MasterLogTable = ({
     handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_NO_LOSS_BD });
   };
 
+  const handleNoLossBMEntryDeleteShowAndCloseState = () => {
+    handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_NO_LOSS_BD_DELETE });
+  };
+
   const getMasterLog = async () => {
+    setLoading(true);
     try {
       const res = await fetch(
         `/common/masterLog/${flagForTogglingFilter}/${selectedValue}/?selectedYear=${selectedYear}&&selectedMonth=${selectedMonth}`,
@@ -115,6 +130,7 @@ const MasterLogTable = ({
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
 
   const columns = [
@@ -339,6 +355,7 @@ const MasterLogTable = ({
         ) : (
           ""
         ),
+      width: 250,
     },
     {
       title: "Counter Measure",
@@ -395,6 +412,24 @@ const MasterLogTable = ({
       filterSearch: true,
       onFilter: (value, record) =>
         record?.actionTemporaryOrNot?.startsWith(value),
+    },
+    {
+      title: "First Time/ Repeat",
+      dataIndex: "firstTimeOrRepeat",
+      filters: [
+        {
+          value: "First Time",
+          text: "First Time",
+        },
+        {
+          value: "Repeat",
+          text: "Repeat",
+        },
+      ],
+
+      filterMode: "tree",
+      filterSearch: true,
+      onFilter: (value, record) => record?.firstTimeOrRepeat?.startsWith(value),
     },
     {
       title: "Done By",
@@ -604,75 +639,87 @@ const MasterLogTable = ({
 
   return (
     <>
-      {handleAllModals?.requestSheetModalOpenClose && (
-        <MainRequestSheetForView
-          selectedYear={selectedYear}
-          machine_code={selectedRow?.machine_code}
-          requestSheetID={selectedRow?._id}
-          modelProp={{
-            show: handleAllModals?.requestSheetModalOpenClose,
-            onHide: () => handleRequestSheetShowAndCloseState(),
-          }}
-        />
-      )}
-      {handleAllModals?.noLossBMEntryModalOpenClose && (
-        <ViewNoLossBDEntryForm
-          selectedYear={selectedYear}
-          machine_code={selectedRow?.machine_code}
-          noLossBDRequestSheetID={selectedRow?._id}
-          modelProp={{
-            show: handleAllModals?.noLossBMEntryModalOpenClose,
-            onHide: () => handleNoLossBMEntryShowAndCloseState(),
-          }}
-          supportingTMList={supportingTMList}
-          plantCategories={plantCategories}
-          plantShiftsData={plantShiftsData}
-          removeDataFromMaster={removeDataFromMaster}
-        />
-      )}
-      <Box
-        sx={{
-          "& .ant-dropdown-trigger": {
-            "&:hover": { bgcolor: "#ffcdcd66" },
-            "& > .anticon .svg": { width: "1.4em", height: "1.4em" },
-          },
-          "& .ant-dropdown-trigger.active": {
-            color: "#004fbf",
-            bgcolor: "#b2d2ff8a",
-          },
-          "& .ant-table-cell > ul": {
-            margin: "0px",
-            padding: "0px",
-            paddingLeft: "1rem",
-          },
-        }}
-      >
-        <ConfigProvider
-          theme={{
-            components: {
-              Table: {
-                headerBg: "#0fa3b1",
-                fontWeightStrong: 700,
-                borderColor: "#9f9f9f",
-                headerFilterActiveBg: "rgb(255, 230, 230)",
-                headerFilterHoverBg: "rgb(255, 255, 255)",
-                fontSize: 18,
-                fontSizeIcon: 15,
-                fontSizeSM: 15,
-                opacityLoading: 2.65,
+      {loading ? (
+        <Box mt={2}>
+          <Loading height={200} />
+        </Box>
+      ) : (
+        <>
+          {handleAllModals?.requestSheetModalOpenClose && (
+            <MainRequestSheetForView
+              selectedYear={selectedYear}
+              machine_code={selectedRow?.machine_code}
+              requestSheetID={selectedRow?._id}
+              modelProp={{
+                show: handleAllModals?.requestSheetModalOpenClose,
+                onHide: () => handleRequestSheetShowAndCloseState(),
+              }}
+            />
+          )}
+          {handleAllModals?.noLossBMEntryModalOpenClose && (
+            <ViewNoLossBDEntryForm
+              selectedYear={selectedYear}
+              machine_code={selectedRow?.machine_code}
+              noLossBDRequestSheetID={selectedRow?._id}
+              modelProp={{
+                show: handleAllModals?.noLossBMEntryModalOpenClose,
+                onHide: () => handleNoLossBMEntryShowAndCloseState(),
+              }}
+              modelPropForDelete={{
+                show: handleAllModals?.noLossBMEntryModalDeleteOpenClose,
+                onHide: () => handleNoLossBMEntryDeleteShowAndCloseState(),
+              }}
+              supportingTMList={supportingTMList}
+              plantCategories={plantCategories}
+              plantShiftsData={plantShiftsData}
+              removeDataFromMaster={removeDataFromMaster}
+            />
+          )}
+          <Box
+            sx={{
+              "& .ant-dropdown-trigger": {
+                "&:hover": { bgcolor: "#ffcdcd66" },
+                "& > .anticon .svg": { width: "1.4em", height: "1.4em" },
               },
-            },
-          }}
-        >
-          <Table
-            columns={columns}
-            dataSource={masterLogData}
-            scroll={{ x: 2500, y: 700 }}
-            pagination={false}
-            bordered
-          />
-        </ConfigProvider>
-      </Box>
+              "& .ant-dropdown-trigger.active": {
+                color: "#004fbf",
+                bgcolor: "#b2d2ff8a",
+              },
+              "& .ant-table-cell > ul": {
+                margin: "0px",
+                padding: "0px",
+                paddingLeft: "1rem",
+              },
+            }}
+          >
+            <ConfigProvider
+              theme={{
+                components: {
+                  Table: {
+                    headerBg: "#0fa3b1",
+                    fontWeightStrong: 700,
+                    borderColor: "#9f9f9f",
+                    headerFilterActiveBg: "rgb(255, 230, 230)",
+                    headerFilterHoverBg: "rgb(255, 255, 255)",
+                    fontSize: 18,
+                    fontSizeIcon: 15,
+                    fontSizeSM: 15,
+                    opacityLoading: 2.65,
+                  },
+                },
+              }}
+            >
+              <Table
+                columns={columns}
+                dataSource={masterLogData}
+                scroll={{ x: 2500, y: 700 }}
+                pagination={false}
+                bordered
+              />
+            </ConfigProvider>
+          </Box>
+        </>
+      )}
     </>
   );
 };

@@ -106,6 +106,10 @@ const MasterLogInnerComponent = () => {
       key: "actionTemporaryOrNot",
     },
     {
+      label: "First Time/ Repeat",
+      key:"firstTimeOrRepeat"
+    },
+    {
       label: "Done By",
       key: "doneBy",
     },
@@ -114,7 +118,6 @@ const MasterLogInnerComponent = () => {
       key: "status",
     },
   ];
-  console.log("this is csvDataOfMasterLog", csvDataOfMasterLog);
   return (
     <Container fluid>
       <Box>

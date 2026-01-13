@@ -92,7 +92,7 @@ const BMSidebar = ({ userData, filteredItems }) => {
       </div>
       <SidebarContent>
         <Menu iconShape="square" style={styles.bg}>
-          {filteredItems.map((menuItem, index) => {
+          {filteredItems?.map((menuItem, index) => {
             if (menuItem.subItems) {
               return (
                 <SubMenu

@@ -357,7 +357,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
 
       newRowData.push(newColData);
     }
-    // console.log(newRowData);
+    console.log(newRowData);
     getDataWithSpanCount(newRowData);
   };
   const getDataWithSpanCount = (myProps) => {
@@ -503,7 +503,7 @@ const CheckSheet = ({ show, handleClose, lineName, machineData }) => {
           onHide={handleClose}
           scrollable={true}
         >
-          <Modal.Header>
+          <Modal.Header className="d-flex justify-content-between">
             <Modal.Title>CheckSheet</Modal.Title>
             <Button
               variant="secondary"

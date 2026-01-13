@@ -15,6 +15,7 @@ const ChartsToolbar = ({
   ACTION,
   monthFiltration,
   yearFiltration,
+  yearFiltrationWithoutFY,
   sectionFiltration,
   subSectionFiltration,
   cellFiltration,
@@ -24,10 +25,16 @@ const ChartsToolbar = ({
   RSStatusFiltration,
   maintenanceTypeArrayForFilter,
   maintenanceTypeFiltration,
+  CM_Category,
+  CM_CategoryFiltration,
   quarterFiltration,
   resetButtonFiltration,
   isWithLocalStorageForFiltration,
   selectedLineOrNot,
+  defaultSelectedMonth,
+  plantLevel,
+  currentStatusOfRSFiltration,
+  currentStatusOfRequestSheet
 }) => {
   const generatePPT = () => {
     const pptx = new pptxgen();
@@ -108,6 +115,7 @@ const ChartsToolbar = ({
           monthFiltration={monthFiltration}
           machineFiltration={machineFiltration}
           yearFiltration={yearFiltration}
+          yearFiltrationWithoutFY={yearFiltrationWithoutFY}
           sectionFiltration={sectionFiltration}
           subSectionFiltration={subSectionFiltration}
           cellFiltration={cellFiltration}
@@ -116,10 +124,15 @@ const ChartsToolbar = ({
           RSStatusFiltration={RSStatusFiltration}
           maintenanceTypeArrayForFilter={maintenanceTypeArrayForFilter}
           maintenanceTypeFiltration={maintenanceTypeFiltration}
-          quarterFiltration= {quarterFiltration}
+          CM_Category={CM_Category}
+          CM_CategoryFiltration={CM_CategoryFiltration}
+          quarterFiltration={quarterFiltration}
           resetButtonFiltration={resetButtonFiltration}
           isWithLocalStorageForFiltration={isWithLocalStorageForFiltration}
           selectedLineOrNot={selectedLineOrNot}
+          defaultSelectedMonth={defaultSelectedMonth}
+          currentStatusOfRequestSheet={currentStatusOfRequestSheet}
+          currentStatusOfRSFiltration={currentStatusOfRSFiltration}
         />
       </Box>
 

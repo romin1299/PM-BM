@@ -9,9 +9,46 @@ const ApproveOrRejectComponent = ({
   errors,
   watch,
   handlePopupStatus,
+  targetDateOfCM,
+  setError,
+  clearErrors,
 }) => {
+  const handleCustomError = () => {
+    const approval = watch("approvalOfRequestSheet");
+    const remark = watch("rejectedRemarksOfRequestSheet");
+
+    if (!approval) {
+      setError(
+        "approvalOfRequestSheet",
+        {
+          type: "manual",
+          message: "Select Yes or No!",
+        },
+        { shouldFocus: true }
+      );
+      return false;
+    }
+
+    if (approval === "No" && (!remark || remark.trim() === "")) {
+      setError(
+        "rejectedRemarksOfRequestSheet",
+        {
+          type: "manual",
+          message: "Please enter remarks",
+        },
+        { shouldFocus: true }
+      );
+      return false;
+    }
+
+    return true;
+  };
+
   const approveRequestSheetFromHigherAuthority = async () => {
     try {
+      const isValid = handleCustomError();
+      if (!isValid) return;
+
       const response = await axios.patch(
         `/approveOrRejectRequestSheet/${watch("_id")}`,
         {
@@ -27,6 +64,7 @@ const ApproveOrRejectComponent = ({
 
           approvalOfRequestSheet: watch("approvalOfRequestSheet"),
           rejectedRemarksOfRequestSheet: watch("rejectedRemarksOfRequestSheet"),
+          targetDateOfCM: targetDateOfCM,
         }
       );
 
@@ -51,8 +89,10 @@ const ApproveOrRejectComponent = ({
               name="approvalOfRequestSheet"
               type="radio"
               value="Yes"
-              id="approvalOfRequestSheet"
-              {...register("approvalOfRequestSheet")}
+              id="approvalOfRequestSheet_yes"
+              {...register("approvalOfRequestSheet", {
+                // required: "Select Yes or No",
+              })}
             />{" "}
             &nbsp;
             <Form.Check
@@ -61,8 +101,10 @@ const ApproveOrRejectComponent = ({
               name="approvalOfRequestSheet"
               type="radio"
               value="No"
-              id="approvalOfRequestSheet"
-              {...register("approvalOfRequestSheet")}
+              id="approvalOfRequestSheet_no"
+              {...register("approvalOfRequestSheet", {
+                // required: "Select Yes or No",
+              })}
             />
           </div>
           {errors?.["approvalOfRequestSheet"] && (
@@ -77,7 +119,12 @@ const ApproveOrRejectComponent = ({
                 name="rejectedRemarksOfRequestSheet"
                 placeholder="Enter rejected remarks"
                 className="p-1 m-1"
-                {...register("rejectedRemarksOfRequestSheet")}
+                {...register("rejectedRemarksOfRequestSheet", {
+                  // required:
+                  //   watch("approvalOfRequestSheet") === "No"
+                  //     ? "Please enter remarks"
+                  //     : false,
+                })}
               />
               {errors?.["rejectedRemarksOfRequestSheet"] && (
                 <p className="text-error">

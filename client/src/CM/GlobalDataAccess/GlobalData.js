@@ -19,6 +19,7 @@ export const FREQUENCY_OF_CM = [
 
 export const CATEGORIES_OF_CM = [
   "Overhauling",
+  "Upgradation",
   "BM Reflection",
   "LTPM",
   "Others",

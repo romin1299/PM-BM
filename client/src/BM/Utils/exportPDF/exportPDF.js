@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-export const exportPDF = (elementId, name, onclone) => {
+export const exportPDF = (elementId, name, onclone, view = "p") => {
   const domElement = document.getElementById(elementId);
 
   const options = {
@@ -13,7 +13,7 @@ export const exportPDF = (elementId, name, onclone) => {
   html2canvas(domElement, options).then((canvas) => {
     const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF("p", "pt", "a4");
+    const pdf = new jsPDF(view, "pt", "a4");
     var pageWidth = pdf.internal.pageSize.getWidth();
     var pageHeight = pdf.internal.pageSize.getHeight();
 
@@ -27,9 +27,16 @@ export const exportPDF = (elementId, name, onclone) => {
 
     heightLeft -= pageHeight;
 
-    while (heightLeft >= 0) {
+    // while (heightLeft >= 0) {
+    //   position = heightLeft - imgHeight;
+    //   pdf.addPage();
+    //   pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    //   heightLeft -= pageHeight;
+    // }
+
+    while (heightLeft > 0) {
       position = heightLeft - imgHeight;
-      pdf.addPage();
+      pdf.addPage(view.toLowerCase(), "a4"); // keep same orientation
       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
     }

@@ -12,7 +12,6 @@ import GeneratedExistingMachineRequestSheetByMTD from "./Components/ReqestSheetO
 import DashboardOfLTPM from "./Components/ReqestSheetOfCM/LTPM_RequestSheet/DashboardOfLTPM";
 import CMApprovalDashboardOfRequestSheet from "./Pages/CMApprovalDashboardOfReqSheet/CMApprovalDashboardOfRequestSheet";
 import ApprovalLogs from "./Pages/ApprovalLogs/ApprovalLogs";
-import ActivityCalendar from "./Pages/ActivityCalendar/ActivityCalendar";
 import FullCalenderForActivity from "./Pages/ActivityCalendar/FullCalenderForActivity";
 
 const CM_Routes = ({ commonRoutes }) => {
@@ -24,12 +23,12 @@ const CM_Routes = ({ commonRoutes }) => {
     {
       user_type: "Plant-Admin",
       routes: [
+        // {
+        //   path: "/cm",
+        //   element: <ActivityStatusDashboardOfCM />,
+        // },
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM />,
-        },
-        {
-          path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
@@ -40,17 +39,21 @@ const CM_Routes = ({ commonRoutes }) => {
           path: "/cm/dashboard/ltpm",
           element: <DashboardOfLTPM />,
         },
+        {
+          path: "/cm/activity-calendar",
+          element: <FullCalenderForActivity/>
+        },
       ],
     },
     {
       user_type: "Section-Admin",
       routes: [
+        // {
+        //   path: "/cm",
+        //   element: <ActivityStatusDashboardOfCM />,
+        // },
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM />,
-        },
-        {
-          path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
@@ -59,7 +62,8 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <ActivityCalendar />,
+          element: <FullCalenderForActivity/>
+
         },
         {
           path: "/cm/approvalLogs",
@@ -74,12 +78,12 @@ const CM_Routes = ({ commonRoutes }) => {
     {
       user_type: "TL/HOSS",
       routes: [
+        // {
+        //   path: "/cm",
+        //   element: <ActivityStatusDashboardOfCM />,
+        // },
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM />,
-        },
-        {
-          path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
@@ -96,7 +100,6 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          // element: <ActivityCalendar />,
           element: <FullCalenderForActivity/>
         },
         {
@@ -113,12 +116,12 @@ const CM_Routes = ({ commonRoutes }) => {
     {
       user_type: "Operator",
       routes: [
+        // {
+        //   path: "/cm",
+        //   element: <ActivityStatusDashboardOfCM />,
+        // },
         {
           path: "/cm",
-          element: <ActivityStatusDashboardOfCM />,
-        },
-        {
-          path: "/cm/allRequestSheetReportDataOfCM",
           element: <AllRequestSheetReportDataOfCM />,
         },
         {
@@ -131,7 +134,8 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <ActivityCalendar />,
+          element: <FullCalenderForActivity/>
+
         },
       ],
     },
