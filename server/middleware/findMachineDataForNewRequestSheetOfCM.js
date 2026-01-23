@@ -53,6 +53,7 @@ const quarterlyDataAdd = (
       targetDateOfCM: generalDateFormat(targetDateOfCM),
       requestSheet_quarter: getFinancialQuarter(targetDateOfCM),
       statusOfPlannedCM: "Planned",
+      requestSheetStatusOfCM,
       assignUserForCM,
     });
     plannedData?.push(yearlyDataObject1);
@@ -189,8 +190,6 @@ exports.newRequestSheetDataStore = async (
   try {
     const generalDateFormat = (propDate = new Date()) =>
       moment(propDate).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
-
-    console.log(requestSheetDataFilledByMTDUserForCM);
 
     let _idObject = {},
       machineIdToPlantId = machineDataUseInCretionOfCM;
