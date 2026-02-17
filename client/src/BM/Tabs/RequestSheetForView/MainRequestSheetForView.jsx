@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import PRDRequestSheetForUpdate from "./PRDRequestSheetForView";
 import { useParams, useNavigate } from "react-router-dom";
 import RoutingContext from "../../../context/routing/RoutingContext";
-import MTDRequestSheet from "./MTDRequestSheetForView";
+import MTDRequestSheetForView from "./MTDRequestSheetForView";
 import { Modal, Button } from "react-bootstrap";
 
 function MainRequestSheetForView({
@@ -134,7 +134,7 @@ function MainRequestSheetForView({
               />
 
               {/* need to add condition for PRD not able add data on MTD part */}
-              <MTDRequestSheet
+              <MTDRequestSheetForView
                 selectedMachineDetails={selectedMachineDetails}
                 approvalListOfBM={approvalListOfBM}
                 requestSheetDataOfBM={requestSheetDataOfBM}

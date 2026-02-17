@@ -1,5 +1,26 @@
 const mongoose = require("mongoose");
 
+const userRefObj = {
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+  },
+  tm_no: {
+    type: Number,
+  },
+  user_type: {
+    type: String,
+  },
+  tm_name: {
+    type: String,
+    min: 3,
+    max: 20,
+  },
+  email: {
+    type: String,
+  },
+};
+
 const requestSheetOfBMSchema = new mongoose.Schema({
   requestSheetNoOfBM: {
     type: String,
@@ -113,10 +134,6 @@ const requestSheetOfBMSchema = new mongoose.Schema({
   //   type: String,
   // },
 
-  teamLeaderPRD: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Users",
-  },
   shiftOfBM: {
     type: String,
   },
@@ -438,6 +455,78 @@ const requestSheetOfBMSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Plants",
   },
+
+  machine: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MachinesAllData",
+    },
+    machine_code: {
+      type: String,
+    },
+    machine_name: {
+      type: String,
+    },
+    machine_nickname: {
+      type: String,
+    },
+  },
+  line: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Lines",
+    },
+    line_name: {
+      type: String,
+    },
+  },
+  cell: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cells",
+    },
+    cell_name: {
+      type: String,
+    },
+  },
+  subSection: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubSections",
+    },
+    subSection_name: {
+      type: String,
+    },
+  },
+  section: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Sections",
+    },
+    section_name: {
+      type: String,
+    },
+    dashboardLevel: {
+      type: String,
+    },
+  },
+  plant: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plants",
+    },
+    plant_name: {
+      type: String,
+    },
+  },
+
+  partQualityCheckedByPRD_V2: userRefObj,
+  partQualityCheckedByMTD_V2: userRefObj,
+  machineSafetyCheckedByPRD_V2: userRefObj,
+  machineSafetyCheckedByMTD_V2: userRefObj,
+  assignUser_V2: userRefObj,
+  handOverUser_V2: userRefObj,
+  requestSheetCreatedBy_V2: userRefObj,
 
   requestSheetStatus: {
     type: String,

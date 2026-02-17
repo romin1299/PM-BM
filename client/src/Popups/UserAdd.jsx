@@ -14,7 +14,10 @@ import {
   FormControl,
 } from "@material-ui/core";
 // import Context from "@mui/base/TabsUnstyled/TabsContext";
-import { LIST_OF_COMPANY, NAME_OF_THE_COMPANY } from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import {
+  LIST_OF_COMPANY,
+  NAME_OF_THE_COMPANY,
+} from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const UserAdd = () => {
   const context = useContext(RoutingContext);
@@ -75,26 +78,6 @@ const UserAdd = () => {
 
   const refreshPage = () => {
     window.location.reload();
-  };
-
-  // this function only run when the operator user added into the table
-  const newPasswordLink = async (email) => {
-    const res = await fetch("/resetPass", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-      }),
-    });
-
-    const data = res.json();
-
-    if (res.status === 400 || res.status === 422 || !data) {
-      window.alert("Invalid email address !!!!");
-    } else {
-      //window.alert("Password reset link sent to your email account");
-      console.log("Link send");
-    }
   };
 
   const validationSchema = yup.object({

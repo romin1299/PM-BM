@@ -97,20 +97,28 @@ function MyTable({
         approvalListOfBM?.prdTL?.[
           requestSheetData?.partQualityCheckedByPRD
         ]?._id;
+      requestSheetData.partQualityCheckedByPRD_V2 =
+        approvalListOfBM?.prdTL?.[requestSheetData?.partQualityCheckedByPRD];
       requestSheetData.partQualityCheckedByMTD =
         approvalListOfBM?.mtdTL?.[
           requestSheetData?.partQualityCheckedByMTD
         ]?._id;
+      requestSheetData.partQualityCheckedByMTD_V2 =
+        approvalListOfBM?.mtdTL?.[requestSheetData?.partQualityCheckedByMTD];
 
-        //for safety
-        requestSheetData.machineSafetyCheckedByPRD =
+      //for safety
+      requestSheetData.machineSafetyCheckedByPRD =
         approvalListOfBM?.prdTL?.[
           requestSheetData?.machineSafetyCheckedByPRD
         ]?._id;
-        requestSheetData.machineSafetyCheckedByMTD =
+      requestSheetData.machineSafetyCheckedByPRD_V2 =
+        approvalListOfBM?.prdTL?.[requestSheetData?.machineSafetyCheckedByPRD];
+      requestSheetData.machineSafetyCheckedByMTD =
         approvalListOfBM?.mtdTL?.[
           requestSheetData?.machineSafetyCheckedByMTD
         ]?._id;
+      requestSheetData.machineSafetyCheckedByMTD_V2 =
+        approvalListOfBM?.mtdTL?.[requestSheetData?.machineSafetyCheckedByMTD];
 
       requestSheetData.dataSheetOfRequestSheet =
         timeDifferenceMinutes > 120
@@ -427,6 +435,9 @@ function MyTable({
         // console.log(requestSheetDataOfBM?.dataSheetOfRequestSheet);
       }
 
+      console.log(watch("categories"));
+      console.log(Object.keys(watch("categories")));
+
       if (Object.keys(watch("categories"))?.length > 0) {
         Object.keys(watch("categories"))?.map((obj) => {
           if (watch("categories")[obj] === null) {
@@ -485,7 +496,7 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
-        setFocus("machineSafetyCheckedByPRD")
+        setFocus("machineSafetyCheckedByPRD");
         // console.log(flagCountForHandlingError);
       }
 
@@ -494,7 +505,7 @@ function MyTable({
           message: "This field is required !",
         });
         flagCountForHandlingError++;
-        setFocus("machineSafetyCheckedByMTD")
+        setFocus("machineSafetyCheckedByMTD");
         // console.log(flagCountForHandlingError);
       }
     }
@@ -638,6 +649,7 @@ function MyTable({
     updatedRequestSheetData
   ) => {
     let checkWhetherAnyErrorOccurredOrNot = handleCustomErrors();
+
     if (checkWhetherAnyErrorOccurredOrNot > 0) {
       return;
     } else {
@@ -784,7 +796,7 @@ function MyTable({
         requestSheetDataOfBM?.partQualityCheckedByMTD
       );
 
-      //for safety 
+      //for safety
       setValue(
         "machineSafetyCheckedByPRD",
         requestSheetDataOfBM?.machineSafetyCheckedByPRD
@@ -905,19 +917,6 @@ function MyTable({
                             loggedUserDetails?._id
                         }
                         options={approvalListOfBM?.mtdTL}
-                        // required={
-                        //   selectedMinor === "Yes" &&
-                        //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                        //     "MTD_TL".replace("_", " ")
-                        //   )
-                        //     ? true
-                        //     : selectedMajor === "Yes" &&
-                        //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                        //         "MTD_TL".replace("_", " ")
-                        //       )
-                        //     ? true
-                        //     : false
-                        // }
                       />
                     )}
                   </Col>
@@ -1136,19 +1135,6 @@ function MyTable({
                             options={approvalListOfBM?.mtdTL}
                             register={register}
                             errors={errors}
-                            // required={
-                            //   selectedMinor === "Yes" &&
-                            //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                            //     "MTD_HOSS".replace("_", " ")
-                            //   )
-                            //     ? true
-                            //     : selectedMajor === "Yes" &&
-                            //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                            //         "MTD_HOSS".replace("_", " ")
-                            //       )
-                            //     ? true
-                            //     : false
-                            // }
                           />
                         )}
                       </Col>
@@ -1183,19 +1169,6 @@ function MyTable({
                             options={approvalListOfBM?.mtdHOS}
                             register={register}
                             errors={errors}
-                            // required={
-                            //   selectedMinor === "Yes" &&
-                            //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                            //     "MTD_HOS".replace("_", " ")
-                            //   )
-                            //     ? true
-                            //     : selectedMajor === "Yes" &&
-                            //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                            //         "MTD_HOS".replace("_", " ")
-                            //       )
-                            //     ? true
-                            //     : false
-                            // }
                           />
                         )}
                       </Col>
@@ -1245,149 +1218,6 @@ function MyTable({
                   </Col>
                 </Row>
               </td>
-
-              {/* <td className="mb-0 pb-0 pt-0 col-lg-4">
-              <div className="mb-2" >
-                <Row className="m-0">
-                  <Col lg={6} md={6} sm={12} className="border">
-                    <p className="mb-0">
-                      <b>SECTION INCHARGE</b>
-                    </p>
-                    {selectedMinor === "Yes" &&
-                    selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                      "MTD_HOSS".replace("_", " ")
-                    ) ? (
-                      <label>
-                        <b>MTD HOSS</b>
-                      </label>
-                    ) : (
-                      ""
-                    )}
-                    {requestSheetDataOfBM?.approvalOfMTD_HOSS &&
-                    requestSheetDataOfBM?.approvalStatusOfMTD_HOSS ===
-                      "Accepted" &&
-                    requestSheetDataOfBM?.requestSheetStatus !== "Rejected" ? (
-                      <p>{requestSheetDataOfBM?.approvalOfMTD_HOSS?.tm_name}</p>
-                    ) : (
-                      <DropdownElem
-                        name={"MTD_HOSS"}
-                        selectedMinor={selectedMinor}
-                        selectedMajor={selectedMajor}
-                        approvalList={
-                          selectedMachineDetails?.line_names?.cell_names
-                            ?.subSection_names?.section_names?.plant_names
-                            ?.approvalListOfMinorAndMajor
-                        }
-                        displayOrNot={
-                          requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                          loggedUserDetails?._id
-                        }
-                        options={approvalListOfBM?.mtdTL}
-                        register={register}
-                        errors={errors}
-                        // required={
-                        //   selectedMinor === "Yes" &&
-                        //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                        //     "MTD_HOSS".replace("_", " ")
-                        //   )
-                        //     ? true
-                        //     : selectedMajor === "Yes" &&
-                        //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                        //         "MTD_HOSS".replace("_", " ")
-                        //       )
-                        //     ? true
-                        //     : false
-                        // }
-                      />
-                    )}
-                    {selectedMajor === "Yes" && (
-                      <label>
-                        <b>MTD HOS</b>
-                      </label>
-                    )}
-                    {requestSheetDataOfBM?.approvalOfMTD_HOS &&
-                    requestSheetDataOfBM?.approvalStatusOfMTD_HOS ===
-                      "Accepted" &&
-                    requestSheetDataOfBM?.requestSheetStatus !== "Rejected" ? (
-                      requestSheetDataOfBM?.approvalOfMTD_HOS?.tm_name
-                    ) : (
-                      <DropdownElem
-                        name={"MTD_HOS"}
-                        selectedMinor={selectedMinor}
-                        selectedMajor={selectedMajor}
-                        approvalList={
-                          selectedMachineDetails?.line_names?.cell_names
-                            ?.subSection_names?.section_names?.plant_names
-                            ?.approvalListOfMinorAndMajor
-                        }
-                        displayOrNot={
-                          requestSheetDataOfBM?.approvalOfMTD_TL?._id ===
-                          loggedUserDetails?._id
-                        }
-                        options={approvalListOfBM?.mtdHOS}
-                        register={register}
-                        errors={errors}
-                        // required={
-                        //   selectedMinor === "Yes" &&
-                        //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                        //     "MTD_HOS".replace("_", " ")
-                        //   )
-                        //     ? true
-                        //     : selectedMajor === "Yes" &&
-                        //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                        //         "MTD_HOS".replace("_", " ")
-                        //       )
-                        //     ? true
-                        //     : false
-                        // }
-                      />
-                    )}
-                  </Col>
-                  {loggedUserDetails?.tm_department === "MTD" &&
-                  loggedUserDetails?.tm_grade === "HOS" &&
-                  timeDifferenceMinutes > 120 ? (
-                    <Col lg={6} md={6} sm={12} className="border">
-                      <p className="fs-6 mb-0">
-                        <b>FEEDBACK</b>
-                      </p>
-                      <input
-                        type="text"
-                        id="feedbackMTD_HOS"
-                        name="feedbackMTD_HOS"
-                        style={{ width: "100%" }}
-                        {...register("feedbackMTD_HOS", {
-                          required: "This field is required",
-                        })}
-                      />
-                      {errors?.["feedbackMTD_HOS"] && (
-                        <>
-                          <p className="text-error">
-                            {errors?.["feedbackMTD_HOS"]?.message}
-                          </p>
-                          <input
-                            type="text"
-                            className="mb-2"
-                            id="feedbackMTD_HOS"
-                            name="feedbackMTD_HOS"
-                            style={{ width: "60%" }}
-                            {...register("feedbackMTD_HOS", {
-                              required: "This field is required",
-                            })}
-                          />
-                          {errors?.["feedbackMTD_HOS"] && (
-                            <p className="text-error">
-                              {errors?.["feedbackMTD_HOS"]?.message}
-                            </p>
-                          )}
-                        </>
-                      )}
-                    </Col>
-                  ) : (
-                    ""
-                  )}
-                </Row>
-              </div>
-            </td> */}
             </tr>
 
             <tr className="row m-0">
@@ -2188,7 +2018,9 @@ function MyTable({
                   </Col>
                 </Row> */}
                 <Row className="m-0 border border-bottom-0">
-                  <p className="text-center mb-0">**PART QUALITY CHECKED (IPP)</p>
+                  <p className="text-center mb-0">
+                    **PART QUALITY CHECKED (IPP)
+                  </p>
                 </Row>
                 <Row className="pt-0 mb-0 m-0" style={{ marginLeft: "-8px" }}>
                   <Col lg={6} md={6} className="border pb-2 pt-1">
@@ -2238,7 +2070,10 @@ function MyTable({
                     </small>
                     {requestSheetDataOfBM?.machineSafetyCheckedByPRD ? (
                       <p className="mb-0">
-                        {requestSheetDataOfBM?.machineSafetyCheckedByPRD?.tm_name}
+                        {
+                          requestSheetDataOfBM?.machineSafetyCheckedByPRD
+                            ?.tm_name
+                        }
                       </p>
                     ) : (
                       <DropdownElem
@@ -2256,7 +2091,10 @@ function MyTable({
                     </small>
                     {requestSheetDataOfBM?.machineSafetyCheckedByMTD ? (
                       <p className="mb-0">
-                        {requestSheetDataOfBM?.machineSafetyCheckedByMTD?.tm_name}
+                        {
+                          requestSheetDataOfBM?.machineSafetyCheckedByMTD
+                            ?.tm_name
+                        }
                       </p>
                     ) : (
                       <DropdownElem
@@ -2340,7 +2178,7 @@ function MyTable({
                           <Button
                             target="_blank"
                             // href={`http://localhost:7000/${requestSheetDataOfBM?.attachedDataSheets}`}
-                            href={`${process.env.REACT_APP_BASE_URL}${requestSheetDataOfBM?.attachedDataSheets}`}
+                            href={`${process.env.REACT_APP_BASE_URL}/${requestSheetDataOfBM?.attachedDataSheets}`}
                             disableElevation
                             size="small"
                             variant="contained"
@@ -2872,19 +2710,6 @@ function MyTable({
                               options={approvalListOfBM?.mtdHOD}
                               register={register}
                               errors={errors}
-                              // required={
-                              //   selectedMinor === "Yes" &&
-                              //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                              //     "MTD_HOD".replace("_", " ")
-                              //   )
-                              //     ? true
-                              //     : selectedMajor === "Yes" &&
-                              //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                              //         "MTD_HOD".replace("_", " ")
-                              //       )
-                              //     ? true
-                              //     : false
-                              // }
                             />
                           )}
                         </div>
@@ -2922,19 +2747,6 @@ function MyTable({
                               options={approvalListOfBM?.prdHOD}
                               register={register}
                               errors={errors}
-                              // required={
-                              //   selectedMinor === "Yes" &&
-                              //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                              //     "PRD_HOD".replace("_", " ")
-                              //   )
-                              //     ? true
-                              //     : selectedMajor === "Yes" &&
-                              //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                              //         "PRD_HOD".replace("_", " ")
-                              //       )
-                              //     ? true
-                              //     : false
-                              // }
                             />
                           )}
                         </div>
@@ -2969,19 +2781,6 @@ function MyTable({
                               options={approvalListOfBM?.prdHOS}
                               register={register}
                               errors={errors}
-                              // required={
-                              //   selectedMinor === "Yes" &&
-                              //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                              //     "PRD_HOS".replace("_", " ")
-                              //   )
-                              //     ? true
-                              //     : selectedMajor === "Yes" &&
-                              //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                              //         "PRD_HOS".replace("_", " ")
-                              //       )
-                              //     ? true
-                              //     : false
-                              // }
                             />
                           )}
                         </div>
@@ -3019,19 +2818,6 @@ function MyTable({
                               options={approvalListOfBM?.prdTL}
                               register={register}
                               errors={errors}
-                              // required={
-                              //   selectedMinor === "Yes" &&
-                              //   selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.minorApprovalList?.includes(
-                              //     "PRD_TL".replace("_", " ")
-                              //   )
-                              //     ? true
-                              //     : selectedMajor === "Yes" &&
-                              //       selectedMachineDetails?.line_names?.cell_names?.subSection_names?.section_names?.plant_names?.approvalListOfMinorAndMajor?.majorApprovalList?.includes(
-                              //         "PRD_TL".replace("_", " ")
-                              //       )
-                              //     ? true
-                              //     : false
-                              // }
                             />
                           )}
                         </div>
@@ -3095,10 +2881,10 @@ function MyTable({
                     "Rejected" ||
                   requestSheetDataOfBM?.approvalStatusOfMTD_HOD ===
                     "Rejected") &&
-                  (requestSheetDataOfBM?.assignUser?._id !==
+                  requestSheetDataOfBM?.assignUser?._id !==
                     loggedUserDetails?._id &&
-                    requestSheetDataOfBM?.handOverUser?._id !==
-                      loggedUserDetails?._id)) ? (
+                  requestSheetDataOfBM?.handOverUser?._id !==
+                    loggedUserDetails?._id) ? (
                   <>
                     <Row className="m-1 d-flex justify-content-start">
                       <Col className="col-lg-6 col-md-6 m-1 p-0">

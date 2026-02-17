@@ -13,7 +13,6 @@ import FormLabel from "@mui/material/FormLabel";
 import { denso_logo } from "../../../components/NavbarComponent/ImportModules";
 
 import moment from "moment-timezone";
-import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
@@ -34,6 +33,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   const navigate = useNavigate();
   const { machine_code, generateType, selectedYear } = useParams();
   const context = useContext(RoutingContext);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -97,9 +98,11 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     // requestSheetData.priorityCode = selectedPriorityCode;
     // requestSheetData.qualityRelated = selectedQuality;
     // requestSheetData.shiftOfBM = selectedShift;
+    setIsLoading(true);
 
     try {
       if (errors?.["problemFaced"]) {
+        setIsLoading(false);
         return;
       }
 
@@ -153,6 +156,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     } catch (error) {
       console.log(error);
     }
+    setIsLoading(false);
   };
 
   const timezone = "Asia/Kolkata";
@@ -232,7 +236,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
 
   return (
     <>
-      <ToastContainer />
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="m-0">
           <tbody className="m-1 border p-3">
@@ -266,10 +269,13 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                           // navigate(
                           //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
                           // );
-                          window.open(`/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`,"_blank")
+                          window.open(
+                            `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`,
+                            "_blank"
+                          );
                         }}
                       >
-                       Machine Details
+                        Machine Details
                       </button>
                     </Col>
 
@@ -1000,23 +1006,27 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
 
             <tr>
               <td>
-                <button
-                  type="submit"
-                  className="btn bg-success"
-                  onClick={() => {
-                    if (
-                      !watch("problemFaced") &&
-                      !watch("select_problemFaced")
-                    ) {
-                      return setError("error_problemFaced", {
-                        type: "custom",
-                        message: "Please fill or select this field",
-                      });
-                    }
-                  }}
-                >
-                  Submit Request-Sheet
-                </button>
+                {isLoading ? (
+                  <h6>Loading....</h6>
+                ) : (
+                  <button
+                    type="submit"
+                    className="btn bg-success"
+                    onClick={() => {
+                      if (
+                        !watch("problemFaced") &&
+                        !watch("select_problemFaced")
+                      ) {
+                        return setError("error_problemFaced", {
+                          type: "custom",
+                          message: "Please fill or select this field",
+                        });
+                      }
+                    }}
+                  >
+                    Submit Request-Sheet
+                  </button>
+                )}
               </td>
             </tr>
           </tbody>

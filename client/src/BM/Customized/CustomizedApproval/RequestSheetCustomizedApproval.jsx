@@ -3,7 +3,6 @@ import { Row, Col } from "react-bootstrap";
 import { APPROVAL_LIST_OF_MINOR_MAJOR_OF_BM } from "./GlobalApprovalList";
 import { useForm } from "react-hook-form";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
-import { ToastContainer } from "react-toastify";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { Box } from "@mui/system";
 import { Divider, Typography } from "@mui/material";
@@ -73,7 +72,6 @@ const RequestSheetCustomizedApproval = () => {
 
   return (
     <div className="cell p-3">
-      {/* <ToastContainer /> */}
       <div>
         <form onSubmit={handleSubmit(dynamicApprovalFlowOfRequestSheetOfBM)}>
           {/* <Row className="m-1">

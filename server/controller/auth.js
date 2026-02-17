@@ -360,12 +360,60 @@ router.post("/deleteUser", async (req, res) => {
 //Get the data from database and show on User management table
 router.get("/displayUser", authenticate, async (req, res) => {
   try {
-    const usersInfo = await User.find({ user_type: "Plant-Admin" }).sort({
+    let query = {};
+    if (req.rootUser?.user_type === "Admin")
+      query = { user_type: "Plant-Admin" };
+    else if (req.rootUser?.user_type === "Plant-Admin")
+      query = {
+        user_type: "Section-Admin",
+        plant_data: req.rootUser?.plant_data,
+      };
+    else if (req.rootUser?.user_type === "Section-Admin")
+      query = {
+        section_data: req.rootUser?.section_data,
+        $or: [
+          {
+            tm_department: "PRD",
+            tm_grade: "HOS",
+            user_type: "Section-Admin",
+          },
+          {
+            user_type: "TL/HOSS",
+          },
+          {
+            user_type: "Operator",
+          },
+        ],
+      };
+    else if (req.rootUser?.user_type === "TL/HOSS")
+      query = {
+        section_data: req.rootUser?.section_data,
+        $or: [
+          {
+            $and: [
+              {
+                user_type: "TL/HOSS",
+              },
+              {
+                tm_department: "PRD",
+              },
+            ],
+          },
+          {
+            user_type: "Operator",
+          },
+        ],
+      };
+
+    const usersInfo = await User.find(query).sort({
       _id: -1,
     });
-    //req.usersInfo=usersInfo;
-    // console.log(usersInfo)
-    res.json(usersInfo);
+
+    return res.status(201).json({
+      message: "User data get successfully",
+      // showToast: true,
+      tableData: usersInfo,
+    });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
@@ -1211,6 +1259,19 @@ router.get("/fetchPlantList", authenticate, async (req, res) => {
   }
 });
 
+//fetch all section head for showing or selecting in dropdown by common user
+router.get("/v2/fetchPlantList", authenticate, async (req, res) => {
+  try {
+    const plants = await Plant.find({}, { plant_id: 1, plant_name: 1 });
+    return res.status(201).json({
+      message: "Plant data get successfully",
+      plants,
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
+  }
+});
+
 router.post("/postPlantToGetSectionList", authenticate, async (req, res) => {
   try {
     let { plants } = req.body;
@@ -1475,6 +1536,27 @@ router.post(
   }
 );
 
+router.get(
+  "/v2/postPlantToGetSectionListOfUserAssign",
+  authenticate,
+  async (req, res) => {
+    try {
+      const sections = await Section.find(req.query, {
+        section_id: 1,
+        section_name: 1,
+        dashboardLevel: 1,
+      });
+
+      return res.status(201).json({
+        message: "Section data get successfully",
+        sections,
+      });
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
+    }
+  }
+);
+
 //based on section selection sub-section list will display on sub-section list dropdown in User Assign in plant user
 router.post(
   "/postSectionToGetSubSectionListOfUserAssign",
@@ -1620,6 +1702,29 @@ router.post("/postUserAssign", async (req, res) => {
   }
 });
 
+router.post("/v2/postUserAssign", async (req, res) => {
+  try {
+    const userExist = await User.findOne({ tm_no: req.body.tm_no });
+
+    if (userExist)
+      return res.status(409).json({ error: "Employee number already exists" });
+
+    req.body["password"] = process.env.COMMON_PASSWORD;
+
+    const user = new User(req.body);
+    await user.save();
+
+    return res.status(201).json({
+      message: "Employee register successfully",
+      user,
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
+    console.log(error);
+    console.log("Data not valid or received !!!");
+  }
+});
+
 //Get the data from database and show on User management table in plant user
 router.get("/displayAssignUser", authenticate, async (req, res) => {
   try {
@@ -1628,8 +1733,11 @@ router.get("/displayAssignUser", authenticate, async (req, res) => {
       user_type: "Section-Admin",
       plant_data: loggedUserData.plant_data,
     }).sort({ _id: -1 });
-    //req.usersInfo=usersInfo;
-    res.json(usersInfo);
+    return res.status(201).json({
+      message: "User data get successfully",
+      showToast: true,
+      tableData: usersInfo,
+    });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
@@ -1857,13 +1965,11 @@ router.get("/displaySectionAssignUser", authenticate, async (req, res) => {
       ],
     }).sort({ _id: -1 });
 
-    // }
-
-    // console.log(req.rootUser, sectionId)
-    //req.usersInfo=usersInfo;
-
-    // console.log(usersInfo)
-    res.json(usersInfo);
+    return res.status(201).json({
+      message: "User data get successfully",
+      showToast: true,
+      tableData: usersInfo,
+    });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
@@ -14442,8 +14548,8 @@ router.post(
             // }
 
             let cycleValue =
-              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
-                ?.checkSheet?.[k]?.cycle === "1/1M"
+              previousYearCheckCheetDataOfPeraticularSection?.[i]
+                ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/1M"
                 ? 1
                 : previousYearCheckCheetDataOfPeraticularSection?.[i]
                     ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/2M"
@@ -14487,14 +14593,14 @@ router.post(
               Mar: ["0"],
             };
             let startMonthForCopyData =
-              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
-                ?.checkSheet?.[k]?.start_month;
+              previousYearCheckCheetDataOfPeraticularSection?.[i]
+                ?.checkSheet_data?.checkSheet?.[k]?.start_month;
             // console.log("before update ----> ", previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].planningTableAnimationArray2)
             for (
               let l = 0;
               l < 12 / Cycle &&
-              previousYearCheckCheetDataOfPeraticularSection?.[i]?.checkSheet_data
-                ?.checkSheet?.[k]?.start_month < 12;
+              previousYearCheckCheetDataOfPeraticularSection?.[i]
+                ?.checkSheet_data?.checkSheet?.[k]?.start_month < 12;
               l++
             ) {
               // console.log("=====>", previousYearCheckCheetDataOfPeraticularSection?.[i].checkSheet_data.checkSheet[k].start_month )
@@ -14528,7 +14634,8 @@ router.post(
           copyCheckSheetData = await Machine.updateOne(
             {
               machine_code:
-                previousYearCheckCheetDataOfPeraticularSection?.[i]?.machine_code,
+                previousYearCheckCheetDataOfPeraticularSection?.[i]
+                  ?.machine_code,
             },
             {
               $push: {
@@ -14542,7 +14649,8 @@ router.post(
           removeFieldsFromPreviousYear = await Machine.updateOne(
             {
               machine_code:
-                previousYearCheckCheetDataOfPeraticularSection?.[i].machine_code,
+                previousYearCheckCheetDataOfPeraticularSection?.[i]
+                  .machine_code,
             },
             {
               $unset: {

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { cyan, deepPurple, green, indigo } from "@mui/material/colors";
 import { lightBlue, lightGreen, orange, red, teal } from "@mui/material/colors";
-
+import axios from "axios";
 import MaterialTable, { MTableToolbar } from "@material-table/core";
 import tableIcons from "../../components/MatrialTableIcon";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
@@ -50,7 +50,6 @@ import {
   initialState,
   reducer,
 } from "../Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
-// import NewRequestSheetRegistration from "./NewRequestSheetRegistration";
 
 import SvgIcon from "@mui/material/SvgIcon";
 import { ReactComponent as HistoryIcon } from "../../static/svg/history.svg";
@@ -196,10 +195,10 @@ const RequestSheetMainDashboard = () => {
   );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
-  const getAllRequestSheetData = async () => {
+  const getAllRequestSheetData = async (controller = {}) => {
     setLoading(true);
     try {
-      const res = await fetch(
+      const res = await axios.get(
         `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${
           reduceState?.selectedValue
         }/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${
@@ -211,16 +210,33 @@ const RequestSheetMainDashboard = () => {
         }&&greaterValue=${greaterValue || 1000}&&lesserValue=${
           lesserValue || 0
         }`,
-
         {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
+          signal: controller?.signal,
         }
       );
+
+      // const res = await fetch(
+      //   `/getRequestSheetData/${reduceState?.flagForTogglingFilter}/${
+      //     reduceState?.selectedValue
+      //   }/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${
+      //     reduceState?.selectedMonth
+      //   }&&selectedRSStatus=${
+      //     reduceState?.selectedRSStatus
+      //   }&&selectedMaintenanceType=${
+      //     reduceState?.selectedMaintenanceType
+      //   }&&greaterValue=${greaterValue || 1000}&&lesserValue=${
+      //     lesserValue || 0
+      //   }`,
+
+      //   {
+      //     method: "GET",
+      //     headers: {
+      //       Accept: "application/json",
+      //       "Content-Type": "application/json",
+      //     },
+      //     credentials: "include",
+      //   }
+      // );
 
       const {
         message,
@@ -228,7 +244,7 @@ const RequestSheetMainDashboard = () => {
         counters,
         TLHOSS_and_TM_user_list,
         // MTD_or_PRD_user_list,
-      } = await res.json();
+      } = res?.data;
 
       if (res?.status === 201) {
         reducerDispatchForRequestSheetData({
@@ -340,7 +356,11 @@ const RequestSheetMainDashboard = () => {
   const [safetyFormModalOpen, setSafetyFormModalOpen] = useState(false);
 
   useEffect(() => {
-    if (reduceState?.selectedValue) getAllRequestSheetData();
+    const controller = new AbortController();
+    if (reduceState?.selectedValue) getAllRequestSheetData(controller);
+    return () => {
+      controller.abort();
+    };
   }, [
     reduceState?.selectedValue,
     reduceState?.selectedYear,

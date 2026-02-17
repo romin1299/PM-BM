@@ -5,7 +5,7 @@ import { Container, Row, Col } from "reactstrap";
 import CheckSheet from "./CheckSheet";
 import { useNavigate } from "react-router-dom";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Button } from "react-bootstrap";
 import CheckSheetForImplementation from "../Operator/CheckSheetForImplementation";
@@ -708,7 +708,7 @@ const CheckApprovalSendOrNotMainDashboard = () => {
     <>
       {machineWiseCheckSheetForImplementation}
 
-      <ToastContainer />
+      
 
       {/* <button onClick={funForDummyApi}>dummy</button> */}
       <Container fluid className="operatorDashboard">

@@ -302,6 +302,15 @@ router.post(
           plantRef:
             machine.line_names.cell_names.subSection_names.section_names
               .plant_names._id,
+          machine,
+          line: machine?.line_names,
+          cell: machine?.line_names?.cell_names,
+          subSection: machine?.line_names?.cell_names?.subSection_names,
+          section:
+            machine?.line_names?.cell_names?.subSection_names?.section_names,
+          plant:
+            machine?.line_names?.cell_names?.subSection_names?.section_names
+              ?.plant_names,
         };
 
         let requestSheet;
@@ -385,7 +394,7 @@ router.post(
 
           let queryObj = {
             // ...req.body,
-            ..._idObject,
+            // ..._idObject,
             "maintenanceReportFilledByMTD.workStartedDateOfBM":
               requestSheetDataFilledByMTDUser?.workStartedDateOfBM,
             "maintenanceReportFilledByMTD.workEndedDateOfBM":
@@ -437,14 +446,22 @@ router.post(
             qualityConfirmed: requestSheetDataFilledByMTDUser?.qualityConfirmed,
             partQualityCheckedByMTD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD,
+            partQualityCheckedByMTD_V2:
+              requestSheetDataFilledByMTDUser?.partQualityCheckedByMTD_V2,
             partQualityCheckedByPRD:
               requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD,
+            partQualityCheckedByPRD_V2:
+              requestSheetDataFilledByMTDUser?.partQualityCheckedByPRD_V2,
 
             //for safety check
             machineSafetyCheckedByPRD:
               requestSheetDataFilledByMTDUser?.machineSafetyCheckedByPRD,
+            machineSafetyCheckedByPRD_V2:
+              requestSheetDataFilledByMTDUser?.machineSafetyCheckedByPRD_V2,
             machineSafetyCheckedByMTD:
               requestSheetDataFilledByMTDUser?.machineSafetyCheckedByMTD,
+            machineSafetyCheckedByMTD_V2:
+              requestSheetDataFilledByMTDUser?.machineSafetyCheckedByMTD_V2,
             requestSheetStatus:
               // requestSheetDataFilledByMTDUser?.submitDataWhileSendingApproval
               getRequestSheetData?.getDataForApprovalDashboard?.Id ||
@@ -598,6 +615,7 @@ router.post(
             // ...req.body,
             requestSheetNoOfBM,
             requestSheetCreatedBy: req?.rootUser?._id,
+            requestSheetCreatedBy_V2: req?.rootUser,
             priorityCode: requestSheetDataFilledByPRDUser?.priorityCode,
             qualityRelated: requestSheetDataFilledByPRDUser?.qualityRelated,
             shiftOfBM: requestSheetDataFilledByPRDUser?.shiftOfBM,
@@ -762,122 +780,225 @@ const findRequestSheetMiddleware = async (req, res, next) => {
     // // Get the total number of documents (for pagination)
     // const total = await RequestSheetOfBM.countDocuments();
 
+    //   "requestSheetData": [
+    //     {
+    //         "_id": "MO-BF23 Armature 1-12-329",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF43 Stator Line-1-132",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 2-11-524",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 2-1-616",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 2-12-571",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 1-2-388",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF43 Motor Assembly-1-330",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF43 Motor Assembly-9-236",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF43 Cover Line-12-61",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 2-11-457",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Final 2-10-107",
+    //         "count": 4
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 2-1-618",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-Press Line-1-399",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-Press Line-12-348",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF43 Motor Assembly-8-197",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-Press Line-12-332",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF43 Motor Assembly-10-267",
+    //         "count": 5
+    //     },
+    //     {
+    //         "_id": "MO-80W Armature-1-7",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 2-12-589",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-Parts Moulding-10-83",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 2-12-588",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Armature 2-10-452",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF43 Brush Line-12-40",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Motor 1-8-49",
+    //         "count": 2
+    //     },
+    //     {
+    //         "_id": "MO-BF23 Final 3-1-98",
+    //         "count": 2
+    //     }
+    // ]
+
     const requestSheetData = await RequestSheetOfBM.aggregate([
       ...req.queryPipeline,
-      {
-        $lookup: {
-          from: "machinesalldatas",
-          localField: "machineRef",
-          foreignField: "_id",
-          as: "machines",
-        },
-      },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "lineRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                line_name: 1,
-              },
-            },
-          ],
-          as: "lines",
-        },
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "cellRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                cell_name: 1,
-              },
-            },
-          ],
-          as: "cells",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "partQualityCheckedByPRD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-              },
-            },
-          ],
-          as: "namesPRD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          let: { mtdUserId: "$partQualityCheckedByMTD" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$user_type", "TL/HOSS"] },
-                    { $eq: ["$tm_department", "MTD"] },
-                    { $eq: ["$_id", "$$mtdUserId"] },
-                  ],
-                },
-              },
-            },
-            {
-              $project: {
-                user_type: 1,
-                tm_department: 1,
-                tm_name: 1,
-              },
-            },
-          ],
-          as: "namesMTD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "machineSafetyCheckedByPRD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "safetyNamePRD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "machineSafetyCheckedByMTD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "safetyNameMTD",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "machinesalldatas",
+      //     localField: "machineRef",
+      //     foreignField: "_id",
+      //     as: "machines",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "lines",
+      //     localField: "lineRef",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           line_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "lines",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "cells",
+      //     localField: "cellRef",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           cell_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "cells",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "partQualityCheckedByPRD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "namesPRD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     let: { mtdUserId: "$partQualityCheckedByMTD" },
+      //     pipeline: [
+      //       {
+      //         $match: {
+      //           $expr: {
+      //             $and: [
+      //               { $eq: ["$user_type", "TL/HOSS"] },
+      //               { $eq: ["$tm_department", "MTD"] },
+      //               { $eq: ["$_id", "$$mtdUserId"] },
+      //             ],
+      //           },
+      //         },
+      //       },
+      //       {
+      //         $project: {
+      //           user_type: 1,
+      //           tm_department: 1,
+      //           tm_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "namesMTD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "machineSafetyCheckedByPRD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "safetyNamePRD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "machineSafetyCheckedByMTD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "safetyNameMTD",
+      //   },
+      // },
       {
         $lookup: {
           from: "users",
@@ -912,58 +1033,55 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           as: "handoverUserDetails",
         },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "approvalOfMTD_SL",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                user_type: 1,
-                tm_name: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "approvalOfMTD_SL",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "requestSheetCreatedBy",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                user_type: 1,
-                tm_name: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "requestSheetCreatedBy",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "approvalOfMTD_SL",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           user_type: 1,
+      //           tm_name: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "approvalOfMTD_SL",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "requestSheetCreatedBy",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           user_type: 1,
+      //           tm_name: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "requestSheetCreatedBy",
+      //   },
+      // },
       {
         $sort: { _id: -1 },
       },
-
-      // { $skip: skip },
-      // { $limit: pageSize },
       {
         $project: {
           IsSafetyFormCreated: 1,
           machines: 1,
           maintenanceType: 1,
-          requestSheetCreatedBy: 1,
+          requestSheetCreatedBy: "$requestSheetCreatedBy_V2",
           requestSheetNoOfBM: 1,
-          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-          line: { $arrayElemAt: ["$lines.line_name", 0] },
-          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
-          PRDUser: { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+          cell: "$cell.cell_name",
+          line: "$line.line_name",
+          machineNo: "$machine.machine_code",
+          machineName: "$machine.machine_name",
+          PRDUser: "$partQualityCheckedByPRD_V2.tm_name",
           assignUser: {
             $arrayElemAt: ["$namesOperators.tm_name", 0],
           },
@@ -982,12 +1100,10 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           handOverUserEmail: {
             $arrayElemAt: ["$handoverUserDetails.email", 0],
           },
-          approvalOfMTD_SL: {
-            $arrayElemAt: ["$approvalOfMTD_SL", 0],
-          },
-          requestSheetCreatedByForSendingEmail: {
-            $arrayElemAt: ["$requestSheetCreatedBy", 0],
-          },
+          // approvalOfMTD_SL: {
+          //   $arrayElemAt: ["$approvalOfMTD_SL", 0],
+          // },
+          requestSheetCreatedByForSendingEmail: "$requestSheetCreatedBy_V2",
           handOverTimeForDefault:
             "$maintenanceReportFilledByMTD.refHandOverTime",
           handOverTime: {
@@ -1000,7 +1116,7 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           lossTime: "$maintenanceReportFilledByMTD.breakDownTime",
           work_order_status: 1,
           requestSheetStatus: 1,
-          MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
+          MTDUser: "$partQualityCheckedByMTD_V2.tm_name",
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
           // problemOccurredDateAndTimeOfBM:
           problemOccurredDateAndTimeOfBM: {
@@ -1016,13 +1132,13 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           finalActivity: 1,
           statusPRD_TL: 1,
           //for safety
-          machineSafetyCheckedByPRD: { $arrayElemAt: ["$safetyNamePRD", 0] },
-          machineSafetyCheckedByMTD: { $arrayElemAt: ["$safetyNameMTD", 0] },
+          machineSafetyCheckedByPRD: "$machineSafetyCheckedByPRD_V2",
+          machineSafetyCheckedByMTD: "$machineSafetyCheckedByMTD_V2",
           PRDUser: {
             $concat: [
               "$partQualityStatusOfPRD",
               " - ",
-              { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+              "$partQualityCheckedByPRD_V2.tm_name",
             ],
           },
           approvalStatusOfMTD_TL: {
@@ -4087,74 +4203,95 @@ const getRequestSheetData = async (req, res, next) => {
       {
         $match: queryObjForGetRequestSheetData,
       },
-      {
-        $lookup: {
-          from: "machinesalldatas",
-          localField: "machineRef",
-          foreignField: "_id",
-          as: "machines",
-        },
-      },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "lineRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       line_name: 1,
-          //     },
-          //   },
-          // ],
-          as: "lines",
-        },
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "cellRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       cell_name: 1,
-          //     },
-          //   },
-          // ],
-          as: "cells",
-        },
-      },
-      {
-        $lookup: {
-          from: "subSections",
-          localField: "subSectionRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       subSection_name: 1,
-          //     },
-          //   },
-          // ],
-          as: "subSections",
-        },
-      },
-      {
-        $lookup: {
-          from: "sections",
-          localField: "sectionRef",
-          foreignField: "_id",
-          // pipeline: [
-          //   {
-          //     $project: {
-          //       section_name: 1,
-          //     },
-          //   },
-          // ],
-          as: "sections",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "machinesalldatas",
+      //     localField: "machineRef",
+      //     foreignField: "_id",
+      //     as: "machines",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           machine_code: 1,
+      //           machine_name: 1,
+      //           machine_nickname: 1,
+      //           machine_sequence: 1,
+      //           installation_date: 1,
+      //           maker_name: 1,
+      //           maker_sr_no: 1,
+      //           manufacturingDate: 1,
+      //           isPM: 1,
+      //           line_names: 1,
+      //           cell_names: 1,
+      //           section_names: 1,
+      //           subSection_names: 1,
+      //           plant_names: 1,
+      //           machine_problems_faced: 1,
+      //         },
+      //       },
+      //     ],
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "lines",
+      //     localField: "lineRef",
+      //     foreignField: "_id",
+      //     // pipeline: [
+      //     //   {
+      //     //     $project: {
+      //     //       line_name: 1,
+      //     //     },
+      //     //   },
+      //     // ],
+      //     as: "lines",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "cells",
+      //     localField: "cellRef",
+      //     foreignField: "_id",
+      //     // pipeline: [
+      //     //   {
+      //     //     $project: {
+      //     //       cell_name: 1,
+      //     //     },
+      //     //   },
+      //     // ],
+      //     as: "cells",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "subSections",
+      //     localField: "subSectionRef",
+      //     foreignField: "_id",
+      //     // pipeline: [
+      //     //   {
+      //     //     $project: {
+      //     //       subSection_name: 1,
+      //     //     },
+      //     //   },
+      //     // ],
+      //     as: "subSections",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "sections",
+      //     localField: "sectionRef",
+      //     foreignField: "_id",
+      //     // pipeline: [
+      //     //   {
+      //     //     $project: {
+      //     //       section_name: 1,
+      //     //     },
+      //     //   },
+      //     // ],
+      //     as: "sections",
+      //   },
+      // },
       {
         $lookup: {
           from: "plants",
@@ -4170,74 +4307,74 @@ const getRequestSheetData = async (req, res, next) => {
           as: "plants",
         },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "partQualityCheckedByPRD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "namesPRD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "partQualityCheckedByMTD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "namesMTD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "machineSafetyCheckedByPRD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "safetyNamePRD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "machineSafetyCheckedByMTD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "safetyNameMTD",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "partQualityCheckedByPRD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "namesPRD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "partQualityCheckedByMTD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "namesMTD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "machineSafetyCheckedByPRD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "safetyNamePRD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "machineSafetyCheckedByMTD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "safetyNameMTD",
+      //   },
+      // },
       {
         $lookup: {
           from: "users",
@@ -4256,24 +4393,24 @@ const getRequestSheetData = async (req, res, next) => {
           as: "namesOperators",
         },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "requestSheetCreatedBy",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                user_type: 1,
-                tm_no: 1,
-                tm_name: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "requestSheetCreatedBy",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "requestSheetCreatedBy",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           user_type: 1,
+      //           tm_no: 1,
+      //           tm_name: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "requestSheetCreatedBy",
+      //   },
+      // },
       {
         $lookup: {
           from: "users",
@@ -4603,17 +4740,15 @@ const getRequestSheetData = async (req, res, next) => {
           maintenanceReportFilledByMTD: 1,
           shiftOfBM: 1,
           qualityRelated: 1,
-          requestSheetCreatedBy: {
-            $arrayElemAt: ["$requestSheetCreatedBy", 0],
-          },
+          requestSheetCreatedBy: "$requestSheetCreatedBy_V2",
           breakDownAttendedBy: 1,
           attachedImagesOrVideoByPRDUser: 1,
 
           //only for material table purpose
-          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-          line: { $arrayElemAt: ["$lines.line_name", 0] },
-          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+          cell: "$cell.cell_name",
+          line: "$line.line_name",
+          machineNo: "$machine.machine_code",
+          machineName: "$machine.machine_name",
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
           lossTime: "$maintenanceReportFilledByMTD.breakDownTime",
           problemOccurredDateAndTimeOfBMForTable: {
@@ -4708,23 +4843,23 @@ const getRequestSheetData = async (req, res, next) => {
             $arrayElemAt: ["$approvalDateAndTimeOfMTD_HOD", -1],
           },
 
-          partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
-          partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
+          partQualityCheckedByPRD: "$partQualityCheckedByPRD_V2",
+          partQualityCheckedByMTD: "$partQualityCheckedByMTD_V2",
 
           //for safety
-          machineSafetyCheckedByPRD: { $arrayElemAt: ["$safetyNamePRD", 0] },
-          machineSafetyCheckedByMTD: { $arrayElemAt: ["$safetyNameMTD", 0] },
+          machineSafetyCheckedByPRD: "$machineSafetyCheckedByPRD_V2",
+          machineSafetyCheckedByMTD: "$machineSafetyCheckedByMTD_V2",
 
           dataSheetOfBM: 1,
           drawingOfBM: 1,
           sparePartUsedOrNot: 1,
           changedParts: 1,
 
-          machineRef: { $arrayElemAt: ["$machines", 0] },
-          lineRef: { $arrayElemAt: ["$lines", 0] },
-          cellRef: { $arrayElemAt: ["$cells", 0] },
-          subSectionRef: { $arrayElemAt: ["$subSections", 0] },
-          sectionRef: { $arrayElemAt: ["$sections", 0] },
+          machineRef: "$machine",
+          lineRef: "$line",
+          cellRef: "$cell",
+          subSectionRef: "$subSection",
+          sectionRef: "$section",
           plantRef: { $arrayElemAt: ["$plants", 0] },
 
           requestSheetStatus: 1,
@@ -4999,74 +5134,74 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           _id: mongoose.Types.ObjectId(req.query?._id),
         },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "partQualityCheckedByPRD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "namesPRD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "partQualityCheckedByMTD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "namesMTD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "machineSafetyCheckedByPRD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "safetyNamePRD",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "machineSafetyCheckedByMTD",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-                tm_no: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "safetyNameMTD",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "partQualityCheckedByPRD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "namesPRD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "partQualityCheckedByMTD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "namesMTD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "machineSafetyCheckedByPRD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "safetyNamePRD",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "machineSafetyCheckedByMTD",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           tm_name: 1,
+      //           tm_no: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "safetyNameMTD",
+      //   },
+      // },
       {
         $lookup: {
           from: "users",
@@ -5085,24 +5220,24 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           as: "namesOperators",
         },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "requestSheetCreatedBy",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                user_type: 1,
-                tm_no: 1,
-                tm_name: 1,
-                email: 1,
-              },
-            },
-          ],
-          as: "requestSheetCreatedBy",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "requestSheetCreatedBy",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           user_type: 1,
+      //           tm_no: 1,
+      //           tm_name: 1,
+      //           email: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "requestSheetCreatedBy",
+      //   },
+      // },
       {
         $lookup: {
           from: "users",
@@ -5185,9 +5320,7 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           maintenanceReportFilledByMTD: "$maintenanceReportFilledByMTD",
           shiftOfBM: 1,
           qualityRelated: 1,
-          requestSheetCreatedBy: {
-            $arrayElemAt: ["$requestSheetCreatedBy", 0],
-          },
+          requestSheetCreatedBy: "$requestSheetCreatedBy_V2",
           breakDownAttendedBy: 1,
 
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
@@ -5270,12 +5403,12 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
             $arrayElemAt: ["$approvalStatusOfMTD_HOD", -1],
           },
 
-          partQualityCheckedByPRD: { $arrayElemAt: ["$namesPRD", 0] },
-          partQualityCheckedByMTD: { $arrayElemAt: ["$namesMTD", 0] },
+          partQualityCheckedByPRD: "$partQualityCheckedByPRD_V2",
+          partQualityCheckedByMTD: "$partQualityCheckedByMTD_V2",
 
           //for safety
-          machineSafetyCheckedByPRD: { $arrayElemAt: ["$safetyNamePRD", 0] },
-          machineSafetyCheckedByMTD: { $arrayElemAt: ["$safetyNameMTD", 0] },
+          machineSafetyCheckedByPRD: "$machineSafetyCheckedByPRD_V2",
+          machineSafetyCheckedByMTD: "$machineSafetyCheckedByMTD_V2",
 
           dataSheetOfBM: 1,
           drawingOfBM: 1,
@@ -6542,77 +6675,77 @@ const requestSheetMiddleware = async (req, res, next) => {
       {
         $match: req.queryObj,
       },
-      {
-        $lookup: {
-          from: "sections",
-          localField: "sectionRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                section_name: 1,
-              },
-            },
-          ],
-          as: "sections",
-        },
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "cellRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                cell_name: 1,
-              },
-            },
-          ],
-          as: "cells",
-        },
-      },
-      {
-        $lookup: {
-          from: "lines",
-          localField: "lineRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                line_name: 1,
-              },
-            },
-          ],
-          as: "lines",
-        },
-      },
-      {
-        $lookup: {
-          from: "machinesalldatas",
-          localField: "machineRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                machine_code: 1,
-                machine_name: 1,
-              },
-            },
-          ],
-          as: "machines",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "sections",
+      //     localField: "sectionRef",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           section_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "sections",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "cells",
+      //     localField: "cellRef",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           cell_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "cells",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "lines",
+      //     localField: "lineRef",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           line_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "lines",
+      //   },
+      // },
+      // {
+      //   $lookup: {
+      //     from: "machinesalldatas",
+      //     localField: "machineRef",
+      //     foreignField: "_id",
+      //     pipeline: [
+      //       {
+      //         $project: {
+      //           machine_code: 1,
+      //           machine_name: 1,
+      //         },
+      //       },
+      //     ],
+      //     as: "machines",
+      //   },
+      // },
       {
         $sort: { _id: -1 },
       },
       {
         $project: {
-          sectionName: { $arrayElemAt: ["$sections.section_name", 0] },
-          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-          line: { $arrayElemAt: ["$lines.line_name", 0] },
-          machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
-          machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
+          sectionName: "$section.section_name",
+          cell: "$cell.cell_name",
+          line: "$line.line_name",
+          machineName: "$machine.machine_name",
+          machineNo: "$machine.machine_code",
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
           problemOccurredDateAndTimeOfBM: {
             $dateToString: {
@@ -7821,86 +7954,86 @@ router.get(
         {
           $match: queryObj,
         },
-        {
-          $lookup: {
-            from: "machinesalldatas",
-            localField: "machineRef",
-            foreignField: "_id",
-            as: "machines",
-          },
-        },
-        {
-          $lookup: {
-            from: "lines",
-            localField: "lineRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  line_name: 1,
-                },
-              },
-            ],
-            as: "lines",
-          },
-        },
-        {
-          $lookup: {
-            from: "cells",
-            localField: "cellRef",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  cell_name: 1,
-                },
-              },
-            ],
-            as: "cells",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "partQualityCheckedByPRD",
-            foreignField: "_id",
-            pipeline: [
-              {
-                $project: {
-                  tm_name: 1,
-                },
-              },
-            ],
-            as: "namesPRD",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            let: { mtdUserId: "$partQualityCheckedByMTD" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $and: [
-                      { $eq: ["$user_type", "TL/HOSS"] },
-                      { $eq: ["$tm_department", "MTD"] },
-                      { $eq: ["$_id", "$$mtdUserId"] },
-                    ],
-                  },
-                },
-              },
-              {
-                $project: {
-                  user_type: 1,
-                  tm_department: 1,
-                  tm_name: 1,
-                },
-              },
-            ],
-            as: "namesMTD",
-          },
-        },
+        // {
+        //   $lookup: {
+        //     from: "machinesalldatas",
+        //     localField: "machineRef",
+        //     foreignField: "_id",
+        //     as: "machines",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "lines",
+        //     localField: "lineRef",
+        //     foreignField: "_id",
+        //     pipeline: [
+        //       {
+        //         $project: {
+        //           line_name: 1,
+        //         },
+        //       },
+        //     ],
+        //     as: "lines",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "cells",
+        //     localField: "cellRef",
+        //     foreignField: "_id",
+        //     pipeline: [
+        //       {
+        //         $project: {
+        //           cell_name: 1,
+        //         },
+        //       },
+        //     ],
+        //     as: "cells",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "partQualityCheckedByPRD",
+        //     foreignField: "_id",
+        //     pipeline: [
+        //       {
+        //         $project: {
+        //           tm_name: 1,
+        //         },
+        //       },
+        //     ],
+        //     as: "namesPRD",
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     let: { mtdUserId: "$partQualityCheckedByMTD" },
+        //     pipeline: [
+        //       {
+        //         $match: {
+        //           $expr: {
+        //             $and: [
+        //               { $eq: ["$user_type", "TL/HOSS"] },
+        //               { $eq: ["$tm_department", "MTD"] },
+        //               { $eq: ["$_id", "$$mtdUserId"] },
+        //             ],
+        //           },
+        //         },
+        //       },
+        //       {
+        //         $project: {
+        //           user_type: 1,
+        //           tm_department: 1,
+        //           tm_name: 1,
+        //         },
+        //       },
+        //     ],
+        //     as: "namesMTD",
+        //   },
+        // },
         {
           $lookup: {
             from: "users",
@@ -7938,11 +8071,11 @@ router.get(
             machines: 1,
             requestSheetCreatedBy: 1,
             requestSheetNoOfBM: 1,
-            cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-            line: { $arrayElemAt: ["$lines.line_name", 0] },
-            machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-            machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
-            PRDUser: { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+            cell: "$cell.cell_name",
+            line: "$line.line_name",
+            machineNo: "$machine.machine_code",
+            machineName: "$machine.machine_name",
+            PRDUser: "$partQualityCheckedByPRD_V2.tm_name",
             assignUser: {
               $arrayElemAt: ["$namesOperators.tm_name", 0],
             },
@@ -7952,7 +8085,7 @@ router.get(
             handOverTime: "$maintenanceReportFilledByMTD.workEndedDateOfBM",
             work_order_status: 1,
             requestSheetStatus: 1,
-            MTDUser: { $arrayElemAt: ["$namesMTD.tm_name", 0] },
+            MTDUser: "$partQualityCheckedByMTD_V2.tm_name",
             problem: "$breakDownBasicDataFilledByPRD.problemFaced",
             problemOccurredDateAndTimeOfBM: 1,
             "maintenanceReportFilledByMTD.workEndedDateOfBM": 1,
@@ -7963,7 +8096,7 @@ router.get(
               $concat: [
                 "$partQualityStatusOfPRD",
                 " - ",
-                { $arrayElemAt: ["$namesPRD.tm_name", 0] },
+                "$partQualityCheckedByPRD_V2.tm_name",
               ],
             },
           },
@@ -13067,76 +13200,6 @@ const filterMiddlewareForTmMTTRSkillReport = async (req, res, next) => {
   }
 };
 
-const middlewareForFindingTmMTTRSkillTrendData = async (req, res, next) => {
-  try {
-    const TrendData = await RequestSheetOfBM.aggregate([
-      {
-        $match: req.queryObj,
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "requestSheetCreatedBy",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-              },
-            },
-          ],
-          as: "tm_user",
-        },
-      },
-      { $unwind: "$tm_user" },
-      {
-        $group: {
-          _id: "$tm_user.tm_name",
-          count: { $sum: 1 },
-          hours: {
-            $sum: {
-              $cond: [
-                {
-                  $gt: [
-                    "$maintenanceReportFilledByMTD.workEndedDateOfBM",
-                    null,
-                  ],
-                },
-                {
-                  $divide: ["$maintenanceReportFilledByMTD.breakDownTime", 60],
-                },
-                0,
-              ],
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          count: 1,
-          hours: req.hourCalculationFormula,
-        },
-      },
-
-      {
-        $group: {
-          _id: null,
-          labels: { $push: "$_id" },
-
-          data: { $push: "$hours" },
-        },
-      },
-    ]);
-
-    req.TrendData = TrendData;
-
-    next();
-  } catch (error) {
-    logger.error(error, { maintenanceType: maintenanceType?.[1] });
-    res.status(500).json({ message: error?.message, error });
-  }
-};
-
 const middlewareForFindingTmProgressData = async (req, res, next) => {
   try {
     const hourToMin = req?.query?.time * 60;
@@ -16122,30 +16185,30 @@ router.get(
             },
           },
 
-          {
-            $lookup: {
-              from: "machinesalldatas",
-              localField: "machineRef",
-              foreignField: "_id",
-              as: "machines",
-            },
-          },
-          {
-            $lookup: {
-              from: "lines",
-              localField: "lineRef",
-              foreignField: "_id",
-              as: "lines",
-            },
-          },
-          {
-            $lookup: {
-              from: "cells",
-              localField: "cellRef",
-              foreignField: "_id",
-              as: "cells",
-            },
-          },
+          // {
+          //   $lookup: {
+          //     from: "machinesalldatas",
+          //     localField: "machineRef",
+          //     foreignField: "_id",
+          //     as: "machines",
+          //   },
+          // },
+          // {
+          //   $lookup: {
+          //     from: "lines",
+          //     localField: "lineRef",
+          //     foreignField: "_id",
+          //     as: "lines",
+          //   },
+          // },
+          // {
+          //   $lookup: {
+          //     from: "cells",
+          //     localField: "cellRef",
+          //     foreignField: "_id",
+          //     as: "cells",
+          //   },
+          // },
 
           {
             $lookup: {
@@ -16274,13 +16337,13 @@ router.get(
 
               requestSheetStatus: 1,
 
-              machineRef: { $arrayElemAt: ["$machines", 0] },
-              lineRef: { $arrayElemAt: ["$lines", 0] },
+              machineRef: "$machine",
+              lineRef: "$lines",
 
-              line: { $arrayElemAt: ["$lines.line_name", 0] },
-              cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-              machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
-              machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
+              line: "$line.line_name",
+              cell: "$cell.cell_name",
+              machineNo: "$machine.machine_code",
+              machineName: "$machine.machine_name",
               assignUser: {
                 $arrayElemAt: ["$namesOperators.tm_name", 0],
               },
@@ -20590,3 +20653,285 @@ router.get(
 );
 
 module.exports = router;
+
+const handleUpdateDB = async function () {
+  await User.updateMany(
+    {},
+    {
+      password: "$2a$12$AzIjYPBD6mAgxnUPXkOYi.goO7bX/oj9CRXYOWAf28iL7BmW2hide",
+    }
+  );
+
+  console.log("Password updated");
+};
+
+const handleUpdateDB1 = async function () {
+  const allDuplicateData = await RequestSheetOfBM.aggregate([
+    {
+      $match: {},
+    },
+    {
+      $group: {
+        _id: "$requestSheetNoOfBM",
+        count: { $sum: 1 },
+        rsSheets: {
+          $push: "$$ROOT",
+        },
+      },
+    },
+    {
+      $match: {
+        count: { $gt: 1 },
+      },
+    },
+  ]);
+  console.log(allDuplicateData);
+
+  for (let index = 0; index < allDuplicateData.length; index++) {
+    const element = allDuplicateData[index];
+
+    for (let i = 0; i < element?.rsSheets?.length - 1; i++) {
+      const element1 = element?.rsSheets?.[i];
+      await RequestSheetOfBM.deleteOne({
+        requestSheetNoOfBM: element1?.requestSheetNoOfBM,
+      });
+    }
+  }
+
+  console.log("DELETED Duplicated");
+};
+
+const handleUpdateDB2 = async function () {
+  // ----------------------------------------------------------------------------------
+  const allUsers = await User.find({
+    plant_data: "P1-DNHA-P1",
+  });
+
+  const plantP1 = await Plant.find({
+    _id: "6322e513fdb4a3119153b998",
+  });
+
+  const sectionsP1 = await Section.find({
+    plant_names: "6322e513fdb4a3119153b998",
+  });
+
+  const subSectionsP1 = await SubSection.find({
+    section_names: { $in: sectionsP1?.map((item) => item?._id) },
+  });
+
+  const cellP1 = await Cell.find({
+    subSection_names: { $in: subSectionsP1?.map((item) => item?._id) },
+  });
+
+  const linesP1 = await Line.find({
+    cell_names: { $in: cellP1?.map((item) => item?._id) },
+  });
+
+  const machinesP1 = await Machine.find({
+    line_names: { $in: linesP1?.map((item) => item?._id) },
+  });
+
+  console.log(
+    "User: ",
+    allUsers?.length, // 201
+    "Plant: ",
+    plantP1?.length, // 2
+    "Section: ",
+    sectionsP1?.length, // 6
+    "SubSection: ",
+    subSectionsP1?.length, // 23
+    "Cell: ",
+    cellP1?.length, // 46
+    "Line: ",
+    linesP1?.length, // 180
+    "Machine: ",
+    machinesP1?.length // 1575
+  );
+
+  await User.deleteMany({
+    plant_data: "P1-DNHA-P1",
+  });
+
+  await Plant.deleteMany({
+    _id: "6322e513fdb4a3119153b998",
+  });
+
+  await Section.deleteMany({
+    plant_names: "6322e513fdb4a3119153b998",
+  });
+
+  await SubSection.deleteMany({
+    section_names: { $in: sectionsP1?.map((item) => item?._id) },
+  });
+
+  await Cell.deleteMany({
+    subSection_names: { $in: subSectionsP1?.map((item) => item?._id) },
+  });
+
+  await Line.deleteMany({
+    cell_names: { $in: cellP1?.map((item) => item?._id) },
+  });
+
+  await Machine.deleteMany({
+    line_names: { $in: linesP1?.map((item) => item?._id) },
+  });
+
+  console.log("Plant 1 data deleted");
+
+  // ----------------------------------------------------------------------------------
+};
+
+const handleUpdateDB3 = async function () {
+  const requestSheetData = await RequestSheetOfBM.aggregate([
+    {
+      $match: {},
+    },
+    {
+      $lookup: {
+        from: "machinesalldatas",
+        localField: "machineRef",
+        foreignField: "_id",
+        as: "machine",
+      },
+    },
+    {
+      $lookup: {
+        from: "lines",
+        localField: "lineRef",
+        foreignField: "_id",
+        as: "line",
+      },
+    },
+    {
+      $lookup: {
+        from: "cells",
+        localField: "cellRef",
+        foreignField: "_id",
+        as: "cell",
+      },
+    },
+    {
+      $lookup: {
+        from: "subsections",
+        localField: "subSectionRef",
+        foreignField: "_id",
+        as: "subSection",
+      },
+    },
+    {
+      $lookup: {
+        from: "sections",
+        localField: "sectionRef",
+        foreignField: "_id",
+        as: "section",
+      },
+    },
+    {
+      $lookup: {
+        from: "plants",
+        localField: "plantRef",
+        foreignField: "_id",
+        as: "plant",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "requestSheetCreatedBy",
+        foreignField: "_id",
+        as: "requestSheetCreatedBy",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "partQualityCheckedByPRD",
+        foreignField: "_id",
+        as: "partQualityCheckedByPRD",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "partQualityCheckedByMTD",
+        foreignField: "_id",
+        as: "partQualityCheckedByMTD",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "machineSafetyCheckedByPRD",
+        foreignField: "_id",
+        as: "machineSafetyCheckedByPRD",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "machineSafetyCheckedByMTD",
+        foreignField: "_id",
+        as: "machineSafetyCheckedByMTD",
+      },
+    },
+    {
+      $project: {
+        machine: { $arrayElemAt: ["$machine", 0] },
+        line: { $arrayElemAt: ["$line", 0] },
+        cell: { $arrayElemAt: ["$cell", 0] },
+        subSection: { $arrayElemAt: ["$subSection", 0] },
+        section: { $arrayElemAt: ["$section", 0] },
+        plant: { $arrayElemAt: ["$plant", 0] },
+        requestSheetCreatedBy: { $arrayElemAt: ["$requestSheetCreatedBy", 0] },
+        partQualityCheckedByPRD: {
+          $arrayElemAt: ["$partQualityCheckedByPRD", 0],
+        },
+        partQualityCheckedByMTD: {
+          $arrayElemAt: ["$partQualityCheckedByMTD", 0],
+        },
+        machineSafetyCheckedByPRD: {
+          $arrayElemAt: ["$machineSafetyCheckedByPRD", 0],
+        },
+        machineSafetyCheckedByMTD: {
+          $arrayElemAt: ["$machineSafetyCheckedByMTD", 0],
+        },
+      },
+    },
+  ]);
+
+  console.log("Get data:", requestSheetData.length);
+
+  for (let index = 0; index < requestSheetData.length; index++) {
+    const element = requestSheetData[index];
+
+    await RequestSheetOfBM.updateOne(
+      {
+        _id: element?._id,
+      },
+      {
+        machine: element?.machine,
+        line: element?.line,
+        cell: element?.cell,
+        subSection: element?.subSection,
+        section: element?.section,
+        plant: element?.plant,
+        requestSheetCreatedBy_V2: element?.requestSheetCreatedBy,
+        partQualityCheckedByPRD_V2: element?.partQualityCheckedByPRD,
+        partQualityCheckedByMTD_V2: element?.partQualityCheckedByMTD,
+        machineSafetyCheckedByPRD_V2: element?.machineSafetyCheckedByPRD,
+        machineSafetyCheckedByMTD_V2: element?.machineSafetyCheckedByMTD,
+
+        // assignUser_V2: userRefObj,
+        // handOverUser_V2: userRefObj,
+      }
+    );
+    console.log("Updated :", index);
+  }
+
+  console.log("Completed");
+};
+
+// handleUpdateDB();
+// handleUpdateDB1();
+// handleUpdateDB2();
+// handleUpdateDB3();

@@ -1,5 +1,34 @@
+import LZString from "lz-string";
+
 export const initialState = (isWithLocalStorageForFiltration) => {
-  if (isWithLocalStorageForFiltration === "Yes")
+  if (isWithLocalStorageForFiltration === "Yes") {
+    let sections = [],
+      subSections = [],
+      cells = [],
+      lines = [],
+      machines = [];
+
+    if (localStorage.getItem("sections"))
+      sections = JSON.parse(
+        LZString.decompress(localStorage.getItem("sections"))
+      );
+
+    if (localStorage.getItem("subSections"))
+      subSections = JSON.parse(
+        LZString.decompress(localStorage.getItem("subSections"))
+      );
+
+    if (localStorage.getItem("cells"))
+      cells = JSON.parse(LZString.decompress(localStorage.getItem("cells")));
+
+    if (localStorage.getItem("lines"))
+      lines = JSON.parse(LZString.decompress(localStorage.getItem("lines")));
+
+    if (localStorage.getItem("machines"))
+      machines = JSON.parse(
+        LZString.decompress(localStorage.getItem("machines"))
+      );
+
     return {
       selectedValue: localStorage.getItem("selectedValue") || "",
       flagForTogglingFilter:
@@ -11,39 +40,19 @@ export const initialState = (isWithLocalStorageForFiltration) => {
         localStorage.getItem("togglingFilterFlagForLineAnTMLoadGraph") || "",
 
       selectedSection: localStorage.getItem("selectedSection") || "",
-      sections:
-        (localStorage.getItem("sections") &&
-          typeof JSON.parse(localStorage.getItem("sections")) === "object" &&
-          JSON.parse(localStorage.getItem("sections"))) ||
-        [],
+      sections,
 
       selectedSubSection: localStorage.getItem("selectedSubSection") || "",
-      subSections:
-        (localStorage.getItem("subSections") &&
-          typeof JSON.parse(localStorage.getItem("subSections")) === "object" &&
-          JSON.parse(localStorage.getItem("subSections"))) ||
-        [],
+      subSections,
 
       selectedCell: localStorage.getItem("selectedCell") || "",
-      cells:
-        (localStorage.getItem("cells") &&
-          typeof JSON.parse(localStorage.getItem("cells")) === "object" &&
-          JSON.parse(localStorage.getItem("cells"))) ||
-        [],
+      cells,
 
       selectedLine: localStorage.getItem("selectedLine") || "",
-      lines:
-        (localStorage.getItem("lines") &&
-          typeof JSON.parse(localStorage.getItem("lines")) === "object" &&
-          JSON.parse(localStorage.getItem("lines"))) ||
-        [],
+      lines,
 
       selectedMachine: localStorage.getItem("selectedMachine") || "",
-      machines:
-        (localStorage.getItem("machines") &&
-          typeof JSON.parse(localStorage.getItem("machines")) === "object" &&
-          JSON.parse(localStorage.getItem("machines"))) ||
-        [],
+      machines,
 
       selectedRSStatus: localStorage.getItem("selectedRSStatus") || "",
 
@@ -62,6 +71,68 @@ export const initialState = (isWithLocalStorageForFiltration) => {
       isError: false,
     };
 
+    // return {
+    //   selectedValue: localStorage.getItem("selectedValue") || "",
+    //   flagForTogglingFilter:
+    //     localStorage.getItem("flagForTogglingFilter") || "",
+
+    //   selectedValueForLineAnTMLoadGraph:
+    //     localStorage.getItem("selectedValueForLineAnTMLoadGraph") || "",
+    //   togglingFilterFlagForLineAnTMLoadGraph:
+    //     localStorage.getItem("togglingFilterFlagForLineAnTMLoadGraph") || "",
+
+    //   selectedSection: localStorage.getItem("selectedSection") || "",
+    //   sections:
+    //     (localStorage.getItem("sections") &&
+    //       typeof JSON.parse(localStorage.getItem("sections")) === "object" &&
+    //       JSON.parse(localStorage.getItem("sections"))) ||
+    //     [],
+
+    //   selectedSubSection: localStorage.getItem("selectedSubSection") || "",
+    //   subSections:
+    //     (localStorage.getItem("subSections") &&
+    //       typeof JSON.parse(localStorage.getItem("subSections")) === "object" &&
+    //       JSON.parse(localStorage.getItem("subSections"))) ||
+    //     [],
+
+    //   selectedCell: localStorage.getItem("selectedCell") || "",
+    //   cells:
+    //     (localStorage.getItem("cells") &&
+    //       typeof JSON.parse(localStorage.getItem("cells")) === "object" &&
+    //       JSON.parse(localStorage.getItem("cells"))) ||
+    //     [],
+
+    //   selectedLine: localStorage.getItem("selectedLine") || "",
+    //   lines:
+    //     (localStorage.getItem("lines") &&
+    //       typeof JSON.parse(localStorage.getItem("lines")) === "object" &&
+    //       JSON.parse(localStorage.getItem("lines"))) ||
+    //     [],
+
+    //   selectedMachine: localStorage.getItem("selectedMachine") || "",
+    //   machines:
+    //     (localStorage.getItem("machines") &&
+    //       typeof JSON.parse(localStorage.getItem("machines")) === "object" &&
+    //       JSON.parse(localStorage.getItem("machines"))) ||
+    //     [],
+
+    //   selectedRSStatus: localStorage.getItem("selectedRSStatus") || "",
+
+    //   selectedMaintenanceType:
+    //     localStorage.getItem("selectedMaintenanceType") || "",
+
+    //   selectedMonth: localStorage.getItem("selectedMonth") || "",
+    //   selectedYear:
+    //     localStorage.getItem("selectedYear") ||
+    //     (new Date().getMonth() < 3
+    //       ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+    //       : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`),
+
+    //   message: "",
+    //   isLoading: true,
+    //   isError: false,
+    // };
+  }
   // console.log("this is val", selectedValue);
   return {
     selectedValue: "",
@@ -155,18 +226,30 @@ export const reducer = (state, action) => {
           action?.flagForTogglingFilter
         );
         localStorage.setItem("selectedSection", action?.selectedSection);
-        localStorage.setItem("sections", JSON.stringify(action?.sections));
+        localStorage.setItem(
+          "sections",
+          LZString.compress(JSON.stringify(action?.sections))
+        );
         localStorage.setItem("selectedSubSection", action?.selectedSubSection);
         localStorage.setItem(
           "subSections",
-          JSON.stringify(action?.subSections)
+          LZString.compress(JSON.stringify(action?.subSections))
         );
         localStorage.setItem("selectedCell", action?.selectedCell);
-        localStorage.setItem("cells", JSON.stringify(action?.cells));
+        localStorage.setItem(
+          "cells",
+          LZString.compress(JSON.stringify(action?.cells))
+        );
         localStorage.setItem("selectedLine", action?.selectedLine);
-        localStorage.setItem("lines", JSON.stringify(action?.lines));
+        localStorage.setItem(
+          "lines",
+          LZString.compress(JSON.stringify(action?.lines))
+        );
         localStorage.setItem("selectedMachine", action?.selectedMachine);
-        localStorage.setItem("machines", JSON.stringify(action?.machines));
+        localStorage.setItem(
+          "machines",
+          LZString.compress(JSON.stringify(action?.machines))
+        );
       }
 
       return {
@@ -212,14 +295,23 @@ export const reducer = (state, action) => {
         localStorage.setItem("selectedSubSection", action?.selectedSubSection);
         localStorage.setItem(
           "subSections",
-          JSON.stringify(action?.subSections)
+          LZString.compress(JSON.stringify(action?.subSections))
         );
         localStorage.setItem("selectedCell", action?.selectedCell);
-        localStorage.setItem("cells", JSON.stringify(action?.cells));
+        localStorage.setItem(
+          "cells",
+          LZString.compress(JSON.stringify(action?.cells))
+        );
         localStorage.setItem("selectedLine", action?.selectedLine);
-        localStorage.setItem("lines", JSON.stringify(action?.lines));
+        localStorage.setItem(
+          "lines",
+          LZString.compress(JSON.stringify(action?.lines))
+        );
         localStorage.setItem("selectedMachine", action?.selectedMachine);
-        localStorage.setItem("machines", JSON.stringify(action?.machines));
+        localStorage.setItem(
+          "machines",
+          LZString.compress(JSON.stringify(action?.machines))
+        );
       }
 
       return {
@@ -263,11 +355,20 @@ export const reducer = (state, action) => {
 
         localStorage.setItem("selectedSubSection", action?.selectedSubSection);
         localStorage.setItem("selectedCell", action?.selectedCell);
-        localStorage.setItem("cells", JSON.stringify(action?.cells));
+        localStorage.setItem(
+          "cells",
+          LZString.compress(JSON.stringify(action?.cells))
+        );
         localStorage.setItem("selectedLine", action?.selectedLine);
-        localStorage.setItem("lines", JSON.stringify(action?.lines));
+        localStorage.setItem(
+          "lines",
+          LZString.compress(JSON.stringify(action?.lines))
+        );
         localStorage.setItem("selectedMachine", action?.selectedMachine);
-        localStorage.setItem("machines", JSON.stringify(action?.machines));
+        localStorage.setItem(
+          "machines",
+          LZString.compress(JSON.stringify(action?.machines))
+        );
       }
 
       return {
@@ -298,9 +399,15 @@ export const reducer = (state, action) => {
 
         localStorage.setItem("selectedCell", action?.selectedCell);
         localStorage.setItem("selectedLine", action?.selectedLine);
-        localStorage.setItem("lines", JSON.stringify(action?.lines));
+        localStorage.setItem(
+          "lines",
+          LZString.compress(JSON.stringify(action?.lines))
+        );
         localStorage.setItem("selectedMachine", action?.selectedMachine);
-        localStorage.setItem("machines", JSON.stringify(action?.machines));
+        localStorage.setItem(
+          "machines",
+          LZString.compress(JSON.stringify(action?.machines))
+        );
       }
 
       return {
@@ -328,7 +435,10 @@ export const reducer = (state, action) => {
         );
         localStorage.setItem("selectedLine", action?.selectedLine);
         localStorage.setItem("selectedMachine", action?.selectedMachine);
-        localStorage.setItem("machines", JSON.stringify(action?.machines));
+        localStorage.setItem(
+          "machines",
+          LZString.compress(JSON.stringify(action?.machines))
+        );
       }
 
       return {
@@ -590,17 +700,6 @@ export const reducer = (state, action) => {
         isLoading: true,
         isError: false,
       };
-    // if (action?.isWithLocalStorageForFiltration === "Yes") {
-    //   localStorage.setItem("selectedCell", "");
-    //   localStorage.setItem("selectedLine", ""),
-    //   localStorage.setItem("selectedMachine", "");
-    // }
-    // return {
-    //   ...state,
-    //   selectedCell: "",
-    //   selectedLine: "",
-    //   selectedMachine: "",
-    // };
 
     default:
       return state;

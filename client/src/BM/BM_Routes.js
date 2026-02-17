@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Container from "../components/Container/Container";
 import RightNavbar from "../components/RightNavbar/RightNavbar";
 import NavContext from "../context/NavContext";
-import AdminDashboard from "../pages/Admin/AdminDashboard";
+import { AdminUser } from "../pages/UserManagement/UserManagement";
 
 import RoutingContext from "../context/routing/RoutingContext";
 import Profile from "../pages/Profile";
@@ -109,13 +109,13 @@ function BM_Routes({ commonRoutes }) {
   //     },
   //   ];
   // } else {
-    //For DENSO-HARYANA
-    reportRoutes = commonRoutes;
+  //For DENSO-HARYANA
+  reportRoutes = commonRoutes;
 
-    reportRoutes.push({
-      path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
-      element: <UpdateRequestSheetForAnyStatus />,
-    });
+  reportRoutes.push({
+    path: "/bm/edit/request-sheet/:machine_code/:requestSheetID/:selectedYear",
+    element: <UpdateRequestSheetForAnyStatus />,
+  });
   // }
 
   // Define an array of routes for each user type
@@ -145,7 +145,7 @@ function BM_Routes({ commonRoutes }) {
         },
         {
           path: "/bm/adminDashboard",
-          element: <AdminDashboard />,
+          element: <AdminUser />,
         },
         {
           path: "/bm/customizedDashboard",
