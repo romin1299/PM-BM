@@ -93,32 +93,32 @@ function MyTable({
         //   ?
         selectedSupportedTM?.map((obj) => obj?._id);
       // : requestSheetDataOfBM?.supportingTM?.map((obj) => obj?._id);
+      requestSheetData.partQualityCheckedByPRD_V2 =
+        approvalListOfBM?.prdTL?.[requestSheetData?.partQualityCheckedByPRD];
       requestSheetData.partQualityCheckedByPRD =
         approvalListOfBM?.prdTL?.[
           requestSheetData?.partQualityCheckedByPRD
         ]?._id;
-      requestSheetData.partQualityCheckedByPRD_V2 =
-        approvalListOfBM?.prdTL?.[requestSheetData?.partQualityCheckedByPRD];
+      requestSheetData.partQualityCheckedByMTD_V2 =
+        approvalListOfBM?.mtdTL?.[requestSheetData?.partQualityCheckedByMTD];
       requestSheetData.partQualityCheckedByMTD =
         approvalListOfBM?.mtdTL?.[
           requestSheetData?.partQualityCheckedByMTD
         ]?._id;
-      requestSheetData.partQualityCheckedByMTD_V2 =
-        approvalListOfBM?.mtdTL?.[requestSheetData?.partQualityCheckedByMTD];
 
       //for safety
+      requestSheetData.machineSafetyCheckedByPRD_V2 =
+        approvalListOfBM?.prdTL?.[requestSheetData?.machineSafetyCheckedByPRD];
       requestSheetData.machineSafetyCheckedByPRD =
         approvalListOfBM?.prdTL?.[
           requestSheetData?.machineSafetyCheckedByPRD
         ]?._id;
-      requestSheetData.machineSafetyCheckedByPRD_V2 =
-        approvalListOfBM?.prdTL?.[requestSheetData?.machineSafetyCheckedByPRD];
+      requestSheetData.machineSafetyCheckedByMTD_V2 =
+        approvalListOfBM?.mtdTL?.[requestSheetData?.machineSafetyCheckedByMTD];
       requestSheetData.machineSafetyCheckedByMTD =
         approvalListOfBM?.mtdTL?.[
           requestSheetData?.machineSafetyCheckedByMTD
         ]?._id;
-      requestSheetData.machineSafetyCheckedByMTD_V2 =
-        approvalListOfBM?.mtdTL?.[requestSheetData?.machineSafetyCheckedByMTD];
 
       requestSheetData.dataSheetOfRequestSheet =
         timeDifferenceMinutes > 120

@@ -1412,6 +1412,14 @@ router.patch(
 
       // ____________ 5 ____________
 
+      if (
+        req.rootUser?.tm_department === "PRD" ||
+        req.rootUser?.user_type === "Operator"
+      )
+        return res
+          .status(400)
+          .json({ message: "You are not authorized to edit this sheet" });
+
       let queryObj = {};
 
       // if (req.rootUser?.tm_department !== "MTD") {
@@ -5629,119 +5637,130 @@ router.patch(
         approvalOfRequestSheet,
         rejectedRemarksOfRequestSheet,
       } = req.body;
+
       if (
-        !assignApprovalList?.MTD_TL?.id &&
-        (requestSheetDataOfBM?.assignUser?._id ===
-          (req?.rootUser?._id).toString() ||
+        [
+          "Assigned",
+          "Work Order Pending",
+          "Work Order Closed",
+          "Fill Sheet",
+          "Rejected",
+        ]?.includes(requestSheetDataOfBM?.requestSheetStatus)
+      ) {
+        if (
+          !assignApprovalList?.MTD_TL?.id &&
+          (requestSheetDataOfBM?.assignUser?._id ===
+            (req?.rootUser?._id).toString() ||
+            requestSheetDataOfBM?.handOverUser?._id ===
+              (req?.rootUser?._id).toString())
+        ) {
+          return res
+            .status(400)
+            .json({ message: "Please select required MTD TL" });
+        }
+
+        if (
+          requestSheetDataOfBM?.assignUser?._id ===
+            (req?.rootUser?._id).toString() ||
           requestSheetDataOfBM?.handOverUser?._id ===
-            (req?.rootUser?._id).toString())
-      ) {
-        return res
-          .status(400)
-          .json({ message: "Please select required MTD TL" });
-      }
-
-      if (
-        requestSheetDataOfBM?.assignUser?._id ===
-          (req?.rootUser?._id).toString() ||
-        requestSheetDataOfBM?.handOverUser?._id ===
-          (req?.rootUser?._id).toString()
-      ) {
-        const updateAssignApprovalOfMTD_TL =
-          await RequestSheetOfBM.findOneAndUpdate(
-            {
-              _id: mongoose.Types.ObjectId(req.params?.reqId),
-            },
-            {
-              $set: {
-                requestSheetStatus: "Under MTD TL Approval",
-                "getDataForApprovalDashboard.Id":
-                  assignApprovalList?.MTD_TL?.id,
-                "getDataForApprovalDashboard.departmentAndGradeOfUser":
-                  "MTD TL",
+            (req?.rootUser?._id).toString()
+        ) {
+          const updateAssignApprovalOfMTD_TL =
+            await RequestSheetOfBM.findOneAndUpdate(
+              {
+                _id: mongoose.Types.ObjectId(req.params?.reqId),
               },
-              $push: {
-                approvalOfMTD_TL: assignApprovalList?.MTD_TL?.id,
-                approvalStatusOfMTD_TL: "Pending",
-                approverNameLogOfMTD_TL: assignApprovalList?.MTD_TL?.name,
+              {
+                $set: {
+                  requestSheetStatus: "Under MTD TL Approval",
+                  "getDataForApprovalDashboard.Id":
+                    assignApprovalList?.MTD_TL?.id,
+                  "getDataForApprovalDashboard.departmentAndGradeOfUser":
+                    "MTD TL",
+                },
+                $push: {
+                  approvalOfMTD_TL: assignApprovalList?.MTD_TL?.id,
+                  approvalStatusOfMTD_TL: "Pending",
+                  approverNameLogOfMTD_TL: assignApprovalList?.MTD_TL?.name,
+                },
               },
-            },
-            { new: true }
-          ).exec();
-        if (updateAssignApprovalOfMTD_TL) {
-          const bodyContent = ({ key, value }) => {
-            return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
-       
-             <tr>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
-             </tr>
-       
-             <tr style="background-color: #dddddd;">
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
-             </tr>
-       
-             <tr>
-                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
-                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
-             </tr>
-       
-             <tr style="background-color: #dddddd;">
-                 <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
-                 <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
-             </tr>
-       
-             <tr>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
-             </tr>   
-       
-             <tr style="background-color: #dddddd;">
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
-             </tr>
-       
-             <tr>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateAssignApprovalOfMTD_TL?.requestSheetStatus}</td>
-             </tr>
-       
-             <tr style="background-color: #dddddd;">
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
-             <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateAssignApprovalOfMTD_TL?.work_order_status}</td>
-             </tr>
-       
-         </table>`;
-          };
-          let bodyTable = bodyContent({
-            key: "Submitted By",
-            value: req?.rootUser?.tm_name,
-          });
+              { new: true }
+            ).exec();
+          if (updateAssignApprovalOfMTD_TL) {
+            const bodyContent = ({ key, value }) => {
+              return `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
+         
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Cell/Product</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.cell}</td>
+               </tr>
+         
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Line</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.line}</td>
+               </tr>
+         
+               <tr>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineName}</td>
+               </tr>
+         
+               <tr style="background-color: #dddddd;">
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">Machine No.</td>
+                   <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.machineNo}</td>
+               </tr>
+         
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet No.</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${requestSheetDataOfBM?.requestSheetNoOfBM}</td>
+               </tr>   
+         
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${key}</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${value}</td>
+               </tr>
+         
+               <tr>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Request Sheet Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateAssignApprovalOfMTD_TL?.requestSheetStatus}</td>
+               </tr>
+         
+               <tr style="background-color: #dddddd;">
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">Work Order Status</td>
+               <td style="border: 1px solid black;text-align: left;padding: 8px;">${updateAssignApprovalOfMTD_TL?.work_order_status}</td>
+               </tr>
+         
+           </table>`;
+            };
+            let bodyTable = bodyContent({
+              key: "Submitted By",
+              value: req?.rootUser?.tm_name,
+            });
 
-          //get MTD HOS of the assign section for sending mail when request-sheet is send for approval.
-          const getMTDHOS = await User.find(
-            {
-              ...req?.queryObj,
-              tm_department: "MTD",
-              tm_grade: "HOS",
-            },
-            { tm_name: 1, line_names: 1, email: 1 }
-          );
+            //get MTD HOS of the assign section for sending mail when request-sheet is send for approval.
+            const getMTDHOS = await User.find(
+              {
+                ...req?.queryObj,
+                tm_department: "MTD",
+                tm_grade: "HOS",
+              },
+              { tm_name: 1, line_names: 1, email: 1 }
+            );
 
-          sendMailForBD({
-            subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
-            title: `Kindly Approve Request-sheet`,
-            greetings: `Sir\\Ma'am`,
-            toEmailIds: assignApprovalList?.MTD_TL?.email,
-            ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
-            bodyTable: bodyTable,
-          });
+            sendMailForBD({
+              subject: `Request Sheet Approval (${requestSheetDataOfBM?.cell}/${requestSheetDataOfBM?.line}/${requestSheetDataOfBM?.machineName}/${requestSheetDataOfBM?.requestSheetNoOfBM})`,
+              title: `Kindly Approve Request-sheet`,
+              greetings: `Sir\\Ma'am`,
+              toEmailIds: assignApprovalList?.MTD_TL?.email,
+              ccEmailIds: getMTDHOS?.map((obj) => obj?.email),
+              bodyTable: bodyTable,
+            });
 
-          return res.status(201).json({
-            message: "Successfully send approval to MTD TL!",
-            updateAssignApprovalOfMTD_TL,
-          });
+            return res.status(201).json({
+              message: "Successfully send approval to MTD TL!",
+              updateAssignApprovalOfMTD_TL,
+            });
+          }
         }
       }
       //remove first approver (MTD TL)
@@ -5754,7 +5773,6 @@ router.patch(
       Object.keys(assignApprovalList?.[formattedKey])?.length === 0 &&
         delete assignApprovalList?.[formattedKey];
       // });
-      console.log(assignApprovalList);
       //Handling validation for approval list which is not selected by user from client-side
       if (approvalOfRequestSheet === "Yes") {
         for (
@@ -16126,6 +16144,7 @@ router.get(
   "/getApprovalLogDetails/:filter/:selectedId",
   authenticate,
   filterMiddleware,
+  removeBDZeroValueFiltration,
   async (req, res, next) => {
     try {
       delete req?.queryObj?.maintenanceType;
@@ -16157,6 +16176,7 @@ router.get(
             ?.priority || 0;
         return priorityA - priorityB;
       });
+
       const getDataOfRequestSheetApprovalLogs =
         await RequestSheetOfBM?.aggregate([
           {
@@ -20931,7 +20951,187 @@ const handleUpdateDB3 = async function () {
   console.log("Completed");
 };
 
+const handleUpdateDB4 = async function () {
+  const requestSheetData = await RequestSheetOfBM.aggregate([
+    {
+      $match: {
+        $and: [
+          { line: { $not: { $type: "object" } } },
+          { cell: { $not: { $type: "object" } } },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "machinesalldatas",
+        localField: "machineRef",
+        foreignField: "_id",
+        as: "machine",
+      },
+    },
+    {
+      $lookup: {
+        from: "lines",
+        localField: "lineRef",
+        foreignField: "_id",
+        as: "line",
+      },
+    },
+    {
+      $lookup: {
+        from: "cells",
+        localField: "cellRef",
+        foreignField: "_id",
+        as: "cell",
+      },
+    },
+    {
+      $lookup: {
+        from: "subsections",
+        localField: "subSectionRef",
+        foreignField: "_id",
+        as: "subSection",
+      },
+    },
+    {
+      $lookup: {
+        from: "sections",
+        localField: "sectionRef",
+        foreignField: "_id",
+        as: "section",
+      },
+    },
+    {
+      $lookup: {
+        from: "plants",
+        localField: "plantRef",
+        foreignField: "_id",
+        as: "plant",
+      },
+    },
+    {
+      $project: {
+        requestSheetNoOfBM: 1,
+        machine: { $arrayElemAt: ["$machine", 0] },
+        line: { $arrayElemAt: ["$line", 0] },
+        cell: { $arrayElemAt: ["$cell", 0] },
+        subSection: { $arrayElemAt: ["$subSection", 0] },
+        section: { $arrayElemAt: ["$section", 0] },
+        plant: { $arrayElemAt: ["$plant", 0] },
+      },
+    },
+  ]);
+
+  console.log("Get data:", requestSheetData.length);
+
+  for (let index = 0; index < requestSheetData.length; index++) {
+    const element = requestSheetData[index];
+
+    await RequestSheetOfBM.updateOne(
+      {
+        _id: element?._id,
+      },
+      {
+        machine: element?.machine,
+        line: element?.line,
+        cell: element?.cell,
+        subSection: element?.subSection,
+        section: element?.section,
+        plant: element?.plant,
+      }
+    );
+    console.log("Updated :", index);
+  }
+
+  console.log("Completed");
+};
+const handleUpdateDB5 = async function () {
+  const requestSheetData = await RequestSheetOfBM.aggregate([
+    {
+      $match: {
+        $and: [
+          { partQualityCheckedByPRD_V2: { $in: ["", undefined] } },
+          {
+            partQualityCheckedByPRD: { $nin: ["", undefined] },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "partQualityCheckedByPRD",
+        foreignField: "_id",
+        as: "partQualityCheckedByPRD",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "partQualityCheckedByMTD",
+        foreignField: "_id",
+        as: "partQualityCheckedByMTD",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "machineSafetyCheckedByPRD",
+        foreignField: "_id",
+        as: "machineSafetyCheckedByPRD",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "machineSafetyCheckedByMTD",
+        foreignField: "_id",
+        as: "machineSafetyCheckedByMTD",
+      },
+    },
+    {
+      $project: {
+        partQualityCheckedByPRD: {
+          $arrayElemAt: ["$partQualityCheckedByPRD", 0],
+        },
+        partQualityCheckedByMTD: {
+          $arrayElemAt: ["$partQualityCheckedByMTD", 0],
+        },
+        machineSafetyCheckedByPRD: {
+          $arrayElemAt: ["$machineSafetyCheckedByPRD", 0],
+        },
+        machineSafetyCheckedByMTD: {
+          $arrayElemAt: ["$machineSafetyCheckedByMTD", 0],
+        },
+      },
+    },
+  ]);
+
+  console.log("Get data:", requestSheetData.length);
+
+  for (let index = 0; index < requestSheetData.length; index++) {
+    const element = requestSheetData[index];
+
+    await RequestSheetOfBM.updateOne(
+      {
+        _id: element?._id,
+      },
+      {
+        partQualityCheckedByPRD_V2: element?.partQualityCheckedByPRD,
+        partQualityCheckedByMTD_V2: element?.partQualityCheckedByMTD,
+        machineSafetyCheckedByPRD_V2: element?.machineSafetyCheckedByPRD,
+        machineSafetyCheckedByMTD_V2: element?.machineSafetyCheckedByMTD,
+      }
+    );
+    console.log("Updated :", index);
+  }
+
+  console.log("Completed");
+};
+
 // handleUpdateDB();
 // handleUpdateDB1();
 // handleUpdateDB2();
 // handleUpdateDB3();
+// handleUpdateDB4();
+// handleUpdateDB5();

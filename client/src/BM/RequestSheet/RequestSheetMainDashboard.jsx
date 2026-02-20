@@ -290,7 +290,6 @@ const RequestSheetMainDashboard = () => {
           requestSheet,
           message,
         });
-        return requestSheet;
       } else {
         console.log("error");
       }
