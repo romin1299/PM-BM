@@ -1,4 +1,4 @@
-import { useContext, useEffect, useReducer, useState } from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import RequestSheetCustomizedApproval from "./CustomizedApproval/RequestSheetCustomizedApproval";
 import ManageCategories from "./CustomizedCategory/ManageCategories";
 import { Col, Container, Row } from "react-bootstrap";
@@ -6,7 +6,7 @@ import CustomManageShifts from "./CustomizedShifts/CustomManageShifts";
 import BMTitlebar from "../Component/BMTitlebar";
 import RoutingContext from "../../context/routing/RoutingContext";
 import axios from "axios";
-import CustomizedMajorBD from "./CustomizedMajorBD.jsx/CustomizedMajorBD";
+import CustomizedMajorBD from "./CustomizedMajorBD/CustomizedMajorBD";
 import {
   initialState,
   reducer,
