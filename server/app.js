@@ -5,6 +5,7 @@ const path = require("path");
 dotenv.config({ path: "./config.env" });
 const https = require("https");
 const fs = require("fs");
+const compression = require("compression");
 
 require("./db/conn");
 
@@ -21,6 +22,13 @@ app.use(
   express.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 })
 );
 
+app.use(
+  compression({
+    filter: (req, res) =>
+      req.headers["x-no-compression"] ? false : compression.filter(req, res),
+  })
+);
+
 //for when deploying application on AWS
 
 // const keys = {
@@ -34,6 +42,14 @@ app.use(
 app.use(require(path.join(__dirname, "./controller/auth")));
 app.use(require(path.join(__dirname, "./controller/bmController")));
 app.use(require(path.join(__dirname, "./controller/cmcontroller")));
+app.use(
+  "/v1/spare",
+  require("./middleware/authenticate"),
+  require("./routes/spareManagement/userRoutes"),
+  require("./routes/spareManagement/spareCRUDRoutes"),
+  require("./routes/spareManagement/spareApprovalRoutes")
+);
+
 app.use(
   "/common",
   require(path.join(__dirname, "./controller/commonController"))

@@ -7,6 +7,7 @@ const Section = require("../model/sectionSchema");
 const NoLossBD = require("../model/noLossBDSheetData");
 
 const authenticate = require("../middleware/authenticate");
+
 const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
 
@@ -375,10 +376,12 @@ router.get(
 
     //for filter only BM data
     if (
-      req?.queryObj?.['preAggregationTimeStampOfRequestSheet.requestSheet_month']
+      req?.queryObj?.[
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month"
+      ]
     )
       delete req?.queryObj?.commonDataFilledByAssignUser;
-    
+
     const bmLog = await RequestSheetOfBM.aggregate([
       {
         $match: req?.queryObj,

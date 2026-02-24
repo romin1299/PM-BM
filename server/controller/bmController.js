@@ -17114,7 +17114,7 @@ router.get(
   async (req, res, next) => {
     try {
       let queryObjForNoLoss = req?.queryObjForBM;
-      
+
       delete queryObjForNoLoss?.maintenanceType;
       delete queryObjForNoLoss?.["maintenanceReportFilledByMTD.breakDownTime"];
 
@@ -18050,13 +18050,27 @@ const plantFiltrationMiddleware = async (req, res, next) => {
       return next();
     }
 
-    const plant = await Plant.findOne({
-      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-    });
+    const plant = await Plant.findOne(
+      {
+        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      },
+      {
+        plant_id: 1,
+        plant_name: 1,
+      }
+    );
 
-    const sections = await Section.find({
-      plant_names: plant?._id,
-    });
+    const sections = await Section.find(
+      {
+        plant_names: plant?._id,
+      },
+      {
+        section_id: 1,
+        section_name: 1,
+        dashboardLevel: 1,
+        plant_names: 1,
+      }
+    );
 
     req.section = sections?.[0];
     req.sections = sections;
@@ -18074,7 +18088,12 @@ const sectionFiltrationMiddleware = async (req, res, next) => {
       return next();
     }
 
-    const section = await Section.findOne(req.sectionQuery);
+    const section = await Section.findOne(req.sectionQuery, {
+      section_id: 1,
+      section_name: 1,
+      dashboardLevel: 1,
+      plant_names: 1,
+    });
 
     req.section = section;
 
@@ -18087,7 +18106,11 @@ const sectionFiltrationMiddleware = async (req, res, next) => {
 
 const subSectionFiltrationMiddleware = async (req, res, next) => {
   try {
-    const subSections = await SubSection.find(req.subSectionQuery);
+    const subSections = await SubSection.find(req.subSectionQuery, {
+      subSection_id: 1,
+      subSection_name: 1,
+      section_names: 1,
+    });
 
     if (req.section.dashboardLevel === "No") {
       let subSection = subSections?.[0];
@@ -18114,7 +18137,11 @@ const subSectionFiltrationMiddleware = async (req, res, next) => {
 
 const cellFiltrationMiddleware = async (req, res, next) => {
   try {
-    const cells = await Cell.find(req.cellQuery);
+    const cells = await Cell.find(req.cellQuery, {
+      cell_id: 1,
+      cell_name: 1,
+      subSection_names: 1,
+    });
 
     if (req.rootUser?.tm_grade === "HOD") {
       if (req.section.dashboardLevel === "No") {
@@ -18546,9 +18573,17 @@ router.get(
   authenticate,
   async (req, res, next) => {
     try {
-      const machines = await Machine.find({
-        line_names: mongoose.Types.ObjectId(req.params?.id),
-      });
+      const machines = await Machine.find(
+        {
+          line_names: mongoose.Types.ObjectId(req.params?.id),
+        },
+        {
+          machine_code: 1,
+          machine_name: 1,
+          machine_nickname: 1,
+          line_names: 1,
+        }
+      );
 
       return res.status(201).json({
         message: "Machine dropdown value get successfully",
@@ -18574,7 +18609,11 @@ router.get(
 
 const cellFilterMiddleware = async (req, res, next) => {
   try {
-    const cells = await Cell.find(req.cellQuery);
+    const cells = await Cell.find(req.cellQuery, {
+      cell_id: 1,
+      cell_name: 1,
+      subSection_names: 1,
+    });
 
     req.cellID = cells?.[0]?._id;
     req.cells = cells;
@@ -18588,9 +18627,16 @@ const cellFilterMiddleware = async (req, res, next) => {
 
 const lineFiltrationMiddleware = async (req, res, next) => {
   try {
-    const lines = await Line.find({
-      cell_names: mongoose.Types.ObjectId(req.cellID),
-    });
+    const lines = await Line.find(
+      {
+        cell_names: mongoose.Types.ObjectId(req.cellID),
+      },
+      {
+        line_id: 1,
+        line_name: 1,
+        cell_names: 1,
+      }
+    );
     req.lineID = lines?.[0]?._id;
     req.lines = lines;
     return next();
@@ -18602,9 +18648,17 @@ const lineFiltrationMiddleware = async (req, res, next) => {
 
 const machineFiltrationMiddleware = async (req, res, next) => {
   try {
-    const machines = await Machine.find({
-      line_names: mongoose.Types.ObjectId(req?.lineID),
-    });
+    const machines = await Machine.find(
+      {
+        line_names: mongoose.Types.ObjectId(req?.lineID),
+      },
+      {
+        machine_code: 1,
+        machine_name: 1,
+        machine_nickname: 1,
+        line_names: 1,
+      }
+    );
     req.machineID = machines?.[0]?._id;
     req.machines = machines;
     return next();
@@ -19182,13 +19236,27 @@ router.get(
   authenticate,
   async (req, res, next) => {
     try {
-      const plant = await Plant.findOne({
-        plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-      });
+      const plant = await Plant.findOne(
+        {
+          plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+        },
+        {
+          plant_id: 1,
+          plant_name: 1,
+        }
+      );
 
-      const sections = await Section.find({
-        plant_names: plant?._id,
-      });
+      const sections = await Section.find(
+        {
+          plant_names: plant?._id,
+        },
+        {
+          section_id: 1,
+          section_name: 1,
+          dashboardLevel: 1,
+          plant_names: 1,
+        }
+      );
 
       return res.status(201).json({
         message: "Sections get successfully",
@@ -19221,7 +19289,11 @@ router.get(
   subSectionFiltrationMiddleware,
   async (req, res, next) => {
     try {
-      const cells = await Cell.find(req.cellQuery);
+      const cells = await Cell.find(req.cellQuery, {
+        cell_id: 1,
+        cell_name: 1,
+        subSection_names: 1,
+      });
 
       if (req.section.dashboardLevel === "No") {
         return res.status(201).json({
@@ -19384,9 +19456,16 @@ router.get(
   authenticate,
   async (req, res, next) => {
     try {
-      const subSections = await SubSection.find({
-        section_names: mongoose.Types.ObjectId(req.params?.id),
-      });
+      const subSections = await SubSection.find(
+        {
+          section_names: mongoose.Types.ObjectId(req.params?.id),
+        },
+        {
+          subSection_id: 1,
+          subSection_name: 1,
+          section_names: 1,
+        }
+      );
 
       let selectedSubSection = subSections?.[0]?._id;
 

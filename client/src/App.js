@@ -91,6 +91,7 @@ import MTD_KPI from "./static/Icons/MTD_KPI.png";
 import ACTIVITY_Cal from "./static/Icons/ACTIVITY_CAL.png";
 import CM_Routes from "./CM/CM_Routes";
 import ActivityRoutes from "./CM/Pages/ActivityCalendar/ActivityRoutes";
+import Spare_Routes from "./Spare/Spare_Routes";
 import { clearLocalStorage } from "./BM/Component/GlobalDataDisplayOrHandle";
 
 function App() {
@@ -258,6 +259,14 @@ function App() {
       icon: ACTIVITY_Cal,
       dashboardAndRoutes: (
         <ActivityRoutes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+      ),
+    },
+    {
+      name: "Spare",
+      keyUrl: "spare",
+      icon: ACTIVITY_Cal,
+      dashboardAndRoutes: (
+        <Spare_Routes commonRoutes={commonRoutes} loggedUser={loggedUser} />
       ),
     },
     // {

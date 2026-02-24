@@ -190,8 +190,6 @@ exports.newRequestSheetDataStore = async (
     const generalDateFormat = (propDate = new Date()) =>
       moment(propDate).tz("Asia/Kolkata").format("YYYY-MM-DDTHH:mm");
 
-    console.log(requestSheetDataFilledByMTDUserForCM);
-
     let _idObject = {},
       machineIdToPlantId = machineDataUseInCretionOfCM;
 
