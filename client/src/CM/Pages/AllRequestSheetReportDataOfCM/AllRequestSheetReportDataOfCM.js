@@ -81,7 +81,16 @@ const AllRequestSheetReportDataOfCM = () => {
       setLoading(true);
       setApprovalRequestSheetDataOfCM();
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`
+        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}`,
+        {
+          params: {
+            selectedYear: reduceState?.selectedYear,
+            selectedMonth: reduceState?.selectedMonth,
+            selectedRSStatus: reduceState?.selectedRSStatus,
+            selectedCategoryType: reduceState?.selectedCategoryType,
+            selectedQuarter: reduceState?.selectedQuarter,
+          },
+        }
       );
       setCounters(response.data.counters);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
@@ -625,7 +634,7 @@ const AllRequestSheetReportDataOfCM = () => {
                   context?.tm_no === Number("9999") ||
                   !["Generated", "Assigned"].includes(
                     selectedRow?.current_commonDataFilledByAssignUser
-                      .requestSheetStatusOfCM
+                      ?.requestSheetStatusOfCM
                   ),
 
                 onRowDelete: (selectedRow) =>

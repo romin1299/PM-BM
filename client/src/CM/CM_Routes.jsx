@@ -5,7 +5,6 @@ import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
 import GenerateRequestSheetMainDashboard from "../BM/RequestSheet/GenerateRequestSheetMainDashboard";
 
-import ActivityStatusDashboardOfCM from "./Pages/ActivityStatusDashboadOfCM/ActivityStatusDashboardOfCM";
 import AllRequestSheetReportDataOfCM from "./Pages/AllRequestSheetReportDataOfCM/AllRequestSheetReportDataOfCM";
 import GeneratedExistingMachineRequestSheetByMTD from "./Components/ReqestSheetOfCM/ExistingMachineRequestSheet/GeneratedExistingMachineRequestSheetByMTD";
 
@@ -41,7 +40,7 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <FullCalenderForActivity/>
+          element: <FullCalenderForActivity />,
         },
       ],
     },
@@ -62,8 +61,7 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <FullCalenderForActivity/>
-
+          element: <FullCalenderForActivity />,
         },
         {
           path: "/cm/approvalLogs",
@@ -100,7 +98,7 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <FullCalenderForActivity/>
+          element: <FullCalenderForActivity />,
         },
         {
           path: "/cm/dashboard/ltpm",
@@ -134,8 +132,7 @@ const CM_Routes = ({ commonRoutes }) => {
         },
         {
           path: "/cm/activity-calendar",
-          element: <FullCalenderForActivity/>
-
+          element: <FullCalenderForActivity />,
         },
       ],
     },

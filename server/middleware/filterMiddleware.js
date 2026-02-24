@@ -129,19 +129,36 @@ module.exports = tryCatchHandler(async (req, res, next) => {
         },
       };
 
-    if (req.query?.selectedMonth) {
-      if (queryObj?.commonDataFilledByAssignUser?.$elemMatch)
+    if (queryObj?.commonDataFilledByAssignUser?.$elemMatch) {
+      if (req.query?.selectedMonth)
         queryObj.commonDataFilledByAssignUser.$elemMatch = {
           ...queryObj?.commonDataFilledByAssignUser?.$elemMatch,
           "preAggregationTimeStampOfRequestSheet.requestSheet_month":
             req.query?.selectedMonth,
         };
-      else
+      if (req.query?.selectedQuarter)
+        queryObj.commonDataFilledByAssignUser.$elemMatch = {
+          ...queryObj?.commonDataFilledByAssignUser?.$elemMatch,
+          "quarterlyDataOfTheCM.requestSheet_quarter":
+            req.query?.selectedQuarter,
+        };
+    } else {
+      if (req.query?.selectedMonth)
         queryObj = {
           commonDataFilledByAssignUser: {
             $elemMatch: {
               "preAggregationTimeStampOfRequestSheet.requestSheet_month":
                 req.query?.selectedMonth,
+            },
+          },
+        };
+
+      if (req.query?.selectedQuarter)
+        queryObj = {
+          commonDataFilledByAssignUser: {
+            $elemMatch: {
+              "quarterlyDataOfTheCM.requestSheet_quarter":
+                req.query?.selectedQuarter,
             },
           },
         };

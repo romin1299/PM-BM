@@ -1979,29 +1979,307 @@ router.get(
   }
 );
 
+// router.get(
+//   `/getReqSheetDataForCalendar/:filter/:selectedId`,
+//   authenticate,
+//   filterMiddleware,
+//   async (req, res) => {
+//     try {
+//       delete req.queryObj[
+//         "preAggregationTimeStampOfRequestSheet.requestSheet_month"
+//       ];
+
+//       let findYearObject = [],
+//         weekFilteration = [];
+
+//       const toDate = new Date(req?.query?.toDate);
+
+//       // if (
+//       //   req?.query?.calendarViewType === "multiMonthYear" ||
+//       //   req?.query?.calendarViewType === "dayGridWeek" ||
+//       //   req?.query?.calendarViewType === "dayGridMonth"
+
+//       // ) {
+//       delete req.queryObj["commonDataFilledByAssignUser"];
+//       findYearObject = [
+//         {
+//           $addFields: {
+//             allQuartelyData: {
+//               $map: {
+//                 input: {
+//                   $filter: {
+//                     input: "$commonDataFilledByAssignUser",
+//                     as: "yearWiseData",
+//                     cond: {
+//                       $in: [
+//                         "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+//                         [
+//                           req?.query?.selectedYear,
+//                           `${req?.query?.selectedYear?.split("-")[0] - 1}-${
+//                             req?.query?.selectedYear?.split("-")[0]
+//                           }`,
+//                         ],
+//                       ],
+//                     },
+//                   },
+//                 },
+//                 as: "filterQuatrlyData",
+//                 in: {
+//                   $filter: {
+//                     input: "$$filterQuatrlyData.quarterlyDataOfTheCM",
+//                     as: "getParticularQuarter",
+//                     cond: {
+//                       $cond: [
+//                         {
+//                           $eq: [
+//                             "$$filterQuatrlyData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+//                             `${req?.query?.selectedYear?.split("-")[0] - 1}-${
+//                               req?.query?.selectedYear?.split("-")[0]
+//                             }`,
+//                           ],
+//                         },
+//                         {
+//                           $eq: [
+//                             "$$getParticularQuarter.requestSheet_quarter",
+//                             "Q4",
+//                           ],
+//                         },
+//                         {
+//                           $in: [
+//                             "$$getParticularQuarter.requestSheet_quarter",
+//                             ["Q1", "Q2", "Q3"],
+//                           ],
+//                         },
+//                       ],
+//                     },
+//                   },
+//                 },
+//               },
+//             },
+//           },
+//         },
+//         {
+//           $unwind: "$allQuartelyData",
+//         },
+//         {
+//           $unwind: "$allQuartelyData",
+//         },
+//       ];
+//       // }
+//       // else {
+//       //   findYearObject.push({
+//       //     $addFields: {
+//       //       allQuartelyData: {
+//       //         $arrayElemAt: [
+//       //           {
+//       //             $filter: {
+//       //               input: {
+//       //                 $getField: {
+//       //                   field: "quarterlyDataOfTheCM",
+//       //                   input: {
+//       //                     $arrayElemAt: [
+//       //                       {
+//       //                         $filter: {
+//       //                           input: "$commonDataFilledByAssignUser",
+//       //                           as: "yearWiseData",
+//       //                           cond: {
+//       //                             $eq: [
+//       //                               "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+//       //                               req?.query?.selectedYear,
+//       //                             ],
+//       //                           },
+//       //                         },
+//       //                       },
+//       //                       0,
+//       //                     ],
+//       //                   },
+//       //                 },
+//       //               },
+//       //               as: "quarterWiseData",
+//       //               cond: {
+//       //                 // $lte: [
+//       //                 //   { $toDate: "$$quarterWiseData.targetDateOfCM" },
+//       //                 //   toDate,
+//       //                 // ],
+
+//       //                 $eq: [
+//       //                   "$$quarterWiseData.requestSheet_quarter",
+//       //                   //need to change this quarter when user select previous year filter
+//       //                   getFinancialQuarterByMonth(req?.query?.selectedMonth),
+//       //                 ],
+//       //               },
+//       //             },
+//       //           },
+//       //           0,
+//       //         ],
+//       //       },
+//       //     },
+//       //   });
+//       // }
+
+//       if (
+//         (req?.query?.calendarViewType === "dayGridWeek" ||
+//           req?.query?.calendarViewType === "dayGridMonth" ||
+//           req?.query?.calendarViewType === "dayGridDay") &&
+//         req?.query?.fromDate &&
+//         req?.query?.toDate
+//       ) {
+//         weekFilteration = [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [
+//                   // {
+//                   //   $gte: [
+//                   //     { $toDate: "$allQuartelyData.targetDateOfCM" },
+//                   //     fromDate,
+//                   //   ],
+//                   // },
+//                   {
+//                     $lte: [
+//                       { $toDate: "$allQuartelyData.targetDateOfCM" },
+//                       toDate,
+//                     ],
+//                   },
+//                 ],
+//               },
+//             },
+//           },
+//         ];
+//       }
+//       const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
+//         {
+//           $match: req?.queryObj,
+//         },
+//         ...findYearObject,
+//         ...weekFilteration,
+//         {
+//           $lookup: {
+//             from: "planttomachinehierarchies",
+//             localField: "plantToMachineHierarchyRef",
+//             foreignField: "_id",
+//             as: "plantToMachineHierarchy",
+//           },
+//         },
+//         {
+//           $project: {
+//             id: "$_id",
+//             _id: 0,
+//             machineNo: {
+//               $arrayElemAt: [
+//                 "$plantToMachineHierarchy.machine.machine_code",
+//                 0,
+//               ],
+//             },
+//             machineName: {
+//               $arrayElemAt: [
+//                 "$plantToMachineHierarchy.machine.machine_name",
+//                 0,
+//               ],
+//             },
+//             title: {
+//               $concat: [
+//                 {
+//                   $arrayElemAt: [
+//                     "$plantToMachineHierarchy.machine.machine_name",
+//                     0,
+//                   ],
+//                 },
+//                 " - ",
+//                 "$cmBasicDataFilledByMTD_TL.activityOfCM",
+//               ],
+//             },
+//             start: {
+//               $dateToString: {
+//                 format: "%Y-%m-%d",
+//                 date: {
+//                   $toDate: {
+//                     $getField: {
+//                       field: "targetDateOfCM",
+//                       input: "$allQuartelyData",
+//                     },
+//                   },
+//                 },
+//                 timezone,
+//               },
+//             },
+//             end: {
+//               $dateToString: {
+//                 format: "%Y-%m-%d",
+//                 date: {
+//                   $toDate: {
+//                     $getField: {
+//                       field: "activityEndDateOfCM",
+//                       input: "$allQuartelyData",
+//                     },
+//                   },
+//                 },
+//                 timezone,
+//               },
+//             },
+//             backgroundColor: {
+//               $cond: [
+//                 {
+//                   $eq: ["$requestSheetOfBMRef", null],
+//                 },
+//                 "#FF9D23",
+//                 "#D91656",
+//               ],
+//             },
+//           },
+//         },
+//         {
+//           $match: {
+//             $or: [{ start: { $ne: undefined } }, { end: { $ne: undefined } }],
+//           },
+//         },
+//       ]);
+//       res.status(200).json({
+//         message: "Request sheet data for calendar fetched successfully",
+//         reqSheetDataForCalendar,
+//       });
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }
+// );
+
 router.get(
   `/getReqSheetDataForCalendar/:filter/:selectedId`,
   authenticate,
   filterMiddleware,
   async (req, res) => {
     try {
-      delete req.queryObj[
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month"
-      ];
-
-      let findYearObject = [],
-        weekFilteration = [];
-
-      const toDate = new Date(req?.query?.toDate);
-
-      // if (
-      //   req?.query?.calendarViewType === "multiMonthYear" ||
-      //   req?.query?.calendarViewType === "dayGridWeek" ||
-      //   req?.query?.calendarViewType === "dayGridMonth"
-
-      // ) {
-      delete req.queryObj["commonDataFilledByAssignUser"];
-      findYearObject = [
+      req.queryObj.commonDataFilledByAssignUser.$elemMatch = {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year": {
+          $in: [
+            `${req?.query?.selectedYear?.split("-")[1]}-${
+              req?.query?.selectedYear?.split("-")[1] * 1 + 1
+            }`,
+            req?.query?.selectedYear,
+            `${req?.query?.selectedYear?.split("-")[0] - 1}-${
+              req?.query?.selectedYear?.split("-")[0]
+            }`,
+          ],
+        },
+        quarterlyDataOfTheCM: {
+          $elemMatch: {
+            $or: [
+              { targetDateOfCM: { $nin: ["", null, undefined] } },
+              { activityEndDateOfCM: { $nin: ["", null, undefined] } },
+            ],
+            targetDateOfCM: {
+              $gte: req?.query?.fromDate,
+              $lte: req?.query?.toDate,
+            },
+          },
+        },
+      };
+      
+      const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
+        {
+          $match: req?.queryObj,
+        },
         {
           $addFields: {
             allQuartelyData: {
@@ -2014,6 +2292,9 @@ router.get(
                       $in: [
                         "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
                         [
+                          `${req?.query?.selectedYear?.split("-")[1]}-${
+                            req?.query?.selectedYear?.split("-")[1] * 1 + 1
+                          }`,
                           req?.query?.selectedYear,
                           `${req?.query?.selectedYear?.split("-")[0] - 1}-${
                             req?.query?.selectedYear?.split("-")[0]
@@ -2045,9 +2326,28 @@ router.get(
                           ],
                         },
                         {
-                          $in: [
-                            "$$getParticularQuarter.requestSheet_quarter",
-                            ["Q1", "Q2", "Q3"],
+                          $cond: [
+                            {
+                              $eq: [
+                                "$$filterQuatrlyData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                                `${req?.query?.selectedYear?.split("-")[1]}-${
+                                  req?.query?.selectedYear?.split("-")[1] * 1 +
+                                  1
+                                }`,
+                              ],
+                            },
+                            {
+                              $eq: [
+                                "$$getParticularQuarter.requestSheet_quarter",
+                                "Q1",
+                              ],
+                            },
+                            {
+                              $in: [
+                                "$$getParticularQuarter.requestSheet_quarter",
+                                ["Q1", "Q2", "Q3", "Q4"],
+                              ],
+                            },
                           ],
                         },
                       ],
@@ -2064,95 +2364,6 @@ router.get(
         {
           $unwind: "$allQuartelyData",
         },
-      ];
-      // }
-      // else {
-      //   findYearObject.push({
-      //     $addFields: {
-      //       allQuartelyData: {
-      //         $arrayElemAt: [
-      //           {
-      //             $filter: {
-      //               input: {
-      //                 $getField: {
-      //                   field: "quarterlyDataOfTheCM",
-      //                   input: {
-      //                     $arrayElemAt: [
-      //                       {
-      //                         $filter: {
-      //                           input: "$commonDataFilledByAssignUser",
-      //                           as: "yearWiseData",
-      //                           cond: {
-      //                             $eq: [
-      //                               "$$yearWiseData.preAggregationTimeStampOfRequestSheet.requestSheet_year",
-      //                               req?.query?.selectedYear,
-      //                             ],
-      //                           },
-      //                         },
-      //                       },
-      //                       0,
-      //                     ],
-      //                   },
-      //                 },
-      //               },
-      //               as: "quarterWiseData",
-      //               cond: {
-      //                 // $lte: [
-      //                 //   { $toDate: "$$quarterWiseData.targetDateOfCM" },
-      //                 //   toDate,
-      //                 // ],
-
-      //                 $eq: [
-      //                   "$$quarterWiseData.requestSheet_quarter",
-      //                   //need to change this quarter when user select previous year filter
-      //                   getFinancialQuarterByMonth(req?.query?.selectedMonth),
-      //                 ],
-      //               },
-      //             },
-      //           },
-      //           0,
-      //         ],
-      //       },
-      //     },
-      //   });
-      // }
-
-      if (
-        (req?.query?.calendarViewType === "dayGridWeek" ||
-          req?.query?.calendarViewType === "dayGridMonth" ||
-          req?.query?.calendarViewType === "dayGridDay") &&
-        req?.query?.fromDate &&
-        req?.query?.toDate
-      ) {
-        weekFilteration = [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  // {
-                  //   $gte: [
-                  //     { $toDate: "$allQuartelyData.targetDateOfCM" },
-                  //     fromDate,
-                  //   ],
-                  // },
-                  {
-                    $lte: [
-                      { $toDate: "$allQuartelyData.targetDateOfCM" },
-                      toDate,
-                    ],
-                  },
-                ],
-              },
-            },
-          },
-        ];
-      }
-      const reqSheetDataForCalendar = await RequestSheetOfCM.aggregate([
-        {
-          $match: req?.queryObj,
-        },
-        ...findYearObject,
-        ...weekFilteration,
         {
           $lookup: {
             from: "planttomachinehierarchies",
@@ -2228,13 +2439,10 @@ router.get(
             },
           },
         },
-        {
-          $match: {
-            $or: [{ start: { $ne: undefined } }, { end: { $ne: undefined } }],
-          },
-        },
       ]);
+
       res.status(200).json({
+        totalDoc: reqSheetDataForCalendar?.length,
         message: "Request sheet data for calendar fetched successfully",
         reqSheetDataForCalendar,
       });
@@ -2243,7 +2451,6 @@ router.get(
     }
   }
 );
-
 // const middlewareForSectionAndSubSectionLookup = async (req, res, next) => {
 //   try {
 //     let queryObjPipeline = [];
