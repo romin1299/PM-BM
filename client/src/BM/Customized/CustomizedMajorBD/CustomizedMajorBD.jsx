@@ -59,24 +59,7 @@ const CustomizedMajorBD = ({
       console.log(error);
     }
   };
-
-  // const getMajorBDTime = async () => {
-  //   try {
-  //     // console.log(selectedSection, selectedSubSection);
-  //     const response = await axios.get(
-  //       `/getMajorBDTime/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}`
-  //     );
-  //     setMajorBDTime(
-  //       response?.data?.majorBDTime ? response?.data?.majorBDTime : 120
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   getMajorBDTime();
-  // }, [reduceState?.selectedValue]);
-
+  // console.log(majorBDTime)
   return (
     <div className="cell p-3">
       <div>

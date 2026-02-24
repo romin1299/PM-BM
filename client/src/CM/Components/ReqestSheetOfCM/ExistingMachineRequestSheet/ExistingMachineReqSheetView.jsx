@@ -209,15 +209,18 @@ const ExistingMachineReqSheetView = ({
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        params: {
+          requestSheetStatusOfCM: watch(
+            "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
+          ),
+          getDataForApprovalDashboard: watch(
+            "current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id"
+          ),
+          isOtherFieldsEditableOrNot,
+        },
       };
       const response = await axios.patch(
-        `/sendApprovalForRequestSheetOfCM/${watch(
-          "_id"
-        )}/?requestSheetStatusOfCM=${watch(
-          "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
-        )}&&getDataForApprovalDashboard=${watch(
-          "current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id"
-        )}&&isOtherFieldsEditableOrNot=${isOtherFieldsEditableOrNot}`,
+        `/sendApprovalForRequestSheetOfCM/${watch("_id")}`,
         formData,
         config
       );

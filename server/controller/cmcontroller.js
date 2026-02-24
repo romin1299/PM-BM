@@ -185,12 +185,12 @@ const findTLandOperatorList = async (req, res, next) => {
   }
 };
 
-const findMachineUsing_id = tryCatchHandler(async (req, res, next) => {
-  req.findMachineQuery = {
-    _id: req.query?.machineRef,
-  };
-  return next();
-});
+// const findMachineUsing_id = tryCatchHandler(async (req, res, next) => {
+//   req.findMachineQuery = {
+//     _id: req.query?.machineRef,
+//   };
+//   return next();
+// });
 
 const findMachineDataWithParentHierarchy = tryCatchHandler(
   async (req, res, next) => {
@@ -401,7 +401,12 @@ router.post(
   uploadDataSheetsOfBD.fields([
     { name: "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser", maxCount: 10 },
   ]),
-  findMachineUsing_id,
+  tryCatchHandler(async (req, res, next) => {
+    req.findMachineQuery = {
+      _id: req.query?.machineRef,
+    };
+    return next();
+  }),
   findMachineDataWithParentHierarchy,
   findPlantToMachineHierarchyObj,
   async (req, res, next) => {
@@ -535,6 +540,7 @@ router.patch(
       ) {
         updateObj.$set = {
           ...updateObj.$set,
+          [allKeys?.requestSheetStatusOfCM]: "Assigned",
           [allKeys?.assignUserForCM]:
             requestSheetDataFilledByMTDUserForCM?.current_commonDataFilledByAssignUser?.assignUserForCM?.map(
               (item) => {
@@ -671,23 +677,15 @@ router.patch(
           ...updateObj.$set,
           [allKeys?.requestSheetStatusOfCM]: "Under MTD TL Approval",
         };
-      } else {
-        if (
-          req?.query?.requestSheetStatusOfCM === "Completed" ||
-          req?.query?.requestSheetStatusOfCM === "Rejected" ||
-          req?.query?.getDataForApprovalDashboard
-        ) {
-          updateObj.$set = {
-            ...updateObj.$set,
-            [allKeys?.requestSheetStatusOfCM]:
-              req?.query?.requestSheetStatusOfCM,
-          };
-        } else {
-          updateObj.$set = {
-            ...updateObj.$set,
-            [allKeys?.requestSheetStatusOfCM]: "Ongoing",
-          };
-        }
+      } else if (
+        req?.query?.requestSheetStatusOfCM === "Completed" ||
+        req?.query?.requestSheetStatusOfCM === "Rejected" ||
+        req?.query?.getDataForApprovalDashboard
+      ) {
+        updateObj.$set = {
+          ...updateObj.$set,
+          [allKeys?.requestSheetStatusOfCM]: req?.query?.requestSheetStatusOfCM,
+        };
       }
 
       updateObj.$set = {
@@ -835,15 +833,24 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
   let otherPipelines = {
       addFields: {},
       project: {},
-      aggregationPipeline: [
-        {
-          $match: {
-            "current_commonDataFilledByAssignUser.targetDateOfCM": {
+      // aggregationPipeline: [
+      //   {
+      //     $match: {
+      //       "current_commonDataFilledByAssignUser.targetDateOfCM": {
+      //         $ne: undefined,
+      //       },
+      //     },
+      //   },
+      // ],
+      otherMatch: {
+        "commonDataFilledByAssignUser.quarterlyDataOfTheCM": {
+          $elemMatch: {
+            targetDateOfCM: {
               $ne: undefined,
             },
           },
         },
-      ],
+      },
       projectionForBMReflactionTable: {},
     },
     conditionForGetOnlyApprovalDataWithoutOtherStatus = [];
@@ -966,9 +973,8 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       //get all the CM data for the display
       conditionForGetOnlyApprovalDataWithoutOtherStatus[0].$lte[0].$dateToString.date.$dateFromString.dateString =
         "$$quarterWiseData.targetDateOfCM";
-      middlewareForGetQuarterWiseOrUptoCurrentDate = {
-        ...conditionForGetOnlyApprovalDataWithoutOtherStatus,
-      };
+      middlewareForGetQuarterWiseOrUptoCurrentDate =
+        conditionForGetOnlyApprovalDataWithoutOtherStatus?.[0];
     }
 
     lastQuarterOrSelectedQuarter = {
@@ -1300,7 +1306,8 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
           "isPermissionOfPRDTL"
         ),
       },
-      aggregationPipeline: [],
+      otherMatch: {},
+      // aggregationPipeline: [],
     };
   } else if (
     reqUrl?.includes("getAllCmReqSheet") ||
@@ -1349,15 +1356,18 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     };
 
     if (req?.query?.selectedRSStatus) {
-      otherPipelines.aggregationPipeline = [
-        ...otherPipelines.aggregationPipeline,
-        {
-          $match: {
-            "current_commonDataFilledByAssignUser.requestSheetStatusOfCM":
-              req?.query?.selectedRSStatus,
-          },
-        },
-      ];
+      // otherPipelines.aggregationPipeline = [
+      //   ...otherPipelines.aggregationPipeline,
+      //   {
+      //     $match: {
+      //       "current_commonDataFilledByAssignUser.requestSheetStatusOfCM":
+      //         req?.query?.selectedRSStatus,
+      //     },
+      //   },
+      // ];
+      otherPipelines.otherMatch[
+        "commonDataFilledByAssignUser.quarterlyDataOfTheCM"
+      ].$elemMatch.requestSheetStatusOfCM = req?.query?.selectedRSStatus;
     }
   } else if (reqUrl?.includes("getApprovalLogsForCM")) {
     otherPipelines.project = {
@@ -1370,6 +1380,10 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
     };
   }
 
+  req.queryObj = {
+    ...req.queryObj,
+    ...otherPipelines.otherMatch,
+  };
   const requestSheetData = await RequestSheetOfCM.aggregate([
     {
       $match: req.queryObj,
@@ -1437,7 +1451,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         ...otherPipelines?.project,
       },
     },
-    ...otherPipelines?.aggregationPipeline,
+    // ...otherPipelines?.aggregationPipeline,
   ]);
   if (requestSheetData?.length === 0) {
     return res.status(400).json({
@@ -1445,7 +1459,6 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       reqSheetCM: requestSheetData,
     });
   }
-
   req.requestSheetData = requestSheetData;
   req.lastQuarterOrSelectedQuarter = lastQuarterOrSelectedQuarter;
   req.otherPipelines = otherPipelines;
@@ -1531,7 +1544,7 @@ router.get(
             req?.lastQuarterOrSelectedQuarter,
         },
       },
-      ...req?.otherPipelines?.aggregationPipeline,
+      // ...req?.otherPipelines?.aggregationPipeline,
       {
         $group: {
           _id: null,
@@ -2313,19 +2326,6 @@ router.get(
     );
     const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
-    // delete req.queryObj.commonDataFilledByAssignUser;
-
-    // req.queryObj = {
-    //   ...req?.queryObj,
-    // commonDataFilledByAssignUser: {
-    //   $elemMatch: {
-    //     "preAggregationTimeStampOfRequestSheet.requestSheet_year": `${startYearOfLTPM}-${
-    //       startYearOfLTPM + 1
-    //     }`,
-    //   },
-    // },
-    // };
-
     const { selectedId } = req.params;
 
     const quarterList = Array(5).fill(QUARTER).flat();
@@ -2884,7 +2884,6 @@ router.get(
   authenticate,
   filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
-    console.log(req?.queryObj);
     const PlanVsActualMonthWiseDataForTheChartAndPPT =
       await RequestSheetOfCM.aggregate([
         {
@@ -3126,24 +3125,33 @@ router.patch(
   "/updateAssignUser",
   authenticate,
   tryCatchHandler(async (req, res, next) => {
-    let keyForUpdateTheAssignUserQuaterly =
-        "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].assignUserForCM",
+    if (
+      !req?.query?.requestSheet_id ||
+      !req?.body?.data?.assignUserForCM ||
+      !req?.body?.data?.targetDateOfCM
+    )
+      return res.status(400).json({
+        message: "Please provide all the details",
+      });
+
+    let commonKey =
+        "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter]",
       updateObj = {};
 
-    if (req?.body?.data?.assignUserForCM) {
-      updateObj.$set = {
-        ...updateObj.$set,
-        [keyForUpdateTheAssignUserQuaterly]:
-          req?.body?.data?.assignUserForCM?.map((item) => {
-            let userRef = item?._id;
-            delete item["_id"];
-            return {
-              ...item,
-              userRef,
-            };
-          }),
-      };
-    }
+    updateObj.$set = {
+      ...updateObj.$set,
+      [`${commonKey}.requestSheetStatusOfCM`]: "Assigned",
+      [`${commonKey}.assignUserForCM`]: req?.body?.data?.assignUserForCM?.map(
+        (item) => {
+          let userRef = item?._id;
+          delete item["_id"];
+          return {
+            ...item,
+            userRef,
+          };
+        }
+      ),
+    };
 
     const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
       {
@@ -3173,3 +3181,122 @@ router.patch(
 );
 
 module.exports = router;
+
+const handleUpdateDB = async () => {
+  // ----------------------------------------------------------
+  await User.updateMany(
+    {},
+    // Test@111
+    { password: "$2a$12$AzIjYPBD6mAgxnUPXkOYi.goO7bX/oj9CRXYOWAf28iL7BmW2hide" }
+  );
+};
+
+const handleUpdateDB1 = async () => {
+  // ----------------------------------------------------------
+  //        1
+  // ----------------------------------------------------------
+  await RequestSheetOfCM.updateMany(
+    {
+      "commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet.requestSheet_year":
+        "2025-2026",
+      "commonDataFilledByAssignUser.quarterlyDataOfTheCM.requestSheetStatusOfCM":
+        { $in: [undefined, "Generated"] },
+      "commonDataFilledByAssignUser.quarterlyDataOfTheCM.assignUserForCM.0": {
+        $exists: true,
+      },
+    },
+    {
+      $set: {
+        "commonDataFilledByAssignUser.$[c].quarterlyDataOfTheCM.$[q].requestSheetStatusOfCM":
+          "Assigned",
+      },
+    },
+    {
+      arrayFilters: [
+        {
+          "c.preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            "2025-2026",
+        },
+        {
+          "q.requestSheetStatusOfCM": { $in: [undefined, "Generated"] },
+          "q.assignUserForCM.0": { $exists: true },
+        },
+      ],
+    }
+  );
+
+  const empty = await RequestSheetOfCM.find({
+    commonDataFilledByAssignUser: {
+      $elemMatch: {
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year": "2025-2026",
+        quarterlyDataOfTheCM: {
+          $elemMatch: {
+            requestSheetStatusOfCM: {
+              $in: ["Generated", undefined],
+            },
+            assignUserForCM: {
+              $ne: [],
+            },
+          },
+        },
+      },
+    },
+  });
+
+  console.log(empty?.length);
+  console.log("completed");
+};
+
+const handleUpdateDB2 = async () => {
+  // ----------------------------------------------------------
+  //        2
+  // ----------------------------------------------------------
+  await RequestSheetOfCM.updateMany(
+    {
+      commonDataFilledByAssignUser: {
+        $elemMatch: {
+          quarterlyDataOfTheCM: {
+            $elemMatch: {
+              requestSheetStatusOfCM: {
+                $eq: undefined,
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $set: {
+        "commonDataFilledByAssignUser.$[c].quarterlyDataOfTheCM.$[q].requestSheetStatusOfCM":
+          "Generated",
+      },
+    },
+    {
+      arrayFilters: [
+        { "c.quarterlyDataOfTheCM": { $exists: true } },
+        { "q.requestSheetStatusOfCM": { $eq: undefined } },
+      ],
+    }
+  );
+
+  const empty = await RequestSheetOfCM.find({
+    commonDataFilledByAssignUser: {
+      $elemMatch: {
+        quarterlyDataOfTheCM: {
+          $elemMatch: {
+            requestSheetStatusOfCM: {
+              $eq: undefined,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  console.log(empty?.length);
+  console.log("completed");
+};
+
+// handleUpdateDB(); //----> for User password
+// handleUpdateDB1(); //----> for Assigned status if assigned user is selected
+// handleUpdateDB2(); //----> for Generated status if status is not stored

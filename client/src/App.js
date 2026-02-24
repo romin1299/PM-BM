@@ -270,6 +270,14 @@ function App() {
       ),
     },
     // {
+    //   name: "Spare",
+    //   keyUrl: "spare",
+    //   icon: ACTIVITY_Cal,
+    //   dashboardAndRoutes: (
+    //     <Spare_Routes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+    //   ),
+    // },
+    // {
     //   name: "MTD KPI",
     //   keyUrl: "kpi",
     //   icon: <BsHammer />,

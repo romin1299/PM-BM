@@ -16710,8 +16710,6 @@ router.get(
         },
       ]);
 
-      delete req.queryObjForBM.maintenanceType;
-      delete req.queryObjForBM["maintenanceReportFilledByMTD.breakDownTime"];
       const noLossTrend = await NoLossBD.aggregate([
         {
           $match: req.queryObjForBM,
@@ -16967,8 +16965,6 @@ router.get(
         },
       ]);
 
-      delete req.queryObjForBM.maintenanceType;
-      delete req.queryObjForBM["maintenanceReportFilledByMTD.breakDownTime"];
       const NoLossDataTrend = await NoLossBD.aggregate([
         {
           $match: req.queryObjForBM,
