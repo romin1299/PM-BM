@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkclient=self.webpackChunkclient||[]).push([[679],{49679(e,s,t){t.r(s),t.d(s,{default:()=>i});t(9950);var c=t(44414);const i=()=>(0,c.jsx)("div",{children:"SpareRegistration"})}}]);

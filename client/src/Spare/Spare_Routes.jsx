@@ -1,19 +1,40 @@
-import React, { useContext } from "react";
+import React, { useContext, lazy } from "react";
+
 import RoutingContext from "../context/routing/RoutingContext";
 
 import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
 import { menuItems } from "./SpareSidebar/menuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
-import SpareKPI from "./Pages/SpareKPI/SpareKPI";
-import SpareSearchButton from "./Pages/SpareSearchButton/SpareSearchButton";
-import SpareNewPartRequest from "./Pages/SpareNewPartRequest/SpareNewPartRequest";
-import SpareApprovalDashboard from "./Pages/SpareApprovalDashboard/SpareApprovalDashboard";
-import SpareOrderingDashboard from "./Pages/SpareOrderingDashboard/SpareOrderingDashboard";
-import SpareReceivingDashboard from "./Pages/SpareReceivingDashboard/SpareReceivingDashboard";
-import SpareRegistration from "./Pages/SpareRegistration/SpareRegistration";
-import SparePartIssuance from "./Pages/SparePartIssuance/SparePartIssuance";
-import SpareBudgetDashboard from "./Pages/SpareBudgetDashboard/SpareBudgetDashboard";
-import SpareReports from "./Pages/SpareReports/SpareReports";
+
+const SpareKPI = lazy(() => import("./Pages/SpareKPI/SpareKPI"));
+const SpareSearchButton = lazy(() =>
+  import("./Pages/SpareSearchButton/SpareSearchButton")
+);
+const SpareNewPartRequest = lazy(() =>
+  import("./Pages/SpareNewPartRequest/SpareNewPartRequest")
+);
+const SpareApprovalDashboard = lazy(() =>
+  import("./Pages/SpareApprovalDashboard/SpareApprovalDashboard")
+);
+const SpareOrderingDashboard = lazy(() =>
+  import("./Pages/SpareOrderingDashboard/SpareOrderingDashboard")
+);
+const SpareReceivingDashboard = lazy(() =>
+  import("./Pages/SpareReceivingDashboard/SpareReceivingDashboard")
+);
+const SpareRegistration = lazy(() =>
+  import("./Pages/SpareRegistration/SpareRegistration")
+);
+const SparePartIssuance = lazy(() =>
+  import("./Pages/SparePartIssuance/SparePartIssuance")
+);
+const SpareBudgetDashboard = lazy(() =>
+  import("./Pages/SpareBudgetDashboard/SpareBudgetDashboard")
+);
+const SpareReports = lazy(() => import("./Pages/SpareReports/SpareReports"));
+const SpareCustomized = lazy(() =>
+  import("./Pages/SpareCustomized/SpareCustomized")
+);
 
 const Spare_Routes = ({ commonRoutes = [] }) => {
   const context = useContext(RoutingContext);
@@ -57,6 +78,10 @@ const Spare_Routes = ({ commonRoutes = [] }) => {
     {
       path: "/spare/spareReports",
       element: <SpareReports />,
+    },
+    {
+      path: "/spare/customizedDashboard",
+      element: <SpareCustomized />,
     },
   ];
 

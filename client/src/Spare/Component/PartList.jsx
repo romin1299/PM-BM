@@ -27,7 +27,7 @@ const PartList = ({
       <div className="d-flex align-items-center flex-wrap">
         {fields.map((item, index) => (
           <div key={item.id} className="m-0 p-0 w-50">
-            <Row key={item.id} className="m-0 p-1 d-flex border flex-column">
+            <Row key={item.id} className="m-0 p-1 d-flex flex-column">
               <Col className="d-flex border col-auto gap-1 m-2 mt-0 mb-0 p-2 flex-wrap align-items-center justify-content-between">
                 <small>
                   <b>Part Details {index + 1}</b>
@@ -42,7 +42,7 @@ const PartList = ({
 
               <Col className="d-flex flex-column border col-auto m-2 mt-0 mb-1 p-2 pt-0 pb-0 flex-wrap align-items-center justify-content-between">
                 <Col
-                  className={`w-100 m-0 d-flex align-items-center justify-content-between `}
+                  className={`w-100 m-0 d-flex align-items-center justify-content-between pt-1`}
                 >
                   <small>Part name</small>
                   <input
@@ -114,7 +114,7 @@ const PartList = ({
                 <Col
                   className={`w-100 m-0 d-flex align-items-center justify-content-between `}
                 >
-                  <small>Approx unit price</small>
+                  <small>Approx unit price(Inr)</small>
                   <input
                     type="number"
                     className="w-75"
@@ -141,17 +141,41 @@ const PartList = ({
 
                 {watch(`changeParts.${index}.standerOrManufacturingPart`) ===
                   partTypes?.[1]?.value && (
-                  <Col
-                    className={`w-100 m-0 d-flex align-items-center justify-content-between `}
-                  >
-                    <small>Drawing attach</small>
-                    <input
-                      type="file"
-                      className="w-75 "
-                      style={{ fontSize: "13px" }}
-                      {...register(`changeParts.${index}.drawingAttach`)}
-                    />
-                  </Col>
+                  <>
+                    <Col
+                      className={`w-100 m-0 d-flex align-items-center justify-content-between pb-1`}
+                    >
+                      <small>Drawing attach</small>
+                      <input
+                        type="file"
+                        className="w-75 "
+                        style={{ fontSize: "13px" }}
+                        {...register(`changeParts.${index}.drawingAttach`)}
+                      />
+                    </Col>
+
+                    {watch(
+                      `changeParts.${index}.drawingAttachOriginalName`
+                    ) && (
+                      <Col
+                        className={`w-100 m-0 d-flex align-items-center justify-content-between pb-1`}
+                      >
+                        <small>Previously uploaded drawing attach</small>
+                        <a
+                          target="_blank"
+                          href={`${
+                            process.env.REACT_APP_BASE_URL
+                          }/v1/spare/${watch(
+                            `changeParts.${index}.drawingAttach`
+                          )}`}
+                        >
+                          {watch(
+                            `changeParts.${index}.drawingAttachOriginalName`
+                          )}
+                        </a>
+                      </Col>
+                    )}
+                  </>
                 )}
               </Col>
             </Row>
@@ -159,7 +183,7 @@ const PartList = ({
         ))}
       </div>
 
-      <Row className="m-0  p-1 border">
+      <Row className="m-2 p-1 border">
         {((watch("partQty") === partQtyOptions?.[0]?.value &&
           watch("changeParts")?.length <= 0) ||
           watch("partQty") === partQtyOptions?.[1]?.value) && (

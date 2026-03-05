@@ -55,7 +55,7 @@
 
 // export default App;
 
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, Tab, Row, Col } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -91,8 +91,10 @@ import MTD_KPI from "./static/Icons/MTD_KPI.png";
 import ACTIVITY_Cal from "./static/Icons/ACTIVITY_CAL.png";
 import CM_Routes from "./CM/CM_Routes";
 import ActivityRoutes from "./CM/Pages/ActivityCalendar/ActivityRoutes";
-import Spare_Routes from "./Spare/Spare_Routes";
 import { clearLocalStorage } from "./BM/Component/GlobalDataDisplayOrHandle";
+
+import Spare_Routes from "./Spare/Spare_Routes";
+import SparePageLoading from "./Spare/Component/SparePageLoading";
 
 function App() {
   //DENSO-HARYANA
@@ -266,7 +268,9 @@ function App() {
       keyUrl: "spare",
       icon: ACTIVITY_Cal,
       dashboardAndRoutes: (
-        <Spare_Routes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+        <Suspense fallback={<SparePageLoading />}>
+          <Spare_Routes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+        </Suspense>
       ),
     },
     // {

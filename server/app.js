@@ -45,9 +45,12 @@ app.use(require(path.join(__dirname, "./controller/cmcontroller")));
 app.use(
   "/v1/spare",
   require("./middleware/authenticate"),
+  express.static(path.join(__dirname, "spareDocuments")),
   require("./routes/spareManagement/userRoutes"),
   require("./routes/spareManagement/spareCRUDRoutes"),
-  require("./routes/spareManagement/spareApprovalRoutes")
+  require("./routes/spareManagement/spareApprovalRoutes"),
+  require("./routes/spareManagement/spareDynamicApprovalRoutes"),
+  require("./routes/spareManagement/spareKPIRoutes")
 );
 
 app.use(

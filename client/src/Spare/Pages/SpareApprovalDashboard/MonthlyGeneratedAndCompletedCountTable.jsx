@@ -11,7 +11,7 @@ const MonthlyGeneratedAndCompletedCountTable = () => {
   ]);
 
   return (
-    <Box className="cell p-3 rounded-2">
+    <Box className="cell p-2 rounded-2">
       <Box
         sx={{
           width: "100%",

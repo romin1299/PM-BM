@@ -1,25 +1,46 @@
 import React from "react";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 
-import useSafeGetRequest from "../../../CustomHooks/useSafeGetRequest";
+import useSafeGetRequest from "../../CustomHooks/useSafeGetRequest";
 
 import {
   MaterialTableOptions,
   MaterialTableStyle,
   MaterialTableSX,
-} from "../../../BM/Utils/TableUtils/MaterialTableProps";
-import tableIcons from "../../../components/MatrialTableIcon";
+} from "../../BM/Utils/TableUtils/MaterialTableProps";
+import tableIcons from "../../components/MatrialTableIcon";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import MaterialTable from "@material-table/core";
 
-const ApprovalTable = () => {
+const SpareSheetTable = ({
+  flagForTogglingFilter,
+  selectedValue,
+  selectedYear,
+  url = `/v1/spare/spareRequestSheet/approval`,
+  tableProps = {
+    exportMenu: {
+      exportFileNamePrefix: "Approval List of Request-Sheet",
+    },
+  },
+}) => {
+  const navigate = useNavigate();
+
   const [{ isLoading, isError, data }] = useSafeGetRequest({
-    url: `/v1/spare/spareRequestSheet/approval`,
-    // axiosConfig: {
-    //   params: {},
-    // },
-    // referenceArrayForUseEffect: [lastRefreshedTimeOfMBCData],
+    url,
+    axiosConfig: {
+      params: {
+        flagForTogglingFilter,
+        selectedValue,
+        selectedYear,
+      },
+    },
+    referenceArrayForUseEffect: [
+      flagForTogglingFilter,
+      selectedValue,
+      selectedYear,
+    ],
     initialState: {
       isLoading: true,
       isError: false,
@@ -67,13 +88,15 @@ const ApprovalTable = () => {
   ];
 
   const requestSheetApprovalAction = [
-    (row) => ({
+    {
       icon: () => <DescriptionIcon className="text-primary" />,
       tooltip: "Update Action",
       position: "row",
       //   hidden: loggedUserDetails?.tm_no === "9999",
-      onClick: (event, selectedRow) => {},
-    }),
+      onClick: (event, selectedRow) => {
+        navigate(`/spare/spareNewPartRequest/?_id=${selectedRow?._id}`);
+      },
+    },
   ];
 
   return (
@@ -83,7 +106,7 @@ const ApprovalTable = () => {
           actions: "Actions",
         },
       }}
-      // isLoading={loading}
+      isLoading={isLoading}
       actions={requestSheetApprovalAction}
       icons={tableIcons}
       columns={approvalDashboardHeader}
@@ -99,9 +122,9 @@ const ApprovalTable = () => {
               ExportPdf(
                 cols,
                 data,
-                `Approval List of Request-Sheet ${moment().format(
-                  "DD-MM-YYYY"
-                )}`
+                `${
+                  tableProps?.exportMenu?.exportFileNamePrefix
+                } ${moment().format("DD-MM-YYYY")}`
               ),
           },
           {
@@ -110,9 +133,9 @@ const ApprovalTable = () => {
               ExportCsv(
                 cols,
                 data,
-                `Approval List of Request-Sheet ${moment().format(
-                  "DD-MM-YYYY"
-                )}`
+                `${
+                  tableProps?.exportMenu?.exportFileNamePrefix
+                } ${moment().format("DD-MM-YYYY")}`
               ),
           },
         ],
@@ -123,4 +146,4 @@ const ApprovalTable = () => {
   );
 };
 
-export default ApprovalTable;
+export default SpareSheetTable;

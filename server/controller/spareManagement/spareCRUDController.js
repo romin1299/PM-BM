@@ -1,7 +1,10 @@
 const moment = require("moment-timezone");
 const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
+const { spareApprovalStatus } = require("../../utils/spareManagementUtils");
 
 const User = require("../../model/userSchema");
 const Plant = require("../../model/plantSchema");
@@ -10,14 +13,11 @@ const SubSection = require("../../model/subSectionSchema");
 const Cell = require("../../model/cellSchema");
 const Line = require("../../model/lineSchema");
 const Machine = require("../../model/machineSchema");
-
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
-const path = require("path");
-console.log(path.join(__dirname, "../../AttachedFilesByAssignedUser"));
 
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../../AttachedFilesByAssignedUser"));
+    cb(null, path.join(__dirname, "../../spareDocuments"));
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "_" + file.originalname);
@@ -28,14 +28,80 @@ exports.uploadDrawingAttach = multer({
   storage: storageForDataSheetsOfBD,
 });
 
-exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
-  let data = JSON.parse(req.body?.data);
-  const uploadFileIndexes = JSON.parse(req.body?.uploadFileIndexes);
+exports.getNewSpareSheetNoByDefault = tryCatchHandler(
+  async (req, res, next) => {
+    const { selectedLine } = req.query;
 
-  const { selectedCell, selectedLine, selectedMachine, budget } = data;
+    if (!selectedLine)
+      return res.status(400).json({
+        message: "Please provide the Line value",
+      });
+
+    let lineDetails = await Line.findOne(
+      { _id: selectedLine },
+      {
+        line_name: 1,
+        requestSheetNoSpare: 1,
+        cell_names: 1,
+      }
+    ).populate({
+      path: "cell_names",
+      select: "subSection_names",
+      populate: {
+        path: "subSection_names",
+        select: "subSection_name section_names",
+        populate: {
+          path: "section_names",
+          select: "section_name dashboardLevel",
+        },
+      },
+    });
+
+    let requestSheetNoPrefix = "";
+
+    if (
+      lineDetails?.cell_names?.subSection_names?.section_names
+        ?.dashboardLevel === "Yes"
+    )
+      requestSheetNoPrefix = `${(lineDetails?.cell_names?.subSection_names?.section_names?.section_name)
+        .trim()
+        .substring(0, 2)
+        .toUpperCase()}`;
+    else
+      requestSheetNoPrefix = `${(lineDetails?.cell_names?.subSection_names?.subSection_name)
+        .trim()
+        .substring(0, 2)
+        .toUpperCase()}`;
+
+    const requestSheetNo =
+      `${requestSheetNoPrefix}-${(lineDetails?.line_name).trim()}-${
+        moment().tz("Asia/Kolkata").month() + 1
+      }-SPARE-${
+        lineDetails?.requestSheetNoSpare
+          ? lineDetails?.requestSheetNoSpare + 1
+          : 1
+      }`.trim();
+
+    return res.status(201).json({
+      message: "Spare sheet number get successfully based on selected Line",
+      requestSheetNo,
+    });
+  }
+);
+
+exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
+  if (!req.body?.data)
+    return res.status(400).json({
+      message: "Please provide required details",
+      showToast: true,
+    });
+
+  let data = JSON.parse(req.body?.data);
+
+  const { selectedMachine } = req.query;
   let message = "Spare sheet generated successfully";
 
-  if (!selectedCell || !selectedLine || !selectedMachine)
+  if (!selectedMachine)
     return res.status(400).json({
       message: "Please provide the Cell, Line, Machine value",
       showToast: true,
@@ -97,9 +163,15 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
   data["line"] = machine?.line_names;
   data["machine"] = machine;
 
-  for (let i = 0; i < uploadFileIndexes?.length; i++) {
-    data.changeParts[uploadFileIndexes[i]].drawingAttach =
-      req.files?.[i]?.filename;
+  const uploadFileIndexes = JSON.parse(req.body?.uploadFileIndexes);
+
+  if (uploadFileIndexes?.length > 0) {
+    for (let i = 0; i < uploadFileIndexes?.length; i++) {
+      const { filename, originalname } = req.files?.drawingAttach?.[i];
+      data.changeParts[uploadFileIndexes[i]].drawingAttach = filename;
+      data.changeParts[uploadFileIndexes[i]].drawingAttachOriginalName =
+        originalname;
+    }
   }
 
   let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
@@ -132,6 +204,8 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
       moment().tz("Asia/Kolkata").month() + 1
     }-SPARE-${increaseCountOfRequestSheetInLine?.requestSheetNoSpare}`.trim();
 
+  const { budget } = data;
+
   if (!budget?.budgetStatus || !budget?.requiredBudget)
     return res.status(400).json({
       message: "Please provide details",
@@ -158,17 +232,176 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
 
     data["mtdHODApprovalIfBudgetIsNG"] = {
       user,
-      status: "Pending",
+      approvalStatus: "Pending",
     };
+    data["requestSheetStatus"] = spareApprovalStatus?.[0];
+
+    if (req.files?.documentByRequestGenerator?.[0])
+      data["ifBudgetIsNG.documentByRequestGenerator"] =
+        req.files?.documentByRequestGenerator?.[0];
 
     message = "Spare sheet send for MTD HOD approval";
   }
 
+  data["requestSheetCreatedBy"] = req.rootUser;
   const spare = new RequestSheetOfSpare(data);
   await spare.save();
 
   return res.status(201).json({
     message,
+    showToast: true,
+    spare,
+  });
+});
+
+exports.findSpareSheetBasedOnId = tryCatchHandler(async (req, res, next) => {
+  if (!req.query?._id)
+    return res.status(400).json({
+      message: "Please provide the required details",
+    });
+
+  const spare = await RequestSheetOfSpare.findOne(req.query);
+
+  if (!spare)
+    return res.status(400).json({
+      message: "No spare sheet to found",
+      showToast: true,
+    });
+
+  req.spare = spare;
+  return next();
+});
+
+exports.getSpareRequestSheetBasedOnId = tryCatchHandler(
+  async (req, res, next) => {
+    return res.status(201).json({
+      message: "Spare request sheet data get successfully",
+      spare: req.spare,
+    });
+  }
+);
+
+exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
+  if (!req.body?.data)
+    return res.status(400).json({
+      message: "Please provide required details",
+      showToast: true,
+    });
+
+  let spare = req.spare,
+    data = JSON.parse(req.body?.data);
+
+  if (data?.mtdApprovalIfNGBudget) {
+    if (!spare?.mtdHODApprovalIfBudgetIsNG?.user)
+      return res.status(400).json({
+        message: "Fist you need to send for HOD approval",
+        showToast: true,
+      });
+
+    if (
+      spare?.mtdHODApprovalIfBudgetIsNG?.user?._id?.toString() !==
+      req.rootUser?._id?.toString()
+    )
+      return res.status(400).json({
+        message: "You are not authorized to approve this spare sheet",
+        showToast: true,
+      });
+
+    let approvalStatus = "Accepted",
+      approvalDateAndTime = new Date();
+
+    if (data?.mtdApprovalIfNGBudget === "No") approvalStatus = "Rejected";
+
+    if (data?.mtdHODApprovalIfBudgetIsNG) {
+      data.mtdHODApprovalIfBudgetIsNG.approvalStatus = approvalStatus;
+      data.mtdHODApprovalIfBudgetIsNG.approvalDateAndTime = approvalDateAndTime;
+    } else {
+      data["mtdHODApprovalIfBudgetIsNG.approvalStatus"] = approvalStatus;
+      data["mtdHODApprovalIfBudgetIsNG.approvalDateAndTime"] =
+        approvalDateAndTime;
+    }
+  }
+
+  if (req.body?.uploadFileIndexes) {
+    const uploadFileIndexes = JSON.parse(req.body?.uploadFileIndexes);
+    for (let i = 0; i < uploadFileIndexes?.length; i++) {
+      if (data?.changeParts[uploadFileIndexes[i]]) {
+        const { filename, originalname } = req.files?.drawingAttach?.[i];
+        data.changeParts[uploadFileIndexes[i]].drawingAttach = filename;
+        data.changeParts[uploadFileIndexes[i]].drawingAttachOriginalName =
+          originalname;
+      }
+    }
+  }
+
+  const handleRemoveFile = (propFileName) =>
+    fs.unlink(
+      path.join(__dirname, `../../spareDocuments/${propFileName}`),
+      function (err) {
+        if (err) return console.error(err);
+      }
+    );
+
+  if (req.body?.removeFileIDs) {
+    const removeFileIDs = JSON.parse(req.body?.removeFileIDs);
+    for (let i = 0; i < removeFileIDs?.length; i++) {
+      const drawingAttach = spare?.changeParts?.find(
+        (item) => item?._id === removeFileIDs[i]
+      );
+
+      if (drawingAttach) handleRemoveFile(drawingAttach);
+    }
+  }
+
+  const { budget } = data;
+  if (budget?.budgetStatus === "NG" && spare?.budget?.budgetStatus === "OK") {
+    const { mtdHODApprovalIfBudgetIsNG } = data;
+    if (!mtdHODApprovalIfBudgetIsNG?.user?._id)
+      return res.status(400).json({
+        message: "Please select MTD HOD",
+        showToast: true,
+      });
+
+    const user = await User.findOne({
+      _id: mtdHODApprovalIfBudgetIsNG?.user?._id,
+    });
+
+    if (!user)
+      return res.status(400).json({
+        message: "User does not exist",
+        showToast: true,
+      });
+
+    data["mtdHODApprovalIfBudgetIsNG"] = {
+      user,
+      approvalStatus: "Pending",
+    };
+    data["requestSheetStatus"] = spareApprovalStatus?.[0];
+
+    if (req.files?.documentByRequestGenerator?.[0]) {
+      if (data?.ifBudgetIsNG)
+        data.ifBudgetIsNG.documentByRequestGenerator =
+          req.files?.documentByRequestGenerator?.[0];
+      else
+        data["ifBudgetIsNG.documentByRequestGenerator"] =
+          req.files?.documentByRequestGenerator?.[0];
+    }
+  } else if (
+    budget?.budgetStatus === "OK" &&
+    spare?.budget?.budgetStatus === "NG"
+  ) {
+    handleRemoveFile(spare?.ifBudgetIsNG?.documentByRequestGenerator?.filename);
+    data.ifBudgetIsNG = null;
+    data.mtdHODApprovalIfBudgetIsNG = null;
+    data.requestSheetStatus = spareApprovalStatus?.[1];
+  }
+
+  spare = await RequestSheetOfSpare.findOneAndUpdate(req.query, data, {
+    new: true,
+  });
+
+  return res.status(201).json({
+    message: "Spare sheet updated successfully",
     showToast: true,
     spare,
   });

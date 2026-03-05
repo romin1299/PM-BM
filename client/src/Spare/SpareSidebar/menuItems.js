@@ -11,6 +11,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import ControlPointIcon from "@mui/icons-material/ControlPoint";
 
 const allusers = [
   "Admin",
@@ -102,5 +103,13 @@ export const menuItems = [
     ),
     route: "/spare/spareReports",
     allowedRoles: allusers,
+  },
+  {
+    title: "Customized Dashboard",
+    icon: (
+      <ControlPointIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/customizedDashboard",
+    allowedRoles: ["Plant-Admin", "Section-Admin"],
   },
 ];

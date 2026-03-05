@@ -24,6 +24,9 @@
 /server/logs
 /server/manuals
 
+# Spare
+/server/spareDocuments
+
 # misc
 .DS_Store
 .env.local

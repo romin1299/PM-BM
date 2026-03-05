@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkclient=self.webpackChunkclient||[]).push([[735],{3735(e,c,s){s.r(c),s.d(c,{default:()=>i});s(9950);var a=s(44414);const i=()=>(0,a.jsx)("div",{children:"SpareReceivingDashboard"})}}]);

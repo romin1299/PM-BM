@@ -1,9 +1,20 @@
-import React from 'react'
+import React from "react";
+import SpareSummery from "./SpareSummery";
+import SpareTableWithFilters from "../../Component/SpareTableWithFilters";
 
 const SpareKPI = () => {
   return (
-    <div>SpareKPI</div>
-  )
-}
+    <SpareTableWithFilters
+      title="Spare KPI"
+      url="/v1/spare/spareKPI/spareSheets"
+      OtherCompo={SpareSummery}
+      tableProps={{
+        exportMenu: {
+          exportFileNamePrefix: "Spare KPI",
+        },
+      }}
+    />
+  );
+};
 
-export default SpareKPI
+export default SpareKPI;

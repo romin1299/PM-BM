@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkclient=self.webpackChunkclient||[]).push([[227],{52465(e,c,t){t.r(c),t.d(c,{default:()=>s});t(9950);var n=t(44414);const s=()=>(0,n.jsx)("div",{children:"SpareSearchButton"})}}]);
