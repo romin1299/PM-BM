@@ -1981,6 +1981,9 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
               [],
             ],
           },
+          {
+            $eq: ["$requestSheetCreatedBy.tm_no", req.rootUser?.tm_no],
+          },
         ],
       },
       {
@@ -2381,6 +2384,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         },
         requestSheetNoOfCM: 1,
         "cmBasicDataFilledByMTD_TL.categories": 1,
+        "cmBasicDataFilledByMTD_TL.subCategories": 1,
         "cmBasicDataFilledByMTD_TL.activityOfCM": 1,
         "cmBasicDataFilledByMTD_TL.frequencyType": 1,
         "cmBasicDataFilledByMTD_TL.frequencyValue": 1,

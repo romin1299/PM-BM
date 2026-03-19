@@ -5,6 +5,7 @@ import RoutingContext from "../../../../context/routing/RoutingContext";
 import { FormControl, FormLabel, Button, Tooltip } from "@mui/material";
 import {
   CATEGORIES_OF_CM,
+  FIOtSubCategories,
   FREQUENCY_OF_CM,
 } from "../../../GlobalDataAccess/GlobalData";
 import axios from "axios";
@@ -686,7 +687,7 @@ const ExistingMachineReqSheetView = ({
                           </p>
                         </Col>
                         <Col lg={9}>
-                          <div className="d-flex justify-content-between ">
+                          <div className="d-flex justify-content-start gap-2 flex-wrap">
                             {CATEGORIES_OF_CM.map((value, idx) => (
                               <React.Fragment key={idx}>
                                 <Form.Check
@@ -756,6 +757,42 @@ const ExistingMachineReqSheetView = ({
                                 </p>
                               )}
                             </>
+                          )}
+
+                          {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                            "FIOT" && (
+                            <div className="d-flex gap-2 flex-wrap">
+                              {FIOtSubCategories.map((value, idx) => (
+                                <React.Fragment key={idx}>
+                                  <Form.Check
+                                    idx={idx}
+                                    label={value}
+                                    type="radio"
+                                    value={value}
+                                    disabled={
+                                      (watch("isEditableRS")
+                                        ? !watch("isEditableRS")
+                                        : !isEditable) ||
+                                      isOtherFieldsEditableOrNot === "Yes"
+                                    }
+                                    className="col-auto"
+                                    {...register(
+                                      "cmBasicDataFilledByMTD_TL.subCategories",
+                                      {
+                                        // required: "Category is required",
+                                        required:
+                                          (watch("isEditableRS")
+                                            ? watch("isEditableRS")
+                                            : isEditable) &&
+                                          isOtherFieldsEditableOrNot !== "Yes"
+                                            ? "Sub category is required"
+                                            : false,
+                                      }
+                                    )}
+                                  />
+                                </React.Fragment>
+                              ))}
+                            </div>
                           )}
                         </Col>
                       </Row>

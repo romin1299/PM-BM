@@ -183,6 +183,11 @@ const AllRequestSheetReportDataOfCM = () => {
       editable: false,
     },
     {
+      title: "Category",
+      field: "cmBasicDataFilledByMTD_TL.subCategories",
+      editable: false,
+    },
+    {
       title: "Activity",
       field: "cmBasicDataFilledByMTD_TL.activityOfCM",
       editable: false,

@@ -12,6 +12,7 @@ import {
 import {
   FREQUENCY_OF_CM,
   CATEGORIES_OF_CM,
+  FIOtSubCategories,
 } from "../../../GlobalDataAccess/GlobalData";
 import Multiselect from "multiselect-react-dropdown";
 import ShiftInputField from "../RSComponents/ShiftInputField";
@@ -504,7 +505,7 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                         </p>
                       </Col>
                       <Col lg={7}>
-                        <div className="d-flex justify-content-between">
+                        <div className="d-flex justify-content-start gap-2 flex-wrap">
                           {CATEGORIES_OF_CM.map((value, idx) => (
                             <React.Fragment key={idx}>
                               <Form.Check
@@ -555,6 +556,40 @@ const GeneratedExistingMachineRequestSheetByMTD = () => {
                                 ?.other_categories?.message
                             }
                           </p>
+                        )}
+
+                        {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                          "FIOT" && (
+                          <>
+                            <div className="d-flex gap-2 flex-wrap">
+                              {FIOtSubCategories.map((value, idx) => (
+                                <React.Fragment key={idx}>
+                                  <Form.Check
+                                    idx={idx}
+                                    label={value}
+                                    type="radio"
+                                    value={value}
+                                    className="col-auto"
+                                    {...register(
+                                      "cmBasicDataFilledByMTD_TL.subCategories",
+                                      {
+                                        required: "Sub category is required",
+                                      }
+                                    )}
+                                  />
+                                </React.Fragment>
+                              ))}
+                            </div>
+                            {errors?.cmBasicDataFilledByMTD_TL
+                              ?.subCategories && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL
+                                    ?.subCategories?.message
+                                }
+                              </p>
+                            )}
+                          </>
                         )}
                       </Col>
                     </Row>
