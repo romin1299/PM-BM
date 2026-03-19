@@ -1,6 +1,5 @@
 import {
   AccountCircleIcon,
-  EventNoteIcon,
   FactCheckIcon,
 } from "../../components/NavbarComponent/ImportModules";
 
@@ -20,8 +19,6 @@ const allusers = [
   "TL/HOSS",
   "Operator",
 ];
-
-const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
 
 export const menuItems = [
   {
@@ -54,6 +51,14 @@ export const menuItems = [
       <FactCheckIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareApprovalDashboard",
+    allowedRoles: allusers,
+  },
+  {
+    title: "Approval Logs",
+    icon: (
+      <FactCheckIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/spareApprovalLogs",
     allowedRoles: allusers,
   },
   {

@@ -4,7 +4,10 @@ const path = require("path");
 const fs = require("fs");
 
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
-const { spareApprovalStatus } = require("../../utils/spareManagementUtils");
+const {
+  spareApprovalStatus,
+  dynamicApprovalStatus,
+} = require("../../utils/spareManagementUtils");
 
 const User = require("../../model/userSchema");
 const Plant = require("../../model/plantSchema");
@@ -89,6 +92,210 @@ exports.getNewSpareSheetNoByDefault = tryCatchHandler(
   }
 );
 
+const handleSetUploadedFileName = async ({
+  data = {},
+  uploadFileIndexesStr = "",
+  filesInfo = [{ filename: "", originalname: "" }],
+}) => {
+  try {
+    if (uploadFileIndexesStr) {
+      const uploadFileIndexes = JSON.parse(uploadFileIndexesStr);
+      for (let i = 0; i < uploadFileIndexes?.length; i++) {
+        if (data?.changeParts[uploadFileIndexes[i]]) {
+          const { filename, originalname } = filesInfo?.[i];
+          data.changeParts[uploadFileIndexes[i]].drawingAttach = filename;
+          data.changeParts[uploadFileIndexes[i]].drawingAttachOriginalName =
+            originalname;
+        }
+      }
+    }
+    return data;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const handleSetNGBudgetData = async ({
+  data = {},
+  documentByRequestGenerator = [],
+  existingSpare = {},
+}) => {
+  try {
+    const { mtdHODApprovalIfBudgetIsNG } = data;
+    if (!mtdHODApprovalIfBudgetIsNG?.user?._id)
+      return {
+        isError: true,
+        message: "Please select MTD HOD",
+      };
+
+    const user = await User.findOne({
+      _id: mtdHODApprovalIfBudgetIsNG?.user?._id,
+    });
+
+    if (!user)
+      return {
+        isError: true,
+        message: "User does not exist",
+      };
+
+    data["mtdHODApprovalIfBudgetIsNG"] = {
+      user,
+      approvalStatus: "Pending",
+    };
+    data["requestSheetStatus"] = spareApprovalStatus?.[0];
+    data["pendingApprovalBy"] = user?._id;
+    data["dynamicApprovalKeys"] = ["mtdHODApprovalIfBudgetIsNG"];
+
+    if (
+      !existingSpare?.mtdHODApprovalIfBudgetIsNGApprovalLogs ||
+      existingSpare?.mtdHODApprovalIfBudgetIsNGApprovalLogs?.length <= 0
+    )
+      data["mtdHODApprovalIfBudgetIsNGApprovalLogs"] = [
+        data?.mtdHODApprovalIfBudgetIsNG,
+      ];
+    else {
+      existingSpare.mtdHODApprovalIfBudgetIsNGApprovalLogs?.push(
+        data?.mtdHODApprovalIfBudgetIsNG
+      );
+
+      data[`mtdHODApprovalIfBudgetIsNGApprovalLogs`] =
+        existingSpare?.mtdHODApprovalIfBudgetIsNGApprovalLogs;
+    }
+
+    if (documentByRequestGenerator?.[0]) {
+      if (data?.ifBudgetIsNG)
+        data.ifBudgetIsNG.documentByRequestGenerator =
+          documentByRequestGenerator?.[0];
+      else
+        data["ifBudgetIsNG.documentByRequestGenerator"] =
+          documentByRequestGenerator?.[0];
+    }
+    return data;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const handleSetSpareSheetDynamicApproval = async ({
+  plant_id = "",
+  data = {},
+  existingSpare = {},
+}) => {
+  try {
+    if (
+      data?.approvalOfMTD_TL ||
+      data?.approvalOfMTD_HOSS ||
+      data?.approvalOfPRD_TL ||
+      data?.approvalOfMTD_HOS ||
+      data?.approvalOfPRD_HOS ||
+      data?.approvalOfMTD_HOD ||
+      data?.approvalOfPRD_HOD
+    ) {
+      const plant = await Plant.findOne(
+        { plant_id },
+        { spareSheetDynamicApproval: 1 }
+      );
+
+      if (!plant)
+        return {
+          isError: true,
+          message: "Plant does not exist",
+        };
+
+      if (
+        !plant?.spareSheetDynamicApproval ||
+        plant?.spareSheetDynamicApproval?.length <= 0
+      )
+        return {
+          isError: true,
+          message: "Please configure dynamic approval first",
+        };
+
+      let allUser_Ids = [];
+
+      for (let i = 0; i < plant?.spareSheetDynamicApproval.length; i++) {
+        if (
+          !data?.[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]?.user?._id
+        )
+          return {
+            isError: true,
+            message: "Please select all the approvals",
+          };
+
+        allUser_Ids.push(
+          data?.[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]?.user?._id
+        );
+      }
+
+      const users = await User.find({
+        _id: { $in: allUser_Ids },
+      });
+
+      if (!users || users?.length <= 0)
+        return {
+          isError: true,
+          message: "Selected approval users does not exists",
+        };
+
+      let dynamicApprovalKeys = [];
+
+      for (let i = 0; i < plant?.spareSheetDynamicApproval.length; i++) {
+        const user = users.find(
+          (item) =>
+            item?._id.toString() ===
+            data[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]?.user?._id
+        );
+
+        if (user) {
+          data[`approvalOf${plant?.spareSheetDynamicApproval[i]}`] = {
+            user,
+            approvalStatus: "Pending",
+          };
+          if (
+            !existingSpare[
+              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
+            ] ||
+            existingSpare[
+              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
+            ]?.length <= 0
+          )
+            data[
+              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
+            ] = [data?.[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]];
+          else {
+            existingSpare[
+              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
+            ]?.push(data?.[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]);
+
+            data[
+              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
+            ] =
+              existingSpare?.[
+                `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
+              ];
+          }
+
+          dynamicApprovalKeys.push(
+            `approvalOf${plant?.spareSheetDynamicApproval[i]}`
+          );
+          if (i === 0) {
+            data["pendingApprovalBy"] = user?._id;
+            data["requestSheetStatus"] =
+              dynamicApprovalStatus?.[plant?.spareSheetDynamicApproval[i]];
+          }
+        }
+      }
+
+      data["dynamicApprovalKeys"] = dynamicApprovalKeys;
+      data.isSpareSheetSendForApproval = true;
+    }
+
+    return data;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
   if (!req.body?.data)
     return res.status(400).json({
@@ -163,17 +370,6 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
   data["line"] = machine?.line_names;
   data["machine"] = machine;
 
-  const uploadFileIndexes = JSON.parse(req.body?.uploadFileIndexes);
-
-  if (uploadFileIndexes?.length > 0) {
-    for (let i = 0; i < uploadFileIndexes?.length; i++) {
-      const { filename, originalname } = req.files?.drawingAttach?.[i];
-      data.changeParts[uploadFileIndexes[i]].drawingAttach = filename;
-      data.changeParts[uploadFileIndexes[i]].drawingAttachOriginalName =
-        originalname;
-    }
-  }
-
   let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
     { _id: machine?.line_names?._id },
     {
@@ -204,6 +400,12 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
       moment().tz("Asia/Kolkata").month() + 1
     }-SPARE-${increaseCountOfRequestSheetInLine?.requestSheetNoSpare}`.trim();
 
+  data = await handleSetUploadedFileName({
+    data,
+    uploadFileIndexesStr: req.body?.uploadFileIndexes,
+    filesInfo: req.files?.drawingAttach,
+  });
+
   const { budget } = data;
 
   if (!budget?.budgetStatus || !budget?.requiredBudget)
@@ -213,34 +415,41 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     });
 
   if (budget?.budgetStatus === "NG") {
-    const { mtdHODApprovalIfBudgetIsNG } = data;
-    if (!mtdHODApprovalIfBudgetIsNG?.user?._id)
-      return res.status(400).json({
-        message: "Please select MTD HOD",
-        showToast: true,
-      });
+    delete data["approvalOfMTD_TL"];
+    delete data["approvalOfMTD_HOSS"];
+    delete data["approvalOfPRD_TL"];
+    delete data["approvalOfMTD_HOS"];
+    delete data["approvalOfPRD_HOS"];
+    delete data["approvalOfMTD_HOD"];
+    delete data["approvalOfPRD_HOD"];
 
-    const user = await User.findOne({
-      _id: mtdHODApprovalIfBudgetIsNG?.user?._id,
+    let returnData = await handleSetNGBudgetData({
+      data,
+      documentByRequestGenerator: req.files?.documentByRequestGenerator,
     });
 
-    if (!user)
+    if (returnData?.isError)
       return res.status(400).json({
-        message: "User does not exist",
+        message: returnData?.message,
         showToast: true,
       });
 
-    data["mtdHODApprovalIfBudgetIsNG"] = {
-      user,
-      approvalStatus: "Pending",
-    };
-    data["requestSheetStatus"] = spareApprovalStatus?.[0];
-
-    if (req.files?.documentByRequestGenerator?.[0])
-      data["ifBudgetIsNG.documentByRequestGenerator"] =
-        req.files?.documentByRequestGenerator?.[0];
-
+    data = returnData;
     message = "Spare sheet send for MTD HOD approval";
+  } else {
+    delete data["mtdHODApprovalIfBudgetIsNG"];
+    let returnData = await handleSetSpareSheetDynamicApproval({
+      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+      data,
+    });
+
+    if (returnData?.isError)
+      return res.status(400).json({
+        message: returnData?.message,
+        showToast: true,
+      });
+
+    data = returnData;
   }
 
   data["requestSheetCreatedBy"] = req.rootUser;
@@ -291,17 +500,47 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
   let spare = req.spare,
     data = JSON.parse(req.body?.data);
 
-  if (data?.mtdApprovalIfNGBudget) {
-    if (!spare?.mtdHODApprovalIfBudgetIsNG?.user)
+  // if (data?.mtdApprovalIfNGBudget) {
+  //   if (!spare?.mtdHODApprovalIfBudgetIsNG?.user)
+  //     return res.status(400).json({
+  //       message: "Fist you need to send for HOD approval",
+  //       showToast: true,
+  //     });
+
+  //   if (
+  //     spare?.mtdHODApprovalIfBudgetIsNG?.user?._id?.toString() !==
+  //     req.rootUser?._id?.toString()
+  //   )
+  //     return res.status(400).json({
+  //       message: "You are not authorized to approve this spare sheet",
+  //       showToast: true,
+  //     });
+
+  //   let approvalStatus = "Accepted",
+  //     approvalDateAndTime = new Date();
+
+  //   if (data?.mtdApprovalIfNGBudget === "No") approvalStatus = "Rejected";
+
+  //   if (data?.mtdHODApprovalIfBudgetIsNG) {
+  //     data.mtdHODApprovalIfBudgetIsNG.approvalStatus = approvalStatus;
+  //     data.mtdHODApprovalIfBudgetIsNG.approvalDateAndTime = approvalDateAndTime;
+  //   } else {
+  //     data["mtdHODApprovalIfBudgetIsNG.approvalStatus"] = approvalStatus;
+  //     data["mtdHODApprovalIfBudgetIsNG.approvalDateAndTime"] =
+  //       approvalDateAndTime;
+  //   }
+  // }
+
+  if (data?.isApproved) {
+    let key = spare?.dynamicApprovalKeys?.[0];
+
+    if (!spare?.[key]?.user)
       return res.status(400).json({
-        message: "Fist you need to send for HOD approval",
+        message: "Fist you need to send for approval",
         showToast: true,
       });
 
-    if (
-      spare?.mtdHODApprovalIfBudgetIsNG?.user?._id?.toString() !==
-      req.rootUser?._id?.toString()
-    )
+    if (spare?.[key]?.user?._id?.toString() !== req.rootUser?._id?.toString())
       return res.status(400).json({
         message: "You are not authorized to approve this spare sheet",
         showToast: true,
@@ -310,29 +549,66 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
     let approvalStatus = "Accepted",
       approvalDateAndTime = new Date();
 
-    if (data?.mtdApprovalIfNGBudget === "No") approvalStatus = "Rejected";
+    if (data?.isApproved === "No") approvalStatus = "Rejected";
 
-    if (data?.mtdHODApprovalIfBudgetIsNG) {
-      data.mtdHODApprovalIfBudgetIsNG.approvalStatus = approvalStatus;
-      data.mtdHODApprovalIfBudgetIsNG.approvalDateAndTime = approvalDateAndTime;
+    if (data?.[key]) {
+      data[key].approvalStatus = approvalStatus;
+      data[key].approvalDateAndTime = approvalDateAndTime;
+      if (data?.isApproved === "No")
+        data[key].rejectedRemarks = data?.rejectedRemarks;
     } else {
-      data["mtdHODApprovalIfBudgetIsNG.approvalStatus"] = approvalStatus;
-      data["mtdHODApprovalIfBudgetIsNG.approvalDateAndTime"] =
-        approvalDateAndTime;
+      data[`${key}.approvalStatus`] = approvalStatus;
+      data[`${key}.approvalDateAndTime`] = approvalDateAndTime;
+      if (data?.isApproved === "No")
+        data[`${key}.rejectedRemarks`] = data?.rejectedRemarks;
     }
-  }
 
-  if (req.body?.uploadFileIndexes) {
-    const uploadFileIndexes = JSON.parse(req.body?.uploadFileIndexes);
-    for (let i = 0; i < uploadFileIndexes?.length; i++) {
-      if (data?.changeParts[uploadFileIndexes[i]]) {
-        const { filename, originalname } = req.files?.drawingAttach?.[i];
-        data.changeParts[uploadFileIndexes[i]].drawingAttach = filename;
-        data.changeParts[uploadFileIndexes[i]].drawingAttachOriginalName =
-          originalname;
+    const index = spare?.[`${key}ApprovalLogs`]?.length - 1;
+
+    data[`${key}ApprovalLogs.${index}.approvalStatus`] = approvalStatus;
+    data[`${key}ApprovalLogs.${index}.approvalDateAndTime`] =
+      approvalDateAndTime;
+    if (data?.isApproved === "No")
+      data[`${key}ApprovalLogs.${index}.rejectedRemarks`] =
+        data?.rejectedRemarks;
+
+    if (data?.isApproved === "Yes") {
+      spare?.dynamicApprovalKeys?.shift();
+      data["dynamicApprovalKeys"] = spare?.dynamicApprovalKeys;
+
+      if (key === "mtdHODApprovalIfBudgetIsNG") {
+        data["pendingApprovalBy"] = null;
+        data["requestSheetStatus"] = spareApprovalStatus?.[1];
+      } else if (spare?.dynamicApprovalKeys?.[0]) {
+        data["pendingApprovalBy"] =
+          spare?.[spare?.dynamicApprovalKeys?.[0]]?.user?._id;
+        data["requestSheetStatus"] =
+          dynamicApprovalStatus[
+            spare?.dynamicApprovalKeys?.[0]?.split("Of")?.[1]
+          ];
+      } else {
+        data["pendingApprovalBy"] = null;
+        data["requestSheetStatus"] =
+          spareApprovalStatus[spareApprovalStatus?.length - 1];
+      }
+    } else {
+      data["pendingApprovalBy"] = null;
+      data["requestSheetStatus"] = spareApprovalStatus?.[1];
+      data["dynamicApprovalKeys"] = [];
+      data["isSpareSheetSendForApproval"] = false;
+
+      for (let i = 1; i < spare?.dynamicApprovalKeys.length; i++) {
+        const element = spare?.dynamicApprovalKeys[i];
+        data[element] = null;
       }
     }
   }
+
+  data = await handleSetUploadedFileName({
+    data,
+    uploadFileIndexesStr: req.body?.uploadFileIndexes,
+    filesInfo: req.files?.drawingAttach,
+  });
 
   const handleRemoveFile = (propFileName) =>
     fs.unlink(
@@ -355,37 +631,18 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
 
   const { budget } = data;
   if (budget?.budgetStatus === "NG" && spare?.budget?.budgetStatus === "OK") {
-    const { mtdHODApprovalIfBudgetIsNG } = data;
-    if (!mtdHODApprovalIfBudgetIsNG?.user?._id)
-      return res.status(400).json({
-        message: "Please select MTD HOD",
-        showToast: true,
-      });
-
-    const user = await User.findOne({
-      _id: mtdHODApprovalIfBudgetIsNG?.user?._id,
+    let returnData = await handleSetNGBudgetData({
+      data,
+      documentByRequestGenerator: req.files?.documentByRequestGenerator,
+      existingSpare: spare,
     });
-
-    if (!user)
+    if (returnData?.isError)
       return res.status(400).json({
-        message: "User does not exist",
+        message: returnData?.message,
         showToast: true,
       });
 
-    data["mtdHODApprovalIfBudgetIsNG"] = {
-      user,
-      approvalStatus: "Pending",
-    };
-    data["requestSheetStatus"] = spareApprovalStatus?.[0];
-
-    if (req.files?.documentByRequestGenerator?.[0]) {
-      if (data?.ifBudgetIsNG)
-        data.ifBudgetIsNG.documentByRequestGenerator =
-          req.files?.documentByRequestGenerator?.[0];
-      else
-        data["ifBudgetIsNG.documentByRequestGenerator"] =
-          req.files?.documentByRequestGenerator?.[0];
-    }
+    data = returnData;
   } else if (
     budget?.budgetStatus === "OK" &&
     spare?.budget?.budgetStatus === "NG"
@@ -395,6 +652,20 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
     data.mtdHODApprovalIfBudgetIsNG = null;
     data.requestSheetStatus = spareApprovalStatus?.[1];
   }
+
+  let returnData = await handleSetSpareSheetDynamicApproval({
+    plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
+    data,
+    existingSpare: spare,
+  });
+
+  if (returnData?.isError)
+    return res.status(400).json({
+      message: returnData?.message,
+      showToast: true,
+    });
+
+  data = returnData;
 
   spare = await RequestSheetOfSpare.findOneAndUpdate(req.query, data, {
     new: true,

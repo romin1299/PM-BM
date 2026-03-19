@@ -1,7 +1,7 @@
 import React from "react";
 import { Row, Col, Form } from "react-bootstrap";
 
-const HODNGBudgetApproval = ({ register, watch, errors }) => {
+const AcceptOrRejectDynamicApproval = ({ register, watch, errors }) => {
   return (
     <Row className="border d-flex align-items-center gap-2">
       <Col className="d-flex align-items-center col-auto bg-lightyellow rounded">
@@ -12,7 +12,7 @@ const HODNGBudgetApproval = ({ register, watch, errors }) => {
           style={{ fontSize: "14px" }}
           type="radio"
           value="Yes"
-          {...register("mtdApprovalIfNGBudget")}
+          {...register("isApproved")}
         />{" "}
         &nbsp;
         <Form.Check
@@ -21,25 +21,23 @@ const HODNGBudgetApproval = ({ register, watch, errors }) => {
           style={{ fontSize: "14px" }}
           type="radio"
           value="No"
-          {...register("mtdApprovalIfNGBudget")}
+          {...register("isApproved")}
         />
         &nbsp;
-        {watch("mtdApprovalIfNGBudget") === "No" && (
+        {watch("isApproved") === "No" && (
           <div>
             <input
               type="text"
-              name="mtdHODApprovalIfBudgetIsNG.rejectedRemarks"
+              name="rejectedRemarks"
               style={{ fontSize: "14px" }}
               placeholder="Enter rejected remarks"
               className="p-1 m-1"
-              {...register("mtdHODApprovalIfBudgetIsNG.rejectedRemarks", {
+              {...register("rejectedRemarks", {
                 required: "Please enter remarks",
               })}
             />
-            {errors?.mtdHODApprovalIfBudgetIsNG?.rejectedRemarks && (
-              <p className="text-error">
-                {errors?.mtdHODApprovalIfBudgetIsNG?.rejectedRemarks?.message}
-              </p>
+            {errors?.rejectedRemarks && (
+              <p className="text-error">{errors?.rejectedRemarks?.message}</p>
             )}
           </div>
         )}
@@ -48,4 +46,4 @@ const HODNGBudgetApproval = ({ register, watch, errors }) => {
   );
 };
 
-export default HODNGBudgetApproval;
+export default AcceptOrRejectDynamicApproval;

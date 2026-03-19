@@ -14,7 +14,7 @@ const NewSpareRequestSheetNo = ({ selectedLine, watch, setValue }) => {
       });
       if (!isError) return setValue("requestSheetNo", requestSheetNo);
     })();
-  }, [selectedLine]);
+  }, [selectedLine, setValue]);
 
   return watch("requestSheetNo");
 };

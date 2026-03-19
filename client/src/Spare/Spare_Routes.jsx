@@ -16,6 +16,9 @@ const SpareNewPartRequest = lazy(() =>
 const SpareApprovalDashboard = lazy(() =>
   import("./Pages/SpareApprovalDashboard/SpareApprovalDashboard")
 );
+const SpareApprovalLogs = lazy(() =>
+  import("./Pages/SpareApprovalDashboard/SpareApprovalLogs")
+);
 const SpareOrderingDashboard = lazy(() =>
   import("./Pages/SpareOrderingDashboard/SpareOrderingDashboard")
 );
@@ -36,7 +39,7 @@ const SpareCustomized = lazy(() =>
   import("./Pages/SpareCustomized/SpareCustomized")
 );
 
-const Spare_Routes = ({ commonRoutes = [] }) => {
+const Spare_Routes = () => {
   const context = useContext(RoutingContext);
   const routes = [
     {
@@ -54,6 +57,10 @@ const Spare_Routes = ({ commonRoutes = [] }) => {
     {
       path: "/spare/spareApprovalDashboard",
       element: <SpareApprovalDashboard />,
+    },
+    {
+      path: "/spare/spareApprovalLogs",
+      element: <SpareApprovalLogs />,
     },
     {
       path: "/spare/spareOrderingDashboard",

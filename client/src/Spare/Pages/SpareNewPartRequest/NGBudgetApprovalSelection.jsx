@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Row, Col } from "react-bootstrap";
-import { axiosGetOrDelete } from "../../Utils/axiosUtils";
+import useSafeGetRequest from "../../../CustomHooks/useSafeGetRequest";
 
 const MTDHODApproval = ({ register = () => {}, errors = () => {} }) => {
-  const [userList, setUserList] = useState([]);
+  const [{ data }] = useSafeGetRequest({
+    url: "/v1/spare/user",
+    axiosConfig: {
+      params: {
+        tm_department: "MTD",
+        tm_grade: "HOD",
+      },
+    },
+    initialState: {
+      isLoading: true,
+      isError: false,
+      data: {
+        users: [],
+      },
+    },
+  });
 
-  useEffect(() => {
-    (async () => {
-      const { isError, users } = await axiosGetOrDelete({
-        url: "/v1/spare/user",
-        axiosProps: {
-          params: {
-            tm_department: "MTD",
-            tm_grade: "HOD",
-          },
-        },
-      });
-      if (!isError) setUserList(users);
-    })();
-  }, []);
   return (
     <Col className="d-flex flex-column col-auto">
       <div className="d-flex align-items-center justify-content-between gap-2">
@@ -33,7 +34,7 @@ const MTDHODApproval = ({ register = () => {}, errors = () => {} }) => {
           <option selected disabled value="">
             Please select
           </option>
-          {userList?.map((obj) => (
+          {data?.users?.map((obj) => (
             <option value={obj?._id}>{obj?.tm_name}</option>
           ))}
         </select>

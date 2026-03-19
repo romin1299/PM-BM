@@ -2,8 +2,6 @@ import React from "react";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
-import useSafeGetRequest from "../../CustomHooks/useSafeGetRequest";
-
 import {
   MaterialTableOptions,
   MaterialTableStyle,
@@ -13,12 +11,10 @@ import tableIcons from "../../components/MatrialTableIcon";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { ExportCsv, ExportPdf } from "@material-table/exporters";
 import MaterialTable from "@material-table/core";
+import WithLoadingAndError from "./Common/WithLoadingAndError";
 
-const SpareSheetTable = ({
-  flagForTogglingFilter,
-  selectedValue,
-  selectedYear,
-  url = `/v1/spare/spareRequestSheet/approval`,
+const TableComponent = ({
+  tableData,
   tableProps = {
     exportMenu: {
       exportFileNamePrefix: "Approval List of Request-Sheet",
@@ -26,29 +22,6 @@ const SpareSheetTable = ({
   },
 }) => {
   const navigate = useNavigate();
-
-  const [{ isLoading, isError, data }] = useSafeGetRequest({
-    url,
-    axiosConfig: {
-      params: {
-        flagForTogglingFilter,
-        selectedValue,
-        selectedYear,
-      },
-    },
-    referenceArrayForUseEffect: [
-      flagForTogglingFilter,
-      selectedValue,
-      selectedYear,
-    ],
-    initialState: {
-      isLoading: true,
-      isError: false,
-      data: {
-        tableData: [],
-      },
-    },
-  });
 
   const approvalDashboardHeader = [
     {
@@ -106,11 +79,11 @@ const SpareSheetTable = ({
           actions: "Actions",
         },
       }}
-      isLoading={isLoading}
+      // isLoading={isLoading}
       actions={requestSheetApprovalAction}
       icons={tableIcons}
       columns={approvalDashboardHeader}
-      data={data?.tableData}
+      data={tableData}
       editable={{}}
       options={{
         ...MaterialTableOptions,
@@ -142,6 +115,48 @@ const SpareSheetTable = ({
       }}
       style={MaterialTableStyle}
       sx={MaterialTableSX}
+    />
+  );
+};
+
+const SpareSheetTable = ({
+  flagForTogglingFilter,
+  selectedValue,
+  selectedYear,
+  url = `/v1/spare/spareRequestSheet/approval`,
+  tableProps = {
+    exportMenu: {
+      exportFileNamePrefix: "Approval List of Request-Sheet",
+    },
+  },
+}) => {
+  return (
+    <WithLoadingAndError
+      requestProps={{
+        url,
+        axiosConfig: {
+          params: {
+            flagForTogglingFilter,
+            selectedValue,
+            selectedYear,
+          },
+        },
+        referenceArrayForUseEffect: [
+          flagForTogglingFilter,
+          selectedValue,
+          selectedYear,
+        ],
+        initialState: {
+          isLoading: true,
+          isError: false,
+          data: {
+            tableData: [],
+          },
+        },
+      }}
+      PropComponent={(prop) => (
+        <TableComponent {...prop} tableProps={tableProps} />
+      )}
     />
   );
 };

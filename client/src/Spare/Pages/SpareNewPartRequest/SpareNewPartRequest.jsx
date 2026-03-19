@@ -20,8 +20,9 @@ import {
 } from "../../Utils/dropdownUtils";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
 import NGBudgetApprovalSelection from "./NGBudgetApprovalSelection";
-import HODNGBudgetApproval from "./HODNGBudgetApproval";
 import NewSpareRequestSheetNo from "./NewSpareRequestSheetNo";
+import RSDynamicApprovalSelection from "./RSDynamicApprovalSelection";
+import AcceptOrRejectDynamicApproval from "./AcceptOrRejectDynamicApproval";
 
 const sectionBudget = 2000;
 const url = "/v1/spare/spareRequestSheet";
@@ -63,7 +64,11 @@ const SpareNewPartRequest = () => {
   });
 
   const budget = useMemo(() => {
-    if (!changeParts?.length) return 0;
+    if (!changeParts?.length)
+      return {
+        budgetStatus: "",
+        requiredBudget: 0,
+      };
 
     const requiredBudget = changeParts.reduce((acc, curr) => {
       const qty = Number(curr?.quantityRequired || 0);
@@ -139,6 +144,7 @@ const SpareNewPartRequest = () => {
           if (item?.standerOrManufacturingPart === partTypes?.[1]?.value) {
             removeFileIDs.push(formValue?.changeParts?.[index]?._id);
           }
+          return item;
         });
 
         formData.append("uploadFileIndexes", JSON.stringify(uploadFileIndexes));
@@ -343,82 +349,97 @@ const SpareNewPartRequest = () => {
               </Row>
             )}
 
-            {watch("requestSheetCreatedBy.tm_name") && (
-              <Row className="border d-flex align-items-center gap-2">
-                <Col className="d-flex align-items-center flex-column col-auto">
-                  <small>
-                    {watch("requestSheetCreatedBy.tm_name")} &nbsp;
-                    {budget?.budgetStatus === "NG" && (
-                      <>
-                        {watch("ifBudgetIsNG.remarkByRequestGenerator") && (
-                          <>
-                            |&nbsp;
-                            {watch("ifBudgetIsNG.remarkByRequestGenerator")}
-                            &nbsp;
-                          </>
-                        )}
-                        {watch(
-                          "ifBudgetIsNG.documentByRequestGenerator.originalname"
-                        ) && (
-                          <>
-                            |&nbsp;
-                            <a
-                              target="_blank"
-                              href={`${
-                                process.env.REACT_APP_BASE_URL
-                              }/v1/spare/${watch(
-                                "ifBudgetIsNG.documentByRequestGenerator.filename"
-                              )}`}
-                            >
-                              {watch(
-                                "ifBudgetIsNG.documentByRequestGenerator.originalname"
-                              )}
-                            </a>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </small>
-                </Col>
-              </Row>
-            )}
-
-            {budget?.budgetStatus === "NG" && (
-              <>
-                {watch("mtdHODApprovalIfBudgetIsNG.user.tm_name") && (
-                  <Row className="border d-flex align-items-center gap-2">
-                    <Col className="d-flex align-items-center flex-column col-auto">
+            {(watch("requestSheetCreatedBy.tm_name") ||
+              budget?.budgetStatus === "NG") && (
+              <Row className="border d-flex align-items-center">
+                {watch("requestSheetCreatedBy.tm_name") && (
+                  <Col className="d-flex align-items-center col-auto border gap-2">
+                    <small>Created by: </small>
+                    <small>
+                      {watch("requestSheetCreatedBy.tm_name")} &nbsp;
+                      {budget?.budgetStatus === "NG" && (
+                        <>
+                          {watch("ifBudgetIsNG.remarkByRequestGenerator") && (
+                            <>
+                              |&nbsp;
+                              {watch("ifBudgetIsNG.remarkByRequestGenerator")}
+                              &nbsp;
+                            </>
+                          )}
+                          {watch(
+                            "ifBudgetIsNG.documentByRequestGenerator.originalname"
+                          ) && (
+                            <>
+                              |&nbsp;
+                              <a
+                                target="_blank"
+                                rel="noreferrer"
+                                href={`${
+                                  process.env.REACT_APP_BASE_URL
+                                }/v1/spare/${watch(
+                                  "ifBudgetIsNG.documentByRequestGenerator.filename"
+                                )}`}
+                              >
+                                {watch(
+                                  "ifBudgetIsNG.documentByRequestGenerator.originalname"
+                                )}
+                              </a>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </small>
+                  </Col>
+                )}
+                {budget?.budgetStatus === "NG" &&
+                  watch("mtdHODApprovalIfBudgetIsNG.user.tm_name") && (
+                    <Col className="d-flex align-items-center col-auto border gap-2">
+                      <small>NG budget approval: </small>
                       <small>
                         {watch("mtdHODApprovalIfBudgetIsNG.user.tm_name")} |{" "}
                         {watch("mtdHODApprovalIfBudgetIsNG.approvalStatus")}
                       </small>
                     </Col>
-                  </Row>
-                )}
-                {watch("mtdHODApprovalIfBudgetIsNG.user._id") ===
-                  loggedUser?._id &&
-                watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
-                  "Pending" ? (
-                  <HODNGBudgetApproval
-                    register={register}
-                    errors={errors}
-                    watch={watch}
-                  />
-                ) : (
+                  )}
+              </Row>
+            )}
+
+            {budget?.budgetStatus === "NG" &&
+              (watch("mtdHODApprovalIfBudgetIsNG.user._id") ===
+                loggedUser?._id &&
+              watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") === "Pending"
+                ? ""
+                : // <HODNGBudgetApproval
+                  //   register={register}
+                  //   errors={errors}
+                  //   watch={watch}
+                  // />
                   !watch("mtdHODApprovalIfBudgetIsNG.user.tm_name") && (
                     <NGBudgetApprovalSelection
                       register={register}
                       errors={errors}
                     />
-                  )
-                )}
-              </>
+                  ))}
+
+            {watch("pendingApprovalBy") === loggedUser?._id && (
+              <AcceptOrRejectDynamicApproval
+                register={register}
+                errors={errors}
+                watch={watch}
+              />
             )}
 
             {(budget?.budgetStatus === "OK" ||
               (budget?.budgetStatus === "NG" &&
                 watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
-                  "Accepted")) && <h1>AAA</h1>}
+                  "Accepted")) &&
+              !watch("isSpareSheetSendForApproval") && (
+                <RSDynamicApprovalSelection
+                  register={register}
+                  errors={errors}
+                  watch={watch}
+                />
+              )}
 
             <Row className="border d-flex align-items-center ">
               <Col className="d-flex align-items-center gap-2">
