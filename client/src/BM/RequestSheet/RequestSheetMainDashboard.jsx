@@ -695,7 +695,6 @@ const RequestSheetMainDashboard = () => {
       disabled:
         (row?.assignUserId === context?._id ||
           row?.handOverUserId === context?._id) &&
-        // RSStatusArray.slice(2, 7).includes(row?.requestSheetStatus)
         (row?.requestSheetStatus === "Fill Sheet" ||
           row?.requestSheetStatus === "Work Order Pending" ||
           row?.requestSheetStatus === "Work Order Closed" ||

@@ -1412,14 +1412,6 @@ router.patch(
 
       // ____________ 5 ____________
 
-      if (
-        req.rootUser?.tm_department === "PRD" ||
-        req.rootUser?.user_type === "Operator"
-      )
-        return res
-          .status(400)
-          .json({ message: "You are not authorized to edit this sheet" });
-
       let queryObj = {};
 
       // if (req.rootUser?.tm_department !== "MTD") {
@@ -1446,6 +1438,15 @@ router.patch(
         //     handOverUser: req.body?.handOverUser,
         //   };
         // }
+
+        if (
+          req.rootUser?.tm_department === "PRD" ||
+          req.rootUser?.user_type === "Operator"
+        )
+          return res
+            .status(400)
+            .json({ message: "You are not authorized to edit this sheet" });
+
         queryObj = {
           ...queryObj,
           assignUser: req.body?.assignUser,

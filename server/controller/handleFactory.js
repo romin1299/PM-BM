@@ -107,7 +107,7 @@ exports.getUserData =
 
       let queryObj = {
         plant_data: req?.rootUser?.plant_data,
-        _id: { $ne: req?.rootUser?._id },
+        // _id: { $ne: req?.rootUser?._id },
       };
 
       if (req?.rootUser?.tm_grade !== "HOD") {
@@ -144,7 +144,7 @@ exports.getUserData =
       const mtdHOD = await userModel.find(
         {
           plant_data: req?.rootUser?.plant_data,
-          _id: { $ne: req?.rootUser?._id },
+          // _id: { $ne: req?.rootUser?._id },
           tm_department: "MTD",
           tm_grade: "HOD",
         },
@@ -153,7 +153,7 @@ exports.getUserData =
       const prdHOD = await userModel.find(
         {
           plant_data: req?.rootUser?.plant_data,
-          _id: { $ne: req?.rootUser?._id },
+          // _id: { $ne: req?.rootUser?._id },
           tm_department: "PRD",
           tm_grade: "HOD",
         },
