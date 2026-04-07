@@ -42,7 +42,7 @@ const AllRequestSheetReportDataOfCM = () => {
     useState([]);
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
-    initialState("Yes")
+    initialState("Yes"),
   );
   const navigate = useNavigate();
   const [supportingTMList, setSupportingTMList] = useState([]);
@@ -70,7 +70,7 @@ const AllRequestSheetReportDataOfCM = () => {
   };
 
   const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] = useState(
-    defaultStateForBmRequestSheet
+    defaultStateForBmRequestSheet,
   );
 
   const handlePopupStatus = () =>
@@ -81,7 +81,7 @@ const AllRequestSheetReportDataOfCM = () => {
       setLoading(true);
       setApprovalRequestSheetDataOfCM();
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`
+        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`,
       );
       setCounters(response.data.counters);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
@@ -128,7 +128,7 @@ const AllRequestSheetReportDataOfCM = () => {
 
   const dropDownComponent = ({ value = [], onChange, dropDownArray = [] }) => {
     const selectedValues = dropDownArray.filter((item) =>
-      value?.includes(item._id)
+      value?.includes(item._id),
     );
 
     return (
@@ -183,7 +183,7 @@ const AllRequestSheetReportDataOfCM = () => {
       editable: false,
     },
     {
-      title: "Category",
+      title: "Sub Category",
       field: "cmBasicDataFilledByMTD_TL.subCategories",
       editable: false,
     },
@@ -241,7 +241,7 @@ const AllRequestSheetReportDataOfCM = () => {
         }),
       customFilterAndSearch: (search, rowData) =>
         rowData?.assignUserForCM?.some((user) =>
-          user?.tm_name?.toLowerCase().includes(search.toLowerCase())
+          user?.tm_name?.toLowerCase().includes(search.toLowerCase()),
         ),
       exportTransformer: (rowData) =>
         rowData?.assignUserForCM?.map((u) => u?.tm_name).join(", ") || "",
@@ -448,7 +448,7 @@ const AllRequestSheetReportDataOfCM = () => {
         {
           withCredentials: true,
           credentials: "include",
-        }
+        },
       );
       if (response.status === 201) {
         handlePopupStatus();
@@ -633,7 +633,7 @@ const AllRequestSheetReportDataOfCM = () => {
                   context?.tm_no === Number("9999") ||
                   !["Generated", "Assigned"].includes(
                     selectedRow?.current_commonDataFilledByAssignUser
-                      .requestSheetStatusOfCM
+                      .requestSheetStatusOfCM,
                   ),
 
                 onRowDelete: (selectedRow) =>
@@ -670,8 +670,8 @@ const AllRequestSheetReportDataOfCM = () => {
                         cols,
                         data,
                         `Approval List of Request-Sheet ${moment().format(
-                          "DD-MM-YYYY"
-                        )}`
+                          "DD-MM-YYYY",
+                        )}`,
                       ),
                   },
                   {
@@ -681,8 +681,8 @@ const AllRequestSheetReportDataOfCM = () => {
                         cols,
                         data,
                         `Approval List of Request-Sheet ${moment().format(
-                          "DD-MM-YYYY"
-                        )}`
+                          "DD-MM-YYYY",
+                        )}`,
                       ),
                   },
                 ],

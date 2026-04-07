@@ -105,7 +105,7 @@ router.post("/updateUserProfile", upload.single("photo"), async (req, res) => {
       const photo = req.file.filename;
       await User.updateOne(
         { tm_no: tm_no },
-        { $set: { tm_name: tm_name, photo: photo } }
+        { $set: { tm_name: tm_name, photo: photo } },
       );
     }
 
@@ -281,7 +281,7 @@ router.post("/updatePassword", authenticate, async (req, res) => {
     if (userLogin) {
       const passwordMatch = await bcrypt.compare(
         oldPassword,
-        userLogin.password
+        userLogin.password,
       );
       if (!passwordMatch) {
         res.status(400).json({ error: "Invalid password " });
@@ -341,7 +341,7 @@ router.post("/updateUser", async (req, res) => {
     // }
     const updateUserData = await User.updateOne(
       { tm_no: tm_no },
-      { $set: { tm_name: tm_name, email: email, address: address } }
+      { $set: { tm_name: tm_name, email: email, address: address } },
     );
     res.status(201).json({ message: "Employee updated successfully" });
   } catch (error) {
@@ -472,13 +472,13 @@ router.post("/updatePlant", authenticate, async (req, res) => {
     // }
     const updatePlantData = await Plant.updateOne(
       { plant_id: plant_id },
-      { $set: { plant_name: plant_name } }
+      { $set: { plant_name: plant_name } },
     );
     res.status(201).json({ message: "Plant updated successfully" });
     let plantIdLiteral = `${plant_id}-${oldRow.plant_name}`;
     const result = await User.updateMany(
       { plant_data: plantIdLiteral },
-      { $set: { plant_data: `${plant_id}-${plant_name}` } }
+      { $set: { plant_data: `${plant_id}-${plant_name}` } },
     );
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -582,13 +582,13 @@ router.post("/updateSection", authenticate, async (req, res) => {
           section_name: section_name,
           dashboardLevel: updateRow?.dashboardLevel,
         },
-      }
+      },
     );
     res.status(201).json({ message: "Section updated successfully" });
     let sectionIdLiteral = `${section_id}-${oldRow.section_name}`;
     const result = await User.updateMany(
       { section_data: sectionIdLiteral },
-      { $set: { section_data: `${section_id}-${section_name}` } }
+      { $set: { section_data: `${section_id}-${section_name}` } },
     );
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -687,7 +687,7 @@ router.post("/addNewSubSection", authenticate, async (req, res) => {
           section_names: sectionInfo[0]._id,
           subSection_sequence: { $gte: subSection_sequence },
         },
-        { $inc: { subSection_sequence: 1 } }
+        { $inc: { subSection_sequence: 1 } },
       );
       // console.log(updateSequence);
       newSubSection = new SubSection({
@@ -741,7 +741,7 @@ router.post("/updateSubSection", authenticate, async (req, res) => {
               $lte: subSection_sequence,
             },
           },
-          { $inc: { subSection_sequence: -1 } }
+          { $inc: { subSection_sequence: -1 } },
         );
       } else {
         const updateSequence = await SubSection.updateMany(
@@ -752,7 +752,7 @@ router.post("/updateSubSection", authenticate, async (req, res) => {
               $gte: subSection_sequence,
             },
           },
-          { $inc: { subSection_sequence: 1 } }
+          { $inc: { subSection_sequence: 1 } },
         );
       }
     }
@@ -761,7 +761,7 @@ router.post("/updateSubSection", authenticate, async (req, res) => {
     // }
     await SubSection.updateOne(
       { subSection_id: subSection_id },
-      { $set: { subSection_name: subSection_name, subSection_sequence } }
+      { $set: { subSection_name: subSection_name, subSection_sequence } },
     );
     res.status(201).json({ message: "SubSection updated successfully" });
     let subSectionIdLiteral = `${subSection_id}-${oldRow.subSection_name}`;
@@ -769,7 +769,7 @@ router.post("/updateSubSection", authenticate, async (req, res) => {
     let newSubSectionIdLiteral = `${subSection_id}-${subSection_name}`;
     const result = await User.updateMany(
       { subSection_data: subSectionIdLiteral },
-      { $set: { "subSection_data.$": newSubSectionIdLiteral } }
+      { $set: { "subSection_data.$": newSubSectionIdLiteral } },
     );
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -803,7 +803,7 @@ router.post("/deleteSubSection", authenticate, async (req, res) => {
           section_names: deleteRow.section_names,
           subSection_sequence: { $gte: deleteRow.subSection_sequence },
         },
-        { $inc: { subSection_sequence: -1 } }
+        { $inc: { subSection_sequence: -1 } },
       );
       // console.log(updateSequence);
       deleteSubSectionData = await SubSection.deleteOne({
@@ -876,7 +876,7 @@ router.post("/addNewCell", authenticate, async (req, res) => {
           subSection_names: subSectionInfo[0]._id,
           cell_sequence: { $gte: cell_sequence },
         },
-        { $inc: { cell_sequence: 1 } }
+        { $inc: { cell_sequence: 1 } },
       );
       // console.log(updateSequence);
       newCell = new Cell({
@@ -929,7 +929,7 @@ router.post("/updateCell", authenticate, async (req, res) => {
             subSection_names: oldRow.subSection_names,
             cell_sequence: { $gt: oldRow.cell_sequence, $lte: cell_sequence },
           },
-          { $inc: { cell_sequence: -1 } }
+          { $inc: { cell_sequence: -1 } },
         );
       } else {
         const updateSequence = await Cell.updateMany(
@@ -937,7 +937,7 @@ router.post("/updateCell", authenticate, async (req, res) => {
             subSection_names: oldRow.subSection_names,
             cell_sequence: { $lt: oldRow.cell_sequence, $gte: cell_sequence },
           },
-          { $inc: { cell_sequence: 1 } }
+          { $inc: { cell_sequence: 1 } },
         );
       }
     }
@@ -946,14 +946,14 @@ router.post("/updateCell", authenticate, async (req, res) => {
     // }
     await Cell.updateOne(
       { cell_id: cell_id },
-      { $set: { cell_name: cell_name, cell_sequence } }
+      { $set: { cell_name: cell_name, cell_sequence } },
     );
     res.status(201).json({ message: "Cell updated successfully" });
     let cellIdLiteral = `${cell_id}-${oldRow.cell_name}`;
     let newCellIdLiteral = `${cell_id}-${cell_name}`;
     const result = await User.updateMany(
       { cell_data: cellIdLiteral },
-      { $set: { "cell_data.$": newCellIdLiteral } }
+      { $set: { "cell_data.$": newCellIdLiteral } },
     );
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -986,7 +986,7 @@ router.post("/deleteCell", authenticate, async (req, res) => {
           subSection_names: deleteRow.subSection_names,
           cell_sequence: { $gte: deleteRow.cell_sequence },
         },
-        { $inc: { cell_sequence: -1 } }
+        { $inc: { cell_sequence: -1 } },
       );
       // console.log(updateSequence);
       deleteCellData = await Cell.deleteOne({ cell_id: cell_id });
@@ -1089,7 +1089,7 @@ router.post("/addNewLine", authenticate, async (req, res) => {
     if (sequenceFind) {
       const updateSequence = await Line.updateMany(
         { cell_names: cellInfo[0]._id, line_sequence: { $gte: line_sequence } },
-        { $inc: { line_sequence: 1 } }
+        { $inc: { line_sequence: 1 } },
       );
       // console.log(updateSequence);
       newLine = new Line({
@@ -1151,7 +1151,7 @@ router.post("/updateLine", authenticate, async (req, res) => {
             cell_names: oldRow.cell_names,
             line_sequence: { $gt: oldRow.line_sequence, $lte: line_sequence },
           },
-          { $inc: { line_sequence: -1 } }
+          { $inc: { line_sequence: -1 } },
         );
       } else {
         const updateSequence = await Line.updateMany(
@@ -1159,7 +1159,7 @@ router.post("/updateLine", authenticate, async (req, res) => {
             cell_names: oldRow.cell_names,
             line_sequence: { $lt: oldRow.line_sequence, $gte: line_sequence },
           },
-          { $inc: { line_sequence: 1 } }
+          { $inc: { line_sequence: 1 } },
         );
       }
     }
@@ -1168,7 +1168,7 @@ router.post("/updateLine", authenticate, async (req, res) => {
     // }
     await Line.updateOne(
       { line_id: line_id },
-      { $set: { line_name: line_name, line_sequence } }
+      { $set: { line_name: line_name, line_sequence } },
     );
     res.status(201).json({ message: "Line updated successfully" });
   } catch (error) {
@@ -1202,7 +1202,7 @@ router.post("/deleteLine", authenticate, async (req, res) => {
           cell_names: deleteRow.cell_names,
           line_sequence: { $gte: deleteRow.line_sequence },
         },
-        { $inc: { line_sequence: -1 } }
+        { $inc: { line_sequence: -1 } },
       );
       // console.log(updateSequence);
       deleteLineData = await Line.deleteOne({ line_id: line_id });
@@ -1239,7 +1239,7 @@ router.post("/clearTokens", async (req, res) => {
     } else {
       const result = await User.updateOne(
         { tm_no: tm_no },
-        { $unset: { jwtTokens: "", moduleType: "" } }
+        { $unset: { jwtTokens: "", moduleType: "" } },
       );
       // console.log(result);
       res.status(201).json({ message: "Removed token !!!" });
@@ -1323,7 +1323,7 @@ router.post("/postPlantToGetSectionList", authenticate, async (req, res) => {
     let sectionArray = [];
     for (let i = 0; i < sectionsInfo.length; i++) {
       sectionArray.push(
-        `${sectionsInfo[i].section_id}-${sectionsInfo[i].section_name}`
+        `${sectionsInfo[i].section_id}-${sectionsInfo[i].section_name}`,
       );
     }
 
@@ -1364,7 +1364,7 @@ router.post(
         if (req?.rootUser?.user_type === "Plant-Admin") {
           for (let i = 0; i < subSectionsInfo.length; i++) {
             subSectionArray.push(
-              `${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].subSection_name}`
+              `${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].subSection_name}`,
             );
           }
         } else {
@@ -1373,7 +1373,7 @@ router.post(
       } else {
         for (let i = 0; i < subSectionsInfo.length; i++) {
           subSectionArray.push(
-            `${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].subSection_name}`
+            `${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].subSection_name}`,
           );
         }
       }
@@ -1386,7 +1386,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 /**
@@ -1515,7 +1515,10 @@ router.post("/postLineToGetMachineList", authenticate, async (req, res) => {
       // console.log(machineData)
       machineInfoWithChecksheet = await Machine.populate(
         machineInfoWithChecksheet,
-        { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
+        {
+          path: "line_names",
+          populate: { path: "cell_names", model: "Cells" },
+        },
       );
     } else {
       machineInfoWithChecksheet = await BackupMachineData.find({
@@ -1538,7 +1541,7 @@ router.post("/postLineToGetMachineList", authenticate, async (req, res) => {
     let machineArray = [];
     for (let i = 0; i < machineInfo.length; i++) {
       machineArray.push(
-        `${machineInfo[i].machine_code}-${machineInfo[i].machine_name}`
+        `${machineInfo[i].machine_code}-${machineInfo[i].machine_name}`,
       );
     }
 
@@ -1575,7 +1578,7 @@ router.post(
       let sectionArray = [];
       for (let i = 0; i < sectionsInfo.length; i++) {
         sectionArray.push(
-          `${sectionsInfo[i].section_id}-${sectionsInfo[i].section_name}`
+          `${sectionsInfo[i].section_id}-${sectionsInfo[i].section_name}`,
         );
       }
 
@@ -1587,7 +1590,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //based on section selection sub-section list will display on sub-section list dropdown in User Assign in plant user
@@ -1613,7 +1616,7 @@ router.post(
       let subSectionArray = [];
       for (let i = 0; i < subSectionsInfo.length; i++) {
         subSectionArray.push(
-          `${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].section_name}`
+          `${subSectionsInfo[i].subSection_id}-${subSectionsInfo[i].section_name}`,
         );
       }
 
@@ -1625,7 +1628,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //based on sub-section selection cell list will display on cell list dropdown in User Assign in plant user
@@ -1671,7 +1674,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //post new user in user management in plant & section user
@@ -1848,7 +1851,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
             contact_no,
             joining_date,
           },
-        }
+        },
       );
     } else if (tm_grade === "HOS") {
       await User.updateOne(
@@ -1870,7 +1873,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
             contact_no,
             joining_date,
           },
-        }
+        },
       );
       // cell_data = "";
       // await User.updateOne({ tm_no: tm_no }, {
@@ -1907,7 +1910,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
             contact_no,
             joining_date,
           },
-        }
+        },
       );
     } else {
       await User.updateOne(
@@ -1928,7 +1931,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
             contact_no,
             joining_date,
           },
-        }
+        },
       );
     }
     res.status(201).json({ message: "Employee updated successfully" });
@@ -2089,7 +2092,7 @@ router.post("/addNewMachine", async (req, res) => {
           line_names: lineInfo[0]._id,
           machine_sequence: { $gte: machine_sequence },
         },
-        { $inc: { machine_sequence: 1 } }
+        { $inc: { machine_sequence: 1 } },
       );
       // console.log(updateSequence);
       newMachine = new Machine({
@@ -2161,7 +2164,7 @@ router.post("/deleteMachine", authenticate, async (req, res) => {
           line_names: deleteRow.line_names,
           machine_sequence: { $gte: deleteRow.machine_sequence },
         },
-        { $inc: { machine_sequence: -1 } }
+        { $inc: { machine_sequence: -1 } },
       );
       // console.log(updateSequence);
       deleteMachineData = await Machine.deleteOne({ machine_code });
@@ -2215,7 +2218,7 @@ router.post("/updateMachine", authenticate, async (req, res) => {
               $lte: machine_sequence,
             },
           },
-          { $inc: { machine_sequence: -1 } }
+          { $inc: { machine_sequence: -1 } },
         );
       } else {
         const updateSequence = await Machine.updateMany(
@@ -2226,7 +2229,7 @@ router.post("/updateMachine", authenticate, async (req, res) => {
               $gte: machine_sequence,
             },
           },
-          { $inc: { machine_sequence: 1 } }
+          { $inc: { machine_sequence: 1 } },
         );
       }
     }
@@ -2246,7 +2249,7 @@ router.post("/updateMachine", authenticate, async (req, res) => {
           maker_name,
           maker_sr_no,
         },
-      }
+      },
     );
     res.status(201).json({ message: "Machine updated successfully" });
   } catch (error) {
@@ -2323,7 +2326,7 @@ router.post(
                 _id: subSectionsData[j]?._id,
                 section_name: subSectionsData[j]?.subSection_name,
                 dashboardLevel: "No",
-              })
+              }),
             );
           }
         }
@@ -2337,7 +2340,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -2352,7 +2355,7 @@ router.post(
       subSectionsData = await SubSection.find({
         subSection_id: {
           $in: req?.rootUser?.subSection_data?.map(
-            (item) => item?.split("-")?.[0]
+            (item) => item?.split("-")?.[0],
           ),
         },
       });
@@ -2365,7 +2368,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 // router.post('/postSectionToGetAllData12', authenticate, async (req, res) => {
@@ -2651,7 +2654,10 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
       // console.log(machineData)
       machineDataOfImplementationApproval = await Machine.populate(
         machineDataOfImplementationApproval,
-        { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
+        {
+          path: "line_names",
+          populate: { path: "cell_names", model: "Cells" },
+        },
       );
 
       //machine data of preparation and planning approval
@@ -2708,7 +2714,10 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
       // console.log(machineData)
       machineDataOfPrepAndPlanApproval = await Machine.populate(
         machineDataOfPrepAndPlanApproval,
-        { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
+        {
+          path: "line_names",
+          populate: { path: "cell_names", model: "Cells" },
+        },
       );
 
       // console.log(selectedYear, typeof (selectedYear))
@@ -2841,7 +2850,10 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
       // console.log(machineData)
       machineDataOfPrepAndPlanApproval = await Machine.populate(
         machineDataOfPrepAndPlanApproval,
-        { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
+        {
+          path: "line_names",
+          populate: { path: "cell_names", model: "Cells" },
+        },
       );
 
       // machineData = await Machine.find({ line_names: { $in: lineIdArray }, checksheet_status: { $exists: true } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
@@ -2892,7 +2904,10 @@ router.post("/postSectionToGetAllData", authenticate, async (req, res) => {
       // console.log(machineData)
       machineDataOfImplementationApproval = await Machine.populate(
         machineDataOfImplementationApproval,
-        { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
+        {
+          path: "line_names",
+          populate: { path: "cell_names", model: "Cells" },
+        },
       );
       // machineDataForChecksheet = await Machine.find({ line_names: { $in: lineIdArray } }).populate({ path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
@@ -3579,7 +3594,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //for main dashboard of meters display for operator user
@@ -3627,7 +3642,7 @@ router.post(
       let defaultSubSectionArray = [];
       for (let i = 0; i < subSectionsData.length; i++) {
         defaultSubSectionArray.push(
-          `${subSectionsData[i].subSection_id}-${subSectionsData[i].subSection_name}`
+          `${subSectionsData[i].subSection_id}-${subSectionsData[i].subSection_name}`,
         );
       }
 
@@ -3728,8 +3743,8 @@ router.post(
         new Date().getMonth() - 2 === -2
           ? monthKeyArray.splice(-1)[1]
           : new Date().getMonth() - 2 === -1
-          ? monthKeyArray.splice(-1)[0]
-          : monthKeyArray[new Date().getMonth() - 2];
+            ? monthKeyArray.splice(-1)[0]
+            : monthKeyArray[new Date().getMonth() - 2];
 
       //for 1/1M skip status
       let keyOfPreviousMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${previousMonth}`;
@@ -3793,7 +3808,7 @@ router.post(
       const updateOnesPerMonthStatusSkip = async (
         machine_code,
         tableRowId,
-        yearOfCheckSheet
+        yearOfCheckSheet,
       ) => {
         updatePreviousMonth = await Machine.updateOne(
           { machine_code: machine_code },
@@ -3808,14 +3823,14 @@ router.post(
               { "outer.current_year": yearOfCheckSheet },
               { "inner.tableRowId": tableRowId },
             ],
-          }
+          },
         );
       };
 
       const updateOtherCyclesStatusSkip = async (
         machine_code,
         tableRowId,
-        yearOfCheckSheet
+        yearOfCheckSheet,
       ) => {
         updatePreviousMonth = await Machine.updateOne(
           { machine_code: machine_code, yearOfCheckSheet },
@@ -3832,13 +3847,13 @@ router.post(
               { "outer.current_year": yearOfCheckSheet },
               { "inner.tableRowId": tableRowId },
             ],
-          }
+          },
         );
       };
 
       const updatePMStatusOfPreviousMonthForNoCompletion = async (
         machine_code,
-        yearOfCheckSheet
+        yearOfCheckSheet,
       ) => {
         // console.log(machine_code, yearOfCheckSheet)
         updatePreviousMonth = await Machine.updateOne(
@@ -3851,14 +3866,14 @@ router.post(
           },
           {
             arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          }
+          },
         );
       };
       let updateCarriedPMStatus;
       const updateStatusOfLastMonthPendingForCount = async (
         machine_code,
         yearOfCheckSheet,
-        carriedPMStatusExistsOrNot
+        carriedPMStatusExistsOrNot,
       ) => {
         // console.log(carriedPMStatusExistupdateStatusOfLastMonthPendingForCountsOrNot)
         if (carriedPMStatusExistsOrNot === 0) {
@@ -3873,7 +3888,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-            }
+            },
           );
         } else {
           let keyOfCarriedPMStatus = `checkSheet_data.$[outer].carriedPMStatus.${monthForCompareSystemMonth}`;
@@ -3886,7 +3901,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-            }
+            },
           );
         }
       };
@@ -3900,7 +3915,7 @@ router.post(
       const carryForwardOtherCycleData = async (
         machine_code,
         tableRowId,
-        yearOfCheckSheet
+        yearOfCheckSheet,
       ) => {
         updatePreviousMonth = await Machine.updateOne(
           { machine_code: machine_code },
@@ -3914,7 +3929,7 @@ router.post(
               { "outer.current_year": yearOfCheckSheet },
               { "inner.tableRowId": tableRowId },
             ],
-          }
+          },
         );
 
         carryData = await Machine.updateOne(
@@ -3929,7 +3944,7 @@ router.post(
               { "outer.current_year": yearOfCheckSheet },
               { "inner.tableRowId": tableRowId },
             ],
-          }
+          },
         );
       };
 
@@ -3981,14 +3996,14 @@ router.post(
                   updateOnesPerMonthStatusSkip(
                     key.machine_code,
                     key1.tableRowId,
-                    key.checkSheet_data.current_year
+                    key.checkSheet_data.current_year,
                   );
                 }
                 //for mid year added 1/M skip
                 else if (
                   (monthKeyArray.indexOf(monthForCompareSystemMonth) >
                     new Date(
-                      mongoose.Types.ObjectId(key1?._id).getTimestamp()
+                      mongoose.Types.ObjectId(key1?._id).getTimestamp(),
                     ).getMonth() ||
                     monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
                   key1.planningTableAnimationArray2?.[previousMonth]?.[0] ===
@@ -4001,7 +4016,7 @@ router.post(
                   updateOnesPerMonthStatusSkip(
                     key.machine_code,
                     key1.tableRowId,
-                    key.checkSheet_data.current_year
+                    key.checkSheet_data.current_year,
                   );
                 }
 
@@ -4018,14 +4033,14 @@ router.post(
                   updateOtherCyclesStatusSkip(
                     key.machine_code,
                     key1.tableRowId,
-                    key.checkSheet_data.current_year
+                    key.checkSheet_data.current_year,
                   );
                 }
                 //for mid year added excluded !== 1/M
                 else if (
                   (monthKeyArray.indexOf(monthForCompareSystemMonth) >
                     new Date(
-                      mongoose.Types.ObjectId(key1?._id).getTimestamp()
+                      mongoose.Types.ObjectId(key1?._id).getTimestamp(),
                     ).getMonth() ||
                     monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
                   key1.planningTableAnimationArray2?.[previousMonth]?.[0] ===
@@ -4038,7 +4053,7 @@ router.post(
                   updateOtherCyclesStatusSkip(
                     key.machine_code,
                     key1.tableRowId,
-                    key.checkSheet_data.current_year
+                    key.checkSheet_data.current_year,
                   );
                 }
 
@@ -4057,7 +4072,7 @@ router.post(
                   updateStatusOfLastMonthPendingForCount(
                     key.machine_code,
                     key.checkSheet_data.current_year,
-                    carriedPMStatusExistsOrNot
+                    carriedPMStatusExistsOrNot,
                   );
                 }
                 if (
@@ -4081,7 +4096,7 @@ router.post(
                   carryForwardOtherCycleData(
                     key.machine_code,
                     key1.tableRowId,
-                    key.checkSheet_data.current_year
+                    key.checkSheet_data.current_year,
                   );
                   //add dummy key word 1,dummy
                 }
@@ -4089,7 +4104,7 @@ router.post(
                 else if (
                   (monthKeyArray.indexOf(monthForCompareSystemMonth) >
                     new Date(
-                      mongoose.Types.ObjectId(key1?._id).getTimestamp()
+                      mongoose.Types.ObjectId(key1?._id).getTimestamp(),
                     ).getMonth() ||
                     monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
                   key1.planningTableAnimationArray2?.[previousMonth]?.[0] ===
@@ -4110,7 +4125,7 @@ router.post(
                   carryForwardOtherCycleData(
                     key.machine_code,
                     key1.tableRowId,
-                    key.checkSheet_data.current_year
+                    key.checkSheet_data.current_year,
                   );
                   //add dummy key word 1,dummy
                 }
@@ -4129,14 +4144,14 @@ router.post(
 
                     updatePMStatusOfPreviousMonthForNoCompletion(
                       key.machine_code,
-                      key.checkSheet_data.current_year
+                      key.checkSheet_data.current_year,
                     );
                   }
                   //for mid year No-completion status
                   else if (
                     (monthKeyArray.indexOf(monthForCompareSystemMonth) >
                       new Date(
-                        mongoose.Types.ObjectId(key1?._id).getTimestamp()
+                        mongoose.Types.ObjectId(key1?._id).getTimestamp(),
                       ).getMonth() ||
                       monthKeyArray.indexOf(monthForCompareSystemMonth) < 3) &&
                     (key1.isAdded || key1.isEdited) &&
@@ -4146,7 +4161,7 @@ router.post(
                     // console.log("No completion check........");
                     updatePMStatusOfPreviousMonthForNoCompletion(
                       key.machine_code,
-                      key.checkSheet_data.current_year
+                      key.checkSheet_data.current_year,
                     );
                   }
                 }
@@ -4179,7 +4194,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //for main dashboard of meters display for other users
@@ -4228,7 +4243,7 @@ router.post(
       let defaultSubSectionArray = [];
       for (let i = 0; i < subSectionsData.length; i++) {
         defaultSubSectionArray.push(
-          `${subSectionsData[i].subSection_id}-${subSectionsData[i].subSection_name}`
+          `${subSectionsData[i].subSection_id}-${subSectionsData[i].subSection_name}`,
         );
       }
 
@@ -4306,7 +4321,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //add new checksheet data for perticular machine
@@ -4417,7 +4432,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   flagForRevisionContent: true,
                 },
               },
-            }
+            },
           );
         } else {
           // console.log("data")
@@ -4449,7 +4464,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   remarksCompulsoryOrNot,
                 },
               },
-            }
+            },
           );
         }
       } else {
@@ -4476,7 +4491,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   },
                 },
               },
-            }
+            },
           );
         } else {
           tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1;
@@ -4502,7 +4517,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   remarksCompulsoryOrNot,
                 },
               },
-            }
+            },
           );
         }
       }
@@ -4556,7 +4571,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   flagForRevisionContent: true,
                 },
               },
-            }
+            },
           );
         } else {
           tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1;
@@ -4585,7 +4600,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   remarksCompulsoryOrNot,
                 },
               },
-            }
+            },
           );
         }
       } else {
@@ -4612,7 +4627,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   },
                 },
               },
-            }
+            },
           );
         } else {
           tableRowId = findMachine[0].checkSheet_data.checkSheet.tableRowId + 1;
@@ -4637,7 +4652,7 @@ router.post("/addNewChecksheetData", async (req, res) => {
                   remarksCompulsoryOrNot,
                 },
               },
-            }
+            },
           );
         }
       }
@@ -4784,7 +4799,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //update selcted machine checksheet data row
@@ -4830,7 +4845,7 @@ router.post(
               { "outer.current_year": yearOfCheckSheet },
               { "inner.tableRowId": rowData.tableRowId },
             ],
-          }
+          },
         );
 
         if (oldRow.cycle !== rowData.cycle) {
@@ -4867,7 +4882,7 @@ router.post(
               { "outer.current_year": yearOfCheckSheet },
               { "inner.tableRowId": rowData.tableRowId },
             ],
-          }
+          },
         );
       }
       res.status(201).json({
@@ -4878,7 +4893,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(409).json("user already exists!!!");
     }
-  }
+  },
 );
 
 //delete selcted machine checksheet data row
@@ -4910,7 +4925,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-            }
+            },
           );
         } else {
           addFlagForDelete = await Machine.updateOne(
@@ -4930,7 +4945,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": rowData.tableRowId },
               ],
-            }
+            },
           );
         }
       } else {
@@ -4948,7 +4963,7 @@ router.post(
           },
           {
             arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          }
+          },
         );
       }
 
@@ -4962,7 +4977,7 @@ router.post(
       console.log(error);
       console.log("Data not valid or received !!!");
     }
-  }
+  },
 );
 
 //get TL/HOSS and MTD HOS list for approval
@@ -5004,7 +5019,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
         tm_grade: "HOD",
         tm_department: "PRD",
       },
-      { tm_name: 1, email: 1, _id: 0 }
+      { tm_name: 1, email: 1, _id: 0 },
     );
 
     if (sectionInfo.dashboardLevel === "Yes") {
@@ -5014,7 +5029,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
           user_type: "TL/HOSS",
           tm_no: { $ne: loggedUserData.tm_no },
         },
-        { tm_name: 1, email: 1, _id: 0 }
+        { tm_name: 1, email: 1, _id: 0 },
       );
 
       HOSlist = await User.find({
@@ -5029,7 +5044,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
           tm_grade: "HOS",
           tm_department: "PRD",
         },
-        { tm_name: 1, email: 1, _id: 0 }
+        { tm_name: 1, email: 1, _id: 0 },
       );
 
       MTDHODlist = await User.find(
@@ -5039,7 +5054,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
           tm_grade: "HOD",
           tm_department: "MTD",
         },
-        { tm_name: 1, email: 1, _id: 0 }
+        { tm_name: 1, email: 1, _id: 0 },
       );
 
       PRDHODlist = await User.find(
@@ -5049,7 +5064,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
           tm_grade: "HOD",
           tm_department: "PRD",
         },
-        { tm_name: 1, email: 1, _id: 0 }
+        { tm_name: 1, email: 1, _id: 0 },
       );
 
       PRDTLlist = await User.find({
@@ -5108,7 +5123,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
           user_type: "TL/HOSS",
           tm_no: { $ne: loggedUserData.tm_no },
         },
-        { tm_name: 1, email: 1, _id: 0 }
+        { tm_name: 1, email: 1, _id: 0 },
       );
 
       HOSlist = await User.find({
@@ -5125,7 +5140,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
           tm_grade: "HOS",
           tm_department: "PRD",
         },
-        { tm_name: 1, email: 1, _id: 0 }
+        { tm_name: 1, email: 1, _id: 0 },
       );
 
       MTDHODlist = await User.find(
@@ -5135,7 +5150,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
           tm_grade: "HOD",
           tm_department: "MTD",
         },
-        { tm_name: 1, email: 1, _id: 0 }
+        { tm_name: 1, email: 1, _id: 0 },
       );
 
       // PRDHODlist = await User.find({ plant_data: loggedUserData.plant_data, user_type: "Plant-Admin", tm_grade: "HOD", tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
@@ -5187,7 +5202,7 @@ router.get("/getListForApproval", authenticate, async (req, res) => {
             },
           ],
         },
-        { tm_name: 1, _id: 0 }
+        { tm_name: 1, _id: 0 },
       );
 
       // PRDTLlist = await User.find({ section_data: loggedUserData.section_data, subSection_data: { $in: loggedUserData.subSection_data }, user_type: "TL/HOSS", tm_no: { $ne: loggedUserData.tm_no }, tm_department: "PRD" }, { tm_name: 1, email: 1, _id: 0 })
@@ -5422,7 +5437,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
                 selected_machine_data.checkSheet_data.current_year,
             },
           ],
-        }
+        },
       );
 
       subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
@@ -5474,7 +5489,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         hos_list?.email,
         undefined,
         undefined,
-        request
+        request,
       );
       return res.status(201).json("approval request send successfully!!!");
     } else if (prd_tl_list?.email && phaseStatus === "Planning") {
@@ -5500,7 +5515,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
       }
 
       let ccMail = sectionRelatedUser?.map((result) =>
-        result?.email ? result?.email : undefined
+        result?.email ? result?.email : undefined,
       );
       // console.log(sectionRelatedUser, ccMail)
       // console.log(sectionRelatedUser?.length)
@@ -5536,7 +5551,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
                 selected_machine_data.checkSheet_data.current_year,
             },
           ],
-        }
+        },
       );
 
       subject = `Checksheet Planning Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
@@ -5588,7 +5603,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         undefined,
         undefined,
         undefined,
-        undefined
+        undefined,
       );
       return res.status(201).json("approval request send successfully!!!");
     } else if (
@@ -5641,12 +5656,12 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
                   selected_machine_data.checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
       }
       console.log(
         "implemetation_completed_date-----",
-        implemetation_completed_date
+        implemetation_completed_date,
       );
       const updateImplementationCompletionPhase = await Machine.updateOne(
         { machine_code: selected_machine_data.machine_code },
@@ -5669,15 +5684,15 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
             [keyOfImplemetation_completed_date]: implemetation_completed_date,
             [keyOfImplementation_due_date]: moment(
               implemetation_completed_date,
-              "D/M/YYYY - hh:mm A"
+              "D/M/YYYY - hh:mm A",
             )
               .add(
                 parseInt(
                   machineLastDataForKeyexistsOrNot[0]?.checkSheet_data?.checkSheet?.[0]?.cycle?.match(
-                    /^(\d+)\/(\d+)M$/
-                  )?.[2] || 1
+                    /^(\d+)\/(\d+)M$/,
+                  )?.[2] || 1,
                 ),
-                "M" || "y"
+                "M" || "y",
               )
               .format("DD-MM-YYYY THH:mm"),
           },
@@ -5689,7 +5704,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
                 selected_machine_data.checkSheet_data.current_year,
             },
           ],
-        }
+        },
       );
       // console.log(updateImplementationCompletionPhase)
       // console.log(prd_tl_list, mtd_tl_list, mtd_hos_list)
@@ -5756,7 +5771,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         undefined,
         undefined,
         undefined,
-        undefined
+        undefined,
       );
 
       return res.status(201).json("approval request send successfully!!!");
@@ -5808,7 +5823,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
                   selected_machine_data.checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
         // console.log(updateImplementationData)
       }
@@ -5830,7 +5845,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
                 selected_machine_data.checkSheet_data.current_year,
             },
           ],
-        }
+        },
       );
       return res.status(201).json("approval request send successfully!!!");
     } else {
@@ -5873,7 +5888,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
                 selected_machine_data.checkSheet_data.current_year,
             },
           ],
-        }
+        },
       );
 
       subject = `Checksheet Preparation Approval (${selected_machine_data?.line_names?.cell_names?.cell_name}/${selected_machine_data?.line_names?.line_name}/${selected_machine_data?.machine_code})`;
@@ -5926,7 +5941,7 @@ router.post("/sendRequestForApproval", authenticate, async (req, res) => {
         undefined,
         undefined,
         undefined,
-        request
+        request,
       );
       return res.status(201).json("approval request send successfully!!!");
     }
@@ -6101,7 +6116,7 @@ router.get(
       console.log(error);
       console.log("User data not send or get!!!");
     }
-  }
+  },
 );
 
 //get approval request data for Preparation phase
@@ -6277,7 +6292,7 @@ router.get(
       console.log(error);
       console.log("User data not send or get!!!");
     }
-  }
+  },
 );
 
 //get approval request data for Planning phase
@@ -6291,21 +6306,10 @@ router.get(
   async (req, res) => {
     try {
       let loggedUserData = req.rootUser;
-      const monthKeyArray = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "June",
-        "July",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
+      let currentYear =
+        new Date().getMonth() < 3
+          ? `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`
+          : `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
       let requestData, machineDataWithPopulate;
       if (loggedUserData.user_type === "TL/HOSS") {
@@ -6314,11 +6318,41 @@ router.get(
             // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
 
             { $unwind: "$checkSheet_data" },
+            // {
+            //   $match: {
+            //     $and: [
+            //       {
+            //         $expr: {
+            //           $eq: [
+            //             {
+            //               $arrayElemAt: ["$checkSheet_data.assign_PRD_TL", -1],
+            //             },
+            //             loggedUserData?.email,
+            //           ],
+            //         },
+            //       },
+            //       {
+            //         $expr: {
+            //           $eq: [
+            //             {
+            //               $arrayElemAt: [
+            //                 "$checkSheet_data.prd_tl_approval_status",
+            //                 -1,
+            //               ],
+            //             },
+            //             "Pending",
+            //           ],
+            //         },
+            //       },
+            //     ],
+            //   },
+            // },
             {
               $match: {
-                $and: [
-                  {
-                    $expr: {
+                "checkSheet_data.current_year": currentYear,
+                $expr: {
+                  $and: [
+                    {
                       $eq: [
                         {
                           $arrayElemAt: ["$checkSheet_data.assign_PRD_TL", -1],
@@ -6326,9 +6360,18 @@ router.get(
                         loggedUserData?.email,
                       ],
                     },
-                  },
-                  {
-                    $expr: {
+                    {
+                      $eq: [
+                        {
+                          $arrayElemAt: [
+                            "$checkSheet_data.assign_PRD_TL_name",
+                            -1,
+                          ],
+                        },
+                        loggedUserData?.tm_name,
+                      ],
+                    },
+                    {
                       $eq: [
                         {
                           $arrayElemAt: [
@@ -6339,8 +6382,8 @@ router.get(
                         "Pending",
                       ],
                     },
-                  },
-                ],
+                  ],
+                },
               },
             },
           ]);
@@ -6352,15 +6395,13 @@ router.get(
         }
       }
 
-      // machineDataWithPopulate.map((item) => console.log(item?.machine_code))
-
       res.json(machineDataWithPopulate);
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("User data not send or get!!!");
     }
-  }
+  },
 );
 
 //get approval request data for Implementation phase
@@ -6424,7 +6465,7 @@ router.get(
 
       if (currentYear === req?.params?.selectedYear) {
         lengthOfTheMonthForCurrentYear = financialYearWiseMonthKeyArray.indexOf(
-          monthKeyArray[new Date().getMonth()]
+          monthKeyArray[new Date().getMonth()],
         );
       }
 
@@ -6524,7 +6565,7 @@ router.get(
             {
               path: "line_names",
               populate: { path: "cell_names", model: "Cells" },
-            }
+            },
           );
         } else {
           for (
@@ -6640,7 +6681,7 @@ router.get(
           {
             path: "line_names",
             populate: { path: "cell_names", model: "Cells" },
-          }
+          },
         );
 
         // requestData = await Machine.find({ assign_TL: loggedUserData.email, tl_approval_status: "Pending" }).populate({path:"line_names",populate: {path: "cell_names", model: "Cells"} })
@@ -6777,7 +6818,7 @@ router.get(
           {
             path: "line_names",
             populate: { path: "cell_names", model: "Cells" },
-          }
+          },
         );
       }
 
@@ -6790,7 +6831,7 @@ router.get(
 
       console.log("User data not send or get!!!");
     }
-  }
+  },
 );
 
 //Request approval from TL and HOS
@@ -7083,7 +7124,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   machineLastData[0].checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
         // console.log(TLApprovalStatusUpdate)
         const findAssignHosName = await User.findOne({
@@ -7165,7 +7206,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           ],
           tlApproval,
           undefined,
-          undefined
+          undefined,
         );
       } else if (
         machineLastData[0]?.checkSheet_data?.tl_approval_status?.[
@@ -7211,7 +7252,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   machineLastData[0].checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
 
         if (requestSenderUserData?.user_type !== "Operator") {
@@ -7272,7 +7313,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             undefined,
             hosApproval,
             undefined,
-            undefined
+            undefined,
           );
         }
       } else if (
@@ -7316,7 +7357,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   machineLastData[0].checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
 
         if (requestSenderUserData?.user_type !== "Operator") {
@@ -7376,7 +7417,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             undefined,
             hosApproval,
             undefined,
-            undefined
+            undefined,
           );
         }
       } else if (
@@ -7416,8 +7457,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     new Date(
                       mongoose.Types.ObjectId(
                         machineLastData?.[0]?.checkSheet_data?.checkSheet?.[i]
-                          ?._id
-                      ).getTimestamp()
+                          ?._id,
+                      ).getTimestamp(),
                     ).getMonth() ||
                     monthKeyArray.indexOf(month) < 3)
                 ) {
@@ -7452,7 +7493,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             ) {
               checkWhetherRevisionContentEdited = 1;
               console.log(
-                machineLastData?.[0].checkSheet_data?.checkSheet?.[i]
+                machineLastData?.[0].checkSheet_data?.checkSheet?.[i],
               );
             }
           }
@@ -7462,8 +7503,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             "Edit or deleted function call ----",
             keyOfMonth,
             new Date(
-              machineLastData?.[0]?.checkSheet_data?.[keyOfMonth]
-            )?.getMonth()
+              machineLastData?.[0]?.checkSheet_data?.[keyOfMonth],
+            )?.getMonth(),
           );
           for (let j = 0; j < financialYearWiseMonthKeyArray?.length; j++) {
             let month = financialYearWiseMonthKeyArray[j];
@@ -7473,7 +7514,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             if (
               monthKeyArray?.indexOf(month) >=
                 new Date(
-                  machineLastData?.[0]?.checkSheet_data?.[keyOfMonth]
+                  machineLastData?.[0]?.checkSheet_data?.[keyOfMonth],
                 )?.getMonth() ||
               monthKeyArray?.indexOf(month) < 3
             ) {
@@ -7509,7 +7550,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                 "plannedPMCount----",
                 plannedPMCount,
                 "---->",
-                completedPMCount
+                completedPMCount,
               );
               if (
                 machineLastData?.[0]?.checkSheet_data?.PMStatus?.[month] ===
@@ -7536,7 +7577,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   "----Planned----> ",
                   plannedPMCount,
                   "---> Completed ---",
-                  completedPMCount
+                  completedPMCount,
                 );
 
                 machineLastData[0].checkSheet_data.PMStatus[month] = "";
@@ -7549,7 +7590,8 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         };
 
         console.log(
-          machineLastData?.[0]?.checkSheet_data?.currentMonthScheduleOrNotStatus
+          machineLastData?.[0]?.checkSheet_data
+            ?.currentMonthScheduleOrNotStatus,
         );
 
         //for mid year edited or deleted
@@ -7561,7 +7603,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         }
         console.log(
           "checkWhetherRevisionContentEdited-----",
-          checkWhetherRevisionContentEdited
+          checkWhetherRevisionContentEdited,
         );
         if (
           checkWhetherRevisionContentDeleted !== 1 &&
@@ -7572,7 +7614,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             "Whether edited or not",
             checkWhetherRevisionContentDeleted,
             "-----",
-            checkWhetherRevisionContentEdited
+            checkWhetherRevisionContentEdited,
           );
           for (
             let i = 0;
@@ -7606,7 +7648,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             checkWhetherRevisionContentEdited !== 1
             ? ("-----", CurrentMonthPMScheduleOrNotStatusArray)
             : machineLastData?.[0]?.checkSheet_data
-                ?.currentMonthScheduleOrNotStatus
+                ?.currentMonthScheduleOrNotStatus,
         );
 
         const PRDTLApprovalStatusUpdate = await Machine.updateOne(
@@ -7646,7 +7688,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   machineLastData?.[0].checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
 
         if (sectionInfo?.dashboardLevel === "Yes") {
@@ -7665,7 +7707,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
         }
 
         let ccMail = sectionRelatedUser?.map((result) =>
-          result?.email ? result?.email : undefined
+          result?.email ? result?.email : undefined,
         );
 
         // console.log(machineLastData?.[0]?.checkSheet_data?.plan_prepared_email, machineLastData?.[0]?.checkSheet_data?.plan_prepared_tm_name)
@@ -7724,7 +7766,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
               .length - 1
           ],
           undefined, // machineLastData?.[0].checkSheet_data.assign_HOS[(machineLastData?.[0].checkSheet_data.checkSheetSendingUser).length - 1],
-          undefined // tlApproval, undefined, undefined
+          undefined, // tlApproval, undefined, undefined
         );
       } else if (
         machineLastData?.[0]?.checkSheet_data
@@ -7792,7 +7834,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
 
@@ -7824,7 +7866,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
         const PRDTLApprovalStatusUpdateOfImplementation =
@@ -7854,7 +7896,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                 },
               ],
               new: true,
-            }
+            },
           );
         // console.log(machineLastData[0].checkSheet_data.implementation_assign_MTD_HOS[monthForCompareSystemMonth])
         let ccMail =
@@ -7944,7 +7986,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           prd_tl_approval_status,
           undefined,
           undefined,
-          undefined
+          undefined,
         );
 
         // sendApprovalOfImplementation(findAssignMTDTLNameOfImplementation.tm_name,
@@ -8026,7 +8068,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
 
@@ -8058,7 +8100,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
         const MTDTLApprovalStatusUpdateOfImplementation =
@@ -8085,7 +8127,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         const findAssignMTDHOSNameOfImplementation = await User.findOne({
           email:
@@ -8183,7 +8225,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           ],
           mtd_tl_approval_status,
           undefined,
-          undefined
+          undefined,
         );
 
         // sendApprovalOfImplementation(findAssignMTDHOSNameOfImplementation.tm_name,
@@ -8270,7 +8312,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
         if (
@@ -8293,7 +8335,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
 
@@ -8327,7 +8369,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
 
         subject = `Checksheet Approved by MTD HOS Plan vs Actual (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
@@ -8452,7 +8494,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
 
         // console.log(MTDHODApprovalStatusUpdateOfImplementation)
@@ -8498,7 +8540,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   machineLastData[0].checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
 
         const findAssignHOSName = await User.findOne({
@@ -8580,7 +8622,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           tlApproval,
           undefined,
           undefined,
-          rejected_remarks
+          rejected_remarks,
         );
       } else if (
         machineLastData[0].checkSheet_data.tl_approval_status[
@@ -8622,7 +8664,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   machineLastData[0].checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
 
         subject = `Checksheet Preparation Rejected (${machineLastData[0]?.cell_name}/${machineLastData[0]?.line_name}/${machineLastData[0]?.machine_code})`;
@@ -8692,7 +8734,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
           ],
           hosApproval,
           undefined,
-          rejected_remarks
+          rejected_remarks,
         );
       } else if (
         machineLastData[0].checkSheet_data.hos_approval_status[
@@ -8731,7 +8773,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   machineLastData[0].checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
 
         if (requestSenderUserData?.user_type !== "Operator") {
@@ -8798,7 +8840,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
             undefined,
             hosApproval,
             "No",
-            rejected_remarks
+            rejected_remarks,
           );
         }
       } else if (
@@ -8831,7 +8873,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                   machineLastData[0].checkSheet_data.current_year,
               },
             ],
-          }
+          },
         );
         // sendApproval(undefined, undefined, undefined, undefined, undefined, machineLastData[0].checkSheet_data.plan_prepared_tm_name[(machineLastData[0].checkSheet_data.plan_prepared_tm_name).length - 1], machineLastData[0].checkSheet_data.plan_prepared_tm_no[(machineLastData[0].checkSheet_data.plan_prepared_tm_no).length - 1],
         //     machineLastData[0].checkSheet_data.plan_prepared_tm_name[(machineLastData[0].checkSheet_data.plan_prepared_tm_name).length - 1],
@@ -8916,7 +8958,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
 
@@ -8958,7 +9000,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
       } else if (
         machineLastData[0].checkSheet_data.implemetation_prd_tl_approval_status[
@@ -9038,7 +9080,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
 
@@ -9074,7 +9116,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         const findAssignMTDHOSNameOfImplementation = await User.findOne({
           email:
@@ -9170,7 +9212,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
         machineLastData[0].checkSheet_data.implemetation_mtd_hos_approval_status[
@@ -9203,7 +9245,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
       } else if (
         machineLastData[0].checkSheet_data
@@ -9267,7 +9309,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
         }
         machineLastData[0].checkSheet_data.implemetation_mtd_hos_approval_status[
@@ -9302,7 +9344,7 @@ router.post("/approveRequestFromTL_HOS_HOD", authenticate, async (req, res) => {
                     machineLastData[0].checkSheet_data.current_year,
                 },
               ],
-            }
+            },
           );
       }
     }
@@ -9418,14 +9460,14 @@ router.post(
         oldRow.cycle === "1/1M"
           ? 1
           : oldRow.cycle === "1/2M"
-          ? 2
-          : oldRow.cycle === "1/3M"
-          ? 3
-          : oldRow.cycle === "1/4M"
-          ? 4
-          : oldRow.cycle === "1/6M"
-          ? 6
-          : 12;
+            ? 2
+            : oldRow.cycle === "1/3M"
+              ? 3
+              : oldRow.cycle === "1/4M"
+                ? 4
+                : oldRow.cycle === "1/6M"
+                  ? 6
+                  : 12;
 
       let Cycle = cycleValue;
 
@@ -9465,7 +9507,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": rowData.tableRowId },
               ],
-            }
+            },
           );
         } else {
           for (
@@ -9493,7 +9535,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": rowData.tableRowId },
               ],
-            }
+            },
           );
         }
       } else {
@@ -9512,7 +9554,7 @@ router.post(
               { "outer.current_year": yearOfCheckSheet },
               { "inner.tableRowId": rowData.tableRowId },
             ],
-          }
+          },
         );
       }
       if (updateChecksheetRow) {
@@ -9526,7 +9568,7 @@ router.post(
       res.status(409).json("TableRow already exists!!!");
       // console.log(error)
     }
-  }
+  },
 );
 
 let fileNameForLogHistory;
@@ -9568,7 +9610,7 @@ router.post(
       arrayForDonePreviousMonthPMPMData.push(
         2,
         workedOnPM,
-        remarksOfImplementation
+        remarksOfImplementation,
       );
 
       let PMStatusArray = {
@@ -9839,7 +9881,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": tableRowId },
               ],
-            }
+            },
           );
         } else {
           if (req.file === undefined) {
@@ -9858,7 +9900,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
           } else {
             let PMuploadedImage = req.file.filename;
@@ -9879,7 +9921,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
             // console.log(addPmData)
           }
@@ -9924,7 +9966,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
           } else {
             addPmData = await Machine.updateOne(
@@ -9948,7 +9990,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
           }
         } else {
@@ -9992,7 +10034,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
           } else {
             addPmData = await Machine.updateOne(
@@ -10017,7 +10059,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
           }
         }
@@ -10062,7 +10104,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
 
             sendApproval(
@@ -10081,7 +10123,7 @@ router.post(
               undefined,
               undefined,
               undefined,
-              undefined
+              undefined,
             );
           } else {
             addPmData = await Machine.updateOne(
@@ -10106,7 +10148,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
             sendApproval(
               subject,
@@ -10124,7 +10166,7 @@ router.post(
               undefined,
               undefined,
               undefined,
-              undefined
+              undefined,
             );
           }
         } else {
@@ -10169,7 +10211,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
             sendApproval(
               subject,
@@ -10187,7 +10229,7 @@ router.post(
               undefined,
               undefined,
               undefined,
-              undefined
+              undefined,
             );
           } else {
             addPmData = await Machine.updateOne(
@@ -10213,7 +10255,7 @@ router.post(
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tableRowId": tableRowId },
                 ],
-              }
+              },
             );
             sendApproval(
               subject,
@@ -10231,7 +10273,7 @@ router.post(
               undefined,
               undefined,
               undefined,
-              undefined
+              undefined,
             );
           }
         }
@@ -10330,7 +10372,7 @@ router.post(
           },
           {
             arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          }
+          },
         );
       }
 
@@ -10346,7 +10388,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-            }
+            },
           );
         }
       }
@@ -10362,7 +10404,7 @@ router.post(
           },
           {
             arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          }
+          },
         );
       }
       let keyOfPMworkedTMNameForPreviosMonthDoneWithDelay = `checkSheet_data.$[outer].PMworkedTMName.${previousMonth}`;
@@ -10394,7 +10436,7 @@ router.post(
       };
 
       PMworkedTMNameArray?.[previousMonth]?.push(
-        loggedUserData.tm_name?.split(" ")?.[0]
+        loggedUserData.tm_name?.split(" ")?.[0],
       );
 
       let keyOfMonthOfTotalWorkedPMTime = `checkSheet_data.$[outer].PMworkedTMName`;
@@ -10426,7 +10468,7 @@ router.post(
                 },
                 {
                   arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-                }
+                },
               );
             }
           } else {
@@ -10441,7 +10483,7 @@ router.post(
               },
               {
                 arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-              }
+              },
             );
           }
         }
@@ -10456,7 +10498,7 @@ router.post(
               },
               {
                 arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-              }
+              },
             );
           }
         } else {
@@ -10471,7 +10513,7 @@ router.post(
               },
               {
                 arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-              }
+              },
             );
           } else {
             updateStatus = await Machine.updateOne(
@@ -10483,7 +10525,7 @@ router.post(
               },
               {
                 arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-              }
+              },
             );
           }
         }
@@ -10499,7 +10541,7 @@ router.post(
       console.log(error);
       console.log("Data not valid or received !!!");
     }
-  }
+  },
 );
 
 /**
@@ -10546,10 +10588,10 @@ router.post("/submitLogHistory", authenticate, async (req, res) => {
     let scheduleMonth = schedule_month
       ? schedule_month
       : refKeyForScheduleMonthInLogHistory === "2"
-      ? monthKeyArray[new Date().getMonth() - 1] === undefined
-        ? monthKeyArray.splice(-1)[0]
-        : monthKeyArray[new Date().getMonth() - 1]
-      : monthKeyArray[new Date().getMonth()];
+        ? monthKeyArray[new Date().getMonth() - 1] === undefined
+          ? monthKeyArray.splice(-1)[0]
+          : monthKeyArray[new Date().getMonth() - 1]
+        : monthKeyArray[new Date().getMonth()];
 
     // console.log(machineId, machineAllData)
     if (machineId) {
@@ -10600,15 +10642,15 @@ router.post("/submitLogHistory", authenticate, async (req, res) => {
     }).populate({ path: "plant_names" });
 
     if (sectionInfo?.dashboardLevel === "Yes") {
-      (sectionOrSubSection_Id = sectionInfo?.section_id),
-        (sectionOrSubSection_name = sectionInfo?.section_name);
+      ((sectionOrSubSection_Id = sectionInfo?.section_id),
+        (sectionOrSubSection_name = sectionInfo?.section_name));
     } else {
-      (sectionOrSubSection_Id =
+      ((sectionOrSubSection_Id =
         machineAllData?.line_names?.cell_names?.subSection_names
           ?.subSection_id),
         (sectionOrSubSection_name =
           machineAllData?.line_names?.cell_names?.subSection_names
-            ?.subSection_name);
+            ?.subSection_name));
     }
 
     if (values?.workedOnPM === "Yes") {
@@ -10952,15 +10994,15 @@ router.post(
       }).populate({ path: "plant_names" });
 
       if (sectionInfo?.dashboardLevel === "Yes") {
-        (sectionOrSubSection_Id = sectionInfo?.section_id),
-          (sectionOrSubSection_name = sectionInfo?.section_name);
+        ((sectionOrSubSection_Id = sectionInfo?.section_id),
+          (sectionOrSubSection_name = sectionInfo?.section_name));
       } else {
-        (sectionOrSubSection_Id =
+        ((sectionOrSubSection_Id =
           machineAllData?.line_names?.cell_names?.subSection_names
             ?.subSection_id),
           (sectionOrSubSection_name =
             machineAllData?.line_names?.cell_names?.subSection_names
-              ?.subSection_name);
+              ?.subSection_name));
       }
 
       // remarksOfImplementation,fileNameForLogHistory
@@ -11094,7 +11136,7 @@ router.post(
       console.log(error);
       console.log("Data not valid or received !!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -11172,15 +11214,15 @@ router.post(
       }).populate({ path: "plant_names" });
 
       if (sectionInfo?.dashboardLevel === "Yes") {
-        (sectionOrSubSection_Id = sectionInfo?.section_id),
-          (sectionOrSubSection_name = sectionInfo?.section_name);
+        ((sectionOrSubSection_Id = sectionInfo?.section_id),
+          (sectionOrSubSection_name = sectionInfo?.section_name));
       } else {
-        (sectionOrSubSection_Id =
+        ((sectionOrSubSection_Id =
           machineAllData?.line_names?.cell_names?.subSection_names
             ?.subSection_id),
           (sectionOrSubSection_name =
             machineAllData?.line_names?.cell_names?.subSection_names
-              ?.subSection_name);
+              ?.subSection_name));
       }
 
       if (workedOnPM === "Yes") {
@@ -11464,7 +11506,7 @@ router.post(
       console.log(error);
       console.log("Data not valid or received !!!");
     }
-  }
+  },
 );
 
 /**
@@ -11581,14 +11623,14 @@ router.post("/savedWorkedPMData", async (req, res) => {
           $inc: {
             [keyOfTotalWorkedPMTimeIncrement]: totalPMTime,
           },
-        }
+        },
       );
       for (let i = 0; i < selectedSupportedTM.length; i++) {
         let isOperatorOrNot =
           getSelectedMachineChecksheet[0].checkSheet_data.totalPMTime[
             monthForCompareSystemMonth
           ].supportingTMData.some(
-            (value) => value.tm_no === selectedSupportedTM[i].tm_no
+            (value) => value.tm_no === selectedSupportedTM[i].tm_no,
           );
         if (isOperatorOrNot) {
           updateTotalTimeAndWorkedAndSupportingOperator =
@@ -11609,7 +11651,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
                   { "outer.current_year": yearOfCheckSheet },
                   { "inner.tm_no": selectedSupportedTM[i].tm_no },
                 ],
-              }
+              },
             );
         } else {
           updateTotalTimeAndWorkedAndSupportingOperator =
@@ -11626,7 +11668,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
               },
               {
                 arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-              }
+              },
             );
         }
       }
@@ -11648,7 +11690,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
           },
           {
             arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          }
+          },
         );
       }
       // console.log(updateTotalTimeAndWorkedAndSupportingOperator)
@@ -11678,7 +11720,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
           },
           {
             arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          }
+          },
         );
       }
     } else {
@@ -11693,7 +11735,7 @@ router.post("/savedWorkedPMData", async (req, res) => {
         },
         {
           arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-        }
+        },
       );
     }
 
@@ -11746,7 +11788,7 @@ router.post("/deleteCheckSheet", authenticate, async (req, res) => {
           arrayFilters: [
             { "outer.current_year": selectedRow.checkSheet_data.current_year },
           ],
-        }
+        },
       );
 
       let machineLastData;
@@ -11813,7 +11855,7 @@ router.post("/deleteCheckSheet", authenticate, async (req, res) => {
               "checkSheet_data.$[outer].checkSheet.$[].isEdited": "",
               "checkSheet_data.$[outer].checkSheet.$[].isDeleted": "",
             },
-          }
+          },
         );
         const updateBackupPreparationMachineData =
           await BackupMachineData.updateOne(
@@ -11826,7 +11868,7 @@ router.post("/deleteCheckSheet", authenticate, async (req, res) => {
                   checkSheet: machineLastData[0].checkSheet_data.checkSheet,
                 },
               },
-            }
+            },
           );
       } else {
         const backupPreparationMachineData = await new BackupMachineData({
@@ -11957,7 +11999,7 @@ router.post("/deleteCheckSheet", authenticate, async (req, res) => {
           //     "checkSheet_data.$[outer].extraSpareDetails": "",
 
           // }
-        }
+        },
         // {
         //     arrayFilters: [{ 'outer.current_year': selectedRow.checkSheet_data.current_year }],
         // }
@@ -11971,7 +12013,7 @@ router.post("/deleteCheckSheet", authenticate, async (req, res) => {
               current_year: selectedRow.checkSheet_data.current_year,
             },
           },
-        }
+        },
       );
 
       res.status(201).json({ message: "Removed Checksheet !!!" });
@@ -12022,7 +12064,7 @@ router.post("/PMCarryOnToNextMonth", async (req, res) => {
           { "outer.current_year": yearOfCheckSheet },
           { "inner.tableRowId": tableRowId },
         ],
-      }
+      },
     );
 
     carryData = await Machine.updateOne(
@@ -12037,7 +12079,7 @@ router.post("/PMCarryOnToNextMonth", async (req, res) => {
           { "outer.current_year": yearOfCheckSheet },
           { "inner.tableRowId": tableRowId },
         ],
-      }
+      },
     );
 
     if (carryData || updatePreviousMonth) {
@@ -12159,7 +12201,7 @@ router.post(
           tm_department: "MTD",
           tm_grade: "HOS",
         },
-        { tm_no: 1, tm_name: 1, email: 1 }
+        { tm_no: 1, tm_name: 1, email: 1 },
       );
       const mtdTL = await User.find(
         {
@@ -12167,7 +12209,7 @@ router.post(
           tm_department: "MTD",
           user_type: "TL/HOSS",
         },
-        { tm_no: 1, tm_name: 1, email: 1 }
+        { tm_no: 1, tm_name: 1, email: 1 },
       );
       const mtdHOD = await User.find(
         {
@@ -12176,7 +12218,7 @@ router.post(
           tm_department: "MTD",
           tm_grade: "HOD",
         },
-        { tm_no: 1, tm_name: 1, email: 1 }
+        { tm_no: 1, tm_name: 1, email: 1 },
       );
       const prdTL = await User.find(
         {
@@ -12184,7 +12226,7 @@ router.post(
           tm_department: "PRD",
           user_type: "TL/HOSS",
         },
-        { tm_no: 1, tm_name: 1, email: 1 }
+        { tm_no: 1, tm_name: 1, email: 1 },
       );
 
       const operatorList = await User.find(
@@ -12192,7 +12234,7 @@ router.post(
           ...queryObj,
           user_type: "Operator",
         },
-        { tm_no: 1, tm_name: 1, email: 1 }
+        { tm_no: 1, tm_name: 1, email: 1 },
       );
 
       // console.log(machineLastData)
@@ -12210,7 +12252,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //get data from selected machine and respond it's checksheet preparation data
@@ -12285,7 +12327,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": current_year }],
-            }
+            },
           );
 
           // console.log(copyPreparationData)
@@ -12303,7 +12345,7 @@ router.post(
                       .checkSheet_data[0].checkSheet,
                 },
               },
-            }
+            },
           );
         }
 
@@ -12341,7 +12383,7 @@ router.post(
                 "checkSheet_data.current_year": current_year,
               },
             },
-          ]
+          ],
         );
 
         // console.log(getChecksheetPreparationDataOfSelectedMachine)
@@ -12362,7 +12404,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": current_year }],
-            }
+            },
           );
         } else {
           copyPreparationData = await Machine.updateOne(
@@ -12378,7 +12420,7 @@ router.post(
                       .checkSheet_data.checkSheet,
                 },
               },
-            }
+            },
           );
           let removeFields = await Machine.updateOne(
             { machine_code: copyPreparationDataToSelectedMachine },
@@ -12395,7 +12437,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": current_year }],
-            }
+            },
           );
           let againCopy = await Machine.aggregate([
             {
@@ -12440,7 +12482,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": current_year }],
-            }
+            },
           );
         }
       }
@@ -12455,7 +12497,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -12618,7 +12660,7 @@ router.post(
       console.log("============= 5690", error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -12765,7 +12807,7 @@ router.post(
       console.log("========== 5751", error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -13230,7 +13272,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 let downloadFileName;
@@ -13303,7 +13345,7 @@ router.post("/updateOpenPMData", authenticate, async (req, res) => {
             { "outer.current_year": updateRow.yearOfCheckSheet },
             { "inner.tableRowId": updateRow.table_id },
           ],
-        }
+        },
       );
     } else {
       updateChecksheetPMData = await Machine.updateOne(
@@ -13318,7 +13360,7 @@ router.post("/updateOpenPMData", authenticate, async (req, res) => {
             { "outer.current_year": updateRow.yearOfCheckSheet },
             { "inner.tableRowId": updateRow.table_id },
           ],
-        }
+        },
       );
     }
 
@@ -13366,7 +13408,7 @@ router.post("/updateOpenPMToClose", authenticate, async (req, res) => {
           { "outer.current_year": selectedRow.yearOfCheckSheet },
           { "inner.tableRowId": selectedRow.table_id },
         ],
-      }
+      },
     );
 
     if (updatePM) {
@@ -13711,7 +13753,10 @@ router.post(
       ]);
       machineDataForPreviousMonth = await Machine.populate(
         machineDataForPreviousMonth,
-        { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
+        {
+          path: "line_names",
+          populate: { path: "cell_names", model: "Cells" },
+        },
       );
 
       machineDataForPreviousMonth.map((keyForCheckSheet) => {
@@ -13765,7 +13810,7 @@ router.post(
                         month
                       ],
                     checkSheet_data: keyForCheckSheet?.checkSheet_data,
-                  })
+                  }),
                 );
                 break;
               }
@@ -13794,7 +13839,7 @@ router.post(
                   keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[
                     month
                   ],
-              })
+              }),
             );
           }
         }
@@ -13824,7 +13869,7 @@ router.post(
                 //       keyForCheckSheet?.checkSheet_data?.completionTargetDate?.[
                 //         previousMonth
                 //       ],
-              })
+              }),
             );
           }
         }
@@ -13832,11 +13877,17 @@ router.post(
 
       machineDataForCurrentMonth = await Machine.populate(
         machineDataForCurrentMonth,
-        { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
+        {
+          path: "line_names",
+          populate: { path: "cell_names", model: "Cells" },
+        },
       );
       skipMachineDataWithEveryMonth = await Machine.populate(
         skipMachineDataWithEveryMonth,
-        { path: "line_names", populate: { path: "cell_names", model: "Cells" } }
+        {
+          path: "line_names",
+          populate: { path: "cell_names", model: "Cells" },
+        },
       );
 
       res.json({
@@ -13852,7 +13903,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -14166,7 +14217,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 /**
@@ -14214,7 +14265,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -14693,7 +14744,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -14812,7 +14863,7 @@ router.post(
           },
           {
             arrayFilters: [{ "outer.current_year": previous_year }],
-          }
+          },
         );
 
         let previousYearCheckCheetDataOfPeraticularSection;
@@ -14879,18 +14930,18 @@ router.post(
                 ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/1M"
                 ? 1
                 : previousYearCheckCheetDataOfPeraticularSection?.[i]
-                    ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/2M"
-                ? 2
-                : previousYearCheckCheetDataOfPeraticularSection?.[i]
-                    ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/3M"
-                ? 3
-                : previousYearCheckCheetDataOfPeraticularSection?.[i]
-                    ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/4M"
-                ? 4
-                : previousYearCheckCheetDataOfPeraticularSection?.[i]
-                    ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/6M"
-                ? 6
-                : 12;
+                      ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/2M"
+                  ? 2
+                  : previousYearCheckCheetDataOfPeraticularSection?.[i]
+                        ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/3M"
+                    ? 3
+                    : previousYearCheckCheetDataOfPeraticularSection?.[i]
+                          ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/4M"
+                      ? 4
+                      : previousYearCheckCheetDataOfPeraticularSection?.[i]
+                            ?.checkSheet_data?.checkSheet?.[k]?.cycle === "1/6M"
+                        ? 6
+                        : 12;
 
             let Cycle = cycleValue;
 
@@ -14944,7 +14995,7 @@ router.post(
               ].checkSheet_data.checkSheet[k].start_month =
                 parseInt(
                   previousYearCheckCheetDataOfPeraticularSection?.[i]
-                    ?.checkSheet_data?.checkSheet?.[k]?.start_month
+                    ?.checkSheet_data?.checkSheet?.[k]?.start_month,
                 ) + Cycle;
             }
             previousYearCheckCheetDataOfPeraticularSection[
@@ -14970,7 +15021,7 @@ router.post(
                   previousYearCheckCheetDataOfPeraticularSection?.[i]
                     ?.checkSheet_data,
               },
-            }
+            },
           );
 
           removeFieldsFromPreviousYear = await Machine.updateOne(
@@ -15084,7 +15135,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": current_year }],
-            }
+            },
           );
           // console.log(removeFieldsFromPreviousYear)
           // }
@@ -15111,7 +15162,7 @@ router.post(
               $push: {
                 financialYears: current_year,
               },
-            }
+            },
           );
         }
         // console.log(yearAvailableOrNot)
@@ -15123,7 +15174,7 @@ router.post(
                 $push: {
                   financialYears: current_year,
                 },
-              }
+              },
             );
           }
         } else {
@@ -15180,7 +15231,7 @@ router.post(
                 monthlyApprovalData: monthlyApprovalData,
               },
             },
-          }
+          },
         );
 
         if (
@@ -15201,7 +15252,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 /**
@@ -15251,7 +15302,7 @@ router.get(
       console.log(error);
       console.log("User data not send or get!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -15436,13 +15487,13 @@ router.post(
                             keyForAbnormality?.spareDetails[month]?.partNo,
                           part_cost:
                             keyForAbnormality?.spareDetails[month]?.cost,
-                        })
+                        }),
                       );
                     }
                   }
                 }
               }
-            }
+            },
           );
         });
       } else {
@@ -15560,13 +15611,13 @@ router.post(
                             keyForAbnormality?.spareDetails[month]?.partNo,
                           part_cost:
                             keyForAbnormality?.spareDetails[month]?.cost,
-                        })
+                        }),
                       );
                     }
                   }
                 }
               }
-            }
+            },
           );
         });
       }
@@ -15579,7 +15630,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //                      SUMMERY DASHBOARD
@@ -15823,7 +15874,7 @@ router.post(
         keyForPreviousMonth,
         keyForCurrentMonthScheduleOrNotStatus,
         keyOfTotalDoneWithDelayForAnnualChart,
-        previousMonthForAnnualChart
+        previousMonthForAnnualChart,
       ) => {
         return previousMonthForAnnualChart
           ? {
@@ -16100,12 +16151,12 @@ router.post(
                 plant_name: plants[j]?._id,
                 section_name: SectionInfo[i]?.section_name,
                 section_id: SectionInfo[i]?._id,
-              })
+              }),
             );
 
             if (
               !monthlyChartDataOfSummery.some(
-                (e) => e?.section_id === SectionInfo[i]?._id
+                (e) => e?.section_id === SectionInfo[i]?._id,
               )
             ) {
               SectionInfo[i]?._id
@@ -16114,7 +16165,7 @@ router.post(
                       plant_name: plants[j]._id,
                       section_name: SectionInfo[i]?.section_name,
                       section_id: SectionInfo[i]?._id,
-                    })
+                    }),
                   )
                 : "";
             }
@@ -16138,7 +16189,7 @@ router.post(
                   keyForPreviousMonth,
                   keyForCurrentMonthScheduleOrNotStatus,
                   keyOfTotalDoneWithDelayForAnnualChart,
-                  previousMonthForAnnualChart
+                  previousMonthForAnnualChart,
                 );
 
               for (let n = 0; n < lineData.length; n++) {
@@ -16228,13 +16279,13 @@ router.post(
               annual_completed.push(
                 sumVariableForTotalCompletedForAnnualChart !== NaN
                   ? sumVariableForTotalCompletedForAnnualChart
-                  : 0
+                  : 0,
               );
             }
 
             if (
               monthlyChartDataOfSummery.some(
-                (e) => e?.section_id === SectionInfo[i]?._id
+                (e) => e?.section_id === SectionInfo[i]?._id,
               )
             ) {
               monthlyChartDataOfSummery.map((key) => {
@@ -16376,11 +16427,11 @@ router.post(
                   plant_name: plants[j]._id,
                   section_name: subSectionsData[l]?.subSection_name,
                   section_id: subSectionsData[l]?._id,
-                })
+                }),
               );
               if (
                 !monthlyChartDataOfSummery.some(
-                  (e) => e?.section_id === subSectionsData[l]?._id
+                  (e) => e?.section_id === subSectionsData[l]?._id,
                 )
               ) {
                 subSectionsData[j]?.subSection_name
@@ -16389,7 +16440,7 @@ router.post(
                         plant_name: plants[j]?._id,
                         section_name: subSectionsData[l]?.subSection_name,
                         section_id: subSectionsData[l]?._id,
-                      })
+                      }),
                     )
                   : "";
               }
@@ -16412,7 +16463,7 @@ router.post(
                     keyForPreviousMonth,
                     keyForCurrentMonthScheduleOrNotStatus,
                     keyOfTotalDoneWithDelayForAnnualChart,
-                    previousMonthForAnnualChart
+                    previousMonthForAnnualChart,
                   );
 
                 for (let p = 0; p < lineData.length; p++) {
@@ -16501,13 +16552,13 @@ router.post(
                 annual_completed.push(
                   sumVariableForTotalCompletedForAnnualChart !== NaN
                     ? sumVariableForTotalCompletedForAnnualChart
-                    : 0
+                    : 0,
                 );
               }
               // console.log(annual_completed)
               if (
                 monthlyChartDataOfSummery.some(
-                  (e) => e?.section_id === subSectionsData[l]?._id
+                  (e) => e?.section_id === subSectionsData[l]?._id,
                 )
               ) {
                 monthlyChartDataOfSummery.map((key) => {
@@ -16629,7 +16680,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 /**
@@ -17237,17 +17288,17 @@ router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
         plant_name: item?.plant?.plant_name,
         details: item?.details?.map((item1) => {
           let monthDataForSelectedSection = monthData?.find(
-            (item2) => item2?._id?.toString() === item1?._id?.toString()
+            (item2) => item2?._id?.toString() === item1?._id?.toString(),
           );
           let annualDataForSelectedSection = annualData?.find(
-            (item2) => item2?._id?.toString() === item1?._id?.toString()
+            (item2) => item2?._id?.toString() === item1?._id?.toString(),
           );
 
           return {
             ...item1,
             monthData: monthDataForSelectedSection,
             annualData: annualDataForSelectedSection?.annualData?.map(
-              (monthWiseData) => monthWiseData?.data
+              (monthWiseData) => monthWiseData?.data,
             ),
           };
         }),
@@ -17371,17 +17422,17 @@ router.get("/fetchAllSummeryData", authenticate, async (req, res, next) => {
             // console.log(item2);
 
             let monthDataForSelectedSection = monthData?.find(
-              (item3) => item3?._id?.toString() === item2?._id?.toString()
+              (item3) => item3?._id?.toString() === item2?._id?.toString(),
             );
             let annualDataForSelectedSection = annualData?.find(
-              (item3) => item3?._id?.toString() === item2?._id?.toString()
+              (item3) => item3?._id?.toString() === item2?._id?.toString(),
             );
 
             return {
               name: item2?.cell_name,
               monthData: monthDataForSelectedSection,
               annualData: annualDataForSelectedSection?.annualData?.map(
-                (monthWiseData) => monthWiseData?.data
+                (monthWiseData) => monthWiseData?.data,
               ),
             };
           }),
@@ -17431,7 +17482,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -17448,7 +17499,7 @@ router.post(
           $set: {
             remarksOnMainDashboard: remarks,
           },
-        }
+        },
       );
 
       if (updatedSectionInfo) {
@@ -17459,7 +17510,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -17478,7 +17529,7 @@ router.post(
           $set: {
             remarksOnMainDashboard: remarks,
           },
-        }
+        },
       );
 
       if (updatedSubSectionInfo) {
@@ -17489,7 +17540,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.get(
@@ -17514,7 +17565,7 @@ router.get(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -17548,7 +17599,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.get(
@@ -17557,7 +17608,7 @@ router.get(
   async (req, res) => {
     try {
       const getDeletedDataOfCheckSheet = await BackupMachineData.find(
-        {}
+        {},
       ).populate({
         path: "line_names",
         populate: { path: "cell_names", model: "Cells" },
@@ -17572,7 +17623,7 @@ router.get(
       console.log(error);
       console.log("User data not send or get!!!");
     }
-  }
+  },
 );
 
 //below two API for total time with month and line selection
@@ -17779,7 +17830,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -17920,7 +17971,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //below two API for total time man hour wise with month and line selection
@@ -18139,7 +18190,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -18274,7 +18325,7 @@ router.post(
         }
         if (sumOfTotalTimeManHoursOfLineWise) {
           totalTimeManHoursMonthWiseOfLineWise.push(
-            sumOfTotalTimeManHoursOfLineWise
+            sumOfTotalTimeManHoursOfLineWise,
           );
         } else {
           totalTimeManHoursMonthWiseOfLineWise.push(0);
@@ -18287,7 +18338,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //below API for get data for actual time taken TM wise for perticular selected TM name
@@ -18506,7 +18557,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //for tag name XLSx file upload
@@ -18566,7 +18617,7 @@ router.post(
           },
           {
             arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          }
+          },
         );
       }
       let machineLastData = await Machine.aggregate([
@@ -18610,7 +18661,7 @@ router.post(
       console.log(err);
       // res.status(400).send("error")
     }
-  }
+  },
 );
 /**
  * POST: /deleteBackUpData
@@ -18782,7 +18833,7 @@ router.post(
               cycle: machineLastData[0]?.checkSheet_data?.checkSheet[j].cycle,
               yearOfCheckSheet:
                 machineLastData[0]?.checkSheet_data?.current_year,
-            })
+            }),
           );
         }
       }
@@ -18794,7 +18845,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //add data of implementation when operator worked on machine PM
@@ -18933,7 +18984,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": tableRowId },
               ],
-            }
+            },
           );
         } else {
           let PMuploadedImage = req.file.filename;
@@ -18956,7 +19007,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": tableRowId },
               ],
-            }
+            },
           );
           // console.log(addPmData)
         }
@@ -18986,7 +19037,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": tableRowId },
               ],
-            }
+            },
           );
         } else {
           let PMuploadedImage = req.file.filename;
@@ -19015,7 +19066,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": tableRowId },
               ],
-            }
+            },
           );
         }
       } else {
@@ -19043,7 +19094,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": tableRowId },
               ],
-            }
+            },
           );
         } else {
           let PMuploadedImage = req.file.filename;
@@ -19073,7 +19124,7 @@ router.post(
                 { "outer.current_year": yearOfCheckSheet },
                 { "inner.tableRowId": tableRowId },
               ],
-            }
+            },
           );
         }
       }
@@ -19142,7 +19193,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-            }
+            },
           );
         }
       }
@@ -19163,14 +19214,14 @@ router.post(
             $inc: {
               [keyOfTotalWorkedPMTimeIncrement]: pmTime,
             },
-          }
+          },
         );
         for (let i = 0; i < selectedSupportedTM.length; i++) {
           let isOperatorOrNot =
             machineDataAfterSaveAllData[0].checkSheet_data.totalPMTime[
               schedule_month
             ].supportingTMData.some(
-              (value) => value.tm_no === selectedSupportedTM[i].tm_no
+              (value) => value.tm_no === selectedSupportedTM[i].tm_no,
             );
           if (isOperatorOrNot) {
             updateTotalTimeAndWorkedAndSupportingOperator =
@@ -19191,7 +19242,7 @@ router.post(
                     { "outer.current_year": yearOfCheckSheet },
                     { "inner.tm_no": selectedSupportedTM[i].tm_no },
                   ],
-                }
+                },
               );
           } else {
             updateTotalTimeAndWorkedAndSupportingOperator =
@@ -19208,7 +19259,7 @@ router.post(
                 },
                 {
                   arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-                }
+                },
               );
           }
         }
@@ -19231,7 +19282,7 @@ router.post(
               },
               {
                 arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-              }
+              },
             );
         }
         // console.log(updateTotalTimeAndWorkedAndSupportingOperator)
@@ -19261,7 +19312,7 @@ router.post(
             },
             {
               arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-            }
+            },
           );
         }
       } else {
@@ -19276,7 +19327,7 @@ router.post(
           },
           {
             arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          }
+          },
         );
       }
 
@@ -19295,7 +19346,7 @@ router.post(
       console.log(error);
       console.log("Data not valid or received !!!");
     }
-  }
+  },
 );
 
 //add and update completion target date of skip data
@@ -19391,7 +19442,7 @@ router.post(
             arrayFilters: [
               { "outer.current_year": updatedRow.yearOfCheckSheet },
             ],
-          }
+          },
         );
       } else {
         updateCompletionTargetDate = await Machine.updateOne(
@@ -19408,7 +19459,7 @@ router.post(
             arrayFilters: [
               { "outer.current_year": updatedRow.yearOfCheckSheet },
             ],
-          }
+          },
         );
       }
 
@@ -19421,7 +19472,7 @@ router.post(
       // console.log("2032", error)
       console.log("Filename not received");
     }
-  }
+  },
 );
 
 router.post(
@@ -19501,7 +19552,7 @@ router.post(
               approvalStatusOfPRDHOS: "Pending",
               approvalStatusOfPRDHOD: "Pending",
             },
-          }
+          },
         );
       } else if (sectionInfo?.dashboardLevel === "Yes") {
         newApprovalOfSkipPM = await new ApprovalOfSkipPM({
@@ -19585,7 +19636,7 @@ router.post(
         approvalStatusOfPRDHOS,
         approvalStatusOfPRDHOD,
         undefined,
-        reasonForDelayOfTL
+        reasonForDelayOfTL,
       );
 
       res.status(201).json({ message: "Approval send" });
@@ -19594,7 +19645,7 @@ router.post(
       console.log("2032", error);
       console.log("Filename not received");
     }
-  }
+  },
 );
 
 router.post(
@@ -19627,7 +19678,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("User data not send or get!!!");
     }
-  }
+  },
 );
 
 //all skip machines data approved by different deparment and grade Section Admin
@@ -19676,7 +19727,7 @@ router.post(
               $set: {
                 approvalStatusOfMTDHOS,
               },
-            }
+            },
           );
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
@@ -19693,7 +19744,7 @@ router.post(
             skipApprovalStatusData.approvalStatusOfPRDHOS,
             skipApprovalStatusData.approvalStatusOfPRDHOD,
             undefined,
-            skipApprovalStatusData.reasonForDelayOfTL
+            skipApprovalStatusData.reasonForDelayOfTL,
           );
         } else if (
           skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
@@ -19706,7 +19757,7 @@ router.post(
               $set: {
                 approvalStatusOfMTDHOD,
               },
-            }
+            },
           );
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
@@ -19722,7 +19773,7 @@ router.post(
             skipApprovalStatusData.approvalStatusOfPRDHOS,
             skipApprovalStatusData.approvalStatusOfPRDHOD,
             undefined,
-            skipApprovalStatusData.reasonForDelayOfTL
+            skipApprovalStatusData.reasonForDelayOfTL,
           );
         } else if (
           skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
@@ -19736,7 +19787,7 @@ router.post(
               $set: {
                 approvalStatusOfPRDHOS,
               },
-            }
+            },
           );
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
@@ -19752,7 +19803,7 @@ router.post(
             approvalStatusOfPRDHOS,
             skipApprovalStatusData.approvalStatusOfPRDHOD,
             undefined,
-            skipApprovalStatusData.reasonForDelayOfTL
+            skipApprovalStatusData.reasonForDelayOfTL,
           );
         } else if (
           skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
@@ -19767,7 +19818,7 @@ router.post(
               $set: {
                 approvalStatusOfPRDHOD,
               },
-            }
+            },
           );
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
@@ -19783,7 +19834,7 @@ router.post(
             skipApprovalStatusData.approvalStatusOfPRDHOS,
             approvalStatusOfPRDHOD,
             undefined,
-            skipApprovalStatusData.reasonForDelayOfTL
+            skipApprovalStatusData.reasonForDelayOfTL,
           );
         }
       } else {
@@ -19796,7 +19847,7 @@ router.post(
                 approvalStatusOfMTDHOS,
                 rejectedRemarksOfSkipPMMachines,
               },
-            }
+            },
           );
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
@@ -19813,7 +19864,7 @@ router.post(
             skipApprovalStatusData.approvalStatusOfPRDHOS,
             skipApprovalStatusData.approvalStatusOfPRDHOD,
             rejectedRemarksOfSkipPMMachines,
-            skipApprovalStatusData.reasonForDelayOfTL
+            skipApprovalStatusData.reasonForDelayOfTL,
           );
         } else if (
           skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
@@ -19827,7 +19878,7 @@ router.post(
                 approvalStatusOfMTDHOD,
                 rejectedRemarksOfSkipPMMachines,
               },
-            }
+            },
           );
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
@@ -19843,7 +19894,7 @@ router.post(
             skipApprovalStatusData.approvalStatusOfPRDHOS,
             skipApprovalStatusData.approvalStatusOfPRDHOD,
             rejectedRemarksOfSkipPMMachines,
-            skipApprovalStatusData.reasonForDelayOfTL
+            skipApprovalStatusData.reasonForDelayOfTL,
           );
         } else if (
           skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
@@ -19858,7 +19909,7 @@ router.post(
                 approvalStatusOfPRDHOS,
                 rejectedRemarksOfSkipPMMachines,
               },
-            }
+            },
           );
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
@@ -19874,7 +19925,7 @@ router.post(
             approvalStatusOfPRDHOS,
             skipApprovalStatusData.approvalStatusOfPRDHOD,
             rejectedRemarksOfSkipPMMachines,
-            skipApprovalStatusData.reasonForDelayOfTL
+            skipApprovalStatusData.reasonForDelayOfTL,
           );
         } else if (
           skipApprovalStatusData.approvalStatusOfMTDHOS === "Accepted" &&
@@ -19890,7 +19941,7 @@ router.post(
                 approvalStatusOfPRDHOD,
                 rejectedRemarksOfSkipPMMachines,
               },
-            }
+            },
           );
           sendApprovalOfSkippedPM(
             loggedUserData.tm_no,
@@ -19906,7 +19957,7 @@ router.post(
             skipApprovalStatusData.approvalStatusOfPRDHOS,
             approvalStatusOfPRDHOD,
             rejectedRemarksOfSkipPMMachines,
-            skipApprovalStatusData.reasonForDelayOfTL
+            skipApprovalStatusData.reasonForDelayOfTL,
           );
         }
       }
@@ -19919,7 +19970,7 @@ router.post(
       // console.log("2032", error)
       console.log("Filename not received");
     }
-  }
+  },
 );
 
 router.post(
@@ -20129,7 +20180,7 @@ router.post(
       console.log("2032", error);
       console.log("Filename not received");
     }
-  }
+  },
 );
 
 //pending PM log history dashboard
@@ -20336,12 +20387,12 @@ router.post(
                         keyForCheckSheet?.checkSheet_data?.PMworkedTMName?.[
                           month
                         ],
-                    })
+                    }),
                   );
                 }
               }
             }
-          }
+          },
         );
       });
 
@@ -20360,7 +20411,7 @@ router.post(
       console.log("2032", error);
       console.log("data not received");
     }
-  }
+  },
 );
 /**
  * POST: /addRevisionContent
@@ -20394,7 +20445,7 @@ router.post("/addRevisionContent", authenticate, async (req, res) => {
         arrayFilters: [
           { "outer.current_year": machineAllData.checkSheet_data.current_year },
         ],
-      }
+      },
     );
     // console.log(addRevisionContentForMidYearChange)
     if (addRevisionContentForMidYearChange) {
@@ -20424,7 +20475,7 @@ router.post("/deleteRevisionContentData", authenticate, async (req, res) => {
       },
       {
         arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-      }
+      },
     );
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -20600,12 +20651,12 @@ router.post("/postSectionToGetLineData", authenticate, async (req, res) => {
                           ],
                         inspectionCompletionBy:
                           keyForSpareDetails?.inspectionCompletionBy?.[month],
-                      })
+                      }),
                     );
                   }
                 }
               }
-            }
+            },
           );
         }
         for (let i = 0; i < financialYearWiseMonthKeyArray?.length; i++) {
@@ -20666,7 +20717,7 @@ router.post("/postSectionToGetLineData", authenticate, async (req, res) => {
                   _id: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[
                     monthForOtherCategoryOfSpare
                   ][j]?._id,
-                })
+                }),
               );
             }
           }
@@ -20794,12 +20845,12 @@ router.post("/postSectionToGetLineData", authenticate, async (req, res) => {
                           ],
                         inspectionCompletionBy:
                           keyForSpareDetails?.inspectionCompletionBy?.[month],
-                      })
+                      }),
                     );
                   }
                 }
               }
-            }
+            },
           );
         }
         for (let i = 0; i < financialYearWiseMonthKeyArray?.length; i++) {
@@ -20860,7 +20911,7 @@ router.post("/postSectionToGetLineData", authenticate, async (req, res) => {
                   _id: keyForCheckSheet?.checkSheet_data?.extraSpareDetails?.[
                     monthForOtherCategoryOfSpare
                   ][j]?._id,
-                })
+                }),
               );
             }
           }
@@ -20938,7 +20989,7 @@ router.post("/newOperatorDataEntry", async (req, res) => {
         },
         {
           arrayFilters: [{ "outer.current_year": currentYear }],
-        }
+        },
       );
     } else {
       updatedMachine = await Machine.updateOne(
@@ -20961,7 +21012,7 @@ router.post("/newOperatorDataEntry", async (req, res) => {
               },
             },
           },
-        }
+        },
       );
     }
 
@@ -21032,7 +21083,7 @@ router.post("/annualPmScheduleApproval", async (req, res) => {
 
       {
         arrayFilters: [{ "outer.current_year": currentYear }],
-      }
+      },
     );
 
     const userInfoForMail = await User.findOne({ _id: selectedMtdHos });
@@ -21075,7 +21126,7 @@ router.post("/approveRequestForAnnualPmSchedule", async (req, res) => {
       },
       {
         arrayFilters: [{ "outer.current_year": req?.query?.selectedYear }],
-      }
+      },
     );
 
     let toEmail;
@@ -21172,7 +21223,7 @@ router.post(
         },
         {
           arrayFilters: [{ "outer.current_year": selectedYear }],
-        }
+        },
       );
 
       res.status(200).json({ msg: "uploaded successfully" });
@@ -21181,7 +21232,7 @@ router.post(
       console.log(error);
       console.log("Data not valid or received !!!");
     }
-  }
+  },
 );
 
 router.post(
@@ -21215,7 +21266,7 @@ router.post(
         },
         {
           arrayFilters: [{ "outer.current_year": selectedYear }],
-        }
+        },
       );
 
       res.status(200).json({ msg: "uploaded successfully" });
@@ -21224,7 +21275,7 @@ router.post(
       console.log(error);
       console.log("Data not valid or received !!!");
     }
-  }
+  },
 );
 
 //Get data for spare parts all line report ( monthly spare consumption )
@@ -21531,7 +21582,7 @@ router.post(
         //push the value of sum of Corrective category spare details in array
         if (sumOfTotalCorrectiveSpareCost > 0) {
           totalMonthlyCorrectiveSpareConsumption.push(
-            sumOfTotalCorrectiveSpareCost
+            sumOfTotalCorrectiveSpareCost,
           );
         } else {
           totalMonthlyCorrectiveSpareConsumption.push(0);
@@ -21540,7 +21591,7 @@ router.post(
         //push the value of sum of Pridictive category spare details in array
         if (sumOfTotalPridictiveSpareCost > 0) {
           totalMonthlyPridictiveSpareConsumption.push(
-            sumOfTotalPridictiveSpareCost
+            sumOfTotalPridictiveSpareCost,
           );
         } else {
           totalMonthlyPridictiveSpareConsumption.push(0);
@@ -21574,7 +21625,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //Get data for spare parts perticular line( monthly spare consumption )
@@ -21847,7 +21898,7 @@ router.post(
         //push the value of sum of Corrective category spare details in array
         if (sumOfTotalCorrectiveSpareCost > 0) {
           totalMonthlyCorrectiveSpareConsumption.push(
-            sumOfTotalCorrectiveSpareCost
+            sumOfTotalCorrectiveSpareCost,
           );
         } else {
           totalMonthlyCorrectiveSpareConsumption.push(0);
@@ -21856,7 +21907,7 @@ router.post(
         //push the value of sum of Pridictive category spare details in array
         if (sumOfTotalPridictiveSpareCost > 0) {
           totalMonthlyPridictiveSpareConsumption.push(
-            sumOfTotalPridictiveSpareCost
+            sumOfTotalPridictiveSpareCost,
           );
         } else {
           totalMonthlyPridictiveSpareConsumption.push(0);
@@ -21884,7 +21935,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //get data for line wise spare consumption
@@ -22169,7 +22220,7 @@ router.post(
             sumOfTotalCorrectiveSpareCost: sumOfTotalCorrectiveSpareCost,
             sumOfTotalPridictiveSpareCost: sumOfTotalPridictiveSpareCost,
             sumOfTotalKaizenSpareCost: sumOfTotalKaizenSpareCost,
-          })
+          }),
         );
       }
 
@@ -22184,7 +22235,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 /**
  * POST: /submitRemarksAfterTLOrHosRejection
@@ -22208,7 +22259,7 @@ router.post("/submitRemarksAfterTLOrHosRejection", async (req, res) => {
           { "outer.current_year": machineData?.checkSheet_data?.current_year },
           { "inner.tableRowId": updatedRow.tableRowId },
         ],
-      }
+      },
     );
 
     // console.log(updateChecksheetRow)
@@ -22237,7 +22288,7 @@ router.post("/deleteCategoryPoint", async (req, res) => {
       },
       {
         arrayFilters: [{ "outer.current_year": rowValue?.yearOfCheckSheet }],
-      }
+      },
     );
 
     res.status(201).json({ message: "Spare entry deleted successfully" });
@@ -22584,14 +22635,14 @@ router.post(
               machine_name: machineData[i]?.machine_name,
               machine_code: machineData[i]?.machine_code,
               cost: totalCost,
-            })
+            }),
           );
         }
       }
 
       top20MachineSparePartConsumption = await Machine.populate(
         top20MachineSparePartConsumption,
-        { path: "line_names" }
+        { path: "line_names" },
       );
       top20MachineSparePartConsumption = top20MachineSparePartConsumption
         .sort((a, b) => parseFloat(b.cost) - parseFloat(a.cost))
@@ -22607,7 +22658,7 @@ router.post(
       console.log(error);
       console.log("User id not received!!!");
     }
-  }
+  },
 );
 
 //get summuary data for perticular machine in checksheet
@@ -22734,11 +22785,11 @@ router.post(
                     cost: keyOfChecksheetData?.spareDetails?.[month]?.cost,
                     doneBy:
                       keyOfChecksheetData?.inspectionCompletionBy?.[month],
-                  })
+                  }),
                 );
               }
             }
-          }
+          },
         );
       });
 
@@ -22748,7 +22799,7 @@ router.post(
       console.log("2032", error);
       console.log("Filename not received");
     }
-  }
+  },
 );
 
 router.post(
@@ -22782,7 +22833,7 @@ router.post(
             ...commonFilterForSectionLevel,
             "sectionOrSubSectionInfo.sectionOrSubSection_Id": {
               $in: req?.rootUser?.subSection_data?.map(
-                (item, index) => item?.split("-")?.[0]
+                (item, index) => item?.split("-")?.[0],
               ),
             },
           };
@@ -22858,7 +22909,7 @@ router.post(
       console.log(error);
       console.log("Data not valid or received !!!");
     }
-  }
+  },
 );
 
 router.get(
@@ -22868,13 +22919,13 @@ router.get(
     try {
       // console.log(req?.params?.fileName)
       res.download(
-        path.join(__dirname, `../PMimages/${req?.params?.fileName}`)
+        path.join(__dirname, `../PMimages/${req?.params?.fileName}`),
       );
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log("Filename not received");
     }
-  }
+  },
 );
 
 // router.get('/dummyApi', authenticate, async (req, res) => {
@@ -23174,7 +23225,7 @@ router.post("/postEmailConfiguration", async (req, res) => {
             fromEmailId: values.email,
             emailForSpareRequest: values.emailForSpareRequest,
           },
-        }
+        },
       );
     } else {
       addNewEmailConf = await new EmailConfigurations({
@@ -23268,7 +23319,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
     }
-  }
+  },
 );
 
 router.get(
@@ -23298,7 +23349,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.post(
@@ -23342,7 +23393,7 @@ router.post(
       ]);
 
       const updateAndPushApprovalDataOfImplementation = async (
-        userDepAndType
+        userDepAndType,
       ) => {
         let keyOfImplemetationUserApprovalStatus = `checkSheet_data.$[outer].implemetation_${userDepAndType.toLowerCase()}_approval_status.${
           editedApprovalData?.selectedMonth
@@ -23364,7 +23415,7 @@ router.post(
 
         const updateFieldForEmptyOrSomeFieldsContainOfApprover = async (
           keyForAddEmptyArrayofMonthsOfImplementationApprovalFields,
-          updateFieldWithAllMonthOrSix
+          updateFieldWithAllMonthOrSix,
         ) => {
           const updateFieldsWithAllMonthsData = await Machine.updateOne(
             { ...req?.query },
@@ -23380,7 +23431,7 @@ router.post(
                   "outer.current_year": req?.params?.selectedYear,
                 },
               ],
-            }
+            },
           );
         };
 
@@ -23433,13 +23484,13 @@ router.post(
               Object.keys(
                 machineCheckSheetData?.[0]?.checkSheet_data?.[
                   arrayOfKeyForAddingMonthsKey?.[index]
-                ]
+                ],
               )?.length <= 12
             ) {
               Object.keys(
                 machineCheckSheetData?.[0]?.checkSheet_data?.[
                   arrayOfKeyForAddingMonthsKey?.[index]
-                ]
+                ],
               )?.map((key) => {
                 updateFieldWithAllMonthOrSix[key] =
                   machineCheckSheetData?.[0]?.checkSheet_data?.[
@@ -23452,7 +23503,7 @@ router.post(
 
               updateFieldForEmptyOrSomeFieldsContainOfApprover(
                 keyForAddEmptyArrayofMonthsOfImplementationApprovalFields,
-                updateFieldWithAllMonthOrSix
+                updateFieldWithAllMonthOrSix,
               );
             }
           }
@@ -23467,7 +23518,7 @@ router.post(
 
             updateFieldForEmptyOrSomeFieldsContainOfApprover(
               keyForAddEmptyArrayofMonthsOfImplementationApprovalFields,
-              updateFieldWithAllMonthOrSix
+              updateFieldWithAllMonthOrSix,
             );
           }
         }
@@ -23783,7 +23834,7 @@ router.post(
                   "outer.current_year": req?.params?.selectedYear,
                 },
               ],
-            }
+            },
           );
 
           queryObjForUpdateFields = {
@@ -23816,7 +23867,7 @@ router.post(
             },
           ],
           new: true,
-        }
+        },
       );
 
       res.status(201).json({
@@ -23828,7 +23879,7 @@ router.post(
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -23904,7 +23955,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -23978,7 +24029,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.patch(
@@ -24015,7 +24066,7 @@ router.patch(
             $gt: req?.query?.machine_sequence,
           },
         },
-        { $inc: { machine_sequence: -1 } }
+        { $inc: { machine_sequence: -1 } },
       );
       const updateReqestSheetData = await RequestSheetOfBM.updateMany(
         { machineRef: req?.query?._id },
@@ -24025,7 +24076,7 @@ router.patch(
             cellRef: submittedData?.cell_id,
           },
         },
-        { new: true }
+        { new: true },
       );
 
       const updateNoLossReqestSheetData = await noLossBDData.updateMany(
@@ -24036,7 +24087,7 @@ router.patch(
             cellRef: submittedData?.cell_id,
           },
         },
-        { new: true }
+        { new: true },
       );
 
       const updateReqestSheetDataOfCM = await CM_RequestSheetData.updateMany(
@@ -24047,7 +24098,7 @@ router.patch(
             cellRef: submittedData?.cell_id,
           },
         },
-        { new: true }
+        { new: true },
       );
 
       const updateMachineLineAndCellId = await Machine.findOneAndUpdate(
@@ -24058,7 +24109,7 @@ router.patch(
             cell_names: submittedData?.cell_id,
             machine_sequence: updatedMachineSeq,
           },
-        }
+        },
       );
 
       if (updateMachineLineAndCellId) {
@@ -24071,7 +24122,7 @@ router.patch(
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // router.post('/postSectionToGetAllData12', authenticate, async (req, res) => {
