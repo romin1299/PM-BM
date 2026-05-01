@@ -2,9 +2,15 @@ import React from "react";
 import { Row, Col } from "react-bootstrap";
 import useSafeGetRequest from "../../../CustomHooks/useSafeGetRequest";
 
-const RSDynamicApprovalSelection = ({ register, errors }) => {
+const RSDynamicApprovalSelection = ({ register, errors, partRequestFor }) => {
   const [{ data }] = useSafeGetRequest({
     url: "/v1/spare/approvalUsers",
+    axiosConfig: {
+      params: {
+        partRequestFor,
+      },
+    },
+    referenceArrayForUseEffect: [partRequestFor],
     initialState: {
       isLoading: true,
       isError: false,

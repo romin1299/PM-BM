@@ -6,8 +6,15 @@ const fs = require("fs");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const {
   spareApprovalStatus,
+  spareApprovalUserType,
   dynamicApprovalStatus,
+  otherManualApprovalFields,
+  timezone,
 } = require("../../utils/spareManagementUtils");
+const {
+  generateTimestampIndividually,
+  generateTimeStampWithBothFormat,
+} = require("../../utils/spareTimestamp");
 
 const User = require("../../model/userSchema");
 const Plant = require("../../model/plantSchema");
@@ -17,6 +24,7 @@ const Cell = require("../../model/cellSchema");
 const Line = require("../../model/lineSchema");
 const Machine = require("../../model/machineSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
+const mongoose = require("mongoose");
 
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -46,7 +54,7 @@ exports.getNewSpareSheetNoByDefault = tryCatchHandler(
         line_name: 1,
         requestSheetNoSpare: 1,
         cell_names: 1,
-      }
+      },
     ).populate({
       path: "cell_names",
       select: "subSection_names",
@@ -89,7 +97,7 @@ exports.getNewSpareSheetNoByDefault = tryCatchHandler(
       message: "Spare sheet number get successfully based on selected Line",
       requestSheetNo,
     });
-  }
+  },
 );
 
 const handleSetUploadedFileName = async ({
@@ -140,6 +148,7 @@ const handleSetNGBudgetData = async ({
 
     data["mtdHODApprovalIfBudgetIsNG"] = {
       user,
+      userType: spareApprovalUserType[0],
       approvalStatus: "Pending",
     };
     data["requestSheetStatus"] = spareApprovalStatus?.[0];
@@ -155,7 +164,7 @@ const handleSetNGBudgetData = async ({
       ];
     else {
       existingSpare.mtdHODApprovalIfBudgetIsNGApprovalLogs?.push(
-        data?.mtdHODApprovalIfBudgetIsNG
+        data?.mtdHODApprovalIfBudgetIsNG,
       );
 
       data[`mtdHODApprovalIfBudgetIsNGApprovalLogs`] =
@@ -180,6 +189,7 @@ const handleSetSpareSheetDynamicApproval = async ({
   plant_id = "",
   data = {},
   existingSpare = {},
+  dynamicApprovalSelectionKey = "",
 }) => {
   try {
     if (
@@ -189,11 +199,12 @@ const handleSetSpareSheetDynamicApproval = async ({
       data?.approvalOfMTD_HOS ||
       data?.approvalOfPRD_HOS ||
       data?.approvalOfMTD_HOD ||
-      data?.approvalOfPRD_HOD
+      data?.approvalOfPRD_HOD ||
+      data?.approvalOfTOOL_ROOM
     ) {
       const plant = await Plant.findOne(
         { plant_id },
-        { spareSheetDynamicApproval: 1 }
+        { spareSheetDynamicApproval: 1 },
       );
 
       if (!plant)
@@ -202,10 +213,10 @@ const handleSetSpareSheetDynamicApproval = async ({
           message: "Plant does not exist",
         };
 
-      if (
-        !plant?.spareSheetDynamicApproval ||
-        plant?.spareSheetDynamicApproval?.length <= 0
-      )
+      const dynamicApproval =
+        plant?.spareSheetDynamicApproval?.[dynamicApprovalSelectionKey];
+
+      if (!dynamicApproval || dynamicApproval?.length <= 0)
         return {
           isError: true,
           message: "Please configure dynamic approval first",
@@ -213,23 +224,30 @@ const handleSetSpareSheetDynamicApproval = async ({
 
       let allUser_Ids = [];
 
-      for (let i = 0; i < plant?.spareSheetDynamicApproval.length; i++) {
-        if (
-          !data?.[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]?.user?._id
-        )
+      for (let i = 0; i < dynamicApproval.length; i++) {
+        if (!data?.[`approvalOf${dynamicApproval[i]}`]?.user?._id)
           return {
             isError: true,
             message: "Please select all the approvals",
           };
 
-        allUser_Ids.push(
-          data?.[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]?.user?._id
-        );
+        allUser_Ids.push(data?.[`approvalOf${dynamicApproval[i]}`]?.user?._id);
       }
 
-      const users = await User.find({
-        _id: { $in: allUser_Ids },
-      });
+      const users = await User.find(
+        {
+          _id: { $in: allUser_Ids },
+        },
+        {
+          _id: 1,
+          tm_no: 1,
+          tm_name: 1,
+          email: 1,
+          user_type: 1,
+          tm_grade: 1,
+          tm_department: 1,
+        },
+      );
 
       if (!users || users?.length <= 0)
         return {
@@ -239,49 +257,42 @@ const handleSetSpareSheetDynamicApproval = async ({
 
       let dynamicApprovalKeys = [];
 
-      for (let i = 0; i < plant?.spareSheetDynamicApproval.length; i++) {
+      for (let i = 0; i < dynamicApproval.length; i++) {
         const user = users.find(
           (item) =>
             item?._id.toString() ===
-            data[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]?.user?._id
+            data[`approvalOf${dynamicApproval[i]}`]?.user?._id,
         );
 
         if (user) {
-          data[`approvalOf${plant?.spareSheetDynamicApproval[i]}`] = {
+          data[`approvalOf${dynamicApproval[i]}`] = {
+            userType: dynamicApproval[i]?.split("_")?.join(" "),
             user,
             approvalStatus: "Pending",
           };
-          if (
-            !existingSpare[
-              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
-            ] ||
-            existingSpare[
-              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
-            ]?.length <= 0
-          )
-            data[
-              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
-            ] = [data?.[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]];
-          else {
-            existingSpare[
-              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
-            ]?.push(data?.[`approvalOf${plant?.spareSheetDynamicApproval[i]}`]);
 
-            data[
-              `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
-            ] =
-              existingSpare?.[
-                `approvalOf${plant?.spareSheetDynamicApproval[i]}ApprovalLogs`
-              ];
+          if (
+            !existingSpare[`approvalOf${dynamicApproval[i]}ApprovalLogs`] ||
+            existingSpare[`approvalOf${dynamicApproval[i]}ApprovalLogs`]
+              ?.length <= 0
+          )
+            data[`approvalOf${dynamicApproval[i]}ApprovalLogs`] = [
+              data?.[`approvalOf${dynamicApproval[i]}`],
+            ];
+          else {
+            existingSpare[`approvalOf${dynamicApproval[i]}ApprovalLogs`]?.push(
+              data?.[`approvalOf${dynamicApproval[i]}`],
+            );
+
+            data[`approvalOf${dynamicApproval[i]}ApprovalLogs`] =
+              existingSpare?.[`approvalOf${dynamicApproval[i]}ApprovalLogs`];
           }
 
-          dynamicApprovalKeys.push(
-            `approvalOf${plant?.spareSheetDynamicApproval[i]}`
-          );
+          dynamicApprovalKeys.push(`approvalOf${dynamicApproval[i]}`);
           if (i === 0) {
             data["pendingApprovalBy"] = user?._id;
             data["requestSheetStatus"] =
-              dynamicApprovalStatus?.[plant?.spareSheetDynamicApproval[i]];
+              dynamicApprovalStatus?.[dynamicApproval[i]];
           }
         }
       }
@@ -327,7 +338,7 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
       subSection_names: 1,
       cell_names: 1,
       line_names: 1,
-    }
+    },
   )
     .populate({
       path: "plant_names",
@@ -379,7 +390,7 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
           : 1,
       },
     },
-    { new: true }
+    { new: true },
   );
 
   let requestSheetNoPrefix = "";
@@ -422,6 +433,7 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     delete data["approvalOfPRD_HOS"];
     delete data["approvalOfMTD_HOD"];
     delete data["approvalOfPRD_HOD"];
+    delete data["approvalOfTOOL_ROOM"];
 
     let returnData = await handleSetNGBudgetData({
       data,
@@ -441,6 +453,7 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     let returnData = await handleSetSpareSheetDynamicApproval({
       plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
       data,
+      dynamicApprovalSelectionKey: data?.partRequestFor,
     });
 
     if (returnData?.isError)
@@ -449,10 +462,13 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
         showToast: true,
       });
 
+    returnData["rsSubmittedTimeStamp"] = generateTimeStampWithBothFormat();
     data = returnData;
   }
 
   data["requestSheetCreatedBy"] = req.rootUser;
+  data["rsTimeStamp"] = generateTimestampIndividually();
+
   const spare = new RequestSheetOfSpare(data);
   await spare.save();
 
@@ -487,7 +503,7 @@ exports.getSpareRequestSheetBasedOnId = tryCatchHandler(
       message: "Spare request sheet data get successfully",
       spare: req.spare,
     });
-  }
+  },
 );
 
 exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
@@ -499,37 +515,6 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
 
   let spare = req.spare,
     data = JSON.parse(req.body?.data);
-
-  // if (data?.mtdApprovalIfNGBudget) {
-  //   if (!spare?.mtdHODApprovalIfBudgetIsNG?.user)
-  //     return res.status(400).json({
-  //       message: "Fist you need to send for HOD approval",
-  //       showToast: true,
-  //     });
-
-  //   if (
-  //     spare?.mtdHODApprovalIfBudgetIsNG?.user?._id?.toString() !==
-  //     req.rootUser?._id?.toString()
-  //   )
-  //     return res.status(400).json({
-  //       message: "You are not authorized to approve this spare sheet",
-  //       showToast: true,
-  //     });
-
-  //   let approvalStatus = "Accepted",
-  //     approvalDateAndTime = new Date();
-
-  //   if (data?.mtdApprovalIfNGBudget === "No") approvalStatus = "Rejected";
-
-  //   if (data?.mtdHODApprovalIfBudgetIsNG) {
-  //     data.mtdHODApprovalIfBudgetIsNG.approvalStatus = approvalStatus;
-  //     data.mtdHODApprovalIfBudgetIsNG.approvalDateAndTime = approvalDateAndTime;
-  //   } else {
-  //     data["mtdHODApprovalIfBudgetIsNG.approvalStatus"] = approvalStatus;
-  //     data["mtdHODApprovalIfBudgetIsNG.approvalDateAndTime"] =
-  //       approvalDateAndTime;
-  //   }
-  // }
 
   if (data?.isApproved) {
     let key = spare?.dynamicApprovalKeys?.[0];
@@ -547,9 +532,18 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
       });
 
     let approvalStatus = "Accepted",
-      approvalDateAndTime = new Date();
+      approvalDateAndTime = moment().format("D/M/YYYY - h:mm a");
 
     if (data?.isApproved === "No") approvalStatus = "Rejected";
+    else {
+      if (key === "mtdHODApprovalIfBudgetIsNG")
+        data["rsSubmittedTimeStamp"] = generateTimeStampWithBothFormat();
+      else if (["approvalOfMTD_HOD", "approvalOfPRD_HOD"]?.includes(key))
+        data["rsHODApprovalTimeStamp"] = generateTimeStampWithBothFormat();
+      else if (key === "approvalOfTOOL_ROOM")
+        data["rsPRSubmitByToolroomTimeStamp"] =
+          generateTimeStampWithBothFormat();
+    }
 
     if (data?.[key]) {
       data[key].approvalStatus = approvalStatus;
@@ -615,14 +609,14 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
       path.join(__dirname, `../../spareDocuments/${propFileName}`),
       function (err) {
         if (err) return console.error(err);
-      }
+      },
     );
 
   if (req.body?.removeFileIDs) {
     const removeFileIDs = JSON.parse(req.body?.removeFileIDs);
     for (let i = 0; i < removeFileIDs?.length; i++) {
       const drawingAttach = spare?.changeParts?.find(
-        (item) => item?._id === removeFileIDs[i]
+        (item) => item?._id === removeFileIDs[i],
       );
 
       if (drawingAttach) handleRemoveFile(drawingAttach);
@@ -657,6 +651,7 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
     plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
     data,
     existingSpare: spare,
+    dynamicApprovalSelectionKey: data?.partRequestFor ?? spare?.partRequestFor,
   });
 
   if (returnData?.isError)
@@ -675,6 +670,167 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
     message: "Spare sheet updated successfully",
     showToast: true,
     spare,
+  });
+});
+
+exports.getRequestSheets = tryCatchHandler(async (req, res, next) => {
+  return res.status(201).json({
+    message: "Request-sheets get successfully",
+    tableData: req.tableData,
+  });
+});
+
+exports.getSpareSheetsSummery = tryCatchHandler(async (req, res, next) => {
+  const counters = await RequestSheetOfSpare.aggregate([
+    {
+      $match: req.queryObj,
+    },
+    {
+      $group: {
+        _id: null,
+        totalRequestSheet: {
+          $sum: 1,
+        },
+        openRequestSheet: {
+          $sum: {
+            $cond: [
+              {
+                $ne: ["$requestSheetStatus", "Completed"],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+        closedRequestSheet: {
+          $sum: {
+            $cond: [
+              {
+                $eq: ["$requestSheetStatus", "Completed"],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+      },
+    },
+  ]);
+
+  if (counters?.length <= 0)
+    return res.status(400).json({
+      message: "No spare sheet summery found",
+    });
+
+  return res.status(201).json({
+    message: "Spare sheet summery get successfully",
+    counters: counters?.[0],
+  });
+});
+
+exports.deleteSpareSheet = tryCatchHandler(async (req, res, next) => {
+  if (!req.query?._id)
+    return res.status(400).json({
+      message: "Please select spare sheet to delete",
+      showToast: true,
+    });
+
+  await RequestSheetOfSpare.deleteOne(req.query);
+
+  return res.status(201).json({
+    message: "Spare sheet deleted successfully",
+    showToast: true,
+  });
+});
+
+exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
+  if (!req.query?._id)
+    return res.status(400).json({
+      message: "Please select spare sheet to update",
+      showToast: true,
+    });
+
+  otherManualApprovalFields.map((item) => {
+    if (req.body?.[item]?.inString)
+      req.body[item] = generateTimeStampWithBothFormat(
+        req.body?.[item]?.inString,
+      );
+    else {
+      req.body[item] = null;
+    }
+  });
+
+  await RequestSheetOfSpare.updateOne(req.query, req.body);
+  req.queryObj = {
+    _id: mongoose.Types.ObjectId(req.query?._id),
+  };
+  req.isSpareSheetById = true
+  return next();
+});
+
+exports.manualApprovalStatusResponse = tryCatchHandler(
+  async (req, res, next) => {
+    return res.status(201).json({
+      message: "Spare sheet updated successfully",
+      spare: req.tableData[0],
+    });
+  },
+);
+
+exports.getManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
+  if (!req.query?._id)
+    return res.status(400).json({
+      message: "Please select spare sheet to update",
+      showToast: true,
+    });
+
+  const spare = await RequestSheetOfSpare.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(req.query?._id),
+      },
+    },
+    {
+      $project: {
+        "rsPRAssignToAllBuyersTimeStamp.inString": {
+          $dateToString: {
+            format: "%Y-%m-%dT%H:%M",
+            date: "$rsPRAssignToAllBuyersTimeStamp.inDate",
+            timezone,
+          },
+        },
+
+        "rsPOIssueToVendorTimeStamp.inString": {
+          $dateToString: {
+            format: "%Y-%m-%dT%H:%M",
+            date: "$rsPOIssueToVendorTimeStamp.inDate",
+            timezone,
+          },
+        },
+
+        "rsPartReceiveTimeStamp.inString": {
+          $dateToString: {
+            format: "%Y-%m-%dT%H:%M",
+            date: "$rsPartReceiveTimeStamp.inDate",
+            timezone,
+          },
+        },
+
+        rsPRAssignToAllBuyersRemarks: 1,
+        rsPOIssueToVendorRemarks: 1,
+        rsPartReceiveRemarks: 1,
+      },
+    },
+  ]);
+
+  if (!spare || spare?.length <= 0)
+    return res.status(400).json({
+      message: "No spare sheet data to display",
+    });
+
+  return res.status(201).json({
+    message: "Data get successfully",
+    spare: spare?.[0],
   });
 });
 
@@ -714,26 +870,43 @@ const handleDBUpdate = async () => {
 
   console.log("6", p2Machines?.length);
 
-  await Plant.deleteMany({
-    _id: p2Plants?.map((item) => item?._id),
+  const p2Users = await User.find({
+    section_data: {
+      $in: p2Sections?.map(
+        ({ section_id, section_name }) => `${section_id}-${section_name}`,
+      ),
+    },
   });
 
-  await Section.deleteMany({
-    _id: p2Sections?.map((item) => item?._id),
-  });
+  console.log("7", p2Users?.length);
 
-  await SubSection.deleteMany({
-    _id: p2SubSections?.map((item) => item?._id),
-  });
-  await Cell.deleteMany({
-    _id: p2Cells?.map((item) => item?._id),
-  });
-  await Line.deleteMany({
-    _id: p2Lines?.map((item) => item?._id),
-  });
-  await Machine.deleteMany({
-    _id: p2Machines?.map((item) => item?._id),
-  });
+  // await Plant.deleteMany({
+  //   _id: p2Plants?.map((item) => item?._id),
+  // });
+
+  // await Section.deleteMany({
+  //   _id: p2Sections?.map((item) => item?._id),
+  // });
+
+  // await SubSection.deleteMany({
+  //   _id: p2SubSections?.map((item) => item?._id),
+  // });
+  // await Cell.deleteMany({
+  //   _id: p2Cells?.map((item) => item?._id),
+  // });
+  // await Line.deleteMany({
+  //   _id: p2Lines?.map((item) => item?._id),
+  // });
+  // await Machine.deleteMany({
+  //   _id: p2Machines?.map((item) => item?._id),
+  // });
+  // await User.deleteMany({
+  //   section_data: {
+  //     $in: p2Sections?.map(
+  //       ({ section_id, section_name }) => `${section_id}-${section_name}`,
+  //     ),
+  //   },
+  // });
 
   console.log("P2 data deleted");
 };

@@ -13,26 +13,24 @@ const filterKeys = {
 };
 
 exports.spareFilterMiddleware = tryCatchHandler(async (req, res, next) => {
-  // {
-  //     flagForTogglingFilter: 'based-on-section',
-  //     selectedValue: '6322e558fdb4a3119153b9c2',
-  //     selectedYear: '2025-2026'
-  //   }
-
-  if (!req.query.selectedValue || !req.query.flagForTogglingFilter)
+  if (
+    !req.query.selectedValue ||
+    !req.query.flagForTogglingFilter ||
+    !req.query.selectedYear
+  )
     return res.status(400).json({
       message: "Please provide the required filter value",
       showToast: true,
     });
 
-  const { selectedValue, flagForTogglingFilter } = req.query;
+  const { selectedValue, flagForTogglingFilter, selectedYear } = req.query;
 
   req.queryObj = {
     [`${filterKeys?.[flagForTogglingFilter]}._id`]:
       mongoose.Types.ObjectId(selectedValue),
+    "rsTimeStamp.year.inString": selectedYear,
   };
 
-  // PENDING : Selected Year
   return next();
 });
 

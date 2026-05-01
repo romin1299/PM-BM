@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 const { approvalSchemaObj, plantToMachineHierarchyObj } = require("./common");
 const { spareApprovalStatus } = require("../utils/spareManagementUtils");
 
+const orderTrackingTimestamp = {
+  inString: String,
+  inDate: Date,
+};
+
 const requestSheetOfSpareSchema = new mongoose.Schema(
   {
     requestSheetNo: {
@@ -15,6 +20,11 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
     },
     partQty: {
       type: String,
+    },
+    partRequestFor: {
+      type: String,
+      enum: ["MTD", "PRD"],
+      default: "MTD",
     },
     requestSheetStatus: {
       type: String,
@@ -77,6 +87,7 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
     approvalOfPRD_HOS: approvalSchemaObj,
     approvalOfMTD_HOD: approvalSchemaObj,
     approvalOfPRD_HOD: approvalSchemaObj,
+    approvalOfTOOL_ROOM: approvalSchemaObj,
 
     mtdHODApprovalIfBudgetIsNGApprovalLogs: [approvalSchemaObj],
     approvalOfMTD_TLApprovalLogs: [approvalSchemaObj],
@@ -86,12 +97,34 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
     approvalOfPRD_HOSApprovalLogs: [approvalSchemaObj],
     approvalOfMTD_HODApprovalLogs: [approvalSchemaObj],
     approvalOfPRD_HODApprovalLogs: [approvalSchemaObj],
+    approvalOfTOOL_ROOMApprovalLogs: [approvalSchemaObj],
 
     ...plantToMachineHierarchyObj,
+
+    rsTimeStamp: {
+      year: {
+        inString: String, //financial
+        inNumber: Number,
+      },
+      month: {
+        inString: String,
+        inNumber: Number,
+      },
+    },
+
+    rsSubmittedTimeStamp: orderTrackingTimestamp,
+    rsHODApprovalTimeStamp: orderTrackingTimestamp,
+    rsPRSubmitByToolroomTimeStamp: orderTrackingTimestamp,
+    rsPRAssignToAllBuyersTimeStamp: orderTrackingTimestamp,
+    rsPRAssignToAllBuyersRemarks: String,
+    rsPOIssueToVendorTimeStamp: orderTrackingTimestamp,
+    rsPOIssueToVendorRemarks: String,
+    rsPartReceiveTimeStamp: orderTrackingTimestamp,
+    rsPartReceiveRemarks: String,
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 requestSheetOfSpareSchema.index(
@@ -112,6 +145,7 @@ requestSheetOfSpareSchema.index(
     "approvalOfPRD_HOSApprovalLogs.user.tm_name": "text",
     "approvalOfMTD_HODApprovalLogs.user.tm_name": "text",
     "approvalOfPRD_HODApprovalLogs.user.tm_name": "text",
+    "approvalOfTOOL_ROOMApprovalLogs.user.tm_name": "text",
 
     "mtdHODApprovalIfBudgetIsNGApprovalLogs.approvalStatus": "text",
     "approvalOfMTD_TLApprovalLogs.approvalStatus": "text",
@@ -121,6 +155,7 @@ requestSheetOfSpareSchema.index(
     "approvalOfPRD_HOSApprovalLogs.approvalStatus": "text",
     "approvalOfMTD_HODApprovalLogs.approvalStatus": "text",
     "approvalOfPRD_HODApprovalLogs.approvalStatus": "text",
+    "approvalOfTOOL_ROOMApprovalLogs.approvalStatus": "text",
 
     "mtdHODApprovalIfBudgetIsNGApprovalLogs.approvalDateAndTime": "text",
     "approvalOfMTD_TLApprovalLogs.approvalDateAndTime": "text",
@@ -130,6 +165,7 @@ requestSheetOfSpareSchema.index(
     "approvalOfPRD_HOSApprovalLogs.approvalDateAndTime": "text",
     "approvalOfMTD_HODApprovalLogs.approvalDateAndTime": "text",
     "approvalOfPRD_HODApprovalLogs.approvalDateAndTime": "text",
+    "approvalOfTOOL_ROOMApprovalLogs.approvalDateAndTime": "text",
   },
   {
     name: "SpareSheetFullTextIndex",
@@ -141,15 +177,25 @@ requestSheetOfSpareSchema.index(
       "line.line_name": 5,
       "machine.machine_name": 5,
     },
-  }
+  },
 );
 requestSheetOfSpareSchema.index(
   { requestSheetNo: 1 },
-  { unique: true, sparse: true }
+  { unique: true, sparse: true },
 );
 requestSheetOfSpareSchema.index({ createdAt: -1 });
 requestSheetOfSpareSchema.index({ requestSheetStatus: 1, createdAt: -1 });
 requestSheetOfSpareSchema.index({ pendingApprovalBy: 1, createdAt: -1 });
+requestSheetOfSpareSchema.index(
+  {
+    "rsTimeStamp.year.inString": -1,
+    "rsTimeStamp.month.inString": -1,
+  },
+  {
+    name: "YearMonthIndex",
+    background: true,
+  },
+);
 requestSheetOfSpareSchema.index({ "plant._id": 1, createdAt: -1 });
 requestSheetOfSpareSchema.index({ "section._id": 1, createdAt: -1 });
 requestSheetOfSpareSchema.index({ "subSection._id": 1, createdAt: -1 });
@@ -159,6 +205,6 @@ requestSheetOfSpareSchema.index({ "machine._id": 1, createdAt: -1 });
 
 const RequestSheetOfSpare = new mongoose.model(
   "RequestSheetOfSpare",
-  requestSheetOfSpareSchema
+  requestSheetOfSpareSchema,
 );
 module.exports = RequestSheetOfSpare;

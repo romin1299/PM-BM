@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import TextField from "@material-ui/core/TextField";
 import RoutingContext from "../context/routing/RoutingContext";
-// import ContextAPI from "../context/ContextAPI/ContextAPI";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import {
@@ -9,137 +8,293 @@ import {
   Select,
   ListItemText,
   MenuItem,
-  OutlinedInput,
   InputLabel,
   FormControl,
 } from "@material-ui/core";
-// import Context from "@mui/base/TabsUnstyled/TabsContext";
-import {
-  LIST_OF_COMPANY,
-  NAME_OF_THE_COMPANY,
-} from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+
+const useRole = (context) => ({
+  isSectionAdmin: context.user_type === "Section-Admin",
+  isTLHOSS: context.user_type === "TL/HOSS",
+  isPlantAdmin: context.user_type === "Plant-Admin",
+  isAdmin: context.user_type === "Admin",
+  isMTD: context.tm_department === "MTD",
+});
+
+const getUserTypeOptions = (role, tmDepartment) => {
+  if (role.isSectionAdmin) {
+    return [
+      { label: "TL/HOSS", value: "TL/HOSS" },
+      tmDepartment === "PRD"
+        ? { label: "Section-Admin", value: "Section-Admin" }
+        : { label: "Operator/Office Person", value: "Operator" },
+    ];
+  }
+  if (role.isTLHOSS && role.isMTD) {
+    return [
+      { label: "TL/HOSS", value: "TL/HOSS" },
+      { label: "Operator/Office Person", value: "Operator" },
+    ];
+  }
+  return [];
+};
+
+const TM_GRADES = ["HOS", "HOD"];
+const DEPARTMENTS = ["PRD", "MTD"];
+
+const MENU_PROPS = {
+  PaperProps: { style: { maxHeight: 30 * 4.5 + 8 } },
+};
+
+const RadioGroup = ({ name, options, value, onChange, error }) => (
+  <div>
+    <div>
+      {options.map((opt) => (
+        <React.Fragment key={opt.value}>
+          <input
+            type="radio"
+            name={name}
+            id="outlined-number"
+            value={opt.value}
+            onChange={onChange}
+          />
+          <span
+            style={{ paddingLeft: "0.5rem", fontWeight: "550", color: "black" }}
+          >
+            {opt.label}
+          </span>
+        </React.Fragment>
+      ))}
+    </div>
+    {error && (
+      <p
+        style={{
+          color: "#F44336",
+          fontWeight: "normal",
+          fontSize: "0.80rem",
+          float: "left",
+          paddingTop: "0.5rem",
+        }}
+      >
+        {error}
+      </p>
+    )}
+  </div>
+);
+const SelectField = ({ name, value, onChange, options, error }) => (
+  <div style={{ width: "100%", marginTop: "0.5rem" }}>
+    <select
+      class="form-select form-select-sm"
+      aria-label=".form-select-sm example"
+      style={{ width: "100%" }}
+      id="standard-select-currency"
+      name={name}
+      className="textField"
+      fullWidth
+      autoComplete="off"
+      value={value === undefined ? "" : value}
+      onChange={onChange}
+      variant="standard"
+    >
+      <option selected disabled value="">
+        Please select
+      </option>
+      {options.map((opt) => (
+        <option key={opt.value ?? opt} value={opt.value ?? opt}>
+          {opt.label ?? opt.value ?? opt}
+        </option>
+      ))}
+    </select>
+    <div>
+      <p
+        style={{
+          color: "#F44336",
+          fontWeight: "normal",
+          fontSize: "0.80rem",
+          float: "left",
+          paddingTop: "0.5rem",
+        }}
+      >
+        {error}
+      </p>
+    </div>
+  </div>
+);
+
+const MultiSelectField = ({ label, value, onChange, options }) => (
+  <div className="pwd-container">
+    <span>{label}:</span>
+    <div style={{ width: "100%" }}>
+      <FormControl fullWidth>
+        <InputLabel>Please select</InputLabel>
+        <Select
+          multiple
+          value={value}
+          fullWidth
+          onChange={onChange}
+          renderValue={(selected) => selected.join(", ")}
+          MenuProps={MENU_PROPS}
+        >
+          {options.map((name) => (
+            <MenuItem key={name} value={name}>
+              <Checkbox checked={value.includes(name)} />
+              <ListItemText primary={name} />
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </div>
+  </div>
+);
+
+const ReadOnlyField = ({ label, value }) => (
+  <div className="pwd-container">
+    <span>{label}: </span>
+    <TextField
+      className="textField"
+      value={value}
+      autoComplete="off"
+      type="text"
+      fullWidth
+      InputLabelProps={{ shrink: true }}
+    />
+  </div>
+);
+
+const buildSubmitPayload = (values, context, role, subsections, cells) => {
+  const resolvedUserType =
+    values.user_type || (role.isAdmin ? "Plant-Admin" : "Section-Admin");
+
+  const resolvedGrade = (() => {
+    if (
+      role.isSectionAdmin &&
+      values.tm_department === "PRD" &&
+      values.user_type === "Section-Admin"
+    )
+      return "HOS";
+    if (role.isPlantAdmin) return "HOS";
+    return values.tm_grade;
+  })();
+
+  const resolvedDepartment = (() => {
+    if (values.tm_department) return values.tm_department;
+    if (values.user_type === "Operator") return "MTD";
+    if (role.isTLHOSS && values.user_type === "TL/HOSS") return "PRD";
+    return values.tm_department;
+  })();
+
+  return {
+    tm_name: values.tm_name,
+    tm_no: values.tm_no,
+    user_type: resolvedUserType,
+    tm_grade: resolvedGrade,
+    tm_department: resolvedDepartment,
+    plant_data: values.plant_data || context.plant_data,
+    section_data: values.section_data || context.section_data,
+    subSection_data: subsections,
+    cell_data: cells,
+    joining_date: values.joining_date,
+    email: values.email,
+    contact_no: values.contact_no,
+    address: values.address,
+    isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
+      values.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
+    toolRoomPerson: values.toolRoomPerson,
+  };
+};
 
 const UserAdd = () => {
   const context = useContext(RoutingContext);
-  const close = function () {
-    setGrade("");
-    formik.resetForm({
-      values: "",
-    });
-    document.getElementById("main_div_reg1").style.display = "none";
-    document.querySelector(".App").style.pointerEvents = "auto";
-  };
-  // const plantDropdown = useContext(ContextAPI);
-  const [usertype, setUsertype] = useState();
+  const role = useRole(context);
 
-  //for selected list of value
-  const [grade, setGrade] = useState();
-  const [subsections, setsubsections] = useState([]);
-  const [cells, setcells] = useState([]);
-
-  //for dropdown list
+  const [grade, setGrade] = useState("");
+  const [usertype, setUsertype] = useState("");
+  const [subsections, setSubsections] = useState([]);
+  const [cells, setCells] = useState([]);
   const [sectionList, setSectionList] = useState([]);
   const [subSectionList, setSubSectionList] = useState([]);
   const [cellList, setCellList] = useState([]);
-  const [plantList, setPlantList] = useState("");
+  const [plantList, setPlantList] = useState([]);
 
-  const plant = [
-    {
-      label: "Plant One",
-      value: "Plant One",
-    },
-    {
-      label: "Plant Two",
-      value: "Plant Two",
-    },
-  ];
-
-  const tmGrade = [
-    {
-      label: "HOS",
-      value: "HOS",
-    },
-    {
-      label: "HOD",
-      value: "HOD",
-    },
-  ];
-  const userType = [
-    {
-      lable: "TL/HOSS",
-      value: "TL/HOSS",
-    },
-    {
-      lable: "Operator",
-      value: "Operator",
-    },
-  ];
-
-  const refreshPage = () => {
-    window.location.reload();
+  const fetchJSON = async (url, options = {}) => {
+    try {
+      const res = await fetch(url, options);
+      const data = await res.json();
+      return res.ok ? data : null;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
   };
 
-  // this function only run when the operator user added into the table
-  // const newPasswordLink = async (email) => {
-  //   const res = await fetch("/resetPass", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       email,
-  //     }),
-  //   });
+  const loadSections = async (plant) => {
+    const data = await fetchJSON("/postPlantToGetSectionListOfUserAssign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plants: plant }),
+    });
+    if (data) setSectionList(data.sectionArray);
+  };
 
-  //   const data = res.json();
+  const loadSubSections = async (section) => {
+    const data = await fetchJSON("/postSectionToGetSubSectionList", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ section }),
+    });
+    if (data) setSubSectionList(data.subSectionArray);
+  };
 
-  //   if (res.status === 400 || res.status === 422 || !data) {
-  //     window.alert("Invalid email address !!!!");
-  //   } else {
-  //     //window.alert("Password reset link sent to your email account");
-  //     console.log("Link send");
-  //   }
-  // };
+  const loadCells = async (subSects) => {
+    const data = await fetchJSON("/postSubSectionToGetCellListOfUserAssign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subSection: subSects }),
+    });
+    if (data) setCellList(data.cellArray);
+  };
+
+  useEffect(() => {
+    fetchJSON("/fetchPlantList", {
+      method: "GET",
+      credentials: "include",
+    }).then((data) => data && setPlantList(data.plantArray ?? []));
+  }, []);
+
+  useEffect(() => {
+    if (role.isSectionAdmin || role.isTLHOSS)
+      loadSubSections(context.section_data);
+    if (role.isPlantAdmin) loadSections(context.plant_data);
+  }, []);
+
+  useEffect(() => {
+    loadCells(subsections);
+  }, [subsections]);
 
   const validationSchema = yup.object({
     tm_name: yup.string().required("Please enter TM name"),
-    // tm_no: yup.string().required("Please enter employee number"),
-    // user_type:
-    //   context.user_type === "Section-Admin"
-    //     ? yup.string().required("Please select user type")
-    //     : "",
-    // email: yup.string().when(["user_type"], {
-    //   is: () =>
-    //     LIST_OF_COMPANY?.[0] === NAME_OF_THE_COMPANY &&
-    //     (formik.values.user_type === "TL/HOSS" ||
-    //       context.user_type === "Admin" ||
-    //       context.user_type === "Plant-Admin"),
-    //   then: yup
-    //     .string("Enter your email")
-    //     .email("Enter a valid email")
-    //     .required("Email is required"),
-    // }),
-    tm_department: yup.string().when([], {
-      is: () => context.user_type === "Section-Admin",
-      then: yup
-        .string("Enter password")
-        .required("Please select TM department"),
-    }),
     tm_no: yup
       .number()
       .required("Please enter TM number")
       .typeError("You must specify a number")
       .positive()
       .integer(),
-
+    joining_date: yup.string().required("Please select joining date"),
+    tm_department: yup.string().when([], {
+      is: () => role.isSectionAdmin,
+      then: yup.string().required("Please select TM department"),
+    }),
     user_type: yup.string().when({
-      is: () =>
-        context?.user_type === "TL/HOSS" ||
-        context.user_type === "Section-Admin",
+      is: () => role.isTLHOSS || role.isSectionAdmin,
       then: yup.string().required("Please select TM group"),
     }),
-
-    // user_type: yup.string().required("Please select TM group"),
-    joining_date: yup.string().required("Please select joining date"),
   });
+
+  const close = () => {
+    setGrade("");
+    formik.resetForm({ values: "" });
+    document.getElementById("main_div_reg1").style.display = "none";
+    document.querySelector(".App").style.pointerEvents = "auto";
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -148,7 +303,6 @@ const UserAdd = () => {
       user_type: "",
       tm_grade: "",
       email: "",
-      // operator_password: "",
       joining_date: "",
       plant_data: "",
       section_data: "",
@@ -158,1130 +312,1624 @@ const UserAdd = () => {
       contact_no: "",
       address: "",
       isAuthorizedUserForUpdatingRequestSheetInAnyStatus: "",
+      toolRoomPerson: "No",
     },
-    validationSchema: validationSchema,
+    validationSchema,
     onSubmit: async (values) => {
+      const payload = buildSubmitPayload(
+        values,
+        context,
+        role,
+        subsections,
+        cells,
+      );
       const res = await fetch("/postUserAssign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tm_name: values.tm_name,
-          tm_no: values.tm_no,
-          isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
-            values?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
-          user_type: values.user_type
-            ? values.user_type
-            : context.user_type === "Admin"
-            ? "Plant-Admin"
-            : "Section-Admin",
-          plant_data: values.plant_data
-            ? values.plant_data
-            : context.plant_data,
-          section_data: values.section_data
-            ? values.section_data
-            : context.section_data,
-          tm_grade:
-            context.user_type === "Section-Admin" &&
-            formik.values.tm_department === "PRD" &&
-            formik.values.user_type === "Section-Admin"
-              ? "HOS"
-              : context?.user_type === "Plant-Admin"
-              ? "HOS"
-              : values.tm_grade,
-          tm_department: values.tm_department
-            ? values.tm_department
-            : values.user_type === "Operator"
-            ? "MTD"
-            : context.user_type === "TL/HOSS" && usertype === "TL/HOSS"
-            ? "PRD"
-            : values.tm_department,
-
-          subSection_data: subsections,
-          cell_data: cells,
-          joining_date: values.joining_date,
-          email: values.email,
-          // operator_password: values.operator_password,
-          contact_no: values.contact_no,
-          address: values.address,
-        }),
+        body: JSON.stringify(payload),
       });
-      const data = res.json();
-      // console.log(data);
-      if (res.status === 400 || res.status === 422 || !data) {
-        window.alert("Invalid credentials !");
-      } else if (res.status === 409) {
-        window.alert("Employee number already exists !");
+
+      if (res.status === 409) {
+        window.alert("Employee number already exists!");
+      } else if (!res.ok) {
+        window.alert("Invalid credentials!");
       } else {
-        console.log("User added sucessfully...");
-        refreshPage();
-        // if (values.email) {
-        //   newPasswordLink(values.email);
-        // }
+        console.log("User added successfully.");
+        window.location.reload();
       }
     },
   });
 
-  //for selection of plant and based on plant section selection
-  const postPlantToGetSectionListOfUserAssign = async (selectedPlant) => {
-    try {
-      const res = await fetch("/postPlantToGetSectionListOfUserAssign", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          plants: selectedPlant,
-        }),
-      });
-      const data = await res.json();
+  const userTypeOptions = getUserTypeOptions(role, formik.values.tm_department);
+  const showUserTypeDropdown =
+    (role.isSectionAdmin && formik.values.tm_department) ||
+    (role.isTLHOSS && role.isMTD);
+  const showSubSection = grade !== "HOD";
+  const showCell =
+    !["HOS", "HOD"].includes(grade) && !role.isAdmin && !role.isPlantAdmin;
 
-      if (res.status === 400 || res.status === 422 || !data) {
-        console.log("Invalid");
-      } else {
-        // window.alert(data.abcd);
-        // console.log("Data post", data);
-        setSectionList(data.sectionArray);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  //for selection of section and based on section sub-section selection
-  const postSectionToGetSubSectionListOfUserAssign = async (
-    selectedSection
-  ) => {
-    try {
-      const res = await fetch("/postSectionToGetSubSectionList", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          section: selectedSection,
-        }),
-      });
-      const data = await res.json();
-
-      if (res.status === 400 || res.status === 422 || !data) {
-        console.log("Invalid");
-      } else {
-        // window.alert(data.abcd);
-        // console.log("Data post", data);
-        setSubSectionList(data.subSectionArray);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  //for selection of sub-section and based on sub-section cell selection
-  const postSubSectionToGetCellListOfUserAssign = async (
-    selectedSubSection
-  ) => {
-    try {
-      const res = await fetch("/postSubSectionToGetCellListOfUserAssign", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          subSection: selectedSubSection,
-        }),
-      });
-      const data = await res.json();
-
-      if (res.status === 400 || res.status === 422 || !data) {
-        console.log("Invalid");
-      } else {
-        // window.alert(data.abcd);
-        // console.log("Data post", data);
-        setCellList(data.cellArray);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  //fetch all section head for showing or selecting in dropdown by common user
-  const fetchPlantList = async () => {
-    try {
-      const res = await fetch("/fetchPlantList", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-      const data = await res.json();
-      //   console.log(data);
-      setPlantList(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchPlantList();
-  }, []);
-
-  useEffect(() => {
-    postSubSectionToGetCellListOfUserAssign(subsections);
-  }, [subsections]);
-
-  useEffect(() => {
-    if (
-      context.user_type === "Section-Admin" ||
-      context.user_type === "TL/HOSS"
-    ) {
-      // postPlantToGetSectionListOfUserAssign(context.plant_data);
-      postSectionToGetSubSectionListOfUserAssign(context.section_data);
-    }
-    if (context.user_type === "Plant-Admin") {
-      postPlantToGetSectionListOfUserAssign(context.plant_data);
-    }
-  }, []);
-
-  const ITEM_HEIGHT = 30;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        // width: 250,
-      },
-    },
-  };
-
-  // for Section-Admin Only
-
-  const userTypeWhenTmDepartmentIsPrd = {
-    lable: "Section-Admin",
-    value: "Section-Admin",
-  };
-
-  const userTypeWhenTmDepartmentIsMtd = {
-    lable: "Operator",
-    value: "Operator",
-  };
-
-  const userTypeForSectionAdmin = [
-    {
-      lable: "TL/HOSS",
-      value: "TL/HOSS",
-    },
-    formik.values.tm_department === "PRD"
-      ? userTypeWhenTmDepartmentIsPrd
-      : userTypeWhenTmDepartmentIsMtd,
-  ];
   return (
-    <>
-      <div id="main_div_reg1">
-        <span onClick={close} className="close">
-          &times;
-        </span>
-        <br />
-        <div>
-          <h3 style={{ textAlign: "left", color: "#dc3545" }}>Add User</h3>
+    <div id="main_div_reg1">
+      <span onClick={close} className="close">
+        &times;
+      </span>
+      <br />
+      <div>
+        <h3 style={{ textAlign: "left", color: "#dc3545" }}>Add User</h3>
 
-          <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={formik.handleSubmit}>
+          {/* TM Name */}
+          <div className="pwd-container">
+            <span>TM Name: </span>
+            <TextField
+              name="tm_name"
+              className="textField"
+              fullWidth
+              type="text"
+              autoComplete="off"
+              value={formik.values.tm_name}
+              onChange={formik.handleChange}
+              error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
+              helperText={formik.touched.tm_name && formik.errors.tm_name}
+              InputLabelProps={{ shrink: true }}
+            />
+          </div>
+
+          {/* TM Number */}
+          <div className="pwd-container">
+            <span>TM Number: </span>
+            <TextField
+              name="tm_no"
+              className="textField"
+              fullWidth
+              type="text"
+              autoComplete="off"
+              value={formik.values.tm_no}
+              onChange={formik.handleChange}
+              error={formik.touched.tm_no && Boolean(formik.errors.tm_no)}
+              helperText={formik.touched.tm_no && formik.errors.tm_no}
+              InputLabelProps={{ shrink: true }}
+            />
+          </div>
+
+          <div className="pwd-container">
+            <span>Want to authorize this user to update RequestSheet:</span>
+            <RadioGroup
+              name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+              options={[
+                { label: "Yes", value: "Yes" },
+                { label: "No", value: "No" },
+              ]}
+              value={
+                formik.values.isAuthorizedUserForUpdatingRequestSheetInAnyStatus
+              }
+              onChange={formik.handleChange}
+            />
+          </div>
+
+          {role.isAdmin && (
             <div className="pwd-container">
-              <span>TM Name: </span>
-              <TextField
-                id="outlined-number"
-                name="tm_name"
-                className="textField"
-                value={formik.values.tm_name}
+              <span>Tool room person:</span>
+              <RadioGroup
+                name="toolRoomPerson"
+                options={[
+                  { label: "Yes", value: "Yes" },
+                  { label: "No", value: "No" },
+                ]}
+                value={formik.values.toolRoomPerson}
                 onChange={formik.handleChange}
-                autoComplete="off"
-                // label="Number"
-                type="text"
-                fullWidth
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
-                helperText={formik.touched.tm_name && formik.errors.tm_name}
               />
             </div>
+          )}
+
+          {role.isSectionAdmin && (
             <div className="pwd-container">
-              <span>TM Number: </span>
-              <TextField
-                id="outlined-number"
-                name="tm_no"
-                className="textField"
-                autoComplete="off"
-                value={formik.values.tm_no}
-                onChange={formik.handleChange}
-                // label="Number"
-                type="text"
-                fullWidth
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                // inputProps={{
-                //   maxLength: 5,
-                // }}
-                error={formik.touched.tm_no && Boolean(formik.errors.tm_no)}
-                helperText={formik.touched.tm_no && formik.errors.tm_no}
-              />
-            </div>
-
-            <div className="pwd-container">
-              <span>Want to authorized this user to update RequestSheet:</span>
-              <div>
-                <div>
-                  <input
-                    type="radio"
-                    name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
-                    id="outlined-number"
-                    value={"Yes"}
-                    onChange={formik.handleChange}
-                  />
-                  <span
-                    style={{
-                      paddingLeft: "0.5rem",
-                      fontWeight: "550",
-                      color: "black",
-                    }}
-                  >
-                    Yes
-                  </span>
-
-                  <input
-                    type="radio"
-                    name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
-                    id="outlined-number"
-                    value={"No"}
-                    onChange={formik.handleChange}
-                    defaultChecked
-                  />
-                  <span
-                    style={{
-                      paddingLeft: "0.5rem",
-                      fontWeight: "550",
-                      color: "black",
-                    }}
-                  >
-                    No
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* NOTE :  change user_type to user_type & Section to Section-Admin*/}
-            {context.user_type === "Section-Admin" ? (
-              <div>
-                <div className="pwd-container">
-                  <span>TM Department:</span>
-                  <div>
-                    <div>
-                      <input
-                        type="radio"
-                        name="tm_department"
-                        id="outlined-number"
-                        value="PRD"
-                        onChange={(e) => {
-                          formik.setFieldValue("user_type", "");
-                          setUsertype();
-                          formik.handleChange(e);
-                        }}
-                      />
-                      <span
-                        style={{
-                          paddingLeft: "0.5rem",
-                          fontWeight: "550",
-                          color: "black",
-                        }}
-                      >
-                        PRD
-                      </span>
-
-                      <input
-                        type="radio"
-                        name="tm_department"
-                        id="outlined-number"
-                        value="MTD"
-                        onChange={(e) => {
-                          formik.setFieldValue("user_type", "");
-                          setUsertype();
-                          formik.handleChange(e);
-                        }}
-                      />
-                      <span
-                        style={{
-                          paddingLeft: "0.5rem",
-                          fontWeight: "550",
-                          color: "black",
-                        }}
-                      >
-                        MTD
-                      </span>
-
-                      <div>
-                        <p
-                          style={{
-                            color: "#F44336",
-                            fontWeight: "normal",
-                            fontSize: "0.80rem",
-                            float: "left",
-                            paddingTop: "0.5rem",
-                          }}
-                        >
-                          {formik.touched.tm_department &&
-                            formik.errors.tm_department}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {formik.values.tm_department ? (
-                  <div className="pwd-container">
-                    <span>User Type:</span>
-                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                      <select
-                        class="form-select form-select-sm"
-                        aria-label=".form-select-sm example"
-                        style={{ width: "100%" }}
-                        id="standard-select-currency"
-                        name="user_type"
-                        className="textField"
-                        fullWidth
-                        select // label="Select"
-                        autoComplete="off"
-                        value={formik.values.user_type}
-                        onChange={(e) => {
-                          setUsertype(e.target.value);
-                          formik.handleChange(e);
-                        }}
-                        variant="standard"
-                      >
-                        <option selected disabled value="">
-                          Please select
-                        </option>
-                        {userTypeForSectionAdmin.map((option) => {
-                          return (
-                            <option value={option?.label}>
-                              {option?.value}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      <div>
-                        <p
-                          style={{
-                            color: "#F44336",
-                            fontWeight: "normal",
-                            fontSize: "0.80rem",
-                            float: "left",
-                            paddingTop: "0.5rem",
-                          }}
-                        >
-                          {formik.touched.user_type && formik.errors.user_type}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  ""
-                )}
-
-                {formik.values.tm_department === "PRD" &&
-                formik.values.user_type === "Section-Admin" ? (
-                  <div className="pwd-container">
-                    <span>TM Grade:</span>
-                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                      <TextField
-                        id="outlined-number"
-                        name="tm_grade"
-                        className="textField"
-                        autoComplete="off"
-                        value="HOS"
-                        fullWidth
-                        // onChange={formik.handleChange}
-                        // label="Number"
-                        type="text"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  ""
-                )}
-
-                {/*
-                <div className="pwd-container">
-                  <span>User Type:</span>
-                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                    <TextField
-                      id="outlined-number"
-                      name="user_type"
-                      className="textField"
-                      autoComplete="off"
-                      value="TL/HOSS"
-                      fullWidth
-                      // onChange={formik.handleChange}
-                      // label="Number"
-                      type="text"
-                    />
-                  </div>
-                </div>
-
-                <div className="pwd-container">
-                  <span>TM Department:</span>
-                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                    <TextField
-                      id="outlined-number"
-                      className="textField"
-                      autoComplete="off"
-                      fullWidth
-                      // onChange={formik.handleChange}
-                      // label="Number"
-                      type="text"
-                      name="tm_department"
-                      value="MTD"
-                    />
-                  </div>
-                </div> */}
-              </div>
-            ) : context.user_type === "TL/HOSS" &&
-              context.tm_department === "MTD" ? (
-              <div>
-                <div className="pwd-container">
-                  <span>User Type:</span>
-                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                    <select
-                      class="form-select form-select-sm"
-                      aria-label=".form-select-sm example"
-                      style={{ width: "100%" }}
-                      id="standard-select-currency"
-                      name="user_type"
-                      className="textField"
-                      fullWidth
-                      select // label="Select"
-                      autoComplete="off"
-                      value={formik.values.user_type}
-                      onChange={(e) => {
-                        setUsertype(e.target.value);
-                        formik.handleChange(e);
-                      }}
-                      variant="standard"
-                    >
-                      <option selected disabled value="">
-                        Please select
-                      </option>
-                      {userType.map((option) => {
-                        return (
-                          <option value={option.label}>{option.value}</option>
-                        );
-                      })}
-                    </select>
-                    <div>
-                      <p
-                        style={{
-                          color: "#F44336",
-                          fontWeight: "normal",
-                          fontSize: "0.80rem",
-                          float: "left",
-                          paddingTop: "0.5rem",
-                        }}
-                      >
-                        {formik.touched.user_type && formik.errors.user_type}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {usertype === "TL/HOSS" ? (
-                  <div className="pwd-container">
-                    <span>TM Department:</span>
-                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                      <TextField
-                        id="outlined-number"
-                        className="textField"
-                        autoComplete="off"
-                        fullWidth
-                        // onChange={formik.handleChange}
-                        // label="Number"
-                        type="text"
-                        name="tm_department"
-                        value="PRD"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  ""
-                )}
-              </div>
-            ) : (
-              <div>
-                <div className="pwd-container">
-                  <span>User Type:</span>
-                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                    <TextField
-                      id="outlined-number"
-                      name="user_type"
-                      className="textField"
-                      autoComplete="off"
-                      value={
-                        context.user_type === "Admin"
-                          ? "Plant-Admin"
-                          : "Section-Admin"
-                      }
-                      fullWidth
-                      // onChange={formik.handleChange}
-                      // label="Number"
-                      type="text"
-                    />
-                  </div>
-                </div>
-
-                {context?.user_type === "Plant-Admin" ? (
-                  <div className="pwd-container">
-                    <span>TM Grade:</span>
-                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                      <TextField
-                        id="outlined-number"
-                        name="tm_grade"
-                        className="textField"
-                        autoComplete="off"
-                        value="HOS"
-                        fullWidth
-                        // onChange={formik.handleChange}
-                        // label="Number"
-                        type="text"
-                      />
-                      <div>
-                        {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-{formik.touched.emp_group && formik.errors.emp_group}
-</p> */}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="pwd-container">
-                    <span>TM Grade:</span>
-                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                      <select
-                        class="form-select form-select-sm"
-                        aria-label=".form-select-sm example"
-                        style={{ width: "100%" }}
-                        id="standard-select-currency"
-                        name="tm_grade"
-                        className="textField"
-                        fullWidth
-                        select // label="Select"
-                        autoComplete="off"
-                        value={formik.values.tm_grade}
-                        onChange={(e) => {
-                          setGrade(e.target.value);
-                          formik.handleChange(e);
-                        }}
-                        variant="standard"
-                      >
-                        <option selected disabled value="">
-                          Please select
-                        </option>
-                        {tmGrade.map((option) => {
-                          return (
-                            <option value={option.label}>{option.value}</option>
-                          );
-                        })}
-                      </select>
-                      <div>
-                        {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-                  {formik.touched.emp_group && formik.errors.emp_group}
-                </p> */}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {grade === "HOS" || grade === "HOD" ? (
-              <div className="pwd-container">
-                <span>TM Department:</span>
-                <div>
-                  <div>
-                    <input
-                      type="radio"
-                      name="tm_department"
-                      id="outlined-number"
-                      value="PRD"
-                      onChange={formik.handleChange}
-                    />
-                    <span
-                      style={{
-                        paddingLeft: "0.5rem",
-                        fontWeight: "550",
-                        color: "black",
-                      }}
-                    >
-                      PRD
-                    </span>
-
-                    <input
-                      type="radio"
-                      name="tm_department"
-                      id="outlined-number"
-                      value="MTD"
-                      onChange={formik.handleChange}
-                    />
-                    <span
-                      style={{
-                        paddingLeft: "0.5rem",
-                        fontWeight: "550",
-                        color: "black",
-                      }}
-                    >
-                      MTD
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : undefined}
-            {context.user_type === "Plant-Admin" ? (
-              <div>
-                <div className="pwd-container">
-                  <span>Plant: </span>
-                  <TextField
-                    id="outlined-number"
-                    name="tm_name"
-                    className="textField"
-                    value={context.plant_data}
-                    // onChange={formik.handleChange}
-
-                    autoComplete="off"
-                    // label="Number"
-                    type="text"
-                    fullWidth
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    // error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
-                    // helperText={formik.touched.tm_name && formik.errors.tm_name}
-                  />
-                </div>
-                <div className="pwd-container">
-                  <span>Section:</span>
-                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                    <select
-                      class="form-select form-select-sm"
-                      aria-label=".form-select-sm example"
-                      style={{ width: "100%" }}
-                      id="standard-select-currency"
-                      name="section_data"
-                      className="textField"
-                      fullWidth
-                      select // label="Select"
-                      autoComplete="off"
-                      value={
-                        formik.values.section_data === undefined
-                          ? ""
-                          : formik.values.section_data
-                      }
-                      onChange={(e) => {
-                        formik.handleChange(e);
-                        postSectionToGetSubSectionListOfUserAssign(
-                          e.target.value
-                        );
-                        formik.values.subSection_data = undefined;
-                        formik.values.cell_data = undefined;
-                      }}
-                      variant="standard"
-                    >
-                      <option selected disabled value="">
-                        Please select
-                      </option>
-                      {sectionList.map((option) => {
-                        return <option value={option}>{option}</option>;
-                      })}
-                    </select>
-                    <div>
-                      {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-                  {formik.touched.emp_group && formik.errors.emp_group}
-                </p> */}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : context.user_type === "Section-Admin" ||
-              context.user_type === "TL/HOSS" ? (
-              <div>
-                <div className="pwd-container">
-                  <span>Plant: </span>
-                  <TextField
-                    id="outlined-number"
-                    name="tm_name"
-                    className="textField"
-                    value={context.plant_data}
-                    // onChange={formik.handleChange}
-
-                    autoComplete="off"
-                    // label="Number"
-                    type="text"
-                    fullWidth
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    // error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
-                    // helperText={formik.touched.tm_name && formik.errors.tm_name}
-                  />
-                </div>
-                <div className="pwd-container">
-                  <span>Section: </span>
-                  <TextField
-                    id="outlined-number"
-                    name="tm_name"
-                    className="textField"
-                    value={context.section_data}
-                    // onChange={formik.handleChange}
-
-                    autoComplete="off"
-                    // label="Number"
-                    type="text"
-                    fullWidth
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    // error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
-                    // helperText={formik.touched.tm_name && formik.errors.tm_name}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="pwd-container">
-                  <span>Plant:</span>
-                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                    <select
-                      class="form-select form-select-sm"
-                      aria-label=".form-select-sm example"
-                      style={{ width: "100%" }}
-                      id="standard-select-currency"
-                      name="plant_data"
-                      className="textField"
-                      fullWidth
-                      select // label="Select"
-                      autoComplete="off"
-                      value={
-                        formik.values.plant_data === undefined
-                          ? ""
-                          : formik.values.plant_data
-                      }
-                      onChange={(e) => {
-                        // setplants(e.target.value);
-                        formik.handleChange(e);
-                        postPlantToGetSectionListOfUserAssign(e.target.value);
-                        formik.values.section_data = undefined;
-                        formik.values.subSection_data = undefined;
-                        formik.values.cell_data = undefined;
-                      }}
-                      variant="standard"
-                    >
-                      <option selected disabled value="">
-                        Please select
-                      </option>
-                      {plantList !== ""
-                        ? plantList.plantArray.map((option) => {
-                            return <option value={option}>{option}</option>;
-                          })
-                        : ""}
-                    </select>
-                    <div>
-                      {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-                  {formik.touched.emp_group && formik.errors.emp_group}
-                </p> */}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pwd-container">
-                  <span>Section:</span>
-                  <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                    <select
-                      class="form-select form-select-sm"
-                      aria-label=".form-select-sm example"
-                      style={{ width: "100%" }}
-                      id="standard-select-currency"
-                      name="section_data"
-                      className="textField"
-                      fullWidth
-                      select // label="Select"
-                      autoComplete="off"
-                      value={
-                        formik.values.section_data === undefined
-                          ? ""
-                          : formik.values.section_data
-                      }
-                      onChange={(e) => {
-                        formik.handleChange(e);
-                        postSectionToGetSubSectionListOfUserAssign(
-                          e.target.value
-                        );
-                        formik.values.subSection_data = undefined;
-                        formik.values.cell_data = undefined;
-                      }}
-                      variant="standard"
-                    >
-                      <option selected disabled value="">
-                        Please select
-                      </option>
-                      {sectionList.map((option) => {
-                        return <option value={option}>{option}</option>;
-                      })}
-                    </select>
-                    <div>
-                      {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-                  {formik.touched.emp_group && formik.errors.emp_group}
-                </p> */}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {grade === "HOD" ? undefined : (
-              <div className="pwd-container">
-                <span>Sub Section:</span>
-                <div style={{ width: "100%" }}>
-                  <FormControl fullWidth>
-                    <InputLabel id="demo-multiple-checkbox-label">
-                      Please select
-                    </InputLabel>
-                    <Select
-                      labelId="demo-multiple-checkbox-label"
-                      id="demo-multiple-checkbox"
-                      multiple
-                      value={subsections}
-                      fullWidth
-                      style={{ whiteSpace: "normal !important" }}
-                      // onChange={handleChange}
-                      onChange={(e) => {
-                        formik.handleChange(e);
-                        setsubsections(e.target.value);
-                        formik.values.cell_data = undefined;
-                      }}
-                      // input={<OutlinedInput label="Tag" />}
-                      renderValue={(selected) => selected.join(", ")}
-                      MenuProps={MenuProps}
-                    >
-                      {subSectionList.map((name) => (
-                        <MenuItem key={name} value={name}>
-                          <Checkbox checked={subsections.indexOf(name) > -1} />
-                          <ListItemText primary={name} />
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  {/* <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="subSection_data"
-                    className="textField"
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    value={
-                      formik.values.subSection_data === undefined
-                        ? ""
-                        : formik.values.subSection_data
-                    }
-                    onChange={(e) => {
-                      formik.handleChange(e);
-                      postSubSectionToGetCellListOfUserAssign(e.target.value);
-                      formik.values.cell_data = undefined;
-                    }}
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {subSectionList.map((option) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select> */}
-                  <div>
-                    {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
-                  {formik.touched.emp_group && formik.errors.emp_group}
-                </p> */}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {grade === "HOS" ||
-            grade === "HOD" ||
-            context.user_type === "Admin" ||
-            context.user_type === "Plant-Admin" ? undefined : (
-              <div className="pwd-container">
-                <span>Cell/Product:</span>
-                <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                  <FormControl fullWidth>
-                    <InputLabel id="demo-multiple-checkbox-label">
-                      Please select
-                    </InputLabel>
-                    <Select
-                      labelId="demo-multiple-checkbox-label"
-                      id="demo-multiple-checkbox"
-                      multiple
-                      value={cells}
-                      fullWidth
-                      // onChange={handleChange}
-                      onChange={(e) => {
-                        formik.handleChange(e);
-                        setcells(e.target.value);
-                      }}
-                      // input={<OutlinedInput label="Tag" />}
-                      renderValue={(selected) => selected.join(", ")}
-                      MenuProps={MenuProps}
-                    >
-                      {cellList.map((name) => (
-                        <MenuItem key={name} value={name}>
-                          <Checkbox checked={cells.indexOf(name) > -1} />
-                          <ListItemText primary={name} />
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  {/* <select
-                    class="form-select form-select-sm"
-                    aria-label=".form-select-sm example"
-                    style={{ width: "100%" }}
-                    id="standard-select-currency"
-                    name="cell_data"
-                    className="textField"
-                    fullWidth
-                    select // label="Select"
-                    autoComplete="off"
-                    value={
-                      formik.values.cell_data === undefined
-                        ? ""
-                        : formik.values.cell_data
-                    }
-                    onChange={(e) => {
-                      formik.handleChange(e);
-                    }}
-                    variant="standard"
-                  >
-                    <option selected disabled value="">
-                      Please select
-                    </option>
-                    {cellList.map((option) => {
-                      return <option value={option}>{option}</option>;
-                    })}
-                  </select>
-                  <div>
-                    <p style={{ color: "#F44336", fontWeight: "400" }}>
-                      {formik.touched.emp_group && formik.errors.emp_group}
-                    </p>
-                  </div> */}
-                </div>
-              </div>
-            )}
-            <div className="pwd-container">
-              <span>Joining Date: </span>
-              <TextField
-                id="outlined-number"
-                name="joining_date"
-                className="textField"
-                value={formik.values.joining_date}
-                onChange={formik.handleChange}
-                autoComplete="off"
-                fullWidth
-                // label="Number"
-                type="date"
-                InputLabelProps={{
-                  shrink: true,
+              <span>TM Department:</span>
+              <RadioGroup
+                name="tm_department"
+                options={DEPARTMENTS.map((d) => ({ label: d, value: d }))}
+                value={formik.values.tm_department}
+                onChange={(e) => {
+                  formik.setFieldValue("user_type", "");
+                  setUsertype("");
+                  formik.handleChange(e);
                 }}
                 error={
-                  formik.touched.joining_date &&
-                  Boolean(formik.errors.joining_date)
-                }
-                helperText={
-                  formik.touched.joining_date && formik.errors.joining_date
+                  formik.touched.tm_department && formik.errors.tm_department
                 }
               />
             </div>
-            {usertype === "Operator" ? undefined : (
+          )}
+
+          {showUserTypeDropdown && (
+            <div className="pwd-container">
+              <span>User Type:</span>
+              <SelectField
+                name="user_type"
+                value={formik.values.user_type}
+                options={userTypeOptions}
+                onChange={(e) => {
+                  setUsertype(e.target.value);
+                  formik.handleChange(e);
+                }}
+                error={formik.touched.user_type && formik.errors.user_type}
+              />
+            </div>
+          )}
+
+          {!showUserTypeDropdown && !role.isTLHOSS && (
+            <ReadOnlyField
+              label="User Type"
+              value={role.isAdmin ? "Plant-Admin" : "Section-Admin"}
+            />
+          )}
+
+          {role.isPlantAdmin ||
+          (role.isSectionAdmin &&
+            formik.values.tm_department === "PRD" &&
+            formik.values.user_type === "Section-Admin") ? (
+            <ReadOnlyField label="TM Grade" value="HOS" />
+          ) : !role.isSectionAdmin && !role.isTLHOSS ? (
+            <div className="pwd-container">
+              <span>TM Grade:</span>
+              <SelectField
+                name="tm_grade"
+                value={formik.values.tm_grade}
+                options={TM_GRADES.map((g) => ({ label: g, value: g }))}
+                onChange={(e) => {
+                  setGrade(e.target.value);
+                  formik.handleChange(e);
+                }}
+              />
+            </div>
+          ) : null}
+
+          {(grade === "HOS" || grade === "HOD") &&
+            formik.values.toolRoomPerson === "No" && (
               <div className="pwd-container">
-                <span>Email: </span>
-                <TextField
-                  id="outlined-number"
-                  name="email"
-                  className="textField"
-                  value={formik.values.email}
+                <span>TM Department:</span>
+                <RadioGroup
+                  name="tm_department"
+                  options={DEPARTMENTS.map((d) => ({ label: d, value: d }))}
+                  value={formik.values.tm_department}
                   onChange={formik.handleChange}
-                  autoComplete="off"
-                  // label="Number"
-                  fullWidth
-                  type="email"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  // error={formik.touched.email && Boolean(formik.errors.email)}
-                  // helperText={formik.touched.email && formik.errors.email}
                 />
               </div>
             )}
 
+          {/* TM Dept read-only (TL/HOSS selecting TL/HOSS) */}
+          {role.isTLHOSS && usertype === "TL/HOSS" && (
+            <ReadOnlyField label="TM Department" value="PRD" />
+          )}
+
+          {/* Plant */}
+          {role.isAdmin ? (
             <div className="pwd-container">
-              <span>Contact No: </span>
-              <TextField
-                id="outlined-number"
-                name="contact_no"
-                className="textField"
-                value={formik.values.contact_no}
-                onChange={formik.handleChange}
-                autoComplete="off"
-                fullWidth
-                // label="Number"
-                inputProps={{
-                  maxLength: 10,
+              <span>Plant:</span>
+              <SelectField
+                name="plant_data"
+                value={formik.values.plant_data}
+                options={plantList}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  loadSections(e.target.value);
+                  formik.setFieldValue("section_data", "");
+                  formik.setFieldValue("subSection_data", "");
+                  formik.setFieldValue("cell_data", "");
                 }}
-                type="text"
-                // InputLabelProps={{
-                //   shrink: true,
-                // }}
-                // error={formik.touched.contact_no && Boolean(formik.errors.contact_no)}
-                // helperText={formik.touched.contact_no && formik.errors.contact_no}
               />
             </div>
+          ) : (
+            <ReadOnlyField label="Plant" value={context.plant_data} />
+          )}
+
+          {/* Section */}
+          {role.isAdmin || role.isPlantAdmin ? (
             <div className="pwd-container">
-              <span>Address: </span>
-              <TextField
-                id="outlined-number"
-                name="address"
-                floatingLabelText="MultiLine and FloatingLabel"
-                aria-label="minimum height"
-                className="textField"
-                value={formik.values.address}
-                onChange={formik.handleChange}
-                autoComplete="off"
-                fullWidth
-                // label="Number"
-                // type="text"
-                multiline
-                rows={2}
-                // InputLabelProps={{
-                //   shrink: true,
-                // }}
-                // error={formik.touched.address && Boolean(formik.errors.address)}
-                // helperText={formik.touched.address && formik.errors.address}
+              <span>Section:</span>
+              <SelectField
+                name="section_data"
+                value={formik.values.section_data}
+                options={sectionList}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  loadSubSections(e.target.value);
+                  formik.setFieldValue("subSection_data", "");
+                  formik.setFieldValue("cell_data", "");
+                }}
               />
             </div>
-            <button type="submit" className="btn-success">
-              Submit
-            </button>
-          </form>
-        </div>
+          ) : (
+            <ReadOnlyField label="Section" value={context.section_data} />
+          )}
+
+          {/* Sub Section */}
+          {showSubSection && (
+            <MultiSelectField
+              label="Sub Section"
+              value={subsections}
+              options={subSectionList}
+              onChange={(e) => {
+                setSubsections(e.target.value);
+                formik.setFieldValue("cell_data", "");
+              }}
+            />
+          )}
+
+          {/* Cell/Product */}
+          {showCell && (
+            <MultiSelectField
+              label="Cell/Product"
+              value={cells}
+              options={cellList}
+              onChange={(e) => setCells(e.target.value)}
+            />
+          )}
+
+          {/* Joining Date */}
+          <div className="pwd-container">
+            <span>Joining Date: </span>
+            <TextField
+              name="joining_date"
+              className="textField"
+              fullWidth
+              type="date"
+              autoComplete="off"
+              value={formik.values.joining_date}
+              onChange={formik.handleChange}
+              InputLabelProps={{ shrink: true }}
+              error={
+                formik.touched.joining_date &&
+                Boolean(formik.errors.joining_date)
+              }
+              helperText={
+                formik.touched.joining_date && formik.errors.joining_date
+              }
+            />
+          </div>
+
+          {/* Email (hidden for Operator) */}
+          {usertype !== "Operator" && (
+            <div className="pwd-container">
+              <span>Email: </span>
+              <TextField
+                name="email"
+                className="textField"
+                fullWidth
+                type="email"
+                autoComplete="off"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                InputLabelProps={{ shrink: true }}
+              />
+            </div>
+          )}
+
+          {/* Contact */}
+          <div className="pwd-container">
+            <span>Contact No: </span>
+            <TextField
+              name="contact_no"
+              className="textField"
+              fullWidth
+              type="text"
+              autoComplete="off"
+              value={formik.values.contact_no}
+              onChange={formik.handleChange}
+              inputProps={{ maxLength: 10 }}
+            />
+          </div>
+
+          {/* Address */}
+          <div className="pwd-container">
+            <span>Address: </span>
+            <TextField
+              name="address"
+              className="textField"
+              fullWidth
+              multiline
+              rows={2}
+              autoComplete="off"
+              value={formik.values.address}
+              onChange={formik.handleChange}
+            />
+          </div>
+
+          <button type="submit" className="btn-success">
+            Submit
+          </button>
+        </form>
       </div>
-    </>
+    </div>
   );
 };
 
 export default UserAdd;
+
+// import React, { useContext, useState, useEffect } from "react";
+// import TextField from "@material-ui/core/TextField";
+// import RoutingContext from "../context/routing/RoutingContext";
+// // import ContextAPI from "../context/ContextAPI/ContextAPI";
+// import { useFormik } from "formik";
+// import * as yup from "yup";
+// import {
+//   Checkbox,
+//   Select,
+//   ListItemText,
+//   MenuItem,
+//   OutlinedInput,
+//   InputLabel,
+//   FormControl,
+// } from "@material-ui/core";
+// // import Context from "@mui/base/TabsUnstyled/TabsContext";
+// import {
+//   LIST_OF_COMPANY,
+//   NAME_OF_THE_COMPANY,
+// } from "../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+
+// const UserAdd = () => {
+//   const context = useContext(RoutingContext);
+//   const close = function () {
+//     setGrade("");
+//     formik.resetForm({
+//       values: "",
+//     });
+//     document.getElementById("main_div_reg1").style.display = "none";
+//     document.querySelector(".App").style.pointerEvents = "auto";
+//   };
+//   // const plantDropdown = useContext(ContextAPI);
+//   const [usertype, setUsertype] = useState();
+
+//   //for selected list of value
+//   const [grade, setGrade] = useState();
+//   const [subsections, setsubsections] = useState([]);
+//   const [cells, setcells] = useState([]);
+
+//   //for dropdown list
+//   const [sectionList, setSectionList] = useState([]);
+//   const [subSectionList, setSubSectionList] = useState([]);
+//   const [cellList, setCellList] = useState([]);
+//   const [plantList, setPlantList] = useState("");
+
+//   const plant = [
+//     {
+//       label: "Plant One",
+//       value: "Plant One",
+//     },
+//     {
+//       label: "Plant Two",
+//       value: "Plant Two",
+//     },
+//   ];
+
+//   const tmGrade = [
+//     {
+//       label: "HOS",
+//       value: "HOS",
+//     },
+//     {
+//       label: "HOD",
+//       value: "HOD",
+//     },
+//   ];
+//   const userType = [
+//     {
+//       lable: "TL/HOSS",
+//       value: "TL/HOSS",
+//     },
+//     {
+//       lable: "Operator",
+//       value: "Operator",
+//     },
+//   ];
+
+//   const refreshPage = () => {
+//     window.location.reload();
+//   };
+
+//   // this function only run when the operator user added into the table
+//   // const newPasswordLink = async (email) => {
+//   //   const res = await fetch("/resetPass", {
+//   //     method: "POST",
+//   //     headers: { "Content-Type": "application/json" },
+//   //     body: JSON.stringify({
+//   //       email,
+//   //     }),
+//   //   });
+
+//   //   const data = res.json();
+
+//   //   if (res.status === 400 || res.status === 422 || !data) {
+//   //     window.alert("Invalid email address !!!!");
+//   //   } else {
+//   //     //window.alert("Password reset link sent to your email account");
+//   //     console.log("Link send");
+//   //   }
+//   // };
+
+//   const validationSchema = yup.object({
+//     tm_name: yup.string().required("Please enter TM name"),
+//     // tm_no: yup.string().required("Please enter employee number"),
+//     // user_type:
+//     //   context.user_type === "Section-Admin"
+//     //     ? yup.string().required("Please select user type")
+//     //     : "",
+//     // email: yup.string().when(["user_type"], {
+//     //   is: () =>
+//     //     LIST_OF_COMPANY?.[0] === NAME_OF_THE_COMPANY &&
+//     //     (formik.values.user_type === "TL/HOSS" ||
+//     //       context.user_type === "Admin" ||
+//     //       context.user_type === "Plant-Admin"),
+//     //   then: yup
+//     //     .string("Enter your email")
+//     //     .email("Enter a valid email")
+//     //     .required("Email is required"),
+//     // }),
+//     tm_department: yup.string().when([], {
+//       is: () => context.user_type === "Section-Admin",
+//       then: yup
+//         .string("Enter password")
+//         .required("Please select TM department"),
+//     }),
+//     tm_no: yup
+//       .number()
+//       .required("Please enter TM number")
+//       .typeError("You must specify a number")
+//       .positive()
+//       .integer(),
+
+//     user_type: yup.string().when({
+//       is: () =>
+//         context?.user_type === "TL/HOSS" ||
+//         context.user_type === "Section-Admin",
+//       then: yup.string().required("Please select TM group"),
+//     }),
+
+//     // user_type: yup.string().required("Please select TM group"),
+//     joining_date: yup.string().required("Please select joining date"),
+//   });
+
+//   const formik = useFormik({
+//     initialValues: {
+//       tm_name: "",
+//       tm_no: "",
+//       user_type: "",
+//       tm_grade: "",
+//       email: "",
+//       // operator_password: "",
+//       joining_date: "",
+//       plant_data: "",
+//       section_data: "",
+//       tm_department: "",
+//       subSection_data: "",
+//       cell_data: "",
+//       contact_no: "",
+//       address: "",
+//       isAuthorizedUserForUpdatingRequestSheetInAnyStatus: "",
+//     },
+//     validationSchema: validationSchema,
+//     onSubmit: async (values) => {
+//       const res = await fetch("/postUserAssign", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           tm_name: values.tm_name,
+//           tm_no: values.tm_no,
+//           isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
+//             values?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
+//           user_type: values.user_type
+//             ? values.user_type
+//             : context.user_type === "Admin"
+//             ? "Plant-Admin"
+//             : "Section-Admin",
+//           plant_data: values.plant_data
+//             ? values.plant_data
+//             : context.plant_data,
+//           section_data: values.section_data
+//             ? values.section_data
+//             : context.section_data,
+//           tm_grade:
+//             context.user_type === "Section-Admin" &&
+//             formik.values.tm_department === "PRD" &&
+//             formik.values.user_type === "Section-Admin"
+//               ? "HOS"
+//               : context?.user_type === "Plant-Admin"
+//               ? "HOS"
+//               : values.tm_grade,
+//           tm_department: values.tm_department
+//             ? values.tm_department
+//             : values.user_type === "Operator"
+//             ? "MTD"
+//             : context.user_type === "TL/HOSS" && usertype === "TL/HOSS"
+//             ? "PRD"
+//             : values.tm_department,
+
+//           subSection_data: subsections,
+//           cell_data: cells,
+//           joining_date: values.joining_date,
+//           email: values.email,
+//           // operator_password: values.operator_password,
+//           contact_no: values.contact_no,
+//           address: values.address,
+//         }),
+//       });
+//       const data = res.json();
+//       // console.log(data);
+//       if (res.status === 400 || res.status === 422 || !data) {
+//         window.alert("Invalid credentials !");
+//       } else if (res.status === 409) {
+//         window.alert("Employee number already exists !");
+//       } else {
+//         console.log("User added sucessfully...");
+//         refreshPage();
+//         // if (values.email) {
+//         //   newPasswordLink(values.email);
+//         // }
+//       }
+//     },
+//   });
+
+//   //for selection of plant and based on plant section selection
+//   const postPlantToGetSectionListOfUserAssign = async (selectedPlant) => {
+//     try {
+//       const res = await fetch("/postPlantToGetSectionListOfUserAssign", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           plants: selectedPlant,
+//         }),
+//       });
+//       const data = await res.json();
+
+//       if (res.status === 400 || res.status === 422 || !data) {
+//         console.log("Invalid");
+//       } else {
+//         // window.alert(data.abcd);
+//         // console.log("Data post", data);
+//         setSectionList(data.sectionArray);
+//       }
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   //for selection of section and based on section sub-section selection
+//   const postSectionToGetSubSectionListOfUserAssign = async (
+//     selectedSection
+//   ) => {
+//     try {
+//       const res = await fetch("/postSectionToGetSubSectionList", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           section: selectedSection,
+//         }),
+//       });
+//       const data = await res.json();
+
+//       if (res.status === 400 || res.status === 422 || !data) {
+//         console.log("Invalid");
+//       } else {
+//         // window.alert(data.abcd);
+//         // console.log("Data post", data);
+//         setSubSectionList(data.subSectionArray);
+//       }
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   //for selection of sub-section and based on sub-section cell selection
+//   const postSubSectionToGetCellListOfUserAssign = async (
+//     selectedSubSection
+//   ) => {
+//     try {
+//       const res = await fetch("/postSubSectionToGetCellListOfUserAssign", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           subSection: selectedSubSection,
+//         }),
+//       });
+//       const data = await res.json();
+
+//       if (res.status === 400 || res.status === 422 || !data) {
+//         console.log("Invalid");
+//       } else {
+//         // window.alert(data.abcd);
+//         // console.log("Data post", data);
+//         setCellList(data.cellArray);
+//       }
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   //fetch all section head for showing or selecting in dropdown by common user
+//   const fetchPlantList = async () => {
+//     try {
+//       const res = await fetch("/fetchPlantList", {
+//         method: "GET",
+//         headers: {
+//           Accept: "application/json",
+//           "Content-Type": "application/json",
+//         },
+//         credentials: "include",
+//       });
+//       const data = await res.json();
+//       //   console.log(data);
+//       setPlantList(data);
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchPlantList();
+//   }, []);
+
+//   useEffect(() => {
+//     postSubSectionToGetCellListOfUserAssign(subsections);
+//   }, [subsections]);
+
+//   useEffect(() => {
+//     if (
+//       context.user_type === "Section-Admin" ||
+//       context.user_type === "TL/HOSS"
+//     ) {
+//       // postPlantToGetSectionListOfUserAssign(context.plant_data);
+//       postSectionToGetSubSectionListOfUserAssign(context.section_data);
+//     }
+//     if (context.user_type === "Plant-Admin") {
+//       postPlantToGetSectionListOfUserAssign(context.plant_data);
+//     }
+//   }, []);
+
+//   const ITEM_HEIGHT = 30;
+//   const ITEM_PADDING_TOP = 8;
+//   const MenuProps = {
+//     PaperProps: {
+//       style: {
+//         maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+//         // width: 250,
+//       },
+//     },
+//   };
+
+//   // for Section-Admin Only
+
+//   const userTypeWhenTmDepartmentIsPrd = {
+//     lable: "Section-Admin",
+//     value: "Section-Admin",
+//   };
+
+//   const userTypeWhenTmDepartmentIsMtd = {
+//     lable: "Operator",
+//     value: "Operator",
+//   };
+
+//   const userTypeForSectionAdmin = [
+//     {
+//       lable: "TL/HOSS",
+//       value: "TL/HOSS",
+//     },
+//     formik.values.tm_department === "PRD"
+//       ? userTypeWhenTmDepartmentIsPrd
+//       : userTypeWhenTmDepartmentIsMtd,
+//   ];
+//   return (
+//     <>
+//       <div id="main_div_reg1">
+//         <span onClick={close} className="close">
+//           &times;
+//         </span>
+//         <br />
+//         <div>
+//           <h3 style={{ textAlign: "left", color: "#dc3545" }}>Add User</h3>
+
+//           <form onSubmit={formik.handleSubmit}>
+//             <div className="pwd-container">
+//               <span>TM Name: </span>
+//               <TextField
+//                 id="outlined-number"
+//                 name="tm_name"
+//                 className="textField"
+//                 value={formik.values.tm_name}
+//                 onChange={formik.handleChange}
+//                 autoComplete="off"
+//                 // label="Number"
+//                 type="text"
+//                 fullWidth
+//                 InputLabelProps={{
+//                   shrink: true,
+//                 }}
+//                 error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
+//                 helperText={formik.touched.tm_name && formik.errors.tm_name}
+//               />
+//             </div>
+//             <div className="pwd-container">
+//               <span>TM Number: </span>
+//               <TextField
+//                 id="outlined-number"
+//                 name="tm_no"
+//                 className="textField"
+//                 autoComplete="off"
+//                 value={formik.values.tm_no}
+//                 onChange={formik.handleChange}
+//                 // label="Number"
+//                 type="text"
+//                 fullWidth
+//                 InputLabelProps={{
+//                   shrink: true,
+//                 }}
+//                 // inputProps={{
+//                 //   maxLength: 5,
+//                 // }}
+//                 error={formik.touched.tm_no && Boolean(formik.errors.tm_no)}
+//                 helperText={formik.touched.tm_no && formik.errors.tm_no}
+//               />
+//             </div>
+
+//             <div className="pwd-container">
+//               <span>Want to authorized this user to update RequestSheet:</span>
+//               <div>
+//                 <div>
+//                   <input
+//                     type="radio"
+//                     name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+//                     id="outlined-number"
+//                     value={"Yes"}
+//                     onChange={formik.handleChange}
+//                   />
+//                   <span
+//                     style={{
+//                       paddingLeft: "0.5rem",
+//                       fontWeight: "550",
+//                       color: "black",
+//                     }}
+//                   >
+//                     Yes
+//                   </span>
+
+//                   <input
+//                     type="radio"
+//                     name="isAuthorizedUserForUpdatingRequestSheetInAnyStatus"
+//                     id="outlined-number"
+//                     value={"No"}
+//                     onChange={formik.handleChange}
+//                     defaultChecked
+//                   />
+//                   <span
+//                     style={{
+//                       paddingLeft: "0.5rem",
+//                       fontWeight: "550",
+//                       color: "black",
+//                     }}
+//                   >
+//                     No
+//                   </span>
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* NOTE :  change user_type to user_type & Section to Section-Admin*/}
+//             {context.user_type === "Section-Admin" ? (
+//               <div>
+//                 <div className="pwd-container">
+//                   <span>TM Department:</span>
+//                   <div>
+//                     <div>
+//                       <input
+//                         type="radio"
+//                         name="tm_department"
+//                         id="outlined-number"
+//                         value="PRD"
+//                         onChange={(e) => {
+//                           formik.setFieldValue("user_type", "");
+//                           setUsertype();
+//                           formik.handleChange(e);
+//                         }}
+//                       />
+//                       <span
+//                         style={{
+//                           paddingLeft: "0.5rem",
+//                           fontWeight: "550",
+//                           color: "black",
+//                         }}
+//                       >
+//                         PRD
+//                       </span>
+
+//                       <input
+//                         type="radio"
+//                         name="tm_department"
+//                         id="outlined-number"
+//                         value="MTD"
+//                         onChange={(e) => {
+//                           formik.setFieldValue("user_type", "");
+//                           setUsertype();
+//                           formik.handleChange(e);
+//                         }}
+//                       />
+//                       <span
+//                         style={{
+//                           paddingLeft: "0.5rem",
+//                           fontWeight: "550",
+//                           color: "black",
+//                         }}
+//                       >
+//                         MTD
+//                       </span>
+
+//                       <div>
+//                         <p
+//                           style={{
+//                             color: "#F44336",
+//                             fontWeight: "normal",
+//                             fontSize: "0.80rem",
+//                             float: "left",
+//                             paddingTop: "0.5rem",
+//                           }}
+//                         >
+//                           {formik.touched.tm_department &&
+//                             formik.errors.tm_department}
+//                         </p>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 {formik.values.tm_department ? (
+//                   <div className="pwd-container">
+//                     <span>User Type:</span>
+//                     <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                       <select
+//                         class="form-select form-select-sm"
+//                         aria-label=".form-select-sm example"
+//                         style={{ width: "100%" }}
+//                         id="standard-select-currency"
+//                         name="user_type"
+//                         className="textField"
+//                         fullWidth
+//                         select // label="Select"
+//                         autoComplete="off"
+//                         value={formik.values.user_type}
+//                         onChange={(e) => {
+//                           setUsertype(e.target.value);
+//                           formik.handleChange(e);
+//                         }}
+//                         variant="standard"
+//                       >
+//                         <option selected disabled value="">
+//                           Please select
+//                         </option>
+//                         {userTypeForSectionAdmin.map((option) => {
+//                           return (
+//                             <option value={option?.label}>
+//                               {option?.value}
+//                             </option>
+//                           );
+//                         })}
+//                       </select>
+//                       <div>
+//                         <p
+//                           style={{
+//                             color: "#F44336",
+//                             fontWeight: "normal",
+//                             fontSize: "0.80rem",
+//                             float: "left",
+//                             paddingTop: "0.5rem",
+//                           }}
+//                         >
+//                           {formik.touched.user_type && formik.errors.user_type}
+//                         </p>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 ) : (
+//                   ""
+//                 )}
+
+//                 {formik.values.tm_department === "PRD" &&
+//                 formik.values.user_type === "Section-Admin" ? (
+//                   <div className="pwd-container">
+//                     <span>TM Grade:</span>
+//                     <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                       <TextField
+//                         id="outlined-number"
+//                         name="tm_grade"
+//                         className="textField"
+//                         autoComplete="off"
+//                         value="HOS"
+//                         fullWidth
+//                         // onChange={formik.handleChange}
+//                         // label="Number"
+//                         type="text"
+//                       />
+//                     </div>
+//                   </div>
+//                 ) : (
+//                   ""
+//                 )}
+
+//                 {/*
+//                 <div className="pwd-container">
+//                   <span>User Type:</span>
+//                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                     <TextField
+//                       id="outlined-number"
+//                       name="user_type"
+//                       className="textField"
+//                       autoComplete="off"
+//                       value="TL/HOSS"
+//                       fullWidth
+//                       // onChange={formik.handleChange}
+//                       // label="Number"
+//                       type="text"
+//                     />
+//                   </div>
+//                 </div>
+
+//                 <div className="pwd-container">
+//                   <span>TM Department:</span>
+//                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                     <TextField
+//                       id="outlined-number"
+//                       className="textField"
+//                       autoComplete="off"
+//                       fullWidth
+//                       // onChange={formik.handleChange}
+//                       // label="Number"
+//                       type="text"
+//                       name="tm_department"
+//                       value="MTD"
+//                     />
+//                   </div>
+//                 </div> */}
+//               </div>
+//             ) : context.user_type === "TL/HOSS" &&
+//               context.tm_department === "MTD" ? (
+//               <div>
+//                 <div className="pwd-container">
+//                   <span>User Type:</span>
+//                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                     <select
+//                       class="form-select form-select-sm"
+//                       aria-label=".form-select-sm example"
+//                       style={{ width: "100%" }}
+//                       id="standard-select-currency"
+//                       name="user_type"
+//                       className="textField"
+//                       fullWidth
+//                       select // label="Select"
+//                       autoComplete="off"
+//                       value={formik.values.user_type}
+//                       onChange={(e) => {
+//                         setUsertype(e.target.value);
+//                         formik.handleChange(e);
+//                       }}
+//                       variant="standard"
+//                     >
+//                       <option selected disabled value="">
+//                         Please select
+//                       </option>
+//                       {userType.map((option) => {
+//                         return (
+//                           <option value={option.label}>{option.value}</option>
+//                         );
+//                       })}
+//                     </select>
+//                     <div>
+//                       <p
+//                         style={{
+//                           color: "#F44336",
+//                           fontWeight: "normal",
+//                           fontSize: "0.80rem",
+//                           float: "left",
+//                           paddingTop: "0.5rem",
+//                         }}
+//                       >
+//                         {formik.touched.user_type && formik.errors.user_type}
+//                       </p>
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 {usertype === "TL/HOSS" ? (
+//                   <div className="pwd-container">
+//                     <span>TM Department:</span>
+//                     <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                       <TextField
+//                         id="outlined-number"
+//                         className="textField"
+//                         autoComplete="off"
+//                         fullWidth
+//                         // onChange={formik.handleChange}
+//                         // label="Number"
+//                         type="text"
+//                         name="tm_department"
+//                         value="PRD"
+//                       />
+//                     </div>
+//                   </div>
+//                 ) : (
+//                   ""
+//                 )}
+//               </div>
+//             ) : (
+//               <div>
+//                 <div className="pwd-container">
+//                   <span>User Type:</span>
+//                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                     <TextField
+//                       id="outlined-number"
+//                       name="user_type"
+//                       className="textField"
+//                       autoComplete="off"
+//                       value={
+//                         context.user_type === "Admin"
+//                           ? "Plant-Admin"
+//                           : "Section-Admin"
+//                       }
+//                       fullWidth
+//                       // onChange={formik.handleChange}
+//                       // label="Number"
+//                       type="text"
+//                     />
+//                   </div>
+//                 </div>
+
+//                 {context?.user_type === "Plant-Admin" ? (
+//                   <div className="pwd-container">
+//                     <span>TM Grade:</span>
+//                     <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                       <TextField
+//                         id="outlined-number"
+//                         name="tm_grade"
+//                         className="textField"
+//                         autoComplete="off"
+//                         value="HOS"
+//                         fullWidth
+//                         // onChange={formik.handleChange}
+//                         // label="Number"
+//                         type="text"
+//                       />
+//                       <div>
+//                         {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
+// {formik.touched.emp_group && formik.errors.emp_group}
+// </p> */}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 ) : (
+//                   <div className="pwd-container">
+//                     <span>TM Grade:</span>
+//                     <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                       <select
+//                         class="form-select form-select-sm"
+//                         aria-label=".form-select-sm example"
+//                         style={{ width: "100%" }}
+//                         id="standard-select-currency"
+//                         name="tm_grade"
+//                         className="textField"
+//                         fullWidth
+//                         select // label="Select"
+//                         autoComplete="off"
+//                         value={formik.values.tm_grade}
+//                         onChange={(e) => {
+//                           setGrade(e.target.value);
+//                           formik.handleChange(e);
+//                         }}
+//                         variant="standard"
+//                       >
+//                         <option selected disabled value="">
+//                           Please select
+//                         </option>
+//                         {tmGrade.map((option) => {
+//                           return (
+//                             <option value={option.label}>{option.value}</option>
+//                           );
+//                         })}
+//                       </select>
+//                       <div>
+//                         {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
+//                   {formik.touched.emp_group && formik.errors.emp_group}
+//                 </p> */}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 )}
+//               </div>
+//             )}
+
+//             {grade === "HOS" || grade === "HOD" ? (
+//               <div className="pwd-container">
+//                 <span>TM Department:</span>
+//                 <div>
+//                   <div>
+//                     <input
+//                       type="radio"
+//                       name="tm_department"
+//                       id="outlined-number"
+//                       value="PRD"
+//                       onChange={formik.handleChange}
+//                     />
+//                     <span
+//                       style={{
+//                         paddingLeft: "0.5rem",
+//                         fontWeight: "550",
+//                         color: "black",
+//                       }}
+//                     >
+//                       PRD
+//                     </span>
+
+//                     <input
+//                       type="radio"
+//                       name="tm_department"
+//                       id="outlined-number"
+//                       value="MTD"
+//                       onChange={formik.handleChange}
+//                     />
+//                     <span
+//                       style={{
+//                         paddingLeft: "0.5rem",
+//                         fontWeight: "550",
+//                         color: "black",
+//                       }}
+//                     >
+//                       MTD
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//             ) : undefined}
+//             {context.user_type === "Plant-Admin" ? (
+//               <div>
+//                 <div className="pwd-container">
+//                   <span>Plant: </span>
+//                   <TextField
+//                     id="outlined-number"
+//                     name="tm_name"
+//                     className="textField"
+//                     value={context.plant_data}
+//                     // onChange={formik.handleChange}
+
+//                     autoComplete="off"
+//                     // label="Number"
+//                     type="text"
+//                     fullWidth
+//                     InputLabelProps={{
+//                       shrink: true,
+//                     }}
+//                     // error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
+//                     // helperText={formik.touched.tm_name && formik.errors.tm_name}
+//                   />
+//                 </div>
+//                 <div className="pwd-container">
+//                   <span>Section:</span>
+//                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                     <select
+//                       class="form-select form-select-sm"
+//                       aria-label=".form-select-sm example"
+//                       style={{ width: "100%" }}
+//                       id="standard-select-currency"
+//                       name="section_data"
+//                       className="textField"
+//                       fullWidth
+//                       select // label="Select"
+//                       autoComplete="off"
+//                       value={
+//                         formik.values.section_data === undefined
+//                           ? ""
+//                           : formik.values.section_data
+//                       }
+//                       onChange={(e) => {
+//                         formik.handleChange(e);
+//                         postSectionToGetSubSectionListOfUserAssign(
+//                           e.target.value
+//                         );
+//                         formik.values.subSection_data = undefined;
+//                         formik.values.cell_data = undefined;
+//                       }}
+//                       variant="standard"
+//                     >
+//                       <option selected disabled value="">
+//                         Please select
+//                       </option>
+//                       {sectionList.map((option) => {
+//                         return <option value={option}>{option}</option>;
+//                       })}
+//                     </select>
+//                     <div>
+//                       {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
+//                   {formik.touched.emp_group && formik.errors.emp_group}
+//                 </p> */}
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+//             ) : context.user_type === "Section-Admin" ||
+//               context.user_type === "TL/HOSS" ? (
+//               <div>
+//                 <div className="pwd-container">
+//                   <span>Plant: </span>
+//                   <TextField
+//                     id="outlined-number"
+//                     name="tm_name"
+//                     className="textField"
+//                     value={context.plant_data}
+//                     // onChange={formik.handleChange}
+
+//                     autoComplete="off"
+//                     // label="Number"
+//                     type="text"
+//                     fullWidth
+//                     InputLabelProps={{
+//                       shrink: true,
+//                     }}
+//                     // error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
+//                     // helperText={formik.touched.tm_name && formik.errors.tm_name}
+//                   />
+//                 </div>
+//                 <div className="pwd-container">
+//                   <span>Section: </span>
+//                   <TextField
+//                     id="outlined-number"
+//                     name="tm_name"
+//                     className="textField"
+//                     value={context.section_data}
+//                     // onChange={formik.handleChange}
+
+//                     autoComplete="off"
+//                     // label="Number"
+//                     type="text"
+//                     fullWidth
+//                     InputLabelProps={{
+//                       shrink: true,
+//                     }}
+//                     // error={formik.touched.tm_name && Boolean(formik.errors.tm_name)}
+//                     // helperText={formik.touched.tm_name && formik.errors.tm_name}
+//                   />
+//                 </div>
+//               </div>
+//             ) : (
+//               <div>
+//                 <div className="pwd-container">
+//                   <span>Plant:</span>
+//                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                     <select
+//                       class="form-select form-select-sm"
+//                       aria-label=".form-select-sm example"
+//                       style={{ width: "100%" }}
+//                       id="standard-select-currency"
+//                       name="plant_data"
+//                       className="textField"
+//                       fullWidth
+//                       select // label="Select"
+//                       autoComplete="off"
+//                       value={
+//                         formik.values.plant_data === undefined
+//                           ? ""
+//                           : formik.values.plant_data
+//                       }
+//                       onChange={(e) => {
+//                         // setplants(e.target.value);
+//                         formik.handleChange(e);
+//                         postPlantToGetSectionListOfUserAssign(e.target.value);
+//                         formik.values.section_data = undefined;
+//                         formik.values.subSection_data = undefined;
+//                         formik.values.cell_data = undefined;
+//                       }}
+//                       variant="standard"
+//                     >
+//                       <option selected disabled value="">
+//                         Please select
+//                       </option>
+//                       {plantList !== ""
+//                         ? plantList.plantArray.map((option) => {
+//                             return <option value={option}>{option}</option>;
+//                           })
+//                         : ""}
+//                     </select>
+//                     <div>
+//                       {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
+//                   {formik.touched.emp_group && formik.errors.emp_group}
+//                 </p> */}
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 <div className="pwd-container">
+//                   <span>Section:</span>
+//                   <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                     <select
+//                       class="form-select form-select-sm"
+//                       aria-label=".form-select-sm example"
+//                       style={{ width: "100%" }}
+//                       id="standard-select-currency"
+//                       name="section_data"
+//                       className="textField"
+//                       fullWidth
+//                       select // label="Select"
+//                       autoComplete="off"
+//                       value={
+//                         formik.values.section_data === undefined
+//                           ? ""
+//                           : formik.values.section_data
+//                       }
+//                       onChange={(e) => {
+//                         formik.handleChange(e);
+//                         postSectionToGetSubSectionListOfUserAssign(
+//                           e.target.value
+//                         );
+//                         formik.values.subSection_data = undefined;
+//                         formik.values.cell_data = undefined;
+//                       }}
+//                       variant="standard"
+//                     >
+//                       <option selected disabled value="">
+//                         Please select
+//                       </option>
+//                       {sectionList.map((option) => {
+//                         return <option value={option}>{option}</option>;
+//                       })}
+//                     </select>
+//                     <div>
+//                       {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
+//                   {formik.touched.emp_group && formik.errors.emp_group}
+//                 </p> */}
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+
+//             {grade === "HOD" ? undefined : (
+//               <div className="pwd-container">
+//                 <span>Sub Section:</span>
+//                 <div style={{ width: "100%" }}>
+//                   <FormControl fullWidth>
+//                     <InputLabel id="demo-multiple-checkbox-label">
+//                       Please select
+//                     </InputLabel>
+//                     <Select
+//                       labelId="demo-multiple-checkbox-label"
+//                       id="demo-multiple-checkbox"
+//                       multiple
+//                       value={subsections}
+//                       fullWidth
+//                       style={{ whiteSpace: "normal !important" }}
+//                       // onChange={handleChange}
+//                       onChange={(e) => {
+//                         formik.handleChange(e);
+//                         setsubsections(e.target.value);
+//                         formik.values.cell_data = undefined;
+//                       }}
+//                       // input={<OutlinedInput label="Tag" />}
+//                       renderValue={(selected) => selected.join(", ")}
+//                       MenuProps={MenuProps}
+//                     >
+//                       {subSectionList.map((name) => (
+//                         <MenuItem key={name} value={name}>
+//                           <Checkbox checked={subsections.indexOf(name) > -1} />
+//                           <ListItemText primary={name} />
+//                         </MenuItem>
+//                       ))}
+//                     </Select>
+//                   </FormControl>
+//                   {/* <select
+//                     class="form-select form-select-sm"
+//                     aria-label=".form-select-sm example"
+//                     style={{ width: "100%" }}
+//                     id="standard-select-currency"
+//                     name="subSection_data"
+//                     className="textField"
+//                     fullWidth
+//                     select // label="Select"
+//                     autoComplete="off"
+//                     value={
+//                       formik.values.subSection_data === undefined
+//                         ? ""
+//                         : formik.values.subSection_data
+//                     }
+//                     onChange={(e) => {
+//                       formik.handleChange(e);
+//                       postSubSectionToGetCellListOfUserAssign(e.target.value);
+//                       formik.values.cell_data = undefined;
+//                     }}
+//                     variant="standard"
+//                   >
+//                     <option selected disabled value="">
+//                       Please select
+//                     </option>
+//                     {subSectionList.map((option) => {
+//                       return <option value={option}>{option}</option>;
+//                     })}
+//                   </select> */}
+//                   <div>
+//                     {/* <p style={{ color: "#F44336", fontWeight: "400" }}>
+//                   {formik.touched.emp_group && formik.errors.emp_group}
+//                 </p> */}
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+
+//             {grade === "HOS" ||
+//             grade === "HOD" ||
+//             context.user_type === "Admin" ||
+//             context.user_type === "Plant-Admin" ? undefined : (
+//               <div className="pwd-container">
+//                 <span>Cell/Product:</span>
+//                 <div style={{ width: "100%", marginTop: "0.5rem" }}>
+//                   <FormControl fullWidth>
+//                     <InputLabel id="demo-multiple-checkbox-label">
+//                       Please select
+//                     </InputLabel>
+//                     <Select
+//                       labelId="demo-multiple-checkbox-label"
+//                       id="demo-multiple-checkbox"
+//                       multiple
+//                       value={cells}
+//                       fullWidth
+//                       // onChange={handleChange}
+//                       onChange={(e) => {
+//                         formik.handleChange(e);
+//                         setcells(e.target.value);
+//                       }}
+//                       // input={<OutlinedInput label="Tag" />}
+//                       renderValue={(selected) => selected.join(", ")}
+//                       MenuProps={MenuProps}
+//                     >
+//                       {cellList.map((name) => (
+//                         <MenuItem key={name} value={name}>
+//                           <Checkbox checked={cells.indexOf(name) > -1} />
+//                           <ListItemText primary={name} />
+//                         </MenuItem>
+//                       ))}
+//                     </Select>
+//                   </FormControl>
+//                   {/* <select
+//                     class="form-select form-select-sm"
+//                     aria-label=".form-select-sm example"
+//                     style={{ width: "100%" }}
+//                     id="standard-select-currency"
+//                     name="cell_data"
+//                     className="textField"
+//                     fullWidth
+//                     select // label="Select"
+//                     autoComplete="off"
+//                     value={
+//                       formik.values.cell_data === undefined
+//                         ? ""
+//                         : formik.values.cell_data
+//                     }
+//                     onChange={(e) => {
+//                       formik.handleChange(e);
+//                     }}
+//                     variant="standard"
+//                   >
+//                     <option selected disabled value="">
+//                       Please select
+//                     </option>
+//                     {cellList.map((option) => {
+//                       return <option value={option}>{option}</option>;
+//                     })}
+//                   </select>
+//                   <div>
+//                     <p style={{ color: "#F44336", fontWeight: "400" }}>
+//                       {formik.touched.emp_group && formik.errors.emp_group}
+//                     </p>
+//                   </div> */}
+//                 </div>
+//               </div>
+//             )}
+//             <div className="pwd-container">
+//               <span>Joining Date: </span>
+//               <TextField
+//                 id="outlined-number"
+//                 name="joining_date"
+//                 className="textField"
+//                 value={formik.values.joining_date}
+//                 onChange={formik.handleChange}
+//                 autoComplete="off"
+//                 fullWidth
+//                 // label="Number"
+//                 type="date"
+//                 InputLabelProps={{
+//                   shrink: true,
+//                 }}
+//                 error={
+//                   formik.touched.joining_date &&
+//                   Boolean(formik.errors.joining_date)
+//                 }
+//                 helperText={
+//                   formik.touched.joining_date && formik.errors.joining_date
+//                 }
+//               />
+//             </div>
+//             {usertype === "Operator" ? undefined : (
+//               <div className="pwd-container">
+//                 <span>Email: </span>
+//                 <TextField
+//                   id="outlined-number"
+//                   name="email"
+//                   className="textField"
+//                   value={formik.values.email}
+//                   onChange={formik.handleChange}
+//                   autoComplete="off"
+//                   // label="Number"
+//                   fullWidth
+//                   type="email"
+//                   InputLabelProps={{
+//                     shrink: true,
+//                   }}
+//                   // error={formik.touched.email && Boolean(formik.errors.email)}
+//                   // helperText={formik.touched.email && formik.errors.email}
+//                 />
+//               </div>
+//             )}
+
+//             <div className="pwd-container">
+//               <span>Contact No: </span>
+//               <TextField
+//                 id="outlined-number"
+//                 name="contact_no"
+//                 className="textField"
+//                 value={formik.values.contact_no}
+//                 onChange={formik.handleChange}
+//                 autoComplete="off"
+//                 fullWidth
+//                 // label="Number"
+//                 inputProps={{
+//                   maxLength: 10,
+//                 }}
+//                 type="text"
+//                 // InputLabelProps={{
+//                 //   shrink: true,
+//                 // }}
+//                 // error={formik.touched.contact_no && Boolean(formik.errors.contact_no)}
+//                 // helperText={formik.touched.contact_no && formik.errors.contact_no}
+//               />
+//             </div>
+//             <div className="pwd-container">
+//               <span>Address: </span>
+//               <TextField
+//                 id="outlined-number"
+//                 name="address"
+//                 floatingLabelText="MultiLine and FloatingLabel"
+//                 aria-label="minimum height"
+//                 className="textField"
+//                 value={formik.values.address}
+//                 onChange={formik.handleChange}
+//                 autoComplete="off"
+//                 fullWidth
+//                 // label="Number"
+//                 // type="text"
+//                 multiline
+//                 rows={2}
+//                 // InputLabelProps={{
+//                 //   shrink: true,
+//                 // }}
+//                 // error={formik.touched.address && Boolean(formik.errors.address)}
+//                 // helperText={formik.touched.address && formik.errors.address}
+//               />
+//             </div>
+//             <button type="submit" className="btn-success">
+//               Submit
+//             </button>
+//           </form>
+//         </div>
+//       </div>
+//     </>
+//   );
+// };
+
+// export default UserAdd;

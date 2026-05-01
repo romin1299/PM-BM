@@ -77,6 +77,11 @@ const userSchema = new mongoose.Schema({
     default: "No",
   },
 
+  toolRoomPerson: {
+    type: String,
+    default: "No",
+  },
+
   plant_ref_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Plants",

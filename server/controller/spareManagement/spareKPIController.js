@@ -4,7 +4,6 @@ const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 exports.getRequestSheets = tryCatchHandler(async (req, res, next) => {
   return res.status(201).json({
     message: "Request-sheets get successfully",
-    showToast: true,
     tableData: req.tableData,
   });
 });

@@ -45,3 +45,14 @@ export const partTypes = [
     value: "Manufacturing Parts",
   },
 ];
+
+export const partRequestDepartmentList = [
+  {
+    label: "MTD",
+    value: "MTD",
+  },
+  {
+    label: "PRD",
+    value: "PRD",
+  },
+];

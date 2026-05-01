@@ -16,6 +16,7 @@ import {
   partFor,
   newPartRequestForRadioOptions,
   partQtyOptions,
+  partRequestDepartmentList,
   partTypes,
 } from "../../Utils/dropdownUtils";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
@@ -30,6 +31,12 @@ const url = "/v1/spare/spareRequestSheet";
 const SpareNewPartRequest = () => {
   const loggedUser = useContext(RoutingContext);
   const [searchParams] = useSearchParams();
+
+  const isViewMode = useMemo(
+    () => searchParams.get("action") === "view",
+    [searchParams.get("action")],
+  );
+
   const navigate = useNavigate();
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
@@ -44,7 +51,17 @@ const SpareNewPartRequest = () => {
     reset,
   } = useForm({
     defaultValues: async () => {
-      if (!searchParams.get("_id")) return {};
+      if (!searchParams.get("_id"))
+        return {
+          approvalOfMTD_TL: { user: { _id: null } },
+          approvalOfMTD_HOSS: { user: { _id: null } },
+          approvalOfPRD_TL: { user: { _id: null } },
+          approvalOfMTD_HOS: { user: { _id: null } },
+          approvalOfPRD_HOS: { user: { _id: null } },
+          approvalOfMTD_HOD: { user: { _id: null } },
+          approvalOfPRD_HOD: { user: { _id: null } },
+          approvalOfTOOL_ROOM: { user: { _id: null } },
+        };
       const { isError, spare } = await axiosGetOrDelete({
         url,
         axiosProps: {
@@ -97,7 +114,7 @@ const SpareNewPartRequest = () => {
 
   const handleNavigation = () => {
     if (searchParams.get("_id")) return navigate(-1);
-    return navigate("/spare");
+    return navigate("/spare/requests");
   };
 
   const handleNewPartRequest = async (formValue) => {
@@ -136,7 +153,7 @@ const SpareNewPartRequest = () => {
           ) {
             formData.append(
               `drawingAttach`,
-              formValue?.changeParts?.[index]?.drawingAttach?.[0]
+              formValue?.changeParts?.[index]?.drawingAttach?.[0],
             );
             uploadFileIndexes.push(index);
             removeFileIDs.push(formValue?.changeParts?.[index]?._id);
@@ -160,7 +177,7 @@ const SpareNewPartRequest = () => {
     if (formValue?.ifBudgetIsNG?.documentByRequestGenerator)
       formData.append(
         `documentByRequestGenerator`,
-        formValue?.ifBudgetIsNG?.documentByRequestGenerator?.[0]
+        formValue?.ifBudgetIsNG?.documentByRequestGenerator?.[0],
       );
 
     formData.append("data", JSON.stringify(formValue));
@@ -207,7 +224,7 @@ const SpareNewPartRequest = () => {
               </Row>
             )}
             <Row className="border">
-              <Col className="d-flex flex-column col-auto">
+              <Col className="d-flex flex-column col-3">
                 <div className="d-flex">
                   {partFor?.map((item) => (
                     <>
@@ -231,10 +248,10 @@ const SpareNewPartRequest = () => {
                   </p>
                 )}
               </Col>
-              <Col className="d-flex align-items-center justify-content-center text-center col-7">
+              <Col className="d-flex align-items-center justify-content-center text-center col-6">
                 <h4 className="m-0">Spare Part Request(Order / Stock-in)</h4>
               </Col>
-              <Col className="d-flex align-items-center justify-content-end text-center col-2">
+              <Col className="d-flex align-items-center justify-content-end text-center col-3">
                 <img
                   src={denso_logo}
                   alt=""
@@ -322,18 +339,49 @@ const SpareNewPartRequest = () => {
                           ? false
                           : "Please select",
                       })}
-                      onClick={(e) =>
+                      onClick={(e) => {
                         e.target.value === partQtyOptions?.[0]?.value &&
-                        watch("changeParts")?.length > 1 &&
-                        setValue("changeParts", [watch("changeParts")?.[0]], {
-                          shouldDirty: true,
-                        })
-                      }
+                          watch("changeParts")?.length > 1 &&
+                          setValue("changeParts", [watch("changeParts")?.[0]], {
+                            shouldDirty: true,
+                          });
+                      }}
                     />
                   ))}
                 </div>
                 {errors?.["partQty"] && (
                   <p className="text-error">{errors?.["partQty"]?.message}</p>
+                )}
+              </Col>
+              <Col className="border col-auto pt-0 pb-0">
+                <div className="d-flex align-items-center">
+                  <small>Part request for: </small>
+
+                  {searchParams.get("_id") ? (
+                    <>&nbsp;{watch("partRequestFor")}</>
+                  ) : (
+                    partRequestDepartmentList?.map((item) => (
+                      <Form.Check
+                        key={item?.value}
+                        flex
+                        style={{ fontSize: "14px" }}
+                        type="radio"
+                        className="m-1"
+                        id={`inline-radio-1`}
+                        {...item}
+                        {...register("partRequestFor", {
+                          required: searchParams.get("_id")
+                            ? false
+                            : "Please select",
+                        })}
+                      />
+                    ))
+                  )}
+                </div>
+                {errors?.["partRequestFor"] && (
+                  <p className="text-error">
+                    {errors?.["partRequestFor"]?.message}
+                  </p>
                 )}
               </Col>
             </Row>
@@ -342,7 +390,8 @@ const SpareNewPartRequest = () => {
                 <PartList
                   register={register}
                   control={control}
-                  watch={watch}
+                  isViewMode={isViewMode}
+                  changeParts={changeParts}
                   sectionBudget={sectionBudget}
                   {...budget}
                 />
@@ -367,7 +416,7 @@ const SpareNewPartRequest = () => {
                             </>
                           )}
                           {watch(
-                            "ifBudgetIsNG.documentByRequestGenerator.originalname"
+                            "ifBudgetIsNG.documentByRequestGenerator.originalname",
                           ) && (
                             <>
                               |&nbsp;
@@ -377,11 +426,11 @@ const SpareNewPartRequest = () => {
                                 href={`${
                                   process.env.REACT_APP_BASE_URL
                                 }/v1/spare/${watch(
-                                  "ifBudgetIsNG.documentByRequestGenerator.filename"
+                                  "ifBudgetIsNG.documentByRequestGenerator.filename",
                                 )}`}
                               >
                                 {watch(
-                                  "ifBudgetIsNG.documentByRequestGenerator.originalname"
+                                  "ifBudgetIsNG.documentByRequestGenerator.originalname",
                                 )}
                               </a>
                             </>
@@ -433,32 +482,35 @@ const SpareNewPartRequest = () => {
               (budget?.budgetStatus === "NG" &&
                 watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
                   "Accepted")) &&
-              !watch("isSpareSheetSendForApproval") && (
+              !watch("isSpareSheetSendForApproval") &&
+              watch("partRequestFor") && (
                 <RSDynamicApprovalSelection
                   register={register}
                   errors={errors}
-                  watch={watch}
+                  partRequestFor={watch("partRequestFor")}
                 />
               )}
 
-            <Row className="border d-flex align-items-center ">
-              <Col className="d-flex align-items-center gap-2">
-                {Object.keys(dirtyFields).length > 0 &&
-                  searchParams.get("_id") && (
-                    <button
-                      type="button"
-                      className="btn bg-warning"
-                      onClick={() => reset()}
-                    >
-                      Cancel
-                    </button>
-                  )}
+            {!isViewMode && (
+              <Row className="border d-flex align-items-center ">
+                <Col className="d-flex align-items-center gap-2">
+                  {Object.keys(dirtyFields).length > 0 &&
+                    searchParams.get("_id") && (
+                      <button
+                        type="button"
+                        className="btn bg-warning"
+                        onClick={() => reset()}
+                      >
+                        Cancel
+                      </button>
+                    )}
 
-                <button type="submit" className="btn bg-success">
-                  Submit
-                </button>
-              </Col>
-            </Row>
+                  <button type="submit" className="btn bg-success">
+                    Submit
+                  </button>
+                </Col>
+              </Row>
+            )}
           </Container>
         </Table>
       </Form>

@@ -1,6 +1,11 @@
+const mongoose = require("mongoose");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
-const { allMonths, allMonthsStr } = require("../../utils/spareManagementUtils");
+const {
+  allMonths,
+  allMonthsStr,
+  paginationRowLimit,
+} = require("../../utils/spareManagementUtils");
 
 exports.getSpareSheetGenerateAndCompletedCount = tryCatchHandler(
   async (req, res, next) => {
@@ -101,7 +106,7 @@ exports.getSpareSheetGenerateAndCompletedCount = tryCatchHandler(
         ],
       },
     });
-  }
+  },
 );
 
 exports.NGBudgetMTD_HODFilters = tryCatchHandler(async (req, res, next) => {
@@ -123,19 +128,27 @@ exports.getApprovalRequestSheets = tryCatchHandler(async (req, res, next) => {
 });
 
 exports.getApprovalLogs = tryCatchHandler(async (req, res, next) => {
+  const limit = paginationRowLimit;
+  const cursor = req.query.cursor;
+
+  let matchStage = req.queryObj;
+
+  if (cursor) matchStage._id = { $lt: mongoose.Types.ObjectId(cursor) };
+
   const tableData = await RequestSheetOfSpare.aggregate([
-    {
-      $match: req.queryObj,
-    },
+    { $match: matchStage },
+    { $sort: { _id: -1 } },
+    { $limit: limit },
     {
       $project: {
         requestSheetNo: 1,
-        cell: 1,
-        line: 1,
-        machine: 1,
-        requestSheetStatus: 1,
+        "cell.cell_name": 1,
+        "line.line_name": 1,
+        "machine.machine_code": 1,
+        "machine.machine_name": 1,
+        // requestSheetStatus: 1,
         partQty: 1,
-        "budget.budgetStatus": 1,
+        budgetStatus: "$budget.budgetStatus",
 
         mtdHODApprovalIfBudgetIsNGApprovalLogs: 1,
         approvalOfMTD_TLApprovalLogs: 1,
@@ -145,18 +158,208 @@ exports.getApprovalLogs = tryCatchHandler(async (req, res, next) => {
         approvalOfPRD_HOSApprovalLogs: 1,
         approvalOfMTD_HODApprovalLogs: 1,
         approvalOfPRD_HODApprovalLogs: 1,
+        approvalOfTOOL_ROOMApprovalLogs: 1,
       },
     },
   ]);
 
-  if (!tableData || tableData <= 0)
-    return res.status(400).json({
-      message: "No data to display",
-    });
-
-  return res.status(201).json({
-    message: "Approval logs get successfully",
-    showToast: true,
+  return res.status(200).json({
+    message: "Approval logs fetched",
     tableData,
+    nextCursor: tableData.length ? tableData[tableData.length - 1]._id : null,
+    hasMore: tableData.length === limit,
   });
 });
+
+exports.getApproveAndPendingUsersWiseCount = tryCatchHandler(
+  async (req, res, next) => {
+    const tableData = await RequestSheetOfSpare.aggregate([
+      { $match: req.queryObj },
+      {
+        $project: {
+          pendingAndCompletedApproval: {
+            $concatArrays: [
+              {
+                $cond: [
+                  {
+                    $and: [
+                      { $isArray: "$dynamicApprovalKeys" },
+                      { $gt: [{ $size: "$dynamicApprovalKeys" }, 0] },
+                    ],
+                  },
+                  [
+                    {
+                      $ifNull: [
+                        {
+                          $getField: {
+                            field: { $first: "$dynamicApprovalKeys" },
+                            input: "$$ROOT",
+                          },
+                        },
+                        null,
+                      ],
+                    },
+                  ],
+                  [],
+                ],
+              },
+              {
+                $reduce: {
+                  input: {
+                    $setDifference: [
+                      {
+                        $cond: [
+                          {
+                            $eq: ["$partRequestFor", "MTD"],
+                          },
+                          [
+                            "mtdHODApprovalIfBudgetIsNG",
+                            "approvalOfMTD_TL",
+                            "approvalOfMTD_HOSS",
+                            "approvalOfMTD_HOS",
+                            "approvalOfMTD_HOD",
+                            "approvalOfTOOL_ROOM",
+                          ],
+                          [
+                            "mtdHODApprovalIfBudgetIsNG",
+                            "approvalOfPRD_TL",
+                            "approvalOfPRD_HOS",
+                            "approvalOfPRD_HOD",
+                            "approvalOfTOOL_ROOM",
+                          ],
+                        ],
+                      },
+
+                      {
+                        $cond: [
+                          {
+                            $and: [
+                              { $isArray: "$dynamicApprovalKeys" },
+                              { $gt: [{ $size: "$dynamicApprovalKeys" }, 0] },
+                            ],
+                          },
+                          [{ $first: "$dynamicApprovalKeys" }],
+                          [],
+                        ],
+                      },
+                    ],
+                  },
+                  initialValue: [],
+                  in: {
+                    $cond: [
+                      {
+                        $or: [
+                          {
+                            $not: [
+                              {
+                                $getField: { field: "$$this", input: "$$ROOT" },
+                              },
+                            ],
+                          },
+                          {
+                            $eq: [
+                              {
+                                $getField: {
+                                  field: "approvalStatus",
+                                  input: {
+                                    $getField: {
+                                      field: "$$this",
+                                      input: "$$ROOT",
+                                    },
+                                  },
+                                },
+                              },
+                              "Pending",
+                            ],
+                          },
+                        ],
+                      },
+                      "$$value",
+                      {
+                        $concatArrays: [
+                          "$$value",
+                          [{ $getField: { field: "$$this", input: "$$ROOT" } }],
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $unwind: {
+          path: "$pendingAndCompletedApproval",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            _id: "$pendingAndCompletedApproval.user._id",
+            tm_no: "$pendingAndCompletedApproval.user.tm_no",
+            tm_name: "$pendingAndCompletedApproval.user.tm_name",
+            email: "$pendingAndCompletedApproval.user.email",
+            userType: "$pendingAndCompletedApproval.userType",
+            approvalStatus: "$pendingAndCompletedApproval.approvalStatus",
+          },
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            _id: "$_id._id",
+            tm_no: "$_id.tm_no",
+            tm_name: "$_id.tm_name",
+            email: "$_id.email",
+            userType: "$_id.userType",
+          },
+          approved: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$_id.approvalStatus", "Accepted"],
+                },
+                "$count",
+                0,
+              ],
+            },
+          },
+          pending: {
+            $sum: {
+              $cond: [
+                {
+                  $eq: ["$_id.approvalStatus", "Pending"],
+                },
+                "$count",
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.userType",
+          userWithCount: {
+            $push: {
+              tm_name: "$_id.tm_name",
+              approved: "$approved",
+              pending: "$pending",
+            },
+          },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      message: "Approve and pending count of users get successfully",
+      tableData,
+    });
+  },
+);

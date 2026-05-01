@@ -129,6 +129,7 @@ exports.approvalSchemaObj = {
     tm_name: String,
     email: String,
   },
+  userType: String,
   approvalStatus: String,
   approvalDateAndTime: String,
   rejectedRemarks: String,

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const {
   mongoDBUserFilters,
@@ -13,17 +14,17 @@ exports.findRequestedUser = tryCatchHandler(async (req, res, next) => {
       plant_data: req?.rootUser?.plant_data,
       ...req.query,
     },
-    { tm_name: 1, line_names: 1, email: 1 }
+    { tm_name: 1, line_names: 1, email: 1 },
   );
 
   if (!users)
     return res.status(400).json({
-      message: "Need to add MTD HOD",
+      message: "No users found",
       showToast: true,
     });
 
   return res.status(201).json({
-    message: "MTD HOD users get successfully",
+    message: "Users get successfully",
     users,
   });
 });
@@ -36,11 +37,18 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
         showToast: true,
       });
 
+    if (!req.query?.partRequestFor)
+      return res.status(400).json({
+        message:
+          "Please select the department for which you are requesting the part",
+        showToast: true,
+      });
+
     const section = await Section.findOne(
       {
         section_id: req?.rootUser?.section_data?.split("-")?.[0],
       },
-      { section_id: 1, section_name: 1, dashboardLevel: 1, plant_names: 1 }
+      { section_id: 1, section_name: 1, dashboardLevel: 1, plant_names: 1 },
     ).populate({
       path: "plant_names",
       select: "spareSheetDynamicApproval",
@@ -54,10 +62,10 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
 
     const plant = section?.plant_names;
 
-    if (
-      !plant?.spareSheetDynamicApproval ||
-      plant?.spareSheetDynamicApproval?.length <= 0
-    )
+    const dynamicApproval =
+      plant?.spareSheetDynamicApproval?.[req.query?.partRequestFor];
+
+    if (!dynamicApproval || dynamicApproval?.length <= 0)
       return res.status(400).json({
         message: "Please select dynamic approval first",
         showToast: true,
@@ -73,10 +81,10 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
     if (section?.dashboardLevel === "No")
       otherFilters["subSection_data"] = { $in: req?.rootUser?.subSection_data };
 
-    for (let i = 0; i < plant?.spareSheetDynamicApproval.length; i++) {
-      let obj = mongoDBUserFilters?.[plant?.spareSheetDynamicApproval[i]];
+    for (let i = 0; i < dynamicApproval.length; i++) {
+      let obj = mongoDBUserFilters?.[dynamicApproval[i]];
       hooksFormRefFilter.push({
-        ...hooksFormReferenceOfApproval?.[plant?.spareSheetDynamicApproval[i]],
+        ...hooksFormReferenceOfApproval?.[dynamicApproval[i]],
         ...obj,
       });
       if (obj?.tm_grade !== "HOD")
@@ -125,11 +133,13 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
     for (let i = 0; i < hooksFormRefFilter?.length; i++) {
       const element = hooksFormRefFilter?.[i];
       let obj = allUsers?.find((item) => {
-        if (element?.user_type)
+        if (element?.user_type && element?.tm_department)
           return (
             item?._id?.tm_department === element?.tm_department &&
             item?._id?.user_type === element?.user_type
           );
+        else if (element?.user_type)
+          return item?._id?.user_type === element?.user_type;
         return (
           item?._id?.tm_department === element?.tm_department &&
           item?._id?.tm_grade === element?.tm_grade
@@ -145,5 +155,162 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
       message: "MTD HOD users get successfully",
       allUsers: sortedUsers,
     });
-  }
+  },
 );
+
+exports.toolRoomUserByIdFilter = tryCatchHandler(async (req, res, next) => {
+  if (!req.query?._id)
+    return res.status(400).json({
+      message: "Please provide the required ID",
+      showToast: true,
+    });
+
+  req.queryObj = { _id: mongoose.Types.ObjectId(req.query?._id) };
+  req.requiredArrayFields = true;
+  return next();
+});
+
+exports.getToolRoomUserById = tryCatchHandler(async (req, res, next) => {
+  return res.status(201).json({
+    message: "User get successfully",
+    user: req.users?.[0],
+  });
+});
+
+exports.addToolRoomUser = tryCatchHandler(async (req, res, next) => {
+  if (!req.body?.tm_no)
+    return res.status(400).json({
+      message: "Please provide required team number",
+      showToast: true,
+    });
+
+  const userExist = await User.findOne({ tm_no: req.body?.tm_no });
+
+  if (userExist)
+    return res.status(409).json({
+      message: "Team number already exists",
+      showToast: true,
+    });
+
+  const user = new User({
+    ...req.body,
+    toolRoomPerson: "Yes",
+    password: process.env.COMMON_PASSWORD,
+  });
+  await user.save();
+
+  return res.status(201).json({
+    message: "User added successfully",
+    user,
+  });
+});
+
+exports.updateToolRoomUser = tryCatchHandler(async (req, res, next) => {
+  await User.findOneAndUpdate(req.queryObj, req.body);
+  req.requiredArrayFields = false;
+  return next();
+});
+
+exports.deleteToolRoomUser = tryCatchHandler(async (req, res, next) => {
+  await User.deleteOne(req.queryObj);
+  return res.status(201).json({
+    message: "User updated successfully",
+    user: { _id: req.query?._id },
+  });
+});
+
+exports.findUsers = tryCatchHandler(async (req, res, next) => {
+  let $project = {
+    tm_no: 1,
+    tm_name: 1,
+    email: 1,
+    user_type: 1,
+    tm_grade: 1,
+    plant_data: 1,
+    section_data: 1,
+    subSection_data: {
+      $reduce: {
+        input: "$subSection_data",
+        initialValue: "",
+        in: {
+          $concat: [
+            "$$value",
+            { $cond: [{ $eq: ["$$value", ""] }, "", ", "] },
+            { $toString: "$$this" },
+          ],
+        },
+      },
+    },
+    cell_data: {
+      $reduce: {
+        input: "$cell_data",
+        initialValue: "",
+        in: {
+          $concat: [
+            "$$value",
+            { $cond: [{ $eq: ["$$value", ""] }, "", ", "] },
+            { $toString: "$$this" },
+          ],
+        },
+      },
+    },
+  };
+
+  if (req.requiredArrayFields) {
+    $project = {
+      ...$project,
+      joining_date: 1,
+      contact_no: 1,
+      address: 1,
+      subSection_data: 1,
+      cell_data: 1,
+    };
+  }
+
+  const users = await User.aggregate([
+    {
+      $match: req.queryObj,
+    },
+    {
+      $project,
+    },
+  ]);
+
+  if (!users || users?.length <= 0)
+    return res.status(400).json({
+      message: "No data to display",
+      showToast: true,
+    });
+
+  req.users = users;
+  return next();
+});
+
+exports.toolRoomUserFilters = tryCatchHandler(async (req, res, next) => {
+  req.queryObj = {
+    plant_data: req?.rootUser?.plant_data,
+    toolRoomPerson: "Yes",
+  };
+
+  if (req.rootUser?.user_type === "Plant-Admin")
+    req.queryObj["user_type"] = "Section-Admin";
+  else if (req.rootUser?.user_type === "Section-Admin")
+    req.queryObj["user_type"] = {
+      $in: ["HOSS", "Supervisor", "Office Person"],
+    };
+  else if (req.rootUser?.user_type === "HOSS")
+    req.queryObj["user_type"] = {
+      $in: ["Supervisor", "Office Person"],
+    };
+  else if (req.rootUser?.user_type === "Supervisor")
+    req.queryObj["user_type"] = "Office Person";
+
+  return next();
+});
+
+exports.getToolRoomUsers = tryCatchHandler(async (req, res, next) => {
+  return res.status(201).json({
+    message: "User get successfully",
+    tableData: req.users,
+  });
+});

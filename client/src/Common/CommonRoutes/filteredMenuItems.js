@@ -1,12 +1,19 @@
-export const filteredMenuItems = (menuItems, user_type, user_department) => {
+export const filteredMenuItems = (
+  menuItems,
+  user_type,
+  user_department,
+  isToolRoomPerson = false,
+) => {
   const filteredItems = [];
 
   menuItems.forEach((menuItem) => {
     if (
-      ((!menuItem.allowedRoles || menuItem.allowedRoles.includes(user_type)) &&
+      (((!menuItem.allowedRoles || menuItem.allowedRoles.includes(user_type)) &&
         (!menuItem.allowedDepartments ||
           menuItem.allowedDepartments.includes(user_department))) ||
-      (user_type === "Operator" && menuItem?.route === "/bm/noLossDataOfBD")
+        (user_type === "Operator" &&
+          menuItem?.route === "/bm/noLossDataOfBD")) &&
+      (menuItem.hasToolRoomFilter ? isToolRoomPerson : true)
     ) {
       if (menuItem.subItems) {
         const filteredSubItems = menuItem.subItems?.filter((subItem) => {

@@ -8,7 +8,20 @@ const spareApprovalStatus = [
   "Under PRD HOS approval",
   "Under MTD HOD approval",
   "Under PRD HOD approval",
+  "Under TOOL ROOM approval",
   "Completed",
+];
+
+const spareApprovalUserType = [
+  "NG Budget - Under MTD HOD",
+  "MTD TL",
+  "MTD HOSS",
+  "PRD TL",
+  "MTD HOS",
+  "PRD HOS",
+  "MTD HOD",
+  "PRD HOD",
+  "TOOL ROOM",
 ];
 
 const dynamicApprovalStatus = {
@@ -19,6 +32,7 @@ const dynamicApprovalStatus = {
   PRD_HOS: spareApprovalStatus[6],
   MTD_HOD: spareApprovalStatus[7],
   PRD_HOD: spareApprovalStatus[8],
+  TOOL_ROOM: spareApprovalStatus[9],
 };
 
 const mongoDBUserFilters = {
@@ -50,6 +64,9 @@ const mongoDBUserFilters = {
     tm_department: "PRD",
     tm_grade: "HOD",
   },
+  TOOL_ROOM: {
+    user_type: "Office Person",
+  },
 };
 
 const hooksFormReferenceOfApproval = {
@@ -60,6 +77,10 @@ const hooksFormReferenceOfApproval = {
   PRD_HOS: { displayName: "PRD HOS", approvalKey: "approvalOfPRD_HOS" },
   MTD_HOD: { displayName: "MTD HOD", approvalKey: "approvalOfMTD_HOD" },
   PRD_HOD: { displayName: "PRD HOD", approvalKey: "approvalOfPRD_HOD" },
+  TOOL_ROOM: {
+    displayName: "Tool Room Office Person",
+    approvalKey: "approvalOfTOOL_ROOM",
+  },
 };
 
 const allMonths = [
@@ -128,11 +149,25 @@ const allMonthsStr = [
   "Mar",
 ];
 
+const paginationRowLimit = 50;
+
+const timezone = "Asia/Kolkata";
+
+const otherManualApprovalFields = [
+  "rsPRAssignToAllBuyersTimeStamp",
+  "rsPOIssueToVendorTimeStamp",
+  "rsPartReceiveTimeStamp",
+];
+
 module.exports = {
   spareApprovalStatus,
+  spareApprovalUserType,
   dynamicApprovalStatus,
   mongoDBUserFilters,
   hooksFormReferenceOfApproval,
   allMonths,
   allMonthsStr,
+  paginationRowLimit,
+  otherManualApprovalFields,
+  timezone,
 };

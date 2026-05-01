@@ -1,22 +1,24 @@
-import React from "react";
+import { memo, useCallback, useMemo } from "react";
 import { Row } from "react-bootstrap";
 
 import SpareSheetTable from "../Component/SpareSheetTable";
 import WithFilters from "./Common/WithFilters";
 
-const SpareTableWithFilters = ({
-  OtherCompo = () => <></>,
-  url = "/v1/spare/spareRequestSheet/approval",
-  tableProps = {
-    exportMenu: {
-      exportFileNamePrefix: "Approval List of Request-Sheet",
+const SpareTableWithFilters = memo(
+  ({
+    title = "Spare Requests",
+    OtherCompo = () => <></>,
+    url = "/v1/spare/spareRequestSheet/approval",
+    tableProps = {
+      exportMenu: {
+        exportFileNamePrefix: "Approval List of Request-Sheet",
+      },
     },
-  },
-}) => {
-  return (
-    <WithFilters
-      title="Approval Dashboard"
-      PropComp={(reduceState) => (
+  }) => {
+    const memoTableProps = useMemo(() => tableProps, [tableProps]);
+
+    const renderContent = useCallback(
+      (reduceState) => (
         <>
           <Row className="gap-2 g-0">
             <OtherCompo {...reduceState} />
@@ -25,13 +27,16 @@ const SpareTableWithFilters = ({
             <SpareSheetTable
               {...reduceState}
               url={url}
-              tableProps={tableProps}
+              tableProps={memoTableProps}
             />
           </Row>
         </>
-      )}
-    />
-  );
-};
+      ),
+      [OtherCompo, url, memoTableProps],
+    );
+
+    return <WithFilters title={title} PropComp={renderContent} />;
+  },
+);
 
 export default SpareTableWithFilters;

@@ -168,7 +168,7 @@ const findTLandOperatorList = async (req, res, next) => {
           tm_department: 1,
           tm_grade: 1,
           user_type: 1,
-        }
+        },
       );
       if (TLHOSS_and_TM_user_list?.length === 0) {
         return res.status(400).json({
@@ -222,7 +222,7 @@ const findMachineDataWithParentHierarchy = tryCatchHandler(
 
     req.machine = machine;
     return next();
-  }
+  },
 );
 router.get(
   "/getMachineDetailsForRequestSheetOfCM",
@@ -238,7 +238,7 @@ router.get(
       machine: req.machine,
       TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
     });
-  })
+  }),
 );
 
 router.get(
@@ -249,7 +249,7 @@ router.get(
     successResponse(res, "User data get successfully", {
       TLHOSS_and_TM_user_list: req?.TLHOSS_and_TM_user_list,
     });
-  })
+  }),
 );
 
 router.get(
@@ -365,7 +365,7 @@ router.get(
     successResponse(res, "User data get successfully", {
       userList,
     });
-  })
+  }),
 );
 
 const findPlantToMachineHierarchyObj = tryCatchHandler(
@@ -392,7 +392,7 @@ const findPlantToMachineHierarchyObj = tryCatchHandler(
 
     req.plantToMachineHierarchyRef = hierarchy?._id;
     return next();
-  }
+  },
 );
 
 router.post(
@@ -418,10 +418,10 @@ router.post(
       requestSheetDataFilledByMTDUserForCM,
       req?.plantToMachineHierarchyRef,
       req?.rootUser,
-      []
+      [],
     );
     successResponse(res, "CM Request-sheet generated successfully");
-  }
+  },
 );
 
 const commonKeyGenerationMiddleware = tryCatchHandler(
@@ -439,7 +439,7 @@ const commonKeyGenerationMiddleware = tryCatchHandler(
     req.commonKey = commonKey;
     req.allKeys = allKeys;
     return next();
-  }
+  },
 );
 
 router.patch(
@@ -474,7 +474,7 @@ router.patch(
       };
 
       const requestSheetDataFilledByMTDUserForCM = JSON.parse(
-        req.body.otherData
+        req.body.otherData,
       );
 
       if (
@@ -501,7 +501,7 @@ router.patch(
       if (requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM) {
         requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
           generalDateFormat(
-            requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM
+            requestSheetDataFilledByMTDUserForCM?.sheetIssuedDateAndTimeOfCM,
           );
       }
 
@@ -512,7 +512,7 @@ router.patch(
         requestSheetDataFilledByMTDUserForCM.cmBasicDataFilledByMTD_TL.targetDateOfCM =
           generalDateFormat(
             requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
-              ?.targetDateOfCM
+              ?.targetDateOfCM,
           );
       }
 
@@ -529,7 +529,7 @@ router.patch(
           [allKeys?.targetDateOfCM]: generalDateFormat(
             requestSheetDataFilledByMTDUserForCM
               ?.current_commonDataFilledByAssignUser?.targetDateOfCM ||
-              requestSheetDataFilledByMTDUserForCM?.targetDateOfCM
+              requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
           ),
         };
       }
@@ -550,7 +550,7 @@ router.patch(
                   ...item,
                   userRef,
                 };
-              }
+              },
             ),
         };
       }
@@ -562,7 +562,7 @@ router.patch(
             ...updateObj.$pull,
             [`${allKeys?.[`approvalOf${key}`]}`]: {
               _id: mongoose.Types.ObjectId(
-                AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField
+                AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField,
               ),
             },
           };
@@ -610,7 +610,7 @@ router.patch(
             otherArrayFilters.push({
               [`${key.toLowerCase()?.split("_")?.join("")}userFilter._id`]:
                 mongoose.Types.ObjectId(
-                  AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField
+                  AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField,
                 ),
             });
           }
@@ -620,7 +620,7 @@ router.patch(
       if (requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL) {
         addOrUpdateApprovalUser(
           "MTD_TL",
-          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL
+          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_TL,
         );
 
         if (req?.query?.isOtherFieldsEditableOrNot !== "Yes")
@@ -637,14 +637,14 @@ router.patch(
       if (requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOSS) {
         addOrUpdateApprovalUser(
           "MTD_HOSS",
-          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOSS
+          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOSS,
         );
       }
 
       if (requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS) {
         addOrUpdateApprovalUser(
           "MTD_HOS",
-          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS
+          requestSheetDataFilledByMTDUserForCM?.approvalObj_MTD_HOS,
         );
       }
 
@@ -660,12 +660,12 @@ router.patch(
         ) {
           addOrUpdateApprovalUser(
             "PRD_TL",
-            requestSheetDataFilledByMTDUserForCM?.approvalObj_PRD_TL
+            requestSheetDataFilledByMTDUserForCM?.approvalObj_PRD_TL,
           );
         } else {
           pullUser(
             "PRD_TL",
-            requestSheetDataFilledByMTDUserForCM?.approvalObj_PRD_TL
+            requestSheetDataFilledByMTDUserForCM?.approvalObj_PRD_TL,
           );
         }
       }
@@ -706,7 +706,7 @@ router.patch(
           totalTimeBasedOnWork +=
             (moment(element?.toDate)?.diff(
               moment(element?.fromDate),
-              "minutes"
+              "minutes",
             ) /
               60) *
             (element?.user?.length >= 1 || 1);
@@ -742,7 +742,7 @@ router.patch(
             fs.unlink(
               path.join(
                 __dirname,
-                `../AttachedFilesByOperatorUser/${filename}`
+                `../AttachedFilesByOperatorUser/${filename}`,
               ),
               function (err) {
                 if (err) {
@@ -750,9 +750,9 @@ router.patch(
                 } else {
                   console.log("Work files Removed Successfully");
                 }
-              }
+              },
             );
-          }
+          },
         );
 
         updateObj.$pull = {
@@ -769,14 +769,14 @@ router.patch(
       ) {
         requestSheetDataFilledByMTDUserForCM["attachedFilesByOperatorUser"] =
           req.files?.attachedFilesByOperatorUser?.map(
-            (value) => value?.filename
+            (value) => value?.filename,
           );
 
         updateObj.$push = {
           ...updateObj.$push,
           [allKeys?.attachedFilesByOperatorUser]:
             req.files?.attachedFilesByOperatorUser?.map(
-              (value) => value?.filename
+              (value) => value?.filename,
             ),
         };
       }
@@ -795,13 +795,13 @@ router.patch(
             },
             {
               "quarterFilter.requestSheet_quarter": getFinancialQuarter(
-                requestSheetDataFilledByMTDUserForCM?.targetDateOfCM
+                requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
               ),
             },
             ...otherArrayFilters,
           ],
           new: true,
-        }
+        },
       );
       return res.status(201).json({
         message: `Request-sheet updated !!`,
@@ -810,13 +810,13 @@ router.patch(
     } catch (error) {
       console.log(error);
     }
-  }
+  },
 );
 
 router.delete("/deleteRequestSheetOfCM/:id", async (req, res, next) => {
   try {
     const deletedRequestSheet = await RequestSheetOfCM.findByIdAndDelete(
-      req.params.id
+      req.params.id,
     );
 
     return res.status(201).json({
@@ -950,7 +950,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       req.query?.selectedMonth !== ""
     ) {
       const getQueterFromMonth = getFinancialQuarterByMonth(
-        req?.query?.selectedMonth
+        req?.query?.selectedMonth,
       );
       middlewareForGetQuarterWiseOrUptoCurrentDate = {
         $eq: [
@@ -1272,19 +1272,19 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM": 1,
         "cmBasicDataFilledByMTD_TL.other_categories": categoryCheck(
           "Others",
-          "$cmBasicDataFilledByMTD_TL.other_categories"
+          "$cmBasicDataFilledByMTD_TL.other_categories",
         ),
         "cmBasicDataFilledByMTD_TL.inspectionItem": categoryCheck(
           "LTPM",
-          "$cmBasicDataFilledByMTD_TL.inspectionItem"
+          "$cmBasicDataFilledByMTD_TL.inspectionItem",
         ),
         "cmBasicDataFilledByMTD_TL.actionForLTPM": categoryCheck(
           "LTPM",
-          "$cmBasicDataFilledByMTD_TL.actionForLTPM"
+          "$cmBasicDataFilledByMTD_TL.actionForLTPM",
         ),
         "cmBasicDataFilledByMTD_TL.personForLTPM": categoryCheck(
           "LTPM",
-          "$cmBasicDataFilledByMTD_TL.personForLTPM"
+          "$cmBasicDataFilledByMTD_TL.personForLTPM",
         ),
         "cmBasicDataFilledByMTD_TL.partSuggestionByMTDTL": 1,
         "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser": 1,
@@ -1303,7 +1303,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         approvalObj_MTD_HOS: getUserApprovalObj("approvalOfMTD_HOS"),
         approvalObj_PRD_TL: getUserApprovalObj(
           "approvalOfPRD_TL",
-          "isPermissionOfPRDTL"
+          "isPermissionOfPRDTL",
         ),
       },
       otherMatch: {},
@@ -1330,15 +1330,15 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       isEditableRS,
       "cmBasicDataFilledByMTD_TL.other_categories": categoryCheck(
         "Others",
-        "$cmBasicDataFilledByMTD_TL.other_categories"
+        "$cmBasicDataFilledByMTD_TL.other_categories",
       ),
       "cmBasicDataFilledByMTD_TL.inspectionItem": categoryCheck(
         "LTPM",
-        "$cmBasicDataFilledByMTD_TL.inspectionItem"
+        "$cmBasicDataFilledByMTD_TL.inspectionItem",
       ),
       "cmBasicDataFilledByMTD_TL.actionForLTPM": categoryCheck(
         "LTPM",
-        "$cmBasicDataFilledByMTD_TL.actionForLTPM"
+        "$cmBasicDataFilledByMTD_TL.actionForLTPM",
       ),
       "cmBasicDataFilledByMTD_TL.line": {
         $arrayElemAt: ["$plantToMachineHierarchy.line.line_name", 0],
@@ -1476,7 +1476,7 @@ router.get(
         quarterlyDataOfTheCM: {
           $elemMatch: {
             "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
-              req.rootUser?._id
+              req.rootUser?._id,
             ),
           },
         },
@@ -1499,7 +1499,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.get(
@@ -1635,7 +1635,7 @@ router.get(
       reqSheetCM: req.requestSheetData,
       counters: counters?.[0],
     });
-  })
+  }),
 );
 
 router.get(
@@ -1658,7 +1658,7 @@ router.get(
     successResponse(res, "Request-sheet fetched successfully", {
       requestSheetData: req.requestSheetData,
     });
-  })
+  }),
 );
 
 // For Calendar Modal
@@ -1676,7 +1676,7 @@ router.get(
     successResponse(res, "Request sheet fetched successfully", {
       requestSheet: req?.requestSheetData?.[0],
     });
-  })
+  }),
 );
 
 router.patch(
@@ -1943,7 +1943,7 @@ router.patch(
           { "userFilter._id": mongoose.Types.ObjectId(ObjForUserFilter?._id) },
         ],
         new: true,
-      }
+      },
     );
 
     if (pushOperation) {
@@ -1957,7 +1957,7 @@ router.patch(
     successResponse(res, "Request-sheet approved successfully", {
       requestSheetOfCM,
     });
-  })
+  }),
 );
 
 router.get(
@@ -1976,7 +1976,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.get(
@@ -2241,7 +2241,7 @@ router.get(
     } catch (error) {
       console.log(error);
     }
-  }
+  },
 );
 
 // const middlewareForSectionAndSubSectionLookup = async (req, res, next) => {
@@ -2322,7 +2322,7 @@ router.get(
 
     const yearList = Array.from(
       { length: 5 },
-      (_, i) => `${startYearOfLTPM + i}-${startYearOfLTPM + i + 1}`
+      (_, i) => `${startYearOfLTPM + i}-${startYearOfLTPM + i + 1}`,
     );
     const QUARTER = ["Q1", "Q2", "Q3", "Q4"];
 
@@ -2336,7 +2336,7 @@ router.get(
       },
       {
         LTPMApproval: 1,
-      }
+      },
     );
 
     let otherPipeline = [
@@ -2573,7 +2573,7 @@ router.get(
             item?.preAggregationTimeStampOfRequestSheet?.requestSheet_year ===
               element?._id?.requestSheet_year &&
             item?.preAggregationTimeStampOfRequestSheet
-              ?.requestSheet_quarter === element?._id?.requestSheet_quarter
+              ?.requestSheet_quarter === element?._id?.requestSheet_quarter,
         );
 
         if (approvalObjExist) {
@@ -2604,32 +2604,32 @@ router.get(
       quarterlyApprovalObj.sort((a, b) => {
         if (
           a.preAggregationTimeStampOfRequestSheet?.requestSheet_year?.split(
-            "-"
+            "-",
           )?.[0] *
             1 !==
           b.preAggregationTimeStampOfRequestSheet?.requestSheet_year?.split(
-            "-"
+            "-",
           )?.[0] *
             1
         ) {
           return (
             a.preAggregationTimeStampOfRequestSheet?.requestSheet_year?.split(
-              "-"
+              "-",
             )?.[0] *
               1 -
             b.preAggregationTimeStampOfRequestSheet?.requestSheet_year?.split(
-              "-"
+              "-",
             )?.[0] *
               1
           );
         }
         return (
           a.preAggregationTimeStampOfRequestSheet?.requestSheet_quarter?.slice(
-            -1
+            -1,
           ) *
             1 -
           b.preAggregationTimeStampOfRequestSheet?.requestSheet_quarter?.slice(
-            -1
+            -1,
           ) *
             1
         );
@@ -2656,7 +2656,7 @@ router.get(
       lineId: _id,
       LTPMApproval,
     });
-  })
+  }),
 );
 
 router.patch(
@@ -2682,13 +2682,13 @@ router.patch(
           ...preparationApprovalAndPlanPreparationMTD_HOS,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     successResponse(res, "Preparation approval send successfully", {
       LTPMApproval,
     });
-  })
+  }),
 );
 
 router.patch(
@@ -2706,13 +2706,13 @@ router.patch(
           ...planAcceptedByPRD_HOS,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     successResponse(res, "Planning approval send successfully", {
       LTPMApproval,
     });
-  })
+  }),
 );
 
 router.patch(
@@ -2744,13 +2744,13 @@ router.patch(
           "LTPMApproval.quarterlyApproval": quarterlyApproval,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     successResponse(res, "Quarterly approval send successfully", {
       quarterlyApproval,
     });
-  })
+  }),
 );
 
 router.patch(
@@ -2801,7 +2801,7 @@ router.patch(
         arrayFilters: [
           {
             "yearAndQuarterFilter._id": mongoose.Types.ObjectId(
-              req.query?._idForParticularYearAndQuarter
+              req.query?._idForParticularYearAndQuarter,
             ),
           },
         ],
@@ -2816,7 +2816,7 @@ router.patch(
     const { LTPMApproval } = await Line.findOneAndUpdate(
       { _id: req.params?.lineId },
       updateObj,
-      otherPipeline
+      otherPipeline,
     );
 
     if (req?.params?.phase !== "QuarterlyApproval") {
@@ -2826,7 +2826,7 @@ router.patch(
     }
 
     successResponse(res, resMsg, resObj);
-  })
+  }),
 );
 
 router.get(
@@ -2846,7 +2846,7 @@ router.get(
       const subSectionsData = await SubSection.find({
         subSection_id: {
           $in: req.rootUser?.subSection_data?.map(
-            (item) => item?.split("-")?.[0]
+            (item) => item?.split("-")?.[0],
           ),
         },
       });
@@ -2858,7 +2858,7 @@ router.get(
       {
         ...queryObj,
       },
-      { line_name: 1 }
+      { line_name: 1 },
     );
     let allMachineRelatedToSelectedLine;
     if (req?.query?.line_names !== "undefined") {
@@ -2868,7 +2868,7 @@ router.get(
         },
         {
           machine_name: 1,
-        }
+        },
       );
     }
 
@@ -2876,7 +2876,7 @@ router.get(
       allLinesList,
       allMachineRelatedToSelectedLine,
     });
-  })
+  }),
 );
 
 router.get(
@@ -3037,7 +3037,7 @@ router.get(
     successResponse(res, "Get data of PlanVsActualMonthWise successfully", {
       PlanVsActualMonthWiseDataForTheChartAndPPT,
     });
-  })
+  }),
 );
 
 const storage = multer.diskStorage({
@@ -3149,7 +3149,7 @@ router.patch(
             ...item,
             userRef,
           };
-        }
+        },
       ),
     };
 
@@ -3166,18 +3166,18 @@ router.patch(
           },
           {
             "quarterFilter.requestSheet_quarter": getFinancialQuarter(
-              req?.body?.data?.targetDateOfCM
+              req?.body?.data?.targetDateOfCM,
             ),
           },
         ],
         new: true,
-      }
+      },
     );
 
     successResponse(res, "Assign user update successfully", {
       requestSheetOfCM,
     });
-  })
+  }),
 );
 
 module.exports = router;
@@ -3186,8 +3186,10 @@ const handleUpdateDB = async () => {
   // ----------------------------------------------------------
   await User.updateMany(
     {},
-    // Test@111
-    { password: "$2a$12$AzIjYPBD6mAgxnUPXkOYi.goO7bX/oj9CRXYOWAf28iL7BmW2hide" }
+    // { password: "$2a$12$AzIjYPBD6mAgxnUPXkOYi.goO7bX/oj9CRXYOWAf28iL7BmW2hide" } // Test@111
+    {
+      password: "$2a$12$/ynRYhGKCJtz6KvtDwjx3.GY8bSQFryEmtbJtizTUWQ0G5CV/JQ1m",
+    }, // denso@12345
   );
 };
 
@@ -3222,7 +3224,7 @@ const handleUpdateDB1 = async () => {
           "q.assignUserForCM.0": { $exists: true },
         },
       ],
-    }
+    },
   );
 
   const empty = await RequestSheetOfCM.find({
@@ -3276,7 +3278,7 @@ const handleUpdateDB2 = async () => {
         { "c.quarterlyDataOfTheCM": { $exists: true } },
         { "q.requestSheetStatusOfCM": { $eq: undefined } },
       ],
-    }
+    },
   );
 
   const empty = await RequestSheetOfCM.find({

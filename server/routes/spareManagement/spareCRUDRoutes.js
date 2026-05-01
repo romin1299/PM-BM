@@ -8,7 +8,24 @@ const {
   findSpareSheetBasedOnId,
   getSpareRequestSheetBasedOnId,
   updateSpareRequestSheet,
+
+  getRequestSheets,
+  getSpareSheetsSummery,
+  deleteSpareSheet,
+
+  handelManualApprovalStatus,
+  getManualApprovalStatus,
+  manualApprovalStatusResponse,
 } = require("../../controller/spareManagement/spareCRUDController");
+
+const {
+  spareFilterMiddleware,
+  getSpareRequestSheets,
+} = require("../../controller/spareManagement/spareMiddleware");
+
+const {
+  getOKBudgetOrNGApprovedRequestSheets,
+} = require("../../controller/spareManagement/sparePartOrderTrackingController");
 
 router.route("/spareRequestSheet/newSheetNo").get(getNewSpareSheetNoByDefault);
 
@@ -19,7 +36,7 @@ router
       { name: "drawingAttach", maxCount: 10 },
       { name: "documentByRequestGenerator", maxCount: 1 },
     ]),
-    registerNewSpareRequest
+    registerNewSpareRequest,
   )
   .get(findSpareSheetBasedOnId, getSpareRequestSheetBasedOnId)
   .patch(
@@ -28,7 +45,25 @@ router
       { name: "documentByRequestGenerator", maxCount: 1 },
     ]),
     findSpareSheetBasedOnId,
-    updateSpareRequestSheet
-  );
+    updateSpareRequestSheet,
+  )
+  .delete(deleteSpareSheet);
+
+router
+  .route("/spareRequestSheet/all")
+  .get(spareFilterMiddleware, getSpareRequestSheets, getRequestSheets);
+
+router
+  .route("/spareRequestSheet/summery")
+  .get(spareFilterMiddleware, getSpareSheetsSummery);
+
+router
+  .route("/spareRequestSheet/manualApprovalStatus")
+  .patch(
+    handelManualApprovalStatus,
+    getOKBudgetOrNGApprovedRequestSheets,
+    manualApprovalStatusResponse,
+  )
+  .get(getManualApprovalStatus);
 
 module.exports = router;

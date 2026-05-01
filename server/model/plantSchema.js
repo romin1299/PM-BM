@@ -31,7 +31,21 @@ const plantSchema = new mongoose.Schema({
     majorApprovalList: { type: [String] },
   },
 
-  spareSheetDynamicApproval: [String],
+  spareSheetDynamicApproval: {
+    MTD: [String],
+    PRD: [String],
+  },
+
+  leadTime: {
+    orderRSSubmittedToHODApproval: { type: Number, default: 0 },
+    HODApprovalToPRSubmittedByToolroomToPPD: { type: Number, default: 0 },
+    PRSubmittedByToolroomToPPDToPRAssignToAllBuyers: {
+      type: Number,
+      default: 0,
+    },
+    PRAssignToAllBuyersToPOIssueToVendor: { type: Number, default: 0 },
+    POIssueToVendorToPartReceive: { type: Number, default: 0 },
+  },
 
   // hourly filter options for product/line report
   lessThanValue: {

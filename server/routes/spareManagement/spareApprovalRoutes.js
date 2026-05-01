@@ -11,6 +11,7 @@ const {
   NGBudgetMTD_HODFilters,
   getApprovalRequestSheets,
   getApprovalLogs,
+  getApproveAndPendingUsersWiseCount,
 } = require("../../controller/spareManagement/spareApprovalController");
 
 router
@@ -23,11 +24,15 @@ router
     spareFilterMiddleware,
     NGBudgetMTD_HODFilters,
     getSpareRequestSheets,
-    getApprovalRequestSheets
+    getApprovalRequestSheets,
   );
 
 router
   .route("/spareRequestSheet/logs")
   .get(spareFilterMiddleware, getApprovalLogs);
+
+router
+  .route("/spareRequestSheet/approveAndPendingCount")
+  .get(spareFilterMiddleware, getApproveAndPendingUsersWiseCount);
 
 module.exports = router;

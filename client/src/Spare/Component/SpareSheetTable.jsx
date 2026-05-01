@@ -1,4 +1,3 @@
-import React from "react";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
@@ -97,7 +96,7 @@ const TableComponent = ({
                 data,
                 `${
                   tableProps?.exportMenu?.exportFileNamePrefix
-                } ${moment().format("DD-MM-YYYY")}`
+                } ${moment().format("DD-MM-YYYY")}`,
               ),
           },
           {
@@ -108,7 +107,7 @@ const TableComponent = ({
                 data,
                 `${
                   tableProps?.exportMenu?.exportFileNamePrefix
-                } ${moment().format("DD-MM-YYYY")}`
+                } ${moment().format("DD-MM-YYYY")}`,
               ),
           },
         ],

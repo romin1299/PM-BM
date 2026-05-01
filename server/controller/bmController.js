@@ -130,7 +130,7 @@ let currentYear =
 const gettingFYYearForSelectedDate = (date) => {
   if (moment(new Date(date)).tz("Asia/Kolkata").month() < 3) {
     return `${moment(new Date(date)).tz("Asia/Kolkata").year() - 1}-${moment(
-      new Date(date)
+      new Date(date),
     )
       .tz("Asia/Kolkata")
       .year()}`;
@@ -196,7 +196,7 @@ router.get(
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
     }
-  }
+  },
 );
 
 const storageForDataSheetsOfBD = multer.diskStorage({
@@ -294,7 +294,7 @@ const findMachineDataWithParentHierarchy = tryCatchHandler(
       });
     }
     return machine;
-  }
+  },
 );
 
 const findPlantToMachineHierarchyObj = tryCatchHandler(async (machine) => {
@@ -383,7 +383,7 @@ router.post(
           let requestSheetDataFilledByMTDUser = JSON.parse(req.body.otherData);
 
           const prdDataUpdatedByOtherUser = JSON.parse(
-            req?.body?.prdDataUpdatedByOtherUser
+            req?.body?.prdDataUpdatedByOtherUser,
           );
 
           if (prdDataUpdatedByOtherUser) {
@@ -417,7 +417,7 @@ router.post(
                       .breakDownBasicDataFilledByPRD.problemFaced,
                 },
               },
-              { new: true }
+              { new: true },
             );
 
             requestSheet = await RequestSheetOfBM.findOneAndUpdate(
@@ -429,7 +429,7 @@ router.post(
               },
               {
                 new: true,
-              }
+              },
             );
 
             if (requestSheet) {
@@ -446,7 +446,7 @@ router.post(
               (key) => ({
                 category: key,
                 subCategory: requestSheetDataFilledByMTDUser?.categories?.[key],
-              })
+              }),
             );
 
           let queryObj = {
@@ -551,7 +551,7 @@ router.post(
             fs.unlink(
               path.join(
                 __dirname,
-                `../DataSheetOfBD/${getRequestSheetData?.attachedDataSheets}`
+                `../DataSheetOfBD/${getRequestSheetData?.attachedDataSheets}`,
               ),
               function (err) {
                 if (err) {
@@ -559,7 +559,7 @@ router.post(
                 } else {
                   console.log("Data-sheet file Removed Successfully");
                 }
-              }
+              },
             );
 
             await RequestSheetOfBM.findOneAndUpdate(
@@ -568,7 +568,7 @@ router.post(
                 $unset: {
                   attachedDataSheets: "",
                 },
-              }
+              },
             );
           }
 
@@ -586,7 +586,7 @@ router.post(
                   } else {
                     console.log("Drawing files Removed Successfully");
                   }
-                }
+                },
               );
             });
 
@@ -596,7 +596,7 @@ router.post(
                 $unset: {
                   attachedDrawings: "",
                 },
-              }
+              },
             );
           }
 
@@ -606,13 +606,13 @@ router.post(
               $set: queryObj,
               $push: {
                 attachedDrawings: dataSheet?.attachedDrawings?.map(
-                  (obj) => obj?.filename
+                  (obj) => obj?.filename,
                 ),
               },
             },
             {
               new: true,
-            }
+            },
           );
           // for New CM request generation for BM reflaction
           if (requestSheet?._id) {
@@ -632,7 +632,7 @@ router.post(
                 let machineDataUseInCretionOfCM =
                   await findMachineDataWithParentHierarchy(
                     requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index]
-                      ?.cmBasicDataFilledByMTD_TL?.machineId
+                      ?.cmBasicDataFilledByMTD_TL?.machineId,
                   );
                 await newRequestSheetDataStore(
                   machineDataUseInCretionOfCM,
@@ -640,10 +640,10 @@ router.post(
                   requestSheet?.shiftOfBM,
                   requestSheetDataFilledByMTDUser?.dataOfTheCM?.[index],
                   await findPlantToMachineHierarchyObj(
-                    machineDataUseInCretionOfCM
+                    machineDataUseInCretionOfCM,
                   ),
                   req?.rootUser,
-                  dataSheet?.attachedFilesByMTDUser
+                  dataSheet?.attachedFilesByMTDUser,
                 );
               }
             }
@@ -654,7 +654,7 @@ router.post(
           });
         } else {
           const requestSheetDataFilledByPRDUser = JSON.parse(
-            req.body.otherData
+            req.body.otherData,
           );
           // ==================== Previous code for req sheet No ==============================================
           // let requestSheetNos = machine.line_names.requestSheetNos + 1 || 1;
@@ -683,7 +683,7 @@ router.post(
           // =========================================================================================================
           const requestSheetNoOfBM = await globalReqSheetNo(
             _idObject?.machineRef,
-            "BM"
+            "BM",
           );
 
           await Machine.findOneAndUpdate(
@@ -694,7 +694,7 @@ router.post(
                   requestSheetDataFilledByPRDUser?.problemFaced,
               },
             },
-            { new: true }
+            { new: true },
           );
 
           requestSheet = new RequestSheetOfBM({
@@ -714,7 +714,7 @@ router.post(
             sheetIssuedDateAndTimeOfBM: new Date(),
             attachedImagesOrVideoByPRDUser:
               dataSheet?.attachedImagesOrVideoByPRDUser?.map(
-                (obj) => obj?.filename
+                (obj) => obj?.filename,
               ),
             breakDownBasicDataFilledByPRD: {
               problemFaced: requestSheetDataFilledByPRDUser?.problemFaced,
@@ -730,10 +730,10 @@ router.post(
             },
             preAggregationTimeStampOfRequestSheet: {
               requestSheet_year: gettingFYYearForSelectedDate(
-                requestSheetDataFilledByPRDUser?.problemOccurredDateAndTimeOfBM
+                requestSheetDataFilledByPRDUser?.problemOccurredDateAndTimeOfBM,
               ),
               requestSheet_month: gettingMonthForSelectedDate(
-                requestSheetDataFilledByPRDUser?.problemOccurredDateAndTimeOfBM
+                requestSheetDataFilledByPRDUser?.problemOccurredDateAndTimeOfBM,
               ),
             },
           });
@@ -748,7 +748,7 @@ router.post(
                 tm_department: "MTD",
                 user_type: "TL/HOSS",
               },
-              { tm_no: 1, tm_name: 1, email: 1 }
+              { tm_no: 1, tm_name: 1, email: 1 },
             );
 
             const getMTDHOS = await User.find(
@@ -757,7 +757,7 @@ router.post(
                 tm_department: "MTD",
                 tm_grade: "HOS",
               },
-              { tm_name: 1, line_names: 1, email: 1 }
+              { tm_name: 1, line_names: 1, email: 1 },
             );
 
             let bodyTable = `<table style="font-family: arial, sans-serif;border-collapse: collapse;width: 100%;">
@@ -800,7 +800,7 @@ router.post(
             <tr style="background-color: #dddddd;">
             <td style="border: 1px solid black;text-align: left;padding: 8px;">Problem Occurred Date and Time</td>
             <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
-              newBDRequestSheetGenerate?.problemOccurredDateAndTimeOfBM
+              newBDRequestSheetGenerate?.problemOccurredDateAndTimeOfBM,
             )
               .tz("Asia/Kolkata")
               .format("DD-MM-YYYY THH:mm")}</td>
@@ -853,7 +853,7 @@ router.post(
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 const findRequestSheetMiddleware = async (req, res, next) => {
@@ -1100,9 +1100,9 @@ router.patch(
           .tz("Asia/Kolkata")
           .diff(
             moment(isRequestSheetExist?.problemOccurredDateAndTimeOfBM).tz(
-              "Asia/Kolkata"
+              "Asia/Kolkata",
             ),
-            "minutes"
+            "minutes",
           );
 
         let firstWordOfFinalAction = req.body?.finalActivity?.split(" ")[0];
@@ -1111,7 +1111,7 @@ router.patch(
           finalActivity: req.body?.finalActivity?.replace(
             firstWordOfFinalAction,
             firstWordOfFinalAction?.charAt(0)?.toUpperCase() +
-              firstWordOfFinalAction?.substring(1)?.toLowerCase()
+              firstWordOfFinalAction?.substring(1)?.toLowerCase(),
           ),
           "maintenanceReportFilledByMTD.workEndedDateOfBM": commonWorkEndDate,
           "maintenanceReportFilledByMTD.refHandOverTime": commonWorkEndDate,
@@ -1133,7 +1133,7 @@ router.patch(
         },
         {
           new: true,
-        }
+        },
       );
 
       req.updateRequestSheetData = updateRequestSheetData;
@@ -1212,7 +1212,7 @@ router.patch(
           tm_department: "MTD",
           user_type: "TL/HOSS",
         },
-        { tm_no: 1, tm_name: 1, email: 1 }
+        { tm_no: 1, tm_name: 1, email: 1 },
       );
 
       const getMTDHOS = await User.find(
@@ -1221,7 +1221,7 @@ router.patch(
           tm_department: "MTD",
           tm_grade: "HOS",
         },
-        { tm_name: 1, line_names: 1, email: 1 }
+        { tm_name: 1, line_names: 1, email: 1 },
       );
 
       if (
@@ -1248,7 +1248,7 @@ router.patch(
         });
       } else if (
         req?.queryObjForSendingEmailValidation?.hasOwnProperty(
-          "handOverUser"
+          "handOverUser",
         ) &&
         req.requestSheetData?.[0]?.handOverUserEmail
       ) {
@@ -1294,7 +1294,7 @@ router.patch(
       message: `Request-sheet updated successfully ${req.requestSheetData?.[0]?.requestSheetNoOfBM}`,
       requestSheet: req.requestSheetData?.[0],
     });
-  }
+  },
 );
 
 // this api will only update the datasheets of Req Sheet
@@ -1308,7 +1308,7 @@ router.patch(
     fs.unlink(
       path.join(
         __dirname,
-        `../DataSheetOfBD/${(reqSheet?.attachedDataSheets).trim()}`
+        `../DataSheetOfBD/${(reqSheet?.attachedDataSheets).trim()}`,
       ),
       function (err) {
         if (err) {
@@ -1316,7 +1316,7 @@ router.patch(
         } else {
           console.log("Data-sheet file Removed Successfully");
         }
-      }
+      },
     );
     const requestSheet = await RequestSheetOfBM.findByIdAndUpdate(
       reqSheetId,
@@ -1325,7 +1325,7 @@ router.patch(
           attachedDataSheets: req.files?.attachedDataSheets?.[0].filename,
         },
       },
-      { new: true }
+      { new: true },
     );
     // console.log(requestSheet);
     res.status(201).json({
@@ -1340,7 +1340,7 @@ router.patch(
     //     message: "Data-sheets updated successfully",
     //   });
     // }
-  }
+  },
 );
 router.patch(
   "/updateDrawingsOfReqSheet/:reqSheetId",
@@ -1359,7 +1359,7 @@ router.patch(
             } else {
               console.log("Drawing files Removed Successfully");
             }
-          }
+          },
         );
       });
       const updatedReqSheet = await RequestSheetOfBM.findByIdAndUpdate(
@@ -1367,13 +1367,13 @@ router.patch(
         {
           $set: {
             attachedDrawings: req.files?.attachedDrawings?.map(
-              (drawing) => drawing.filename
+              (drawing) => drawing.filename,
             ),
           },
         },
         {
           new: true,
-        }
+        },
       );
       res.status(201).json({
         message: "Drawings updated successfully",
@@ -1382,7 +1382,7 @@ router.patch(
     } catch (error) {
       console.log(error);
     }
-  }
+  },
 );
 
 router.patch(
@@ -1428,7 +1428,7 @@ router.patch(
           fs.unlink(
             path.join(
               __dirname,
-              `../DataSheetOfBD/${requestSheet?.attachedDataSheets}`
+              `../DataSheetOfBD/${requestSheet?.attachedDataSheets}`,
             ),
             function (err) {
               if (err) {
@@ -1436,7 +1436,7 @@ router.patch(
               } else {
                 console.log("Data-sheet file Removed Successfully");
               }
-            }
+            },
           );
 
           updatedDataObj["attachedDataSheets"] =
@@ -1453,12 +1453,12 @@ router.patch(
                 } else {
                   console.log("Drawing files Removed Successfully");
                 }
-              }
+              },
             );
           });
 
           updatedDataObj["attachedDrawings"] = req.files?.attachedDrawings?.map(
-            (item) => item?.filename
+            (item) => item?.filename,
           );
         }
       }
@@ -1472,7 +1472,7 @@ router.patch(
                 updatedDataObj["breakDownBasicDataFilledByPRD.problemFaced"],
             },
           },
-          { new: true }
+          { new: true },
         );
       }
 
@@ -1483,7 +1483,7 @@ router.patch(
         },
         {
           new: true,
-        }
+        },
       );
 
       return res.status(201).json({
@@ -1495,7 +1495,7 @@ router.patch(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 const findTLandOperatorList = async (req, res, next) => {
   try {
@@ -1530,7 +1530,7 @@ const findTLandOperatorList = async (req, res, next) => {
           tm_department: 1,
           tm_grade: 1,
           user_type: 1,
-        }
+        },
       );
       if (TLHOSS_and_TM_user_list?.length === 0) {
         return res.status(400).json({
@@ -1709,7 +1709,7 @@ const targetMiddleware = async (req, res, next) => {
                 `$${allMonths?.[i]?.monthName}`,
                 `$count_${allMonths?.[i]?.monthName}`,
               ],
-            })
+            }),
           );
         } else {
           arr.push(truncValue(`$${allMonths?.[i]?.monthName}`));
@@ -1826,7 +1826,7 @@ const getCountBDCountBasedOnLoggedUserMiddleware = async (req, res, next) => {
         const subSectionsData = await SubSection.find({
           subSection_id: {
             $in: req.rootUser?.subSection_data?.map(
-              (item) => item?.split("-")?.[0]
+              (item) => item?.split("-")?.[0],
             ),
           },
         });
@@ -2034,7 +2034,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // router.get(
@@ -2141,7 +2141,7 @@ const queryMiddleWareFunction = async (req, res, next) => {
 };
 const functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO = async (
   req,
-  res
+  res,
 ) => {
   try {
     let subSectionArr = [];
@@ -2217,7 +2217,7 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   },
-  functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO
+  functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO,
 );
 
 router.get(
@@ -2234,7 +2234,7 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   },
-  functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO
+  functionForGettingAllDataOfRequestSheetBasedOnDashboardLevel_NO,
 );
 // router.get(
 //   "/getMachineDetailsOnScanningRequest/:generateType",
@@ -2370,7 +2370,7 @@ const middlewareForGettingAllDropdownList = async (req, res, next) => {
       const subSectionsData = await SubSection.find({
         subSection_id: {
           $in: req.rootUser?.subSection_data?.map(
-            (item) => item?.split("-")?.[0]
+            (item) => item?.split("-")?.[0],
           ),
         },
       });
@@ -3022,7 +3022,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -3063,7 +3063,7 @@ router.get(
       ]);
 
       const generatedStatusCount = await RequestSheetOfBM.countDocuments(
-        req.queryObj
+        req.queryObj,
       );
 
       return res.status(201).json({
@@ -3081,7 +3081,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -3218,7 +3218,7 @@ router.get(
         },
       ],
     });
-  })
+  }),
 );
 
 router.get(
@@ -3433,7 +3433,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.post(
@@ -3452,7 +3452,7 @@ router.post(
             ...approvalListOfMinorAndMajor,
           },
         },
-        { new: true }
+        { new: true },
       );
 
       if (!addDynamicApprovalListInPlant) {
@@ -3469,7 +3469,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 router.get(
   "/getCategories",
@@ -3486,7 +3486,7 @@ router.get(
       message: "Categories get successfully",
       getCategory,
     });
-  }
+  },
 );
 router.post(
   "/addCategories",
@@ -3508,14 +3508,14 @@ router.post(
         },
       },
 
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({
       message: "Categories added successfully",
       addCategory,
     });
-  }
+  },
 );
 router.post(
   "/addSubCategories/:catId",
@@ -3537,14 +3537,14 @@ router.post(
         },
       },
 
-      { new: true }
+      { new: true },
     );
 
     return res.status(201).json({
       message: "Categories added successfully",
       addSubCategory,
     });
-  }
+  },
 );
 
 router.patch("/updateCategory/:catId", authenticate, async (req, res, next) => {
@@ -3563,7 +3563,7 @@ router.patch("/updateCategory/:catId", authenticate, async (req, res, next) => {
         arrayFilters: [
           { "categories._id": mongoose.Types.ObjectId(req.params.catId) },
         ],
-      }
+      },
     );
 
     // console.log("subCategory", subCategory);
@@ -3591,7 +3591,7 @@ router.patch(
         {
           plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
           "categories.subCategories._id": mongoose.Types.ObjectId(
-            req.params.subId
+            req.params.subId,
           ),
         },
         {
@@ -3605,7 +3605,7 @@ router.patch(
               "subCategories._id": mongoose.Types.ObjectId(req.params.subId),
             },
           ],
-        }
+        },
       );
 
       // console.log("subCategory", subCategory);
@@ -3620,7 +3620,7 @@ router.patch(
       console.error(error);
       return res.status(500).json({ message: "Error updating subCategory" });
     }
-  }
+  },
 );
 
 // Add Major BD Time only for HOD or HOSS
@@ -3644,14 +3644,14 @@ router.post(
         addMajorBDTime = await Section.findByIdAndUpdate(
           mongoose.Types.ObjectId(queryObj?.sectionRef),
           { majorBDTime: majorBD },
-          { new: true }
+          { new: true },
         );
       } else if (queryObj.subSectionRef) {
         // Update in SubSection collection
         addMajorBDTime = await SubSection.findByIdAndUpdate(
           mongoose.Types.ObjectId(queryObj?.subSectionRef),
           { majorBDTime: majorBD },
-          { new: true }
+          { new: true },
         );
       } else {
         return res.status(400).json({
@@ -3674,7 +3674,7 @@ router.post(
       logger.error(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -3690,13 +3690,13 @@ router.get(
         // Fetch from Section collection
         getMajorBDTime = await Section.findById(
           mongoose.Types.ObjectId(queryObj?.sectionRef),
-          { majorBDTime: 1 }
+          { majorBDTime: 1 },
         );
       } else if (queryObj?.subSectionRef) {
         // Fetch from SubSection collection
         getMajorBDTime = await SubSection.findById(
           mongoose.Types.ObjectId(queryObj?.subSectionRef),
-          { majorBDTime: 1 }
+          { majorBDTime: 1 },
         );
       } else {
         const section = await Section.findOne({
@@ -3705,7 +3705,7 @@ router.get(
         if (section?.dashboardLevel === "Yes") {
           getMajorBDTimeSectionWise = await Section.findOne(
             mongoose.Types.ObjectId(section?._id),
-            { majorBDTime: 1 }
+            { majorBDTime: 1 },
           );
         } else {
           if (req?.rootUser?.subSection_data?.length > 0) {
@@ -3714,7 +3714,7 @@ router.get(
                 subSection_id:
                   req?.rootUser?.subSection_data?.[0]?.split("-")?.[0],
               },
-              { majorBDTime: 1 }
+              { majorBDTime: 1 },
             );
           }
         }
@@ -3729,7 +3729,7 @@ router.get(
       logger.error(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get("/getAllShifts", authenticate, async (req, res, next) => {
@@ -3784,7 +3784,7 @@ router.post(
             },
           },
         },
-        { new: true }
+        { new: true },
       );
 
       return res.status(201).json({
@@ -3795,7 +3795,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 router.patch(
   "/updateShift/:shiftId",
@@ -3820,7 +3820,7 @@ router.patch(
             "shiftOfBM.$.shiftEndTime": shiftEndTime,
           },
         },
-        { new: true }
+        { new: true },
       );
 
       return res.status(201).json({
@@ -3831,7 +3831,7 @@ router.patch(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.patch(
@@ -3857,7 +3857,7 @@ router.patch(
           arrayFilters: [
             { "shiftOfBM._id": mongoose.Types.ObjectId(req.params.shiftId) },
           ],
-        }
+        },
       );
 
       return res.status(201).json({
@@ -3868,7 +3868,7 @@ router.patch(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.patch(
@@ -3897,14 +3897,14 @@ router.patch(
         arrayFilters: [
           { "outer._id": mongoose.Types.ObjectId(req.params.catId) },
         ],
-      }
+      },
     );
 
     return res.status(201).json({
       message: "SubCategory deleted successfully",
       deletedSubCategory,
     });
-  }
+  },
 );
 router.patch(
   "/deleteCategory/:catId",
@@ -3927,14 +3927,14 @@ router.patch(
         arrayFilters: [
           { "categories._id": mongoose.Types.ObjectId(req.params.catId) },
         ],
-      }
+      },
     );
 
     return res.status(201).json({
       message: "Category Deleted successfully",
       deletedCategory,
     });
-  }
+  },
 );
 
 router.get("/getMachineDetails", async (req, res, next) => {
@@ -3957,7 +3957,7 @@ router.get("/getMachineDetails", async (req, res, next) => {
 router.get(
   "/getMachineDetailsOnScanningRequest",
   authenticate,
-  factory.getUserData(Machine, Section, User)
+  factory.getUserData(Machine, Section, User),
 );
 
 // router.get(
@@ -4056,7 +4056,7 @@ const getRequestSheetData = async (req, res, next) => {
     if (req.query?.getDataForApprovalDashboardId) {
       queryObjForGetRequestSheetData = {
         "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
-          req.query.getDataForApprovalDashboardId
+          req.query.getDataForApprovalDashboardId,
         ),
         ...req.queryObj,
       };
@@ -4789,7 +4789,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
@@ -4994,7 +4994,7 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           tm_department: 1,
           tm_grade: 1,
           user_type: 1,
-        }
+        },
       );
       if (TLHOSS_and_TM_user_list?.length === 0) {
         return res.status(400).json({
@@ -5171,11 +5171,11 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
         $addFields: {
           "maintenanceReportFilledByMTD.workStartedDateOfBM":
             generateDateFormateObj(
-              "$maintenanceReportFilledByMTD.workStartedDateOfBM"
+              "$maintenanceReportFilledByMTD.workStartedDateOfBM",
             ),
           "maintenanceReportFilledByMTD.workEndedDateOfBM":
             generateDateFormateObj(
-              "$maintenanceReportFilledByMTD.workEndedDateOfBM"
+              "$maintenanceReportFilledByMTD.workEndedDateOfBM",
             ),
         },
       },
@@ -5185,10 +5185,10 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           maintenanceType: 1,
           priorityCode: 1,
           problemOccurredDateAndTimeOfBM: generateDateFormateObj(
-            "$problemOccurredDateAndTimeOfBM"
+            "$problemOccurredDateAndTimeOfBM",
           ),
           sheetIssuedDateAndTimeOfBM: generateDateFormateObj(
-            "$sheetIssuedDateAndTimeOfBM"
+            "$sheetIssuedDateAndTimeOfBM",
           ),
           breakDownBasicDataFilledByPRD: 1,
 
@@ -5358,7 +5358,7 @@ router.get(
           tm_department: 1,
           tm_grade: 1,
           user_type: 1,
-        }
+        },
       );
 
       const getPlantIdForNoLossBDEntry = await Plant.findOne({
@@ -5381,7 +5381,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.get(
@@ -5406,7 +5406,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 // -------------------------------------------------------------------------------
 //        Report 1 : Production/Line Wise KPI
@@ -5426,7 +5426,7 @@ const middlewareForGettingDefaultCell = async (req, res, next) => {
       subSectionsData = await SubSection.find({
         subSection_id: {
           $in: req.rootUser?.subSection_data?.map(
-            (item) => item?.split("-")?.[0]
+            (item) => item?.split("-")?.[0],
           ),
         },
       });
@@ -5466,7 +5466,7 @@ router.get(
         subSectionsData = await SubSection.find({
           subSection_id: {
             $in: req.rootUser?.subSection_data?.map(
-              (item) => item?.split("-")?.[0]
+              (item) => item?.split("-")?.[0],
             ),
           },
         });
@@ -5489,7 +5489,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.patch(
@@ -5543,7 +5543,7 @@ router.patch(
                 approverNameLogOfMTD_TL: assignApprovalList?.MTD_TL?.name,
               },
             },
-            { new: true }
+            { new: true },
           ).exec();
         if (updateAssignApprovalOfMTD_TL) {
           const bodyContent = ({ key, value }) => {
@@ -5603,7 +5603,7 @@ router.patch(
               tm_department: "MTD",
               tm_grade: "HOS",
             },
-            { tm_name: 1, line_names: 1, email: 1 }
+            { tm_name: 1, line_names: 1, email: 1 },
           );
 
           sendMailForBD({
@@ -5626,7 +5626,7 @@ router.patch(
       const formattedKey =
         requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
           " ",
-          "_"
+          "_",
         );
       Object.keys(assignApprovalList?.[formattedKey])?.length === 0 &&
         delete assignApprovalList?.[formattedKey];
@@ -5643,12 +5643,12 @@ router.patch(
             requestSheetDataOfBM?.plantRef?.approvalListOfMinorAndMajor?.[
               minorBD === "Yes" ? "minorApprovalList" : "majorApprovalList"
             ]?.includes(
-              Object.keys(assignApprovalList)?.[index]?.replace("_", " ")
+              Object.keys(assignApprovalList)?.[index]?.replace("_", " "),
             )
           ) {
             if (
               Object.keys(
-                assignApprovalList?.[Object.keys(assignApprovalList)?.[index]]
+                assignApprovalList?.[Object.keys(assignApprovalList)?.[index]],
               )?.length === 0 &&
               requestSheetDataOfBM?.maintenanceType === "BM" &&
               assignApprovalList?.[Object.keys(assignApprovalList)?.[index]] !==
@@ -5668,7 +5668,7 @@ router.patch(
 
       const updateTheStatusOfBMSheetApprover = async (
         keyOfDepartment,
-        assignUser
+        assignUser,
       ) => {
         let queryObjForPush = {};
 
@@ -5694,7 +5694,7 @@ router.patch(
             },
             {
               new: true,
-            }
+            },
           );
       };
 
@@ -5720,7 +5720,7 @@ router.patch(
             updateTheStatusOfBMSheetApprover(key, assignApprovalList[key]);
             if (assignApprovalList?.[key]?.id)
               listOfHigherApproverAuthorityForSendingMail?.push(
-                assignApprovalList[key]
+                assignApprovalList[key],
               );
           }
         });
@@ -5748,7 +5748,7 @@ router.patch(
               $unset: {
                 getDataForApprovalDashboard: "",
               },
-            }
+            },
           );
         } else {
           updateRequestSheetStatus = await RequestSheetOfBM.findOneAndUpdate(
@@ -5785,7 +5785,7 @@ router.patch(
                 approvalDateAndTimeOfMTD_TL: new Date(),
               },
             },
-            { new: true }
+            { new: true },
           );
         }
 
@@ -5836,7 +5836,7 @@ router.patch(
              <tr>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
              <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
-               approvedDateAndTime
+               approvedDateAndTime,
              )
                .tz("Asia/Kolkata")
                .format("DD-MM-YYYY THH:mm")}</td>
@@ -5907,7 +5907,7 @@ router.patch(
               rejectedRemarksOfRequestSheet,
             },
           },
-          { new: true }
+          { new: true },
         );
         if (updateRequestSheetStatus)
           return res.status(201).json({
@@ -5920,7 +5920,7 @@ router.patch(
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // const monthValidationMiddleware = async (req, res, next) => {
@@ -6074,7 +6074,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -6137,7 +6137,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 //          Daily breakdown trend
 router.get(
@@ -6194,7 +6194,7 @@ router.get(
 
       const allDatesInMonth = Array.from(
         { length: endDate.date() },
-        (_, index) => startDate.clone().add(index, "days").format("DD")
+        (_, index) => startDate.clone().add(index, "days").format("DD"),
       );
 
       const queryFunction = async ({ conditionObj }) =>
@@ -6338,7 +6338,7 @@ router.get(
             $gte: 1,
             $lt: 2,
           },
-        }
+        },
       );
 
       const greaterThenTwoHourData = await queryFunction({
@@ -6543,7 +6543,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 const requestSheetMiddleware = async (req, res, next) => {
@@ -6672,7 +6672,7 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   },
-  requestSheetMiddleware
+  requestSheetMiddleware,
 );
 
 //for production/line wise table data
@@ -6697,7 +6697,7 @@ router.get(
             {
               problemOccurredDateAndTimeOfBM: {
                 $lte: new Date(
-                  moment(req?.params?.toDate).endOf("day").format()
+                  moment(req?.params?.toDate).endOf("day").format(),
                 ),
               },
             },
@@ -6711,7 +6711,7 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   },
-  requestSheetMiddleware
+  requestSheetMiddleware,
 );
 
 //get MTTR for production line wise 4 charts
@@ -6833,7 +6833,7 @@ router.get(
           ...MTTRReportData?.[0],
           target: req.target,
           backgroundColor: req.target?.map((item, index) =>
-            MTTRReportData?.[0]?.data?.[index] <= item ? "#16FF00" : "red"
+            MTTRReportData?.[0]?.data?.[index] <= item ? "#16FF00" : "red",
           ),
         },
       });
@@ -6841,7 +6841,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 const yearlyBdHourMiddleware = async (req, res, next) => {
@@ -6947,7 +6947,7 @@ router.get(
           ...req.BDHours?.[0],
           target: req.target,
           backgroundColor: req.target?.map((item, index) =>
-            item > req.BDHours?.[0]?.data?.[index] ? "#16FF00" : "red"
+            item > req.BDHours?.[0]?.data?.[index] ? "#16FF00" : "red",
           ),
         },
       });
@@ -6955,7 +6955,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -7328,7 +7328,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 router.post(
   "/getBDhoursVsCountDataFunction/:purpose/:filter/:selectedId",
@@ -7403,7 +7403,7 @@ router.post(
               : {
                   id: req.body?.hoursFilter[i - 1] * 1,
                   key: `<${req.body?.hoursFilter[i]}`,
-                }
+                },
           );
         }
       }
@@ -7411,7 +7411,7 @@ router.post(
       if (req.body?.graterThenHoursFilter) {
         if (req.body?.hoursFilter?.length > 0) {
           let graterValue = boundaries?.includes(
-            req.body?.graterThenHoursFilter * 1
+            req.body?.graterThenHoursFilter * 1,
           )
             ? req.body?.graterThenHoursFilter * 1 + 1
             : req.body?.graterThenHoursFilter * 1;
@@ -7744,7 +7744,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -7759,7 +7759,7 @@ router.get(
         {
           lessThanValue: 1,
           greaterThan: 1,
-        }
+        },
       );
 
       res.status(201).json({
@@ -7770,7 +7770,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 // add or update the hourly filter for product/line report
 router.patch(
@@ -7783,7 +7783,7 @@ router.patch(
       let { greaterThan, lessThanValue, _id } = await Plant.findOneAndUpdate(
         { _id: req.params?.plantId },
         { $set: req.body },
-        { new: true }
+        { new: true },
       );
 
       res.status(201).json({
@@ -7798,7 +7798,7 @@ router.patch(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // ---------------- Request Sheet Data -------------------
@@ -8000,7 +8000,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 // ---------------- Problem Category Pie Chart -------------------
@@ -8071,7 +8071,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: "error?.message, error" });
     }
-  }
+  },
 );
 
 // ---------------- BD Category Pie Chart -------------------
@@ -8194,7 +8194,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: "error?.message, error" });
     }
-  }
+  },
 );
 
 // ---------------- BD percentage Chart -------------------
@@ -8360,7 +8360,7 @@ const productionHourFiltration = async (req, res, next) => {
         $avg: `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
       };
       productionHrs["$sum"].push(
-        `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`
+        `$allTargetData.monthlyProductionHrs.${allMonths?.[i]?.monthName}`,
       );
       if (
         allMonths?.[i]?.monthName === currentMonth &&
@@ -8595,7 +8595,7 @@ const middlewareForFindingPercentageData = async (req, res, next) => {
         ...getBdPercentage?.[0],
         target: req?.target,
         backgroundColor: req.target?.map((item, index) =>
-          getBdPercentage?.[0]?.data?.[index] <= item ? "#16FF00" : "red"
+          getBdPercentage?.[0]?.data?.[index] <= item ? "#16FF00" : "red",
         ),
       },
     });
@@ -8946,7 +8946,7 @@ const middlewareForFindingMTBFData = async (req, res, next) => {
         ...mtbfData?.[0],
         target: req.targetForMtbf,
         backgroundColor: req.targetForMtbf?.map((item, index) =>
-          mtbfData?.[0]?.data?.[index] >= item ? "#16FF00" : "red"
+          mtbfData?.[0]?.data?.[index] >= item ? "#16FF00" : "red",
         ),
       },
     });
@@ -9002,7 +9002,7 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   },
-  middlewareForFindingMTBFData
+  middlewareForFindingMTBFData,
 );
 
 router.get(
@@ -9053,7 +9053,7 @@ router.get(
       res.status(500).json({ message: "error?.message, error" });
     }
   },
-  middlewareForFindingPercentageData
+  middlewareForFindingPercentageData,
 );
 
 router.get(
@@ -9073,7 +9073,7 @@ router.get(
         subSectionsData = await SubSection.find({
           subSection_id: {
             $in: req.rootUser?.subSection_data?.map(
-              (item) => item?.split("-")?.[0]
+              (item) => item?.split("-")?.[0],
             ),
           },
         });
@@ -9097,7 +9097,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get("/getCellsDropdownValue", authenticate, async (req, res, next) => {
@@ -9114,7 +9114,7 @@ router.get("/getCellsDropdownValue", authenticate, async (req, res, next) => {
       subSectionsData = await SubSection.find({
         subSection_id: {
           $in: req.rootUser?.subSection_data?.map(
-            (item) => item?.split("-")?.[0]
+            (item) => item?.split("-")?.[0],
           ),
         },
       });
@@ -9402,15 +9402,15 @@ const sectionMonthlyBdTrendForPlantMiddleware = async (req, res, next) => {
       // console.log(sections);
 
       const noDashboardSections = sections.filter(
-        (section) => section.dashboardLevel === "No"
+        (section) => section.dashboardLevel === "No",
       );
       const yesDashboardSections = sections.filter(
-        (section) => section.dashboardLevel === "Yes"
+        (section) => section.dashboardLevel === "Yes",
       );
 
       sectionIds = noDashboardSections.map((section) => section._id.toString());
       sectionIdsYes = yesDashboardSections.map((section) =>
-        section._id.toString()
+        section._id.toString(),
       );
     }
 
@@ -10882,7 +10882,7 @@ router.get(
   // middlewareForPlant,
   filterForMonthlyData,
   middlewareForMonthlyBdReport,
-  hourlyMonthlyBdTrendMiddleware
+  hourlyMonthlyBdTrendMiddleware,
 );
 
 router.get(
@@ -10893,7 +10893,7 @@ router.get(
   // middlewareForPlant,
   filterForMonthlyData,
   middlewareForMonthlyBdReport,
-  sectionMonthlyBdTrendForPlantMiddleware
+  sectionMonthlyBdTrendForPlantMiddleware,
 );
 
 router.get(
@@ -10903,7 +10903,7 @@ router.get(
   targetMiddlewareForMBD,
   filterForMonthlyData,
   middlewareForMonthlyBdReport,
-  cellMonthlyBdTrendForSectionMiddleware
+  cellMonthlyBdTrendForSectionMiddleware,
 );
 
 router.get(
@@ -10913,7 +10913,7 @@ router.get(
   targetMiddlewareForMBD,
   filterForMonthlyData,
   middlewareForMonthlyBdReport,
-  lineMonthlyBdTrendForSectionMiddleware
+  lineMonthlyBdTrendForSectionMiddleware,
 );
 
 router.get(
@@ -10923,7 +10923,7 @@ router.get(
   targetMiddlewareForMBD,
   filterForMonthlyData,
   middlewareForMonthlyBdReport,
-  machineMonthlyBdTrendForSectionMiddleware
+  machineMonthlyBdTrendForSectionMiddleware,
 );
 
 router.get(
@@ -10933,7 +10933,7 @@ router.get(
   // targetMiddlewareForMBD,
   // filterForMonthlyData,
   middlewareForMTTRKPIReport,
-  sectionMonthlyBdTrendForPlantMiddleware
+  sectionMonthlyBdTrendForPlantMiddleware,
 );
 
 router.get(
@@ -10943,7 +10943,7 @@ router.get(
   // targetMiddlewareForMBD,
   // filterForMonthlyData,
   middlewareForMTTRKPIReport,
-  cellMonthlyBdTrendForSectionMiddleware
+  cellMonthlyBdTrendForSectionMiddleware,
 );
 
 router.get(
@@ -10953,7 +10953,7 @@ router.get(
   // targetMiddlewareForMBD,
   // filterForMonthlyData,
   middlewareForMTTRKPIReport,
-  lineMonthlyBdTrendForSectionMiddleware
+  lineMonthlyBdTrendForSectionMiddleware,
 );
 
 router.get(
@@ -10963,7 +10963,7 @@ router.get(
   // targetMiddlewareForMBD,
   // filterForMonthlyData,
   middlewareForMTTRKPIReport,
-  machineMonthlyBdTrendForSectionMiddleware
+  machineMonthlyBdTrendForSectionMiddleware,
 );
 
 // ---------------- Yearly BD Trend Chart -------------------
@@ -11123,7 +11123,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -11145,17 +11145,17 @@ router.get(
         // console.log(sections);
 
         const noDashboardSections = sections.filter(
-          (section) => section.dashboardLevel === "No"
+          (section) => section.dashboardLevel === "No",
         );
         const yesDashboardSections = sections.filter(
-          (section) => section.dashboardLevel === "Yes"
+          (section) => section.dashboardLevel === "Yes",
         );
 
         sectionIds = noDashboardSections.map((section) =>
-          section._id.toString()
+          section._id.toString(),
         );
         sectionIdsYes = yesDashboardSections.map((section) =>
-          section._id.toString()
+          section._id.toString(),
         );
       }
       const subSectionQuery = await SubSection.aggregate([
@@ -11420,7 +11420,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -11440,7 +11440,7 @@ router.get(
             $or: [
               {
                 subSection_names: mongoose.Types.ObjectId(
-                  req.params.selectedId
+                  req.params.selectedId,
                 ),
               },
               { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
@@ -11583,7 +11583,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // ---------------- Major BD Count Chart -------------------
@@ -11596,7 +11596,7 @@ const labelMiddlewareForMajorBDChart = async (req, res, next) => {
       labels = allMonths?.map((item, index) =>
         index < 9
           ? `${item?.monthName}-${splitYear?.[0]?.slice(-2)}`
-          : `${item?.monthName}-${splitYear?.[1]?.slice(-2)}`
+          : `${item?.monthName}-${splitYear?.[1]?.slice(-2)}`,
       );
     }
 
@@ -11628,23 +11628,23 @@ router.get(
       if (req.params.selectedId) {
         const sections = await Section.find({
           plant_names: mongoose.Types.ObjectId(
-            req.queryObj.plantRef.toString()
+            req.queryObj.plantRef.toString(),
           ),
         });
         // console.log(sections);
 
         const noDashboardSections = sections.filter(
-          (section) => section.dashboardLevel === "No"
+          (section) => section.dashboardLevel === "No",
         );
         const yesDashboardSections = sections.filter(
-          (section) => section.dashboardLevel === "Yes"
+          (section) => section.dashboardLevel === "Yes",
         );
 
         sectionIds = noDashboardSections.map((section) =>
-          section._id.toString()
+          section._id.toString(),
         );
         sectionIdsYes = yesDashboardSections.map((section) =>
-          section._id.toString()
+          section._id.toString(),
         );
       }
 
@@ -12044,7 +12044,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -12061,7 +12061,7 @@ router.get(
             $or: [
               {
                 subSection_names: mongoose.Types.ObjectId(
-                  req.params.selectedId
+                  req.params.selectedId,
                 ),
               },
               { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
@@ -12234,7 +12234,7 @@ router.get(
             $or: [
               {
                 subSection_names: mongoose.Types.ObjectId(
-                  req.params.selectedId
+                  req.params.selectedId,
                 ),
               },
               { section_names: mongoose.Types.ObjectId(req.params.selectedId) },
@@ -12368,7 +12368,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // ---------------- LineWise BD Contribution Charts -------------------
@@ -12535,7 +12535,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -12575,7 +12575,7 @@ router.get(
       } else {
         for (let index = 0; index < allMonths.length; index++) {
           productionHour["$sum"].push(
-            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`,
           );
           if (
             allMonths?.[index]?.monthName === currentMonth &&
@@ -12829,7 +12829,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -12901,7 +12901,7 @@ router.get(
       } else {
         for (let index = 0; index < allMonths.length; index++) {
           productionHour["$sum"].push(
-            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`,
           );
           if (
             allMonths?.[index]?.monthName === currentMonth &&
@@ -13179,7 +13179,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 const filterMiddlewareForTmMTTRSkillReport = async (req, res, next) => {
@@ -13650,7 +13650,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // router.get(
@@ -13873,7 +13873,7 @@ const altfindTLandOperatorList = async (req, res, next) => {
         tm_department: 1,
         tm_grade: 1,
         user_type: 1,
-      }
+      },
     );
 
     return res.status(201).json({
@@ -13902,7 +13902,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -13911,13 +13911,13 @@ router.get(
   filterMiddleware,
   // filterMiddlewareForTmMTTRSkillReport,
   // filterMiddlewareForMTTRReport,
-  middlewareForFindingTmProgressData
+  middlewareForFindingTmProgressData,
 );
 
 router.delete("/deleteRequestSheet/:id", async (req, res, next) => {
   try {
     const deletedRequestSheet = await RequestSheetOfBM.findByIdAndDelete(
-      req.params.id
+      req.params.id,
     );
 
     return res.status(201).json({
@@ -13971,7 +13971,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.post(
@@ -14001,7 +14001,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.patch(
@@ -14019,7 +14019,7 @@ router.patch(
         },
         {
           arrayFilters: [{ "outer._id": req.params?.id }],
-        }
+        },
       );
 
       next();
@@ -14039,7 +14039,7 @@ router.patch(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.delete(
@@ -14063,7 +14063,7 @@ router.delete(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 const topFilterMiddleware = async (req, res, next) => {
@@ -14107,7 +14107,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.post(
@@ -14120,7 +14120,7 @@ router.post(
         {
           $push: { yearGroup: req.body },
         },
-        { new: true }
+        { new: true },
       );
 
       return res.status(201).json({
@@ -14131,7 +14131,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.patch(
@@ -14154,7 +14154,7 @@ router.patch(
           arrayFilters: [
             { "outer._id": mongoose.Types.ObjectId(req.params?.id) },
           ],
-        }
+        },
       );
 
       return res.status(201).json({
@@ -14165,7 +14165,7 @@ router.patch(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.delete(
@@ -14190,7 +14190,7 @@ router.delete(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 const middlewareForMachineAgeLookup = async (req, res, next) => {
@@ -14437,7 +14437,7 @@ router.get(
       message: "Monthwise Machine Age data get successfully",
       machineData,
     });
-  }
+  },
 );
 
 router.get(
@@ -14580,7 +14580,7 @@ router.get(
       message: "Yearwise Machine Age data get successfully",
       machineData,
     });
-  }
+  },
 );
 
 router.get(
@@ -14795,7 +14795,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -14815,7 +14815,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -14985,7 +14985,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -15065,7 +15065,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 //          MTTR Report
@@ -15087,7 +15087,7 @@ router.get(
         subSectionsData = await SubSection.find({
           subSection_id: {
             $in: req.rootUser?.subSection_data?.map(
-              (item) => item?.split("-")?.[0]
+              (item) => item?.split("-")?.[0],
             ),
           },
         });
@@ -15110,7 +15110,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // middleware function for getting data of MTTR and MTBF
@@ -15234,7 +15234,7 @@ const middlewareForFindingLineWiseTrendData = async (req, res, next) => {
     } else {
       for (let index = 0; index < allMonths.length; index++) {
         target["$avg"].push(
-          `$allTargetData.${req.query?.monthTargetKey}.${allMonths?.[index]?.monthName}`
+          `$allTargetData.${req.query?.monthTargetKey}.${allMonths?.[index]?.monthName}`,
         );
         if (
           allMonths?.[index]?.monthName === currentMonth &&
@@ -15453,7 +15453,7 @@ const filterMiddlewareForMTBFReport = async (req, res, next) => {
     } else {
       for (let index = 0; index < allMonths.length; index++) {
         productionHour["$sum"].push(
-          `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+          `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`,
         );
         if (
           allMonths?.[index]?.monthName === currentMonth &&
@@ -15531,7 +15531,7 @@ const responseMiddlewareForDataTrendReport = async (req, res, next) => {
         ...req?.TrendData?.[0],
         target: req.target,
         backgroundColor: req.target?.map((item, index) =>
-          req?.TrendData?.[0]?.data?.[index] >= item ? "#16FF00" : "red"
+          req?.TrendData?.[0]?.data?.[index] >= item ? "#16FF00" : "red",
         ),
       },
     });
@@ -15553,7 +15553,7 @@ router.get(
     req.message = "MTTR trend graph data get successfully";
     next();
   },
-  responseMiddlewareForDataTrendReport
+  responseMiddlewareForDataTrendReport,
 );
 
 router.get(
@@ -15566,7 +15566,7 @@ router.get(
     req.message = "Line wise MTTR trend data get successfully";
     next();
   },
-  responseMiddlewareForReport
+  responseMiddlewareForReport,
 );
 
 router.get(
@@ -15581,7 +15581,7 @@ router.get(
     next();
   },
   middlewareForFindingMachineWiseTrendData,
-  responseMiddlewareForReport
+  responseMiddlewareForReport,
 );
 
 router.get(
@@ -15615,7 +15615,7 @@ router.get(
             {
               problemOccurredDateAndTimeOfBM: {
                 $lte: new Date(
-                  moment(req?.params?.toDate).endOf("day").format()
+                  moment(req?.params?.toDate).endOf("day").format(),
                 ),
               },
             },
@@ -15632,7 +15632,7 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   },
-  requestSheetMiddleware
+  requestSheetMiddleware,
 );
 
 //Whole MTBF Dashboard (MTBF Trend)
@@ -15684,7 +15684,7 @@ router.get(
     }
   },
   middlewareForFindingTrendData,
-  responseMiddlewareForDataTrendReport
+  responseMiddlewareForDataTrendReport,
 );
 
 router.get(
@@ -15704,7 +15704,7 @@ router.get(
       } else {
         for (let index = 0; index < allMonths.length; index++) {
           productionHrs["$sum"].push(
-            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`
+            `$allTargetData.monthlyProductionHrs.${allMonths?.[index]?.monthName}`,
           );
           if (
             allMonths?.[index]?.monthName === currentMonth &&
@@ -15737,7 +15737,7 @@ router.get(
     }
   },
   middlewareForFindingLineWiseTrendData,
-  responseMiddlewareForReport
+  responseMiddlewareForReport,
 );
 
 router.get(
@@ -15753,7 +15753,7 @@ router.get(
     next();
   },
   middlewareForFindingMachineWiseTrendData,
-  responseMiddlewareForReport
+  responseMiddlewareForReport,
 );
 
 router.patch(
@@ -15777,17 +15777,17 @@ router.patch(
 
       let keyOfChangeApprovalStatusFromPendingToAcceptedOrRejectedForCondition = `approvalStatusOf${requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
         " ",
-        "_"
+        "_",
       )}`;
 
       let keyOfSendingEmailToNextHigherAuthority = `approvalOf${requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
         " ",
-        "_"
+        "_",
       )}`;
 
       let keyOfApprovalDateAndTimeOfAcceptedOrRejected = `approvalDateAndTimeOf${requestSheetDataOfBM?.getDataForApprovalDashboard?.departmentAndGradeOfUser?.replace(
         " ",
-        "_"
+        "_",
       )}`;
 
       const getRequestSheetData = await RequestSheetOfBM.findOne({
@@ -15821,7 +15821,7 @@ router.patch(
             minorListForTheApprovalOfPlant[
               minorListForTheApprovalOfPlant.indexOf(
                 requestSheetDataOfBM?.getDataForApprovalDashboard
-                  ?.departmentAndGradeOfUser
+                  ?.departmentAndGradeOfUser,
               ) + 1
             ];
 
@@ -15847,19 +15847,19 @@ router.patch(
               (majorListForTheApprovalOfPlant[
                 majorListForTheApprovalOfPlant.indexOf(
                   requestSheetDataOfBM?.getDataForApprovalDashboard
-                    ?.departmentAndGradeOfUser
+                    ?.departmentAndGradeOfUser,
                 ) + 1
               ] !== "MTD HOD" &&
                 majorListForTheApprovalOfPlant[
                   majorListForTheApprovalOfPlant.indexOf(
                     requestSheetDataOfBM?.getDataForApprovalDashboard
-                      ?.departmentAndGradeOfUser
+                      ?.departmentAndGradeOfUser,
                   ) + 1
                 ] !== "PRD HOD")) &&
             majorListForTheApprovalOfPlant[
               majorListForTheApprovalOfPlant.indexOf(
                 requestSheetDataOfBM?.getDataForApprovalDashboard
-                  ?.departmentAndGradeOfUser
+                  ?.departmentAndGradeOfUser,
               ) + 1
             ];
           ListOfCCEmailOfOtherHigherAuthority = majorListForTheApprovalOfPlant
@@ -15887,7 +15887,7 @@ router.patch(
             requestSheetDataOfBM?.[
               `approvalOf${getNextApproverDepartmentAndGradeOfUser?.replace(
                 " ",
-                "_"
+                "_",
               )}`
             ]?._id;
 
@@ -15915,7 +15915,7 @@ router.patch(
                     ],
                 },
               },
-              { new: true }
+              { new: true },
             );
           if (updateApprovalStatusOfRequestSheet) {
             const bodyContent = ({ key, value, approvedDateAndTime }) => {
@@ -15964,7 +15964,7 @@ router.patch(
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
-                 approvedDateAndTime
+                 approvedDateAndTime,
                )
                  .tz("Asia/Kolkata")
                  .format("DD-MM-YYYY THH:mm")}</td>
@@ -16035,7 +16035,7 @@ router.patch(
                   getDataForApprovalDashboard: "",
                 },
               },
-              { new: true }
+              { new: true },
             );
 
           if (updateApprovalStatusOfRequestSheet) {
@@ -16085,7 +16085,7 @@ router.patch(
                <tr>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">Approved Date & Time</td>
                <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
-                 approvedDateAndTime
+                 approvedDateAndTime,
                )
                  .tz("Asia/Kolkata")
                  .format("DD-MM-YYYY THH:mm")}</td>
@@ -16170,7 +16170,7 @@ router.patch(
                   requestSheetDataOfBM?.approvalOfMTD_TL?.tm_name,
               },
             },
-            { new: true }
+            { new: true },
           );
         if (updateApprovalStatusOfRequestSheet)
           return res.status(201).json({
@@ -16183,7 +16183,7 @@ router.patch(
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 //Getting data of approval log
@@ -16441,7 +16441,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 // -------------------------------------------------------------------------------
 //        Man-Hour Report APIS
@@ -16750,7 +16750,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -17011,7 +17011,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 const queryPipelineMiddleware = async (req, res, next) => {
@@ -17053,7 +17053,7 @@ const queryPipelineMiddleware = async (req, res, next) => {
         {
           $match: {
             "cell.0.subSection.0.section_names": mongoose.Types.ObjectId(
-              req.params?.selectedId
+              req.params?.selectedId,
             ),
           },
         },
@@ -17078,7 +17078,7 @@ const queryPipelineMiddleware = async (req, res, next) => {
         {
           $match: {
             "cell.0.subSection_names": mongoose.Types.ObjectId(
-              req.params?.selectedId
+              req.params?.selectedId,
             ),
           },
         },
@@ -17489,7 +17489,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -18033,7 +18033,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // -------------------------------------------------------------------------------
@@ -18053,7 +18053,7 @@ const plantFiltrationMiddleware = async (req, res, next) => {
       {
         plant_id: 1,
         plant_name: 1,
-      }
+      },
     );
 
     const sections = await Section.find(
@@ -18065,7 +18065,7 @@ const plantFiltrationMiddleware = async (req, res, next) => {
         section_name: 1,
         dashboardLevel: 1,
         plant_names: 1,
-      }
+      },
     );
 
     req.section = sections?.[0];
@@ -18266,7 +18266,7 @@ const conditionMiddlewareForSubSectionQuery = async (req, res, next) => {
         subSectionQuery = {
           subSection_id: {
             $in: req.rootUser?.subSection_data?.map(
-              (item) => item?.split("-")?.[0]
+              (item) => item?.split("-")?.[0],
             ),
           },
         };
@@ -18308,7 +18308,7 @@ const subSectionQueryMiddleware = async (req, res, next) => {
 const functionForFindingCellBasedOnSelectedSubSection = async (
   req,
   res,
-  next
+  next,
 ) => {
   try {
     const cells = await Cell.find({
@@ -18454,7 +18454,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -18549,19 +18549,19 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
   "/getFiltrationValue/all-filtration/subSectionBased/:id",
   authenticate,
-  functionForFindingCellBasedOnSelectedSubSection
+  functionForFindingCellBasedOnSelectedSubSection,
 );
 
 router.get(
   "/getFiltrationValue/all-filtration/cellBased/:id",
   authenticate,
-  functionForFindingLineBasedOnSelectedCell
+  functionForFindingLineBasedOnSelectedCell,
 );
 
 router.get(
@@ -18578,7 +18578,7 @@ router.get(
           machine_name: 1,
           machine_nickname: 1,
           line_names: 1,
-        }
+        },
       );
 
       return res.status(201).json({
@@ -18596,7 +18596,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // -------------------------------------------------------------------------------
@@ -18631,7 +18631,7 @@ const lineFiltrationMiddleware = async (req, res, next) => {
         line_id: 1,
         line_name: 1,
         cell_names: 1,
-      }
+      },
     );
     req.lineID = lines?.[0]?._id;
     req.lines = lines;
@@ -18653,7 +18653,7 @@ const machineFiltrationMiddleware = async (req, res, next) => {
         machine_name: 1,
         machine_nickname: 1,
         line_names: 1,
-      }
+      },
     );
     req.machineID = machines?.[0]?._id;
     req.machines = machines;
@@ -18682,7 +18682,7 @@ router.get(
         subSectionQuery = {
           subSection_id: {
             $in: req.rootUser?.subSection_data?.map(
-              (item) => item?.split("-")?.[0]
+              (item) => item?.split("-")?.[0],
             ),
           },
         };
@@ -18786,7 +18786,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -18849,7 +18849,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -18891,7 +18891,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -18931,7 +18931,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 //default Cell - Line - Machine selection
@@ -18953,7 +18953,7 @@ router.get(
         subSectionQuery = {
           subSection_id: {
             $in: req.rootUser?.subSection_data?.map(
-              (item) => item?.split("-")?.[0]
+              (item) => item?.split("-")?.[0],
             ),
           },
         };
@@ -19052,7 +19052,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -19108,7 +19108,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -19149,7 +19149,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -19186,7 +19186,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -19220,7 +19220,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // -------------------------------------------------------------------------------
@@ -19239,7 +19239,7 @@ router.get(
         {
           plant_id: 1,
           plant_name: 1,
-        }
+        },
       );
 
       const sections = await Section.find(
@@ -19251,7 +19251,7 @@ router.get(
           section_name: 1,
           dashboardLevel: 1,
           plant_names: 1,
-        }
+        },
       );
 
       return res.status(201).json({
@@ -19273,7 +19273,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -19332,19 +19332,19 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
   "/getFiltrationValue/plant-level-filtration/subSectionBased/:id",
   authenticate,
-  functionForFindingCellBasedOnSelectedSubSection
+  functionForFindingCellBasedOnSelectedSubSection,
 );
 
 router.get(
   "/getFiltrationValue/plant-level-filtration/cellBased/:id",
   authenticate,
-  functionForFindingLineBasedOnSelectedCell
+  functionForFindingLineBasedOnSelectedCell,
 );
 
 router.get(
@@ -19371,7 +19371,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -19444,7 +19444,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -19460,7 +19460,7 @@ router.get(
           subSection_id: 1,
           subSection_name: 1,
           section_names: 1,
-        }
+        },
       );
 
       let selectedSubSection = subSections?.[0]?._id;
@@ -19485,7 +19485,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get("/dummyAPI", authenticate, async (req, res, next) => {
@@ -19535,19 +19535,19 @@ router.get("/dummyAPI", authenticate, async (req, res, next) => {
       // Step 4: Replace "undefined" with the new count
       const newNumber = sheet.requestSheetNoOfBM.replace(
         "undefined",
-        lastCount
+        lastCount,
       );
 
       // Step 5: Update the request sheet
       const requestUpdate = await RequestSheetOfBM.updateOne(
         { _id: mongoose.Types.ObjectId(sheet._id) },
-        { $set: { requestSheetNoOfBM: newNumber } }
+        { $set: { requestSheetNoOfBM: newNumber } },
       );
 
       // Step 6: Update the last count in the Line collection
       const lineUpdate = await Line.updateOne(
         { _id: mongoose.Types.ObjectId(lineId) },
-        { $set: { requestSheetNos: lastCount } }
+        { $set: { requestSheetNos: lastCount } },
       );
 
       console.log(requestUpdate, "---", lineUpdate);
@@ -19639,7 +19639,7 @@ router.post(
 
       if (req.params?.filter === "based-on-cell") {
         let sumOfMonthlyMBDtargetForYearlyTarget = Object.values(
-          targetValue?.monthlyMBDCountTarget
+          targetValue?.monthlyMBDCountTarget,
         )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         const yearExistsOrNotInCellTargetField = await Cell.findOne({
@@ -19671,7 +19671,7 @@ router.post(
               arrayFilters: [
                 { "outer.current_year": req?.query?.selectedYear },
               ],
-            }
+            },
           );
 
           if (updateMonthlyMBDTargetValueInCell) {
@@ -19693,7 +19693,7 @@ router.post(
                   yearTotalMBDCountTarget: sumOfMonthlyMBDtargetForYearlyTarget,
                 },
               },
-            }
+            },
           );
 
           if (addMonthlyMBDTargetValueInCell)
@@ -19704,23 +19704,23 @@ router.post(
         }
       } else {
         let sumOfMonthlyProductionHrsTargetForYearlyTarget = Object.values(
-          targetValue?.monthlyProductionHrs
+          targetValue?.monthlyProductionHrs,
         )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         let sumOfMonthlyBDHrsTargetForYearlyTarget = Object.values(
-          targetValue?.monthlyBDHrsTarget
+          targetValue?.monthlyBDHrsTarget,
         )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         let sumOfMonthlyMTTRTargetForYearlyTarget = Object.values(
-          targetValue?.monthlyMTTRTarget
+          targetValue?.monthlyMTTRTarget,
         )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         let sumOfMonthlyMTBFTargetForYearlyTarget = Object.values(
-          targetValue?.monthlyMTBFTarget
+          targetValue?.monthlyMTBFTarget,
         )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         let sumOfMonthlyBDPercentageTargetForYearlyTarget = Object.values(
-          targetValue?.monthlyBDPercentageTarget
+          targetValue?.monthlyBDPercentageTarget,
         )?.reduce((acc, value) => acc + (value === "" ? 0 : value) * 1, 0);
 
         const yearExistsOrNotInLineTargetField = await Line.findOne({
@@ -19769,7 +19769,7 @@ router.post(
                 arrayFilters: [
                   { "outer.current_year": req?.query?.selectedYear },
                 ],
-              }
+              },
             );
 
           if (updateMonthlyProductionAndBDHrsTargetValueInLine) {
@@ -19804,7 +19804,7 @@ router.post(
                       sumOfMonthlyBDPercentageTargetForYearlyTarget,
                   },
                 },
-              }
+              },
             );
 
           if (addMonthlyProductionAndBDHrsTargetValueInLine)
@@ -19819,7 +19819,7 @@ router.post(
       console.log(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -19836,7 +19836,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 const storageForDataAttachmentFile = multer.diskStorage({
@@ -19881,7 +19881,7 @@ router.post(
         },
         {
           new: true,
-        }
+        },
       );
 
       return res.status(201).json({
@@ -19894,7 +19894,7 @@ router.post(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.get(
@@ -19916,7 +19916,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.get(
@@ -19929,8 +19929,8 @@ router.get(
         .download(
           path.join(
             __dirname,
-            `../attachments/${req.params?.folderName}/${req.params?.filePath}`
-          )
+            `../attachments/${req.params?.folderName}/${req.params?.filePath}`,
+          ),
         );
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
@@ -19938,7 +19938,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.delete(
@@ -19967,14 +19967,14 @@ router.delete(
           __dirname,
           `../attachments/${req.params?.docVariable}/${
             machine?.[0]?.[req.params?.docVariable]?.attached_file
-          }`
+          }`,
         ),
 
         function (err) {
           if (err) {
             console.error(err);
           }
-        }
+        },
       );
 
       const attachmentDetails = await Machine.findOneAndUpdate(
@@ -19988,7 +19988,7 @@ router.delete(
         },
         {
           new: true,
-        }
+        },
       );
 
       return res.status(201).json({
@@ -20001,7 +20001,7 @@ router.delete(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.get(
@@ -20037,7 +20037,7 @@ router.get(
       res.status(500).json({ message: error?.message, error });
     }
   },
-  requestSheetMiddleware
+  requestSheetMiddleware,
 );
 
 router.get("/getMachineHistory", authenticate, async (req, res, next) => {
@@ -20123,7 +20123,7 @@ router.get(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.post(
@@ -20174,9 +20174,9 @@ router.post(
                   } else {
                     console.log("Other loss files Removed Successfully");
                   }
-                }
+                },
               );
-            }
+            },
           );
         }
 
@@ -20191,19 +20191,19 @@ router.post(
               actionAndCounterMeasureStep:
                 noLossRequestSheetData?.actionAndCounterMeasureStep,
               supportingTM: noLossRequestSheetData?.selectedSupportedTM?.map(
-                (obj) => obj?._id
+                (obj) => obj?._id,
               ),
               breakDownTime: noLossRequestSheetData?.breakDownTime,
               categoriesOfRequestSheet: convertedData,
               attachedFilesForOtherLoss:
                 dataSheet?.attachedFilesForOtherLoss?.map(
-                  (obj) => obj?.filename
+                  (obj) => obj?.filename,
                 ),
             },
           },
           {
             new: true,
-          }
+          },
         );
       } else {
         const currentMonth = moment().format("MMM");
@@ -20218,7 +20218,7 @@ router.post(
           { $inc: { noLossBdNos: 1 } },
           {
             new: true,
-          }
+          },
         );
 
         const noLossBDNo = `${currentYear}-${currentMonth}-${addNewNoLossNo.noLossBdNos}`;
@@ -20229,12 +20229,12 @@ router.post(
           actionAndCounterMeasureStep:
             noLossRequestSheetData?.actionAndCounterMeasureStep,
           supportingTM: noLossRequestSheetData?.selectedSupportedTM?.map(
-            (obj) => obj?._id
+            (obj) => obj?._id,
           ),
           breakDownTime: noLossRequestSheetData?.breakDownTime,
           categoriesOfRequestSheet: convertedData,
           attachedFilesForOtherLoss: dataSheet?.attachedFilesForOtherLoss?.map(
-            (obj) => obj?.filename
+            (obj) => obj?.filename,
           ),
           plantRef: getPlantIdForNoLossBDEntry?._id || null,
           sectionRef: noLossRequestSheetData?.selectedSection || null,
@@ -20263,7 +20263,7 @@ router.post(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 router.get("/getNoLossBDEntryData", authenticate, async (req, res, next) => {
@@ -20404,7 +20404,7 @@ router.get("/getNoLossBDEntryData", authenticate, async (req, res, next) => {
 router.delete("/deleteNoLossRequestSheet/", async (req, res, next) => {
   try {
     const deletedNoLossRequestSheet = await NoLossBD.findByIdAndDelete(
-      req?.query?._id
+      req?.query?._id,
     );
 
     return res.status(201).json({
@@ -20458,7 +20458,7 @@ router.post(
                         
                         ${await req?.body?.data?.parts
                           ?.map((item, index) =>
-                            sparePartsDataMapping(item, index)
+                            sparePartsDataMapping(item, index),
                           )
                           ?.join("")}
                         </table>`;
@@ -20505,7 +20505,7 @@ router.post(
         <tr>
         <td style="border: 1px solid black;text-align: left;padding: 8px;">Requested Date and Time</td>
         <td style="border: 1px solid black;text-align: left;padding: 8px;">${moment(
-          new Date()
+          new Date(),
         )
           .tz("Asia/Kolkata")
           .format("DD-MM-YYYY THH:mm")}</td>
@@ -20543,7 +20543,7 @@ router.post(
       logger.error(error, { maintenanceType: maintenanceType?.[1] });
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 // safety form CRUD Operations
@@ -20564,7 +20564,7 @@ router.post(
           $set: {
             IsSafetyFormCreated: true,
           },
-        }
+        },
       );
       if (!safetyForm) {
         return res
@@ -20578,7 +20578,7 @@ router.post(
       logger.error(error);
       res.status(500).json({ message: error?.message, error });
     }
-  }
+  },
 );
 
 router.get(
@@ -20599,7 +20599,7 @@ router.get(
     } catch (error) {
       console.log(error);
     }
-  }
+  },
 );
 
 module.exports = router;

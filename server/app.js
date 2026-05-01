@@ -19,14 +19,14 @@ require(path.join(__dirname, "./model/machineSchema"));
 
 app.use(express.json({ limit: "50mb" }));
 app.use(
-  express.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 })
+  express.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 }),
 );
 
 app.use(
   compression({
     filter: (req, res) =>
       req.headers["x-no-compression"] ? false : compression.filter(req, res),
-  })
+  }),
 );
 
 //for when deploying application on AWS
@@ -50,26 +50,29 @@ app.use(
   require("./routes/spareManagement/spareCRUDRoutes"),
   require("./routes/spareManagement/spareApprovalRoutes"),
   require("./routes/spareManagement/spareDynamicApprovalRoutes"),
-  require("./routes/spareManagement/spareKPIRoutes")
+  require("./routes/spareManagement/sparePardOrderTrackingRoutes"),
 );
 
 app.use(
   "/common",
-  require(path.join(__dirname, "./controller/commonController"))
+  require(path.join(__dirname, "./controller/commonController")),
 );
 
-require(path.join(
-  __dirname,
-  "./controller/autoMailSendStartingOfEveryMonthController"
-));
-require(path.join(
-  __dirname,
-  "./controller/autoMailSendMidAndEndOfEveryMonthController"
-));
-require(path.join(
-  __dirname,
-  "./controller/autoUpdateAndSendMailForSixMonthApproval"
-));
+require(
+  path.join(
+    __dirname,
+    "./controller/autoMailSendStartingOfEveryMonthController",
+  ),
+);
+require(
+  path.join(
+    __dirname,
+    "./controller/autoMailSendMidAndEndOfEveryMonthController",
+  ),
+);
+require(
+  path.join(__dirname, "./controller/autoUpdateAndSendMailForSixMonthApproval"),
+);
 require(path.join(__dirname, "./controller/financialYearController"));
 
 //When deploying please comment this backup code

@@ -1,7 +1,7 @@
 import React from "react";
 
 const SparePageLoading = () => {
-  return <dh3>Loading...</dh3>;
+  return <h3>Loading...</h3>;
 };
 
 export default SparePageLoading;

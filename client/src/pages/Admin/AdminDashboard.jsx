@@ -1,13 +1,217 @@
+// import {
+//   MaterialTable,
+//   tableIcons,
+//   UserAdd,
+//   AddBoxIcon,
+// } from "../../modules/PageModules";
+
+// import { useEffect, useState, useMemo, useCallback } from "react";
+
+// import "../../Login/Login.scss";
+// import "../../SCSS/MaterialTable.scss";
+
+// import UserUpdate from "../../Popups/UserUpdate";
+// import ModeEditIcon from "@mui/icons-material/ModeEdit";
+// import EmailConfiguration from "../../Popups/EmailConfiguration";
+// import Footer from "../../components/Footer/Footer";
+
+// import { CSVLink } from "react-csv";
+// import { jsPDF } from "jspdf";
+// import autoTable from "jspdf-autotable";
+
+// function AdminDashboard() {
+//   const [tableData, setTableData] = useState([]);
+//   const [selectedRow, setSelectedRow] = useState(null);
+//   const [showEmailConfig, setShowEmailConfig] = useState(false);
+
+//   const columns = useMemo(
+//     () => [
+//       { title: "Sr. No.", render: (rowData) => rowData.tableData.id + 1 },
+//       { title: "TM No.", field: "tm_no", editable: "never" },
+//       { title: "TM Name", field: "tm_name" },
+//       { title: "Email", field: "email" },
+//       { title: "Plant", field: "plant_data" },
+//       { title: "User Type", field: "user_type", editable: "never" },
+//       { title: "Grade", field: "tm_grade", editable: "never" },
+//       { title: "Department", field: "tm_department", editable: "never" },
+//       { title: "Joining Date", field: "joining_date", editable: "never" },
+//       { title: "Contact No", field: "contact_no" },
+//       { title: "Address", field: "address" },
+//     ],
+//     [],
+//   );
+//   const timeStamp = useCallback(() => {
+//     const date = new Date();
+//     return `${date.toLocaleDateString()}_${date.toLocaleTimeString()}`;
+//   }, []);
+
+//   const fetchUserInfo = useCallback(async () => {
+//     try {
+//       const res = await fetch("/displayUser", { credentials: "include" });
+//       const data = await res.json();
+
+//       const filtered = data.filter((u) => u.user_type !== "Admin");
+//       setTableData(filtered);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     fetchUserInfo();
+//   }, [fetchUserInfo]);
+
+//   const deleteUserInfo = useCallback(async (row) => {
+//     try {
+//       await fetch("/deleteUser", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ tm_no: row.tm_no }),
+//       });
+
+//       setTableData((prev) => prev.filter((u) => u.tm_no !== row.tm_no));
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   }, []);
+
+//   const downloadPDF = useCallback(() => {
+//     const doc = new jsPDF();
+
+//     const rows = tableData.map((item, i) => [
+//       i + 1,
+//       item.tm_no,
+//       item.tm_name,
+//       item.email,
+//       item.plant_data,
+//       item.user_type,
+//       item.tm_grade,
+//       item.tm_department,
+//       item.joining_date,
+//       item.contact_no,
+//       item.address,
+//     ]);
+
+//     autoTable(doc, {
+//       head: [columns.map((c) => c.title)],
+//       body: rows,
+//     });
+
+//     doc.save(`User_Data_${timeStamp()}`);
+//   }, [tableData, columns, timeStamp]);
+
+//   const actions = useMemo(
+//     () => [
+//       {
+//         icon: () =>
+//           window.innerWidth > 1024 ? (
+//             <button className="btn-reset">Add</button>
+//           ) : (
+//             <AddBoxIcon />
+//           ),
+//         tooltip: "Add User",
+//         isFreeAction: true,
+//         onClick: () => {
+//           document.getElementById("main_div_reg1").style.display = "block";
+//           document.getElementById("main_div_reg1").style.pointerEvents = "auto";
+//           document.querySelector(".App").style.pointerEvents = "none";
+//         },
+//       },
+//       {
+//         icon: () => <button className="btn-warning">Email Config</button>,
+//         isFreeAction: true,
+//         onClick: () => {
+//           setShowEmailConfig(true);
+//           document.querySelector(".pageCard").style.pointerEvents = "none";
+//         },
+//       },
+//       {
+//         icon: () => <ModeEditIcon />,
+//         onClick: (_, row) => {
+//           setSelectedRow(row);
+//           document.getElementById("main_div_reg2").style.display = "block";
+//           document.getElementById("main_div_reg2").style.pointerEvents = "auto";
+//           document.querySelector(".App").style.pointerEvents = "none";
+//         },
+//       },
+//       {
+//         icon: () => <button className="downloadPDF">PDF</button>,
+//         isFreeAction: true,
+//         onClick: downloadPDF,
+//       },
+//       {
+//         icon: () => (
+//           <CSVLink
+//             data={tableData}
+//             filename={`User_${timeStamp()}`}
+//             className="downloadCSV"
+//           >
+//             CSV
+//           </CSVLink>
+//         ),
+//         isFreeAction: true,
+//       },
+//     ],
+//     [tableData, downloadPDF, timeStamp],
+//   );
+
+//   return (
+//     <>
+//       {showEmailConfig && (
+//         <EmailConfiguration
+//           close={() => {
+//             setShowEmailConfig(false);
+//             document.querySelector(".pageCard").style.pointerEvents = "auto";
+//           }}
+//         />
+//       )}
+//       <UserAdd />
+//       <UserUpdate selectedRow={selectedRow} />
+
+//       <div className="pageCard" style={{ margin: "0.5rem" }}>
+//         <h4 style={{ padding: "1rem 0 0 1rem" }}>Admin Dashboard</h4>
+
+//         <MaterialTable
+//           icons={tableIcons}
+//           columns={columns}
+//           data={tableData}
+//           actions={actions}
+//           editable={{
+//             onRowDelete: (row) =>
+//               new Promise((resolve) => {
+//                 deleteUserInfo(row);
+//                 resolve();
+//               }),
+//           }}
+//           options={{
+//             showTitle: false,
+//             paging: false,
+//             search: true,
+//             sorting: true,
+//             actionsColumnIndex: -1,
+//             maxBodyHeight: "70vh",
+//           }}
+//         />
+//       </div>
+
+//       <Footer />
+//     </>
+//   );
+// }
+
+// export default AdminDashboard;
+
 import {
   React,
   useEffect,
   useState,
   MaterialTable,
   tableIcons,
-  NewUserRegistration,
   UserAdd,
   AddBoxIcon,
 } from "../../modules/PageModules";
+import { useMemo, useCallback } from "react";
+
 import "../../Login/Login.scss";
 import "../../SCSS/MaterialTable.scss";
 import UserUpdate from "../../Popups/UserUpdate";
@@ -20,140 +224,80 @@ import { jsPDF } from "jspdf";
 // require('jspdf-autotable');
 import autoTable from "jspdf-autotable";
 
+const userDataHeaderForCSV = [
+  {
+    label: "TM No.",
+    key: "tm_no",
+  },
+  {
+    label: "TM Name",
+    key: "tm_name",
+  },
+  {
+    label: "Email",
+    key: "email",
+  },
+  {
+    label: "Plant",
+    key: "plant_data",
+
+    // editable: "false",
+  },
+  {
+    label: "User Type",
+    key: "user_type",
+  },
+  {
+    label: "Grade",
+    key: "tm_grade",
+  },
+  {
+    label: "Department",
+    key: "tm_department",
+  },
+  {
+    label: "Joining Date",
+    key: "joining_date",
+  },
+  {
+    label: "Contact No",
+    key: "contact_no",
+  },
+  {
+    label: "Address",
+    key: "address",
+  },
+];
+
 function AdminDashboard() {
   const [tableData, setTableData] = useState([]);
   const [selectedRow, setSelectedRow] = useState([]);
   const [emailConfig, setEmailConfig] = useState("");
-  const [refKey2, setRefKey2] = useState(0);
 
   const close = () => {
     setEmailConfig("");
     document.querySelector(".pageCard").style.pointerEvents = "auto";
   };
   //fetch the user data and show on user management table
-  const columns = [
-    {
-      title: "Sr. No.",
-      render: (rowData) => `${rowData.tableData.id + 1}`,
-      align: "center",
-      width: "6%",
-    },
-    {
-      title: "TM No.",
-      field: "tm_no",
-      // editable: false,
-      align: "center",
-      editable: "false",
-      width: "10%",
-    },
-    {
-      title: "TM Name",
-      field: "tm_name",
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: "Email",
-      field: "email",
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: "Plant",
-      field: "plant_data",
-      align: "center",
-      width: "10%",
-      // editable: "false",
-    },
-    {
-      title: "User Type",
-      field: "user_type",
-      editable: "false",
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: "Grade",
-      field: "tm_grade",
-      align: "center",
-      editable: "false",
-      width: "10%",
-    },
-    {
-      title: "Department",
-      field: "tm_department",
-      align: "center",
-      editable: "false",
-      width: "10%",
-    },
-    {
-      title: "Joining Date",
-      field: "joining_date",
-      align: "center",
-      width: "10%",
-      editable: "false",
-    },
-    {
-      title: "Contact No",
-      field: "contact_no",
-      align: "center",
-      width: "10%",
-    },
-    {
-      title: "Address",
-      field: "address",
-      align: "center",
-      // width: "10%",
-    },
-  ];
 
-  const userDataHeaderForCSV = [
-    {
-      label: "TM No.",
-      key: "tm_no",
-    },
-    {
-      label: "TM Name",
-      key: "tm_name",
-    },
-    {
-      label: "Email",
-      key: "email",
-    },
-    {
-      label: "Plant",
-      key: "plant_data",
+  const columns = useMemo(
+    () => [
+      { title: "Sr. No.", render: (rowData) => rowData.tableData.id + 1 },
+      { title: "TM No.", field: "tm_no", editable: "never" },
+      { title: "TM Name", field: "tm_name" },
+      { title: "Email", field: "email" },
+      { title: "Plant", field: "plant_data" },
+      { title: "User Type", field: "user_type", editable: "never" },
+      { title: "Grade", field: "tm_grade", editable: "never" },
+      { title: "Department", field: "tm_department", editable: "never" },
+      { title: "Joining Date", field: "joining_date", editable: "never" },
+      { title: "Contact No", field: "contact_no" },
+      { title: "Address", field: "address" },
+    ],
+    [],
+  );
 
-      // editable: "false",
-    },
-    {
-      label: "User Type",
-      key: "user_type",
-    },
-    {
-      label: "Grade",
-      key: "tm_grade",
-    },
-    {
-      label: "Department",
-      key: "tm_department",
-    },
-    {
-      label: "Joining Date",
-      key: "joining_date",
-    },
-    {
-      label: "Contact No",
-      key: "contact_no",
-    },
-    {
-      label: "Address",
-      key: "address",
-    },
-  ];
-
-  //get the date and time
-  const timeStamp = () => {
+  const timeStamp = useCallback(() => {
     let date = new Date();
     let getTime = date
       .toLocaleTimeString("en-IN", {
@@ -165,9 +309,9 @@ function AdminDashboard() {
     const day = date.getDate(); // 23
 
     return `${day}/${month}/${year} - ${getTime}`;
-  };
+  }, []);
 
-  const downloadPDFOfUserData = () => {
+  const downloadPDFOfUserData = useCallback(() => {
     const doc = new jsPDF();
     let rows = [];
     tableData?.map((item, idx) => {
@@ -194,87 +338,86 @@ function AdminDashboard() {
     });
     // doc.autoTable(columns, csvData);
     doc.save(`User_Data_${timeStamp()}`);
-  };
+  }, [tableData, columns, timeStamp]);
 
-  const actions = [
-    {
-      // icon: () => <button className="addbutton">Add</button>,
-      icon: () =>
-        window.innerWidth > 1024 ? (
-          <button className="btn-reset">Add</button>
-        ) : (
-          <AddBoxIcon />
+  const actions = useMemo(
+    () => [
+      {
+        icon: () =>
+          window.innerWidth > 1024 ? (
+            <button className="btn-reset">Add</button>
+          ) : (
+            <AddBoxIcon />
+          ),
+
+        tooltip: "Add User",
+        isFreeAction: true,
+        onClick: (event, rowData) => {
+          document.getElementById("main_div_reg1").style.display = "block";
+          document.getElementById("main_div_reg1").style.pointerEvents = "auto";
+          document.querySelector(".App").style.pointerEvents = "none";
+        },
+      },
+      {
+        // icon: () => <button className="addbutton">Add</button>,
+        icon: () => (
+          <button className="btn-warning" style={{ marginRight: "-1px " }}>
+            Email Configuration
+          </button>
         ),
 
-      tooltip: "Add User",
-      isFreeAction: true,
-      onClick: (event, rowData) => {
-        document.getElementById("main_div_reg1").style.display = "block";
-        document.getElementById("main_div_reg1").style.pointerEvents = "auto";
-        document.querySelector(".App").style.pointerEvents = "none";
+        // tooltip: "Add User",
+        isFreeAction: true,
+        onClick: (event, rowData) => {
+          setEmailConfig(<EmailConfiguration close={close} />);
+          // document.getElementById("main_div_reg4").style.pointerEvents = "auto";
+          document.querySelector(".pageCard").style.pointerEvents = "none";
+        },
       },
-    },
-    {
-      // icon: () => <button className="addbutton">Add</button>,
-      icon: () => (
-        <button className="btn-warning" style={{ marginRight: "-1px " }}>
-          Email Configuration
-        </button>
-      ),
+      {
+        icon: () => <ModeEditIcon />,
+        // tooltip: <h1>I am a tooltip</h1>,
+        onClick: (event, selectedRow) => {
+          setSelectedRow(selectedRow);
+          // console.log(employeePassword)
+          document.getElementById("main_div_reg2").style.display = "block";
+          document.getElementById("main_div_reg2").style.pointerEvents = "auto";
+          document.querySelector(".App").style.pointerEvents = "none";
+        },
+        disabled: false, // Set disabled to false by default for all actions
+        position: "row",
+      },
+      {
+        icon: () => <button className="downloadPDF">PDF</button>,
+        tooltip: "PDF",
+        isFreeAction: true,
+        onClick: (event) => {
+          downloadPDFOfUserData();
+        },
+      },
 
-      // tooltip: "Add User",
-      isFreeAction: true,
-      onClick: (event, rowData) => {
-        setEmailConfig(<EmailConfiguration close={close} />);
-        // document.getElementById("main_div_reg4").style.pointerEvents = "auto";
-        document.querySelector(".pageCard").style.pointerEvents = "none";
+      {
+        icon: () => (
+          <CSVLink
+            headers={userDataHeaderForCSV}
+            className="downloadCSV text-decoration-none"
+            data={tableData}
+            filename={`User_Data_${timeStamp()}`}
+            style={{ textDecoration: "none", color: "white" }}
+          >
+            {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
+            CSV
+          </CSVLink>
+        ),
+        tooltip: "PDF",
+        isFreeAction: true,
       },
-    },
-    {
-      icon: () => <ModeEditIcon />,
-      // tooltip: <h1>I am a tooltip</h1>,
-      onClick: (event, selectedRow) => {
-        setSelectedRow(selectedRow);
-        // console.log(employeePassword)
-        document.getElementById("main_div_reg2").style.display = "block";
-        document.getElementById("main_div_reg2").style.pointerEvents = "auto";
-        document.querySelector(".App").style.pointerEvents = "none";
-      },
-      disabled: false, // Set disabled to false by default for all actions
-      position: "row",
-    },
-    {
-      icon: () => <button className="downloadPDF">PDF</button>,
-      tooltip: "PDF",
-      isFreeAction: true,
-      onClick: (event) => {
-        downloadPDFOfUserData();
-      },
-    },
-
-    {
-      icon: () => (
-        <CSVLink
-          headers={userDataHeaderForCSV}
-          className="downloadCSV text-decoration-none"
-          data={tableData}
-          filename={`User_Data_${timeStamp()}`}
-          style={{ textDecoration: "none", color: "white" }}
-        >
-          {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
-          CSV
-        </CSVLink>
-      ),
-      tooltip: "PDF",
-      isFreeAction: true,
-    },
-  ];
-  const refreshPage = () => {
-    window.location.reload();
-  };
+    ],
+    [tableData, downloadPDFOfUserData, timeStamp],
+  );
 
   //fetch the user data and show on user management table
-  const fetchUserInfo = async () => {
+  const fetchUserInfo = useCallback(async () => {
     try {
       const res = await fetch("/displayUser", {
         method: "GET",
@@ -299,50 +442,14 @@ function AdminDashboard() {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, []);
 
-  //update the data of the user using user id
-  // const updateUserInfo = async (updatedRow) => {
-  //   const tm_name = updatedRow.tm_name;
-  //   const tm_no = updatedRow.tm_no;
-  //   // const user_type = updatedRow.user_type;
-  //   const email = updatedRow.email;
-  //   const address = updatedRow.address;
-
-  //   try {
-  //     const res = await fetch("/updateUser", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         tm_no: tm_no,
-  //         tm_name: tm_name,
-  //         // user_type: user_type,
-  //         email: email,
-  //         address: address,
-  //       }),
-  //     });
-
-  //     const data = await res.json();
-
-  //     if (res.status === 400 || res.status === 422 || !data) {
-  //       window.alert("Invalid");
-  //     } else if (res.status === 409) {
-  //       console.logt("user already exists");
-  //       refreshPage();
-  //     } else {
-  //       console.log("Data Updated Successful");
-  //       // refreshPage();
-  //       // const dateAndTime = timeStamp();
-  //       // const addMessage = `${updatedRow.user_name} user updated`;
-  //       // logData(dateAndTime, addMessage);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  useEffect(() => {
+    fetchUserInfo();
+  }, [fetchUserInfo]);
 
   //delete the data of the user using user id
-  const deleteUserInfo = async (selectedRow) => {
+  const deleteUserInfo = useCallback(async (selectedRow) => {
     const tm_no = selectedRow.tm_no;
     // console.log(tm_no);
     try {
@@ -357,6 +464,7 @@ function AdminDashboard() {
       if (res.status === 400 || res.status === 422 || !data) {
         window.alert("Invalid");
       } else {
+        setTableData((prev) => prev.filter((u) => u.tm_no !== tm_no));
         console.log("User Deleted Successful");
         // console.log("hello");
         // refreshPage();
@@ -367,13 +475,10 @@ function AdminDashboard() {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, []);
 
   // let CSVAndPDFFileName = `User_Management_${currentDate()}`;
 
-  useEffect(() => {
-    fetchUserInfo();
-  }, [refKey2]);
   return (
     <>
       {/* <UpdatePasswordPopup
@@ -416,12 +521,7 @@ function AdminDashboard() {
 
                     //call the delete user function and pass the user data
                     deleteUserInfo(selectedRow);
-
-                    setTimeout(() => {
-                      setRefKey2((refKey2) => refKey2 + 1);
-                      // setTableData(updatedRows);
-                      resolve();
-                    }, 500);
+                    resolve();
                   }),
 
                 // onRowUpdate: (updatedRow, oldRow) =>
@@ -452,11 +552,6 @@ function AdminDashboard() {
                 pageSizeOptions: false,
                 paginationType: "stepped",
                 addRowPosition: "first",
-                headerStyle: {
-                  position: "sticky",
-                  top: "0",
-                  fontWeight: "bold",
-                },
                 maxBodyHeight: "70vh",
                 rowStyle: {
                   // fontStyle:'bold'
@@ -470,6 +565,8 @@ function AdminDashboard() {
                   backdropFilter: "blur(5px)",
                 },
                 headerStyle: {
+                  position: "sticky",
+                  top: "0",
                   fontSize: "13px",
                   fontWeight: "bold",
                 },

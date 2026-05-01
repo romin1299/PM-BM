@@ -1,8 +1,4 @@
-import {
-  AccountCircleIcon,
-  FactCheckIcon,
-} from "../../components/NavbarComponent/ImportModules";
-
+import FactCheckIcon from "@mui/icons-material/FactCheck";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LocalMallIcon from "@mui/icons-material/LocalMall";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
@@ -11,13 +7,20 @@ import AddCardIcon from "@mui/icons-material/AddCard";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
+import PageviewIcon from "@mui/icons-material/Pageview";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 const allusers = [
+  //From PM
   "Admin",
   "Plant-Admin",
   "Section-Admin",
   "TL/HOSS",
-  "Operator",
+  //From spare toolRoom
+  "HOSS",
+  "Supervisor",
+  "Office Person",
 ];
 
 export const menuItems = [
@@ -30,9 +33,26 @@ export const menuItems = [
     allowedRoles: allusers,
   },
   {
+    title: "Spare Requests",
+    icon: (
+      <FactCheckIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/requests",
+    allowedRoles: allusers,
+  },
+  {
+    title: "User Management",
+    icon: (
+      <PersonAddIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/spareUserManagement",
+    allowedRoles: ["Plant-Admin", "Section-Admin", "HOSS", "Supervisor"],
+    hasToolRoomFilter: true,
+  },
+  {
     title: "Spare Part Search Button",
     icon: (
-      <AccountCircleIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+      <PageviewIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareSearchButton",
     allowedRoles: allusers,
@@ -56,7 +76,7 @@ export const menuItems = [
   {
     title: "Approval Logs",
     icon: (
-      <FactCheckIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+      <AssignmentTurnedInIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareApprovalLogs",
     allowedRoles: allusers,
