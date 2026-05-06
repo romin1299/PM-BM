@@ -6,7 +6,7 @@ import CustomManageShifts from "./CustomizedShifts/CustomManageShifts";
 import BMTitlebar from "../Component/BMTitlebar";
 import RoutingContext from "../../context/routing/RoutingContext";
 import axios from "axios";
-import CustomizedMajorBD from "./CustomizedMajorBD.jsx/CustomizedMajorBD";
+import CustomizedMajorBD from "./CustomizedMajorBD/CustomizedMajorBD";
 import {
   initialState,
   reducer,
@@ -23,7 +23,7 @@ const MainCustomized = () => {
   });
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
-    initialState("Yes")
+    initialState("Yes"),
   );
 
   const getMajorBDTime = async () => {
@@ -32,7 +32,7 @@ const MainCustomized = () => {
       const response = await axios.get(
         `/getMajorBDTime/${reduceState?.flagForTogglingFilter || undefined}/${
           reduceState?.selectedValue || undefined
-        }`
+        }`,
       );
       setMajorBDTime({
         ...majorBDTime,

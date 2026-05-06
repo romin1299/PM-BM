@@ -53,6 +53,7 @@ const quarterlyDataAdd = (
       targetDateOfCM: generalDateFormat(targetDateOfCM),
       requestSheet_quarter: getFinancialQuarter(targetDateOfCM),
       statusOfPlannedCM: "Planned",
+      requestSheetStatusOfCM,
       assignUserForCM,
     });
     plannedData?.push(yearlyDataObject1);

@@ -11,12 +11,115 @@ const cookieParser = require("cookie-parser");
 const Plant = require("../model/plantSchema");
 
 const tryCatchHandler = require("../errorHandler/tryCatchHandler");
-const filterMiddleware = require("../middleware/filterMiddleware");
+// const filterMiddleware = require("../middleware/filterMiddleware");
 const truncValue = require("../utils/truncValue");
 const logger = require("../utils/LoggingController/loggers");
 const maintenanceType = require("../utils/maintenanceType");
 const moment = require("moment");
 const { default: mongoose } = require("mongoose");
+
+const filterMiddleware = async (req, res, next) => {
+  try {
+    let queryObj = {
+        // "maintenanceReportFilledByMTD.breakDownTime": {
+        //   $gt: 0,
+        // },
+        // maintenanceType: "BM",
+      },
+      queryObjForPM = {};
+
+    if (req.query?.selectedYear) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+          req.query?.selectedYear,
+      };
+    }
+
+    if (req.query?.selectedMonth) {
+      queryObj = {
+        ...queryObj,
+        "preAggregationTimeStampOfRequestSheet.requestSheet_month":
+          req.query?.selectedMonth,
+      };
+    }
+
+    if (
+      req.query?.selectedRSStatus &&
+      req.query?.selectedRSStatus !== "undefined"
+    ) {
+      queryObj = {
+        ...queryObj,
+        requestSheetStatus: req.query?.selectedRSStatus,
+      };
+    }
+
+    if (req.params?.filter === "based-on-plant") {
+      queryObj = {
+        ...queryObj,
+        plantRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+
+      queryObjForPM = {
+        plant_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-section") {
+      queryObj = {
+        ...queryObj,
+        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+
+      queryObjForPM = {
+        section_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-subSection") {
+      queryObj = {
+        ...queryObj,
+        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+
+      queryObjForPM = {
+        subSection_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-cell") {
+      queryObj = {
+        ...queryObj,
+        cellRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+
+      queryObjForPM = {
+        cell_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-line") {
+      queryObj = {
+        ...queryObj,
+        lineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+
+      queryObjForPM = {
+        line_names: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    } else if (req.params?.filter === "based-on-machine") {
+      queryObj = {
+        ...queryObj,
+        machineRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        // "maintenanceReportFilledByMTD.workEndedDateOfBM": { $ne: null },
+      };
+
+      queryObjForPM = {
+        _id: mongoose.Types.ObjectId(req.params?.selectedId),
+      };
+    }
+    req.queryObj = queryObj;
+    req.queryObjForPM = queryObjForPM;
+    next();
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
+    res.status(500).json({ message: error?.message, error });
+  }
+};
 
 router.use(cookieParser());
 router.use(authenticate);
@@ -271,7 +374,7 @@ router.get(
       ];
     }
 
-    const pmLog = Machine.aggregate([
+    const pmLog = await Machine.aggregate([
       // {
       //   $match: req.queryObjForPM,
       // },
@@ -381,9 +484,7 @@ router.get(
     )
       delete req?.queryObj?.commonDataFilledByAssignUser;
 
-    console.log(req?.queryObj);
-
-    const bmLog = RequestSheetOfBM.aggregate([
+    const bmLog = await RequestSheetOfBM.aggregate([
       {
         $match: req?.queryObj,
       },
