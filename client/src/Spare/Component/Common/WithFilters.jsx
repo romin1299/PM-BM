@@ -29,6 +29,7 @@ const WithFilters = ({
             subSectionFiltration
             cellFiltration
             lineFiltration
+            machineFiltration
             resetButtonFiltration
             // quarterFiltration
             // isWithLocalStorageForFiltration="Yes"

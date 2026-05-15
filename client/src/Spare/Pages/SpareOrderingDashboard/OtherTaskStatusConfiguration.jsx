@@ -8,7 +8,7 @@ import { axiosGetOrDelete, axiosPostOrPatch } from "../../Utils/axiosUtils";
 const url = "/v1/spare/spareRequestSheet/manualApprovalStatus";
 
 const OtherTaskStatusConfiguration = memo(
-  ({ show, selectedRow, updateRow, handleModal }) => {
+  ({ show, popupRef, axiosParams, selectedRow, updateRow, handleModal }) => {
     const {
       register,
       handleSubmit,
@@ -19,9 +19,7 @@ const OtherTaskStatusConfiguration = memo(
         const { isError, spare } = await axiosGetOrDelete({
           url,
           axiosProps: {
-            params: {
-              _id: selectedRow?._id,
-            },
+            params: axiosParams,
           },
         });
         if (!isError) return spare;
@@ -30,19 +28,17 @@ const OtherTaskStatusConfiguration = memo(
     });
 
     const handleSubmitForm = async (formValue) => {
-      const { isError, spare } = await axiosPostOrPatch({
+      const { isError, spareParts } = await axiosPostOrPatch({
         url,
         apiType: "patch",
         axiosBody: formValue,
         axiosProps: {
-          params: {
-            _id: selectedRow?._id,
-          },
+          params: axiosParams,
         },
       });
 
       if (!isError) {
-        updateRow(spare);
+        updateRow(spareParts);
         handleModal();
         reset();
       }
@@ -53,12 +49,12 @@ const OtherTaskStatusConfiguration = memo(
         <Modal show={show} onHide={handleModal} animation={false} centered>
           <form onSubmit={handleSubmit(handleSubmitForm)}>
             <Modal.Header closeButton>
-              <Modal.Title>Other approval configuration</Modal.Title>
+              <Modal.Title>{popupRef?.popupTitle}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <CustomTextField
-                label="PR approval timestamp"
-                fieldName="rsPRAssignToAllBuyersTimeStamp.inString"
+                label={`PR ${popupRef?.popupTitle} timestamp`}
+                fieldName={`${popupRef?.key}TimeStamp.inString`}
                 inputProps={{
                   type: "datetime-local",
                 }}
@@ -66,40 +62,8 @@ const OtherTaskStatusConfiguration = memo(
                 errors={errors}
               />
               <CustomTextField
-                label="PR approval remarks"
-                fieldName="rsPRAssignToAllBuyersRemarks"
-                register={register}
-                errors={errors}
-              />
-
-              <CustomTextField
-                label="PO made timestamp"
-                fieldName="rsPOIssueToVendorTimeStamp.inString"
-                inputProps={{
-                  type: "datetime-local",
-                }}
-                register={register}
-                errors={errors}
-              />
-              <CustomTextField
-                label="PO made remarks"
-                fieldName="rsPOIssueToVendorRemarks"
-                register={register}
-                errors={errors}
-              />
-
-              <CustomTextField
-                label="Part receipt timestamp"
-                fieldName="rsPartReceiveTimeStamp.inString"
-                inputProps={{
-                  type: "datetime-local",
-                }}
-                register={register}
-                errors={errors}
-              />
-              <CustomTextField
-                label="Part receipt remarks"
-                fieldName="rsPartReceiveRemarks"
+                label={`${popupRef?.popupTitle} remarks`}
+                fieldName={`${popupRef?.key}Remarks`}
                 register={register}
                 errors={errors}
               />

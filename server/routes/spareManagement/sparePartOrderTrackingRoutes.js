@@ -6,6 +6,8 @@ const {
 } = require("../../controller/spareManagement/spareMiddleware");
 
 const {
+  orderTrackingAggregationFilters,
+  orderTrackingDashboardProjection,
   getOKBudgetOrNGApprovedRequestSheets,
   findOrderTrackingData,
 } = require("../../controller/spareManagement/sparePartOrderTrackingController");
@@ -14,6 +16,8 @@ router
   .route("/spareOrderTacking/spareRequestSheet")
   .get(
     spareFilterMiddleware,
+    orderTrackingAggregationFilters,
+    orderTrackingDashboardProjection,
     getOKBudgetOrNGApprovedRequestSheets,
     findOrderTrackingData,
   );

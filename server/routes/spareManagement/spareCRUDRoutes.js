@@ -24,6 +24,8 @@ const {
 } = require("../../controller/spareManagement/spareMiddleware");
 
 const {
+  orderTrackingAggregationFilters,
+  orderTrackingDashboardProjection,
   getOKBudgetOrNGApprovedRequestSheets,
 } = require("../../controller/spareManagement/sparePartOrderTrackingController");
 
@@ -55,12 +57,17 @@ router
 
 router
   .route("/spareRequestSheet/summery")
-  .get(spareFilterMiddleware, getSpareSheetsSummery);
+  .get(
+    spareFilterMiddleware,
+    orderTrackingAggregationFilters,
+    getSpareSheetsSummery,
+  );
 
 router
   .route("/spareRequestSheet/manualApprovalStatus")
   .patch(
     handelManualApprovalStatus,
+    orderTrackingDashboardProjection,
     getOKBudgetOrNGApprovedRequestSheets,
     manualApprovalStatusResponse,
   )

@@ -122,7 +122,6 @@ exports.NGBudgetMTD_HODFilters = tryCatchHandler(async (req, res, next) => {
 exports.getApprovalRequestSheets = tryCatchHandler(async (req, res, next) => {
   return res.status(201).json({
     message: "Approval request-sheets get successfully",
-    showToast: true,
     tableData: req.tableData,
   });
 });

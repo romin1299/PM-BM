@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useMemo, useState } from "react";
 import { Modal, Table } from "react-bootstrap";
 import Loading from "../../../components/Loading/Loading";
 import WithFilters from "../../Component/Common/WithFilters";
@@ -151,11 +151,27 @@ const ApprovalMappingComponent = memo(({ otherData }) =>
 );
 
 const LogsComponent = (props) => {
+  const apiReferencePropsBasedOnFilters = useMemo(
+    () => ({
+      params: {
+        flagForTogglingFilter: props?.flagForTogglingFilter,
+        selectedValue: props?.selectedValue,
+        selectedYear: props?.selectedYear,
+      },
+      referenceArrayForUseEffect: [
+        props?.flagForTogglingFilter,
+        props?.selectedValue,
+        props?.selectedYear,
+      ],
+    }),
+    [props?.flagForTogglingFilter, props?.selectedValue, props?.selectedYear],
+  );
+
   return (
     <div className="container-fluid" style={{ overflow: "auto" }}>
       <ApproveAndPendingUsersWiseCount {...props} />
       <SpareSheetCustomTable
-        {...props}
+        apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
         otherHeaders={[
           "HOD NG Budget Approval",
           "MTD TL",
@@ -168,6 +184,7 @@ const LogsComponent = (props) => {
           "TOOL ROOM",
         ]}
         OtherComp={ApprovalMappingComponent}
+        isPartWiseTable={false}
       />
     </div>
   );

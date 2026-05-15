@@ -1,193 +1,3 @@
-// import React, {
-//   useState,
-//   useMemo,
-//   useRef,
-//   useEffect,
-//   useCallback,
-// } from "react";
-// import Loading from "../../components/Loading/Loading";
-// import { axiosGetOrDelete } from "../Utils/axiosUtils";
-
-// const tableHeaders = [
-//   "Request No",
-//   "Product",
-//   "Line",
-//   "Machine No",
-//   "Machine Name",
-// ];
-
-// const MAX_ROWS = 200;
-// const SCROLL_THRESHOLD = 150;
-
-// const SpareSheetCustomTable = ({
-//   flagForTogglingFilter,
-//   selectedValue,
-//   selectedYear,
-//   otherHeaders = [],
-//   OtherComp,
-// }) => {
-//   const [cursor, setCursor] = useState(null);
-//   const [data, setData] = useState({
-//     isLoading: false,
-//     hasMore: true,
-//     tableData: [],
-//   });
-
-//   const containerRef = useRef(null);
-//   const isFetchingRef = useRef(false);
-
-//   const allHeaders = useMemo(
-//     () => [...tableHeaders, ...otherHeaders],
-//     [otherHeaders],
-//   );
-
-//   const fetchData = useCallback(async () => {
-//     if (isFetchingRef.current || !data.hasMore) return;
-
-//     isFetchingRef.current = true;
-
-//     setData((prev) => ({ ...prev, isLoading: true }));
-
-//     try {
-//       const {
-//         isError,
-//         tableData = [],
-//         hasMore,
-//         nextCursor,
-//       } = await axiosGetOrDelete({
-//         url: `/v1/spare/spareRequestSheet/logs`,
-//         axiosProps: {
-//           params: {
-//             flagForTogglingFilter,
-//             selectedValue,
-//             selectedYear,
-//             cursor,
-//           },
-//         },
-//       });
-
-//       if (!isError) {
-//         setData((prev) => ({
-//           tableData: [...prev.tableData, ...tableData].slice(-MAX_ROWS),
-//           hasMore,
-//           isLoading: false,
-//         }));
-
-//         setCursor(nextCursor);
-//       } else {
-//         setData((prev) => ({ ...prev, isLoading: false }));
-//       }
-//     } catch (e) {
-//       setData((prev) => ({ ...prev, isLoading: false }));
-//     } finally {
-//       isFetchingRef.current = false;
-//     }
-//   }, [
-//     cursor,
-//     data.hasMore,
-//     flagForTogglingFilter,
-//     selectedValue,
-//     selectedYear,
-//   ]);
-
-//   useEffect(() => {
-//     setCursor(null);
-//     setData({
-//       isLoading: false,
-//       hasMore: true,
-//       tableData: [],
-//     });
-//     isFetchingRef.current = false;
-
-//     fetchData();
-//   }, [flagForTogglingFilter, selectedValue, selectedYear]);
-
-//   const handleScroll = useCallback(() => {
-//     const el = containerRef.current;
-//     if (!el || isFetchingRef.current || !data.hasMore) return;
-
-//     const { scrollTop, scrollHeight, clientHeight } = el;
-
-//     if (scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD) {
-//       fetchData();
-//     }
-//   }, [fetchData, data.hasMore]);
-
-//   useEffect(() => {
-//     const el = containerRef.current;
-//     if (!el) return;
-
-//     let ticking = false;
-
-//     const onScroll = () => {
-//       if (!ticking) {
-//         window.requestAnimationFrame(() => {
-//           handleScroll();
-//           ticking = false;
-//         });
-//         ticking = true;
-//       }
-//     };
-
-//     el.addEventListener("scroll", onScroll);
-
-//     return () => el.removeEventListener("scroll", onScroll);
-//   }, [handleScroll]);
-
-//   return (
-//     <>
-//       <div ref={containerRef} style={{ maxHeight: "500px", overflowY: "auto" }}>
-//         <table className="ar-table pmSheetApprovalTableCol">
-//           <thead>
-//             <tr className="bg-button">
-//               {allHeaders.map((header, index) => (
-//                 <th
-//                   key={index}
-//                   className="ar-table-thead-header5 td-padding text-white"
-//                 >
-//                   {header}
-//                 </th>
-//               ))}
-//             </tr>
-//           </thead>
-
-//           <tbody>
-//             {data.tableData.map((row, index) => {
-//               const {
-//                 requestSheetNo = "",
-//                 cell_name = "",
-//                 line_name = "",
-//                 machine_code = "",
-//                 machine_name = "",
-//                 ...otherData
-//               } = row;
-
-//               return (
-//                 <tr
-//                   key={requestSheetNo || index}
-//                   className="ar-table-thead-header4 tableRowColor"
-//                 >
-//                   <td className="td-padding">{requestSheetNo}</td>
-//                   <td className="td-padding">{cell_name}</td>
-//                   <td className="td-padding">{line_name}</td>
-//                   <td className="td-padding">{machine_code}</td>
-//                   <td className="td-padding">{machine_name}</td>
-
-//                   {OtherComp && <OtherComp otherData={otherData} />}
-//                 </tr>
-//               );
-//             })}
-//           </tbody>
-//         </table>
-//       </div>
-
-//       {data.isLoading && <Loading />}
-//     </>
-//   );
-// };
-
-// export default React.memo(SpareSheetCustomTable);
-
 import React, {
   useState,
   useMemo,
@@ -207,16 +17,20 @@ const tableHeaders = [
   "Machine Name",
 ];
 
+const partColumns = ["Part name", "Part model"];
+
 const SpareSheetCustomTable = ({
-  flagForTogglingFilter,
-  selectedValue,
-  selectedYear,
   otherHeaders = [],
   OtherComp = null,
   url = `/v1/spare/spareRequestSheet/logs`,
   otherParentProps = {},
+  apiReferencePropsBasedOnFilters = {
+    params: {},
+    referenceArrayForUseEffect: [],
+  },
+  isPartWiseTable = true,
 }) => {
-  const [cursor, setCursor] = useState(null);
+  const cursorRef = useRef(null);
 
   const [data, setData] = useState({
     isLoading: false,
@@ -229,8 +43,11 @@ const SpareSheetCustomTable = ({
   const observerRef = useRef(null);
 
   const allHeaders = useMemo(
-    () => tableHeaders.concat(otherHeaders),
-    [otherHeaders],
+    () =>
+      isPartWiseTable
+        ? [...tableHeaders, ...partColumns].concat(otherHeaders)
+        : tableHeaders.concat(otherHeaders),
+    [otherHeaders, isPartWiseTable],
   );
 
   const fetchData = useCallback(async () => {
@@ -242,46 +59,41 @@ const SpareSheetCustomTable = ({
       url,
       axiosProps: {
         params: {
-          flagForTogglingFilter,
-          selectedValue,
-          selectedYear,
-          cursor,
+          cursor: cursorRef.current,
+          ...apiReferencePropsBasedOnFilters?.params,
         },
       },
     });
 
     if (!isError) {
       setData((prev) => ({
-        tableData: cursor
+        tableData: cursorRef.current
           ? [...prev.tableData, ...tableData].slice(-200)
           : tableData,
         hasMore,
         isLoading: false,
       }));
 
-      setCursor(nextCursor);
+      cursorRef.current = nextCursor;
     } else {
       setData((prev) => ({ ...prev, isLoading: false, hasMore: false }));
     }
   }, [
     url,
-    cursor,
     data.hasMore,
     data.isLoading,
-    flagForTogglingFilter,
-    selectedValue,
-    selectedYear,
+    apiReferencePropsBasedOnFilters?.params,
   ]);
 
   useEffect(() => {
-    setCursor(null);
+    cursorRef.current = null;
     setData({
       isLoading: false,
       hasMore: true,
       tableData: [],
     });
     fetchData();
-  }, [flagForTogglingFilter, selectedValue, selectedYear]);
+  }, apiReferencePropsBasedOnFilters?.referenceArrayForUseEffect);
 
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
@@ -301,13 +113,29 @@ const SpareSheetCustomTable = ({
     return () => observerRef.current?.disconnect();
   }, [data?.hasMore, fetchData]);
 
-  const updateRow = useCallback((propData) => {
-    setData((prev) => ({
-      ...prev,
-      tableData: prev.tableData.map((row) =>
-        row._id === propData?._id ? propData : row,
-      ),
-    }));
+  const updateRow = useCallback((spareParts = []) => {
+    if (!spareParts.length) return;
+
+    const partsMap = new Map(
+      spareParts.map((item) => [item?.changeParts?._id, item]),
+    );
+
+    setData((prev) => {
+      let hasChange = false;
+
+      const nextTableData = prev.tableData.map((row) => {
+        const updated = partsMap.get(row?.changeParts?._id);
+        if (updated) {
+          hasChange = true;
+          return updated;
+        }
+        return row;
+      });
+
+      if (!hasChange) return prev;
+
+      return { ...prev, tableData: nextTableData };
+    });
   }, []);
 
   const removeRow = useCallback((_id) => {
@@ -318,7 +146,11 @@ const SpareSheetCustomTable = ({
   }, []);
 
   return (
-    <div style={{ maxHeight: "75vh", overflowY: "auto" }} ref={containerRef}>
+    <div
+      style={{ maxHeight: "75vh", overflowY: "auto" }}
+      className="cell"
+      ref={containerRef}
+    >
       <table className="ar-table pmSheetApprovalTableCol">
         <thead className="mt-5">
           <tr className="bg-button">
@@ -344,6 +176,16 @@ const SpareSheetCustomTable = ({
                 <td className="td-padding">{line?.line_name}</td>
                 <td className="td-padding">{machine?.machine_code}</td>
                 <td className="td-padding">{machine?.machine_name}</td>
+                {isPartWiseTable && (
+                  <>
+                    <td className="td-padding ">
+                      {otherData?.changeParts?.partName}
+                    </td>
+                    <td className="td-padding ">
+                      {otherData?.changeParts?.partModel}
+                    </td>
+                  </>
+                )}
                 {OtherComp && (
                   <OtherComp
                     otherData={otherData}

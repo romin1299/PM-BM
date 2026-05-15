@@ -45,6 +45,9 @@ const plantSchema = new mongoose.Schema({
     },
     PRAssignToAllBuyersToPOIssueToVendor: { type: Number, default: 0 },
     POIssueToVendorToPartReceive: { type: Number, default: 0 },
+    partReceiveToPartInspection: { type: Number, default: 0 },
+    partInspectionToMRNIssued: { type: Number, default: 0 },
+    MRNIssuedToMRNApproved: { type: Number, default: 0 },
   },
 
   // hourly filter options for product/line report

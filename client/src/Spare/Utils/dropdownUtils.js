@@ -46,6 +46,17 @@ export const partTypes = [
   },
 ];
 
+export const partRequirementTypes = [
+  {
+    label: "Normal Part",
+    value: "Normal",
+  },
+  {
+    label: "Urgent Part",
+    value: "Urgent",
+  },
+];
+
 export const partRequestDepartmentList = [
   {
     label: "MTD",

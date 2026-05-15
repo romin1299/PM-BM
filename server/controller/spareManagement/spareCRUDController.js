@@ -8,7 +8,6 @@ const {
   spareApprovalStatus,
   spareApprovalUserType,
   dynamicApprovalStatus,
-  otherManualApprovalFields,
   timezone,
 } = require("../../utils/spareManagementUtils");
 const {
@@ -686,33 +685,51 @@ exports.getSpareSheetsSummery = tryCatchHandler(async (req, res, next) => {
       $match: req.queryObj,
     },
     {
+      $addFields: {
+        statusCountRelatedToEachParts: {
+          $reduce: {
+            input: "$changeParts",
+            initialValue: {
+              urgentParts: 0,
+              completedProcessParts: 0,
+            },
+            in: {
+              completedProcessParts: {
+                $add: [
+                  "$$value.completedProcessParts",
+                  {
+                    $cond: [
+                      {
+                        $gt: ["$$this.rsMRNApprovedTimeStamp.inDate", null],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+        totalParts: { $size: "$changeParts" },
+      },
+    },
+    {
       $group: {
         _id: null,
-        totalRequestSheet: {
-          $sum: 1,
+        totalParts: {
+          $sum: "$totalParts",
         },
-        openRequestSheet: {
-          $sum: {
-            $cond: [
-              {
-                $ne: ["$requestSheetStatus", "Completed"],
-              },
-              1,
-              0,
-            ],
-          },
+        completedProcessParts: {
+          $sum: "$statusCountRelatedToEachParts.completedProcessParts",
         },
-        closedRequestSheet: {
-          $sum: {
-            $cond: [
-              {
-                $eq: ["$requestSheetStatus", "Completed"],
-              },
-              1,
-              0,
-            ],
-          },
-        },
+      },
+    },
+    {
+      $project: {
+        totalParts: 1,
+        completedProcessParts: 1,
+        pendingParts: { $subtract: ["$totalParts", "$completedProcessParts"] },
       },
     },
   ]);
@@ -724,7 +741,7 @@ exports.getSpareSheetsSummery = tryCatchHandler(async (req, res, next) => {
 
   return res.status(201).json({
     message: "Spare sheet summery get successfully",
-    counters: counters?.[0],
+    counters: counters[0],
   });
 });
 
@@ -750,21 +767,44 @@ exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
       showToast: true,
     });
 
-  otherManualApprovalFields.map((item) => {
-    if (req.body?.[item]?.inString)
-      req.body[item] = generateTimeStampWithBothFormat(
-        req.body?.[item]?.inString,
-      );
-    else {
-      req.body[item] = null;
-    }
-  });
+  if (!req.query?.requestedField)
+    return res.status(500).json({
+      message: "Something went wrong!!!",
+      showToast: true,
+    });
 
-  await RequestSheetOfSpare.updateOne(req.query, req.body);
+  let { _id, requestedField } = req.query;
+
+  let partArrayFilter = {},
+    $set = {},
+    schemaKey = requestedField;
+
+  if (req.query?.partId) {
+    schemaKey = "changeParts.$[part]." + schemaKey;
+    partArrayFilter = {
+      arrayFilters: [{ "part._id": req.query?.partId }],
+    };
+  }
+
+  if (req.body?.[`${requestedField}TimeStamp`]?.inString)
+    $set[`${schemaKey}TimeStamp`] = generateTimeStampWithBothFormat(
+      req.body?.[`${requestedField}TimeStamp`]?.inString,
+    );
+  else $set[`${schemaKey}TimeStamp`] = null;
+  $set[`${schemaKey}Remarks`] = req.body[`${requestedField}Remarks`];
+
+  await RequestSheetOfSpare.updateOne({ _id }, { $set }, partArrayFilter);
+
   req.queryObj = {
-    _id: mongoose.Types.ObjectId(req.query?._id),
+    _id: mongoose.Types.ObjectId(_id),
   };
-  req.isSpareSheetById = true
+
+  if (req.query?.partId)
+    req.queryObj["changeParts._id"] = mongoose.Types.ObjectId(
+      req.query?.partId,
+    );
+
+  req.isSpareSheetById = true;
   return next();
 });
 
@@ -772,10 +812,73 @@ exports.manualApprovalStatusResponse = tryCatchHandler(
   async (req, res, next) => {
     return res.status(201).json({
       message: "Spare sheet updated successfully",
-      spare: req.tableData[0],
+      spareParts: req.tableData,
     });
   },
 );
+
+const handleGeneratePipeline = ({ _id, requestedField, partId }) => {
+  let $match = {
+      _id: mongoose.Types.ObjectId(_id),
+    },
+    otherPipeline = [],
+    $project = {
+      [`${requestedField}TimeStamp.inString`]: {
+        $dateToString: {
+          format: "%Y-%m-%dT%H:%M",
+          date: `$${requestedField}TimeStamp.inDate`,
+          timezone,
+        },
+      },
+      [`${requestedField}Remarks`]: 1,
+    };
+
+  if (partId) {
+    $match["changeParts._id"] = mongoose.Types.ObjectId(partId);
+
+    otherPipeline = [
+      {
+        $addFields: {
+          changePart: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: "$changeParts",
+                  as: "part",
+                  cond: {
+                    $eq: ["$$part._id", mongoose.Types.ObjectId(partId)],
+                  },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+    ];
+
+    $project = {
+      [`${requestedField}TimeStamp.inString`]: {
+        $dateToString: {
+          format: "%Y-%m-%dT%H:%M",
+          date: `$changePart.${requestedField}TimeStamp.inDate`,
+          timezone,
+        },
+      },
+      [`${requestedField}Remarks`]: `$changePart.${requestedField}Remarks`,
+    };
+  }
+
+  return [
+    {
+      $match,
+    },
+    ...otherPipeline,
+    {
+      $project,
+    },
+  ];
+};
 
 exports.getManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
   if (!req.query?._id)
@@ -784,44 +887,15 @@ exports.getManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
       showToast: true,
     });
 
-  const spare = await RequestSheetOfSpare.aggregate([
-    {
-      $match: {
-        _id: mongoose.Types.ObjectId(req.query?._id),
-      },
-    },
-    {
-      $project: {
-        "rsPRAssignToAllBuyersTimeStamp.inString": {
-          $dateToString: {
-            format: "%Y-%m-%dT%H:%M",
-            date: "$rsPRAssignToAllBuyersTimeStamp.inDate",
-            timezone,
-          },
-        },
+  if (!req.query?.requestedField)
+    return res.status(500).json({
+      message: "Something went wrong!!!",
+      showToast: true,
+    });
 
-        "rsPOIssueToVendorTimeStamp.inString": {
-          $dateToString: {
-            format: "%Y-%m-%dT%H:%M",
-            date: "$rsPOIssueToVendorTimeStamp.inDate",
-            timezone,
-          },
-        },
-
-        "rsPartReceiveTimeStamp.inString": {
-          $dateToString: {
-            format: "%Y-%m-%dT%H:%M",
-            date: "$rsPartReceiveTimeStamp.inDate",
-            timezone,
-          },
-        },
-
-        rsPRAssignToAllBuyersRemarks: 1,
-        rsPOIssueToVendorRemarks: 1,
-        rsPartReceiveRemarks: 1,
-      },
-    },
-  ]);
+  const spare = await RequestSheetOfSpare.aggregate(
+    handleGeneratePipeline(req.query),
+  );
 
   if (!spare || spare?.length <= 0)
     return res.status(400).json({

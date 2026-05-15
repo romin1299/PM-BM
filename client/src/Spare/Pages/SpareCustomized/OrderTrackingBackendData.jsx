@@ -28,6 +28,18 @@ const leadTimeFieldsWithLabel = [
     label: "PO issue to vendor - Part Receive",
     fieldName: "POIssueToVendorToPartReceive",
   },
+  {
+    label: "Part receive - Part inspection",
+    fieldName: "partReceiveToPartInspection",
+  },
+  {
+    label: "Part inspection - MRN Issued",
+    fieldName: "partInspectionToMRNIssued",
+  },
+  {
+    label: "MRN Issued - MRN Approved",
+    fieldName: "MRNIssuedToMRNApproved",
+  },
 ];
 
 const OrderTrackingBackendData = () => {

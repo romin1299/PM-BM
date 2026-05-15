@@ -153,11 +153,12 @@ const paginationRowLimit = 50;
 
 const timezone = "Asia/Kolkata";
 
-const otherManualApprovalFields = [
-  "rsPRAssignToAllBuyersTimeStamp",
-  "rsPOIssueToVendorTimeStamp",
-  "rsPartReceiveTimeStamp",
-];
+const buildSearchQuery = (searchText) => {
+  const search = searchText.trim();
+  const formattedSearch =
+    search.includes("-") || search.includes("/") ? `"${search}"` : search;
+  return formattedSearch;
+};
 
 module.exports = {
   spareApprovalStatus,
@@ -168,6 +169,6 @@ module.exports = {
   allMonths,
   allMonthsStr,
   paginationRowLimit,
-  otherManualApprovalFields,
   timezone,
+  buildSearchQuery,
 };

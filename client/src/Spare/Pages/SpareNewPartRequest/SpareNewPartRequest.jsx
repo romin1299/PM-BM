@@ -34,7 +34,7 @@ const SpareNewPartRequest = () => {
 
   const isViewMode = useMemo(
     () => searchParams.get("action") === "view",
-    [searchParams.get("action")],
+    [searchParams],
   );
 
   const navigate = useNavigate();
@@ -217,7 +217,11 @@ const SpareNewPartRequest = () => {
             {searchParams.get("_id") && (
               <Row className="border">
                 <Col>
-                  <button className="btn bg-button" onClick={handleNavigation}>
+                  <button
+                    className="btn bg-button"
+                    type="button"
+                    onClick={handleNavigation}
+                  >
                     Back
                   </button>
                 </Col>
@@ -225,7 +229,7 @@ const SpareNewPartRequest = () => {
             )}
             <Row className="border">
               <Col className="d-flex flex-column col-3">
-                <div className="d-flex">
+                {/* <div className="d-flex">
                   {partFor?.map((item) => (
                     <>
                       &nbsp;
@@ -246,7 +250,7 @@ const SpareNewPartRequest = () => {
                   <p className="text-error mb-1">
                     {errors?.["whichParts"]?.message}
                   </p>
-                )}
+                )} */}
               </Col>
               <Col className="d-flex align-items-center justify-content-center text-center col-6">
                 <h4 className="m-0">Spare Part Request(Order / Stock-in)</h4>

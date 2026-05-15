@@ -1,27 +1,18 @@
 const mongoose = require("mongoose");
 
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
-const { paginationRowLimit } = require("../../utils/spareManagementUtils");
+const {
+  paginationRowLimit,
+  buildSearchQuery,
+} = require("../../utils/spareManagementUtils");
 
 const Plant = require("../../model/plantSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 
-exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
+exports.orderTrackingAggregationFilters = tryCatchHandler(
   async (req, res, next) => {
-    let $match = req.queryObj,
-      otherPipeline = [],
-      $project = {
-        requestSheetNo: 1,
-        cell: 1,
-        line: 1,
-        machine: 1,
-        requestSheetStatus: 1,
-        partQty: 1,
-        "budget.budgetStatus": 1,
-      };
-
     if (!req.isSpareSheetById) {
-      $match.$or = [
+      req.queryObj.$or = [
         {
           "budget.budgetStatus": "OK",
         },
@@ -31,11 +22,25 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
         },
       ];
 
-      otherPipeline = [{ $sort: { _id: -1 } }, { $limit: paginationRowLimit }];
+      if (req.query?.pendingStage && req.query?.pendingStage !== "All")
+        req.queryObj[req.query?.pendingStage] = null;
 
-      if (req.query.cursor)
-        $match._id = { $lt: mongoose.Types.ObjectId(req.query.cursor) };
+      if (req.query?.partRequestFor && req.query?.partRequestFor !== "All")
+        req.queryObj.partRequestFor = req.query?.partRequestFor;
+
+      if (req.query?.search)
+        req.queryObj.$text = {
+          $search: buildSearchQuery(req.query?.search),
+        };
     }
+
+    return next();
+  },
+);
+
+exports.orderTrackingDashboardProjection = tryCatchHandler(
+  async (req, res, next) => {
+    let $project = {};
 
     const plant = await Plant.findOne({
       plant_id: req.rootUser?.plant_data?.split("-")?.[0],
@@ -108,7 +113,7 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
       });
 
       $project = {
-        ...$project,
+        "changeParts._id": 1,
         rsSubmitted: {
           timeStamp: `$rsSubmittedTimeStamp.inString`,
           taskStatus: "achieved",
@@ -131,10 +136,42 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
         ),
         rsPartReceive: generateTrackingValueProjection(
           "rsPOIssueToVendorTimeStamp",
-          "rsPartReceiveTimeStamp",
+          "changeParts.rsPartReceiveTimeStamp",
           plant?.leadTime?.POIssueToVendorToPartReceive,
         ),
+        rsPartInspection: generateTrackingValueProjection(
+          "changeParts.rsPartReceiveTimeStamp",
+          "changeParts.rsPartInspectionTimeStamp",
+          plant?.leadTime?.partReceiveToPartInspection,
+        ),
+        rsMRNIssued: generateTrackingValueProjection(
+          "changeParts.rsPartInspectionTimeStamp",
+          "changeParts.rsMRNIssuedTimeStamp",
+          plant?.leadTime?.partInspectionToMRNIssued,
+        ),
+        rsMRNApproved: generateTrackingValueProjection(
+          "changeParts.rsMRNIssuedTimeStamp",
+          "changeParts.rsMRNApprovedTimeStamp",
+          plant?.leadTime?.MRNIssuedToMRNApproved,
+        ),
       };
+    }
+
+    req.$project = $project;
+    return next();
+  },
+);
+
+exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
+  async (req, res, next) => {
+    let $match = req.queryObj,
+      otherPipeline = [];
+
+    if (!req.isSpareSheetById) {
+      otherPipeline = [{ $sort: { _id: -1 } }, { $limit: paginationRowLimit }];
+
+      if (req.query.cursor)
+        $match._id = { $lt: mongoose.Types.ObjectId(req.query.cursor) };
     }
 
     const tableData = await RequestSheetOfSpare.aggregate([
@@ -143,7 +180,21 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
       },
       ...otherPipeline,
       {
-        $project,
+        $unwind: "$changeParts",
+      },
+      {
+        $project: {
+          requestSheetNo: 1,
+          cell: 1,
+          line: 1,
+          machine: 1,
+          requestSheetStatus: 1,
+          partQty: 1,
+          "budget.budgetStatus": 1,
+          "changeParts.partName": 1,
+          "changeParts.partModel": 1,
+          ...req.$project,
+        },
       },
     ]);
 
@@ -160,7 +211,7 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
         nextCursor: tableData.length
           ? tableData[tableData.length - 1]._id
           : null,
-        hasMore: tableData.length === paginationRowLimit,
+        hasMore: tableData.length >= paginationRowLimit,
       };
     }
     return next();

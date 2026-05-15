@@ -12,17 +12,60 @@ import { axiosGetOrDelete } from "../../Utils/axiosUtils";
 import WithFilters from "../../Component/Common/WithFilters";
 import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 import OtherTaskStatusConfiguration from "./OtherTaskStatusConfiguration";
+import OtherFilters from "./OtherFilters";
+import SpareSummery from "../SpareSheets/SpareSummery";
 
 import "./SpareOrderTracking.scss";
 
 const taskStatusMappingKeys = [
-  "rsSubmitted",
-  "rsHODApproval",
-  "rsPRSubmitByToolroom",
-  "rsPRAssignToAllBuyers",
-  "rsPOIssueToVendor",
-  "rsPartReceive",
+  {
+    key: "rsSubmitted",
+    popupTitle: "",
+  },
+  {
+    key: "rsHODApproval",
+    popupTitle: "",
+  },
+  {
+    key: "rsPRSubmitByToolroom",
+    popupTitle: "",
+  },
+  {
+    key: "rsPRAssignToAllBuyers",
+    popupTitle: "PR Approval",
+  },
+  {
+    key: "rsPOIssueToVendor",
+    popupTitle: "PO Made",
+  },
+  {
+    key: "rsPartReceive",
+    popupTitle: "Part Receipt",
+  },
+  {
+    key: "rsPartInspection",
+    popupTitle: "Part Inspection",
+  },
+  {
+    key: "rsMRNIssued",
+    popupTitle: "MRN Issued",
+  },
+  {
+    key: "rsMRNApproved",
+    popupTitle: "MRN Approved",
+  },
 ];
+
+const partFields = [
+  "rsPartReceive",
+  "rsPartInspection",
+  "rsMRNIssued",
+  "rsMRNApproved",
+];
+
+const editableTaskStatus = new Set(
+  taskStatusMappingKeys.slice(-6)?.map((task) => task.key),
+);
 
 const colorsBasedOnTaskStatus = {
   assigned: "white",
@@ -78,17 +121,27 @@ const RejectTD = memo(({ _id, onDelete }) => (
 ));
 
 const EditOtherTrackingFields = memo(
-  ({ otherData, updateRow, handleModal }) => (
+  ({ popupRef, otherData, updateRow, handleModal }) => (
     <div className="d-flex align-items-center justify-content-center flex-column">
       <EditIcon
         fontSize="small"
         className="button-style text-primary"
-        onClick={() =>
+        onClick={() => {
+          let axiosParams = {
+            _id: otherData?._id,
+            requestedField: popupRef?.key,
+          };
+
+          if (partFields?.includes(popupRef?.key))
+            axiosParams["partId"] = otherData?.changeParts?._id;
+
           handleModal({
+            popupRef,
             selectedRow: otherData,
             updateRow,
-          })
-        }
+            axiosParams,
+          });
+        }}
       />
     </div>
   ),
@@ -100,6 +153,7 @@ const TaskStatusMappingComponent = memo(
     navigate,
     handleDelete,
     removeRow,
+    mode,
     handleModal,
     updateRow,
   }) => (
@@ -111,38 +165,42 @@ const TaskStatusMappingComponent = memo(
         _id={otherData?._id}
         onDelete={(_id) => handleDelete(_id, removeRow)}
       />
-      {taskStatusMappingKeys?.map((key = "") => (
+      {taskStatusMappingKeys?.map((item) => (
         <td className="td-padding ">
-          {otherData?.[key]?.taskStatus && (
+          {otherData?.[item?.key]?.taskStatus && (
             <div className="d-flex align-items-center justify-content-center flex-column">
               <CircleIcon
                 fontSize="small"
                 sx={{
                   display: "inline-flex",
                   border:
-                    colorsBasedOnTaskStatus?.[otherData?.[key]?.taskStatus] ===
-                    "white"
+                    colorsBasedOnTaskStatus?.[
+                      otherData?.[item?.key]?.taskStatus
+                    ] === "white"
                       ? "1px solid grey"
                       : "none",
                   borderRadius: "50%",
                   color:
-                    colorsBasedOnTaskStatus?.[otherData?.[key]?.taskStatus],
+                    colorsBasedOnTaskStatus?.[
+                      otherData?.[item?.key]?.taskStatus
+                    ],
                 }}
               />
-              {otherData?.[key]?.timeStamp}
+              {otherData?.[item?.key]?.timeStamp}
+              {editableTaskStatus.has(item?.key) &&
+                mode === "Edit" &&
+                otherData?.requestSheetStatus === "Completed" && (
+                  <EditOtherTrackingFields
+                    handleModal={handleModal}
+                    otherData={otherData}
+                    updateRow={updateRow}
+                    popupRef={item}
+                  />
+                )}
             </div>
           )}
         </td>
       ))}
-      <td className="td-padding ">
-        {otherData?.requestSheetStatus === "Completed" && (
-          <EditOtherTrackingFields
-            handleModal={handleModal}
-            otherData={otherData}
-            updateRow={updateRow}
-          />
-        )}
-      </td>
     </>
   ),
 );
@@ -165,9 +223,31 @@ const OrderTrackingDashboard = memo((props) => {
 
   const [modelState, setModelState] = useState({
     show: false,
+    popupRef: {
+      key: "rsPRAssignToAllBuyers",
+      popupTitle: "PR Assign",
+    },
+    axiosParams: {},
     selectedRow: {},
     updateRow: () => {},
   });
+
+  const [otherSelectedFilters, setOtherSelectedFilters] = useState({
+    pendingStage: "All",
+    partRequestFor: "All",
+    search: "",
+  });
+
+  const [mode, setMode] = useState("View");
+
+  const handleSelectOtherFilters = useCallback(
+    (next) =>
+      setOtherSelectedFilters((prev) => ({
+        ...prev,
+        ...next,
+      })),
+    [],
+  );
 
   const handleModal = useCallback(
     (propState) =>
@@ -179,14 +259,55 @@ const OrderTrackingDashboard = memo((props) => {
   );
 
   const otherParentProps = useMemo(
-    () => ({ navigate, handleDelete, handleModal }),
-    [navigate, handleDelete, handleModal],
+    () => ({
+      navigate,
+      handleDelete,
+      handleModal,
+      mode,
+    }),
+    [navigate, handleDelete, handleModal, mode],
+  );
+
+  const apiReferencePropsBasedOnFilters = useMemo(
+    () => ({
+      params: {
+        flagForTogglingFilter: props?.flagForTogglingFilter,
+        selectedValue: props?.selectedValue,
+        selectedYear: props?.selectedYear,
+        ...otherSelectedFilters,
+      },
+      referenceArrayForUseEffect: [
+        props?.flagForTogglingFilter,
+        props?.selectedValue,
+        props?.selectedYear,
+        otherSelectedFilters?.pendingStage,
+        otherSelectedFilters?.partRequestFor,
+        otherSelectedFilters?.search,
+      ],
+    }),
+    [
+      otherSelectedFilters,
+      props?.flagForTogglingFilter,
+      props?.selectedValue,
+      props?.selectedYear,
+    ],
   );
 
   return (
-    <div className="container-fluid" style={{ overflow: "auto" }}>
+    <div style={{ overflow: "auto" }}>
+      <div className="cell p-2 rounded-2 d-flex justify-content-between">
+        <SpareSummery
+          apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
+        />
+        <OtherFilters
+          {...otherSelectedFilters}
+          mode={mode}
+          setMode={setMode}
+          handleSelectOtherFilters={handleSelectOtherFilters}
+        />
+      </div>
       <SpareSheetCustomTable
-        {...props}
+        apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
         url="/v1/spare/spareOrderTacking/spareRequestSheet"
         otherHeaders={[
           "View",
@@ -199,7 +320,9 @@ const OrderTrackingDashboard = memo((props) => {
           "PR Approval",
           "PO Made",
           "Part Receipt",
-          "Action",
+          "Part Inspection",
+          "MRN Issued",
+          "MRN Approved",
         ]}
         OtherComp={TaskStatusMappingComponent}
         otherParentProps={otherParentProps}

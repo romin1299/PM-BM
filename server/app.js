@@ -50,7 +50,8 @@ app.use(
   require("./routes/spareManagement/spareCRUDRoutes"),
   require("./routes/spareManagement/spareApprovalRoutes"),
   require("./routes/spareManagement/spareDynamicApprovalRoutes"),
-  require("./routes/spareManagement/sparePardOrderTrackingRoutes"),
+  require("./routes/spareManagement/sparePartOrderTrackingRoutes"),
+  require("./routes/spareManagement/sparePartSearchRoutes"),
 );
 
 app.use(

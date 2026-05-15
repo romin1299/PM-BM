@@ -32,7 +32,7 @@ const SpareTableWithFilters = memo(
           </Row>
         </>
       ),
-      [OtherCompo, url, memoTableProps],
+      [url, memoTableProps],
     );
 
     return <WithFilters title={title} PropComp={renderContent} />;

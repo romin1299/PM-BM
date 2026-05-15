@@ -12515,3 +12515,11 @@
     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
 >>>>>>> 830f5f8c3bfe823f1527a06978dbcf9f1cc770c6
 >>>>>>> 9076fa6f4cd0ae3dc000b9536764737523d22ceb
+2026-05-06T15:19 | CM | rq is not defined
+		ReferenceError: rq is not defined
+    at /home/hp/Downloads/LiveProjects/DENSO/denso_pm_bm/server/controller/spareManagement/spareCRUDController.js:795:35
+    at /home/hp/Downloads/LiveProjects/DENSO/denso_pm_bm/server/errorHandler/tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (/home/hp/Downloads/LiveProjects/DENSO/denso_pm_bm/server/node_modules/express/lib/router/layer.js:95:5)
+    at next (/home/hp/Downloads/LiveProjects/DENSO/denso_pm_bm/server/node_modules/express/lib/router/route.js:144:13)
+    at /home/hp/Downloads/LiveProjects/DENSO/denso_pm_bm/server/controller/spareManagement/sparePartOrderTrackingController.js:205:12
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
