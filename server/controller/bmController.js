@@ -1052,6 +1052,13 @@ router.patch(
         // isRequestSheetExist?.requestSheetStatus === statusArray[1]
       ) {
         let requestSheetStatus = "";
+
+        if (
+          req.body?.handOverUser &&
+          mongoose.Types.ObjectId.isValid(req.body?.handOverUser)
+        )
+          queryObj["handOverUser"] = req.body?.handOverUser;
+
         if (req.body?.work_order_status === "Open") {
           requestSheetStatus = statusArray[2];
           queryObj = {
