@@ -2,20 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  searchFilter,
+  getSearchParts,
+  getSearchPartsBasedOnLocation,
 } = require("../../controller/spareManagement/sparePartSearchController");
 
-const {
-  getOKBudgetOrNGApprovedRequestSheets,
-  findOrderTrackingData,
-} = require("../../controller/spareManagement/sparePartOrderTrackingController");
-
-router
-  .route("/spareSearch")
-  .get(
-    searchFilter,
-    getOKBudgetOrNGApprovedRequestSheets,
-    findOrderTrackingData,
-  );
+router.route("/spareSearch").get(getSearchParts);
+router.route("/spareSearch/location").get(getSearchPartsBasedOnLocation);
 
 module.exports = router;

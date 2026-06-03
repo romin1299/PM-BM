@@ -1,26 +1,27 @@
-import React, {
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-  useEffect,
-} from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import Loading from "../../components/Loading/Loading";
 
 import { axiosGetOrDelete } from "../Utils/axiosUtils";
 
-const tableHeaders = [
-  "Request No",
-  "Product",
-  "Line",
-  "Machine No",
-  "Machine Name",
-];
+export const UptoMachineHeaders = ({ otherData }) => (
+  <>
+    <td className="td-padding">{otherData?.requestSheetNo}</td>
+    <td className="td-padding">{otherData?.cell?.cell_name}</td>
+    <td className="td-padding">{otherData?.line?.line_name}</td>
+    <td className="td-padding">{otherData?.machine?.machine_code}</td>
+    <td className="td-padding">{otherData?.machine?.machine_name}</td>
+  </>
+);
 
-const partColumns = ["Part name", "Part model"];
+export const PartDetailsHeaders = ({ otherData }) => (
+  <>
+    <td className="td-padding ">{otherData?.changeParts?.partName}</td>
+    <td className="td-padding ">{otherData?.changeParts?.partModel}</td>
+  </>
+);
 
 const SpareSheetCustomTable = ({
-  otherHeaders = [],
+  tableHeaders = [],
   OtherComp = null,
   url = `/v1/spare/spareRequestSheet/logs`,
   otherParentProps = {},
@@ -28,7 +29,6 @@ const SpareSheetCustomTable = ({
     params: {},
     referenceArrayForUseEffect: [],
   },
-  isPartWiseTable = true,
 }) => {
   const cursorRef = useRef(null);
 
@@ -41,14 +41,6 @@ const SpareSheetCustomTable = ({
   const containerRef = useRef(null);
   const sentinelRef = useRef(null);
   const observerRef = useRef(null);
-
-  const allHeaders = useMemo(
-    () =>
-      isPartWiseTable
-        ? [...tableHeaders, ...partColumns].concat(otherHeaders)
-        : tableHeaders.concat(otherHeaders),
-    [otherHeaders, isPartWiseTable],
-  );
 
   const fetchData = useCallback(async () => {
     if (data.isLoading || !data.hasMore) return;
@@ -74,7 +66,7 @@ const SpareSheetCustomTable = ({
         isLoading: false,
       }));
 
-      cursorRef.current = nextCursor;
+      if (hasMore) cursorRef.current = nextCursor;
     } else {
       setData((prev) => ({ ...prev, isLoading: false, hasMore: false }));
     }
@@ -154,7 +146,7 @@ const SpareSheetCustomTable = ({
       <table className="ar-table pmSheetApprovalTableCol">
         <thead className="mt-5">
           <tr className="bg-button">
-            {allHeaders?.map((tColumn) => (
+            {tableHeaders?.map((tColumn) => (
               <th className={"ar-table-thead-header5 td-padding text-white"}>
                 {tColumn}
               </th>
@@ -162,41 +154,18 @@ const SpareSheetCustomTable = ({
           </tr>
         </thead>
         <tbody>
-          {data?.tableData?.map(
-            ({
-              requestSheetNo = "",
-              cell = { cell_name: "" },
-              line = { line_name: "" },
-              machine = { machine_code: "", machine_name: "" },
-              ...otherData
-            }) => (
-              <tr className="ar-table-thead-header4 tableRowColor">
-                <td className="td-padding">{requestSheetNo}</td>
-                <td className="td-padding">{cell?.cell_name}</td>
-                <td className="td-padding">{line?.line_name}</td>
-                <td className="td-padding">{machine?.machine_code}</td>
-                <td className="td-padding">{machine?.machine_name}</td>
-                {isPartWiseTable && (
-                  <>
-                    <td className="td-padding ">
-                      {otherData?.changeParts?.partName}
-                    </td>
-                    <td className="td-padding ">
-                      {otherData?.changeParts?.partModel}
-                    </td>
-                  </>
-                )}
-                {OtherComp && (
-                  <OtherComp
-                    otherData={otherData}
-                    {...otherParentProps}
-                    removeRow={removeRow}
-                    updateRow={updateRow}
-                  />
-                )}
-              </tr>
-            ),
-          )}
+          {data?.tableData?.map((otherData) => (
+            <tr className="ar-table-thead-header4 tableRowColor">
+              {OtherComp && (
+                <OtherComp
+                  otherData={otherData}
+                  {...otherParentProps}
+                  removeRow={removeRow}
+                  updateRow={updateRow}
+                />
+              )}
+            </tr>
+          ))}
 
           <tr className="ar-table-thead-header4 tableRowColor">
             <div ref={sentinelRef} style={{ height: "10px" }} />

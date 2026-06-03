@@ -1,129 +1,155 @@
-import React from "react";
-import { Col, Row } from "react-bootstrap";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { axiosGetOrDelete } from "../../../Spare/Utils/axiosUtils";
 
-const PartListV2 = ({ fields, register }) => {
-  console.log(fields);
+const columns = [
+  { label: "Part Location", field: "location", type: "text" },
+  { label: "Part No.", field: "partModel", type: "text" },
+  { label: "Part Name", field: "partName", type: "text" },
+  { label: "Maker", field: "manufacture", type: "text" },
+  { label: "Quantity", field: "quantity", type: "number" },
+  { label: "Cost", field: "cost", type: "number" },
+];
+
+const PartListV2 = ({ fields, append, remove, register, setValue }) => {
+  const debounceRef = useRef({});
+  const [loadingRows, setLoadingRows] = useState({});
+
+  useEffect(() => {
+    return () => {
+      Object.values(debounceRef.current).forEach(clearTimeout);
+    };
+  }, []);
+
+  const fetchAndFillRow = useCallback(
+    async (location, index) => {
+      if (!location?.trim()) return;
+
+      setLoadingRows((prev) => ({ ...prev, [index]: true }));
+
+      const { isError, master } = await axiosGetOrDelete({
+        url: "/v1/spare/spareSearch/location",
+        axiosProps: { params: { location: location.trim() } },
+      });
+
+      setLoadingRows((prev) => {
+        const s = { ...prev };
+        delete s[index];
+        return s;
+      });
+
+      if (debounceRef.current[index]) {
+        clearTimeout(debounceRef.current[index]);
+        delete debounceRef.current[index];
+      }
+
+      if (isError || !master) return;
+
+      setValue(`changeParts.${index}`, master, {
+        shouldDirty: true,
+      });
+    },
+    [setValue],
+  );
+
+  const handleLocationChange = useCallback(
+    (e, index, registerOnChange) => {
+      registerOnChange(e);
+
+      const value = e.target.value;
+
+      if (debounceRef.current[index]) clearTimeout(debounceRef.current[index]);
+
+      debounceRef.current[index] = setTimeout(() => {
+        fetchAndFillRow(value, index);
+      }, 600);
+    },
+    [fetchAndFillRow],
+  );
 
   return (
-    <div className="mtd-parts-section">
-      <Row className="m-0 d-flex">
-        <Col
-          lg={2}
-          md={2}
-          sm={2}
-          className="border col-auto d-flex align-items-center gap-1"
+    <table
+      style={{
+        width: "100%",
+        tableLayout: "fixed",
+        borderCollapse: "collapse",
+      }}
+    >
+      <tr>
+        {columns.map(({ label }) => (
+          <td
+            key={label}
+            className="border p-1"
+            style={{
+              fontWeight: "bold",
+              fontSize: "12px",
+              textAlign: "center",
+            }}
+          >
+            {label}
+          </td>
+        ))}
+        <td
+          className="border p-1"
+          style={{
+            fontWeight: "bold",
+            fontSize: "12px",
+            textAlign: "center",
+            width: "70px",
+          }}
         >
-          <small>
-            <b>PART NO.</b>
-          </small>
-        </Col>
-        <Col
-          lg={2}
-          md={2}
-          sm={2}
-          className="border col-auto d-flex align-items-center gap-1"
-        >
-          <small>
-            <b>PART NAME</b>
-          </small>
-        </Col>
-        <Col
-          lg={2}
-          md={2}
-          sm={2}
-          className="border col-auto d-flex align-items-center gap-1"
-        >
-          <small>
-            <b>MAKER</b>
-          </small>
-        </Col>
-        <Col
-          lg={2}
-          md={2}
-          sm={2}
-          className="border col-auto d-flex align-items-center gap-1"
-        >
-          <small>
-            <b>QUANTITY</b>
-          </small>
-        </Col>
-        <Col
-          lg={2}
-          md={2}
-          sm={2}
-          className="border col-auto d-flex align-items-center gap-1"
-        >
-          <small>
-            <b>COST</b>
-          </small>
-        </Col>
-        <Col
-          lg={2}
-          md={2}
-          sm={2}
-          className="border col-auto d-flex align-items-center gap-1 "
-        >
-          <small>
-            <b>UPDATE</b>
-          </small>
-        </Col>
-      </Row>
+          Action
+        </td>
+      </tr>
 
       {fields?.map((item, index) => (
-        <Row className="m-0 d-flex">
-          <Col
-            lg={2}
-            md={2}
-            sm={2}
-            className={`border col-auto d-flex align-items-center gap-1 `}
-          >
-            <input
-              type="text"
-              className="mb-2 mt-2"
-              {...register(`changeParts.${index}.partNo`)}
-            />
-          </Col>
-          <Col lg={2} md={2} sm={2} className="border">
-            <input
-              type="text"
-              className="mb-2 mt-2"
-              {...register(`changeParts.${index}.partName`)}
-            />
-          </Col>
-          <Col lg={2} md={2} sm={2} className="border">
-            <input
-              type="text"
-              className="mb-2 mt-2"
-              {...register(`changeParts.${index}.makerName`)}
-            />
-          </Col>
-          <Col lg={2} md={2} sm={2} className="border">
-            <input
-              type="number"
-              className="mb-2 mt-2"
-              {...register(`changeParts.${index}.quantity`)}
-            />
-          </Col>
-          <Col lg={2} md={2} sm={2} className="border">
-            <input
-              type="number"
-              className="mb-2 mt-2"
-              {...register(`changeParts.${index}.cost`)}
-            />
-          </Col>
-          <Col
-            lg={2}
-            md={2}
-            sm={2}
-            className="border d-block align-items-center gap-1 p-1"
-          >
-            <button class="bg-danger text-white border-0" onClick={() => {}}>
+        <tr key={item.id}>
+          {columns.map(({ field, type }) => {
+            const { onChange: registerOnChange, ...restRegister } = register(
+              `changeParts.${index}.${field}`,
+            );
+
+            return (
+              <td key={field} className="border p-1">
+                <input
+                  type={type}
+                  style={{ width: "100%" }}
+                  {...restRegister}
+                  onChange={(e) =>
+                    field === "location"
+                      ? handleLocationChange(e, index, registerOnChange)
+                      : registerOnChange(e)
+                  }
+                />
+                {field === "location" && loadingRows[index] && (
+                  <small style={{ color: "gray" }}>Loading...</small>
+                )}
+              </td>
+            );
+          })}
+          <td className="border p-1" style={{ textAlign: "center" }}>
+            <button
+              type="button"
+              className="bg-danger text-white border-0"
+              onClick={() => remove(index)}
+            >
               Cancel
             </button>
-          </Col>
-        </Row>
+          </td>
+        </tr>
       ))}
-    </div>
+
+      <tr>
+        <td colSpan={columns.length + 1} className="border p-1">
+          <button
+            type="button"
+            className="bg-warning text-white border-0"
+            onClick={() => append({})}
+          >
+            Add Part
+          </button>
+        </td>
+      </tr>
+    </table>
   );
 };
 

@@ -7,10 +7,15 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import DescriptionIcon from "@mui/icons-material/Description";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+
 import { axiosGetOrDelete } from "../../Utils/axiosUtils";
 
 import WithFilters from "../../Component/Common/WithFilters";
-import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
+import SpareSheetCustomTable, {
+  UptoMachineHeaders,
+  PartDetailsHeaders,
+} from "../../Component/SpareSheetCustomTable";
 import OtherTaskStatusConfiguration from "./OtherTaskStatusConfiguration";
 import OtherFilters from "./OtherFilters";
 import SpareSummery from "../SpareSheets/SpareSummery";
@@ -74,50 +79,66 @@ const colorsBasedOnTaskStatus = {
   delayedApproval: "yellow",
 };
 
-const ViewTD = memo(({ _id, navigate }) => (
+const TDWrapper = ({ children }) => (
   <td className="td-padding ">
     <div className="d-flex align-items-center justify-content-center">
-      <RemoveRedEyeIcon
-        fontSize="small"
-        className="button-style text-primary"
-        onClick={() =>
-          navigate(`/spare/spareNewPartRequest/?_id=${_id}&action=view`)
-        }
-      />
+      {children}
     </div>
   </td>
+);
+
+const ViewTD = memo(({ _id, navigate }) => (
+  <TDWrapper>
+    <RemoveRedEyeIcon
+      fontSize="small"
+      className="button-style text-primary"
+      onClick={() =>
+        navigate(`/spare/spareNewPartRequest/?_id=${_id}&action=view`)
+      }
+    />
+  </TDWrapper>
 ));
 
 const PRLinkTD = memo(() => (
-  <td className="td-padding ">
-    <div className="d-flex align-items-center justify-content-center">
-      <OpenInNewIcon fontSize="small" className="button-style text-primary" />
-    </div>
-  </td>
+  <TDWrapper>
+    <OpenInNewIcon fontSize="small" className="button-style text-primary" />
+  </TDWrapper>
 ));
 
 const EditTD = memo(({ _id, navigate }) => (
-  <td className="td-padding ">
-    <div className="d-flex align-items-center justify-content-center">
-      <DescriptionIcon
+  <TDWrapper>
+    <DescriptionIcon
+      fontSize="small"
+      className="button-style text-primary"
+      onClick={() => navigate(`/spare/spareNewPartRequest/?_id=${_id}`)}
+    />
+  </TDWrapper>
+));
+
+const MasterTD = memo(({ canConfigureMaster, _id, partId, navigate }) => (
+  <TDWrapper>
+    {canConfigureMaster && (
+      <AppRegistrationIcon
         fontSize="small"
         className="button-style text-primary"
-        onClick={() => navigate(`/spare/spareNewPartRequest/?_id=${_id}`)}
+        onClick={() =>
+          navigate(
+            `/spare/spareMasterRegistration/?sheetId=${_id}&partId=${partId}`,
+          )
+        }
       />
-    </div>
-  </td>
+    )}
+  </TDWrapper>
 ));
 
 const RejectTD = memo(({ _id, onDelete }) => (
-  <td className="td-padding ">
-    <div className="d-flex align-items-center justify-content-center">
-      <DeleteIcon
-        fontSize="small"
-        className="button-style text-primary"
-        onClick={() => onDelete(_id)}
-      />
-    </div>
-  </td>
+  <TDWrapper>
+    <DeleteIcon
+      fontSize="small"
+      className="button-style text-primary"
+      onClick={() => onDelete(_id)}
+    />
+  </TDWrapper>
 ));
 
 const EditOtherTrackingFields = memo(
@@ -158,6 +179,8 @@ const TaskStatusMappingComponent = memo(
     updateRow,
   }) => (
     <>
+      <UptoMachineHeaders otherData={otherData} />
+      <PartDetailsHeaders otherData={otherData} />
       <ViewTD _id={otherData?._id} navigate={navigate} />
       <PRLinkTD />
       <EditTD _id={otherData?._id} navigate={navigate} />
@@ -165,6 +188,13 @@ const TaskStatusMappingComponent = memo(
         _id={otherData?._id}
         onDelete={(_id) => handleDelete(_id, removeRow)}
       />
+      <MasterTD
+        _id={otherData?._id}
+        canConfigureMaster={otherData?.canConfigureMaster}
+        partId={otherData?.changeParts?._id}
+        navigate={navigate}
+      />
+
       {taskStatusMappingKeys?.map((item) => (
         <td className="td-padding ">
           {otherData?.[item?.key]?.taskStatus && (
@@ -309,11 +339,19 @@ const OrderTrackingDashboard = memo((props) => {
       <SpareSheetCustomTable
         apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
         url="/v1/spare/spareOrderTacking/spareRequestSheet"
-        otherHeaders={[
+        tableHeaders={[
+          "Request No",
+          "Product",
+          "Line",
+          "Machine No",
+          "Machine Name",
+          "Part name",
+          "Part model",
           "View",
           "PR Link",
           "Edit",
           "Reject",
+          "Master",
           "Request Submitted",
           "Internal Approval",
           "PR Generation",

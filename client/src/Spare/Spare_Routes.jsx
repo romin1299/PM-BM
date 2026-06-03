@@ -25,8 +25,8 @@
 // const SpareReceivingDashboard = lazy(() =>
 //   import("./Pages/SpareReceivingDashboard/SpareReceivingDashboard")
 // );
-// const SpareRegistration = lazy(() =>
-//   import("./Pages/SpareRegistration/SpareRegistration")
+// const SpareMasterRegistration = lazy(() =>
+//   import("./Pages/SpareMasterRegistration/SpareMasterRegistration")
 // );
 // const SparePartIssuance = lazy(() =>
 //   import("./Pages/SparePartIssuance/SparePartIssuance")
@@ -71,8 +71,8 @@
 //       element: <SpareReceivingDashboard />,
 //     },
 //     {
-//       path: "/spare/spareRegistration",
-//       element: <SpareRegistration />,
+//       path: "/spare/SpareMasterRegistration",
+//       element: <SpareMasterRegistration />,
 //     },
 //     {
 //       path: "/spare/sparePartIssuance",
@@ -155,8 +155,8 @@ const SpareOrderingDashboard = lazy(
 const SpareReceivingDashboard = lazy(
   () => import("./Pages/SpareReceivingDashboard/SpareReceivingDashboard"),
 );
-const SpareRegistration = lazy(
-  () => import("./Pages/SpareRegistration/SpareRegistration"),
+const SpareMasterRegistration = lazy(
+  () => import("./Pages/SpareMasterRegistration/SpareMasterRegistration"),
 );
 const SparePartIssuance = lazy(
   () => import("./Pages/SparePartIssuance/SparePartIssuance"),
@@ -224,8 +224,8 @@ const routes = [
     allowedRoles: allusers,
   },
   {
-    path: "/spare/spareRegistration",
-    element: <SpareRegistration />,
+    path: "/spare/spareMasterRegistration",
+    element: <SpareMasterRegistration />,
     allowedRoles: allusers,
   },
   {

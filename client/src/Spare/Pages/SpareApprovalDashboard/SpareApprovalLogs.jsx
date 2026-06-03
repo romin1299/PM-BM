@@ -4,7 +4,9 @@ import Loading from "../../../components/Loading/Loading";
 import WithFilters from "../../Component/Common/WithFilters";
 import useSafeGetRequest from "../../../CustomHooks/useSafeGetRequest";
 
-import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
+import SpareSheetCustomTable, {
+  UptoMachineHeaders,
+} from "../../Component/SpareSheetCustomTable";
 
 const LogsMappingKeys = [
   "mtdHODApprovalIfBudgetIsNGApprovalLogs",
@@ -124,31 +126,34 @@ const ApproveAndPendingUsersWiseCount = (prop) => {
   );
 };
 
-const ApprovalMappingComponent = memo(({ otherData }) =>
-  LogsMappingKeys?.map((key = "") => (
-    <td className="td-padding">
-      {otherData?.[key]?.map(
-        ({
-          _id = "",
-          approvalStatus = "",
-          user = {},
-          approvalDateAndTime = "",
-          rejectedRemarks = "",
-        }) => (
-          <p key={_id}>
-            <b>{approvalStatus}</b>
-            &nbsp;
-            {user?.tm_name && `- ${user?.tm_name}`}
-            &nbsp;
-            {approvalDateAndTime && `- ${approvalDateAndTime}`}
-            &nbsp;
-            {rejectedRemarks && `- ${rejectedRemarks}`}
-          </p>
-        ),
-      )}
-    </td>
-  )),
-);
+const ApprovalMappingComponent = memo(({ otherData }) => (
+  <>
+    <UptoMachineHeaders otherData={otherData} />
+    {LogsMappingKeys?.map((key = "") => (
+      <td className="td-padding">
+        {otherData?.[key]?.map(
+          ({
+            _id = "",
+            approvalStatus = "",
+            user = {},
+            approvalDateAndTime = "",
+            rejectedRemarks = "",
+          }) => (
+            <p key={_id}>
+              <b>{approvalStatus}</b>
+              &nbsp;
+              {user?.tm_name && `- ${user?.tm_name}`}
+              &nbsp;
+              {approvalDateAndTime && `- ${approvalDateAndTime}`}
+              &nbsp;
+              {rejectedRemarks && `- ${rejectedRemarks}`}
+            </p>
+          ),
+        )}
+      </td>
+    ))}
+  </>
+));
 
 const LogsComponent = (props) => {
   const apiReferencePropsBasedOnFilters = useMemo(
@@ -172,7 +177,12 @@ const LogsComponent = (props) => {
       <ApproveAndPendingUsersWiseCount {...props} />
       <SpareSheetCustomTable
         apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
-        otherHeaders={[
+        tableHeaders={[
+          "Request No",
+          "Product",
+          "Line",
+          "Machine No",
+          "Machine Name",
           "HOD NG Budget Approval",
           "MTD TL",
           "MTD HOSS",

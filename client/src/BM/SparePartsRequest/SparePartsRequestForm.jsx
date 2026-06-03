@@ -1,35 +1,16 @@
-import React, { useState, useCallback, useMemo, memo } from "react";
+import React from "react";
 import { Container, Row, Col, Modal, Button } from "react-bootstrap";
-import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import axios from "axios";
-import AddBoxIcon from "@mui/icons-material/AddBox";
 
 import PartListV2 from "../Tabs/SubComponents/PartListV2";
-
-import SpareSheetCustomTable from "../../Spare/Component/SpareSheetCustomTable";
-import SparePartSearchBar from "../../Spare/Component/SparePartSearchBar";
 import "../../Spare/Pages/SpareOrderingDashboard/SpareOrderTracking.scss";
 
-const ActionComponent = memo(({ otherData, handleAddPartRow }) => (
-  <>
-    <td className="td-padding ">
-      <div className="d-flex align-items-center justify-content-center">
-        <AddBoxIcon
-          fontSize="small"
-          className="button-style text-primary"
-          onClick={() => handleAddPartRow(otherData)}
-        />
-      </div>
-    </td>
-  </>
-));
-
 const SparePartsRequestForm = ({ modelProp, selectedRow }) => {
-  const [parts, setParts] = useState([]);
-
   const {
     register,
     control,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -47,7 +28,6 @@ const SparePartsRequestForm = ({ modelProp, selectedRow }) => {
 
   const handleSubmitSpareRequestForm = async (data) => {
     try {
-      data["parts"] = parts;
       await axios.post("/sendSparePartsRequestMail", {
         withCredentials: true,
         credentials: "include",
@@ -58,37 +38,6 @@ const SparePartsRequestForm = ({ modelProp, selectedRow }) => {
     }
     modelProp.onHide();
   };
-
-  const [search, setSearch] = useState("");
-
-  const apiReferencePropsBasedOnFilters = useMemo(
-    () => ({
-      params: {
-        search,
-      },
-      referenceArrayForUseEffect: [search],
-    }),
-    [search],
-  );
-
-  const handleSelectOtherFilters = useCallback(
-    ({ search }) => setSearch(search),
-    [],
-  );
-
-  const handleAddPartRow = useCallback(
-    (propState) => {
-      append(propState?.changeParts);
-    },
-    [append],
-  );
-
-  const otherParentProps = useMemo(
-    () => ({
-      handleAddPartRow,
-    }),
-    [handleAddPartRow],
-  );
 
   return (
     <Modal
@@ -192,28 +141,14 @@ const SparePartsRequestForm = ({ modelProp, selectedRow }) => {
                 <p className="mb-0 pt-1">
                   <b>Spare parts: </b>
                 </p>
-                <PartListV2 register={register} fields={fields} />
+                <PartListV2
+                  register={register}
+                  fields={fields}
+                  append={append}
+                  remove={remove}
+                  setValue={setValue}
+                />
               </Col>
-            </Row>
-
-            <Row className="m-0 d-flex align-items-start gap-2">
-              <div className="p-2 d-flex justify-content-end">
-                <SparePartSearchBar
-                  handleSelectOtherFilters={handleSelectOtherFilters}
-                />
-              </div>
-
-              {apiReferencePropsBasedOnFilters && (
-                <SpareSheetCustomTable
-                  apiReferencePropsBasedOnFilters={
-                    apiReferencePropsBasedOnFilters
-                  }
-                  otherHeaders={["Action"]}
-                  url="/v1/spare/spareSearch"
-                  OtherComp={ActionComponent}
-                  otherParentProps={otherParentProps}
-                />
-              )}
             </Row>
 
             <Row className="m-0 pt-2  d-flex align-items-center">

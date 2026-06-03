@@ -52,6 +52,7 @@ app.use(
   require("./routes/spareManagement/spareDynamicApprovalRoutes"),
   require("./routes/spareManagement/sparePartOrderTrackingRoutes"),
   require("./routes/spareManagement/sparePartSearchRoutes"),
+  require("./routes/spareManagement/spareMasterRoutes"),
 );
 
 app.use(

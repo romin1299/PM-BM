@@ -1,8 +1,7 @@
 import React, { useReducer, useContext, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Table } from "react-bootstrap";
-import { Row, Col, Form, Container } from "react-bootstrap";
+import { Row, Col, Form, Container, Table } from "react-bootstrap";
 import RoutingContext from "../../../context/routing/RoutingContext";
 
 import { denso_logo } from "../../../modules/LoginModules";
@@ -13,7 +12,7 @@ import {
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import PartList from "../../Component/PartList";
 import {
-  partFor,
+  // partFor,
   newPartRequestForRadioOptions,
   partQtyOptions,
   partRequestDepartmentList,
@@ -214,19 +213,6 @@ const SpareNewPartRequest = () => {
       >
         <Table>
           <Container fluid>
-            {searchParams.get("_id") && (
-              <Row className="border">
-                <Col>
-                  <button
-                    className="btn bg-button"
-                    type="button"
-                    onClick={handleNavigation}
-                  >
-                    Back
-                  </button>
-                </Col>
-              </Row>
-            )}
             <Row className="border">
               <Col className="d-flex flex-column col-3">
                 {/* <div className="d-flex">
@@ -251,6 +237,18 @@ const SpareNewPartRequest = () => {
                     {errors?.["whichParts"]?.message}
                   </p>
                 )} */}
+
+                {searchParams.get("_id") && (
+                  <div>
+                    <button
+                      className="btn bg-button"
+                      type="button"
+                      onClick={handleNavigation}
+                    >
+                      Back
+                    </button>
+                  </div>
+                )}
               </Col>
               <Col className="d-flex align-items-center justify-content-center text-center col-6">
                 <h4 className="m-0">Spare Part Request(Order / Stock-in)</h4>

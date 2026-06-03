@@ -98,11 +98,11 @@ export const menuItems = [
     allowedRoles: allusers,
   },
   {
-    title: "Spare Registration",
+    title: "Spare Master Registration",
     icon: (
       <AppRegistrationIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
-    route: "/spare/spareRegistration",
+    route: "/spare/spareMasterRegistration",
     allowedRoles: allusers,
   },
   {

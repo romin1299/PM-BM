@@ -12,9 +12,10 @@ const CustomTextField = ({
     required: false,
   },
   errors = {},
+  otherClasses = ""
 }) => (
   <>
-    <div className="pwd-container">
+    <div className={`pwd-container ${otherClasses}`}>
       <span className="fieldTitle">{label}: </span>
       <TextField
         id="outlined-number"

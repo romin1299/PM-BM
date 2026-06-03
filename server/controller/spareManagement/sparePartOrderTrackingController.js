@@ -172,6 +172,10 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
 
       if (req.query.cursor)
         $match._id = { $lt: mongoose.Types.ObjectId(req.query.cursor) };
+
+      req.$project.canConfigureMaster = {
+        $cond: [{ $eq: ["$newPartFor", "For stock in"] }, true, false],
+      };
     }
 
     const tableData = await RequestSheetOfSpare.aggregate([
