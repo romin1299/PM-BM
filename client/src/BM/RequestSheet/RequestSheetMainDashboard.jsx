@@ -68,7 +68,6 @@ const RequestSheetMainDashboard = () => {
     localStorage.getItem("lesserValue"),
   );
 
-  console.log(selectedRow);
 
   const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
     useState(false);

@@ -12,6 +12,7 @@ const ApproveOrRejectComponent = ({
   targetDateOfCM,
   setError,
   clearErrors,
+  fromNewMachineApproval = false,
 }) => {
   const handleCustomError = () => {
     const approval = watch("approvalOfRequestSheet");
@@ -65,6 +66,50 @@ const ApproveOrRejectComponent = ({
           approvalOfRequestSheet: watch("approvalOfRequestSheet"),
           rejectedRemarksOfRequestSheet: watch("rejectedRemarksOfRequestSheet"),
           targetDateOfCM: targetDateOfCM,
+        }
+      );
+
+      if (response.status === 201) {
+        SuccessToast(response.data.message);
+        handlePopupStatus(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const newMachineApproveRequestSheetFromHigherAuthority = async () => {
+    try {
+      const isValid = handleCustomError();
+      if (!isValid) return;
+
+      const response = await axios.patch(
+        `/approveOrRejectNewMachineRequestSheet/${watch("_id")}`,
+        {
+          statusOfNewRequestOfCM: watch("statusOfNewRequestOfCM"),
+          // current_commonDataFilledByAssignUser: watch(
+          //   "current_commonDataFilledByAssignUser"
+          // ),
+          preparedByPED_TL: watch(
+            "newMachineRequestFilledByPED.preparedByPED_TL"
+          ),
+          checkedByPED_HOS: watch(
+            "PED_Filled_CheckedBy_PED_HOS.checkedByPED_HOS"
+          ),
+          approvedByPED_HOD: watch(
+            "PED_Filled_ApprovedBy_PED_HOD.approvedByPED_HOD"
+          ),
+          modificationWork_ApprovedByMTD_HOS: watch(
+            "MTD_Modification_ApprovedByMTD_HOS.modificationWork_ApprovedByMTD_HOS"
+          ),
+          modificationWork_AssignedMTD_TL: watch(
+            "MTD_Modification_AssignedMTD_TL.modificationWork_AssignedMTD_TL"
+          ),
+          modificationWork_ApprovedByMTD_HOD: watch(
+            "MTD_Modification_ApprovedByMTD_HOD.modificationWork_ApprovedByMTD_HOD"
+          ),
+          approvalOfRequestSheet: watch("approvalOfRequestSheet"),
+          rejectedRemarksOfRequestSheet: watch("rejectedRemarksOfRequestSheet"),
         }
       );
 
@@ -140,7 +185,9 @@ const ApproveOrRejectComponent = ({
             type="button"
             className="btn bg-warning"
             onClick={() => {
-              approveRequestSheetFromHigherAuthority();
+              fromNewMachineApproval
+                ? newMachineApproveRequestSheetFromHigherAuthority()
+                : approveRequestSheetFromHigherAuthority();
             }}
           >
             Submit

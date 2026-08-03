@@ -217,6 +217,11 @@ const AllRequestSheetReportDataOfCM = () => {
       editable: false,
     },
     {
+      title: "Sub Category",
+      field: "cmBasicDataFilledByMTD_TL.subCategories",
+      editable: false,
+    },
+    {
       title: "Activity",
       field: "cmBasicDataFilledByMTD_TL.activityOfCM",
       editable: false,
@@ -544,7 +549,10 @@ const AllRequestSheetReportDataOfCM = () => {
                 variant="contained"
                 disableElevation
                 onClick={handleGenerateBMNavigation}
-                disabled={context?.user_type !== "TL/HOSS"}
+                disabled={
+                  context?.user_type !== "TL/HOSS" ||
+                  context?.tm_department !== "MTD"
+                }
                 sx={{
                   fontWeight: 400,
                   bgcolor: "#004b5b",

@@ -103,6 +103,7 @@ const safetyFormSchema = new mongoose.Schema({
     prohibitSlingOpWithSingleWire: {
       type: Boolean,
     },
+
     secureFootingAndHandPosition: {
       type: Boolean,
     },

@@ -6,6 +6,8 @@ import {
   CalendarMonthIcon,
   EventNoteIcon,
   FactCheckIcon,
+  NoteAddIcon,
+  TaskIcon
 } from "../../components/NavbarComponent/ImportModules";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 // import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -37,10 +39,25 @@ export const menuItems = [
     allowedRoles: allusers,
   },
   {
+    title: "New Machine CM Report",
+    icon: (
+      <NoteAddIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/cm/new-machine-cm",
+    allowedRoles: allusers,
+  },
+  {
     title: "Approval Dashboard",
     icon: <FactCheckIcon className="text-white" />,
     route: "/cm/approval",
     allowedRoles: ["Section-Admin", "TL/HOSS"],
+  },
+  {
+    title: "New Machine CM Approval Dashboard",
+    icon: <TaskIcon className="text-white" />,
+    route: "/cm/new-machine/approval",
+    allowedRoles: ["Plant-Admin", "Section-Admin", "TL/HOSS"],
+    allowedDepartments: ['MTD', "PED"]
   },
   {
     icon: <EventNoteIcon className="text-white" />,

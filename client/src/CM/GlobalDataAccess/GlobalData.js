@@ -22,5 +22,8 @@ export const CATEGORIES_OF_CM = [
   "Upgradation",
   "BM Reflection",
   "LTPM",
+  "FIOT",
   "Others",
 ];
+
+export const FIOtSubCategories = ["Abnormality Closing", "Spec Revise"];

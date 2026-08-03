@@ -39,7 +39,7 @@ const getUserTypeOptions = (role, tmDepartment) => {
 };
 
 const TM_GRADES = ["HOS", "HOD"];
-const DEPARTMENTS = ["PRD", "MTD"];
+const DEPARTMENTS = ["PRD", "MTD", "PED"];
 
 const MENU_PROPS = {
   PaperProps: { style: { maxHeight: 30 * 4.5 + 8 } },

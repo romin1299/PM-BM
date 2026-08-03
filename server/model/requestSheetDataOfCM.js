@@ -33,6 +33,9 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     categories: {
       type: String,
     },
+    subCategories: {
+      type: String,
+    },
     other_categories: {
       type: String,
     },

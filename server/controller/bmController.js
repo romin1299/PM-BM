@@ -131,6 +131,7 @@ const gettingFYYearForSelectedDate = (date) => {
   if (moment(new Date(date)).tz("Asia/Kolkata").month() < 3) {
     return `${moment(new Date(date)).tz("Asia/Kolkata").year() - 1}-${moment(
       new Date(date),
+      new Date(date),
     )
       .tz("Asia/Kolkata")
       .year()}`;
@@ -1057,6 +1058,13 @@ router.patch(
         // isRequestSheetExist?.requestSheetStatus === statusArray[1]
       ) {
         let requestSheetStatus = "";
+
+        if (
+          req.body?.handOverUser &&
+          mongoose.Types.ObjectId.isValid(req.body?.handOverUser)
+        )
+          queryObj["handOverUser"] = req.body?.handOverUser;
+
         if (req.body?.work_order_status === "Open") {
           requestSheetStatus = statusArray[2];
           queryObj = {
@@ -16715,6 +16723,8 @@ router.get(
         },
       ]);
 
+      delete req.queryObjForBM.maintenanceType;
+      delete req.queryObjForBM["maintenanceReportFilledByMTD.breakDownTime"];
       const noLossTrend = await NoLossBD.aggregate([
         {
           $match: req.queryObjForBM,
@@ -16970,6 +16980,8 @@ router.get(
         },
       ]);
 
+      delete req.queryObjForBM.maintenanceType;
+      delete req.queryObjForBM["maintenanceReportFilledByMTD.breakDownTime"];
       const NoLossDataTrend = await NoLossBD.aggregate([
         {
           $match: req.queryObjForBM,
@@ -20605,6 +20617,7 @@ router.post(
       res.status(500).json({ message: error?.message, error });
     }
   },
+  },
 );
 
 // safety form CRUD Operations
@@ -20626,6 +20639,7 @@ router.post(
             IsSafetyFormCreated: true,
           },
         },
+        },
       );
       if (!safetyForm) {
         return res
@@ -20639,6 +20653,7 @@ router.post(
       logger.error(error);
       res.status(500).json({ message: error?.message, error });
     }
+  },
   },
 );
 
@@ -20821,7 +20836,6 @@ router
   });
 
 module.exports = router;
-
 
 const migrateSafetyForms = async () => {
   const workFields = [

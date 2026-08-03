@@ -33,6 +33,8 @@ import { PiListBulletsFill } from "react-icons/pi";
 import { MdFormatListBulletedAdd } from "react-icons/md";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import TaskIcon from '@mui/icons-material/Task';
+
 export {
   React,
   styles,
@@ -54,5 +56,6 @@ export {
   PiListBulletsFill,
   MdFormatListBulletedAdd,
   CalendarMonthIcon,
-  EventNoteIcon
+  EventNoteIcon,
+  TaskIcon
 };
