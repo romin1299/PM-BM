@@ -1,3 +1,4 @@
+const moment = require("moment");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 const SpareMaster = require("../../model/spareMasterSchema");
@@ -7,54 +8,6 @@ exports.getRequestSheets = tryCatchHandler(async (req, res, next) => {
   return res.status(201).json({
     message: "Request-sheets get successfully",
     tableData: req.tableData,
-  });
-});
-
-exports.getSpareSheetsSummery = tryCatchHandler(async (req, res, next) => {
-  const counters = await RequestSheetOfSpare.aggregate([
-    {
-      $match: req.queryObj,
-    },
-    {
-      $group: {
-        _id: null,
-        totalRequestSheet: {
-          $sum: 1,
-        },
-        openRequestSheet: {
-          $sum: {
-            $cond: [
-              {
-                $ne: ["$requestSheetStatus", "Completed"],
-              },
-              1,
-              0,
-            ],
-          },
-        },
-        closedRequestSheet: {
-          $sum: {
-            $cond: [
-              {
-                $eq: ["$requestSheetStatus", "Completed"],
-              },
-              1,
-              0,
-            ],
-          },
-        },
-      },
-    },
-  ]);
-
-  if (counters?.length <= 0)
-    return res.status(400).json({
-      message: "No spare sheet summery found",
-    });
-
-  return res.status(201).json({
-    message: "Spare sheet summery get successfully",
-    counters: counters?.[0],
   });
 });
 
@@ -71,7 +24,7 @@ exports.yearMonthFilter = tryCatchHandler(async (req, res, next) => {
   if (selectedMonth)
     $match = {
       ...$match,
-      "rsTimeStamp.month.inString": selectedMonth,
+      "rsTimeStamp.month.inString": moment().month(selectedMonth).format("MMM"),
     };
 
   req.$match = $match;
@@ -129,6 +82,135 @@ exports.getInventorySummery = tryCatchHandler(async (req, res, next) => {
     ],
   });
 });
+
+exports.getSpareSheetsSummeryForKPI = tryCatchHandler(
+  async (req, res, next) => {
+    const [totalNewSheets, counters] = await Promise.all([
+      RequestSheetOfSpare.countDocuments({
+        ...req.$match,
+        // isNewRequest: true,
+      }),
+      RequestSheetOfSpare.aggregate([
+        {
+          $match: req.$match,
+        },
+        {
+          $unwind: "$changeParts",
+        },
+        {
+          $group: {
+            _id: {
+              cell: "$cell._id",
+              maker: "$changeParts.maker",
+              batchId: "$changeParts.batchId",
+            },
+            requestSheetNos: { $push: "$requestSheetNo" },
+            rsPRGenerationTimeStamp: {
+              $first: "$changeParts.rsPRGenerationTimeStamp",
+            },
+            rsPOIssueToVendorTimeStamp: {
+              $first: "$changeParts.rsPOIssueToVendorTimeStamp",
+            },
+            // partReceiveCounts: {
+            //   $sum: {
+            //     $cond: [
+            //       { $ifNull: ["$changeParts.rsPartReceiveTimeStamp", false] },
+            //       1,
+            //       0,
+            //     ],
+            //   },
+            // },
+            partNotReceiveCounts: {
+              $sum: {
+                $cond: [
+                  { $ifNull: ["$changeParts.rsPartReceiveTimeStamp", false] },
+                  0,
+                  1,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            PRGenerationCounts: {
+              $sum: {
+                $cond: [{ $ifNull: ["$rsPRGenerationTimeStamp", false] }, 1, 0],
+              },
+            },
+            PRGenerationPendingCounts: {
+              $sum: {
+                $cond: [{ $ifNull: ["$rsPRGenerationTimeStamp", false] }, 0, 1],
+              },
+            },
+            POIssuePending: {
+              $sum: {
+                $cond: [
+                  { $ifNull: ["$rsPOIssueToVendorTimeStamp", false] },
+                  0,
+                  1,
+                ],
+              },
+            },
+            // partReceiveCounts: {
+            //   $sum: {
+            //     $cond: [
+            //       { $ifNull: ["$changeParts.rsPartReceiveTimeStamp", false] },
+            //       1,
+            //       0,
+            //     ],
+            //   },
+            // },
+            partNotReceiveCounts: {
+              $sum: "$partNotReceiveCounts",
+            },
+          },
+        },
+      ]),
+    ]);
+
+    if (totalNewSheets <= 0 && counters?.length <= 0)
+      return res.status(400).json({
+        message: "No spare sheet summery found",
+      });
+
+    const [
+      {
+        PRGenerationCounts,
+        PRGenerationPendingCounts,
+        POIssuePending,
+        partNotReceiveCounts,
+      },
+    ] = counters;
+
+    return res.status(201).json({
+      message: "Summery get successfully",
+      counters: [
+        {
+          title: "New Requests",
+          value: totalNewSheets || 0,
+        },
+        {
+          title: "PR made",
+          value: PRGenerationCounts || 0,
+        },
+        {
+          title: "PR pending",
+          value: PRGenerationPendingCounts || 0,
+        },
+        {
+          title: "PO pending",
+          value: POIssuePending || 0,
+        },
+        {
+          title: "Receiving pending",
+          value: partNotReceiveCounts || 0,
+        },
+      ],
+    });
+  },
+);
 
 exports.IsToolRoomPerson = tryCatchHandler(async (req, res, next) => {
   if (req.rootUser?.toolRoomPerson === "No")

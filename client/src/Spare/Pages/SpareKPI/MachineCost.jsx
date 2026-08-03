@@ -31,8 +31,9 @@ const MachineCost = ({ machineCost, setResponseData = null }) => {
   );
 
   return (
-    <form onSubmit={handleSubmit(handleSubmitForm)}>
+    <form onSubmit={handleSubmit(handleSubmitForm)} className="col-auto">
       <Row>
+        <Col className="col-auto">Machine cost:</Col>
         <Col className="col-auto">
           <input
             type="number"

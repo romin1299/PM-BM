@@ -47,6 +47,11 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
         type: Number,
       },
     },
+    isNewRequest: {
+      type: Boolean,
+      default: true,
+      enum: [true, false],
+    },
     changeParts: [
       {
         masterId: {

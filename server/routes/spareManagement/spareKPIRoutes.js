@@ -4,15 +4,19 @@ const router = express.Router();
 const {
   yearMonthFilter,
   getInventorySummery,
+  getSpareSheetsSummeryForKPI,
   IsToolRoomPerson,
   getMachineCost,
   registerMachineCost,
   updateMachineCost,
 } = require("../../controller/spareManagement/spareKPIController");
 router
-  .route("/inventory/summery")
-  //   .patch(authorizedToCustomize, configureSpareDynamicApproval)
+  .route("/kpi/summery/inventory")
   .get(yearMonthFilter, getInventorySummery);
+
+router
+  .route("/kpi/summery/requestSheet")
+  .get(yearMonthFilter, getSpareSheetsSummeryForKPI);
 
 router
   .route("/kpi/machineCost")

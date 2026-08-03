@@ -13968,3 +13968,99 @@
     at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
     at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
     at filterMiddleware (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:1651:5)
+2026-08-03T12:33 | CM | moment is not defined
+		ReferenceError: moment is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareKPIController.js:24:13
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:175:3)
+2026-08-03T12:33 | CM | moment is not defined
+		ReferenceError: moment is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareKPIController.js:24:13
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:175:3)
+2026-08-03T13:16 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-08-03T13:16 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-08-03T13:16 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-08-03T13:16 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-08-03T13:17 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-08-03T13:17 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)

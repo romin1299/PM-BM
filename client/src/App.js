@@ -604,7 +604,10 @@ function App() {
       ),
     };
 
-    if (loggedUser?.toolRoomPerson === "Yes") return [spareTab];
+    if (loggedUser?.toolRoomPerson === "Yes") {
+      setIsLoading(false);
+      return [spareTab];
+    }
 
     const baseTabs = [
       {

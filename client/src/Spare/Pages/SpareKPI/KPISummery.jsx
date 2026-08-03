@@ -1,7 +1,7 @@
 import React, { useMemo, useContext } from "react";
 import WithLoadingAndError from "../../Component/Common/WithLoadingAndError";
 import { Box, Typography, Paper } from "@mui/material";
-import { Row } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import MachineCost from "./MachineCost";
 
@@ -24,6 +24,8 @@ const SummeryBox = ({ title, value }) => (
         p: "4px",
         px: "10px",
         borderRadius: "8px",
+        width: "100%",
+        boxSizing: "border-box",
       }}
     >
       <Typography textAlign="center" fontWeight={500}>
@@ -55,7 +57,7 @@ const MapComponent = ({ counters, withHoldingRation, machineCost }) => {
 };
 
 const LoadSummeryData = ({
-  url = "/v1/spare/inventory/summery",
+  url = "/v1/spare/kpi/summery/inventory",
   selectedYear,
   selectedMonth,
   withHoldingRation = false,
@@ -100,13 +102,13 @@ const KPISummery = (props) => {
   });
 
   return (
-    <Row className="cell p-2 rounded-2 mt-3 gap-2 g-0">
+    <Row className="cell p-2 rounded-2 mt-3 gap-2 g-0 d-flex align-items-center justify-content-between">
       <LoadSummeryData
         {...props}
         withHoldingRation={true}
         machineCost={data?.machineCost}
       />
-      <LoadSummeryData {...props} url="/v1/spare/spareRequestSheet/summery" />
+      <LoadSummeryData {...props} url="/v1/spare/kpi/summery/requestSheet" />
       {context?.toolRoomPerson === "Yes" &&
         (isLoading ? (
           <h5>Loading...</h5>
