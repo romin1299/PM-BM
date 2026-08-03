@@ -5,6 +5,7 @@ import tryCatch from "../Utils/tryCatch";
 
 const useSafeGetRequest = ({
   url = "",
+  conditionToAvoidUnnecessaryAPICall = true,
   referenceArrayForUseEffect = [],
   initialState = {},
   axiosConfig = {},
@@ -12,7 +13,7 @@ const useSafeGetRequest = ({
   const [responseData, setResponseData] = useState(initialState);
 
   useEffect(() => {
-    if (!url) return;
+    if (!url || !conditionToAvoidUnnecessaryAPICall) return;
 
     setResponseData((responseData) => ({
       ...responseData,
@@ -48,7 +49,7 @@ const useSafeGetRequest = ({
       isCancelled = true;
       controller.abort();
     };
-  }, [url, ...referenceArrayForUseEffect]);
+  }, [conditionToAvoidUnnecessaryAPICall, ...referenceArrayForUseEffect]);
 
   return [responseData, setResponseData];
 };

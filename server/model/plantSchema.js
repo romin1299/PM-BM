@@ -36,9 +36,15 @@ const plantSchema = new mongoose.Schema({
     PRD: [String],
   },
 
+  spareIssuanceDynamicApproval: {
+    MTD: [String],
+    PRD: [String],
+  },
+
   leadTime: {
     orderRSSubmittedToHODApproval: { type: Number, default: 0 },
-    HODApprovalToPRSubmittedByToolroomToPPD: { type: Number, default: 0 },
+    HODApprovalToToolRoomApproval: { type: Number, default: 0 },
+    ToolroomApprovalToPRSubmittedByToolroomToPPD: { type: Number, default: 0 },
     PRSubmittedByToolroomToPPDToPRAssignToAllBuyers: {
       type: Number,
       default: 0,
@@ -49,6 +55,13 @@ const plantSchema = new mongoose.Schema({
     partInspectionToMRNIssued: { type: Number, default: 0 },
     MRNIssuedToMRNApproved: { type: Number, default: 0 },
   },
+
+  spareCurrenciesWithUnit: [
+    {
+      currencyUnit: String,
+      currencyRate: Number,
+    },
+  ],
 
   // hourly filter options for product/line report
   lessThanValue: {

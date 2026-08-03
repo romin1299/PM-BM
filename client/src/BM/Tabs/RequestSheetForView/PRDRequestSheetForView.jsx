@@ -17,7 +17,7 @@ import { denso_logo } from "../../../modules/LoginModules";
 import { exportPDF } from "../../Utils/exportPDF/exportPDF";
 import ProblemModeHistory from "../../../Common/Machine/ProblemModeHistory";
 import ShiftInputField from "../../../CM/Components/ReqestSheetOfCM/RSComponents/ShiftInputField";
-import SafetyForm from "../SafetyForm/SafetyForm";
+import SafetyFormV2 from "../../../CM/Components/ReqestSheetOfCM/SafetyFormV2";
 
 function MyTable({
   requestSheetDataOfBM,
@@ -45,49 +45,49 @@ function MyTable({
         "problemOccurredDateAndTimeOfBM",
         moment(requestSheetDataOfBM?.problemOccurredDateAndTimeOfBM)
           .tz("Asia/Kolkata")
-          .format("YYYY-MM-DDTHH:mm")
+          .format("YYYY-MM-DDTHH:mm"),
       );
       setValue("maintenanceType", requestSheetDataOfBM?.maintenanceType);
       setValue("priorityCode", requestSheetDataOfBM?.priorityCode);
       setValue(
         "problemFaced",
-        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.problemFaced
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.problemFaced,
       );
       setValue(
         "PRD_ObservationForProblem_5Why_1How",
         requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
-          ?.PRD_ObservationForProblem_5Why_1How
+          ?.PRD_ObservationForProblem_5Why_1How,
       );
       setValue(
         "why_5M_1E",
-        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.why_5M_1E
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.why_5M_1E,
       );
       setValue(
         "where_process",
-        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.where_process
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.where_process,
       );
       setValue(
         "when_frequency",
-        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.when_frequency
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.when_frequency,
       );
       setValue(
         "who_person",
-        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.who_person
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.who_person,
       );
       setValue(
         "which_defectLocation",
         requestSheetDataOfBM?.breakDownBasicDataFilledByPRD
-          ?.which_defectLocation
+          ?.which_defectLocation,
       );
       setValue(
         "how_details",
-        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.how_details
+        requestSheetDataOfBM?.breakDownBasicDataFilledByPRD?.how_details,
       );
       setValue("shiftOfBM", requestSheetDataOfBM?.shiftOfBM);
       setValue("qualityRelated", requestSheetDataOfBM?.qualityRelated);
       setValue(
         "breakDownAttendedBy",
-        requestSheetDataOfBM?.breakDownAttendedBy
+        requestSheetDataOfBM?.breakDownAttendedBy,
       );
     }
   }, [requestSheetDataOfBM?._id, setValue]);
@@ -113,15 +113,23 @@ function MyTable({
         />
       )}
       {requestSheetDataOfBM?._id && safetyFormModalOpen && (
-        <SafetyForm
-          id={requestSheetDataOfBM?._id}
-          lineName={requestSheetDataOfBM?.lineRef?.line_name}
-          machineNo={requestSheetDataOfBM?.machineRef?.machine_code}
-          setSafetyFormModalOpen={setSafetyFormModalOpen}
-          safetyFormModalOpen={safetyFormModalOpen}
-          machineSafetyCheckedByMTD={
-            requestSheetDataOfBM?.machineSafetyCheckedByMTD
-          }
+        <SafetyFormV2
+          moduleType="bm"
+          machineParentHierarchy={{
+            line: requestSheetDataOfBM?.lineRef?.line_name,
+            machineNo: requestSheetDataOfBM?.machineRef?.machine_code,
+            machineName: requestSheetDataOfBM?.machineRef?.machine_name,
+          }}
+          params={{
+            requestSheetRef: requestSheetDataOfBM?._id,
+          }}
+          otherFormSubmitParams={{
+            selectedYear,
+          }}
+          modelProp={{
+            show: safetyFormModalOpen,
+            onHide: () => setSafetyFormModalOpen(false),
+          }}
         />
       )}
       <form>
@@ -169,7 +177,7 @@ function MyTable({
                           // );
                           window.open(
                             `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`,
-                            "_blank"
+                            "_blank",
                           );
                         }}
                       >
@@ -190,9 +198,9 @@ function MyTable({
                               requestSheetDataOfBM?.requestSheetNoOfBM,
                               (document) => {
                                 document.getElementById(
-                                  "rs-denso-logo"
+                                  "rs-denso-logo",
                                 ).style.display = "block";
-                              }
+                              },
                             );
                           }}
                         >
@@ -257,7 +265,7 @@ function MyTable({
                           bodyText1={
                             machineStatus?.bmStatusData?.count &&
                             `${(machineStatus?.bmStatusData?.totalHours).toFixed(
-                              1
+                              1,
                             )} Hrs./${machineStatus?.bmStatusData?.count} Count`
                           }
                         />
@@ -283,7 +291,9 @@ function MyTable({
                 <small>
                   <b>PRIORITY CODE</b>
                 </small>
-                <div className="value">{requestSheetDataOfBM?.priorityCode}</div>
+                <div className="value">
+                  {requestSheetDataOfBM?.priorityCode}
+                </div>
               </td>
 
               <td className="mb-0 border col-12 col-md-6">
@@ -343,7 +353,7 @@ function MyTable({
                               <br />
 
                               {moment(
-                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM
+                                requestSheetDataOfBM?.sheetIssuedDateAndTimeOfBM,
                               )
                                 .tz("Asia/Kolkata")
                                 .format("DD-MM-YYYY THH:mm")}
@@ -427,7 +437,8 @@ function MyTable({
                   <Col lg={3}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>
-                        PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
+                        PRD OBSERVATION FOR THIS PROBLEM BASED ON
+                        (5WHY-1HOW){" "}
                       </b>
                     </p>
                   </Col>
@@ -601,7 +612,7 @@ function MyTable({
                         >
                           {imageOrVideo}
                         </a>
-                      )
+                      ),
                     )}
                   </Col>
                 </Row>

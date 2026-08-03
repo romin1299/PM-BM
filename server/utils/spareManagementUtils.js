@@ -4,6 +4,7 @@ const spareApprovalStatus = [
   "Under MTD TL approval",
   "Under MTD HOSS approval",
   "Under PRD TL approval",
+  "Under PRD HOSS approval",
   "Under MTD HOS approval",
   "Under PRD HOS approval",
   "Under MTD HOD approval",
@@ -18,6 +19,7 @@ const spareApprovalUserType = [
   "MTD HOSS",
   "PRD TL",
   "MTD HOS",
+  "PRD HOSS",
   "PRD HOS",
   "MTD HOD",
   "PRD HOD",
@@ -28,11 +30,12 @@ const dynamicApprovalStatus = {
   MTD_TL: spareApprovalStatus[2],
   MTD_HOSS: spareApprovalStatus[3],
   PRD_TL: spareApprovalStatus[4],
-  MTD_HOS: spareApprovalStatus[5],
-  PRD_HOS: spareApprovalStatus[6],
-  MTD_HOD: spareApprovalStatus[7],
-  PRD_HOD: spareApprovalStatus[8],
-  TOOL_ROOM: spareApprovalStatus[9],
+  PRD_HOSS: spareApprovalStatus[5],
+  MTD_HOS: spareApprovalStatus[6],
+  PRD_HOS: spareApprovalStatus[7],
+  MTD_HOD: spareApprovalStatus[8],
+  PRD_HOD: spareApprovalStatus[9],
+  TOOL_ROOM: spareApprovalStatus[10],
 };
 
 const mongoDBUserFilters = {
@@ -45,6 +48,10 @@ const mongoDBUserFilters = {
     user_type: "TL/HOSS",
   },
   PRD_TL: {
+    tm_department: "PRD",
+    user_type: "TL/HOSS",
+  },
+  PRD_HOSS: {
     tm_department: "PRD",
     user_type: "TL/HOSS",
   },
@@ -73,12 +80,13 @@ const hooksFormReferenceOfApproval = {
   MTD_TL: { displayName: "MTD TL", approvalKey: "approvalOfMTD_TL" },
   MTD_HOSS: { displayName: "MTD HOSS", approvalKey: "approvalOfMTD_HOSS" },
   PRD_TL: { displayName: "PRD TL", approvalKey: "approvalOfPRD_TL" },
+  PRD_HOSS: { displayName: "PRD HOSS", approvalKey: "approvalOfPRD_HOSS" },
   MTD_HOS: { displayName: "MTD HOS", approvalKey: "approvalOfMTD_HOS" },
   PRD_HOS: { displayName: "PRD HOS", approvalKey: "approvalOfPRD_HOS" },
   MTD_HOD: { displayName: "MTD HOD", approvalKey: "approvalOfMTD_HOD" },
   PRD_HOD: { displayName: "PRD HOD", approvalKey: "approvalOfPRD_HOD" },
   TOOL_ROOM: {
-    displayName: "Tool Room Office Person",
+    displayName: "Tool Room",
     approvalKey: "approvalOfTOOL_ROOM",
   },
 };
@@ -157,7 +165,12 @@ const buildSearchQuery = (searchText) => {
   const search = searchText.trim();
   const formattedSearch =
     search.includes("-") || search.includes("/") ? `"${search}"` : search;
-  return formattedSearch;
+  return `"${search}"`;
+};
+
+const generateRegexSearchString = (search) => {
+  const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(escapeRegex(search.trim()), "i");
 };
 
 module.exports = {
@@ -171,4 +184,5 @@ module.exports = {
   paginationRowLimit,
   timezone,
   buildSearchQuery,
+  generateRegexSearchString,
 };

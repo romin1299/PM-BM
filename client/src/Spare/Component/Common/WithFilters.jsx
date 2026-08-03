@@ -1,7 +1,7 @@
 import React, { useReducer } from "react";
 import { Container } from "react-bootstrap";
 
-import BMTitlebar from "../../../BM/Component/BMTitlebar";
+import SpareTitlebar from "../SpareTitlebar";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
 import {
   initialState,
@@ -16,7 +16,7 @@ const WithFilters = ({
 
   return (
     <Container fluid>
-      <BMTitlebar
+      <SpareTitlebar
         title={title}
         Toolbar={
           <ChartsToolbar

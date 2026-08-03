@@ -7,7 +7,8 @@ const RSDynamicApprovalSelection = ({ register, errors, partRequestFor }) => {
     url: "/v1/spare/approvalUsers",
     axiosConfig: {
       params: {
-        partRequestFor,
+        department: partRequestFor,
+        approvalKey: "spareSheetDynamicApproval",
       },
     },
     referenceArrayForUseEffect: [partRequestFor],

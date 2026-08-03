@@ -444,16 +444,120 @@ import ACTIVITY_Cal from "./static/Icons/ACTIVITY_CAL.png";
 import Spare_Routes from "./Spare/Spare_Routes";
 import SparePageLoading from "./Spare/Component/SparePageLoading";
 
-function App() {
+const SubComponent = ({ tabs, loggedUser, commonRoutePaths }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const loggedUser = useContext(RoutingContext);
-
-  const isKPIUser =
-    loggedUser?.tm_department === "MTD" || loggedUser?.user_type === "Operator";
 
   const [activeKey, setActiveKey] = useState(
     localStorage.getItem("activeKey") || "pm",
+  );
+
+  useEffect(() => {
+    const pathParts = location.pathname.split("/");
+    const mainPath = pathParts[1];
+
+    const isToolRoomUser = loggedUser?.toolRoomPerson === "Yes";
+
+    if (isToolRoomUser) {
+      if (mainPath !== "spare") {
+        navigate("/spare", { replace: true });
+        return;
+      }
+
+      setActiveKey("spare");
+      return;
+    }
+
+    if (!mainPath) {
+      navigate(`/${activeKey}`, { replace: true });
+      return;
+    }
+
+    const isValid = tabs.some((t) => t.keyUrl === mainPath);
+
+    if (isValid) {
+      setActiveKey(mainPath);
+      localStorage.setItem("activeKey", mainPath);
+    } else {
+      if (!commonRoutePaths.includes(mainPath))
+        navigate(`/${activeKey}`, { replace: true });
+    }
+  }, [
+    location.pathname,
+    tabs,
+    activeKey,
+    navigate,
+    loggedUser,
+    commonRoutePaths,
+  ]);
+
+  const handleTabSelect = (key) => {
+    if (key === activeKey) return;
+    setActiveKey(key);
+    localStorage.setItem("activeKey", key);
+    navigate(key);
+    clearLocalStorage();
+  };
+
+  const activeComponent = useMemo(
+    () => tabs.find((t) => t.keyUrl === activeKey)?.component,
+    [tabs, activeKey],
+  );
+
+  return (
+    <div>
+      <Row>
+        <Col lg={2}>
+          <img src={denso_logo} alt="" height={50} width={150} />
+        </Col>
+        <Col
+          lg={8}
+          className="d-flex justify-content-center align-items-center"
+        >
+          <h4>
+            <b>Integrated Maintenance Operation System</b>
+          </h4>
+        </Col>
+        <Col lg={2} className="d-flex justify-content-end">
+          <RightNavbar />
+        </Col>
+      </Row>
+
+      <Row style={{ background: "#ddebf9" }}>
+        <Col className="scrollable-column pb-2">
+          <Tabs activeKey={activeKey} onSelect={handleTabSelect}>
+            {tabs.map((tab) => (
+              <Tab
+                key={tab.keyUrl}
+                eventKey={tab.keyUrl}
+                title={
+                  <>
+                    <img src={tab.icon} alt="" height={25} width={25} />
+                    &nbsp;&nbsp;<b>{tab.name}</b>
+                  </>
+                }
+              />
+            ))}
+          </Tabs>
+        </Col>
+      </Row>
+
+      <Row>
+        <div className="scrollable-content">{activeComponent}</div>
+      </Row>
+    </div>
+  );
+};
+
+function App() {
+  const loggedUser = useContext(RoutingContext);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const isKPIUser = useMemo(
+    () =>
+      loggedUser?.tm_department === "MTD" ||
+      loggedUser?.user_type === "Operator",
+    [loggedUser],
   );
 
   const commonRoutes = useMemo(
@@ -546,95 +650,22 @@ function App() {
       spareTab,
     );
 
+    setIsLoading(false);
     return baseTabs;
-  }, [commonRoutes, isKPIUser, loggedUser]);
+  }, [loggedUser, commonRoutes, isKPIUser]);
 
-  useEffect(() => {
-    const pathParts = location.pathname.split("/");
-    const mainPath = pathParts[1];
-
-    const isToolRoomUser = loggedUser?.toolRoomPerson === "Yes";
-
-    if (isToolRoomUser) {
-      if (mainPath !== "spare") {
-        navigate("/spare", { replace: true });
-        return;
-      }
-
-      setActiveKey("spare");
-      return;
-    }
-
-    if (!mainPath) {
-      navigate(`/${activeKey}`, { replace: true });
-      return;
-    }
-
-    const isValid = tabs.some((t) => t.keyUrl === mainPath);
-
-    if (isValid) {
-      setActiveKey(mainPath);
-      localStorage.setItem("activeKey", mainPath);
-    } else {
-      navigate(`/${activeKey}`, { replace: true });
-    }
-  }, [location.pathname, tabs, activeKey, navigate, loggedUser]);
-
-  const handleTabSelect = (key) => {
-    if (key === activeKey) return;
-    setActiveKey(key);
-    localStorage.setItem("activeKey", key);
-    navigate(key);
-    clearLocalStorage();
-  };
-
-  const activeComponent = useMemo(
-    () => tabs.find((t) => t.keyUrl === activeKey)?.component,
-    [tabs, activeKey],
+  const commonRoutePaths = useMemo(
+    () => commonRoutes?.map((r) => r.path.replace(/^\//, "")) ?? [],
+    [commonRoutes],
   );
 
+  if (isLoading) return <h5>Loading....</h5>;
   return (
-    <div>
-      <Row>
-        <Col lg={2}>
-          <img src={denso_logo} alt="" height={50} width={150} />
-        </Col>
-        <Col
-          lg={8}
-          className="d-flex justify-content-center align-items-center"
-        >
-          <h4>
-            <b>Integrated Maintenance Operation System</b>
-          </h4>
-        </Col>
-        <Col lg={2} className="d-flex justify-content-end">
-          <RightNavbar />
-        </Col>
-      </Row>
-
-      <Row style={{ background: "#ddebf9" }}>
-        <Col className="scrollable-column pb-2">
-          <Tabs activeKey={activeKey} onSelect={handleTabSelect}>
-            {tabs.map((tab) => (
-              <Tab
-                key={tab.keyUrl}
-                eventKey={tab.keyUrl}
-                title={
-                  <>
-                    <img src={tab.icon} alt="" height={25} width={25} />
-                    &nbsp;&nbsp;<b>{tab.name}</b>
-                  </>
-                }
-              />
-            ))}
-          </Tabs>
-        </Col>
-      </Row>
-
-      <Row>
-        <div className="scrollable-content">{activeComponent}</div>
-      </Row>
-    </div>
+    <SubComponent
+      tabs={tabs}
+      loggedUser={loggedUser}
+      commonRoutePaths={commonRoutePaths}
+    />
   );
 }
 

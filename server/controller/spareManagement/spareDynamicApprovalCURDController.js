@@ -15,7 +15,13 @@ exports.authorizedToCustomize = tryCatchHandler(async (req, res, next) => {
 
 exports.configureSpareDynamicApproval = tryCatchHandler(
   async (req, res, next) => {
-    if (!req.body?.spareSheetDynamicApproval)
+    if (!req.query?.approvalKey)
+      return res.status(500).json({
+        message: "Something went wrong",
+        showToast: true,
+      });
+
+    if (!req.body?.[req.query?.approvalKey])
       return res.status(400).json({
         message: "Please select approval",
         showToast: true,
@@ -41,13 +47,19 @@ exports.configureSpareDynamicApproval = tryCatchHandler(
       message: "Spare dynamic approval configured successfully",
       showToast: true,
       approvalObj: {
-        spareSheetDynamicApproval: plant?.spareSheetDynamicApproval,
+        [req.query?.approvalKey]: plant?.[req.query?.approvalKey],
       },
     });
   },
 );
 
 exports.getSpareDynamicApproval = tryCatchHandler(async (req, res, next) => {
+  if (!req.query?.approvalKey)
+    return res.status(500).json({
+      message: "Something went wrong",
+      showToast: true,
+    });
+
   const plant = await Plant.findOne({
     plant_id: req.rootUser?.plant_data?.split("-")?.[0],
   });
@@ -58,7 +70,7 @@ exports.getSpareDynamicApproval = tryCatchHandler(async (req, res, next) => {
       showToast: true,
     });
 
-  if (plant?.spareSheetDynamicApproval?.length <= 0)
+  if (plant?.[req.query?.approvalKey]?.length <= 0)
     return res.status(400).json({
       message: "Need to configure the approval",
       showToast: true,
@@ -67,7 +79,7 @@ exports.getSpareDynamicApproval = tryCatchHandler(async (req, res, next) => {
   return res.status(201).json({
     message: "Approval get successfully",
     approvalObj: {
-      spareSheetDynamicApproval: plant?.spareSheetDynamicApproval,
+      [req.query?.approvalKey]: plant?.[req.query?.approvalKey],
     },
   });
 });
@@ -133,5 +145,62 @@ exports.getLeadTime = tryCatchHandler(async (req, res, next) => {
     trackingObj: {
       leadTime: plant?.leadTime,
     },
+  });
+});
+
+exports.configureCurrencyConversion = tryCatchHandler(
+  async (req, res, next) => {
+    if (!req.body?.spareCurrenciesWithUnit)
+      return res.status(400).json({
+        message: "Please enter currencies",
+        showToast: true,
+      });
+
+    const plant = await Plant.findOneAndUpdate(
+      {
+        plant_id: req.rootUser?.plant_data?.split("-")?.[0],
+      },
+      {
+        $set: req.body,
+      },
+      {
+        new: true,
+      },
+    );
+
+    if (!plant)
+      return res.status(400).json({
+        message: "Plant doest not exist",
+        showToast: true,
+      });
+
+    return res.status(201).json({
+      message: "Currency configured successfully",
+      showToast: true,
+      spareCurrenciesWithUnit: plant?.spareCurrenciesWithUnit,
+    });
+  },
+);
+
+exports.getCurrencyConversion = tryCatchHandler(async (req, res, next) => {
+  const plant = await Plant.findOne({
+    plant_id: req.rootUser?.plant_data?.split("-")?.[0],
+  });
+
+  if (!plant)
+    return res.status(400).json({
+      message: "Plant doest not exist",
+      showToast: true,
+    });
+
+  if (plant?.spareCurrenciesWithUnit?.length <= 0)
+    return res.status(400).json({
+      message: "Need to configure the currency with unit",
+      showToast: true,
+    });
+
+  return res.status(201).json({
+    message: "Currencies get successfully",
+    spareCurrenciesWithUnit: plant?.spareCurrenciesWithUnit,
   });
 });

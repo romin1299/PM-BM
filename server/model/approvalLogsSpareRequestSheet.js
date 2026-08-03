@@ -10,6 +10,7 @@ const approvalLogsSpareRequestSheetSchema = new mongoose.Schema(
     approvalOfMTD_TL: [approvalSchemaObj],
     approvalOfMTD_HOSS: [approvalSchemaObj],
     approvalOfPRD_TL: [approvalSchemaObj],
+    approvalOfPRD_HOSS: [approvalSchemaObj],
     approvalOfMTD_HOS: [approvalSchemaObj],
     approvalOfPRD_HOS: [approvalSchemaObj],
     approvalOfMTD_HOD: [approvalSchemaObj],
@@ -18,11 +19,11 @@ const approvalLogsSpareRequestSheetSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const ApprovalLogsSpareRequestSheet = new mongoose.model(
   "ApprovalLogsSpareRequestSheet",
-  approvalLogsSpareRequestSheetSchema
+  approvalLogsSpareRequestSheetSchema,
 );
 module.exports = ApprovalLogsSpareRequestSheet;

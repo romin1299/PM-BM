@@ -5,6 +5,7 @@ import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 import { Col, Row } from "react-bootstrap";
 import { SuccessToast } from "../BM/Component/ShowTostify";
+import SparePartIssuanceComponent from "../components/SparePartIssuanceComponent";
 
 function WorkOnImplementationPM({
   close,
@@ -108,7 +109,7 @@ function WorkOnImplementationPM({
       formData.append("workedOnPM", values.workedOnPM);
       formData.append(
         "remarksOfImplementation",
-        values.remarksOfImplementation
+        values.remarksOfImplementation,
       );
       formData.append("machineId", machineId);
       formData.append("tableRowId", tableRowId);
@@ -119,7 +120,7 @@ function WorkOnImplementationPM({
       formData.append("abnormalityRemarks", values.abnormalityRemarks);
       formData.append(
         "abnormalityStatus",
-        values.workedOnPM === "No" ? "Open" : "Closed"
+        values.workedOnPM === "No" ? "Open" : "Closed",
       );
       formData.append("targetDate", values.targetDate);
       //Spare Details
@@ -299,16 +300,39 @@ function WorkOnImplementationPM({
             ) : formik.values.workedOnPM === "No" ||
               formik.values.workedOnPM === "Rectify" ? (
               <div>
-                <div className="mb-3">
-                  <span>Remarks: </span>
-                  <input
-                    type="text"
-                    // maxLength={5}
-                    // id={rData[0].value}
-                    name="remarksOfImplementation"
-                    onChange={formik.handleChange}
-                    autoComplete="off"
-                  />
+                <div className="mb-3 d-flex justify-content-between">
+                  <div>
+                    <span>Remarks: </span>
+                    <input
+                      type="text"
+                      // maxLength={5}
+                      // id={rData[0].value}
+                      name="remarksOfImplementation"
+                      onChange={formik.handleChange}
+                      autoComplete="off"
+                    />
+                  </div>
+                  {formik.values.workedOnPM === "Rectify" &&
+                    formik.values.spareParts === "Yes" && (
+                      <SparePartIssuanceComponent
+                        machineParentHierarchy={{
+                          cell: {
+                            _id: machineAllData?.line_names?.cell_names?._id,
+                            cell_name:
+                              machineAllData?.line_names?.cell_names?.cell_name,
+                          },
+                          line: {
+                            _id: machineAllData?.line_names?._id,
+                            line_name: machineAllData?.line_names?.line_name,
+                          },
+                          machine: {
+                            _id: machineAllData?._id,
+                            machine_code: machineAllData?.machine_code,
+                            machine_name: machineAllData?.machine_name,
+                          },
+                        }}
+                      />
+                    )}
                 </div>
                 <div className="row">
                   <div className="col-6">

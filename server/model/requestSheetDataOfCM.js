@@ -45,16 +45,16 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     },
     personForLTPM: {
       type: String,
-      default: "M"
+      default: "M",
     },
     partSuggestionByMTDTL: {
       type: String,
     },
     partAvailableOrNotByMTDTL: {
-      type: String
+      type: String,
     },
     partSuggestionCostByMTDTL: {
-      type: Number
+      type: Number,
     },
     attachedFilesByMTDUser: { type: [String] },
   },
@@ -198,6 +198,11 @@ const requestSheetOfCMSchema = new mongoose.Schema({
           requestSheetStatusOfCM: {
             type: String,
           },
+
+          isSafetyFormSubmitted: {
+            type: Boolean,
+            default: false,
+          },
         },
       ],
     },
@@ -239,6 +244,6 @@ const requestSheetOfCMSchema = new mongoose.Schema({
 
 const RequestSheetOfCM = new mongoose.model(
   "CM_RequestSheetData",
-  requestSheetOfCMSchema
+  requestSheetOfCMSchema,
 );
 module.exports = RequestSheetOfCM;

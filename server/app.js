@@ -53,6 +53,10 @@ app.use(
   require("./routes/spareManagement/sparePartOrderTrackingRoutes"),
   require("./routes/spareManagement/sparePartSearchRoutes"),
   require("./routes/spareManagement/spareMasterRoutes"),
+  require("./routes/spareManagement/spareIssuanceSummaryRoutes"),
+  require("./routes/spareManagement/spareBudgetManagementRoutes"),
+  require("./routes/spareManagement/spareCustomizeFieldsRoutes"),
+  require("./routes/spareManagement/spareKPIRoutes"),
 );
 
 app.use(

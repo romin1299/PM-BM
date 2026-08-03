@@ -23,8 +23,8 @@ import NGBudgetApprovalSelection from "./NGBudgetApprovalSelection";
 import NewSpareRequestSheetNo from "./NewSpareRequestSheetNo";
 import RSDynamicApprovalSelection from "./RSDynamicApprovalSelection";
 import AcceptOrRejectDynamicApproval from "./AcceptOrRejectDynamicApproval";
+import useGetSectionWiseBudget from "../../SpareCustomHooks/useGetSectionWiseBudget";
 
-const sectionBudget = 2000;
 const url = "/v1/spare/spareRequestSheet";
 
 const SpareNewPartRequest = () => {
@@ -55,6 +55,7 @@ const SpareNewPartRequest = () => {
           approvalOfMTD_TL: { user: { _id: null } },
           approvalOfMTD_HOSS: { user: { _id: null } },
           approvalOfPRD_TL: { user: { _id: null } },
+          approvalOfPRD_HOSS: { user: { _id: null } },
           approvalOfMTD_HOS: { user: { _id: null } },
           approvalOfPRD_HOS: { user: { _id: null } },
           approvalOfMTD_HOD: { user: { _id: null } },
@@ -72,6 +73,12 @@ const SpareNewPartRequest = () => {
       if (!isError) return spare;
       return {};
     },
+  });
+
+  const sectionBudget = useGetSectionWiseBudget({
+    flagForTogglingFilter: reduceState?.flagForTogglingFilter,
+    selectedValue: reduceState?.selectedValue,
+    existingSheetCell: watch("cell._id"),
   });
 
   const changeParts = useWatch({
@@ -93,10 +100,13 @@ const SpareNewPartRequest = () => {
     }, 0);
 
     return {
-      budgetStatus: sectionBudget - requiredBudget >= 0 ? "OK" : "NG",
+      budgetStatus:
+        sectionBudget?.sectionWiseCurrentMonthBudget - requiredBudget >= 0
+          ? "OK"
+          : "NG",
       requiredBudget,
     };
-  }, [changeParts]);
+  }, [sectionBudget, changeParts]);
 
   const dirtyValues = (allValues) => {
     let newVal = {};
@@ -394,7 +404,7 @@ const SpareNewPartRequest = () => {
                   control={control}
                   isViewMode={isViewMode}
                   changeParts={changeParts}
-                  sectionBudget={sectionBudget}
+                  sectionBudget={sectionBudget?.sectionWiseCurrentMonthBudget}
                   {...budget}
                 />
               </Row>

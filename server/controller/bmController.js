@@ -959,6 +959,11 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           requestSheetNoOfBM: 1,
           cell: { $arrayElemAt: ["$cells.cell_name", 0] },
           line: { $arrayElemAt: ["$lines.line_name", 0] },
+
+          cellRef: { $arrayElemAt: ["$cells", 0] },
+          lineRef: { $arrayElemAt: ["$lines", 0] },
+          machineRef: { $arrayElemAt: ["$machines", 0] },
+
           machines: 1,
           machineNo: { $arrayElemAt: ["$machines.machine_code", 0] },
           machineName: { $arrayElemAt: ["$machines.machine_name", 0] },
@@ -18131,6 +18136,59 @@ const subSectionFiltrationMiddleware = async (req, res, next) => {
   }
 };
 
+const responseFilterMiddleWareForSpare = async (req, res, next) => {
+  try {
+    if (req.query?.moduleType !== "Spare") return next();
+
+    if (req.section.dashboardLevel === "No") {
+      return res.status(201).json({
+        message: "SubSections get successfully",
+
+        flagForTogglingFilter: "based-on-section",
+        selectedValue: req.section?._id,
+
+        selectedSection: req.section?._id,
+
+        selectedSubSection: "",
+        subSections: req.subSections,
+        selectedCell: "",
+        cells: [],
+        selectedLine: "",
+        lines: [],
+        selectedMachine: "",
+        machines: [],
+      });
+    }
+
+    const cells = await Cell.find(req.cellQuery, {
+      cell_id: 1,
+      cell_name: 1,
+      subSection_names: 1,
+    });
+
+    return res.status(201).json({
+      message: "Cell dropdown value get successfully",
+
+      flagForTogglingFilter: "based-on-section",
+      selectedValue: req.section?._id,
+
+      selectedSection: req.section?._id,
+
+      selectedSubSection: "",
+      subSections: [],
+      selectedCell: "",
+      cells,
+      selectedLine: "",
+      lines: [],
+      selectedMachine: "",
+      machines: [],
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 const cellFiltrationMiddleware = async (req, res, next) => {
   try {
     const cells = await Cell.find(req.cellQuery, {
@@ -19242,17 +19300,19 @@ router.get(
         },
       );
 
-      const sections = await Section.find(
-        {
-          plant_names: plant?._id,
-        },
-        {
-          section_id: 1,
-          section_name: 1,
-          dashboardLevel: 1,
-          plant_names: 1,
-        },
-      );
+      let sectionFilter = {
+        plant_names: plant?._id,
+      };
+
+      if (req.query.moduleType === "Spare")
+        sectionFilter.section_name = { $ne: "UTILITY" };
+
+      const sections = await Section.find(sectionFilter, {
+        section_id: 1,
+        section_name: 1,
+        dashboardLevel: 1,
+        plant_names: 1,
+      });
 
       return res.status(201).json({
         message: "Sections get successfully",
@@ -19283,6 +19343,7 @@ router.get(
   sectionFiltrationMiddleware,
   subSectionQueryMiddleware,
   subSectionFiltrationMiddleware,
+  responseFilterMiddleWareForSpare,
   async (req, res, next) => {
     try {
       const cells = await Cell.find(req.cellQuery, {
@@ -20602,4 +20663,194 @@ router.get(
   },
 );
 
+router
+  .route("/bm/v1/safetyForm")
+  .post(authenticate, async (req, res) => {
+    try {
+      const { selectedYear, requestSheetRef } = req.query;
+
+      req.body["financialYear"] = selectedYear;
+      req.body["month"] = moment().month();
+      req.body["requestSheetRef"] = requestSheetRef;
+      req.body["safetyFormFilledUpBy"] = req?.rootUser?.tm_name;
+
+      await SafetyForm.create(req.body);
+
+      const reqSheetBM = await RequestSheetOfBM.findOneAndUpdate(
+        { _id: requestSheetRef },
+        {
+          $set: {
+            IsSafetyFormCreated: true,
+          },
+        },
+      );
+      return res.status(201).json({
+        message: "Safety form added successfully",
+        isEditableRS: true,
+      });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  })
+  .get(authenticate, async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.findOne(req.query);
+
+      if (!safetyForm) return res.status(404).json({ message: "Not found!!!" });
+
+      //  "safetyForm": {
+      //       "generalMaintainanceWork": {
+      //           "IsAccepted": "true",
+      //           "protectiveEquipment": true,
+      //           "postNecessaryWarnigs": true,
+      //           "powerAndAirOff": true
+      //       },
+      //       "workInsideMachine": {
+      //           "IsAccepted": "false"
+      //       },
+      //       "highPressure": {
+      //           "IsAccepted": "false"
+      //       },
+      //       "workHandlingHeavyObj": {
+      //           "IsAccepted": "false"
+      //       },
+      //       "workAtHeight": {
+      //           "IsAccepted": "false"
+      //       },
+      //       "workHandlingFire": {
+      //           "IsAccepted": "false"
+      //       },
+      //       "workInvolvingRiskOfOxygen": {
+      //           "IsAccepted": "false"
+      //       },
+      //       "workUsingHighTemp": {
+      //           "IsAccepted": "false"
+      //       },
+      //       "_id": "69cde511abf17929b7248d48",
+      //       "requestSheetRef": "69cdc916abf17929b72254d9",
+      //       "safetyFormFilledUpBy": "Ujjawal",
+      //       "processName": "Silicon All-round",
+      //       "workName": "Silicon dispensed ",
+      //       "keyRisks": "Silicon can enter into the Eyes ",
+      //       "preventiveMeasures": "Must wear Safety glass and all PPE'S ",
+      //       "finalSafetyAcceptance": true,
+      //       "__v": 0
+      //   }
+
+      //----------------------------------------------------
+
+      //   "safetyForm": {
+      //     "generalMaintainanceWork": {
+      //         "IsAccepted": "Yes",
+      //         "protectiveEquipment": true,
+      //         "postNecessaryWarnigs": true,
+      //         "powerAndAirOff": true
+      //     },
+      //     "complexWork": {
+      //         "leaderOfOtherTeamsAndClarity": true,
+      //         "otherTLDetails": "RRR",
+      //         "workDetails": "RRR",
+      //         "physicalSeparation": true,
+      //         "commonUtilitySources": true,
+      //         "sourcesAvailable": "Yes",
+      //         "applyLOTOOrCautionTag": true,
+      //         "gapAmongAllOtherTeams": true,
+      //         "postponeActivity": true,
+      //         "IsAccepted": "Yes"
+      //     },
+      //     "workInsideMachine": {
+      //         "protectiveEquipment": true,
+      //         "hadMeeting": true,
+      //         "IsAccepted": "Yes"
+      //     },
+      //     "highPressure": {
+      //         "notOpenPressureLine": true,
+      //         "proper3SWork": true,
+      //         "isTrainedStaffAvailable": true,
+      //         "IsAccepted": "Yes"
+      //     },
+      //     "workHandlingHeavyObj": {
+      //         "visuallyGuessWeight": true,
+      //         "prohibitSlingOpWithSingleWire": true,
+      //         "secureFootingAndHandPosition": true,
+      //         "IsAccepted": "Yes"
+      //     },
+      //     "workAtHeight": {
+      //         "wearPersonalProtectiveEquipment": true,
+      //         "postASignOfHighPlace": true,
+      //         "secureFootingAndSafetyBelt": true,
+      //         "isAssociatesQualified": true,
+      //         "IsAccepted": "Yes"
+      //     },
+      //     "workHandlingFire": {
+      //         "postASignToUseFire": true,
+      //         "takeFirePrevention": true,
+      //         "isAssociatesQualified": true,
+      //         "IsAccepted": "Yes"
+      //     },
+      //     "workInvolvingRiskOfOxygen": {
+      //         "measureOxygen": true,
+      //         "holdAnObserverAndWearProtectiveEquipment": true,
+      //         "isAssociatesQualified": true,
+      //         "IsAccepted": "Yes"
+      //     },
+      //     "workUsingHighTemp": {
+      //         "isAssociatesWereSafetyTools": true,
+      //         "IsAccepted": "Yes"
+      //     },
+      //     "_id": "6a6b472371451b1331f42f45",
+      //     "financialYear": "2026-2027",
+      //     "month": 6,
+      //     "requestSheetRef": "69d0d760e26165f7e2dd5c18",
+      //     "safetyFormFilledUpBy": "Ujjawal",
+      //     "workName": "VVVVVV",
+      //     "keyRisks": "efsd",
+      //     "preventiveMeasures": "ngfc",
+      //     "finalSafetyAcceptance": true,
+      //     "__v": 0
+      // }
+
+      console.log(safetyForm);
+
+      return res.status(201).json({ message: "Get successfully", safetyForm });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  });
+
 module.exports = router;
+
+
+const migrateSafetyForms = async () => {
+  const workFields = [
+    "generalMaintainanceWork",
+    "workInsideMachine",
+    "highPressure",
+    "workHandlingHeavyObj",
+    "workAtHeight",
+    "workHandlingFire",
+    "workInvolvingRiskOfOxygen",
+    "workUsingHighTemp",
+  ];
+
+  const isAcceptedUpdates = {};
+  workFields.forEach((field) => {
+    isAcceptedUpdates[`${field}.IsAccepted`] = {
+      $switch: {
+        branches: [
+          { case: { $eq: [`$${field}.IsAccepted`, "true"] }, then: "Yes" },
+          { case: { $eq: [`$${field}.IsAccepted`, "false"] }, then: "No" },
+        ],
+        default: `$${field}.IsAccepted`,
+      },
+    };
+  });
+
+  await SafetyForm.updateMany({}, [{ $set: isAcceptedUpdates }]);
+
+  console.log("Migration complete");
+};
+
+// migrateSafetyForms();

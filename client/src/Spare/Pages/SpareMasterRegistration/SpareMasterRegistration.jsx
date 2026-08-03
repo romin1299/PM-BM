@@ -1,16 +1,18 @@
-import React, { useContext, useMemo } from "react";
-import moment from "moment";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Row, Col, Form, Container, Table } from "react-bootstrap";
 
+import SpareMastCostTable from "./SpareMastCostTable";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
 import { partFor } from "../../Utils/dropdownUtils";
+import SearchableScrollDropdown from "../../Component/SearchableScrollDropdown";
 
 import "./SpareMasterRegistration.scss";
 
 const url = "/v1/spare/master";
+const filterOptions = ["maker", "supplierName", "unit", "partGroup"];
 
 const rowWiseFields = [
   [
@@ -31,10 +33,11 @@ const rowWiseFields = [
       fieldName: "partName",
       required: "Please enter part name",
     },
+
     {
-      label: "Unit",
-      fieldName: "unit",
-      required: "Please enter unit",
+      label: "Register section",
+      fieldName: "registerSection",
+      required: "Please enter register section",
     },
   ],
   [
@@ -44,28 +47,50 @@ const rowWiseFields = [
       required: "Please enter part model number",
     },
     {
-      label: "Part group",
-      fieldName: "partGroup",
-      required: "Please enter part group",
+      label: "Vendor group",
+      fieldName: "vendorGroup",
+      required: "Please enter vendor group",
     },
   ],
   [
     {
       label: "Maker",
-      fieldName: "manufacture",
+      fieldName: "maker",
       required: "Please enter maker",
+      isDynamic: true,
+      requestedFor: filterOptions[0],
     },
     {
-      label: "Register section",
-      fieldName: "registerSection",
-      required: "Please enter register section",
+      label: "Unit",
+      fieldName: "unit",
+      required: "Please enter unit",
+      isDynamic: true,
+      requestedFor: filterOptions[2],
     },
   ],
   [
     {
-      label: "Supplier",
-      fieldName: "supplier",
+      label: "Supplier name",
+      fieldName: "supplierName",
       required: "Please enter supplier",
+      isDynamic: true,
+      requestedFor: filterOptions[1],
+    },
+
+    {
+      label: "Part group",
+      fieldName: "partGroup",
+      required: "Please enter part group",
+      isDynamic: true,
+      requestedFor: filterOptions[3],
+    },
+  ],
+  [
+    {
+      label: "Lead time",
+      fieldName: "leadTime",
+      required: "Please enter lead time",
+      type: "number",
     },
     {
       label: "M/C no",
@@ -76,9 +101,9 @@ const rowWiseFields = [
   ],
   [
     {
-      label: "Stock Qty",
-      fieldName: "stockQty",
-      required: "Please enter stock quantity",
+      label: "Min qty",
+      fieldName: "minQuantity",
+      required: "Please enter min quantity",
       type: "number",
     },
     {
@@ -90,94 +115,117 @@ const rowWiseFields = [
   ],
   [
     {
-      label: "Currency unit",
-      fieldName: "currencyUnit",
-      required: "Please enter currency unit",
-    },
-    {
-      label: "Vendor group",
-      fieldName: "vendorGroup",
-      required: "Please enter vendor group",
-    },
-  ],
-  [
-    {
-      label: "Min qty",
-      fieldName: "minQuantity",
-      required: "Please enter min quantity",
-      type: "number",
-    },
-    {
-      label: "Lead time",
-      fieldName: "leadTime",
-      required: "Please enter lead time",
-      type: "number",
-    },
-  ],
-
-  [
-    {
       label: "Max qty",
-      fieldName: "quantityRequired",
+      fieldName: "maxQuantity",
       required: "Please enter max quantity",
       type: "number",
     },
+    {
+      label: "Over all available qty",
+      fieldName: "budgetDetails.overAllAvailableQty",
+      type: "number",
+      required: false,
+      disabled: true,
+    },
+  ],
+  [
     {},
+    {
+      label: "Over all cost in INR",
+      fieldName: "budgetDetails.overAllCostInINR",
+      type: "number",
+      required: false,
+      disabled: true,
+    },
   ],
 ];
+
+const DropdownComponent = ({
+  control,
+  label = "Maker",
+  fieldName = "maker",
+  required = "Maker is required",
+  requestedFor = filterOptions[0],
+}) => (
+  <Controller
+    name={fieldName}
+    control={control}
+    rules={{ required }}
+    render={({ field, fieldState: { error } }) => (
+      <SearchableScrollDropdown
+        label={field.value ? field.value : label}
+        value={field.value}
+        onChange={(newValue) =>
+          field.onChange(newValue?.[requestedFor] ?? null)
+        }
+        extraParams={{
+          requestedFor,
+        }}
+        error={!!error}
+        helperText={error?.message}
+      />
+    )}
+  />
+);
 
 const SpareMasterRegistration = () => {
   const loggedUser = useContext(RoutingContext);
   const [searchParams] = useSearchParams();
-
   const navigate = useNavigate();
-
   const params = useMemo(
-    () => ({
-      sheetId: searchParams.get("sheetId"),
-      partId: searchParams.get("partId"),
-    }),
+    () =>
+      searchParams.get("masterId")
+        ? {
+            _id: searchParams.get("masterId"),
+          }
+        : {
+            sheetId: searchParams.get("sheetId"),
+            partId: searchParams.get("partId"),
+          },
     [searchParams],
   );
+
+  const [costDetails, setCostDetails] = useState([]);
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { isLoading, errors, dirtyFields },
     watch,
   } = useForm({
     defaultValues: async () => {
-      const { isError, isMasterExist, master } = await axiosGetOrDelete({
+      const { isError, master } = await axiosGetOrDelete({
         url,
-        axiosProps: {
-          params,
-        },
+        axiosProps: { params },
       });
 
-      if (!isError)
-        return {
-          ...master,
-          isMasterExist,
-          dateTime: moment().format("YYYY-MM-DDTHH:mm"),
-        };
+      if (!isError) {
+        setCostDetails(master?.costDetails);
+        delete master.costDetails;
+        return master;
+      }
       return {};
     },
   });
 
-  const dirtyValues = (allValues) => {
-    let newVal = {};
-    Object.keys(dirtyFields).map((key) => (newVal[key] = allValues[key]));
-    return newVal;
-  };
+  const dirtyValues = useCallback(
+    (allValues) => {
+      let newVal = {};
+      Object.keys(dirtyFields).map((key) => (newVal[key] = allValues[key]));
+      return newVal;
+    },
+    [dirtyFields],
+  );
 
   const handleNavigation = () => navigate(-1);
 
   const handleNewMasterRequest = async (formValue, status) => {
-    if (watch("isMasterExist") && Object.keys(dirtyFields).length === 0) return;
+    if (params?._id && Object.keys(dirtyFields).length === 0) return;
 
     let axiosParams = params;
 
-    if (watch("isMasterExist")) {
+    if (params?._id) {
       axiosParams = { _id: formValue?._id };
       formValue = dirtyValues(formValue);
     }
@@ -186,11 +234,9 @@ const SpareMasterRegistration = () => {
 
     const { isError } = await axiosPostOrPatch({
       url,
-      apiType: watch("isMasterExist") ? "patch" : "post",
+      apiType: params?._id ? "patch" : "post",
       axiosBody: formValue,
-      axiosProps: {
-        params: axiosParams,
-      },
+      axiosProps: { params: axiosParams },
     });
 
     if (!isError) return handleNavigation();
@@ -228,7 +274,7 @@ const SpareMasterRegistration = () => {
                         type="radio"
                         {...item}
                         {...register("whichParts", {
-                          required: watch("isMasterExist")
+                          required: params?._id
                             ? false
                             : "Please select part use for",
                         })}
@@ -248,14 +294,11 @@ const SpareMasterRegistration = () => {
                   <input
                     type="dateTime-local"
                     className="w-75"
-                    {...register("dateTime", {
-                      required: watch("isMasterExist")
-                        ? false
-                        : "Please enter date time",
+                    {...register("dateTime.inString", {
+                      required: params?._id ? false : "Please enter date time",
                     })}
                   />
-
-                  {errors?.["dateTime"] && (
+                  {errors?.dateTime?.inString && (
                     <p className="text-error mb-1">
                       {errors?.["dateTime"]?.message}
                     </p>
@@ -270,27 +313,39 @@ const SpareMasterRegistration = () => {
                     label = "",
                     fieldName = "",
                     required = "",
-                    disabled = false,
                     type = "text",
+                    disabled = false,
+                    isDynamic = false,
+                    requestedFor = "",
                   }) =>
                     label ? (
                       <Col className="w-100 d-flex justify-content-between pt-1">
                         <small>{label}</small>
                         <div className="w-75 d-flex flex-column">
-                          <input
-                            type={type}
-                            className="w-75"
-                            disabled={disabled}
-                            {...register(fieldName, {
-                              required: watch("isMasterExist")
-                                ? false
-                                : required,
-                            })}
-                          />
-                          {errors?.[fieldName] && (
-                            <p className="text-error mb-1">
-                              {errors?.[fieldName]?.message}
-                            </p>
+                          {isDynamic ? (
+                            <DropdownComponent
+                              control={control}
+                              label={label}
+                              fieldName={fieldName}
+                              required={required}
+                              requestedFor={requestedFor}
+                            />
+                          ) : (
+                            <>
+                              <input
+                                type={type}
+                                className="w-75"
+                                disabled={disabled}
+                                {...register(fieldName, {
+                                  required: params?._id ? false : required,
+                                })}
+                              />
+                              {errors?.[fieldName] && (
+                                <p className="text-error mb-1">
+                                  {errors?.[fieldName]?.message}
+                                </p>
+                              )}
+                            </>
                           )}
                         </div>
                       </Col>
@@ -300,13 +355,13 @@ const SpareMasterRegistration = () => {
                 )}
               </Row>
             ))}
-
+            <Row className="border size-14 m-2">
+              <SpareMastCostTable costDetails={costDetails} />
+            </Row>
             <Row className="border size-14">
               <Col className="d-flex col-auto gap-2 justify-content-between align-items-center">
                 <small>TM name: </small>
-                {watch("isMasterExist")
-                  ? watch("createdBy.tm_name")
-                  : loggedUser?.tm_name}
+                {params?._id ? watch("createdBy.tm_name") : loggedUser?.tm_name}
               </Col>
               <Col className="d-flex col-auto gap-2 justify-content-between align-items-center">
                 <button

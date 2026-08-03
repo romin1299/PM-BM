@@ -49,17 +49,36 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
     },
     changeParts: [
       {
+        masterId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "SpareMaster",
+        },
         partName: String,
         partModel: String,
         minQuantity: Number,
-        quantityRequired: Number, // OR Max quantity
-        manufacture: String,
-        supplier: String,
+        maxQuantity: Number,
+        quantityRequired: Number,
+        maker: String,
+        supplierName: String,
+        supplierCategory: String,
         approxUnitPrice: Number,
         standerOrManufacturingPart: String,
         normalOrUrgentPart: String,
         drawingAttach: String,
         drawingAttachOriginalName: String,
+
+        //Batch wise
+        batchId: {
+          type: mongoose.Schema.Types.ObjectId,
+        },
+        rsPRGenerationTimeStamp: orderTrackingTimestamp,
+        rsPRGenerationRemarks: String,
+        rsPRAssignToAllBuyersTimeStamp: orderTrackingTimestamp,
+        rsPRAssignToAllBuyersRemarks: String,
+        rsPOIssueToVendorTimeStamp: orderTrackingTimestamp,
+        rsPOIssueToVendorRemarks: String,
+
+        //Part wise
         rsPartReceiveTimeStamp: orderTrackingTimestamp,
         rsPartReceiveRemarks: String,
         rsPartInspectionTimeStamp: orderTrackingTimestamp,
@@ -92,6 +111,7 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
     approvalOfMTD_TL: approvalSchemaObj,
     approvalOfMTD_HOSS: approvalSchemaObj,
     approvalOfPRD_TL: approvalSchemaObj,
+    approvalOfPRD_HOSS: approvalSchemaObj,
     approvalOfMTD_HOS: approvalSchemaObj,
     approvalOfPRD_HOS: approvalSchemaObj,
     approvalOfMTD_HOD: approvalSchemaObj,
@@ -102,6 +122,7 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
     approvalOfMTD_TLApprovalLogs: [approvalSchemaObj],
     approvalOfMTD_HOSSApprovalLogs: [approvalSchemaObj],
     approvalOfPRD_TLApprovalLogs: [approvalSchemaObj],
+    approvalOfPRD_HOSSApprovalLogs: [approvalSchemaObj],
     approvalOfMTD_HOSApprovalLogs: [approvalSchemaObj],
     approvalOfPRD_HOSApprovalLogs: [approvalSchemaObj],
     approvalOfMTD_HODApprovalLogs: [approvalSchemaObj],
@@ -123,11 +144,7 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
 
     rsSubmittedTimeStamp: orderTrackingTimestamp,
     rsHODApprovalTimeStamp: orderTrackingTimestamp,
-    rsPRSubmitByToolroomTimeStamp: orderTrackingTimestamp,
-    rsPRAssignToAllBuyersTimeStamp: orderTrackingTimestamp,
-    rsPRAssignToAllBuyersRemarks: String,
-    rsPOIssueToVendorTimeStamp: orderTrackingTimestamp,
-    rsPOIssueToVendorRemarks: String,
+    rsToolroomApprovalTimeStamp: orderTrackingTimestamp,
   },
   {
     timestamps: true,
@@ -148,6 +165,7 @@ requestSheetOfSpareSchema.index(
     "approvalOfMTD_TLApprovalLogs.user.tm_name": "text",
     "approvalOfMTD_HOSSApprovalLogs.user.tm_name": "text",
     "approvalOfPRD_TLApprovalLogs.user.tm_name": "text",
+    "approvalOfPRD_HOSSApprovalLogs.user.tm_name": "text",
     "approvalOfMTD_HOSApprovalLogs.user.tm_name": "text",
     "approvalOfPRD_HOSApprovalLogs.user.tm_name": "text",
     "approvalOfMTD_HODApprovalLogs.user.tm_name": "text",
@@ -168,6 +186,7 @@ requestSheetOfSpareSchema.index(
     "approvalOfMTD_TLApprovalLogs.approvalDateAndTime": "text",
     "approvalOfMTD_HOSSApprovalLogs.approvalDateAndTime": "text",
     "approvalOfPRD_TLApprovalLogs.approvalDateAndTime": "text",
+    "approvalOfPRD_HOSSApprovalLogs.approvalDateAndTime": "text",
     "approvalOfMTD_HOSApprovalLogs.approvalDateAndTime": "text",
     "approvalOfPRD_HOSApprovalLogs.approvalDateAndTime": "text",
     "approvalOfMTD_HODApprovalLogs.approvalDateAndTime": "text",
@@ -176,7 +195,7 @@ requestSheetOfSpareSchema.index(
 
     "rsSubmittedTimeStamp.inString": "text",
     "rsHODApprovalTimeStamp.inString": "text",
-    "rsPRSubmitByToolroomTimeStamp.inString": "text",
+    "rsToolroomApprovalTimeStamp.inString": "text",
     "rsPRAssignToAllBuyersTimeStamp.inString": "text",
     "rsPOIssueToVendorTimeStamp.inString": "text",
     "changeParts.rsPartReceiveTimeStamp.inString": "text",

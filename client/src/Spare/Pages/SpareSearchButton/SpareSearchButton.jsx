@@ -6,22 +6,18 @@ import { partFor } from "../../Utils/dropdownUtils";
 import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 
 const TaskStatusMappingComponent = memo(
-  ({
-    otherData,
-    navigate,
-    handleDelete,
-    removeRow,
-    mode,
-    handleModal,
-    updateRow,
-  }) => (
+  ({ otherData, navigate, handleDelete, removeRow, mode, handleModal }) => (
     <>
       <td className="td-padding ">{otherData?.plantName}</td>
+      <td className="td-padding ">{otherData?.whichParts}</td>
       <td className="td-padding ">{otherData?.location}</td>
       <td className="td-padding ">{otherData?.uniqueID}</td>
       <td className="td-padding ">{otherData?.partName}</td>
       <td className="td-padding ">{otherData?.partModel}</td>
-      <td className="td-padding ">{otherData?.stockQty}</td>
+      <td className="td-padding ">
+        {otherData?.budgetDetails?.overAllAvailableQty}
+      </td>
+      <td className="td-padding ">{otherData?.unitCost}</td>
     </>
   ),
 );
@@ -53,8 +49,6 @@ const SpareSearchButton = () => {
     Object.keys(dirtyFields).map((key) => (newVal[key] = allValues[key]));
     return newVal;
   };
-
-  console.log(dirtyFields);
 
   const handleSearchParts = async (formValue) => {
     if (Object.keys(dirtyFields).length === 0) return;
@@ -158,11 +152,13 @@ const SpareSearchButton = () => {
           url="/v1/spare/spareSearch"
           tableHeaders={[
             "Plant",
+            "Master",
             "Location",
             "Unique ID",
             "Part name",
             "Part model",
-            "Stock Qty",
+            "Quantity available",
+            "Unit cost",
           ]}
           OtherComp={TaskStatusMappingComponent}
         />

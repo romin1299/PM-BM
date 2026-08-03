@@ -15,6 +15,7 @@ const Line = require("../model/lineSchema");
 const Machine = require("../model/machineSchema");
 const LogHistory = require("../model/logHistorySchema");
 const EmailConfigurations = require("../model/emailConfiguration");
+const SafetyForm = require("../model/safetyFormSchema");
 
 const sendMail = require("../sendMail/sendMail");
 const sendApprovalOfImplementation = require("../sendMail/sendApprovalOfImplementation");
@@ -23669,117 +23670,78 @@ router.patch(
   },
 );
 
-// router.post('/postSectionToGetAllData12', authenticate, async (req, res) => {
-//     try {
-//         let { selectedYear } = req.body
+router.route("/pm/v1/safetyForm/list").get(authenticate, async (req, res) => {
+  try {
+    const { requestSheetRef, selectedYear } = req.query;
 
-//         let removeFlag = await LogHistory.update(
+    if (!requestSheetRef || !selectedYear)
+      return res
+        .status(400)
+        .json({ message: "Please provide required details" });
 
-//             {},
-//             {
-//                 $unset: { flag: "" }
-//             }
+    const formList = await SafetyForm.aggregate([
+      {
+        $match: {
+          financialYear: req.query?.selectedYear,
+          month: moment().month(),
+          requestSheetRef: mongoose.Types.ObjectId(requestSheetRef),
+        },
+      },
+      {
+        $project: {
+          workName: 1,
+        },
+      },
+    ]);
 
-//         )
-//             console.log(removeFlag)
-//         // machineDataOfImplementationApproval12 = await Machine.aggregate([
-//         //     // {
-//         //     //     $match: {
-//         //     //         machine_code: "EEAT-131"
-//         //     //     }
-//         //     // },
-//         //     {
-//         //         $unwind: "$checkSheet_data"
-//         //     },
-//         //     {
-//         //         $match: {
-//         //             "checkSheet_data.current_year": "2023-2024"
-//         //         }
-//         //     },
-//         //     // { $addFields: { checkSheet_data: { $arrayElemAt: ["$checkSheet_data", -1] } } },
-//         //     {
-//         //         $match: {
-//         //             "checkSheet_data.PMStatus.Apr": "PM Skip",
-//         //             "checkSheet_data.PMStatus.May": { $ne: "No Completion" },
-//         //         }
-//         //     },
-//         //     {
-//         //         $project: {
-//         //             machine_code: 1,
-//         //             machine_name: 1,
-//         //             machine_nickname: 1,
-//         //             machine_sequence: 1,
-//         //             installation_date: 1,
-//         //             maker_name: 1,
-//         //             maker_sr_no: 1,
-//         //             manufacturingDate: 1,
-//         //             isPM: 1,
-//         //             line_names: 1,
-//         //             checkSheet_data: 1
-//         //         }
-//         //     },
-//         // ])
-//         // console.log(machineDataOfImplementationApproval12)
-//         // console.log(machineDataOfImplementationApproval12.length)
+    return res.status(201).json({ message: "Get successfully", formList });
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ message: error?.message, error });
+  }
+});
 
-//         // const updateOneCycleData = async (machine_code, inception_point) => {
-//         //     let logHistoryAllData1 = await LogHistory.find({
-//         //         "machineInfo.machine_Id": machine_code,
-//         //         inception_point,
-//         //         current_year: "2023-2024",
-//         //         schedule_month: "Apr",
-//         //         flag: { $ne: "true" }
-//         //     })
+router
+  .route("/pm/v1/safetyForm")
+  .post(authenticate, async (req, res) => {
+    try {
+      const { selectedYear, requestSheetRef } = req.query;
 
-//         //     // console.log("Log data ---->", logHistoryAllData1)
+      req.body["financialYear"] = selectedYear;
+      req.body["month"] = moment().month();
+      req.body["requestSheetRef"] = requestSheetRef;
+      req.body["safetyFormFilledUpBy"] = req?.rootUser?.tm_name;
 
-//         //     let arrayValue = [1, 'skip']
-//         //     let setArrayValue = [1, logHistoryAllData1?.[0]?.abnormality_remarks ? "No" : "Yes", logHistoryAllData1?.[0]?.remarks]
-//         //     let updateMachineData = await Machine.updateOne({
-//         //         machine_code: machine_code,
-//         //         "checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.Apr": arrayValue
-//         //     },
-//         //         {
-//         //             $set: {
-//         //                 "checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.Apr": setArrayValue,
-//         //                 "checkSheet_data.$[outer].PMStatus.Apr": "Completed"
-//         //             }
-//         //         },
-//         //         {
-//         //             arrayFilters: [{ 'outer.current_year': "2023-2024" }, { 'inner.inspection_parent_name': inception_point }],
-//         //         }
-//         //     )
+      await SafetyForm.create(req.body);
 
-//         //     // console.log("Update value of point and status", updateMachineData)
+      return res.status(201).json({
+        message: "Safety form added successfully",
+        isEditableRS: true,
+      });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  })
+  .get(authenticate, async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.findOne(req.query);
 
-//         //     let addFlagInLog = await LogHistory.updateOne({
-//         //         _id: logHistoryAllData1?.[0]?._id
-//         //     },
-//         //         {
-//         //             $set: {
-//         //                 flag: "true"
-//         //             }
-//         //         }
-//         //     )
+      if (!safetyForm) return res.status(404).json({ message: "Not found!!!" });
 
-//         //     // console.log("Add flag", addFlagInLog)
-//         // }
-
-//         // for (let i = 0; i < machineDataOfImplementationApproval12.length; i++) {
-
-//         //     for (let j = 0; j < machineDataOfImplementationApproval12[i]?.checkSheet_data?.checkSheet?.length; j++) {
-//         //         if (machineDataOfImplementationApproval12?.[i]?.checkSheet_data?.checkSheet?.[j].cycle === '1/1M') {
-//         //             await updateOneCycleData(machineDataOfImplementationApproval12?.[i]?.machine_code, machineDataOfImplementationApproval12?.[i]?.checkSheet_data?.checkSheet?.[j]?.inspection_parent_name)
-//         //         }
-
-//         //     }
-
-//         // }
-
-//     } catch (error) {
-//         console.log(error)
-//         console.log("User id not received!!!");
-//     }
-// })
+      return res.status(201).json({ message: "Get successfully", safetyForm });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  })
+  .patch(authenticate, async (req, res) => {
+    try {
+      console.log(req.body);
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  });
 
 module.exports = router;

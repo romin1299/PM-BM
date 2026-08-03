@@ -35,66 +35,67 @@ const ChartsToolbar = ({
   plantLevel,
   currentStatusOfRSFiltration,
   currentStatusOfRequestSheet,
+  queryParams = {},
 }) => {
-  const generatePPT = () => {
-    const pptx = new pptxgen();
-    const slide = pptx.addSlide();
+  // const generatePPT = () => {
+  //   const pptx = new pptxgen();
+  //   const slide = pptx.addSlide();
 
-    // Format the data for the chart
-    const pptChartData = [
-      {
-        name: "BM",
-        labels: MONTH_LABELS,
-        values: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
-      },
-      {
-        name: "PM",
-        labels: MONTH_LABELS,
-        values: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
-      },
-    ];
+  //   // Format the data for the chart
+  //   const pptChartData = [
+  //     {
+  //       name: "BM",
+  //       labels: MONTH_LABELS,
+  //       values: [432, 863, 543, 123, 474, 653, 655, 378, 302, 945, 234, 743],
+  //     },
+  //     {
+  //       name: "PM",
+  //       labels: MONTH_LABELS,
+  //       values: [432, 263, 543, 223, 574, 653, 255, 778, 1032, 145, 734, 243],
+  //     },
+  //   ];
 
-    // Chart options
-    let pptChartOptions = {
-      x: 0.5,
-      y: 0.5,
-      w: "90%",
-      h: "90%",
-      barDir: "col",
-      barGrouping: "stacked",
-      chartColors: [chartColors.orange[2], chartColors.aqua[1]],
-      invertedColors: ["C0504D"],
-      showLegend: true,
-      //
-      showTitle: true,
-      title: "Hour Trend Chart",
-      titleFontFace: "Roboto",
-      titleFontSize: 24,
-      titleColor: "#23313f",
-      titlePos: { x: 1.5, y: 0 },
-      //titleRotate: 10,
-      //
-      showCatAxisTitle: true,
-      catAxisLabelColor: "#23313f",
-      catAxisTitleColor: "#23313f",
-      catAxisTitle: "Months",
-      catAxisTitleFontSize: 12,
-      //
-      showValAxisTitle: true,
-      valAxisLabelColor: "#23313f",
-      valAxisTitleColor: "#23313f",
-      valAxisTitle: "Hours",
-      valAxisTitleFontSize: 12,
-    };
+  //   // Chart options
+  //   let pptChartOptions = {
+  //     x: 0.5,
+  //     y: 0.5,
+  //     w: "90%",
+  //     h: "90%",
+  //     barDir: "col",
+  //     barGrouping: "stacked",
+  //     chartColors: [chartColors.orange[2], chartColors.aqua[1]],
+  //     invertedColors: ["C0504D"],
+  //     showLegend: true,
+  //     //
+  //     showTitle: true,
+  //     title: "Hour Trend Chart",
+  //     titleFontFace: "Roboto",
+  //     titleFontSize: 24,
+  //     titleColor: "#23313f",
+  //     titlePos: { x: 1.5, y: 0 },
+  //     //titleRotate: 10,
+  //     //
+  //     showCatAxisTitle: true,
+  //     catAxisLabelColor: "#23313f",
+  //     catAxisTitleColor: "#23313f",
+  //     catAxisTitle: "Months",
+  //     catAxisTitleFontSize: 12,
+  //     //
+  //     showValAxisTitle: true,
+  //     valAxisLabelColor: "#23313f",
+  //     valAxisTitleColor: "#23313f",
+  //     valAxisTitle: "Hours",
+  //     valAxisTitleFontSize: 12,
+  //   };
 
-    // Add chart to the slide with specified options
-    slide.addChart(pptx.ChartType.bar, pptChartData, pptChartOptions);
+  //   // Add chart to the slide with specified options
+  //   slide.addChart(pptx.ChartType.bar, pptChartData, pptChartOptions);
 
-    // Save the PPT file
-    pptx.writeFile({
-      fileName: `Man-Hour-Report_${new Date().toISOString()}.pptx`,
-    });
-  };
+  //   // Save the PPT file
+  //   pptx.writeFile({
+  //     fileName: `Man-Hour-Report_${new Date().toISOString()}.pptx`,
+  //   });
+  // };
 
   return (
     <Box
@@ -133,6 +134,7 @@ const ChartsToolbar = ({
           defaultSelectedMonth={defaultSelectedMonth}
           currentStatusOfRequestSheet={currentStatusOfRequestSheet}
           currentStatusOfRSFiltration={currentStatusOfRSFiltration}
+          queryParams={queryParams}
         />
       </Box>
 

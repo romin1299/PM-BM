@@ -22,7 +22,7 @@ import SpareSummery from "../SpareSheets/SpareSummery";
 
 import "./SpareOrderTracking.scss";
 
-const taskStatusMappingKeys = [
+const taskStatusMappingKeys1 = [
   {
     key: "rsSubmitted",
     popupTitle: "",
@@ -32,8 +32,15 @@ const taskStatusMappingKeys = [
     popupTitle: "",
   },
   {
-    key: "rsPRSubmitByToolroom",
+    key: "rsToolroomApproval",
     popupTitle: "",
+  },
+];
+
+const taskStatusMappingKeys2 = [
+  {
+    key: "rsPRGeneration",
+    popupTitle: "PR Generation",
   },
   {
     key: "rsPRAssignToAllBuyers",
@@ -60,17 +67,6 @@ const taskStatusMappingKeys = [
     popupTitle: "MRN Approved",
   },
 ];
-
-const partFields = [
-  "rsPartReceive",
-  "rsPartInspection",
-  "rsMRNIssued",
-  "rsMRNApproved",
-];
-
-const editableTaskStatus = new Set(
-  taskStatusMappingKeys.slice(-6)?.map((task) => task.key),
-);
 
 const colorsBasedOnTaskStatus = {
   assigned: "white",
@@ -115,28 +111,47 @@ const EditTD = memo(({ _id, navigate }) => (
   </TDWrapper>
 ));
 
-const MasterTD = memo(({ canConfigureMaster, _id, partId, navigate }) => (
-  <TDWrapper>
-    {canConfigureMaster && (
-      <AppRegistrationIcon
-        fontSize="small"
-        className="button-style text-primary"
-        onClick={() =>
-          navigate(
-            `/spare/spareMasterRegistration/?sheetId=${_id}&partId=${partId}`,
-          )
-        }
-      />
-    )}
-  </TDWrapper>
-));
+const MasterTD = memo(
+  ({
+    canConfigureMaster,
+    isToolRoomApproved,
+    _id,
+    partId,
+    masterId,
+    navigate,
+  }) => {
+    const handleClick = useCallback(() => {
+      const queryParams = masterId
+        ? `masterId=${masterId}`
+        : `sheetId=${_id}&partId=${partId}`;
+      return navigate(`/spare/spareMasterRegistration/?${queryParams}`);
+    }, [navigate, _id, partId, masterId]);
 
-const RejectTD = memo(({ _id, onDelete }) => (
+    if (!canConfigureMaster) return <TDWrapper></TDWrapper>;
+    else if (!isToolRoomApproved)
+      return (
+        <TDWrapper>
+          <AppRegistrationIcon fontSize="small" className="text-muted" />
+        </TDWrapper>
+      );
+    return (
+      <TDWrapper>
+        <AppRegistrationIcon
+          fontSize="small"
+          className="button-style text-primary"
+          onClick={handleClick}
+        />
+      </TDWrapper>
+    );
+  },
+);
+
+const RejectTD = memo(({ _id, partId, onDelete }) => (
   <TDWrapper>
     <DeleteIcon
       fontSize="small"
       className="button-style text-primary"
-      onClick={() => onDelete(_id)}
+      onClick={() => onDelete({ _id, partId })}
     />
   </TDWrapper>
 ));
@@ -148,24 +163,95 @@ const EditOtherTrackingFields = memo(
         fontSize="small"
         className="button-style text-primary"
         onClick={() => {
-          let axiosParams = {
-            _id: otherData?._id,
-            requestedField: popupRef?.key,
-          };
-
-          if (partFields?.includes(popupRef?.key))
-            axiosParams["partId"] = otherData?.changeParts?._id;
-
           handleModal({
             popupRef,
-            selectedRow: otherData,
             updateRow,
-            axiosParams,
+            axiosParams: {
+              _id: otherData?._id,
+              cellId: otherData?.cell?._id,
+              batchId: otherData?.changeParts?.batchId,
+              masterId: otherData?.changeParts?.masterId,
+              partId: otherData?.changeParts?._id,
+              maker: otherData?.changeParts?.maker,
+              requestedField: popupRef?.key,
+            },
           });
         }}
       />
     </div>
   ),
+);
+
+const SelectTD = memo(
+  ({
+    setObj,
+    isSelected,
+    handleToggleSelect,
+    masterId,
+    batchId,
+    showOnlySelected,
+  }) =>
+    !masterId || batchId ? (
+      <TDWrapper></TDWrapper>
+    ) : (
+      <TDWrapper>
+        <input
+          type="checkbox"
+          checked={isSelected}
+          disabled={!masterId}
+          onChange={() => handleToggleSelect(setObj?.partId, setObj)}
+        />
+      </TDWrapper>
+    ),
+);
+
+const TaskStatusTd = memo(
+  ({
+    mappingArray = [],
+    otherData,
+    mode,
+    handleModal,
+    updateRow,
+    masterId,
+    isEditableRow = false,
+    isViewOnly = true,
+  }) =>
+    mappingArray?.map((item) => (
+      <td className="td-padding " key={item?.key}>
+        {otherData?.[item?.key]?.taskStatus && (
+          <div className="d-flex align-items-center justify-content-center flex-column">
+            <CircleIcon
+              fontSize="small"
+              sx={{
+                display: "inline-flex",
+                border:
+                  colorsBasedOnTaskStatus?.[
+                    otherData?.[item?.key]?.taskStatus
+                  ] === "white"
+                    ? "1px solid grey"
+                    : "none",
+                borderRadius: "50%",
+                color:
+                  colorsBasedOnTaskStatus?.[otherData?.[item?.key]?.taskStatus],
+              }}
+            />
+            {otherData?.[item?.key]?.timeStamp}
+            {mode === "Edit" &&
+              otherData?.requestSheetStatus === "Completed" &&
+              !isViewOnly &&
+              masterId &&
+              (otherData?.rsPRGeneration?.taskStatus || isEditableRow) && (
+                <EditOtherTrackingFields
+                  handleModal={handleModal}
+                  otherData={otherData}
+                  updateRow={updateRow}
+                  popupRef={item}
+                />
+              )}
+          </div>
+        )}
+      </td>
+    )),
 );
 
 const TaskStatusMappingComponent = memo(
@@ -174,9 +260,11 @@ const TaskStatusMappingComponent = memo(
     navigate,
     handleDelete,
     removeRow,
-    mode,
-    handleModal,
-    updateRow,
+    selectedRows,
+    handleToggleSelect,
+    showOnlySelected,
+    isEditableRow = false,
+    ...rest
   }) => (
     <>
       <UptoMachineHeaders otherData={otherData} />
@@ -186,51 +274,45 @@ const TaskStatusMappingComponent = memo(
       <EditTD _id={otherData?._id} navigate={navigate} />
       <RejectTD
         _id={otherData?._id}
-        onDelete={(_id) => handleDelete(_id, removeRow)}
+        partId={otherData?.changeParts?._id}
+        onDelete={(props) => handleDelete(props, removeRow)}
+      />
+      <TaskStatusTd
+        mappingArray={taskStatusMappingKeys1}
+        otherData={otherData}
+        isViewOnly={true}
+        {...rest}
       />
       <MasterTD
         _id={otherData?._id}
+        isToolRoomApproved={otherData?.rsToolroomApproval?.timeStamp}
         canConfigureMaster={otherData?.canConfigureMaster}
         partId={otherData?.changeParts?._id}
+        masterId={otherData?.changeParts?.masterId}
         navigate={navigate}
       />
+      {!showOnlySelected && (
+        <SelectTD
+          setObj={{
+            partId: otherData?.changeParts?._id,
+            cellId: otherData?.cell?._id,
+            maker: otherData?.changeParts?.maker,
+          }}
+          batchId={otherData?.changeParts?.batchId}
+          isSelected={selectedRows.has(otherData?.changeParts?._id)}
+          handleToggleSelect={handleToggleSelect}
+          masterId={otherData?.changeParts?.masterId}
+        />
+      )}
 
-      {taskStatusMappingKeys?.map((item) => (
-        <td className="td-padding ">
-          {otherData?.[item?.key]?.taskStatus && (
-            <div className="d-flex align-items-center justify-content-center flex-column">
-              <CircleIcon
-                fontSize="small"
-                sx={{
-                  display: "inline-flex",
-                  border:
-                    colorsBasedOnTaskStatus?.[
-                      otherData?.[item?.key]?.taskStatus
-                    ] === "white"
-                      ? "1px solid grey"
-                      : "none",
-                  borderRadius: "50%",
-                  color:
-                    colorsBasedOnTaskStatus?.[
-                      otherData?.[item?.key]?.taskStatus
-                    ],
-                }}
-              />
-              {otherData?.[item?.key]?.timeStamp}
-              {editableTaskStatus.has(item?.key) &&
-                mode === "Edit" &&
-                otherData?.requestSheetStatus === "Completed" && (
-                  <EditOtherTrackingFields
-                    handleModal={handleModal}
-                    otherData={otherData}
-                    updateRow={updateRow}
-                    popupRef={item}
-                  />
-                )}
-            </div>
-          )}
-        </td>
-      ))}
+      <TaskStatusTd
+        masterId={otherData?.changeParts?.masterId}
+        mappingArray={taskStatusMappingKeys2}
+        otherData={otherData}
+        isEditableRow={isEditableRow}
+        isViewOnly={false}
+        {...rest}
+      />
     </>
   ),
 );
@@ -238,17 +320,15 @@ const TaskStatusMappingComponent = memo(
 const OrderTrackingDashboard = memo((props) => {
   const navigate = useNavigate();
 
-  const handleDelete = useCallback(async (_id, removeRow) => {
+  const handleDelete = useCallback(async (params, removeRow) => {
     const { isError } = await axiosGetOrDelete({
       apiType: "delete",
       url: "/v1/spare/spareRequestSheet",
       axiosProps: {
-        params: {
-          _id,
-        },
+        params,
       },
     });
-    if (!isError) return removeRow(_id);
+    if (!isError) return removeRow(params);
   }, []);
 
   const [modelState, setModelState] = useState({
@@ -258,7 +338,6 @@ const OrderTrackingDashboard = memo((props) => {
       popupTitle: "PR Assign",
     },
     axiosParams: {},
-    selectedRow: {},
     updateRow: () => {},
   });
 
@@ -269,6 +348,21 @@ const OrderTrackingDashboard = memo((props) => {
   });
 
   const [mode, setMode] = useState("View");
+
+  const [showOnlySelected, setShowOnlySelected] = useState(false);
+  const [selectedRows, setSelectedRows] = useState(() => new Map());
+
+  const handleToggleSelect = useCallback((_id, setObj = {}) => {
+    setSelectedRows((prev) => {
+      const next = new Map(prev);
+      if (next.has(_id)) {
+        next.delete(_id);
+      } else {
+        next.set(_id, setObj);
+      }
+      return next;
+    });
+  }, []);
 
   const handleSelectOtherFilters = useCallback(
     (next) =>
@@ -294,8 +388,20 @@ const OrderTrackingDashboard = memo((props) => {
       handleDelete,
       handleModal,
       mode,
+      selectedRows,
+      handleToggleSelect,
+      showOnlySelected,
+      isEditableRow: selectedRows.size > 0 && showOnlySelected,
     }),
-    [navigate, handleDelete, handleModal, mode],
+    [
+      navigate,
+      handleDelete,
+      handleModal,
+      mode,
+      selectedRows,
+      handleToggleSelect,
+      showOnlySelected,
+    ],
   );
 
   const apiReferencePropsBasedOnFilters = useMemo(
@@ -323,6 +429,36 @@ const OrderTrackingDashboard = memo((props) => {
     ],
   );
 
+  const tableHeaders = useMemo(
+    () => [
+      "Request No",
+      "Product",
+      "Maker",
+      "Line",
+      "Machine No",
+      // "Machine Name",
+      "Part name",
+      "Part model",
+      "View",
+      "PR Link",
+      "Edit",
+      "Reject",
+      "Request Submitted",
+      "Internal Approval",
+      "Tool Room Approval",
+      "Master",
+      ...(showOnlySelected ? [] : ["Select to Continue"]),
+      "PR Generation",
+      "PR Approval",
+      "PO Made",
+      "Part Receipt",
+      "Part Inspection",
+      "MRN Issued",
+      "MRN Approved",
+    ],
+    [showOnlySelected],
+  );
+
   return (
     <div style={{ overflow: "auto" }}>
       <div className="cell p-2 rounded-2 d-flex justify-content-between">
@@ -339,39 +475,37 @@ const OrderTrackingDashboard = memo((props) => {
       <SpareSheetCustomTable
         apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
         url="/v1/spare/spareOrderTacking/spareRequestSheet"
-        tableHeaders={[
-          "Request No",
-          "Product",
-          "Line",
-          "Machine No",
-          "Machine Name",
-          "Part name",
-          "Part model",
-          "View",
-          "PR Link",
-          "Edit",
-          "Reject",
-          "Master",
-          "Request Submitted",
-          "Internal Approval",
-          "PR Generation",
-          "PR Approval",
-          "PO Made",
-          "Part Receipt",
-          "Part Inspection",
-          "MRN Issued",
-          "MRN Approved",
-        ]}
+        tableHeaders={tableHeaders}
         OtherComp={TaskStatusMappingComponent}
         otherParentProps={otherParentProps}
+        showOnlySelected={showOnlySelected}
+        selectedRows={selectedRows}
       />
 
       {modelState?.show && (
         <OtherTaskStatusConfiguration
           {...modelState}
+          selectedRows={selectedRows}
           handleModal={handleModal}
         />
       )}
+
+      <div className="p-2 rounded-2 d-flex gap-2">
+        <button
+          disabled={selectedRows.size === 0}
+          className="btn bg-success"
+          onClick={() =>
+            setShowOnlySelected((prev) => {
+              if (prev) setMode("View");
+              return !prev;
+            })
+          }
+        >
+          {showOnlySelected
+            ? "Back to L1 sheet"
+            : `Generate Batch wise L2 sheet`}
+        </button>
+      </div>
     </div>
   );
 });

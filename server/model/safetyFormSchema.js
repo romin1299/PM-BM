@@ -1,15 +1,17 @@
 const mongoose = require("mongoose");
 
 const safetyFormSchema = new mongoose.Schema({
+  financialYear: { type: String },
+  month: { type: Number },
   requestSheetRef: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "requestsheetofbms",
+    // ref: "requestsheetofbms",
   },
   safetyFormFilledUpBy: {
     type: String,
   },
   processName: {
-    type: String
+    type: String,
   },
   assetAdminNo: {
     type: String,
@@ -35,6 +37,38 @@ const safetyFormSchema = new mongoose.Schema({
     },
     powerAndAirOff: {
       type: Boolean,
+    },
+  },
+  complexWork: {
+    leaderOfOtherTeamsAndClarity: {
+      type: Boolean,
+    },
+    otherTLDetails: {
+      type: String,
+    },
+    workDetails: {
+      type: String,
+    },
+    physicalSeparation: {
+      type: Boolean,
+    },
+    commonUtilitySources: {
+      type: Boolean,
+    },
+    sourcesAvailable: {
+      type: String,
+    },
+    applyLOTOOrCautionTag: {
+      type: Boolean,
+    },
+    gapAmongAllOtherTeams: {
+      type: Boolean,
+    },
+    postponeActivity: {
+      type: Boolean,
+    },
+    IsAccepted: {
+      type: String,
     },
   },
   workInsideMachine: {
@@ -158,5 +192,5 @@ const safetyFormSchema = new mongoose.Schema({
   },
 });
 
-const SafetyForm = mongoose.model("safetyForms", safetyFormSchema);
+const SafetyForm = new mongoose.model("safetyForms", safetyFormSchema);
 module.exports = SafetyForm;

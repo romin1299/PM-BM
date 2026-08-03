@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const moment = require("moment-timezone");
 const multer = require("multer");
 const path = require("path");
@@ -23,7 +24,26 @@ const Cell = require("../../model/cellSchema");
 const Line = require("../../model/lineSchema");
 const Machine = require("../../model/machineSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
-const mongoose = require("mongoose");
+const SpareMaster = require("../../model/spareMasterSchema");
+
+const partFields = new Set([
+  "rsPartReceive",
+  "rsPartInspection",
+  "rsMRNIssued",
+  "rsMRNApproved",
+]);
+
+const getCostDetailsBasedOnPartId = async ({ masterId, partId }) =>
+  (
+    await SpareMaster.findOne(
+      { _id: masterId },
+      {
+        costDetails: {
+          $elemMatch: { partId },
+        },
+      },
+    ).lean()
+  )?.costDetails?.[0];
 
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -195,6 +215,7 @@ const handleSetSpareSheetDynamicApproval = async ({
       data?.approvalOfMTD_TL ||
       data?.approvalOfMTD_HOSS ||
       data?.approvalOfPRD_TL ||
+      data?.approvalOfPRD_HOSS ||
       data?.approvalOfMTD_HOS ||
       data?.approvalOfPRD_HOS ||
       data?.approvalOfMTD_HOD ||
@@ -324,6 +345,49 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
       showToast: true,
     });
 
+  if (!data?.changeParts || data?.changeParts?.length <= 0)
+    return res.status(400).json({
+      message: "Please add at least one part",
+      showToast: true,
+    });
+
+  const incomingModels = data?.changeParts
+    .map((p) => p?.partModel?.trim())
+    .filter(Boolean);
+
+  const uniqueModels = new Set(incomingModels);
+
+  if (uniqueModels.size !== incomingModels.length) {
+    const duplicates = incomingModels.filter(
+      (model, i) => incomingModels.indexOf(model) !== i,
+    );
+
+    return res.status(400).json({
+      message: `Duplicate part models in your request: ${[...new Set(duplicates)].join(", ")}`,
+      showToast: true,
+    });
+  }
+
+  const incomingModelsSet = new Set(incomingModels);
+
+  const existingMasters = await SpareMaster.find(
+    { partModel: { $in: incomingModels } },
+    { partModel: 1 },
+  ).lean();
+
+  if (existingMasters.length > 0) {
+    const conflicts = [];
+
+    for (const master of existingMasters)
+      if (incomingModelsSet.has(master.partModel))
+        conflicts.push(master.partModel);
+
+    return res.status(400).json({
+      message: `Part models already exist: ${conflicts.join(", ")}`,
+      showToast: true,
+    });
+  }
+
   const machine = await Machine.findOne(
     {
       _id: selectedMachine,
@@ -428,6 +492,7 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     delete data["approvalOfMTD_TL"];
     delete data["approvalOfMTD_HOSS"];
     delete data["approvalOfPRD_TL"];
+    delete data["approvalOfPRD_HOSS"];
     delete data["approvalOfMTD_HOS"];
     delete data["approvalOfPRD_HOS"];
     delete data["approvalOfMTD_HOD"];
@@ -540,8 +605,7 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
       else if (["approvalOfMTD_HOD", "approvalOfPRD_HOD"]?.includes(key))
         data["rsHODApprovalTimeStamp"] = generateTimeStampWithBothFormat();
       else if (key === "approvalOfTOOL_ROOM")
-        data["rsPRSubmitByToolroomTimeStamp"] =
-          generateTimeStampWithBothFormat();
+        data["rsToolroomApprovalTimeStamp"] = generateTimeStampWithBothFormat();
     }
 
     if (data?.[key]) {
@@ -727,9 +791,9 @@ exports.getSpareSheetsSummery = tryCatchHandler(async (req, res, next) => {
     },
     {
       $project: {
-        totalParts: 1,
-        completedProcessParts: 1,
-        pendingParts: { $subtract: ["$totalParts", "$completedProcessParts"] },
+        total: "$totalParts",
+        closed: "$completedProcessParts",
+        pending: { $subtract: ["$totalParts", "$completedProcessParts"] },
       },
     },
   ]);
@@ -745,14 +809,23 @@ exports.getSpareSheetsSummery = tryCatchHandler(async (req, res, next) => {
   });
 });
 
-exports.deleteSpareSheet = tryCatchHandler(async (req, res, next) => {
-  if (!req.query?._id)
+exports.deleteSparePartRequest = tryCatchHandler(async (req, res, next) => {
+  const { _id, partId } = req.query;
+
+  if (!_id || !partId)
     return res.status(400).json({
       message: "Please select spare sheet to delete",
       showToast: true,
     });
 
-  await RequestSheetOfSpare.deleteOne(req.query);
+  await RequestSheetOfSpare.updateOne(
+    { _id },
+    {
+      $pull: {
+        changeParts: { _id: partId },
+      },
+    },
+  );
 
   return res.status(201).json({
     message: "Spare sheet deleted successfully",
@@ -761,50 +834,203 @@ exports.deleteSpareSheet = tryCatchHandler(async (req, res, next) => {
 });
 
 exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
-  if (!req.query?._id)
+  let { _id, requestedField, partId, masterId, batchId } = req.query;
+
+  if (!_id || !partId)
     return res.status(400).json({
       message: "Please select spare sheet to update",
       showToast: true,
     });
 
-  if (!req.query?.requestedField)
+  if (!requestedField)
     return res.status(500).json({
       message: "Something went wrong!!!",
       showToast: true,
     });
 
-  let { _id, requestedField } = req.query;
+  // return console.log(req.query, req.body, partFields.has(requestedField));
 
-  let partArrayFilter = {},
-    $set = {},
-    schemaKey = requestedField;
+  const { cellId, maker } = req.query;
 
-  if (req.query?.partId) {
-    schemaKey = "changeParts.$[part]." + schemaKey;
+  let filterObj = {
+      _id,
+    },
+    schemaKey = "changeParts.$[part].",
     partArrayFilter = {
-      arrayFilters: [{ "part._id": req.query?.partId }],
-    };
+      arrayFilters: [{ "part._id": partId }],
+    },
+    $set = {},
+    isIndividualPartUpdate = partFields.has(requestedField);
+
+  if (!isIndividualPartUpdate) {
+    if (batchId) {
+      filterObj = {
+        "cell._id": cellId,
+        changeParts: {
+          $elemMatch: {
+            batchId,
+          },
+        },
+      };
+
+      partArrayFilter = {
+        arrayFilters: [{ "part.batchId": batchId }],
+      };
+    } else {
+      $set[`${schemaKey}batchId`] = new mongoose.Types.ObjectId();
+
+      if (req.body?.partIdsToUpdate?.length > 0) {
+        filterObj = {
+          "cell._id": cellId,
+          changeParts: {
+            $elemMatch: {
+              _id: { $in: req.body?.partIdsToUpdate },
+              maker,
+            },
+          },
+        };
+
+        partArrayFilter = {
+          arrayFilters: [{ "part._id": { $in: req.body?.partIdsToUpdate } }],
+        };
+      }
+    }
   }
 
-  if (req.body?.[`${requestedField}TimeStamp`]?.inString)
+  schemaKey = schemaKey + requestedField;
+
+  if (req.body?.formValue?.[`${requestedField}TimeStamp`]?.inString)
     $set[`${schemaKey}TimeStamp`] = generateTimeStampWithBothFormat(
-      req.body?.[`${requestedField}TimeStamp`]?.inString,
+      req.body?.formValue?.[`${requestedField}TimeStamp`]?.inString,
     );
   else $set[`${schemaKey}TimeStamp`] = null;
-  $set[`${schemaKey}Remarks`] = req.body[`${requestedField}Remarks`];
+  $set[`${schemaKey}Remarks`] = req.body?.formValue[`${requestedField}Remarks`];
 
-  await RequestSheetOfSpare.updateOne({ _id }, { $set }, partArrayFilter);
+  if (isIndividualPartUpdate) {
+    const spareSheet = await RequestSheetOfSpare.findOneAndUpdate(
+      filterObj,
+      { $set },
+      {
+        ...partArrayFilter,
+        new: true,
+        projection: {
+          changeParts: { $elemMatch: { partId } },
+        },
+      },
+    );
+
+    if (requestedField === "rsPartReceive") {
+      const existingCostDetails = await getCostDetailsBasedOnPartId({
+        masterId,
+        partId,
+      });
+
+      if (!existingCostDetails) {
+        if (
+          spareSheet?.changeParts?.[0]?.quantityRequired <
+          req.body?.formValue?.costDetails?.quantity * 1
+        )
+          return res.status(400).json({
+            message: "You can't add more then required qty",
+            showToast: true,
+          });
+
+        await SpareMaster.updateOne(
+          { _id: masterId },
+          {
+            $push: {
+              costDetails: {
+                partId,
+                quantity: req.body?.formValue?.costDetails?.quantity * 1,
+                currencyUnit:
+                  req.body?.formValue?.costDetails?.currencyUnit || "INR",
+                cost: req.body?.formValue?.costDetails?.cost || 0,
+                costInINR: req.body?.formValue?.costDetails?.costInINR || 0,
+                issuedQty: 0,
+                availableQty: req.body?.formValue?.costDetails?.quantity * 1,
+                overAllCost:
+                  req.body?.formValue?.costDetails?.quantity *
+                  1 *
+                  (req.body?.formValue?.costDetails?.costInINR || 0),
+              },
+            },
+          },
+        );
+      } else {
+        const availableQty =
+          (existingCostDetails?.availableQty || 0) +
+          (req.body?.formValue?.costDetails?.quantity * 1 || 0);
+
+        const quantity =
+          existingCostDetails?.quantity +
+            req.body?.formValue?.costDetails?.quantity * 1 || 0;
+
+        if (spareSheet?.changeParts?.[0]?.quantityRequired < quantity)
+          return res.status(400).json({
+            message: "You can't add more then required qty",
+            showToast: true,
+          });
+
+        await SpareMaster.updateOne(
+          { _id: masterId, "costDetails.partId": partId },
+          {
+            $set: {
+              "costDetails.$": {
+                partId,
+                quantity,
+                currencyUnit: existingCostDetails?.currencyUnit || "INR",
+                cost: existingCostDetails?.cost || 0,
+                costInINR: existingCostDetails?.costInINR || 0,
+                issuedQty: existingCostDetails?.issuedQty || 0,
+                availableQty,
+                overAllCost:
+                  availableQty * (existingCostDetails?.costInINR || 0),
+              },
+            },
+          },
+        );
+      }
+    }
+  } else
+    await RequestSheetOfSpare.updateMany(filterObj, { $set }, partArrayFilter);
 
   req.queryObj = {
     _id: mongoose.Types.ObjectId(_id),
+    changeParts: {
+      $elemMatch: {
+        _id: mongoose.Types.ObjectId(partId),
+      },
+    },
   };
 
-  if (req.query?.partId)
-    req.queryObj["changeParts._id"] = mongoose.Types.ObjectId(
-      req.query?.partId,
-    );
+  if (!isIndividualPartUpdate) {
+    if (batchId)
+      req.queryObj = {
+        "cell._id": mongoose.Types.ObjectId(cellId),
+        changeParts: {
+          $elemMatch: {
+            batchId: mongoose.Types.ObjectId(batchId),
+          },
+        },
+      };
+    else if (req.body?.partIdsToUpdate?.length > 0)
+      req.queryObj = {
+        "cell._id": mongoose.Types.ObjectId(cellId),
+        changeParts: {
+          $elemMatch: {
+            _id: {
+              $in: req.body?.partIdsToUpdate?.map((item) =>
+                mongoose.Types.ObjectId(item),
+              ),
+            },
+            maker,
+          },
+        },
+      };
+  }
 
   req.isSpareSheetById = true;
+
   return next();
 });
 
@@ -817,94 +1043,144 @@ exports.manualApprovalStatusResponse = tryCatchHandler(
   },
 );
 
-const handleGeneratePipeline = ({ _id, requestedField, partId }) => {
-  let $match = {
-      _id: mongoose.Types.ObjectId(_id),
-    },
-    otherPipeline = [],
-    $project = {
-      [`${requestedField}TimeStamp.inString`]: {
-        $dateToString: {
-          format: "%Y-%m-%dT%H:%M",
-          date: `$${requestedField}TimeStamp.inDate`,
-          timezone,
-        },
-      },
-      [`${requestedField}Remarks`]: 1,
-    };
+// const handleGeneratePipeline = ({ _id, requestedField, partId }) => {
+//   let $match = {
+//       _id: mongoose.Types.ObjectId(_id),
+//     },
+//     otherPipeline = [],
+//     $project = {
+//       [`${requestedField}TimeStamp.inString`]: {
+//         $dateToString: {
+//           format: "%Y-%m-%dT%H:%M",
+//           date: `$${requestedField}TimeStamp.inDate`,
+//           timezone,
+//         },
+//       },
+//       [`${requestedField}Remarks`]: 1,
+//     };
 
-  if (partId) {
-    $match["changeParts._id"] = mongoose.Types.ObjectId(partId);
+//   if (partId) {
+//     $match["changeParts._id"] = mongoose.Types.ObjectId(partId);
 
-    otherPipeline = [
-      {
-        $addFields: {
-          changePart: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: "$changeParts",
-                  as: "part",
-                  cond: {
-                    $eq: ["$$part._id", mongoose.Types.ObjectId(partId)],
-                  },
-                },
-              },
-              0,
-            ],
-          },
-        },
-      },
-    ];
+//     otherPipeline = [
+//       {
+//         $addFields: {
+//           changePart: {
+//             $arrayElemAt: [
+//               {
+//                 $filter: {
+//                   input: "$changeParts",
+//                   as: "part",
+//                   cond: {
+//                     $eq: ["$$part._id", mongoose.Types.ObjectId(partId)],
+//                   },
+//                 },
+//               },
+//               0,
+//             ],
+//           },
+//         },
+//       },
+//     ];
 
-    $project = {
-      [`${requestedField}TimeStamp.inString`]: {
-        $dateToString: {
-          format: "%Y-%m-%dT%H:%M",
-          date: `$changePart.${requestedField}TimeStamp.inDate`,
-          timezone,
-        },
-      },
-      [`${requestedField}Remarks`]: `$changePart.${requestedField}Remarks`,
-    };
-  }
+//     $project = {
+//       [`${requestedField}TimeStamp.inString`]: {
+//         $dateToString: {
+//           format: "%Y-%m-%dT%H:%M",
+//           date: `$changePart.${requestedField}TimeStamp.inDate`,
+//           timezone,
+//         },
+//       },
+//       [`${requestedField}Remarks`]: `$changePart.${requestedField}Remarks`,
+//     };
+//   }
 
-  return [
-    {
-      $match,
-    },
-    ...otherPipeline,
-    {
-      $project,
-    },
-  ];
-};
+//   return [
+//     {
+//       $match,
+//     },
+//     ...otherPipeline,
+//     {
+//       $project,
+//     },
+//   ];
+// };
 
 exports.getManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
-  if (!req.query?._id)
+  const { _id, partId, masterId, requestedField } = req.query;
+
+  if (!_id || !partId)
     return res.status(400).json({
       message: "Please select spare sheet to update",
       showToast: true,
     });
 
-  if (!req.query?.requestedField)
+  if (!requestedField)
     return res.status(500).json({
       message: "Something went wrong!!!",
       showToast: true,
     });
 
-  const spare = await RequestSheetOfSpare.aggregate(
-    handleGeneratePipeline(req.query),
-  );
+  let spare = await RequestSheetOfSpare.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(_id),
+        "changeParts._id": mongoose.Types.ObjectId(partId),
+      },
+    },
+    {
+      $addFields: {
+        changePart: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: "$changeParts",
+                as: "part",
+                cond: {
+                  $eq: ["$$part._id", mongoose.Types.ObjectId(partId)],
+                },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+    {
+      $project: {
+        "changePart.quantityRequired":
+          requestedField === "rsPartReceive" ? 1 : 0,
+        [`${requestedField}TimeStamp.inString`]: {
+          $dateToString: {
+            format: "%Y-%m-%dT%H:%M",
+            date: `$changePart.${requestedField}TimeStamp.inDate`,
+            timezone,
+          },
+        },
+        [`${requestedField}Remarks`]: `$changePart.${requestedField}Remarks`,
+      },
+    },
+  ]);
 
   if (!spare || spare?.length <= 0)
     return res.status(400).json({
       message: "No spare sheet data to display",
     });
 
+  spare = spare?.[0];
+
+  if (requestedField === "rsPartReceive") {
+    const costDetails = await getCostDetailsBasedOnPartId({ masterId, partId });
+    if (!costDetails) spare["disableFieldAfterOneTimeConfiguration"] = false;
+    else {
+      spare["disableFieldAfterOneTimeConfiguration"] = true;
+      spare["costDetails"] = costDetails;
+    }
+  }
+
   return res.status(201).json({
     message: "Data get successfully",
-    spare: spare?.[0],
+    spare,
   });
 });
 

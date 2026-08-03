@@ -153,6 +153,7 @@ exports.getApprovalLogs = tryCatchHandler(async (req, res, next) => {
         approvalOfMTD_TLApprovalLogs: 1,
         approvalOfMTD_HOSSApprovalLogs: 1,
         approvalOfPRD_TLApprovalLogs: 1,
+        approvalOfPRD_HOSSApprovalLogs: 1,
         approvalOfMTD_HOSApprovalLogs: 1,
         approvalOfPRD_HOSApprovalLogs: 1,
         approvalOfMTD_HODApprovalLogs: 1,
@@ -222,6 +223,7 @@ exports.getApproveAndPendingUsersWiseCount = tryCatchHandler(
                           [
                             "mtdHODApprovalIfBudgetIsNG",
                             "approvalOfPRD_TL",
+                            "approvalOfPRD_HOSS",
                             "approvalOfPRD_HOS",
                             "approvalOfPRD_HOD",
                             "approvalOfTOOL_ROOM",
@@ -352,6 +354,11 @@ exports.getApproveAndPendingUsersWiseCount = tryCatchHandler(
               pending: "$pending",
             },
           },
+        },
+      },
+      {
+        $match: {
+          _id: { $ne: null },
         },
       },
     ]);

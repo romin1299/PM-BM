@@ -1,5 +1,6 @@
 import React from "react";
 import { TextField } from "@material-ui/core";
+import { get } from "react-hook-form";
 
 const CustomTextField = ({
   label = "TM Name",
@@ -12,27 +13,30 @@ const CustomTextField = ({
     required: false,
   },
   errors = {},
-  otherClasses = ""
-}) => (
-  <>
-    <div className={`pwd-container ${otherClasses}`}>
-      <span className="fieldTitle">{label}: </span>
-      <TextField
-        id="outlined-number"
-        className="textField"
-        autoComplete="off"
-        fullWidth
-        {...inputProps}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        {...register(fieldName, registerProp)}
-      />
-    </div>
-    {errors?.[fieldName] && (
-      <p className="text-error mb-1">{errors?.[fieldName]?.message}</p>
-    )}
-  </>
-);
+  otherClasses = "",
+}) => {
+  const error = get(errors, fieldName);
+  return (
+    <>
+      <div className={`pwd-container ${otherClasses}`}>
+        <span className="fieldTitle">{label}: </span>
+        <div className="d-flex align-self-center justify-content-center w-100">
+          <TextField
+            id="outlined-number"
+            className="textField"
+            autoComplete="off"
+            fullWidth
+            {...inputProps}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            {...register(fieldName, registerProp)}
+          />
+        </div>
+      </div>
+      {error && <p className="text-error mb-1">{error?.message}</p>}
+    </>
+  );
+};
 
 export default CustomTextField;

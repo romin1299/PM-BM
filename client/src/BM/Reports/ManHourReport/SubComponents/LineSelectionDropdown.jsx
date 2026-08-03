@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import MenuItem from "@mui/material/MenuItem";
@@ -102,8 +102,16 @@ export default function LineSelectionDropdown({
   currentStatusOfRSFiltration,
   currentStatusOfRequestSheet,
   selectedCurrentStatusOfRS = "",
+
+  queryParams = {},
 }) {
   const context = useContext(RoutingContext);
+
+  let otherParams = useMemo(
+    () =>
+      queryParams?.moduleType ? `moduleType=${queryParams?.moduleType}` : "",
+    [queryParams],
+  );
 
   const theme = useTheme();
 
@@ -136,7 +144,7 @@ export default function LineSelectionDropdown({
   const getFiltrationValueBasedOnSection = async ({ section }) => {
     try {
       const { res, data } = await getFiltrationValue({
-        url: `${baseUrlForFiltering}/sectionBased/${section}?selectedLineOrNot=${selectedLineOrNot}`,
+        url: `${baseUrlForFiltering}/sectionBased/${section}?selectedLineOrNot=${selectedLineOrNot}&${otherParams}`,
       });
 
       const {
@@ -308,7 +316,7 @@ export default function LineSelectionDropdown({
 
   const getFiltrationValueByDefault = async (isReset = false) => {
     const { res, data } = await getFiltrationValue({
-      url: `${baseUrlForFiltering}/byDefault/?selectedLineOrNot=${selectedLineOrNot}`,
+      url: `${baseUrlForFiltering}/byDefault/?selectedLineOrNot=${selectedLineOrNot}&${otherParams}`,
     });
 
     const {
@@ -629,12 +637,12 @@ export default function LineSelectionDropdown({
                   style={getStyleForSelectedValue(
                     item,
                     selectedYear,
-                    "for-array-value"
+                    "for-array-value",
                   )}
                 >
                   {item}
                 </MenuItem>
-              )
+              ),
             )}
           </Select>
         </FormControl>
@@ -684,8 +692,8 @@ export default function LineSelectionDropdown({
         </FormControl>
       )} */}
 
-      <FormControl size="small">
-        {monthFiltration && (
+      {monthFiltration && (
+        <FormControl size="small">
           <Select
             displayEmpty
             value={selectedMonth}
@@ -720,18 +728,18 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item,
                   selectedMonth,
-                  "for-array-value"
+                  "for-array-value",
                 )}
               >
                 {item}
               </MenuItem>
             ))}
           </Select>
-        )}
-      </FormControl>
+        </FormControl>
+      )}
 
-      <FormControl size="small">
-        {RSStatusFiltration && (
+      {RSStatusFiltration && (
+        <FormControl size="small">
           <Select
             displayEmpty
             value={selectedRSStatus}
@@ -766,18 +774,18 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item,
                   selectedRSStatus,
-                  "for-array-value"
+                  "for-array-value",
                 )}
               >
                 {item}
               </MenuItem>
             ))}
           </Select>
-        )}
-      </FormControl>
+        </FormControl>
+      )}
 
-      <FormControl size="small">
-        {maintenanceTypeFiltration && (
+      {maintenanceTypeFiltration && (
+        <FormControl size="small">
           <Select
             displayEmpty
             value={selectedMaintenanceType}
@@ -812,18 +820,18 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item,
                   selectedMaintenanceType,
-                  "for-array-value"
+                  "for-array-value",
                 )}
               >
                 {item}
               </MenuItem>
             ))}
           </Select>
-        )}
-      </FormControl>
+        </FormControl>
+      )}
 
-      <FormControl size="small">
-        {currentStatusOfRSFiltration && (
+      {currentStatusOfRSFiltration && (
+        <FormControl size="small">
           <Select
             displayEmpty
             value={selectedCurrentStatusOfRS}
@@ -858,18 +866,18 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item?.title,
                   selectedCurrentStatusOfRS,
-                  "for-array-value"
+                  "for-array-value",
                 )}
               >
                 {item?.title}
               </MenuItem>
             ))}
           </Select>
-        )}
-      </FormControl>
+        </FormControl>
+      )}
 
-      <FormControl size="small">
-        {CM_CategoryFiltration && (
+      {CM_CategoryFiltration && (
+        <FormControl size="small">
           <Select
             displayEmpty
             value={selectedCategoryType}
@@ -904,18 +912,18 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item?.title,
                   selectedCategoryType,
-                  "for-array-value"
+                  "for-array-value",
                 )}
               >
                 {item?.title}
               </MenuItem>
             ))}
           </Select>
-        )}
-      </FormControl>
+        </FormControl>
+      )}
 
-      <FormControl size="small">
-        {quarterFiltration && (
+      {quarterFiltration && (
+        <FormControl size="small">
           <Select
             displayEmpty
             value={selectedQuarter}
@@ -950,15 +958,15 @@ export default function LineSelectionDropdown({
                 style={getStyleForSelectedValue(
                   item,
                   selectedQuarter,
-                  "for-array-value"
+                  "for-array-value",
                 )}
               >
                 {item}
               </MenuItem>
             ))}
           </Select>
-        )}
-      </FormControl>
+        </FormControl>
+      )}
 
       {resetButtonFiltration && (
         <Button

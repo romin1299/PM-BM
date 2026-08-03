@@ -52,23 +52,8 @@ const PartRow = memo(
               />
             </Col>
 
-            {newPartFor === newPartRequestForRadioOptions?.[1]?.value && (
-              <Col className="w-100 d-flex justify-content-between">
-                <small>Min quantity</small>
-                <input
-                  type="number"
-                  className="w-75"
-                  {...register(`changeParts.${index}.minQuantity`)}
-                />
-              </Col>
-            )}
-
             <Col className="w-100 d-flex justify-content-between">
-              <small>
-                {newPartFor === newPartRequestForRadioOptions?.[0]?.value
-                  ? "Quantity required"
-                  : "Max quantity"}
-              </small>
+              <small>Quantity required</small>
               <input
                 type="number"
                 className="w-75"
@@ -76,21 +61,51 @@ const PartRow = memo(
               />
             </Col>
 
+            {newPartFor === newPartRequestForRadioOptions?.[1]?.value && (
+              <>
+                <Col className="w-100 d-flex justify-content-between">
+                  <small>Min quantity</small>
+                  <input
+                    type="number"
+                    className="w-75"
+                    {...register(`changeParts.${index}.minQuantity`)}
+                  />
+                </Col>
+                <Col className="w-100 d-flex justify-content-between">
+                  <small>Max quantity</small>
+                  <input
+                    type="number"
+                    className="w-75"
+                    {...register(`changeParts.${index}.maxQuantity`)}
+                  />
+                </Col>
+              </>
+            )}
+
             <Col className="w-100 d-flex justify-content-between">
-              <small>Manufacture</small>
+              <small>Maker</small>
               <input
                 type="text"
                 className="w-75"
-                {...register(`changeParts.${index}.manufacture`)}
+                {...register(`changeParts.${index}.maker`)}
               />
             </Col>
 
             <Col className="w-100 d-flex justify-content-between">
-              <small>Supplier</small>
+              <small>Supplier name</small>
               <input
                 type="text"
                 className="w-75"
-                {...register(`changeParts.${index}.supplier`)}
+                {...register(`changeParts.${index}.supplierName`)}
+              />
+            </Col>
+
+            <Col className="w-100 d-flex justify-content-between">
+              <small>Supplier category</small>
+              <input
+                type="text"
+                className="w-75"
+                {...register(`changeParts.${index}.supplierCategory`)}
               />
             </Col>
 

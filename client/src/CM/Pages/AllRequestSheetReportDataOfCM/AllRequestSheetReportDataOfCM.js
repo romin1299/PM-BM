@@ -8,6 +8,8 @@ import {
   Paper,
   Button,
 } from "@mui/material";
+import ContactMailIcon from "@mui/icons-material/ContactMail";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import { FaEye } from "react-icons/fa";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { ReactComponent as EditSheetIcon } from "../../../static/svg/edit-sheet-2.svg";
@@ -36,16 +38,23 @@ import Multiselect from "multiselect-react-dropdown";
 import { SuccessToast } from "../../../BM/Component/ShowTostify";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MainRequestSheetForView from "../../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
+import SparePartsRequestForm from "../../../BM/SparePartsRequest/SparePartsRequestForm";
+import SafetyFormV2 from "../../Components/ReqestSheetOfCM/SafetyFormV2";
 
 const AllRequestSheetReportDataOfCM = () => {
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
     useState([]);
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
-    initialState("Yes")
+    initialState("Yes"),
   );
   const navigate = useNavigate();
   const [supportingTMList, setSupportingTMList] = useState([]);
+  const [sparePartsRequestModal, setSparePartsRequestModal] = useState({
+    modelType: "SPARE_ISSUANCE",
+    show: false,
+    selectedRow: null,
+  });
 
   const context = useContext(RoutingContext);
 
@@ -70,18 +79,43 @@ const AllRequestSheetReportDataOfCM = () => {
   };
 
   const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] = useState(
-    defaultStateForBmRequestSheet
+    defaultStateForBmRequestSheet,
   );
 
   const handlePopupStatus = () =>
     setSelectedCMRequestSheetPopupData(defaultState);
+
+  const handleSparePartsModelState = (modelType, propRow) =>
+    setSparePartsRequestModal((sparePartsRequestModal) => {
+      let updateState = {
+        ...sparePartsRequestModal,
+        show: !sparePartsRequestModal?.show,
+      };
+
+      if (modelType) updateState.modelType = modelType;
+
+      if (!updateState?.show) updateState.selectedRow = null;
+      else if (propRow) updateState.selectedRow = propRow;
+
+      return updateState;
+    });
+
+  const handleUpdateSheetInTable = (updatedRow) =>
+    setApprovalRequestSheetDataOfCM((approvalRequestSheetDataOfCM) =>
+      approvalRequestSheetDataOfCM?.map((item) =>
+        item?.current_commonDataFilledByAssignUser?._id ===
+        updatedRow?.current_commonDataFilledByAssignUser?._id
+          ? updatedRow
+          : item,
+      ),
+    );
 
   const getAllCMSheetData = async () => {
     try {
       setLoading(true);
       setApprovalRequestSheetDataOfCM();
       const response = await axios.get(
-        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`
+        `/getAllCmReqSheet/${reduceState?.flagForTogglingFilter}/${reduceState?.selectedValue}/?selectedYear=${reduceState?.selectedYear}&&selectedMonth=${reduceState?.selectedMonth}&&selectedRSStatus=${reduceState?.selectedRSStatus}&&selectedCategoryType=${reduceState?.selectedCategoryType}&&selectedQuarter=${reduceState?.selectedQuarter}`,
       );
       setCounters(response.data.counters);
       setApprovalRequestSheetDataOfCM(response.data.reqSheetCM);
@@ -128,7 +162,7 @@ const AllRequestSheetReportDataOfCM = () => {
 
   const dropDownComponent = ({ value = [], onChange, dropDownArray = [] }) => {
     const selectedValues = dropDownArray.filter((item) =>
-      value?.includes(item._id)
+      value?.includes(item._id),
     );
 
     return (
@@ -236,7 +270,7 @@ const AllRequestSheetReportDataOfCM = () => {
         }),
       customFilterAndSearch: (search, rowData) =>
         rowData?.assignUserForCM?.some((user) =>
-          user?.tm_name?.toLowerCase().includes(search.toLowerCase())
+          user?.tm_name?.toLowerCase().includes(search.toLowerCase()),
         ),
       exportTransformer: (rowData) =>
         rowData?.assignUserForCM?.map((u) => u?.tm_name).join(", ") || "",
@@ -317,6 +351,14 @@ const AllRequestSheetReportDataOfCM = () => {
         });
       },
     }),
+    {
+      icon: () => <HealthAndSafetyIcon />,
+      tooltip: "Safety Form",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        handleSparePartsModelState("SAFETY_FORM", selectedRow);
+      },
+    },
     (row) => ({
       icon: () => <ReceiptLongIcon className="text-primary" />,
       tooltip: "BD Sheet",
@@ -331,6 +373,23 @@ const AllRequestSheetReportDataOfCM = () => {
         });
       },
     }),
+    {
+      icon: () => (
+        <ContactMailIcon />
+
+        // <SvgIcon
+        //   component={HistoryIcon}
+        //   sx={{ color: "#FF6F00" }}
+        //   // viewBox="0 0 22 22"
+        //   inheritViewBox
+        // />
+      ),
+      tooltip: "Spare Require Mail",
+      position: "row",
+      onClick: (event, selectedRow) => {
+        handleSparePartsModelState("SPARE_ISSUANCE", selectedRow);
+      },
+    },
   ];
   if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
     requestSheetApprovalAction?.push((row) => ({
@@ -422,9 +481,6 @@ const AllRequestSheetReportDataOfCM = () => {
       &nbsp;&nbsp;&nbsp;&nbsp;
     </div>,
   ];
-  const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="down" ref={ref} {...props} />;
-  });
 
   const handleGenerateBMNavigation = async () => {
     navigate(`/cm/generateCMRequestSheetMainDashboard`);
@@ -443,7 +499,7 @@ const AllRequestSheetReportDataOfCM = () => {
         {
           withCredentials: true,
           credentials: "include",
-        }
+        },
       );
       if (response.status === 201) {
         handlePopupStatus();
@@ -625,7 +681,7 @@ const AllRequestSheetReportDataOfCM = () => {
                   context?.tm_no === Number("9999") ||
                   !["Generated", "Assigned"].includes(
                     selectedRow?.current_commonDataFilledByAssignUser
-                      .requestSheetStatusOfCM
+                      .requestSheetStatusOfCM,
                   ),
 
                 onRowDelete: (selectedRow) =>
@@ -662,8 +718,8 @@ const AllRequestSheetReportDataOfCM = () => {
                         cols,
                         data,
                         `Approval List of Request-Sheet ${moment().format(
-                          "DD-MM-YYYY"
-                        )}`
+                          "DD-MM-YYYY",
+                        )}`,
                       ),
                   },
                   {
@@ -673,8 +729,8 @@ const AllRequestSheetReportDataOfCM = () => {
                         cols,
                         data,
                         `Approval List of Request-Sheet ${moment().format(
-                          "DD-MM-YYYY"
-                        )}`
+                          "DD-MM-YYYY",
+                        )}`,
                       ),
                   },
                 ],
@@ -712,6 +768,50 @@ const AllRequestSheetReportDataOfCM = () => {
           selectedValue={reduceState?.selectedValue}
         />
       )}
+
+      {sparePartsRequestModal?.show &&
+        (sparePartsRequestModal?.modelType === "SPARE_ISSUANCE" ? (
+          <SparePartsRequestForm
+            issuedFrom="CM"
+            machineParentHierarchy={{
+              cell: sparePartsRequestModal?.selectedRow?.cellRef,
+              line: sparePartsRequestModal?.selectedRow?.lineRef,
+              machine: sparePartsRequestModal?.selectedRow?.machineRef,
+            }}
+            modelProp={{
+              show: sparePartsRequestModal?.show,
+              onHide: handleSparePartsModelState,
+            }}
+          />
+        ) : (
+          <SafetyFormV2
+            machineParentHierarchy={{
+              line: sparePartsRequestModal?.selectedRow?.line,
+              machineNo: sparePartsRequestModal?.selectedRow?.machineNo,
+              machineName: sparePartsRequestModal?.selectedRow?.machineName,
+            }}
+            params={{
+              requestSheetRef:
+                sparePartsRequestModal?.selectedRow
+                  ?.current_commonDataFilledByAssignUser?._id,
+            }}
+            otherFormSubmitParams={{
+              cmSheetId: sparePartsRequestModal?.selectedRow?._id,
+              selectedYear: reduceState?.selectedYear,
+            }}
+            handleUpdateSheet={(isEditableRS) => {
+              if (isEditableRS) {
+                sparePartsRequestModal.selectedRow.isEditableRS = isEditableRS;
+                handleUpdateSheetInTable(sparePartsRequestModal.selectedRow);
+              }
+              return;
+            }}
+            modelProp={{
+              show: sparePartsRequestModal?.show,
+              onHide: handleSparePartsModelState,
+            }}
+          />
+        ))}
     </>
   );
 };

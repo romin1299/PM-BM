@@ -1,46 +1,88 @@
+const moment = require("moment");
 const mongoose = require("mongoose");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 const SpareMaster = require("../../model/spareMasterSchema");
 
-exports.sheetAndPartIdValidation = tryCatchHandler(async (req, res, next) => {
-  const { sheetId, partId } = req.query;
-
-  if (!sheetId || !partId)
-    return res.status(400).json({
-      success: false,
-      message: "Missing required query parameters: sheetId and partId",
-    });
-
-  if (
-    !mongoose.Types.ObjectId.isValid(sheetId) ||
-    !mongoose.Types.ObjectId.isValid(partId)
-  )
-    return res.status(400).json({
-      success: false,
-      message: "Invalid ObjectId format",
-    });
-
-  return next();
-});
+const { generateTimestampIndividually } = require("../../utils/spareTimestamp");
 
 exports.getDefaultValueForMasterRegistration = tryCatchHandler(
   async (req, res, next) => {
+    const { _id } = req.query;
+
+    if (_id) {
+      if (!mongoose.Types.ObjectId.isValid(_id))
+        return res.status(400).json({
+          success: false,
+          message: "Invalid ObjectId format",
+        });
+
+      const master = await SpareMaster.findOne(
+        {
+          _id,
+        },
+        {
+          _id: 1,
+          whichParts: 1,
+          location: 1,
+          uniqueID: 1,
+          partName: 1,
+          unit: 1,
+          partModel: 1,
+          partGroup: 1,
+          maker: 1,
+          registerSection: 1,
+          supplierName: 1,
+          vendorGroup: 1,
+          minQuantity: 1,
+          maxQuantity: 1,
+          leadTime: 1,
+          quantityRequired: 1,
+          machine: 1,
+          status: 1,
+          budgetDetails: {
+            $reduce: {
+              input: "$costDetails",
+              initialValue: { overAllAvailableQty: 0, overAllCostInINR: 0 },
+              in: {
+                overAllAvailableQty: {
+                  $add: [
+                    "$$value.overAllAvailableQty",
+                    { $ifNull: ["$$this.availableQty", 0] },
+                  ],
+                },
+                overAllCostInINR: {
+                  $add: [
+                    "$$value.overAllCostInINR",
+                    { $ifNull: ["$$this.overAllCost", 0] },
+                  ],
+                },
+              },
+            },
+          },
+          createdBy: 1,
+          costDetails: 1,
+          dateTime: 1,
+        },
+      );
+
+      if (master)
+        return res.status(201).json({
+          message: "Master get successfully",
+          master,
+        });
+    }
+
     const { sheetId, partId } = req.query;
 
-    const master = await SpareMaster.findOne({
-      "spareSheet._id": sheetId,
-      "spareSheet.partId": partId,
-    }).select(
-      "_id whichParts location uniqueID partName unit partModel partGroup manufacture registerSection supplier stockQty currencyUnit vendorGroup minQuantity leadTime quantityRequired machine status createdBy",
-    );
-
-    if (master)
-      return res.status(201).json({
-        message: "Master get successfully",
-        isMasterExist: true,
-        master,
+    if (
+      !mongoose.Types.ObjectId.isValid(sheetId) ||
+      !mongoose.Types.ObjectId.isValid(partId)
+    )
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ObjectId format",
       });
 
     const tableData = await RequestSheetOfSpare.aggregate([
@@ -64,9 +106,10 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
           partName: "$changeParts.partName",
           partModel: "$changeParts.partModel",
           minQuantity: "$changeParts.minQuantity",
+          maxQuantity: "$changeParts.maxQuantity",
           quantityRequired: "$changeParts.quantityRequired",
-          manufacture: "$changeParts.manufacture",
-          supplier: "$changeParts.supplier",
+          maker: "$changeParts.maker",
+          supplierName: "$changeParts.supplierName",
         },
       },
     ]);
@@ -79,7 +122,13 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
 
     return res.status(201).json({
       message: "Master get successfully",
-      master: tableData?.[0],
+      master: {
+        ...tableData?.[0],
+        dateTime: {
+          inString: moment().format("YYYY-MM-DDTHH:mm"),
+          inDate: null,
+        },
+      },
     });
   },
 );
@@ -87,14 +136,48 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
 exports.handleMasterConfiguration = tryCatchHandler(async (req, res, next) => {
   const { sheetId, partId } = req.query;
 
-  req.body["spareSheet"] = {
-    _id: sheetId,
-    partId,
-  };
+  if (!sheetId || !partId)
+    return res.status(400).json({
+      success: false,
+      message: "Missing required query parameters: sheetId and partId",
+    });
+
+  if (
+    !mongoose.Types.ObjectId.isValid(sheetId) ||
+    !mongoose.Types.ObjectId.isValid(partId)
+  )
+    return res.status(400).json({
+      success: false,
+      message: "Invalid ObjectId format",
+    });
 
   req.body["createdBy"] = req.rootUser;
+  req.body["rsTimeStamp"] = generateTimestampIndividually();
 
-  await new SpareMaster(req.body).save();
+  let { inString } = req.body?.dateTime;
+
+  if (!inString) inString = new Date();
+
+  req.body["dateTime"] = {
+    inString: moment(inString).format("YYYY-MM-DDTHH:mm"),
+    inDate: moment(inString),
+  };
+
+  const master = await new SpareMaster(req.body).save();
+
+  await RequestSheetOfSpare.findOneAndUpdate(
+    {
+      _id: sheetId,
+    },
+    {
+      $set: {
+        "changeParts.$[part].masterId": master?._id,
+      },
+    },
+    {
+      arrayFilters: [{ "part._id": partId }],
+    },
+  );
 
   return res.status(201).json({
     message: "Master registered successfully",
@@ -116,7 +199,7 @@ exports.handleMasterUpdate = tryCatchHandler(async (req, res, next) => {
       message: "Invalid ObjectId format",
     });
 
-  await SpareMaster.findOneAndUpdate(req.query, req.body, { new: true });
+  await SpareMaster.findOneAndUpdate(req.query, req.body);
 
   return res.status(201).json({
     message: "Master updated successfully",

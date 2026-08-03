@@ -37,10 +37,16 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
         showToast: true,
       });
 
-    if (!req.query?.partRequestFor)
+    if (!req.query?.department)
       return res.status(400).json({
         message:
-          "Please select the department for which you are requesting the part",
+          "Please provide the department for which you are requesting the part",
+        showToast: true,
+      });
+
+    if (!req.query?.approvalKey)
+      return res.status(400).json({
+        message: "Something went wrong!!!",
         showToast: true,
       });
 
@@ -51,7 +57,7 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
       { section_id: 1, section_name: 1, dashboardLevel: 1, plant_names: 1 },
     ).populate({
       path: "plant_names",
-      select: "spareSheetDynamicApproval",
+      select: req.query?.approvalKey,
     });
 
     if (!section)
@@ -63,7 +69,7 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
     const plant = section?.plant_names;
 
     const dynamicApproval =
-      plant?.spareSheetDynamicApproval?.[req.query?.partRequestFor];
+      plant?.[req.query?.approvalKey]?.[req.query?.department];
 
     if (!dynamicApproval || dynamicApproval?.length <= 0)
       return res.status(400).json({
@@ -152,7 +158,7 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
     }
 
     return res.status(201).json({
-      message: "MTD HOD users get successfully",
+      message: "Users get successfully",
       allUsers: sortedUsers,
     });
   },

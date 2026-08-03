@@ -21,6 +21,7 @@ const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
 const PlantToMachineHierarchy = require("../model/plantToMachineHierarchySchema");
+const SafetyForm = require("../model/safetyFormSchema");
 
 const authenticate = require("../middleware/authenticate");
 const logger = require("../utils/LoggingController/loggers");
@@ -1136,47 +1137,57 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         ],
       },
       {
-        $or: [
+        $and: [
           {
-            $and: [
+            $eq: [
+              "$current_commonDataFilledByAssignUser.isSafetyFormSubmitted",
+              true,
+            ],
+          },
+          {
+            $or: [
               {
-                $in: [
-                  "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
-                  ["Generated", "Assigned"],
-                ],
-              },
-              {
-                $eq: [
+                $and: [
                   {
-                    $cond: [
+                    $in: [
+                      "$current_commonDataFilledByAssignUser.requestSheetStatusOfCM",
+                      ["Generated", "Assigned"],
+                    ],
+                  },
+                  {
+                    $eq: [
                       {
-                        $isArray:
-                          "$current_commonDataFilledByAssignUser.assignUserForCM",
-                      },
-                      {
-                        $size:
-                          "$current_commonDataFilledByAssignUser.assignUserForCM",
+                        $cond: [
+                          {
+                            $isArray:
+                              "$current_commonDataFilledByAssignUser.assignUserForCM",
+                          },
+                          {
+                            $size:
+                              "$current_commonDataFilledByAssignUser.assignUserForCM",
+                          },
+                          0,
+                        ],
                       },
                       0,
                     ],
                   },
-                  0,
+                  ...conditionForGetOnlyApprovalDataWithoutOtherStatus,
                 ],
               },
-              ...conditionForGetOnlyApprovalDataWithoutOtherStatus,
-            ],
-          },
-          {
-            $ne: [
               {
-                $filter: {
-                  input:
-                    "$current_commonDataFilledByAssignUser.assignUserForCM",
-                  as: "item",
-                  cond: { $eq: ["$$item.userRef", req.rootUser?._id] },
-                },
+                $ne: [
+                  {
+                    $filter: {
+                      input:
+                        "$current_commonDataFilledByAssignUser.assignUserForCM",
+                      as: "item",
+                      cond: { $eq: ["$$item.userRef", req.rootUser?._id] },
+                    },
+                  },
+                  [],
+                ],
               },
-              [],
             ],
           },
         ],
@@ -1412,8 +1423,14 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         cell: {
           $arrayElemAt: ["$plantToMachineHierarchy.cell.cell_name", 0],
         },
+        cellRef: {
+          $arrayElemAt: ["$plantToMachineHierarchy.cell", 0],
+        },
         line: {
           $arrayElemAt: ["$plantToMachineHierarchy.line.line_name", 0],
+        },
+        lineRef: {
+          $arrayElemAt: ["$plantToMachineHierarchy.line", 0],
         },
         machineId: {
           $arrayElemAt: ["$plantToMachineHierarchy.machine._id", 0],
@@ -1423,6 +1440,9 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         },
         machineName: {
           $arrayElemAt: ["$plantToMachineHierarchy.machine.machine_name", 0],
+        },
+        machineRef: {
+          $arrayElemAt: ["$plantToMachineHierarchy.machine", 0],
         },
         plannedDateAndTimeOfCMForTable: {
           $dateToString: {
@@ -1443,6 +1463,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         "cmBasicDataFilledByMTD_TL.frequencyValue": 1,
         "cmBasicDataFilledByMTD_TL.plannedDateAndTimeOfCM": 1,
         "cmBasicDataFilledByMTD_TL.attachedFilesByMTDUser": 1,
+        "current_commonDataFilledByAssignUser._id": 1,
         "current_commonDataFilledByAssignUser.requestSheetStatusOfCM": 1,
         "current_commonDataFilledByAssignUser.targetDateOfCM": 1,
 
@@ -3179,6 +3200,130 @@ router.patch(
     });
   }),
 );
+
+// safety form CRUD Operations
+router
+  .route("/cm/v1/safetyForm")
+  .post(authenticate, async (req, res) => {
+    try {
+      const {
+        cmSheetId,
+        selectedYear,
+        requestSheetRef, // quarter ID
+      } = req.query;
+
+      req.body["requestSheetRef"] = requestSheetRef;
+      req.body["safetyFormFilledUpBy"] = req?.rootUser?.tm_name;
+
+      await SafetyForm.create(req.body);
+
+      const requestSheet = await RequestSheetOfCM.findOneAndUpdate(
+        {
+          _id: mongoose.Types.ObjectId(req?.query?.cmSheetId),
+        },
+        {
+          $set: {
+            ["commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].isSafetyFormSubmitted"]: true,
+          },
+        },
+        {
+          arrayFilters: [
+            {
+              "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                selectedYear,
+            },
+            {
+              "quarterFilter._id": requestSheetRef,
+            },
+          ],
+          new: true,
+          projection: {
+            commonDataFilledByAssignUser: {
+              $elemMatch: {
+                "preAggregationTimeStampOfRequestSheet.requestSheet_year":
+                  selectedYear,
+                // quarterlyDataOfTheCM: {
+                //   $elemMatch: {
+                //     "quarterlyDataOfTheCM._id": requestSheetRef,
+                //   },
+                // },
+              },
+            },
+          },
+        },
+      );
+
+      let isEditableRS = false;
+
+      const quarterData =
+        requestSheet?.commonDataFilledByAssignUser?.[0]?.quarterlyDataOfTheCM.find(
+          (q) => {
+            if (q._id.toString() === requestSheetRef.toString()) {
+              if (
+                [
+                  "Generated",
+                  "Assigned",
+                  "Fill Sheet",
+                  "Rejected",
+                  "Ongoing",
+                ]?.includes(q.requestSheetStatusOfCM)
+              ) {
+                if (q?.isSafetyFormSubmitted) {
+                  if (
+                    q?.assignUserForCM &&
+                    q?.assignUserForCM?.length > 0 &&
+                    q?.assignUserForCM?.find(
+                      (item) =>
+                        item?.userRef?.toString() ===
+                        req.rootUser?._id?.toString(),
+                    )
+                  ) {
+                    isEditableRS = true;
+                  } else if (
+                    ["Generated", "Assigned"]?.includes(
+                      q.requestSheetStatusOfCM,
+                    ) &&
+                    moment(q.targetDateOfCM).isBefore(moment())
+                  ) {
+                    isEditableRS = true;
+                  }
+                }
+              } else
+                isEditableRS =
+                  q?.getDataForApprovalDashboard?.Id?.toString() ===
+                  req.rootUser?._id?.toString();
+            }
+          },
+        );
+
+      return res
+        .status(201)
+        .json({ message: "Safety form added successfully", isEditableRS });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  })
+  .get(authenticate, async (req, res) => {
+    try {
+      const safetyForm = await SafetyForm.findOne(req.query);
+
+      if (!safetyForm) return res.status(404).json({ message: "Not found!!!" });
+
+      return res.status(201).json({ message: "Get successfully", safetyForm });
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  })
+  .patch(authenticate, async (req, res) => {
+    try {
+      console.log(req.body);
+    } catch (error) {
+      logger.error(error);
+      res.status(500).json({ message: error?.message, error });
+    }
+  });
 
 module.exports = router;
 

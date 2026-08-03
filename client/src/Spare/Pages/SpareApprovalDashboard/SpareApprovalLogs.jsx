@@ -13,6 +13,7 @@ const LogsMappingKeys = [
   "approvalOfMTD_TLApprovalLogs",
   "approvalOfMTD_HOSSApprovalLogs",
   "approvalOfPRD_TLApprovalLogs",
+  "approvalOfPRD_HOSSApprovalLogs",
   "approvalOfMTD_HOSApprovalLogs",
   "approvalOfPRD_HOSApprovalLogs",
   "approvalOfMTD_HODApprovalLogs",
@@ -128,7 +129,7 @@ const ApproveAndPendingUsersWiseCount = (prop) => {
 
 const ApprovalMappingComponent = memo(({ otherData }) => (
   <>
-    <UptoMachineHeaders otherData={otherData} />
+    <UptoMachineHeaders otherData={otherData} needToIncludeMaker={false} />
     {LogsMappingKeys?.map((key = "") => (
       <td className="td-padding">
         {otherData?.[key]?.map(
@@ -139,7 +140,7 @@ const ApprovalMappingComponent = memo(({ otherData }) => (
             approvalDateAndTime = "",
             rejectedRemarks = "",
           }) => (
-            <p key={_id}>
+            <div key={_id}>
               <b>{approvalStatus}</b>
               &nbsp;
               {user?.tm_name && `- ${user?.tm_name}`}
@@ -147,7 +148,7 @@ const ApprovalMappingComponent = memo(({ otherData }) => (
               {approvalDateAndTime && `- ${approvalDateAndTime}`}
               &nbsp;
               {rejectedRemarks && `- ${rejectedRemarks}`}
-            </p>
+            </div>
           ),
         )}
       </td>
@@ -180,13 +181,15 @@ const LogsComponent = (props) => {
         tableHeaders={[
           "Request No",
           "Product",
+          // "Maker",
           "Line",
           "Machine No",
-          "Machine Name",
+          // "Machine Name",
           "HOD NG Budget Approval",
           "MTD TL",
           "MTD HOSS",
           "PRD TL",
+          "PRD HOSS",
           "MTD HOS",
           "PRD HOS",
           "MTD HOD",
@@ -194,7 +197,6 @@ const LogsComponent = (props) => {
           "TOOL ROOM",
         ]}
         OtherComp={ApprovalMappingComponent}
-        isPartWiseTable={false}
       />
     </div>
   );

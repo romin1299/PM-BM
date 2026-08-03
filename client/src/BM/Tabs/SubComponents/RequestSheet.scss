@@ -39,6 +39,14 @@
   }
 }
 
+.budget-table.mtd-parts-section {
+  input[type="text"], 
+  input[type="number"] {
+    font-size: 12px !important;
+    padding: 1px 2px !important;
+  }
+}
+
 .text-error {
   // position: absolute;
   bottom: -23px;

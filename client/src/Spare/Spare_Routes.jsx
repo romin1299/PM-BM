@@ -152,9 +152,6 @@ const SpareApprovalLogs = lazy(
 const SpareOrderingDashboard = lazy(
   () => import("./Pages/SpareOrderingDashboard/SpareOrderingDashboard"),
 );
-const SpareReceivingDashboard = lazy(
-  () => import("./Pages/SpareReceivingDashboard/SpareReceivingDashboard"),
-);
 const SpareMasterRegistration = lazy(
   () => import("./Pages/SpareMasterRegistration/SpareMasterRegistration"),
 );
@@ -170,6 +167,9 @@ const SpareCustomized = lazy(
 );
 const SpareUserManagement = lazy(
   () => import("./Pages/SpareUserManagement/SpareUserManagement"),
+);
+const DynamicFieldsConfiguration = lazy(
+  () => import("./Pages/SpareCustomized/DynamicFieldsConfiguration"),
 );
 
 const allusers = [
@@ -219,11 +219,6 @@ const routes = [
     allowedRoles: allusers,
   },
   {
-    path: "/spare/spareReceivingDashboard",
-    element: <SpareReceivingDashboard />,
-    allowedRoles: allusers,
-  },
-  {
     path: "/spare/spareMasterRegistration",
     element: <SpareMasterRegistration />,
     allowedRoles: allusers,
@@ -247,6 +242,18 @@ const routes = [
     path: "/spare/customizedDashboard",
     element: <SpareCustomized />,
     allowedRoles: ["Plant-Admin", "Section-Admin"],
+  },
+  {
+    path: "/spare/customizedDashboard/dynamicFieldsConfiguration",
+    element: <DynamicFieldsConfiguration />,
+    allowedRoles: [
+      "Plant-Admin",
+      "Section-Admin",
+      //From spare toolRoom
+      "HOSS",
+      "Supervisor",
+      "Office Person",
+    ],
   },
 ];
 

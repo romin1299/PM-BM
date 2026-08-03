@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  sheetAndPartIdValidation,
   getDefaultValueForMasterRegistration,
   handleMasterConfiguration,
   handleMasterUpdate,
@@ -10,8 +9,8 @@ const {
 
 router
   .route("/master")
-  .get(sheetAndPartIdValidation, getDefaultValueForMasterRegistration)
-  .post(sheetAndPartIdValidation, handleMasterConfiguration)
+  .get(getDefaultValueForMasterRegistration)
+  .post(handleMasterConfiguration)
   .patch(handleMasterUpdate);
 
 module.exports = router;

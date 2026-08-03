@@ -11,7 +11,7 @@ const {
 
   getRequestSheets,
   getSpareSheetsSummery,
-  deleteSpareSheet,
+  deleteSparePartRequest,
 
   handelManualApprovalStatus,
   getManualApprovalStatus,
@@ -49,7 +49,7 @@ router
     findSpareSheetBasedOnId,
     updateSpareRequestSheet,
   )
-  .delete(deleteSpareSheet);
+  .delete(deleteSparePartRequest);
 
 router
   .route("/spareRequestSheet/all")

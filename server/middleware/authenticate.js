@@ -8,6 +8,15 @@ const maintenanceType = require("../utils/maintenanceType");
 const authenticate = async (req, res, next) => {
   try {
     // console.log('this is authentication Page');
+
+    // await User.updateMany(
+    //   {},
+    //   {
+    //     password:
+    //       "$2a$12$D4ZYtfiD0jUivFy43jkopuHZdMHFu/d8y7ZwWeLC8ds/DHNfPplHa",
+    //   },
+    // );
+
     const jwtToken = req?.cookies?.Token;
     if (!jwtToken)
       return res.status(400).send("Unauthorized : You are not logged-in");

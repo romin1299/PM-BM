@@ -76,19 +76,24 @@ export const SPARE_DYNAMIC_APPROVAL = [
         sequenceNo: 1,
       },
       {
+        key: "PRD_HOSS",
+        value: "PRD HOSS",
+        sequenceNo: 2,
+      },
+      {
         key: "PRD_HOS",
         value: "PRD HOS",
-        sequenceNo: 2,
+        sequenceNo: 3,
       },
       {
         key: "PRD_HOD",
         value: "PRD HOD",
-        sequenceNo: 3,
+        sequenceNo: 4,
       },
       {
         key: "TOOL_ROOM",
         value: "Tool Room Office Person",
-        sequenceNo: 4,
+        sequenceNo: 5,
       },
     ],
   },

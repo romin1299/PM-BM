@@ -40,6 +40,7 @@ import ContactMailIcon from "@mui/icons-material/ContactMail";
 import SparePartsRequestForm from "../SparePartsRequest/SparePartsRequestForm";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import SafetyForm from "../Tabs/SafetyForm/SafetyForm";
+import SafetyFormV2 from "../../CM/Components/ReqestSheetOfCM/SafetyFormV2";
 
 const RequestSheetMainDashboard = () => {
   const [loading, setLoading] = React.useState(true);
@@ -53,13 +54,21 @@ const RequestSheetMainDashboard = () => {
   const [machineHistoryCardModal, setMachineHistoryCardModal] = useState(false);
   const [summeryCardModal, setSummeryCardModal] = useState(false);
   const [displayColumnOrNot, setDisplayColumnOrNot] = useState(true);
-  const [sparePartsRequestModal, setSparePartsRequestModal] = useState(false);
+
+  const [sparePartsRequestModal, setSparePartsRequestModal] = useState({
+    modelType: "SPARE_ISSUANCE",
+    show: false,
+    selectedRow: null,
+  });
+
   const [greaterValue, setGreaterValue] = useState(
-    localStorage.getItem("greaterValue")
+    localStorage.getItem("greaterValue"),
   );
   const [lesserValue, setLesserValue] = useState(
-    localStorage.getItem("lesserValue")
+    localStorage.getItem("lesserValue"),
   );
+
+  console.log(selectedRow);
 
   const [requestSheetModalOpenClose, setRequestSheetModalOpenClose] =
     useState(false);
@@ -162,7 +171,7 @@ const RequestSheetMainDashboard = () => {
           requestSheetData: state?.requestSheetData?.map((item) =>
             item?._id === action?.requestSheet?._id
               ? action?.requestSheet
-              : item
+              : item,
           ),
           message: action?.message,
         };
@@ -177,7 +186,7 @@ const RequestSheetMainDashboard = () => {
 
   const [reduceState, reducerDispatch] = useReducer(
     reducer,
-    initialState("Yes")
+    initialState("Yes"),
   );
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";
 
@@ -206,7 +215,7 @@ const RequestSheetMainDashboard = () => {
             "Content-Type": "application/json",
           },
           credentials: "include",
-        }
+        },
       );
 
       const {
@@ -284,7 +293,7 @@ const RequestSheetMainDashboard = () => {
 
       const updatedRequestSheetData =
         reduceStateForRequestSheetData.requestSheetData.filter(
-          (row) => row._id !== selectedRow._id
+          (row) => row._id !== selectedRow._id,
         );
 
       if (res.status === 201) {
@@ -340,14 +349,31 @@ const RequestSheetMainDashboard = () => {
 
   const handleGenerateBMNavigation = async () => {
     navigate(
-      `/bm/generateRequestSheetMainDashboard/?selectedYear=${reduceState?.selectedYear}`
+      `/bm/generateRequestSheetMainDashboard/?selectedYear=${reduceState?.selectedYear}`,
     );
   };
 
-  const handleSparePartsModelState = () =>
-    setSparePartsRequestModal(
-      (sparePartsRequestModal) => !sparePartsRequestModal
-    );
+  const handleSparePartsModelState = (modelType, propRow) =>
+    setSparePartsRequestModal((sparePartsRequestModal) => {
+      let updateState = {
+        ...sparePartsRequestModal,
+        show: !sparePartsRequestModal?.show,
+      };
+
+      if (modelType) updateState.modelType = modelType;
+
+      if (!updateState?.show) updateState.selectedRow = null;
+      else if (propRow) updateState.selectedRow = propRow;
+
+      return updateState;
+    });
+
+  const handleUpdateSheetInTable = (requestSheet) =>
+    reducerDispatchForRequestSheetData({
+      type: ACTION.UPDATE_REQUEST_SHEET,
+      requestSheet,
+      message: "Safety form submitted",
+    });
 
   // const conditionalBasedEditableFunctionForPRD = (_, row) => {
   //   if (
@@ -499,7 +525,7 @@ const RequestSheetMainDashboard = () => {
                   ? moment(value, "YYYY-MM-DDTHH:mm", true).isValid()
                     ? value
                     : moment(rowData?.handOverTimeForDefault).format(
-                        "YYYY-MM-DDTHH:mm"
+                        "YYYY-MM-DDTHH:mm",
                       )
                   : moment(new Date()).format("YYYY-MM-DDTHH:mm")
               }
@@ -693,7 +719,7 @@ const RequestSheetMainDashboard = () => {
 
   const handleMachineHistoryCardState = () => {
     setMachineHistoryCardModal(
-      (machineHistoryCardModal) => !machineHistoryCardModal
+      (machineHistoryCardModal) => !machineHistoryCardModal,
     );
   };
 
@@ -703,7 +729,7 @@ const RequestSheetMainDashboard = () => {
 
   const handleRequestSheetShowAndCloseState = () => {
     setRequestSheetModalOpenClose(
-      (requestSheetModalOpenClose) => !requestSheetModalOpenClose
+      (requestSheetModalOpenClose) => !requestSheetModalOpenClose,
     );
   };
 
@@ -745,7 +771,7 @@ const RequestSheetMainDashboard = () => {
               supportingTM:
                 reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
             },
-          }
+          },
         ),
     }),
 
@@ -776,8 +802,7 @@ const RequestSheetMainDashboard = () => {
       tooltip: "Safety Form",
       position: "row",
       onClick: (event, selectedRow) => {
-        setSelectedRow(selectedRow);
-        setSafetyFormModalOpen(true);
+        handleSparePartsModelState("SAFETY_FORM", selectedRow);
       },
     }),
 
@@ -824,8 +849,7 @@ const RequestSheetMainDashboard = () => {
       tooltip: "Spare Require Mail",
       position: "row",
       onClick: (event, selectedRow) => {
-        setSelectedRow(selectedRow);
-        handleSparePartsModelState();
+        handleSparePartsModelState("SPARE_ISSUANCE", selectedRow);
       },
     }),
   ];
@@ -845,7 +869,7 @@ const RequestSheetMainDashboard = () => {
               supportingTM:
                 reduceStateForRequestSheetData?.TLHOSS_and_TM_user_list,
             },
-          }
+          },
         );
       },
     });
@@ -1221,7 +1245,7 @@ const RequestSheetMainDashboard = () => {
                     ExportPdf(
                       cols,
                       data,
-                      `All requestSheet ${moment().format("DD-MM-YYYY")}`
+                      `All requestSheet ${moment().format("DD-MM-YYYY")}`,
                     ),
                 },
                 {
@@ -1230,7 +1254,7 @@ const RequestSheetMainDashboard = () => {
                     ExportCsv(
                       cols,
                       data,
-                      `All requestSheet ${moment().format("DD-MM-YYYY")}`
+                      `All requestSheet ${moment().format("DD-MM-YYYY")}`,
                     ),
                 },
               ],
@@ -1286,17 +1310,50 @@ const RequestSheetMainDashboard = () => {
         />
       )}
 
-      {sparePartsRequestModal && (
-        <SparePartsRequestForm
-          selectedRow={selectedRow}
-          modelProp={{
-            show: sparePartsRequestModal,
-            onHide: handleSparePartsModelState,
-          }}
-        />
-      )}
+      {sparePartsRequestModal?.show &&
+        (sparePartsRequestModal?.modelType === "SPARE_ISSUANCE" ? (
+          <SparePartsRequestForm
+            issuedFrom="BM"
+            machineParentHierarchy={{
+              cell: sparePartsRequestModal?.selectedRow?.cellRef,
+              line: sparePartsRequestModal?.selectedRow?.lineRef,
+              machine: sparePartsRequestModal?.selectedRow?.machineRef,
+            }}
+            modelProp={{
+              show: sparePartsRequestModal?.show,
+              onHide: handleSparePartsModelState,
+            }}
+          />
+        ) : (
+          <SafetyFormV2
+            moduleType="bm"
+            machineParentHierarchy={{
+              line: sparePartsRequestModal?.selectedRow?.line,
+              machineNo: sparePartsRequestModal?.selectedRow?.machineNo,
+              machineName: sparePartsRequestModal?.selectedRow?.machineName,
+            }}
+            params={{
+              requestSheetRef: sparePartsRequestModal?.selectedRow?._id,
+            }}
+            otherFormSubmitParams={{
+              selectedYear: reduceState?.selectedYear,
+            }}
+            handleUpdateSheet={(isEditableRS) => {
+              if (isEditableRS) {
+                sparePartsRequestModal.selectedRow.isEditableRS = isEditableRS;
+                handleUpdateSheetInTable(sparePartsRequestModal.selectedRow);
+              }
+              return;
+            }}
+            modelProp={{
+              show: sparePartsRequestModal?.show,
+              onHide: handleSparePartsModelState,
+            }}
+          />
+        ))}
 
-      {safetyFormModalOpen && (
+      {/* {safetyFormModalOpen && (
+        
         <SafetyForm
           id={selectedRow?._id}
           lineName={selectedRow?.line}
@@ -1306,7 +1363,7 @@ const RequestSheetMainDashboard = () => {
           safetyFormModalOpen={safetyFormModalOpen}
           machineSafetyCheckedByMTD={selectedRow?.machineSafetyCheckedByMTD}
         />
-      )}
+      )} */}
     </>
   );
 };

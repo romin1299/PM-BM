@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button, Modal } from "react-bootstrap";
 import $ from "jquery";
 import { useFormik } from "formik";
@@ -22,6 +22,8 @@ import Footer from "../../components/Footer/Footer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { InfoToast } from "../../BM/Component/ShowTostify";
+import PMSafetyForm from "../../components/PMSafetyForm";
+
 // import 'reactjs-popup/dist/index.css';
 const CheckSheet = ({
   show,
@@ -54,6 +56,14 @@ const CheckSheet = ({
   // const [HOSList, setHOSList] = useState([]);
   // const [PRDTLlist, setPRDTLlist] = useState([]);
   // const [MTDTLlist, setMTDTLlist] = useState([]);
+
+  const [canSubmitCheckSheetPointData, setCanSubmitCheckSheetPointData] =
+    useState(false);
+
+  const handleEditableCheckPointState = useCallback(
+    (isEditableRS) => setCanSubmitCheckSheetPointData(isEditableRS),
+    [],
+  );
 
   const [dataSheetName, setDataSheetName] = useState([]);
   const [machineAllData, setMachineAllData] = useState([]);
@@ -166,7 +176,7 @@ const CheckSheet = ({
         console.log("PM worked data save sucessfully...");
         postMachineIdToGetAllDetailsOfMachine();
         InfoToast(
-          "Don't forget to send for approval after all points are completed !!!"
+          "Don't forget to send for approval after all points are completed !!!",
         );
         // closeCheckSheet();
         // navigate("/");
@@ -404,37 +414,37 @@ const CheckSheet = ({
                 rowspan: 1,
                 // colspan: 1,
                 print: true,
-              })
+              }),
             )
           : key === "isDeleted"
-          ? newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: false,
-              })
-            )
-          : key === "remarksCompulsoryOrNot"
-          ? newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: false,
-              })
-            )
-          : newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: true,
-              })
-            );
+            ? newColData.push(
+                new Object({
+                  key: key,
+                  value: obj[key],
+                  rowspan: 1,
+                  // colspan: 1,
+                  print: false,
+                }),
+              )
+            : key === "remarksCompulsoryOrNot"
+              ? newColData.push(
+                  new Object({
+                    key: key,
+                    value: obj[key],
+                    rowspan: 1,
+                    // colspan: 1,
+                    print: false,
+                  }),
+                )
+              : newColData.push(
+                  new Object({
+                    key: key,
+                    value: obj[key],
+                    rowspan: 1,
+                    // colspan: 1,
+                    print: true,
+                  }),
+                );
       }
       for (let key in obj) {
         // console.log(obj[key]);
@@ -450,7 +460,7 @@ const CheckSheet = ({
               rowspan: 1,
               // colspan: 1,
               print: true,
-            })
+            }),
           );
           // console.log(obj[key])
           for (let key1 in obj[key]) {
@@ -501,7 +511,7 @@ const CheckSheet = ({
                 rowspan: 1,
                 // colspan: 1,
                 print: true,
-              })
+              }),
             );
 
             // console.log(obj[key][key1])
@@ -588,7 +598,7 @@ const CheckSheet = ({
         close={close}
         // tableData={tableData}
         machineData={machineAllData}
-      />
+      />,
     );
     document.querySelector(".checkSheetForImplementation").style.pointerEvents =
       "none";
@@ -605,7 +615,7 @@ const CheckSheet = ({
         }
         // tableData={tableData}
         machineData={machineAllData}
-      />
+      />,
     );
     document.querySelector(".checkSheetForImplementation").style.pointerEvents =
       "none";
@@ -626,7 +636,7 @@ const CheckSheet = ({
     formData.append("machine_code", machineAllData.machine_code);
     formData.append(
       "yearOfCheckSheet",
-      machineAllData?.checkSheet_data?.current_year
+      machineAllData?.checkSheet_data?.current_year,
     );
     // console.log(formData);
 
@@ -690,7 +700,7 @@ const CheckSheet = ({
           body: JSON.stringify({
             machine_code,
           }),
-        }
+        },
       );
       const data = await res.json();
       if (res.status === 400 || res.status === 422 || !data) {
@@ -933,7 +943,7 @@ const CheckSheet = ({
                             ?.implementation_approved_by_MTD_TL
                             ? Object.entries(
                                 machineAllData?.checkSheet_data
-                                  ?.implemetation_mtd_tl_approval_status
+                                  ?.implemetation_mtd_tl_approval_status,
                               ).map(([month, statusArray]) =>
                                 statusArray[statusArray.length - 1] ===
                                 "Accepted" ? (
@@ -952,7 +962,7 @@ const CheckSheet = ({
                                   </td>
                                 ) : (
                                   <td className="ar-table-col1"></td>
-                                )
+                                ),
                               )
                             : refArrayForTDMapping?.map((index) => (
                                 <td className="ar-table-col1"></td>
@@ -1006,7 +1016,7 @@ const CheckSheet = ({
                             ?.implementation_approved_by_MTD_HOS
                             ? Object.entries(
                                 machineAllData?.checkSheet_data
-                                  ?.implemetation_mtd_hos_approval_status
+                                  ?.implemetation_mtd_hos_approval_status,
                               ).map(([month, statusArray]) =>
                                 statusArray[statusArray.length - 1] ===
                                 "Accepted" ? (
@@ -1025,7 +1035,7 @@ const CheckSheet = ({
                                   </td>
                                 ) : (
                                   <td className="ar-table-col1"></td>
-                                )
+                                ),
                               )
                             : refArrayForTDMapping?.map((index) => (
                                 <td className="ar-table-col1"></td>
@@ -1126,14 +1136,30 @@ const CheckSheet = ({
                                   }}
                                   onClick={() =>
                                     OpenPopupForEditRemarksAfterReject(
-                                      tColumn.header
+                                      tColumn.header,
                                     )
                                   }
                                 >
                                   {tColumn.header}
                                 </button>
                               ) : (
-                                tColumn.header
+                                <PMSafetyForm
+                                  header={tColumn?.header}
+                                  machineParentHierarchy={{
+                                    line: lineName,
+                                    machineNo: machineAllData?.machine_code,
+                                    machineName: machineAllData?.machine_name,
+                                  }}
+                                  params={{
+                                    requestSheetRef: machineAllData?._id,
+                                  }}
+                                  otherFormSubmitParams={{
+                                    selectedYear,
+                                  }}
+                                  handleEditableCheckPointState={
+                                    handleEditableCheckPointState
+                                  }
+                                />
                               )}
                             </th>
                           ))}
@@ -1160,27 +1186,28 @@ const CheckSheet = ({
                                       colData.value === ""
                                         ? "ar-table-col2"
                                         : colData.key ===
-                                            "inspection_parent_name" ||
-                                          colData.key ===
-                                            "inspection_child_name" ||
-                                          colData.key === "inspection_point" ||
-                                          colData.key ===
-                                            "judgement_criteria" ||
-                                          colData.key === "action"
-                                        ? "table_text_alignment"
-                                        : colData.value.length === 2 &&
-                                          colData.value[0] === "1" &&
-                                          colData.value[1] === "dummy"
-                                        ? "table-col-bg-ongoing"
-                                        : colData.value.length === 2 &&
-                                          colData.value[0] === "1" &&
-                                          colData.value[1] === "delay"
-                                        ? "table-col-bg-delay"
-                                        : colData.value.length === 2 &&
-                                          colData.value[0] === "1" &&
-                                          colData.value[1] === "skip"
-                                        ? "table-col-bg-skip"
-                                        : "ar-table-col"
+                                              "inspection_parent_name" ||
+                                            colData.key ===
+                                              "inspection_child_name" ||
+                                            colData.key ===
+                                              "inspection_point" ||
+                                            colData.key ===
+                                              "judgement_criteria" ||
+                                            colData.key === "action"
+                                          ? "table_text_alignment"
+                                          : colData.value.length === 2 &&
+                                              colData.value[0] === "1" &&
+                                              colData.value[1] === "dummy"
+                                            ? "table-col-bg-ongoing"
+                                            : colData.value.length === 2 &&
+                                                colData.value[0] === "1" &&
+                                                colData.value[1] === "delay"
+                                              ? "table-col-bg-delay"
+                                              : colData.value.length === 2 &&
+                                                  colData.value[0] === "1" &&
+                                                  colData.value[1] === "skip"
+                                                ? "table-col-bg-skip"
+                                                : "ar-table-col"
                                       //ar-table-col
                                     }
                                     rowSpan={colData.rowspan}
@@ -1215,6 +1242,9 @@ const CheckSheet = ({
                                           {" "}
                                           <button
                                             className="commonBtn pmImplementationBtn"
+                                            disabled={
+                                              !canSubmitCheckSheetPointData
+                                            }
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
@@ -1259,26 +1289,28 @@ const CheckSheet = ({
                                                   remarksCompulsoryOrNot={
                                                     rData[10].value
                                                   }
-                                                />
+                                                />,
                                               );
                                               // document.querySelector(
                                               //   ".checkSheetForImplementation"
                                               // ).style.pointerEvents = "none";
                                             }}
                                           >
-                                            -->
+                                            --&gt;
                                           </button>
                                           <br />{" "}
                                         </>
                                       ) : colData.value.length === 1 &&
                                         colData.value[0] === "1" ? (
-                                        <p style={{ fontWeight: "900" }}>--></p>
+                                        <p style={{ fontWeight: "900" }}>
+                                          --&gt;
+                                        </p>
                                       ) : colData.value[0] === "1" &&
                                         (colData.value[1] === "Yes" ||
                                           colData.value[1] === "Rectify") ? (
                                         <>
                                           <div style={{ fontWeight: "900" }}>
-                                            -->
+                                            --&gt;
                                             <br />
                                             <EastIcon fontSize="small" />
                                             <br />
@@ -1316,7 +1348,7 @@ const CheckSheet = ({
                                           style={{ fontWeight: "900" }}
                                         >
                                           {" "}
-                                          -->
+                                          --&gt;
                                         </p>
                                       ) : colData.value.length === 2 &&
                                         colData.value[0] === "1" &&
@@ -1326,7 +1358,7 @@ const CheckSheet = ({
                                           style={{ fontWeight: "900" }}
                                         >
                                           {" "}
-                                          -->
+                                          --&gt;
                                         </p>
                                       ) : colData.value.length === 1 &&
                                         colData.value[0] === "2" ? (
@@ -1335,7 +1367,7 @@ const CheckSheet = ({
                                           style={{ fontWeight: "900" }}
                                         >
                                           {" "}
-                                          -->
+                                          --&gt;
                                         </p>
                                       ) : colData.value.length === 2 &&
                                         colData.value[0] === "2" &&
@@ -1345,12 +1377,12 @@ const CheckSheet = ({
                                           style={{ fontWeight: "900" }}
                                         >
                                           {" "}
-                                          -->
+                                          --&gt;
                                         </p>
                                       ) : (
                                         <>
                                           <div style={{ fontWeight: "900" }}>
-                                            --> *
+                                            --&gt; *
                                             <br />
                                           </div>
                                           {colData.value[2] ? (
@@ -1383,14 +1415,15 @@ const CheckSheet = ({
                                     colData.value === ""
                                       ? "ar-table-col2"
                                       : colData.key ===
-                                          "inspection_parent_name" ||
-                                        colData.key ===
-                                          "inspection_child_name" ||
-                                        colData.key === "inspection_point" ||
-                                        colData.key === "judgement_criteria" ||
-                                        colData.key === "action"
-                                      ? "table_text_alignment"
-                                      : "ar-table-col"
+                                            "inspection_parent_name" ||
+                                          colData.key ===
+                                            "inspection_child_name" ||
+                                          colData.key === "inspection_point" ||
+                                          colData.key ===
+                                            "judgement_criteria" ||
+                                          colData.key === "action"
+                                        ? "table_text_alignment"
+                                        : "ar-table-col"
                                   }
                                   rowSpan={colData.rowspan}
                                   colSpan={colData.colspan}
@@ -1401,14 +1434,14 @@ const CheckSheet = ({
                                   colData.key !== "PM_time"
                                     ? ""
                                     : colData.value[0] === "1" &&
-                                      colData.key !== "cycle" &&
-                                      colData.key !== "PM_time"
-                                    ? "-->"
-                                    : colData.value}{" "}
+                                        colData.key !== "cycle" &&
+                                        colData.key !== "PM_time"
+                                      ? "-->"
+                                      : colData.value}{" "}
                                 </td>
                               ) : (
                                 ""
-                              )
+                              ),
                             )}
                           </tr>
                         ))}
@@ -1459,7 +1492,7 @@ const CheckSheet = ({
                             ?.implementation_approved_by_PRD_TL
                             ? Object.entries(
                                 machineAllData?.checkSheet_data
-                                  ?.implemetation_prd_tl_approval_status
+                                  ?.implemetation_prd_tl_approval_status,
                               ).map(([month, statusArray]) =>
                                 statusArray[statusArray.length - 1] ===
                                 "Accepted" ? (
@@ -1478,7 +1511,7 @@ const CheckSheet = ({
                                   </td>
                                 ) : (
                                   <td className="ar-table-col1"></td>
-                                )
+                                ),
                               )
                             : refArrayForTDMapping?.map((index) => (
                                 <td className="ar-table-col1"></td>
@@ -1523,7 +1556,7 @@ const CheckSheet = ({
                             <td></td>
                             {index.planningTableAnimationArray.map((index1) => {
                               if (index1 === "1") {
-                                return <td className="ar-table-col">--></td>;
+                                return <td className="ar-table-col">--&gt;</td>;
                               } else if (index1 === "0") {
                                 return <td className="ar-table-col"></td>;
                               }
@@ -1626,7 +1659,7 @@ const CheckSheet = ({
                               </td>
                               <td className="td-padding">{item?.revisedBy}</td>
                             </tr>
-                          )
+                          ),
                         )}
                       </table>
                     </div>
@@ -1693,11 +1726,11 @@ const CheckSheet = ({
                       </table>
                     </Row>
                     <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
-                      <Col>--> Planned</Col>
+                      <Col>--&gt; Planned</Col>
                       <Col>
                         <EastIcon fontSize="small" /> Normal Condition
                       </Col>
-                      <Col>--> * Abnormality</Col>
+                      <Col>--&gt; * Abnormality</Col>
                     </Row>
                     <Row className="m-2 p-3 border bg-white rounded d-flex justify-content-center align-items-center">
                       <div style={{ float: "left" }}>FO/MTD/02/04/04</div>
@@ -1952,12 +1985,12 @@ const CheckSheet = ({
                                     // selectedValues={departmentList} // Preselected value to persist in dropdown
                                     onSelect={async (selectedList) => {
                                       await setSelectedSupportedTM(
-                                        selectedList
+                                        selectedList,
                                       );
                                     }} // Function will trigger on select event
                                     onRemove={async (selectedList) => {
                                       await setSelectedSupportedTM(
-                                        selectedList
+                                        selectedList,
                                       );
                                     }} // Function will trigger on remove event
                                     style={{
@@ -2052,7 +2085,7 @@ const CheckSheet = ({
                                                       {index.tm_name}
                                                     </option>
                                                   );
-                                                }
+                                                },
                                               )}
                                             </select>
                                             <div>
@@ -2111,7 +2144,7 @@ const CheckSheet = ({
                                                       {index.tm_name}
                                                     </option>
                                                   );
-                                                }
+                                                },
                                               )}
                                             </select>
                                             <div>
@@ -2171,7 +2204,7 @@ const CheckSheet = ({
                                                       {index.tm_name}
                                                     </option>
                                                   );
-                                                }
+                                                },
                                               )}
                                             </select>
                                             <div>
@@ -2442,12 +2475,12 @@ const CheckSheet = ({
                                     // selectedValues={departmentList} // Preselected value to persist in dropdown
                                     onSelect={async (selectedList) => {
                                       await setSelectedSupportedTM(
-                                        selectedList
+                                        selectedList,
                                       );
                                     }} // Function will trigger on select event
                                     onRemove={async (selectedList) => {
                                       await setSelectedSupportedTM(
-                                        selectedList
+                                        selectedList,
                                       );
                                     }} // Function will trigger on remove event
                                   />
@@ -2510,7 +2543,7 @@ const CheckSheet = ({
                                                       {index.tm_name}
                                                     </option>
                                                   );
-                                                }
+                                                },
                                               )}
                                             </select>
                                             <div>
@@ -2566,7 +2599,7 @@ const CheckSheet = ({
                                                       {index.tm_name}
                                                     </option>
                                                   );
-                                                }
+                                                },
                                               )}
                                             </select>
                                             <div>
@@ -2623,7 +2656,7 @@ const CheckSheet = ({
                                                       {index.tm_name}
                                                     </option>
                                                   );
-                                                }
+                                                },
                                               )}
                                             </select>
                                             <div>

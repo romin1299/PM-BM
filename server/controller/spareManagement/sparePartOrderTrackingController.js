@@ -11,28 +11,26 @@ const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 
 exports.orderTrackingAggregationFilters = tryCatchHandler(
   async (req, res, next) => {
-    if (!req.isSpareSheetById) {
-      req.queryObj.$or = [
-        {
-          "budget.budgetStatus": "OK",
-        },
-        {
-          "budget.budgetStatus": "NG",
-          "mtdHODApprovalIfBudgetIsNG.approvalStatus": "Accepted",
-        },
-      ];
+    req.queryObj.$or = [
+      {
+        "budget.budgetStatus": "OK",
+      },
+      {
+        "budget.budgetStatus": "NG",
+        "mtdHODApprovalIfBudgetIsNG.approvalStatus": "Accepted",
+      },
+    ];
 
-      if (req.query?.pendingStage && req.query?.pendingStage !== "All")
-        req.queryObj[req.query?.pendingStage] = null;
+    if (req.query?.pendingStage && req.query?.pendingStage !== "All")
+      req.queryObj[req.query?.pendingStage] = null;
 
-      if (req.query?.partRequestFor && req.query?.partRequestFor !== "All")
-        req.queryObj.partRequestFor = req.query?.partRequestFor;
+    if (req.query?.partRequestFor && req.query?.partRequestFor !== "All")
+      req.queryObj.partRequestFor = req.query?.partRequestFor;
 
-      if (req.query?.search)
-        req.queryObj.$text = {
-          $search: buildSearchQuery(req.query?.search),
-        };
-    }
+    if (req.query?.search)
+      req.queryObj.$text = {
+        $search: buildSearchQuery(req.query?.search),
+      };
 
     return next();
   },
@@ -114,28 +112,35 @@ exports.orderTrackingDashboardProjection = tryCatchHandler(
 
       $project = {
         "changeParts._id": 1,
+        "changeParts.masterId": 1,
+        "changeParts.maker": 1,
         rsSubmitted: {
           timeStamp: `$rsSubmittedTimeStamp.inString`,
           taskStatus: "achieved",
         },
         rsHODApproval: generateTrackingValueProjection(),
-        rsPRSubmitByToolroom: generateTrackingValueProjection(
+        rsToolroomApproval: generateTrackingValueProjection(
           "rsHODApprovalTimeStamp",
-          "rsPRSubmitByToolroomTimeStamp",
-          plant?.leadTime?.HODApprovalToPRSubmittedByToolroomToPPD,
+          "rsToolroomApprovalTimeStamp",
+          plant?.leadTime?.HODApprovalToToolRoomApproval,
+        ),
+        rsPRGeneration: generateTrackingValueProjection(
+          "rsToolroomApprovalTimeStamp",
+          "changeParts.rsPRGenerationTimeStamp",
+          plant?.leadTime?.ToolroomApprovalToPRSubmittedByToolroomToPPD,
         ),
         rsPRAssignToAllBuyers: generateTrackingValueProjection(
-          "rsPRSubmitByToolroomTimeStamp",
-          "rsPRAssignToAllBuyersTimeStamp",
+          "changeParts.rsPRGenerationTimeStamp",
+          "changeParts.rsPRAssignToAllBuyersTimeStamp",
           plant?.leadTime?.PRSubmittedByToolroomToPPDToPRAssignToAllBuyers,
         ),
         rsPOIssueToVendor: generateTrackingValueProjection(
-          "rsPRAssignToAllBuyersTimeStamp",
-          "rsPOIssueToVendorTimeStamp",
+          "changeParts.rsPRAssignToAllBuyersTimeStamp",
+          "changeParts.rsPOIssueToVendorTimeStamp",
           plant?.leadTime?.PRAssignToAllBuyersToPOIssueToVendor,
         ),
         rsPartReceive: generateTrackingValueProjection(
-          "rsPOIssueToVendorTimeStamp",
+          "changeParts.rsPOIssueToVendorTimeStamp",
           "changeParts.rsPartReceiveTimeStamp",
           plant?.leadTime?.POIssueToVendorToPartReceive,
         ),
@@ -154,6 +159,9 @@ exports.orderTrackingDashboardProjection = tryCatchHandler(
           "changeParts.rsMRNApprovedTimeStamp",
           plant?.leadTime?.MRNIssuedToMRNApproved,
         ),
+        canConfigureMaster: {
+          $cond: [{ $eq: ["$newPartFor", "For stock in"] }, true, false],
+        },
       };
     }
 
@@ -165,7 +173,8 @@ exports.orderTrackingDashboardProjection = tryCatchHandler(
 exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
   async (req, res, next) => {
     let $match = req.queryObj,
-      otherPipeline = [];
+      otherPipeline = [],
+      batchWiseSortPipeline = [];
 
     if (!req.isSpareSheetById) {
       otherPipeline = [{ $sort: { _id: -1 } }, { $limit: paginationRowLimit }];
@@ -173,9 +182,7 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
       if (req.query.cursor)
         $match._id = { $lt: mongoose.Types.ObjectId(req.query.cursor) };
 
-      req.$project.canConfigureMaster = {
-        $cond: [{ $eq: ["$newPartFor", "For stock in"] }, true, false],
-      };
+      batchWiseSortPipeline = [{ $sort: { "changeParts.batchId": -1 } }];
     }
 
     const tableData = await RequestSheetOfSpare.aggregate([
@@ -186,6 +193,7 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
       {
         $unwind: "$changeParts",
       },
+      ...batchWiseSortPipeline,
       {
         $project: {
           requestSheetNo: 1,
@@ -195,6 +203,7 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
           requestSheetStatus: 1,
           partQty: 1,
           "budget.budgetStatus": 1,
+          "changeParts.batchId": 1,
           "changeParts.partName": 1,
           "changeParts.partModel": 1,
           ...req.$project,

@@ -12523,3 +12523,1448 @@
     at next (/home/hp/Downloads/LiveProjects/DENSO/denso_pm_bm/server/node_modules/express/lib/router/route.js:144:13)
     at /home/hp/Downloads/LiveProjects/DENSO/denso_pm_bm/server/controller/spareManagement/sparePartOrderTrackingController.js:205:12
     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-06-16T15:23 | CM | plant_id is not defined
+		ReferenceError: plant_id is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:430:7
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:175:3)
+2026-06-16T15:36 | CM | dynamicApprovalKeys is not defined
+		ReferenceError: dynamicApprovalKeys is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:495:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-06-16T16:33 | CM | req.otherAggregationPipeline is not iterable
+		TypeError: req.otherAggregationPipeline is not iterable
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:329:12
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:559:10
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+2026-06-17T17:03 | CM | department is not defined
+		ReferenceError: department is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:530:27
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+2026-06-17T18:06 | CM | Invalid $project :: caused by :: Invalid empty sub-projection: approvalKey
+		MongoServerError: Invalid $project :: caused by :: Invalid empty sub-projection: approvalKey
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-06-17T18:06 | CM | Invalid $project :: caused by :: Invalid empty sub-projection: approvalKey
+		MongoServerError: Invalid $project :: caused by :: Invalid empty sub-projection: approvalKey
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-06-23T17:08 | CM | filterBasedSchema is not defined
+		ReferenceError: filterBasedSchema is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareBudgetManagementController.js:75:7
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+2026-06-25T16:24 | CM | the match filter must be an expression in an object
+		MongoServerError: the match filter must be an expression in an object
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-06-25T16:24 | CM | the match filter must be an expression in an object
+		MongoServerError: the match filter must be an expression in an object
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-06-25T16:24 | CM | the match filter must be an expression in an object
+		MongoServerError: the match filter must be an expression in an object
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-06-25T16:24 | CM | the match filter must be an expression in an object
+		MongoServerError: the match filter must be an expression in an object
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-06-25T16:25 | CM | plantVsActual is not defined
+		ReferenceError: plantVsActual is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareBudgetManagementController.js:185:3
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-06T14:13 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.spareissuancesummaries :: caused by :: $reduce requires that 'input' be an array, found: {_id: 6a4b290944e0748c3d0b8ac9, overAllAvailableQty: 30, costDetails: [{quantity: 20, currencyUnit: "INR", cost: 30, costInINR: 30, issuedQty: 0, availableQty: 20, overAllCost: 600, _id: 6a4b290944e0748c3d0b8aca}, {quantity: 10, currencyUnit: "INR", cost: 20, costInINR: 20, issuedQty: 0, availableQty: 10, overAllCost: 200, _id: 6a4b34acc25f27019e2d5706}], overAllCostInINR: 800}
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.spareissuancesummaries :: caused by :: $reduce requires that 'input' be an array, found: {_id: 6a4b290944e0748c3d0b8ac9, overAllAvailableQty: 30, costDetails: [{quantity: 20, currencyUnit: "INR", cost: 30, costInINR: 30, issuedQty: 0, availableQty: 20, overAllCost: 600, _id: 6a4b290944e0748c3d0b8aca}, {quantity: 10, currencyUnit: "INR", cost: 20, costInINR: 20, issuedQty: 0, availableQty: 10, overAllCost: 200, _id: 6a4b34acc25f27019e2d5706}], overAllCostInINR: 800}
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-06T14:13 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.spareissuancesummaries :: caused by :: $reduce requires that 'input' be an array, found: {_id: 6a4b290944e0748c3d0b8ac9, overAllAvailableQty: 30, costDetails: [{quantity: 20, currencyUnit: "INR", cost: 30, costInINR: 30, issuedQty: 0, availableQty: 20, overAllCost: 600, _id: 6a4b290944e0748c3d0b8aca}, {quantity: 10, currencyUnit: "INR", cost: 20, costInINR: 20, issuedQty: 0, availableQty: 10, overAllCost: 200, _id: 6a4b34acc25f27019e2d5706}], overAllCostInINR: 800}
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.spareissuancesummaries :: caused by :: $reduce requires that 'input' be an array, found: {_id: 6a4b290944e0748c3d0b8ac9, overAllAvailableQty: 30, costDetails: [{quantity: 20, currencyUnit: "INR", cost: 30, costInINR: 30, issuedQty: 0, availableQty: 20, overAllCost: 600, _id: 6a4b290944e0748c3d0b8aca}, {quantity: 10, currencyUnit: "INR", cost: 20, costInINR: 20, issuedQty: 0, availableQty: 10, overAllCost: 200, _id: 6a4b34acc25f27019e2d5706}], overAllCostInINR: 800}
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-06T14:24 | CM | Invalid $project :: caused by :: An object representing an expression must have exactly one field: { $concatArray: [ "$checkStatus", { $gte: [ "$$this.availableQty", "$$value.quantityRequired" ] } ], $cond: [ { $gte: [ "$$this.availableQty", "$$value.quantityRequired" ] }, { budget: { $multiply: [ "$$value.quantityRequired", "$$this.costInINR" ] }, quantityRequired: 0 }, "$$value" ] }
+		MongoServerError: Invalid $project :: caused by :: An object representing an expression must have exactly one field: { $concatArray: [ "$checkStatus", { $gte: [ "$$this.availableQty", "$$value.quantityRequired" ] } ], $cond: [ { $gte: [ "$$this.availableQty", "$$value.quantityRequired" ] }, { budget: { $multiply: [ "$$value.quantityRequired", "$$this.costInINR" ] }, quantityRequired: 0 }, "$$value" ] }
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-06T14:24 | CM | Invalid $project :: caused by :: An object representing an expression must have exactly one field: { $concatArray: [ "$checkStatus", { $gte: [ "$$this.availableQty", "$$value.quantityRequired" ] } ], $cond: [ { $gte: [ "$$this.availableQty", "$$value.quantityRequired" ] }, { budget: { $multiply: [ "$$value.quantityRequired", "$$this.costInINR" ] }, quantityRequired: 0 }, "$$value" ] }
+		MongoServerError: Invalid $project :: caused by :: An object representing an expression must have exactly one field: { $concatArray: [ "$checkStatus", { $gte: [ "$$this.availableQty", "$$value.quantityRequired" ] } ], $cond: [ { $gte: [ "$$this.availableQty", "$$value.quantityRequired" ] }, { budget: { $multiply: [ "$$value.quantityRequired", "$$this.costInINR" ] }, quantityRequired: 0 }, "$$value" ] }
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-06T14:25 | CM | Invalid $project :: caused by :: Unrecognized expression '$concatArray'
+		MongoServerError: Invalid $project :: caused by :: Unrecognized expression '$concatArray'
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-06T14:25 | CM | Invalid $project :: caused by :: Unrecognized expression '$concatArray'
+		MongoServerError: Invalid $project :: caused by :: Unrecognized expression '$concatArray'
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-10T09:14 | CM | console.loh is not a function
+		TypeError: console.loh is not a function
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:860:13
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\sparePartOrderTrackingController.js:221:12
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-10T11:30 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at Object.ObjectId (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:4050:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:1661:5)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:1651:5)
+2026-07-10T11:31 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at Object.ObjectId (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:4050:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:1661:5)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:1651:5)
+2026-07-13T15:53 | undefined | unknown top level operator: $elemMatch. If you have a field name that starts with a '$' symbol, consider using $getField or $setField.
+		MongoServerError: unknown top level operator: $elemMatch. If you have a field name that starts with a '$' symbol, consider using $getField or $setField.
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-13T15:57 | undefined | doc is not defined
+		ReferenceError: doc is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\cmcontroller.js:3257:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-13T17:02 | undefined | Cannot read properties of undefined (reading 'toString')
+		TypeError: Cannot read properties of undefined (reading 'toString')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\cmcontroller.js:3304:51
+    at Proxy.find (<anonymous>)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\cmcontroller.js:3269:79
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:41 | undefined | SafetyForm is not defined
+		ReferenceError: SafetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23785:26
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:42:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:41 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23674:64
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:42:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:41 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23674:64
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:42:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:41 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23674:64
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:42:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:41 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23674:64
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:42:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:42 | undefined | SafetyForm is not defined
+		ReferenceError: SafetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23786:26
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:42:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:42 | undefined | SafetyForm is not defined
+		ReferenceError: SafetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23786:26
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:42:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:50 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23684:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:51 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23684:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:51 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23684:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-14T17:52 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\auth.js:23684:64
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-15T09:28 | PM | Cast to Number failed for value "AAA" (type string) at path "spareDetails.July.cost"
+		CastError: Cast to Number failed for value "AAA" (type string) at path "spareDetails.July.cost"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-15T09:28 | PM | Cast to Number failed for value "AAA" (type string) at path "spareDetails.July.cost"
+		CastError: Cast to Number failed for value "AAA" (type string) at path "spareDetails.July.cost"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-17T17:18 | CM | Cannot set properties of undefined (setting '$elemMatch')
+		TypeError: Cannot set properties of undefined (setting '$elemMatch')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:871:45
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-17T17:20 | CM | Cannot set properties of undefined (setting '$elemMatch')
+		TypeError: Cannot set properties of undefined (setting '$elemMatch')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:873:45
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-17T17:21 | CM | Cannot set properties of undefined (setting '$elemMatch')
+		TypeError: Cannot set properties of undefined (setting '$elemMatch')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:873:45
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-17T17:22 | CM | Cannot set properties of undefined (setting '$elemMatch')
+		TypeError: Cannot set properties of undefined (setting '$elemMatch')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:873:45
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-17T17:22 | CM | Cannot set properties of undefined (setting '$elemMatch')
+		TypeError: Cannot set properties of undefined (setting '$elemMatch')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:873:45
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-17T17:31 | CM | cellId is not defined
+		ReferenceError: cellId is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:872:43
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-17T17:31 | CM | maker is not defined
+		ReferenceError: maker is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:878:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-20T09:13 | PM | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:30:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-20T09:13 | PM | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:30:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-20T09:13 | PM | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:30:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-20T09:13 | PM | user not found
+		Error: user not found
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm\server\middleware\authenticate.js:30:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-21T09:30 | CM | masterId is not defined
+		ReferenceError: masterId is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:883:14
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:175:3)
+2026-07-21T10:21 | CM | master is not defined
+		ReferenceError: master is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:1109:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-21T10:21 | CM | master is not defined
+		ReferenceError: master is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:1109:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-21T13:49 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:49 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:49 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:49 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:49 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:49 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:49 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:54 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:54 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:54 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:55 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:55 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:55 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's second argument must be a numeric value, but is string
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:57 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T13:57 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:00 | CM | matchingKey is not defined
+		ReferenceError: matchingKey is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareBudgetManagementController.js:393:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-21T14:00 | CM | matchingKey is not defined
+		ReferenceError: matchingKey is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareBudgetManagementController.js:393:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-21T14:00 | CM | matchingKey is not defined
+		ReferenceError: matchingKey is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareBudgetManagementController.js:393:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-21T14:03 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:03 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:03 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:04 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:04 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:04 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:10 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:10 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:10 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:10 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:11 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:11 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:11 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:12 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:12 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-21T14:12 | CM | Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+		MongoServerError: Executor error during aggregate command on namespace: DENSO-PM-BM.sparebudgets :: caused by :: $arrayElemAt's first argument must be an array, but is int
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-22T09:29 | CM | Cast to embedded failed for value "{
+  partId: '6a587adde5653ab5d189d66d',
+  quantity: '1015',
+  currencyUnit: 'INR',
+  cost: 10,
+  costInINR: 10,
+  issuedQty: 0,
+  availableQty: 'null15',
+  overAllCost: NaN
+}" (type Object) at path "costDetails" because of "CastError"
+		CastError: Cast to embedded failed for value "{
+  partId: '6a587adde5653ab5d189d66d',
+  quantity: '1015',
+  currencyUnit: 'INR',
+  cost: 10,
+  costInINR: 10,
+  issuedQty: 0,
+  availableQty: 'null15',
+  overAllCost: NaN
+}" (type Object) at path "costDetails" because of "CastError"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-22T10:13 | CM | overAllCost is not defined
+		ReferenceError: overAllCost is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\sparePartSearchController.js:117:46
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\sparePartSearchController.js:186:10
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+2026-07-22T10:13 | CM | overAllCost is not defined
+		ReferenceError: overAllCost is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\sparePartSearchController.js:117:46
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\sparePartSearchController.js:186:10
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+2026-07-22T10:13 | CM | overAllCost is not defined
+		ReferenceError: overAllCost is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\sparePartSearchController.js:117:46
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\sparePartSearchController.js:186:10
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+2026-07-22T12:10 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-22T12:10 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-22T12:11 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-22T12:11 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-22T12:37 | CM | Cannot read properties of undefined (reading 'push')
+		TypeError: Cannot read properties of undefined (reading 'push')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:239:41
+    at Array.map (<anonymous>)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:227:50
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+2026-07-22T12:38 | CM | Cannot read properties of undefined (reading 'push')
+		TypeError: Cannot read properties of undefined (reading 'push')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:240:41
+    at Array.map (<anonymous>)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:227:50
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+2026-07-22T12:39 | CM | Cannot read properties of undefined (reading 'push')
+		TypeError: Cannot read properties of undefined (reading 'push')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:243:41
+    at Array.map (<anonymous>)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:227:50
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+2026-07-22T12:39 | CM | Cannot read properties of undefined (reading 'push')
+		TypeError: Cannot read properties of undefined (reading 'push')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:240:41
+    at Array.map (<anonymous>)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:227:50
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+2026-07-22T15:51 | CM | budgetDetailsProjection is not defined
+		ReferenceError: budgetDetailsProjection is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:834:28
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:442:10
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareIssuanceSummaryController.js:793:10
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+2026-07-22T15:59 | CM | Cast to Number failed for value "{ inString: '2026-2027', inNumber: 2026 }" (type Object) at path "financialYear.inNumber" for model "SpareBudget"
+		CastError: Cast to Number failed for value "{ inString: '2026-2027', inNumber: 2026 }" (type Object) at path "financialYear.inNumber" for model "SpareBudget"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-22T17:28 | CM | sheetId is not defined
+		ReferenceError: sheetId is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:820:12
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+2026-07-22T17:29 | CM | sheetId is not defined
+		ReferenceError: sheetId is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCRUDController.js:820:12
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+2026-07-28T15:16 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:16 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:17 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:17 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:17 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:17 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:17 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:17 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:18 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:18 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:18 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:18 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:19 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T15:19 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T16:20 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T16:20 | CM | Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+		MongoServerError: Invalid $project :: caused by :: Cannot use expression other than $meta in exclusion projection
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:230:30)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at Socket.ondata (node:internal/streams/readable:1012:24)
+    at Socket.emit (node:events:508:28)
+2026-07-28T17:14 | CM | Cannot read properties of undefined (reading 'aggregate')
+		TypeError: Cannot read properties of undefined (reading 'aggregate')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCustomizeFieldsController.js:19:57
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:175:3)
+2026-07-28T17:14 | CM | Cannot read properties of undefined (reading 'aggregate')
+		TypeError: Cannot read properties of undefined (reading 'aggregate')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCustomizeFieldsController.js:19:57
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:175:3)
+2026-07-28T17:14 | CM | Cannot read properties of undefined (reading 'aggregate')
+		TypeError: Cannot read properties of undefined (reading 'aggregate')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCustomizeFieldsController.js:19:57
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:175:3)
+2026-07-28T17:14 | CM | Cannot read properties of undefined (reading 'aggregate')
+		TypeError: Cannot read properties of undefined (reading 'aggregate')
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCustomizeFieldsController.js:19:57
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:114:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\index.js:175:3)
+2026-07-29T09:45 | CM | console.lore is not a function
+		TypeError: console.lore is not a function
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCustomizeFieldsController.js:51:18
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\spareManagement\spareCustomizeFieldsController.js:26:10
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\errorHandler\tryCatchHandler.js:7:5
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:140:7)
+2026-07-29T10:21 | CM | E11000 duplicate key error collection: DENSO-PM-BM.makers index: _id_ dup key: { _id: ObjectId('6a698077b84343562daee216') }
+		MongoServerError: E11000 duplicate key error collection: DENSO-PM-BM.makers index: _id_ dup key: { _id: ObjectId('6a698077b84343562daee216') }
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\operations\insert.js:53:33
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection_pool.js:307:25
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\sdam\server.js:213:17
+    at handleOperationResult (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\sdam\server.js:329:20)
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:242:9)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+2026-07-29T10:22 | CM | E11000 duplicate key error collection: DENSO-PM-BM.makers index: _id_ dup key: { _id: ObjectId('6a698077b84343562daee216') }
+		MongoServerError: E11000 duplicate key error collection: DENSO-PM-BM.makers index: _id_ dup key: { _id: ObjectId('6a698077b84343562daee216') }
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\operations\insert.js:53:33
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection_pool.js:307:25
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\sdam\server.js:213:17
+    at handleOperationResult (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\sdam\server.js:329:20)
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:242:9)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+2026-07-29T10:23 | CM | E11000 duplicate key error collection: DENSO-PM-BM.makers index: _id_ dup key: { _id: ObjectId('6a698077b84343562daee216') }
+		MongoServerError: E11000 duplicate key error collection: DENSO-PM-BM.makers index: _id_ dup key: { _id: ObjectId('6a698077b84343562daee216') }
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\operations\insert.js:53:33
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection_pool.js:307:25
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\sdam\server.js:213:17
+    at handleOperationResult (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\sdam\server.js:329:20)
+    at Connection.onMessage (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:242:9)
+    at MessageStream.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\connection.js:61:60)
+    at MessageStream.emit (node:events:508:28)
+    at processIncomingData (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:125:16)
+    at MessageStream._write (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongodb\lib\cmap\message_stream.js:33:9)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+2026-07-30T12:49 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at runNextTicks (node:internal/process/task_queues:69:3)
+    at process.processImmediate (node:internal/timers:472:9)
+2026-07-30T12:49 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T12:49 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T12:50 | undefined | Cast to ObjectId failed for value "reset" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "reset" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T12:50 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T12:50 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T12:50 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T13:35 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T13:35 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T13:45 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T13:45 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T13:47 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T13:47 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:18 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:18 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:20 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:20 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:20 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:20 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:20 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:20 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:21 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:21 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:21 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:22 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:22 | undefined | Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+		CastError: Cast to ObjectId failed for value "" (type string) at path "_id" for model "safetyForms"
+    at model.Query.exec (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:4913:21)
+    at Query.then (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\query.js:5012:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-07-30T17:46 | CM | SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+		ValidationError: SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+    at Document.invalidate (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:2911:17
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\schematype.js:1349:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2026-07-30T17:53 | CM | SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+		ValidationError: SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+    at Document.invalidate (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:2911:17
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\schematype.js:1349:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2026-07-30T17:55 | CM | SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+		ValidationError: SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+    at Document.invalidate (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:2911:17
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\schematype.js:1349:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2026-07-30T17:55 | CM | SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+		ValidationError: SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+    at Document.invalidate (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:2911:17
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\schematype.js:1349:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2026-07-30T17:56 | CM | SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+		ValidationError: SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+    at Document.invalidate (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:2911:17
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\schematype.js:1349:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2026-07-30T17:56 | CM | SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+		ValidationError: SpareIssuanceSummary validation failed: requestedDepartment: `` is not a valid enum value for path `requestedDepartment`.
+    at Document.invalidate (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:3123:32)
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\document.js:2911:17
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\mongoose\lib\schematype.js:1349:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+2026-07-30T18:10 | undefined | safetyForm is not defined
+		ReferenceError: safetyForm is not defined
+    at D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:20687:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-08-03T09:43 | BM | Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+		BSONTypeError: Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+    at new BSONTypeError (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\error.js:41:28)
+    at new ObjectId (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\objectid.js:67:23)
+    at Object.ObjectId (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\bson\lib\objectid.js:26:20)
+    at getRequestSheetData (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:4050:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at removeBDZeroValueFiltration (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:1661:5)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm\server\node_modules\express\lib\router\route.js:144:13)
+    at filterMiddleware (D:\LiveProjects\DENSO\denso_pm_bm\server\controller\bmController.js:1651:5)

@@ -9,15 +9,28 @@ const spareMasterSchema = new mongoose.Schema(
     unit: String,
     partModel: String,
     partGroup: String,
-    manufacture: String,
+    maker: String,
     registerSection: String,
-    supplier: String,
-    stockQty: Number,
-    currencyUnit: String,
+    supplierName: String,
+    costDetails: [
+      {
+        partId: {
+          type: mongoose.Schema.Types.ObjectId,
+        },
+        quantity: Number, // stock quantity
+        currencyUnit: String,
+        cost: Number,
+        costInINR: Number,
+        issuedQty: Number,
+        availableQty: Number,
+        overAllCost: Number,
+      },
+    ],
     vendorGroup: String,
     minQuantity: Number,
+    maxQuantity: Number,
     leadTime: Number,
-    quantityRequired: Number, // max quantity
+    quantityRequired: Number,
     status: {
       type: String,
       default: "requestSubmitted",
@@ -35,14 +48,9 @@ const spareMasterSchema = new mongoose.Schema(
       plant_data: String,
     },
 
-    spareSheet: {
-      _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "RequestSheetOfSpare",
-      },
-      partId: {
-        type: mongoose.Schema.Types.ObjectId,
-      },
+    dateTime: {
+      inString: String,
+      inDate: Date,
     },
 
     machine: {

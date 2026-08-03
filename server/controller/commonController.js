@@ -362,7 +362,7 @@ router.get(
       ];
     }
 
-    const pmLog = await Machine.aggregate([
+    const pmLog = Machine.aggregate([
       // {
       //   $match: req.queryObjForPM,
       // },
@@ -376,7 +376,7 @@ router.get(
       // },
       ...machineCommonInitialPipeline(
         req.queryObjForPM,
-        req.query?.selectedYear
+        req.query?.selectedYear,
       ),
       {
         $lookup: {
@@ -472,7 +472,7 @@ router.get(
     )
       delete req?.queryObj?.commonDataFilledByAssignUser;
 
-    const bmLog = await RequestSheetOfBM.aggregate([
+    const bmLog = RequestSheetOfBM.aggregate([
       {
         $match: req?.queryObj,
       },
@@ -584,7 +584,7 @@ router.get(
       }
     }
 
-    let TLHOSS_and_TM_user_list = await User.find(
+    let TLHOSS_and_TM_user_list = User.find(
       {
         ...queryObj,
         $or: [
@@ -608,7 +608,7 @@ router.get(
         tm_department: 1,
         tm_grade: 1,
         user_type: 1,
-      }
+      },
     );
 
     const shifts = Plant.find({
@@ -662,7 +662,7 @@ router.get(
       TLHOSS_and_TM_user_list: values?.[3],
       masterLogData,
     });
-  })
+  }),
 );
 
 router.get(
@@ -826,10 +826,12 @@ router.get(
         GetAllPMSpareConsumption?.[0]?.totalPMSpareCost || 0,
         GetAllBMSpareConsumption?.[0]?.totalBMSpareCost || 0,
       ]?.concat(
-        GetAllOtherSpareConsumption?.map((obj) => obj?.totalOtherSpareCost || 0)
+        GetAllOtherSpareConsumption?.map(
+          (obj) => obj?.totalOtherSpareCost || 0,
+        ),
       ),
     });
-  })
+  }),
 );
 
 router.get(
@@ -863,7 +865,7 @@ router.get(
     const statusData = await Machine.aggregate([
       ...machineCommonInitialPipeline(
         req.queryObjForPM,
-        req.query?.selectedYear
+        req.query?.selectedYear,
       ),
       {
         $group: {
@@ -1026,7 +1028,7 @@ router.get(
     successResponse(res, "PMStatus data get successfully", {
       statusData: statusData?.[0],
     });
-  })
+  }),
 );
 
 //This API usage for future spare entry logs/history
@@ -1402,10 +1404,10 @@ router.get(
     successResponse(res, "Get all spare consumption logs", {
       GetAllSpareConsumption: GetAllPMSpareConsumption.concat(
         GetAllOtherSpareConsumption,
-        GetAllBMSpareConsumption
+        GetAllBMSpareConsumption,
       ),
     });
-  })
+  }),
 );
 
 module.exports = router;

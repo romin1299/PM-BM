@@ -7,34 +7,34 @@ const DEFAULT_INITIAL_STATE = {
   isError: false,
   data: {
     counters: {
-      totalParts: 0,
-      completedProcessParts: 0,
-      pendingParts: 0,
+      total: 0,
+      closed: 0,
+      pending: 0,
     },
   },
 };
 
-const SpareSummaryView = memo(({ counters }) => {
+const SpareSummaryView = memo(({ counters, titles }) => {
   const items = useMemo(
     () => [
       {
-        title: "Total Parts",
-        value: counters?.totalParts,
+        title: titles[0],
+        value: counters?.total,
         backgroundColor: "#c7defb",
       },
       {
-        title: "Open Parts",
+        title: titles[1],
         // title: "Open / Pending Parts",
-        value: counters?.pendingParts,
+        value: counters?.pending,
         backgroundColor: "#feb4b4ba",
       },
       {
-        title: "Closed Parts",
-        value: counters?.completedProcessParts,
+        title: titles[2],
+        value: counters?.closed,
         backgroundColor: "#c6efce",
       },
     ],
-    [counters],
+    [counters, titles],
   );
 
   return (
@@ -70,10 +70,12 @@ const SpareSummery = memo(
       params: {},
       referenceArrayForUseEffect: [],
     },
+    url = "/v1/spare/spareRequestSheet/summery",
+    titles = ["Total Parts", "Open Parts", "Closed Parts"],
   }) => {
     const requestProps = useMemo(
       () => ({
-        url: "/v1/spare/spareRequestSheet/summery",
+        url,
         axiosConfig: {
           params: apiReferencePropsBasedOnFilters?.params,
         },
@@ -81,13 +83,14 @@ const SpareSummery = memo(
           apiReferencePropsBasedOnFilters?.referenceArrayForUseEffect,
         initialState: DEFAULT_INITIAL_STATE,
       }),
-      [apiReferencePropsBasedOnFilters],
+      [url, apiReferencePropsBasedOnFilters],
     );
 
     return (
       <WithLoadingAndError
         requestProps={requestProps}
         PropComponent={SpareSummaryView}
+        otherProps={{ titles }}
       />
     );
   },

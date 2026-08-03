@@ -1,11 +1,11 @@
+import AnalyticsIcon from "@mui/icons-material/Analytics";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import LocalMallIcon from "@mui/icons-material/LocalMall";
-import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import DescriptionIcon from "@mui/icons-material/Description";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import AssessmentIcon from "@mui/icons-material/Assessment";
+// import AssessmentIcon from "@mui/icons-material/Assessment";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import PageviewIcon from "@mui/icons-material/Pageview";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
@@ -25,9 +25,9 @@ const allusers = [
 
 export const menuItems = [
   {
-    title: "Spare Part KPI Dashboard",
+    title: "KPI Dashboard",
     icon: (
-      <FactCheckIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+      <AnalyticsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare",
     allowedRoles: allusers,
@@ -35,7 +35,7 @@ export const menuItems = [
   {
     title: "Spare Requests",
     icon: (
-      <FactCheckIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+      <DashboardIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/requests",
     allowedRoles: allusers,
@@ -50,7 +50,7 @@ export const menuItems = [
     hasToolRoomFilter: true,
   },
   {
-    title: "Spare Part Search Button",
+    title: "Search Button",
     icon: (
       <PageviewIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
@@ -90,23 +90,7 @@ export const menuItems = [
     allowedRoles: allusers,
   },
   {
-    title: "Receiving Dashboard",
-    icon: (
-      <LocalMallIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/spareReceivingDashboard",
-    allowedRoles: allusers,
-  },
-  {
-    title: "Spare Master Registration",
-    icon: (
-      <AppRegistrationIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/spareMasterRegistration",
-    allowedRoles: allusers,
-  },
-  {
-    title: "Spare Part Issuance",
+    title: "Issuance",
     icon: (
       <AddCardIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
@@ -114,21 +98,21 @@ export const menuItems = [
     allowedRoles: allusers,
   },
   {
-    title: "Spare Budget Dashboard",
+    title: "Budget Dashboard",
     icon: (
       <AccountBalanceWalletIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareBudgetDashboard",
     allowedRoles: allusers,
   },
-  {
-    title: "Spare Reports",
-    icon: (
-      <AssessmentIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/spareReports",
-    allowedRoles: allusers,
-  },
+  // {
+  //   title: "Spare Reports",
+  //   icon: (
+  //     <AssessmentIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+  //   ),
+  //   route: "/spare/spareReports",
+  //   allowedRoles: allusers,
+  // },
   {
     title: "Customized Dashboard",
     icon: (
@@ -136,5 +120,20 @@ export const menuItems = [
     ),
     route: "/spare/customizedDashboard",
     allowedRoles: ["Plant-Admin", "Section-Admin"],
+  },
+  {
+    title: "Customized Fields",
+    icon: (
+      <ControlPointIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/customizedDashboard/dynamicFieldsConfiguration",
+    allowedRoles: [
+      "Plant-Admin",
+      "Section-Admin",
+      //From spare toolRoom
+      "HOSS",
+      "Supervisor",
+      "Office Person",
+    ],
   },
 ];

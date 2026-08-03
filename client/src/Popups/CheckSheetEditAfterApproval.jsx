@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { Container, Row, Col } from "react-bootstrap";
 import EastIcon from "@mui/icons-material/East";
@@ -6,6 +6,8 @@ import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
 import EditModalForPlanVsActualBySelectedUser from "./EditModalForPlanVsActualBySelectedUser";
 import AddApproverNameIfNotAvailableInCheckSheet from "./AddApproverNameIfNotAvailableInCheckSheet";
+import PMSafetyForm from "../components/PMSafetyForm";
+
 const CheckSheetEditAfterApproval = ({
   modelProp,
   selectedRow,
@@ -18,6 +20,13 @@ const CheckSheetEditAfterApproval = ({
     checkSheetApprovalEditModalOpenClose,
     setCheckSheetApprovalEditModalOpenClose,
   ] = useState(false);
+  const [canSubmitCheckSheetPointData, setCanSubmitCheckSheetPointData] =
+    useState(false);
+
+  const handleEditableCheckPointState = useCallback(
+    (isEditableRS) => setCanSubmitCheckSheetPointData(isEditableRS),
+    [],
+  );
 
   const [listOfAllApproverAndOtherData, setListOfAllApproverAndOtherData] =
     useState({
@@ -195,37 +204,37 @@ const CheckSheetEditAfterApproval = ({
                 rowspan: 1,
                 // colspan: 1,
                 print: true,
-              })
+              }),
             )
           : key === "isDeleted"
-          ? newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: false,
-              })
-            )
-          : key === "remarksCompulsoryOrNot"
-          ? newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: false,
-              })
-            )
-          : newColData.push(
-              new Object({
-                key: key,
-                value: obj[key],
-                rowspan: 1,
-                // colspan: 1,
-                print: true,
-              })
-            );
+            ? newColData.push(
+                new Object({
+                  key: key,
+                  value: obj[key],
+                  rowspan: 1,
+                  // colspan: 1,
+                  print: false,
+                }),
+              )
+            : key === "remarksCompulsoryOrNot"
+              ? newColData.push(
+                  new Object({
+                    key: key,
+                    value: obj[key],
+                    rowspan: 1,
+                    // colspan: 1,
+                    print: false,
+                  }),
+                )
+              : newColData.push(
+                  new Object({
+                    key: key,
+                    value: obj[key],
+                    rowspan: 1,
+                    // colspan: 1,
+                    print: true,
+                  }),
+                );
       }
       for (let key in obj) {
         if (key === "planningTableAnimationArray2") {
@@ -236,7 +245,7 @@ const CheckSheetEditAfterApproval = ({
               rowspan: 1,
               // colspan: 1,
               print: true,
-            })
+            }),
           );
           for (let key1 in obj[key]) {
             if (key1 === "_id") {
@@ -255,7 +264,7 @@ const CheckSheetEditAfterApproval = ({
                 rowspan: 1,
                 // colspan: 1,
                 print: true,
-              })
+              }),
             );
             continue;
           }
@@ -304,7 +313,7 @@ const CheckSheetEditAfterApproval = ({
           body: JSON.stringify({
             machine_code: selectedRow?.machine_code,
           }),
-        }
+        },
       );
       const data = await res.json();
       if (res.status === 400 || res.status === 422 || !data) {
@@ -338,7 +347,7 @@ const CheckSheetEditAfterApproval = ({
   const handleCheckSheetApprovalEditShowAndCloseState = () => {
     setCheckSheetApprovalEditModalOpenClose(
       (checkSheetApprovalEditModalOpenClose) =>
-        !checkSheetApprovalEditModalOpenClose
+        !checkSheetApprovalEditModalOpenClose,
     );
   };
   return (
@@ -521,7 +530,7 @@ const CheckSheetEditAfterApproval = ({
                           ?.implementation_approved_by_MTD_TL
                           ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implemetation_mtd_tl_approval_status
+                                ?.implemetation_mtd_tl_approval_status,
                             ).map(([month, statusArray]) =>
                               statusArray[statusArray.length - 1] ===
                               "Accepted" ? (
@@ -540,7 +549,7 @@ const CheckSheetEditAfterApproval = ({
                                 </td>
                               ) : (
                                 <td className="ar-table-col1"></td>
-                              )
+                              ),
                             )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>
@@ -593,7 +602,7 @@ const CheckSheetEditAfterApproval = ({
                           ?.implementation_approved_by_MTD_HOS
                           ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implemetation_mtd_hos_approval_status
+                                ?.implemetation_mtd_hos_approval_status,
                             ).map(([month, statusArray]) =>
                               statusArray[statusArray.length - 1] ===
                               "Accepted" ? (
@@ -612,7 +621,7 @@ const CheckSheetEditAfterApproval = ({
                                 </td>
                               ) : (
                                 <td className="ar-table-col1"></td>
-                              )
+                              ),
                             )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>
@@ -683,7 +692,22 @@ const CheckSheetEditAfterApproval = ({
                                     {tColumn.header}
                                   </>
                                 ) : (
-                                  tColumn.header
+                                  <PMSafetyForm
+                                    header={tColumn?.header}
+                                    machineParentHierarchy={{
+                                      line: selectedRow?.line_names.line_name,
+                                      machineNo: machineAllData?.machine_code,
+                                    }}
+                                    params={{
+                                      requestSheetRef: machineAllData?._id,
+                                    }}
+                                    otherFormSubmitParams={{
+                                      selectedYear,
+                                    }}
+                                    handleEditableCheckPointState={
+                                      handleEditableCheckPointState
+                                    }
+                                  />
                                 )
                               ) : moment().month(tColumn.header).format("M") >
                                 3 ? (
@@ -695,10 +719,40 @@ const CheckSheetEditAfterApproval = ({
                                   {tColumn.header}
                                 </>
                               ) : (
-                                tColumn.header
+                                <PMSafetyForm
+                                  header={tColumn?.header}
+                                  machineParentHierarchy={{
+                                    line: selectedRow?.line_names.line_name,
+                                    machineNo: machineAllData?.machine_code,
+                                  }}
+                                  params={{
+                                    requestSheetRef: machineAllData?._id,
+                                  }}
+                                  otherFormSubmitParams={{
+                                    selectedYear,
+                                  }}
+                                  handleEditableCheckPointState={
+                                    handleEditableCheckPointState
+                                  }
+                                />
                               )
                             ) : (
-                              tColumn.header
+                              <PMSafetyForm
+                                header={tColumn?.header}
+                                machineParentHierarchy={{
+                                  line: selectedRow?.line_names.line_name,
+                                  machineNo: machineAllData?.machine_code,
+                                }}
+                                params={{
+                                  requestSheetRef: machineAllData?._id,
+                                }}
+                                otherFormSubmitParams={{
+                                  selectedYear,
+                                }}
+                                handleEditableCheckPointState={
+                                  handleEditableCheckPointState
+                                }
+                              />
                             )}
                           </th>
                         ))}
@@ -725,26 +779,27 @@ const CheckSheetEditAfterApproval = ({
                                     colData.value === ""
                                       ? "ar-table-col2"
                                       : colData.key ===
-                                          "inspection_parent_name" ||
-                                        colData.key ===
-                                          "inspection_child_name" ||
-                                        colData.key === "inspection_point" ||
-                                        colData.key === "judgement_criteria" ||
-                                        colData.key === "action"
-                                      ? "table_text_alignment"
-                                      : colData.value.length === 2 &&
-                                        colData.value[0] === "1" &&
-                                        colData.value[1] === "dummy"
-                                      ? "table-col-bg-ongoing"
-                                      : colData.value.length === 2 &&
-                                        colData.value[0] === "1" &&
-                                        colData.value[1] === "delay"
-                                      ? "table-col-bg-delay"
-                                      : colData.value.length === 2 &&
-                                        colData.value[0] === "1" &&
-                                        colData.value[1] === "skip"
-                                      ? "table-col-bg-skip"
-                                      : "ar-table-col"
+                                            "inspection_parent_name" ||
+                                          colData.key ===
+                                            "inspection_child_name" ||
+                                          colData.key === "inspection_point" ||
+                                          colData.key ===
+                                            "judgement_criteria" ||
+                                          colData.key === "action"
+                                        ? "table_text_alignment"
+                                        : colData.value.length === 2 &&
+                                            colData.value[0] === "1" &&
+                                            colData.value[1] === "dummy"
+                                          ? "table-col-bg-ongoing"
+                                          : colData.value.length === 2 &&
+                                              colData.value[0] === "1" &&
+                                              colData.value[1] === "delay"
+                                            ? "table-col-bg-delay"
+                                            : colData.value.length === 2 &&
+                                                colData.value[0] === "1" &&
+                                                colData.value[1] === "skip"
+                                              ? "table-col-bg-skip"
+                                              : "ar-table-col"
                                     //ar-table-col
                                   }
                                   rowSpan={colData.rowspan}
@@ -771,7 +826,9 @@ const CheckSheetEditAfterApproval = ({
                                     colData.key !== "action" ? (
                                     colData.value.length === 1 ? (
                                       <>
-                                        <p style={{ fontWeight: "900" }}>--&gt;</p>
+                                        <p style={{ fontWeight: "900" }}>
+                                          --&gt;
+                                        </p>
                                         {rData[10]?.["key"] !== "isDeleted" &&
                                         new Date().getMonth() > 2
                                           ? moment()
@@ -785,10 +842,16 @@ const CheckSheetEditAfterApproval = ({
                                               <button
                                                 className="commonBtn pmImplementationBtn"
                                                 id={rData[0].value}
+                                                disabled={
+                                                  !canSubmitCheckSheetPointData
+                                                }
                                                 onClick={() => {
                                                   setWorkOnImplementationPM(
                                                     <EditModalForPlanVsActualBySelectedUser
                                                       close={close}
+                                                      machineAllData={
+                                                        machineAllData
+                                                      }
                                                       machineId={
                                                         machineAllData.machine_code
                                                       }
@@ -809,7 +872,7 @@ const CheckSheetEditAfterApproval = ({
                                                       postMachineIdToGetAllDetailsOfMachine={
                                                         postMachineIdToGetAllDetailsOfMachine
                                                       }
-                                                    />
+                                                    />,
                                                   );
                                                 }}
                                               >
@@ -823,11 +886,17 @@ const CheckSheetEditAfterApproval = ({
                                               "isDeleted" && (
                                               <button
                                                 className="commonBtn pmImplementationBtn"
+                                                disabled={
+                                                  !canSubmitCheckSheetPointData
+                                                }
                                                 id={rData[0].value}
                                                 onClick={() => {
                                                   setWorkOnImplementationPM(
                                                     <EditModalForPlanVsActualBySelectedUser
                                                       close={close}
+                                                      machineAllData={
+                                                        machineAllData
+                                                      }
                                                       machineId={
                                                         machineAllData.machine_code
                                                       }
@@ -848,7 +917,7 @@ const CheckSheetEditAfterApproval = ({
                                                       postMachineIdToGetAllDetailsOfMachine={
                                                         postMachineIdToGetAllDetailsOfMachine
                                                       }
-                                                    />
+                                                    />,
                                                   );
                                                 }}
                                               >
@@ -859,15 +928,23 @@ const CheckSheetEditAfterApproval = ({
                                     ) : colData.value.length === 1 &&
                                       colData.value[0] === "1" ? (
                                       <>
-                                        <p style={{ fontWeight: "900" }}>--&gt;</p>
+                                        <p style={{ fontWeight: "900" }}>
+                                          --&gt;
+                                        </p>
                                         {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
                                             className="commonBtn pmImplementationBtn"
+                                            disabled={
+                                              !canSubmitCheckSheetPointData
+                                            }
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
                                                 <EditModalForPlanVsActualBySelectedUser
                                                   close={close}
+                                                  machineAllData={
+                                                    machineAllData
+                                                  }
                                                   machineId={
                                                     machineAllData.machine_code
                                                   }
@@ -886,7 +963,7 @@ const CheckSheetEditAfterApproval = ({
                                                   postMachineIdToGetAllDetailsOfMachine={
                                                     postMachineIdToGetAllDetailsOfMachine
                                                   }
-                                                />
+                                                />,
                                               );
                                             }}
                                           >
@@ -922,11 +999,17 @@ const CheckSheetEditAfterApproval = ({
                                             .format("M") > 3 && (
                                             <button
                                               className="commonBtn pmImplementationBtn"
+                                              disabled={
+                                                !canSubmitCheckSheetPointData
+                                              }
                                               id={rData[0].value}
                                               onClick={() => {
                                                 setWorkOnImplementationPM(
                                                   <EditModalForPlanVsActualBySelectedUser
                                                     close={close}
+                                                    machineAllData={
+                                                      machineAllData
+                                                    }
                                                     machineId={
                                                       machineAllData.machine_code
                                                     }
@@ -945,7 +1028,7 @@ const CheckSheetEditAfterApproval = ({
                                                     postMachineIdToGetAllDetailsOfMachine={
                                                       postMachineIdToGetAllDetailsOfMachine
                                                     }
-                                                  />
+                                                  />,
                                                 );
                                               }}
                                             >
@@ -971,11 +1054,17 @@ const CheckSheetEditAfterApproval = ({
                                         {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
                                             className="commonBtn pmImplementationBtn"
+                                            disabled={
+                                              !canSubmitCheckSheetPointData
+                                            }
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
                                                 <EditModalForPlanVsActualBySelectedUser
                                                   close={close}
+                                                  machineAllData={
+                                                    machineAllData
+                                                  }
                                                   machineId={
                                                     machineAllData.machine_code
                                                   }
@@ -994,7 +1083,7 @@ const CheckSheetEditAfterApproval = ({
                                                   postMachineIdToGetAllDetailsOfMachine={
                                                     postMachineIdToGetAllDetailsOfMachine
                                                   }
-                                                />
+                                                />,
                                               );
                                             }}
                                           >
@@ -1036,11 +1125,17 @@ const CheckSheetEditAfterApproval = ({
                                         {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
                                             className="commonBtn pmImplementationBtn"
+                                            disabled={
+                                              !canSubmitCheckSheetPointData
+                                            }
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
                                                 <EditModalForPlanVsActualBySelectedUser
                                                   close={close}
+                                                  machineAllData={
+                                                    machineAllData
+                                                  }
                                                   machineId={
                                                     machineAllData.machine_code
                                                   }
@@ -1059,7 +1154,7 @@ const CheckSheetEditAfterApproval = ({
                                                   postMachineIdToGetAllDetailsOfMachine={
                                                     postMachineIdToGetAllDetailsOfMachine
                                                   }
-                                                />
+                                                />,
                                               );
                                             }}
                                           >
@@ -1101,11 +1196,17 @@ const CheckSheetEditAfterApproval = ({
                                         {rData[10]?.["key"] !== "isDeleted" && (
                                           <button
                                             className="commonBtn pmImplementationBtn"
+                                            disabled={
+                                              !canSubmitCheckSheetPointData
+                                            }
                                             id={rData[0].value}
                                             onClick={() => {
                                               setWorkOnImplementationPM(
                                                 <EditModalForPlanVsActualBySelectedUser
                                                   close={close}
+                                                  machineAllData={
+                                                    machineAllData
+                                                  }
                                                   machineId={
                                                     machineAllData.machine_code
                                                   }
@@ -1124,7 +1225,7 @@ const CheckSheetEditAfterApproval = ({
                                                   postMachineIdToGetAllDetailsOfMachine={
                                                     postMachineIdToGetAllDetailsOfMachine
                                                   }
-                                                />
+                                                />,
                                               );
                                             }}
                                           >
@@ -1146,13 +1247,14 @@ const CheckSheetEditAfterApproval = ({
                                   colData.value === ""
                                     ? "ar-table-col2"
                                     : colData.key ===
-                                        "inspection_parent_name" ||
-                                      colData.key === "inspection_child_name" ||
-                                      colData.key === "inspection_point" ||
-                                      colData.key === "judgement_criteria" ||
-                                      colData.key === "action"
-                                    ? "table_text_alignment"
-                                    : "ar-table-col"
+                                          "inspection_parent_name" ||
+                                        colData.key ===
+                                          "inspection_child_name" ||
+                                        colData.key === "inspection_point" ||
+                                        colData.key === "judgement_criteria" ||
+                                        colData.key === "action"
+                                      ? "table_text_alignment"
+                                      : "ar-table-col"
                                 }
                                 rowSpan={colData.rowspan}
                                 colSpan={colData.colspan}
@@ -1163,14 +1265,14 @@ const CheckSheetEditAfterApproval = ({
                                 colData.key !== "PM_time"
                                   ? ""
                                   : colData.value[0] === "1" &&
-                                    colData.key !== "cycle" &&
-                                    colData.key !== "PM_time"
-                                  ? "-->"
-                                  : colData.value}{" "}
+                                      colData.key !== "cycle" &&
+                                      colData.key !== "PM_time"
+                                    ? "-->"
+                                    : colData.value}{" "}
                               </td>
                             ) : (
                               ""
-                            )
+                            ),
                           )}
                         </tr>
                       ))}
@@ -1191,8 +1293,9 @@ const CheckSheetEditAfterApproval = ({
                               const uniqueNames = [
                                 ...new Set([
                                   ...(machineAllData?.checkSheet_data
-                                    ?.implemetation_completed_tm_name?.[month] ||
-                                    []),
+                                    ?.implemetation_completed_tm_name?.[
+                                    month
+                                  ] || []),
                                   ...(machineAllData?.checkSheet_data
                                     ?.PMworkedTMName?.[month] || []),
                                 ]),
@@ -1220,7 +1323,7 @@ const CheckSheetEditAfterApproval = ({
                           ?.implementation_approved_by_PRD_TL
                           ? Object.entries(
                               machineAllData?.checkSheet_data
-                                ?.implemetation_prd_tl_approval_status
+                                ?.implemetation_prd_tl_approval_status,
                             ).map(([month, statusArray]) =>
                               statusArray[statusArray.length - 1] ===
                               "Accepted" ? (
@@ -1239,7 +1342,7 @@ const CheckSheetEditAfterApproval = ({
                                 </td>
                               ) : (
                                 <td className="ar-table-col1"></td>
-                              )
+                              ),
                             )
                           : refArrayForTDMapping?.map((index) => (
                               <td className="ar-table-col1"></td>

@@ -14,25 +14,27 @@ const {
   getApproveAndPendingUsersWiseCount,
 } = require("../../controller/spareManagement/spareApprovalController");
 
-router
-  .route("/generatedAndCompletedCount")
-  .get(spareFilterMiddleware, getSpareSheetGenerateAndCompletedCount);
+router.route("/generatedAndCompletedCount").get(
+  spareFilterMiddleware,
+  getSpareSheetGenerateAndCompletedCount,
+);
 
-router
-  .route("/spareRequestSheet/approval")
-  .get(
-    spareFilterMiddleware,
-    NGBudgetMTD_HODFilters,
-    getSpareRequestSheets,
-    getApprovalRequestSheets,
-  );
+router.route("/spareRequestSheet/approval").get(
+  spareFilterMiddleware,
+  NGBudgetMTD_HODFilters,
+  getSpareRequestSheets,
+  getApprovalRequestSheets,
+);
 
 router
   .route("/spareRequestSheet/logs")
-  .get(spareFilterMiddleware, getApprovalLogs);
+  .get(spareFilterMiddleware,  getApprovalLogs);
 
 router
   .route("/spareRequestSheet/approveAndPendingCount")
-  .get(spareFilterMiddleware, getApproveAndPendingUsersWiseCount);
+  .get(
+    spareFilterMiddleware,
+    getApproveAndPendingUsersWiseCount,
+  );
 
 module.exports = router;

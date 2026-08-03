@@ -30,7 +30,7 @@ const pendingStageList = [
     label: "Internal Approval",
   },
   {
-    value: "rsPRSubmitByToolroomTimeStamp",
+    value: "rsToolroomApprovalTimeStamp",
     label: "PR Generation",
   },
   {

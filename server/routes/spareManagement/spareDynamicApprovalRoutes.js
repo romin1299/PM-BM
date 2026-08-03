@@ -7,6 +7,8 @@ const {
   getSpareDynamicApproval,
   configureLeadTime,
   getLeadTime,
+  configureCurrencyConversion,
+  getCurrencyConversion,
 } = require("../../controller/spareManagement/spareDynamicApprovalCURDController");
 
 router
@@ -15,7 +17,22 @@ router
   .get(getSpareDynamicApproval);
 
 router
+  .route("/customization/dynamicCurrencyConversion")
+  .patch(authorizedToCustomize, configureCurrencyConversion)
+  .get(getCurrencyConversion);
+
+router
   .route("/customization/leadTime")
+  .patch(authorizedToCustomize, configureLeadTime)
+  .get(getLeadTime);
+
+router
+  .route("/customization/makerConfiguration")
+  .patch(authorizedToCustomize, configureLeadTime)
+  .get(getLeadTime);
+
+router
+  .route("/customization/supplierConfiguration")
   .patch(authorizedToCustomize, configureLeadTime)
   .get(getLeadTime);
 

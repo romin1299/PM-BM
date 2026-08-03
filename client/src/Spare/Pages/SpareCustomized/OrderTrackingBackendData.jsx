@@ -11,8 +11,12 @@ const leadTimeFieldsWithLabel = [
     fieldName: "orderRSSubmittedToHODApproval",
   },
   {
-    label: "HOD internal approval - PR submitted by Toolroom to PPD",
-    fieldName: "HODApprovalToPRSubmittedByToolroomToPPD",
+    label: "HOD internal approval - Toolroom approval",
+    fieldName: "HODApprovalToToolRoomApproval",
+  },
+  {
+    label: "Toolroom approval - PR submitted by Toolroom to PPD",
+    fieldName: "ToolroomApprovalToPRSubmittedByToolroomToPPD",
   },
   {
     label:

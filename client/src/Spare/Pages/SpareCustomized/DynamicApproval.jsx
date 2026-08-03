@@ -8,7 +8,10 @@ import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
 
 const url = "/v1/spare/customization/dynamicApproval";
 
-const DynamicApproval = () => {
+const DynamicApproval = ({
+  approvalKey = "spareSheetDynamicApproval",
+  title = "Approval selection",
+}) => {
   const {
     register,
     handleSubmit,
@@ -18,6 +21,11 @@ const DynamicApproval = () => {
     defaultValues: async () => {
       const { isError, approvalObj } = await axiosGetOrDelete({
         url,
+        axiosProps: {
+          params: {
+            approvalKey,
+          },
+        },
       });
       if (!isError) return approvalObj;
       return {};
@@ -27,6 +35,11 @@ const DynamicApproval = () => {
   const handleSubmitDynamicApproval = async (formValue) => {
     const { isError, approvalObj } = await axiosPostOrPatch({
       url,
+      axiosProps: {
+        params: {
+          approvalKey,
+        },
+      },
       apiType: "patch",
       axiosBody: formValue,
     });
@@ -39,7 +52,7 @@ const DynamicApproval = () => {
       onSubmit={handleSubmit(handleSubmitDynamicApproval)}
       className="cell p-3 m-3"
     >
-      <ChartTitleBar title="Approval selection" />
+      <ChartTitleBar title={title} />
 
       <Row>
         {SPARE_DYNAMIC_APPROVAL?.map(({ tm_department, approvalList }) => (
@@ -53,7 +66,7 @@ const DynamicApproval = () => {
                   type="checkbox"
                   value={item?.key}
                   id={`inline-checkbox-${item?.key}`}
-                  {...register(`spareSheetDynamicApproval.${tm_department}`, {
+                  {...register(`${approvalKey}.${tm_department}`, {
                     required: "Please select approval list",
                   })}
                 />{" "}
@@ -61,9 +74,9 @@ const DynamicApproval = () => {
                 <label>{item?.value}</label> <br />
               </div>
             ))}
-            {errors?.spareSheetDynamicApproval?.[tm_department] && (
+            {errors?.[approvalKey]?.[tm_department] && (
               <p className="text-error">
-                {errors?.spareSheetDynamicApproval?.[tm_department]?.message}
+                {errors?.[approvalKey]?.[tm_department]?.message}
               </p>
             )}
           </Col>
