@@ -20617,7 +20617,6 @@ router.post(
       res.status(500).json({ message: error?.message, error });
     }
   },
-  },
 );
 
 // safety form CRUD Operations
@@ -20639,7 +20638,6 @@ router.post(
             IsSafetyFormCreated: true,
           },
         },
-        },
       );
       if (!safetyForm) {
         return res
@@ -20653,7 +20651,6 @@ router.post(
       logger.error(error);
       res.status(500).json({ message: error?.message, error });
     }
-  },
   },
 );
 
