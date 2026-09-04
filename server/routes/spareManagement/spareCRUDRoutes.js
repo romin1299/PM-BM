@@ -36,6 +36,7 @@ router
   .post(
     uploadDrawingAttach.fields([
       { name: "drawingAttach", maxCount: 10 },
+      { name: "additionalAttachments", maxCount: 50 },
       { name: "documentByRequestGenerator", maxCount: 1 },
     ]),
     registerNewSpareRequest,
@@ -44,6 +45,7 @@ router
   .patch(
     uploadDrawingAttach.fields([
       { name: "drawingAttach", maxCount: 10 },
+      { name: "additionalAttachments", maxCount: 50 },
       { name: "documentByRequestGenerator", maxCount: 1 },
     ]),
     findSpareSheetBasedOnId,

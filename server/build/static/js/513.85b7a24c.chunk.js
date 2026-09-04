@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkclient=self.webpackChunkclient||[]).push([[319,513],{74415(e,n,i){i.r(n);i(9950);var t=i(76837),a=i(44414);const c=()=>(0,a.jsx)(t.CommonChartMappingComponent,{url:"/v1/spare/kpi/inventoryBifurcation/eachCellWise",componentFor:"eachCellWiseBifurcation",title:"Each Cell Wise Inventory Bifurcation"});i.d(n,["default",0,c])}}]);

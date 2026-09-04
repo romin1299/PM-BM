@@ -46,6 +46,7 @@ const RowMappingComponent = memo(
       </TDWrapper>
       <TDWrapper>{otherData?.dayCount}</TDWrapper>
       <TDWrapper>{otherData?.changeParts?.closingStatusIfTemporary}</TDWrapper>
+      <TDWrapper>{otherData?.changeParts?.issuanceApprovalStatus}</TDWrapper>
       <TDWrapper>{otherData?.createdBy?.tm_name}</TDWrapper>
       <TDWrapper otherDivClasses="gap-2">
         <ContactMailIcon
@@ -189,6 +190,7 @@ const SpareIssuanceSummaryTable = memo((props) => {
           "Return target date",
           "Day count",
           "Closing status",
+          "Approval status",
           "Created By",
           "Action",
         ]}

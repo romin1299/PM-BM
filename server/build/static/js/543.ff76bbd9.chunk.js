@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkclient=self.webpackChunkclient||[]).push([[543],{72543(e,s,c){c.r(s),c.d(s,{default:()=>n});c(9950);var a=c(44414);const n=()=>(0,a.jsx)("div",{children:"SparePartIssuance"})}}]);

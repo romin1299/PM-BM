@@ -3252,11 +3252,17 @@ router.post(
       //   ];
       // }
 
+      console.log(queryObj);
+
       approvalLogOfPM = await Machine.aggregate([
         {
           $match: {
             ...queryObj,
           },
+
+          // $match: {
+          //   machine_code: "M-EN-O2-2BA-02-040-1",
+          // },
         },
         {
           $unwind: "$checkSheet_data",
@@ -15164,12 +15170,9 @@ router.get(
         yearDropdownID: "FY01",
       });
 
-      // console.log("?????????????????", getFinancialYearsArray)
-      if (getFinancialYearsArray) {
-        res.json({ getFinancialYearsArray });
-      } else {
-        return res.status(400).json("Checksheet not copied!!!");
-      }
+      if (getFinancialYearsArray)
+        return res.status(201).json({ getFinancialYearsArray });
+      else return res.status(400).json("Checksheet not copied!!!");
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
@@ -24073,3 +24076,43 @@ router
   });
 
 module.exports = router;
+
+const handleUpdate = async () => {
+  await Machine.updateOne(
+    { machine_code: "M-EN-O2-2BA-02-040-1" },
+    {
+      $set: {
+        "checkSheet_data.$[outer].assign_PRD_TL.1":
+          "vikram.kumar.a0s@ap.denso.com",
+      },
+    },
+    {
+      arrayFilters: [
+        {
+          "outer.current_year": "2026-2027",
+        },
+      ],
+    },
+  );
+
+  await Machine.updateOne(
+    { machine_code: "M-EN-O2-2BA-03-020-1" },
+    {
+      $set: {
+        "checkSheet_data.$[outer].checksheet_status":
+          "Implementation",
+      },
+    },
+    {
+      arrayFilters: [
+        {
+          "outer.current_year": "2026-2027",
+        },
+      ],
+    },
+  );
+
+  console.log("Updated successfully");
+};
+
+// handleUpdate()

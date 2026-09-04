@@ -86,6 +86,10 @@ require(path.join(__dirname, "./controller/everyDayAutoBackup"));
 
 require(path.join(__dirname, "./middleware/cronRunForRequestSheetOfCM"));
 
+require(
+  path.join(__dirname, "./sendMail/spare/returnTemporaryPartsReminder.js"),
+);
+
 //for logos and other image
 app.use(express.static(path.join(__dirname, "images")));
 // build folder path

@@ -9,6 +9,7 @@ const Machine = require("../../model/machineSchema");
 const SpareIssuanceSummary = require("../../model/spareIssuanceSummarySchema");
 const SpareMaster = require("../../model/spareMasterSchema");
 const SpareBudget = require("../../model/spareBudgetSchema");
+const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 
 const {
   spareApprovalStatus,
@@ -26,7 +27,7 @@ const unparseJSONData = require("../../utils/unparseJSONData");
 const getDynamicApprovalFromThePlant = async (plant_id) =>
   await Plant.findOne({ plant_id }, { spareIssuanceDynamicApproval: 1 });
 
-const budgetDetailsProjection = {
+exports.budgetDetailsProjection = budgetDetailsProjection = {
   $reduce: {
     input: "$spareMaster.costDetails",
     initialValue: {
@@ -188,6 +189,41 @@ exports.handleSpareIssuanceSheet = tryCatchHandler(async (req, res, next) => {
         )
       : null,
   }));
+
+  if (req.body?.isTemporaryPartSelected) {
+    const {
+      emailReminderMTL,
+      emailReminderHOSS,
+      emailReminderHOS,
+      emailReminderHOD,
+    } = req.body;
+
+    const reminderIds = [
+      emailReminderMTL,
+      emailReminderHOSS,
+      emailReminderHOS,
+      emailReminderHOD,
+    ];
+
+    const users = await User.find(
+      {
+        _id: {
+          $in: reminderIds.filter(Boolean),
+        },
+      },
+      {
+        email: 1,
+      },
+    );
+
+    const emailById = new Map(users.map((u) => [u._id.toString(), u.email]));
+
+    const reminderEmails = reminderIds.map(
+      (id) => emailById.get(id?.toString()) || null,
+    );
+
+    req.body["reminderEmails"] = reminderEmails;
+  }
 
   await new SpareIssuanceSummary(req.body).save();
 
@@ -460,6 +496,9 @@ exports.issuanceSummeryProjection = tryCatchHandler(async (req, res, next) => {
     "changeParts.maker": 1,
     "changeParts.quantityRequired": 1,
     "changeParts.temporaryOrPermanent": 1,
+    "changeParts.issuanceApprovalStatus": {
+      $ifNull: ["$changeParts.issuanceApprovalStatus", "Generated"],
+    },
     "changeParts.returnTargetDateIfTemporary.inString": {
       $cond: [
         {
@@ -765,8 +804,22 @@ exports.handleSetPartApproval = tryCatchHandler(async (req, res, next) => {
     },
   );
 
+  req.queryObj = {
+    _id: mongoose.Types.ObjectId(_id),
+  };
+  req.partQuery = {
+    "changeParts._id": mongoose.Types.ObjectId(partId),
+  };
+
+  req.otherAggregationPipeline = [];
+
+  return next();
+});
+
+exports.submitApprovalResponse = tryCatchHandler(async (req, res, next) => {
   return res.status(201).json({
     message: "Issuance sheet approval added successfully",
+    spareParts: req.tableData,
   });
 });
 
@@ -855,7 +908,7 @@ exports.acceptOrRejectApprovalProjection = tryCatchHandler(
 exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
   const { _id, partId } = req.query;
   const { isApproved, rejectedRemarks } = req.body;
-  const [{ changeParts, cell }] = req.tableData;
+  const [{ changeParts }] = req.tableData;
 
   if (!isApproved)
     return res.status(400).json({
@@ -876,6 +929,7 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
         moment().format("D/M/YYYY - h:mm a"),
       [`${schemaKey}${currentApprovalKey}.rejectedRemarks`]: "",
       [`${schemaKey}pendingApprovalBy`]: null,
+      [`${schemaKey}closingStatusIfTemporary`]: "Close",
     },
   };
 
@@ -897,120 +951,161 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
       updateObj.$set[`${schemaKey}pendingApprovalBy`] =
         changeParts[nextApprovalKey]?.user?._id;
     } else {
-      updateObj.$set[`${schemaKey}issuanceApprovalStatus`] =
-        spareApprovalStatus[spareApprovalStatus?.length - 1];
-
-      updateObj.$set[`${schemaKey}quantityRequired`] = 0;
-
       const [{ cell, budgetDetails }] = req.tableData;
 
       const monthIndex = (moment().month() + 12 - 3) % 12;
       const usedBudget =
         budgetDetails?.issuanceSheetRequired?.requiredBudget || 0;
 
-      await Promise.all([
-        SpareMaster.updateOne({ _id: req.query?.masterId }, [
-          {
-            $set: {
-              costDetails: {
-                $let: {
-                  vars: {
-                    final: {
-                      $reduce: {
-                        input: "$costDetails",
-                        initialValue: {
-                          remaining: changeParts?.quantityRequired,
-                          result: [],
-                        },
-                        in: {
-                          $let: {
-                            vars: {
-                              deduct: {
-                                $min: [
-                                  "$$value.remaining",
-                                  { $ifNull: ["$$this.availableQty", 0] },
-                                ],
+      updateObj.$set[`${schemaKey}issuanceApprovalStatus`] =
+        spareApprovalStatus[spareApprovalStatus?.length - 1];
+
+      updateObj.$set[`${schemaKey}quantityRequired`] = 0;
+      updateObj.$set[`${schemaKey}isStockOut`] = true;
+      updateObj.$set[`${schemaKey}consumption`] = {
+        cost: usedBudget,
+        quantity: changeParts?.quantityRequired,
+      };
+
+      const masterId = req.query?.masterId;
+
+      const [updatedMaster] = await Promise.all([
+        SpareMaster.findOneAndUpdate(
+          { _id: masterId },
+          [
+            {
+              $set: {
+                costDetails: {
+                  $let: {
+                    vars: {
+                      final: {
+                        $reduce: {
+                          input: "$costDetails",
+                          initialValue: {
+                            remaining: changeParts?.quantityRequired,
+                            result: [],
+                          },
+                          in: {
+                            $let: {
+                              vars: {
+                                deduct: {
+                                  $min: [
+                                    "$$value.remaining",
+                                    { $ifNull: ["$$this.availableQty", 0] },
+                                  ],
+                                },
                               },
-                            },
-                            in: {
-                              remaining: {
-                                $subtract: ["$$value.remaining", "$$deduct"],
-                              },
-                              result: {
-                                $cond: [
-                                  {
-                                    $eq: [
-                                      {
-                                        $subtract: [
-                                          "$$this.availableQty",
-                                          "$$deduct",
-                                        ],
-                                      },
-                                      0,
-                                    ],
-                                  },
-                                  "$$value.result",
-                                  {
-                                    $concatArrays: [
-                                      "$$value.result",
-                                      [
+                              in: {
+                                remaining: {
+                                  $subtract: ["$$value.remaining", "$$deduct"],
+                                },
+                                result: {
+                                  $cond: [
+                                    {
+                                      $eq: [
                                         {
-                                          $mergeObjects: [
-                                            "$$this",
-                                            {
-                                              issuedQty: {
-                                                $add: [
-                                                  {
-                                                    $ifNull: [
-                                                      "$$this.issuedQty",
-                                                      0,
-                                                    ],
-                                                  },
-                                                  "$$deduct",
-                                                ],
-                                              },
-                                              availableQty: {
-                                                $subtract: [
-                                                  "$$this.availableQty",
-                                                  "$$deduct",
-                                                ],
-                                              },
-                                              overAllCost: {
-                                                $multiply: [
-                                                  {
-                                                    $subtract: [
-                                                      "$$this.availableQty",
-                                                      "$$deduct",
-                                                    ],
-                                                  },
-                                                  {
-                                                    $ifNull: [
-                                                      "$$this.costInINR",
-                                                      0,
-                                                    ],
-                                                  },
-                                                ],
-                                              },
-                                            },
+                                          $subtract: [
+                                            "$$this.availableQty",
+                                            "$$deduct",
                                           ],
                                         },
+                                        0,
                                       ],
-                                    ],
-                                  },
-                                ],
+                                    },
+                                    "$$value.result",
+                                    {
+                                      $concatArrays: [
+                                        "$$value.result",
+                                        [
+                                          {
+                                            $mergeObjects: [
+                                              "$$this",
+                                              {
+                                                issuedQty: {
+                                                  $add: [
+                                                    {
+                                                      $ifNull: [
+                                                        "$$this.issuedQty",
+                                                        0,
+                                                      ],
+                                                    },
+                                                    "$$deduct",
+                                                  ],
+                                                },
+                                                issuedCost: {
+                                                  $add: [
+                                                    {
+                                                      $ifNull: [
+                                                        "$$this.issuedCost",
+                                                        0,
+                                                      ],
+                                                    },
+                                                    {
+                                                      $multiply: [
+                                                        "$$deduct",
+                                                        {
+                                                          $ifNull: [
+                                                            "$$this.costInINR",
+                                                            0,
+                                                          ],
+                                                        },
+                                                      ],
+                                                    },
+                                                  ],
+                                                },
+                                                availableQty: {
+                                                  $subtract: [
+                                                    "$$this.availableQty",
+                                                    "$$deduct",
+                                                  ],
+                                                },
+                                                overAllCost: {
+                                                  $multiply: [
+                                                    {
+                                                      $subtract: [
+                                                        "$$this.availableQty",
+                                                        "$$deduct",
+                                                      ],
+                                                    },
+                                                    {
+                                                      $ifNull: [
+                                                        "$$this.costInINR",
+                                                        0,
+                                                      ],
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        ],
+                                      ],
+                                    },
+                                  ],
+                                },
                               },
                             },
                           },
                         },
                       },
                     },
+                    in: "$$final.result",
                   },
-                  in: "$$final.result",
                 },
               },
             },
+          ],
+          {
+            new: true,
+            projection: {
+              costDetails: 1,
+              minQuantity: 1,
+              maxQuantity: 1,
+              partNumber: 1,
+              partName: 1,
+            },
           },
-        ]),
+        ),
         SpareBudget.updateOne(
           {
             "cell._id": cell?._id,
@@ -1081,11 +1176,88 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
             },
           ],
         ),
-        /****************************
-         * Reordering - Min qty touch
-         ****************************  */
       ]);
 
+      /****************************
+       * Reordering - Min qty touch
+       ****************************/
+      if (updatedMaster) {
+        const overallRemaining = (updatedMaster.costDetails ?? []).reduce(
+          (sum, tranche) => sum + (tranche.availableQty ?? 0),
+          0,
+        );
+
+        if (overallRemaining <= (updatedMaster.minQuantity ?? 0)) {
+          const existingOpenRequest = await RequestSheetOfSpare.findOne(
+            {
+              newOrReOrderRequest: "REORDER",
+              changeParts: {
+                $elemMatch: {
+                  masterId: updatedMaster._id,
+                  $or: [
+                    { "rsMRNApprovedTimeStamp.inString": { $exists: false } },
+                    { "rsMRNApprovedTimeStamp.inString": null },
+                    { "rsMRNApprovedTimeStamp.inString": "" },
+                  ],
+                },
+              },
+            },
+            { _id: 1 },
+          );
+
+          if (!existingOpenRequest) {
+            const sourceSheet = await RequestSheetOfSpare.findOne({
+              // newOrReOrderRequest: "NEW",
+              changeParts: { $elemMatch: { masterId: updatedMaster._id } },
+            })
+              .sort({ createdAt: -1 })
+              .lean();
+
+            if (sourceSheet) {
+              const {
+                _id,
+                requestSheetStatus,
+                pendingApprovalBy,
+                dynamicApprovalKeys,
+                isSpareSheetSendForApproval,
+                changeParts,
+                ...rest
+              } = sourceSheet;
+
+              await RequestSheetOfSpare.create({
+                ...rest,
+                newOrReOrderRequest: "REORDER",
+                requestSheetStatus:
+                  spareApprovalStatus[spareApprovalStatus.length - 1],
+                pendingApprovalBy: null,
+                dynamicApprovalKeys: [],
+                isSpareSheetSendForApproval: false,
+                rsTimeStamp: generateTimestampIndividually(),
+                changeParts: changeParts
+                  .filter(
+                    (part) =>
+                      String(part.masterId) === String(updatedMaster._id),
+                  )
+                  .map((part) => ({
+                    partName: part?.partName,
+                    partModel: part?.partModel,
+                    minQuantity: part?.minQuantity,
+                    maxQuantity: part?.maxQuantity,
+                    quantityRequired: part?.quantityRequired,
+                    maker: part?.maker,
+                    supplierName: part?.supplierName,
+                    supplierCategory: part?.supplierCategory,
+                    approxUnitPrice: part?.approxUnitPrice,
+                    standerOrManufacturingPart:
+                      part?.standerOrManufacturingPart,
+                    normalOrUrgentPart: part?.normalOrUrgentPart,
+                    masterId: part?.masterId,
+                  })),
+              });
+            }
+          }
+        }
+      }
       isIssuanceCompleted = true;
     }
   }

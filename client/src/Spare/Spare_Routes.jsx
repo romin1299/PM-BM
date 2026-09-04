@@ -136,6 +136,24 @@ import { menuItems } from "./SpareSidebar/menuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
 
 const SpareKPI = lazy(() => import("./Pages/SpareKPI/SpareKPI"));
+const SpareInventoryReport = lazy(
+  () => import("./Pages/SpareInventoryReport/SpareInventoryReport"),
+);
+const SpareStockLevelWiseAnalysis = lazy(
+  () =>
+    import("./Pages/SpareStockLevelWiseAnalysis/SpareStockLevelWiseAnalysis"),
+);
+const SpareMTDRAndMPlanVsActualBudgetReport = lazy(
+  () =>
+    import("./Pages/SpareMTDRAndMPlanVsActualBudgetReport/SpareMTDRAndMPlanVsActualBudgetReport"),
+);
+const SpareEachCellWiseInventoryBifurcation = lazy(
+  () =>
+    import("./Pages/SpareEachCellWiseInventoryBifurcation/SpareEachCellWiseInventoryBifurcation"),
+);
+const SpareMTDToolRoomKPI = lazy(
+  () => import("./Pages/SpareMTDToolRoomKPI/SpareMTDToolRoomKPI"),
+);
 const SpareSheets = lazy(() => import("./Pages/SpareSheets/SpareSheets"));
 const SpareSearchButton = lazy(
   () => import("./Pages/SpareSearchButton/SpareSearchButton"),
@@ -171,6 +189,9 @@ const SpareUserManagement = lazy(
 const DynamicFieldsConfiguration = lazy(
   () => import("./Pages/SpareCustomized/DynamicFieldsConfiguration"),
 );
+const SpareTargetDashboard = lazy(
+  () => import("./Pages/SpareTargetDashboard/SpareTargetDashboard"),
+);
 
 const allusers = [
   //From PM
@@ -186,6 +207,31 @@ const allusers = [
 
 const routes = [
   { path: "/spare", element: <SpareKPI />, allowedRoles: allusers },
+  {
+    path: "/spare/inventoryReport",
+    element: <SpareInventoryReport />,
+    allowedRoles: allusers,
+  },
+  {
+    path: "/spare/stockLevelWiseAnalysisReport",
+    element: <SpareStockLevelWiseAnalysis />,
+    allowedRoles: allusers,
+  },
+  {
+    path: "/spare/mtdRAndMPlanVsActualBudgetReport",
+    element: <SpareMTDRAndMPlanVsActualBudgetReport />,
+    allowedRoles: allusers,
+  },
+  {
+    path: "/spare/eachCellWiseInventoryBifurcation",
+    element: <SpareEachCellWiseInventoryBifurcation />,
+    allowedRoles: allusers,
+  },
+  {
+    path: "/spare/mtdToolRoomKPI",
+    element: <SpareMTDToolRoomKPI />,
+    allowedRoles: allusers,
+  },
   { path: "/spare/requests", element: <SpareSheets />, allowedRoles: allusers },
   {
     path: "/spare/spareUserManagement",
@@ -241,11 +287,31 @@ const routes = [
   {
     path: "/spare/customizedDashboard",
     element: <SpareCustomized />,
-    allowedRoles: ["Plant-Admin", "Section-Admin"],
+    allowedRoles: [
+      "Plant-Admin",
+      "Section-Admin", //From spare toolRoom
+      "HOSS",
+      "Supervisor",
+      "Office Person",
+    ],
   },
   {
     path: "/spare/customizedDashboard/dynamicFieldsConfiguration",
     element: <DynamicFieldsConfiguration />,
+    hasToolRoomFilter: true,
+    allowedRoles: [
+      "Plant-Admin",
+      "Section-Admin",
+      //From spare toolRoom
+      "HOSS",
+      "Supervisor",
+      "Office Person",
+    ],
+  },
+  {
+    path: "/spare/targetDashboard",
+    element: <SpareTargetDashboard />,
+    hasToolRoomFilter: true,
     allowedRoles: [
       "Plant-Admin",
       "Section-Admin",

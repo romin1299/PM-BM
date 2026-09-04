@@ -1,4 +1,6 @@
-import React, { memo } from "react";
+import React, { memo, useContext } from "react";
+
+import RoutingContext from "../../../context/routing/RoutingContext";
 
 import { Button, ButtonGroup } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
@@ -74,6 +76,7 @@ const OtherFilters = memo(
     ...restFilters
   }) => {
     const theme = useTheme();
+    const context = useContext(RoutingContext);
 
     const getStyleForSelectedValue = async (item, selectedItem) => {
       return {
@@ -147,25 +150,27 @@ const OtherFilters = memo(
             ))}
           </Select>
         </FormControl>
-        <div>
-          <ButtonGroup
-            size="small"
-            disableElevation
-            variant="outlined"
-            aria-label="outlined button group"
-          >
-            {filterOptions?.map((item, index) => (
-              <Button
-                key={index}
-                variant={mode === item ? "contained" : "outlined"}
-                value={item}
-                onClick={() => setMode(item)}
-              >
-                {item}
-              </Button>
-            ))}
-          </ButtonGroup>
-        </div>
+        {context?.toolRoomPerson === "Yes" && (
+          <div>
+            <ButtonGroup
+              size="small"
+              disableElevation
+              variant="outlined"
+              aria-label="outlined button group"
+            >
+              {filterOptions?.map((item, index) => (
+                <Button
+                  key={index}
+                  variant={mode === item ? "contained" : "outlined"}
+                  value={item}
+                  onClick={() => setMode(item)}
+                >
+                  {item}
+                </Button>
+              ))}
+            </ButtonGroup>
+          </div>
+        )}
         <SparePartSearchBar
           handleSelectOtherFilters={handleSelectOtherFilters}
         />

@@ -13,6 +13,19 @@ exports.authorizedToCustomize = tryCatchHandler(async (req, res, next) => {
   return next();
 });
 
+exports.toolRoomAuthorizedToCustomize = tryCatchHandler(
+  async (req, res, next) => {
+    if (!req.rootUser?.toolRoomPerson || req.rootUser?.toolRoomPerson === "No")
+      return res.status(400).json({
+        message:
+          "You are not authorized to configured this, please contact Plant-Admin or Section-Admin",
+        showToast: true,
+      });
+
+    return next();
+  },
+);
+
 exports.configureSpareDynamicApproval = tryCatchHandler(
   async (req, res, next) => {
     if (!req.query?.approvalKey)

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { plantToMachineHierarchyObj } = require("./common");
 
 const spareMasterSchema = new mongoose.Schema(
   {
@@ -12,6 +13,8 @@ const spareMasterSchema = new mongoose.Schema(
     maker: String,
     registerSection: String,
     supplierName: String,
+    supplierCategory: String,
+    supplierCategory: String,
     costDetails: [
       {
         partId: {
@@ -22,6 +25,8 @@ const spareMasterSchema = new mongoose.Schema(
         cost: Number,
         costInINR: Number,
         issuedQty: Number,
+        issuedCost: Number,
+        balanceQty: Number,
         availableQty: Number,
         overAllCost: Number,
       },
@@ -36,6 +41,8 @@ const spareMasterSchema = new mongoose.Schema(
       default: "requestSubmitted",
       enum: ["requestSubmitted", "masterCreated"],
     },
+    reasonForZeroStockRemarks: String,
+    reasonForKeepingDeadStockRemarks: String,
 
     createdBy: {
       _id: {
@@ -53,15 +60,7 @@ const spareMasterSchema = new mongoose.Schema(
       inDate: Date,
     },
 
-    machine: {
-      _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "MachinesAllData",
-      },
-      machine_code: String,
-      machine_name: String,
-      machine_nickname: String,
-    },
+    ...plantToMachineHierarchyObj,
 
     rsTimeStamp: {
       year: {
@@ -103,6 +102,17 @@ spareMasterSchema.index(
   },
   {
     name: "YearMonthIndex",
+    background: true,
+  },
+);
+spareMasterSchema.index(
+  {
+    "rsTimeStamp.year.inString": 1,
+    maxQuantity: 1,
+  },
+  {
+    name: "StockLevelAnalysisIndex",
+    partialFilterExpression: { maxQuantity: { $gte: 1 } },
     background: true,
   },
 );

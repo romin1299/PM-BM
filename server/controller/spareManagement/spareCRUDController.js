@@ -118,21 +118,34 @@ exports.getNewSpareSheetNoByDefault = tryCatchHandler(
     });
   },
 );
-
 const handleSetUploadedFileName = async ({
   data = {},
   uploadFileIndexesStr = "",
   filesInfo = [{ filename: "", originalname: "" }],
+  fieldName = "drawingAttach",
+  multiple = false,
 }) => {
   try {
     if (uploadFileIndexesStr) {
       const uploadFileIndexes = JSON.parse(uploadFileIndexesStr);
       for (let i = 0; i < uploadFileIndexes?.length; i++) {
-        if (data?.changeParts[uploadFileIndexes[i]]) {
+        const partIndex = uploadFileIndexes[i];
+        if (data?.changeParts?.[partIndex]) {
           const { filename, originalname } = filesInfo?.[i];
-          data.changeParts[uploadFileIndexes[i]].drawingAttach = filename;
-          data.changeParts[uploadFileIndexes[i]].drawingAttachOriginalName =
-            originalname;
+
+          if (multiple) {
+            if (!Array.isArray(data.changeParts[partIndex][fieldName]))
+              data.changeParts[partIndex][fieldName] = [];
+
+            data.changeParts[partIndex][fieldName].push({
+              filename,
+              originalname,
+            });
+          } else {
+            data.changeParts[partIndex][fieldName] = filename;
+            data.changeParts[partIndex][`${fieldName}OriginalName`] =
+              originalname;
+          }
         }
       }
     }
@@ -480,11 +493,25 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     filesInfo: req.files?.drawingAttach,
   });
 
+  data = await handleSetUploadedFileName({
+    data,
+    uploadFileIndexesStr: req.body?.uploadAdditionalFileIndexes,
+    filesInfo: req.files?.additionalAttachments,
+    fieldName: "additionalAttachments",
+    multiple: true,
+  });
+
   const { budget } = data;
 
   if (!budget?.budgetStatus || !budget?.requiredBudget)
     return res.status(400).json({
       message: "Please provide details",
+      showToast: true,
+    });
+
+  if (budget?.requiredBudget <= 0)
+    return res.status(400).json({
+      message: "Required budget should be greater then zero",
       showToast: true,
     });
 
@@ -667,6 +694,14 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
     filesInfo: req.files?.drawingAttach,
   });
 
+  data = await handleSetUploadedFileName({
+    data,
+    uploadFileIndexesStr: req.body?.uploadAdditionalFileIndexes,
+    filesInfo: req.files?.additionalAttachments,
+    fieldName: "additionalAttachments",
+    multiple: true,
+  });
+
   const handleRemoveFile = (propFileName) =>
     fs.unlink(
       path.join(__dirname, `../../spareDocuments/${propFileName}`),
@@ -683,6 +718,22 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
       );
 
       if (drawingAttach) handleRemoveFile(drawingAttach);
+    }
+  }
+
+  if (req.body?.removeAdditionalFileIDs) {
+    const removeAdditionalFileIDs = JSON.parse(
+      req.body?.removeAdditionalFileIDs,
+    );
+    for (let i = 0; i < removeAdditionalFileIDs?.length; i++) {
+      const part = spare?.changeParts?.find(
+        (item) => item?._id === removeAdditionalFileIDs[i],
+      );
+
+      if (part?.additionalAttachments?.length)
+        part.additionalAttachments.forEach((file) =>
+          handleRemoveFile(file?.filename),
+        );
     }
   }
 
@@ -947,6 +998,10 @@ exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
                 cost: req.body?.formValue?.costDetails?.cost || 0,
                 costInINR: req.body?.formValue?.costDetails?.costInINR || 0,
                 issuedQty: 0,
+                issuedCost: 0,
+                balanceQty:
+                  spareSheet?.changeParts?.[0]?.quantityRequired -
+                  req.body?.formValue?.costDetails?.quantity * 1,
                 availableQty: req.body?.formValue?.costDetails?.quantity * 1,
                 overAllCost:
                   req.body?.formValue?.costDetails?.quantity *
@@ -982,6 +1037,9 @@ exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
                 cost: existingCostDetails?.cost || 0,
                 costInINR: existingCostDetails?.costInINR || 0,
                 issuedQty: existingCostDetails?.issuedQty || 0,
+                issuedCost: existingCostDetails?.issuedCost || 0,
+                balanceQty:
+                  spareSheet?.changeParts?.[0]?.quantityRequired - quantity,
                 availableQty,
                 overAllCost:
                   availableQty * (existingCostDetails?.costInINR || 0),
@@ -1121,6 +1179,20 @@ exports.getManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
       showToast: true,
     });
 
+  let $project = {
+    [`${requestedField}TimeStamp.inString`]: {
+      $dateToString: {
+        format: "%Y-%m-%dT%H:%M",
+        date: `$changePart.${requestedField}TimeStamp.inDate`,
+        timezone,
+      },
+    },
+    [`${requestedField}Remarks`]: `$changePart.${requestedField}Remarks`,
+  };
+
+  if (requestedField === "rsPartReceive")
+    $project["changePart.quantityRequired"] = 1;
+
   let spare = await RequestSheetOfSpare.aggregate([
     {
       $match: {
@@ -1147,18 +1219,7 @@ exports.getManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
       },
     },
     {
-      $project: {
-        "changePart.quantityRequired":
-          requestedField === "rsPartReceive" ? 1 : 0,
-        [`${requestedField}TimeStamp.inString`]: {
-          $dateToString: {
-            format: "%Y-%m-%dT%H:%M",
-            date: `$changePart.${requestedField}TimeStamp.inDate`,
-            timezone,
-          },
-        },
-        [`${requestedField}Remarks`]: `$changePart.${requestedField}Remarks`,
-      },
+      $project,
     },
   ]);
 

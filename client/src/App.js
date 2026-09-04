@@ -593,20 +593,26 @@ function App() {
   );
 
   const tabs = useMemo(() => {
-    const spareTab = {
-      name: "Spare",
-      keyUrl: "spare",
-      icon: ACTIVITY_Cal,
-      component: (
-        <Suspense fallback={<SparePageLoading />}>
-          <Spare_Routes loggedUser={loggedUser} />
-        </Suspense>
-      ),
-    };
+    const MODE = process.env.REACT_APP_MODE;
 
-    if (loggedUser?.toolRoomPerson === "Yes") {
-      setIsLoading(false);
-      return [spareTab];
+    let spareTab = {};
+
+    if (MODE === "UP_TO_SPARE") {
+      spareTab = {
+        name: "Spare",
+        keyUrl: "spare",
+        icon: ACTIVITY_Cal,
+        component: (
+          <Suspense fallback={<SparePageLoading />}>
+            <Spare_Routes loggedUser={loggedUser} />
+          </Suspense>
+        ),
+      };
+
+      if (loggedUser?.toolRoomPerson === "Yes") {
+        setIsLoading(false);
+        return [spareTab];
+      }
     }
 
     const baseTabs = [
@@ -641,18 +647,16 @@ function App() {
       });
     }
 
-    baseTabs.push(
-      {
-        name: "ACTIVITY CALENDAR",
-        keyUrl: "activityCal",
-        icon: ACTIVITY_Cal,
-        component: (
-          <ActivityRoutes commonRoutes={commonRoutes} loggedUser={loggedUser} />
-        ),
-      },
-      spareTab,
-    );
+    baseTabs.push({
+      name: "ACTIVITY CALENDAR",
+      keyUrl: "activityCal",
+      icon: ACTIVITY_Cal,
+      component: (
+        <ActivityRoutes commonRoutes={commonRoutes} loggedUser={loggedUser} />
+      ),
+    });
 
+    if (MODE === "UP_TO_SPARE") baseTabs.push(spareTab);
     setIsLoading(false);
     return baseTabs;
   }, [loggedUser, commonRoutes, isKPIUser]);

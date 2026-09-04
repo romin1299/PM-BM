@@ -140,7 +140,7 @@ const rowWiseFields = [
   ],
 ];
 
-const DropdownComponent = ({
+export const DropdownComponent = ({
   control,
   label = "Maker",
   fieldName = "maker",

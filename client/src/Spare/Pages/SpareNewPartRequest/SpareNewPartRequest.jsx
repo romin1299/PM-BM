@@ -94,8 +94,12 @@ const SpareNewPartRequest = () => {
       };
 
     const requiredBudget = changeParts.reduce((acc, curr) => {
-      const qty = Number(curr?.quantityRequired || 0);
-      const price = Number(curr?.approxUnitPrice || 0);
+      const qty = Number.isFinite(Number(curr?.quantityRequired))
+        ? Number(curr?.quantityRequired)
+        : 0;
+      const price = Number.isFinite(Number(curr?.approxUnitPrice))
+        ? Number(curr?.approxUnitPrice)
+        : 0;
       return acc + qty * price;
     }, 0);
 
@@ -113,7 +117,7 @@ const SpareNewPartRequest = () => {
     Object.keys(dirtyFields).map((key) => {
       if (key === "changeParts")
         return (newVal[key] = allValues[key]?.map((item) => {
-          const { drawingAttach, ...others } = item;
+          const { drawingAttach, additionalAttachments, ...others } = item;
           return others;
         }));
       else return (newVal[key] = allValues[key]);
@@ -138,22 +142,36 @@ const SpareNewPartRequest = () => {
         selectedMachine: reduceState?.selectedMachine,
       };
 
-      let uploadFileIndexes = [];
+      let uploadFileIndexes = [],
+        uploadAdditionalFileIndexes = [];
 
       formValue.changeParts.forEach((row, index) => {
         if (row.drawingAttach?.length > 0) {
           formData.append(`drawingAttach`, row.drawingAttach?.[0]);
           uploadFileIndexes.push(index);
         }
+
+        if (row.additionalAttachments?.length > 0) {
+          Array.from(row.additionalAttachments).forEach((file) => {
+            formData.append(`additionalAttachments`, file);
+            uploadAdditionalFileIndexes.push(index);
+          });
+        }
       });
 
       formData.append("uploadFileIndexes", JSON.stringify(uploadFileIndexes));
+      formData.append(
+        "uploadAdditionalFileIndexes",
+        JSON.stringify(uploadAdditionalFileIndexes),
+      );
     }
 
     if (searchParams.get("_id")) {
       if (dirtyFields?.changeParts) {
         let uploadFileIndexes = [],
-          removeFileIDs = [];
+          removeFileIDs = [],
+          uploadAdditionalFileIndexes = [],
+          removeAdditionalFileIDs = [];
 
         dirtyFields?.changeParts?.map((item, index) => {
           if (
@@ -167,14 +185,36 @@ const SpareNewPartRequest = () => {
             uploadFileIndexes.push(index);
             removeFileIDs.push(formValue?.changeParts?.[index]?._id);
           }
+
           if (item?.standerOrManufacturingPart === partTypes?.[1]?.value) {
             removeFileIDs.push(formValue?.changeParts?.[index]?._id);
+          }
+
+          if (
+            item?.additionalAttachments &&
+            formValue?.changeParts?.[index]?.additionalAttachments?.length > 0
+          ) {
+            Array.from(
+              formValue?.changeParts?.[index]?.additionalAttachments,
+            ).forEach((file) => {
+              formData.append(`additionalAttachments`, file);
+              uploadAdditionalFileIndexes.push(index);
+            });
+            removeAdditionalFileIDs.push(formValue?.changeParts?.[index]?._id);
           }
           return item;
         });
 
         formData.append("uploadFileIndexes", JSON.stringify(uploadFileIndexes));
         formData.append("removeFileIDs", JSON.stringify(removeFileIDs));
+        formData.append(
+          "uploadAdditionalFileIndexes",
+          JSON.stringify(uploadAdditionalFileIndexes),
+        );
+        formData.append(
+          "removeAdditionalFileIDs",
+          JSON.stringify(removeAdditionalFileIDs),
+        );
       }
 
       formValue = dirtyValues(formValue);
@@ -351,13 +391,13 @@ const SpareNewPartRequest = () => {
                           ? false
                           : "Please select",
                       })}
-                      onClick={(e) => {
-                        e.target.value === partQtyOptions?.[0]?.value &&
-                          watch("changeParts")?.length > 1 &&
-                          setValue("changeParts", [watch("changeParts")?.[0]], {
-                            shouldDirty: true,
-                          });
-                      }}
+                      // onClick={(e) => {
+                      //   e.target.value === partQtyOptions?.[0]?.value &&
+                      //     watch("changeParts")?.length > 1 &&
+                      //     setValue("changeParts", [watch("changeParts")?.[0]], {
+                      //       shouldDirty: true,
+                      //     });
+                      // }}
                     />
                   ))}
                 </div>
@@ -490,7 +530,9 @@ const SpareNewPartRequest = () => {
               />
             )}
 
-            {(budget?.budgetStatus === "OK" ||
+            {((budget?.budgetStatus === "OK" &&
+              budget?.requiredBudget >= 0 &&
+              sectionBudget?.sectionWiseCurrentMonthBudget >= 0) ||
               (budget?.budgetStatus === "NG" &&
                 watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
                   "Accepted")) &&

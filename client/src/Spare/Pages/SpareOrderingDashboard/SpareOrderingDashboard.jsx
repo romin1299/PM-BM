@@ -267,6 +267,7 @@ const TaskStatusMappingComponent = memo(
     ...rest
   }) => (
     <>
+      <TDWrapper>{otherData?.newOrReOrderRequest}</TDWrapper>
       <UptoMachineHeaders otherData={otherData} />
       <PartDetailsHeaders otherData={otherData} />
       <ViewTD _id={otherData?._id} navigate={navigate} />
@@ -431,6 +432,7 @@ const OrderTrackingDashboard = memo((props) => {
 
   const tableHeaders = useMemo(
     () => [
+      "Order Type",
       "Request No",
       "Product",
       "Maker",

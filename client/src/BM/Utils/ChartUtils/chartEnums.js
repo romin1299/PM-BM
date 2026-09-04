@@ -140,3 +140,14 @@ export const chartColors = {
 
   exportPpt: ["#2f79bf", "#bbd0e5", "#2693ff", "#ffcd38", "#ff7b64"],
 };
+
+export const generateColors = (count, key) => {
+  const backgroundColor = [];
+
+  for (let i = 0; i < count; i++) {
+    const color = chartColors[key][i % chartColors[key].length];
+    backgroundColor.push(color);
+  }
+
+  return backgroundColor;
+};

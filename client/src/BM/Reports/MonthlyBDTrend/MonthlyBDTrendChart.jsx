@@ -30,7 +30,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 export const options = {
@@ -112,7 +112,6 @@ const MonthlyBDTrendChart = ({
     datasets: [],
   });
 
-  
   const { flagForTogglingFilter, selectedValue } = filterState;
 
   useEffect(() => {
@@ -230,7 +229,7 @@ const MonthlyBDTrendChart = ({
           ["\n"],
           ["Months", ...MONTH_LABELS]?.toString() + "\n",
           ...chartData?.datasets.map(
-            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n"
+            (dataset) => [dataset.label, ...dataset.data]?.toString() + "\n",
           ),
         ];
       } else {
@@ -248,7 +247,7 @@ const MonthlyBDTrendChart = ({
         bodyData,
         fileType,
         header,
-        `Monthly_Bd_Trend_${selectedYear}`
+        `Monthly_Bd_Trend_${selectedYear}`,
       );
     } catch (error) {
       console.error("Error downloading data:", error);

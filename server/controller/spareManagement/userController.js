@@ -3,6 +3,7 @@ const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const {
   mongoDBUserFilters,
   hooksFormReferenceOfApproval,
+  hooksFormReferenceOfEmailReminder,
 } = require("../../utils/spareManagementUtils");
 
 const User = require("../../model/userSchema");
@@ -31,24 +32,26 @@ exports.findRequestedUser = tryCatchHandler(async (req, res, next) => {
 
 exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
   async (req, res, next) => {
-    if (!req?.rootUser?.plant_data)
-      return res.status(400).json({
-        message: "Need to assign plant to user",
-        showToast: true,
-      });
+    if (!req.query?.withDefaultKeys) {
+      if (!req?.rootUser?.plant_data)
+        return res.status(400).json({
+          message: "Need to assign plant to user",
+          showToast: true,
+        });
 
-    if (!req.query?.department)
-      return res.status(400).json({
-        message:
-          "Please provide the department for which you are requesting the part",
-        showToast: true,
-      });
+      if (!req.query?.department)
+        return res.status(400).json({
+          message:
+            "Please provide the department for which you are requesting the part",
+          showToast: true,
+        });
 
-    if (!req.query?.approvalKey)
-      return res.status(400).json({
-        message: "Something went wrong!!!",
-        showToast: true,
-      });
+      if (!req.query?.approvalKey)
+        return res.status(400).json({
+          message: "Something went wrong!!!",
+          showToast: true,
+        });
+    }
 
     const section = await Section.findOne(
       {
@@ -66,10 +69,15 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
         showToast: true,
       });
 
-    const plant = section?.plant_names;
+    let dynamicApproval = [];
 
-    const dynamicApproval =
-      plant?.[req.query?.approvalKey]?.[req.query?.department];
+    if (!req.query?.withDefaultKeys)
+      dynamicApproval =
+        section?.plant_names?.[req.query?.approvalKey]?.[req.query?.department];
+    else if (req.query?.withDefaultKeys === "Yes")
+      dynamicApproval = ["TL", "HOSS", "HOS", "HOD"]?.map(
+        (item) => `${req.rootUser?.tm_department}_${item}`,
+      );
 
     if (!dynamicApproval || dynamicApproval?.length <= 0)
       return res.status(400).json({
@@ -90,7 +98,9 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
     for (let i = 0; i < dynamicApproval.length; i++) {
       let obj = mongoDBUserFilters?.[dynamicApproval[i]];
       hooksFormRefFilter.push({
-        ...hooksFormReferenceOfApproval?.[dynamicApproval[i]],
+        ...(req.query?.requestFor === "EmailReminder"
+          ? hooksFormReferenceOfEmailReminder
+          : hooksFormReferenceOfApproval)?.[dynamicApproval[i]],
         ...obj,
       });
       if (obj?.tm_grade !== "HOD")

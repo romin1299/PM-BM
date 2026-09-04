@@ -5,7 +5,7 @@ import colorsBasedOnOkNGStatus from "../../Utils/colorsBasedOnOkNGStatus";
 import useSafeGetRequest from "../../CustomHooks/useSafeGetRequest";
 
 const SpareStatusOkNGTab = ({
-  requestedFor,
+  requestedFor = "simple",
   axiosConfig,
   referenceArrayForUseEffect,
 }) => {
@@ -37,7 +37,7 @@ const SpareStatusOkNGTab = ({
       isLoading: true,
       isError: false,
       data: {
-        status: "",
+        status: [],
       },
     },
   });
@@ -60,17 +60,19 @@ const SpareStatusOkNGTab = ({
           }}
         />
       </div>
-      <span
-        className="border col-auto d-flex align-items-center justify-content-center m-1"
-        style={{
-          width: "3rem",
-          height: "1.5rem",
-          color: "white",
-          background: colorsBasedOnOkNGStatus(data?.status),
-        }}
-      >
-        {data?.status}
-      </span>
+      {data?.status?.map((item) => (
+        <span
+          className="border col-auto d-flex align-items-center justify-content-center m-1"
+          style={{
+            width: "5rem",
+            height: "1.5rem",
+            color: "white",
+            background: colorsBasedOnOkNGStatus(item?.value),
+          }}
+        >
+          {item?.label}
+        </span>
+      ))}
     </>
   );
 };

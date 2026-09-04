@@ -11,6 +11,7 @@ const url = "/v1/spare/customization/dynamicApproval";
 const DynamicApproval = ({
   approvalKey = "spareSheetDynamicApproval",
   title = "Approval selection",
+  toolRoomPerson = "No",
 }) => {
   const {
     register,
@@ -83,11 +84,13 @@ const DynamicApproval = ({
         ))}
       </Row>
 
-      <Box className="m-2" sx={{ display: "flex", justifyContent: "start" }}>
-        <button type="submit" className="btn bg-succ ">
-          Submit Approval List
-        </button>
-      </Box>
+      {toolRoomPerson !== "Yes" && (
+        <Box className="m-2" sx={{ display: "flex", justifyContent: "start" }}>
+          <button type="submit" className="btn bg-succ ">
+            Submit Approval List
+          </button>
+        </Box>
+      )}
     </form>
   );
 };

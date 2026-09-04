@@ -20,7 +20,8 @@ exports.spareFilterMiddleware = tryCatchHandler(async (req, res, next) => {
   )
     return res.status(400).json({
       message: "Please provide the required filter value",
-      showToast: true,
+      showToast:
+        req.query.showToast && req.query.showToast === "No" ? false : true,
     });
 
   const { selectedValue, flagForTogglingFilter, selectedYear } = req.query;

@@ -196,6 +196,7 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
       ...batchWiseSortPipeline,
       {
         $project: {
+          newOrReOrderRequest: 1,
           requestSheetNo: 1,
           cell: 1,
           line: 1,

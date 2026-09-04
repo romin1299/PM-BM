@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { Col, Row, Form } from "react-bootstrap";
 import { useFieldArray, useWatch } from "react-hook-form";
 import {
@@ -6,12 +6,14 @@ import {
   partQtyOptions,
   partTypes,
   partRequirementTypes,
+  supplierCategoryTypes,
 } from "../Utils/dropdownUtils";
+import { DropdownComponent } from "../Pages/SpareMasterRegistration/SpareMasterRegistration";
 
 const initialState = {};
 
 const PartRow = memo(
-  ({ index, register, remove, partData, newPartFor, isViewMode }) => {
+  ({ index, register, control, remove, partData, newPartFor, isViewMode }) => {
     const partType = partData?.standerOrManufacturingPart;
     const drawingName = partData?.drawingAttachOriginalName;
 
@@ -57,7 +59,9 @@ const PartRow = memo(
               <input
                 type="number"
                 className="w-75"
-                {...register(`changeParts.${index}.quantityRequired`)}
+                {...register(`changeParts.${index}.quantityRequired`, {
+                  valueAsNumber: true,
+                })}
               />
             </Col>
 
@@ -84,29 +88,38 @@ const PartRow = memo(
 
             <Col className="w-100 d-flex justify-content-between">
               <small>Maker</small>
-              <input
-                type="text"
-                className="w-75"
-                {...register(`changeParts.${index}.maker`)}
+              <DropdownComponent
+                control={control}
+                label="Maker"
+                fieldName={`changeParts.${index}.maker`}
+                requestedFor="maker"
               />
             </Col>
 
             <Col className="w-100 d-flex justify-content-between">
               <small>Supplier name</small>
-              <input
-                type="text"
-                className="w-75"
-                {...register(`changeParts.${index}.supplierName`)}
+              <DropdownComponent
+                control={control}
+                label="Supplier name"
+                fieldName={`changeParts.${index}.supplierName`}
+                requestedFor="supplierName"
               />
             </Col>
 
             <Col className="w-100 d-flex justify-content-between">
               <small>Supplier category</small>
-              <input
-                type="text"
-                className="w-75"
-                {...register(`changeParts.${index}.supplierCategory`)}
-              />
+
+              <div className="border d-flex w-75">
+                {supplierCategoryTypes?.map((type) => (
+                  <Form.Check
+                    key={type?.value}
+                    type="radio"
+                    className="m-1"
+                    {...type}
+                    {...register(`changeParts.${index}.supplierCategory`)}
+                  />
+                ))}
+              </div>
             </Col>
 
             <Col className="w-100 d-flex justify-content-between">
@@ -114,7 +127,9 @@ const PartRow = memo(
               <input
                 type="number"
                 className="w-75"
-                {...register(`changeParts.${index}.approxUnitPrice`)}
+                {...register(`changeParts.${index}.approxUnitPrice`, {
+                  valueAsNumber: true,
+                })}
               />
             </Col>
 
@@ -133,7 +148,7 @@ const PartRow = memo(
               </div>
             </Col>
 
-            <Col className="w-100 d-flex justify-content-between">
+            <Col className="w-100 d-flex justify-content-between pb-1">
               <small>
                 Stander/
                 <br />
@@ -166,7 +181,7 @@ const PartRow = memo(
                 </Col>
 
                 {drawingName && (
-                  <Col className="w-100 d-flex justify-content-between pb-1">
+                  <Col className="w-100 d-flex flex-column justify-content-between pb-1">
                     <small>Previously uploaded</small>
                     <a
                       target="_blank"
@@ -179,6 +194,33 @@ const PartRow = memo(
                 )}
               </>
             )}
+
+            <Col className="w-100 d-flex justify-content-between pb-1">
+              <small>Additional attachments</small>
+              <input
+                type="file"
+                multiple
+                className="w-75"
+                {...register(`changeParts.${index}.additionalAttachments`)}
+              />
+            </Col>
+
+            {Array.isArray(partData?.additionalAttachments) &&
+              partData.additionalAttachments.length > 0 && (
+                <Col className="w-100 d-flex flex-column justify-content-between pb-1">
+                  <small>Previously uploaded</small>
+                  {partData.additionalAttachments.map((file, fileIdx) => (
+                    <a
+                      key={file?.filename || fileIdx}
+                      target="_blank"
+                      rel="noreferrer"
+                      href={`${process.env.REACT_APP_BASE_URL}/v1/spare/${file?.filename}`}
+                    >
+                      {file?.originalname}
+                    </a>
+                  ))}
+                </Col>
+              )}
           </Col>
         </Row>
       </div>
@@ -196,7 +238,7 @@ const PartList = ({
   budgetStatus,
   requiredBudget,
 }) => {
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "changeParts",
   });
@@ -211,14 +253,21 @@ const PartList = ({
     name: "newPartFor",
   });
 
+  useEffect(() => {
+    if (partQty === partQtyOptions?.[0]?.value && changeParts?.length > 1) {
+      replace([fields[0]]);
+    }
+  }, [partQty, replace, fields, changeParts]);
+
   return (
     <div className="mtd-parts-section">
       <div className="d-flex flex-wrap">
         {fields.map((item, index) => (
           <PartRow
-            key={item._id}
+            key={item._id || item.id}
             index={index}
             register={register}
+            control={control}
             remove={remove}
             partData={changeParts?.[index]}
             newPartFor={newPartFor}

@@ -80,6 +80,7 @@ const PartListV2 = ({
   register,
   setValue,
   canEdit = true,
+  watch,
 }) => {
   const debounceRef = useRef({});
   const [loadingRows, setLoadingRows] = useState({});
@@ -134,19 +135,6 @@ const PartListV2 = ({
       }, 600);
     },
     [fetchAndFillRow],
-  );
-
-  const handleTempOrPermChange = useCallback(
-    (e, index, registerOnChange) => {
-      registerOnChange(e);
-      const value = e.target.value;
-      setValue(
-        `changeParts.${index}.closingStatusIfTemporary`,
-        value === "Temporary" ? "Open" : "Close",
-        { shouldDirty: true },
-      );
-    },
-    [setValue],
   );
 
   return (
@@ -227,25 +215,17 @@ const PartListV2 = ({
             );
           })}
           <td className="border p-1" style={{ textAlign: "center" }}>
-            {tempOrPermRadioOptions?.map((opt) => {
-              const { onChange: registerOnChange, ...restRegister } = register(
-                `changeParts.${index}.temporaryOrPermanent`,
-              );
-              return (
-                <Form.Check
-                  key={opt?.value}
-                  style={{ fontSize: "12px" }}
-                  className="m-1"
-                  type="radio"
-                  id={`temp-perm-${index}-${opt.value}`}
-                  {...opt}
-                  {...restRegister}
-                  onChange={(e) =>
-                    handleTempOrPermChange(e, index, registerOnChange)
-                  }
-                />
-              );
-            })}
+            {tempOrPermRadioOptions?.map((opt) => (
+              <Form.Check
+                key={opt?.value}
+                style={{ fontSize: "12px" }}
+                className="m-1"
+                type="radio"
+                id={`temp-perm-${index}-${opt.value}`}
+                {...opt}
+                {...register(`changeParts.${index}.temporaryOrPermanent`)}
+              />
+            ))}
           </td>
           <td className="border p-1 size">
             <DateTimeField

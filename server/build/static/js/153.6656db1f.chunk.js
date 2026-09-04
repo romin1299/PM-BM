@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkclient=self.webpackChunkclient||[]).push([[153],{3153(e,s,c){c.r(s);c(9950);var t=c(44414);const l=()=>(0,t.jsx)("div",{children:"SpareReports"});c.d(s,["default",0,l])}}]);

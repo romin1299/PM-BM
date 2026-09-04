@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkclient=self.webpackChunkclient||[]).push([[283],{95283(e,c,s){s.r(c),s.d(c,{default:()=>n});s(9950);var l=s(44414);const n=()=>(0,l.jsx)("div",{children:"SpareKPI"})}}]);

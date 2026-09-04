@@ -225,13 +225,7 @@ const ExistingMachineReqSheetView = ({
         },
       };
       const response = await axios.patch(
-        `/sendApprovalForRequestSheetOfCM/${watch(
-          "_id"
-        )}/?requestSheetStatusOfCM=${watch(
-          "current_commonDataFilledByAssignUser.requestSheetStatusOfCM"
-        )}&&getDataForApprovalDashboard=${watch(
-          "current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id"
-        )}&&isOtherFieldsEditableOrNot=${isOtherFieldsEditableOrNot}`,
+        `/sendApprovalForRequestSheetOfCM/${watch("_id")}`,
         formData,
         config,
       );
@@ -712,89 +706,18 @@ const ExistingMachineReqSheetView = ({
                           </Col>
                         </Row>
 
-                      <Row className="m-0 border d-flex align-items-center">
-                        <Col lg={3}>
-                          <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                            <b>Category:</b>
-                          </p>
-                        </Col>
-                        <Col lg={9}>
-                          <div className="d-flex justify-content-start gap-2 flex-wrap">
-                            {CATEGORIES_OF_CM.map((value, idx) => (
-                              <React.Fragment key={idx}>
-                                <Form.Check
-                                  idx={idx}
-                                  label={value}
-                                  type="radio"
-                                  value={value}
-                                  disabled={
-                                    (watch("isEditableRS")
-                                      ? !watch("isEditableRS")
-                                      : !isEditable) ||
-                                    isOtherFieldsEditableOrNot === "Yes"
-                                  }
-                                  name={`categories`}
-                                  className="col-auto"
-                                  {...register(
-                                    "cmBasicDataFilledByMTD_TL.categories",
-                                    {
-                                      // required: "Category is required",
-                                      required:
-                                        (watch("isEditableRS")
-                                          ? watch("isEditableRS")
-                                          : isEditable) &&
-                                        isOtherFieldsEditableOrNot !== "Yes"
-                                          ? "Category is required"
-                                          : false,
-                                    }
-                                  )}
-                                />
-                              </React.Fragment>
-                            ))}
-                          </div>
-                          {errors?.cmBasicDataFilledByMTD_TL?.categories && (
-                            <p className="text-error">
-                              {
-                                errors?.cmBasicDataFilledByMTD_TL?.categories
-                                  ?.message
-                              }
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={3}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Category:</b>
                             </p>
-                          )}
-                          {watch("cmBasicDataFilledByMTD_TL.categories") ===
-                            "Others" && (
-                            <>
-                              <input
-                                type="text"
-                                size={20}
-                                className="m-1 mb-2"
-                                disabled={
-                                  watch("isEditableRS")
-                                    ? !watch("isEditableRS")
-                                    : !isEditable
-                                }
-                                {...register(
-                                  "cmBasicDataFilledByMTD_TL.other_categories",
-                                  {
-                                    required: "Other category is required",
-                                  }
-                                )}
-                              />
-                              {errors?.cmBasicDataFilledByMTD_TL
-                                ?.other_categories && (
-                                <p className="text-error">
-                                  {
-                                    errors?.cmBasicDataFilledByMTD_TL
-                                      ?.other_categories?.message
-                                  }
-                                </p>
-                              )}
-                            </>
-                          )}
-
-                          {watch("cmBasicDataFilledByMTD_TL.categories") ===
-                            "FIOT" && (
-                            <div className="d-flex gap-2 flex-wrap">
-                              {FIOtSubCategories.map((value, idx) => (
+                          </Col>
+                          <Col lg={9}>
+                            <div className="d-flex justify-content-start gap-2 flex-wrap">
+                              {CATEGORIES_OF_CM.map((value, idx) => (
                                 <React.Fragment key={idx}>
                                   <Form.Check
                                     idx={idx}
@@ -807,9 +730,10 @@ const ExistingMachineReqSheetView = ({
                                         : !isEditable) ||
                                       isOtherFieldsEditableOrNot === "Yes"
                                     }
+                                    name={`categories`}
                                     className="col-auto"
                                     {...register(
-                                      "cmBasicDataFilledByMTD_TL.subCategories",
+                                      "cmBasicDataFilledByMTD_TL.categories",
                                       {
                                         // required: "Category is required",
                                         required:
@@ -817,51 +741,127 @@ const ExistingMachineReqSheetView = ({
                                             ? watch("isEditableRS")
                                             : isEditable) &&
                                           isOtherFieldsEditableOrNot !== "Yes"
-                                            ? "Sub category is required"
+                                            ? "Category is required"
                                             : false,
-                                      }
+                                      },
                                     )}
                                   />
                                 </React.Fragment>
                               ))}
                             </div>
-                          )}
-                        </Col>
-                      </Row>
-                      <Row className="m-0 border d-flex align-items-center">
-                        <Col lg={3}>
-                          <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
-                            <b>Frequency: </b> &nbsp;&nbsp;
-                          </p>
-                        </Col>
-                        <Col lg={9}>
-                          {FREQUENCY_OF_CM?.map((value, idx) => (
-                            <React.Fragment key={idx}>
-                              <Form.Check
-                                label={value?.frequencyType}
-                                type="radio"
-                                value={value?.frequencyType}
-                                disabled={
-                                  (watch("isEditableRS")
-                                    ? !watch("isEditableRS")
-                                    : !isEditable) ||
-                                  isOtherFieldsEditableOrNot === "Yes"
+                            {errors?.cmBasicDataFilledByMTD_TL?.categories && (
+                              <p className="text-error">
+                                {
+                                  errors?.cmBasicDataFilledByMTD_TL?.categories
+                                    ?.message
                                 }
-                                name="cmBasicDataFilledByMTD_TL.frequencyType"
-                                className="m-1 mb-2"
-                                {...register(
-                                  "cmBasicDataFilledByMTD_TL.frequencyType",
-                                  {
-                                    required:
-                                      (watch("isEditableRS")
-                                        ? watch("isEditableRS")
-                                        : isEditable) &&
-                                      isOtherFieldsEditableOrNot !== "Yes"
-                                        ? "Please select frequency type"
-                                        : false,
+                              </p>
+                            )}
+                            {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                              "Others" && (
+                              <>
+                                <input
+                                  type="text"
+                                  size={20}
+                                  className="m-1 mb-2"
+                                  disabled={
+                                    watch("isEditableRS")
+                                      ? !watch("isEditableRS")
+                                      : !isEditable
                                   }
+                                  {...register(
+                                    "cmBasicDataFilledByMTD_TL.other_categories",
+                                    {
+                                      required: "Other category is required",
+                                    },
+                                  )}
+                                />
+                                {errors?.cmBasicDataFilledByMTD_TL
+                                  ?.other_categories && (
+                                  <p className="text-error">
+                                    {
+                                      errors?.cmBasicDataFilledByMTD_TL
+                                        ?.other_categories?.message
+                                    }
+                                  </p>
                                 )}
-                              />
+                              </>
+                            )}
+
+                            {watch("cmBasicDataFilledByMTD_TL.categories") ===
+                              "FIOT" && (
+                              <div className="d-flex gap-2 flex-wrap">
+                                {FIOtSubCategories.map((value, idx) => (
+                                  <React.Fragment key={idx}>
+                                    <Form.Check
+                                      idx={idx}
+                                      label={value}
+                                      type="radio"
+                                      value={value}
+                                      disabled={
+                                        (watch("isEditableRS")
+                                          ? !watch("isEditableRS")
+                                          : !isEditable) ||
+                                        isOtherFieldsEditableOrNot === "Yes"
+                                      }
+                                      className="col-auto"
+                                      {...register(
+                                        "cmBasicDataFilledByMTD_TL.subCategories",
+                                        {
+                                          // required: "Category is required",
+                                          required:
+                                            (watch("isEditableRS")
+                                              ? watch("isEditableRS")
+                                              : isEditable) &&
+                                            isOtherFieldsEditableOrNot !== "Yes"
+                                              ? "Sub category is required"
+                                              : false,
+                                        },
+                                      )}
+                                    />
+                                  </React.Fragment>
+                                ))}
+                              </div>
+                            )}
+                          </Col>
+                        </Row>
+                        <Row className="m-0 border d-flex align-items-center">
+                          <Col lg={3}>
+                            <p
+                              className="mb-0 pt-1"
+                              style={{ fontSize: "12px" }}
+                            >
+                              <b>Frequency: </b> &nbsp;&nbsp;
+                            </p>
+                          </Col>
+                          <Col lg={9}>
+                            {FREQUENCY_OF_CM?.map((value, idx) => (
+                              <React.Fragment key={idx}>
+                                <Form.Check
+                                  label={value?.frequencyType}
+                                  type="radio"
+                                  value={value?.frequencyType}
+                                  disabled={
+                                    (watch("isEditableRS")
+                                      ? !watch("isEditableRS")
+                                      : !isEditable) ||
+                                    isOtherFieldsEditableOrNot === "Yes"
+                                  }
+                                  name="cmBasicDataFilledByMTD_TL.frequencyType"
+                                  className="m-1 mb-2"
+                                  {...register(
+                                    "cmBasicDataFilledByMTD_TL.frequencyType",
+                                    {
+                                      required:
+                                        (watch("isEditableRS")
+                                          ? watch("isEditableRS")
+                                          : isEditable) &&
+                                        isOtherFieldsEditableOrNot !== "Yes"
+                                          ? "Please select frequency type"
+                                          : false,
+                                    },
+                                  )}
+                                />
 
                                 <div key={idx}>
                                   {/* Render frequency values only if the frequencyType is Scheduled */}

@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Chart } from "react-chartjs-2";
 import { Box } from "@mui/material";
 import { chartColors } from "../../../BM/Utils/ChartUtils/chartEnums";
-import ChartTitleBar from "../../../BM/Reports/Common/ChartTitleBar";
+import ChartTitleBar, {
+  ChartDownloadMenu,
+} from "../../../BM/Reports/Common/ChartTitleBar";
 import SpareStatusOkNGTab from "../../Component/SpareStatusOkNGTab";
+import { handleDownloadBudgetCSVOrPDF } from "../SpareKPI/SubComponent/handleDownloadCSVOrPDF";
 
 const options = {
   maintainAspectRatio: false,
@@ -89,62 +92,93 @@ const labels = [
 ];
 
 const MonthWisePlanVsActualGraph = ({
+  title = "Month-wise Plan vs Actual",
+  requestedFor = "simple",
   budget,
   axiosConfig,
   referenceArrayForUseEffect,
+  csvOrPDfFileNamePostPix = "",
+  filters = [],
 }) => {
-  const data = {
-    labels,
-    datasets: [
-      {
-        type: "line",
-        label: "Cum Plant",
-        data: budget?.cumulativePlan,
-        borderColor: chartColors[0],
-        backgroundColor: chartColors[0],
-        pointStyle: "rectRot",
-        // yAxisID: "y1",
-      },
-      {
-        type: "line",
-        label: "Cum Actual",
-        data: budget?.cumulativeActual,
-        borderColor: chartColors[10],
-        backgroundColor: chartColors[10],
-        pointStyle: "rectRot",
-        // yAxisID: "y1",
-      },
-      {
-        type: "bar",
-        stack: "bar-stacked",
-        label: "Monthly Plant",
-        data: budget?.plan,
-        backgroundColor: chartColors.barChart,
-        borderRadius: 4,
-        pointStyle: "rect",
-      },
-      {
-        type: "bar",
-        label: "Monthly Actual",
-        data: budget?.actual,
-        backgroundColor: chartColors.dailyBDTrendBorder[1],
-        borderRadius: 4,
-        pointStyle: "rect",
-      },
-    ],
-  };
+  const data = useMemo(
+    () => ({
+      labels,
+      datasets: [
+        {
+          type: "line",
+          label: "Cum Plant",
+          data: budget?.cumulativePlan,
+          borderColor: chartColors[0],
+          backgroundColor: chartColors[0],
+          pointStyle: "rectRot",
+          // yAxisID: "y1",
+        },
+        {
+          type: "line",
+          label: "Cum Actual",
+          data: budget?.cumulativeActual,
+          borderColor: chartColors[10],
+          backgroundColor: chartColors[10],
+          pointStyle: "rectRot",
+          // yAxisID: "y1",
+        },
+        {
+          type: "bar",
+          stack: "bar-stacked",
+          label: "Monthly Plant",
+          data: budget?.plan,
+          backgroundColor: chartColors.barChart,
+          borderRadius: 4,
+          pointStyle: "rect",
+        },
+        {
+          type: "bar",
+          label: "Monthly Actual",
+          data: budget?.actual,
+          backgroundColor: chartColors.dailyBDTrendBorder[1],
+          borderRadius: 4,
+          pointStyle: "rect",
+        },
+      ],
+    }),
+    [budget],
+  );
 
   return (
     <>
       <ChartTitleBar
-        title="Month-wise Plan vs Actual"
+        title={title}
         fontWeight={500}
         Toolbar={
-          <SpareStatusOkNGTab
-            requestedFor="simple"
-            axiosConfig={axiosConfig}
-            referenceArrayForUseEffect={referenceArrayForUseEffect}
-          />
+          <>
+            <SpareStatusOkNGTab
+              requestedFor={requestedFor}
+              axiosConfig={axiosConfig}
+              referenceArrayForUseEffect={referenceArrayForUseEffect}
+            />
+            <div className="col-auto">
+              <ChartDownloadMenu
+                handleDownloadCSV={() => {
+                  handleDownloadBudgetCSVOrPDF({
+                    format: "csv",
+                    fileName: title,
+                    csvOrPDfFileNamePostPix,
+                    filters,
+                    budget,
+                  });
+                }}
+                handleDownloadPDF={() => {
+                  handleDownloadBudgetCSVOrPDF({
+                    format: "pdf",
+                    fileName: title,
+                    csvOrPDfFileNamePostPix,
+                    filters,
+                    budget,
+                  });
+                }}
+              />
+            </div>
+          </>
         }
       />
 
@@ -155,6 +189,7 @@ const MonthWisePlanVsActualGraph = ({
             flex: "1 1 auto",
             minHeight: "200Px",
             width: "100%",
+            height: { xs: "280px", sm: "380px", md: "400px" },
           }}
         >
           <Chart data={data} options={options} />

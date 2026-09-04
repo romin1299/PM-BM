@@ -389,6 +389,7 @@ const AllRequestSheetReportDataOfCM = () => {
         //   inheritViewBox
         // />
       ),
+      hidden: process.env.REACT_APP_MODE !== "UP_TO_SPARE",
       tooltip: "Spare Require Mail",
       position: "row",
       onClick: (event, selectedRow) => {

@@ -44,6 +44,7 @@ const SpareSheetCustomTable = ({
   },
   showOnlySelected = false,
   selectedRows = new Map(),
+  isNormalRowActions = false,
 }) => {
   const cursorRef = useRef(null);
 
@@ -137,6 +138,14 @@ const SpareSheetCustomTable = ({
 
   const updateRow = useCallback((spareParts = []) => {
     if (!spareParts.length) return;
+
+    if (isNormalRowActions)
+      return setData((prev) => ({
+        ...prev,
+        tableData: prev.tableData?.map((item) =>
+          item?._id === spareParts?.[0]?._id ? spareParts?.[0] : item,
+        ),
+      }));
 
     const partsMap = new Map(
       spareParts.map((item) => [item?.changeParts?._id, item]),

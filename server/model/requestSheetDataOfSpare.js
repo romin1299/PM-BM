@@ -47,10 +47,10 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
         type: Number,
       },
     },
-    isNewRequest: {
-      type: Boolean,
-      default: true,
-      enum: [true, false],
+    newOrReOrderRequest: {
+      type: String,
+      default: "NEW",
+      enum: ["NEW", "REORDER"],
     },
     changeParts: [
       {
@@ -71,7 +71,12 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
         normalOrUrgentPart: String,
         drawingAttach: String,
         drawingAttachOriginalName: String,
-
+        additionalAttachments: [
+          {
+            filename: String,
+            originalname: String,
+          },
+        ],
         //Batch wise
         batchId: {
           type: mongoose.Schema.Types.ObjectId,

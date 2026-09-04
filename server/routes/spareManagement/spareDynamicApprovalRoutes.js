@@ -5,6 +5,7 @@ const {
   authorizedToCustomize,
   configureSpareDynamicApproval,
   getSpareDynamicApproval,
+  toolRoomAuthorizedToCustomize,
   configureLeadTime,
   getLeadTime,
   configureCurrencyConversion,
@@ -18,12 +19,12 @@ router
 
 router
   .route("/customization/dynamicCurrencyConversion")
-  .patch(authorizedToCustomize, configureCurrencyConversion)
+  .patch(toolRoomAuthorizedToCustomize, configureCurrencyConversion)
   .get(getCurrencyConversion);
 
 router
   .route("/customization/leadTime")
-  .patch(authorizedToCustomize, configureLeadTime)
+  .patch(toolRoomAuthorizedToCustomize, configureLeadTime)
   .get(getLeadTime);
 
 router

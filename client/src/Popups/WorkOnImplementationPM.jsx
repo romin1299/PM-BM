@@ -313,7 +313,8 @@ function WorkOnImplementationPM({
                     />
                   </div>
                   {formik.values.workedOnPM === "Rectify" &&
-                    formik.values.spareParts === "Yes" && (
+                    formik.values.spareParts === "Yes" &&
+                    process.env.REACT_APP_MODE === "UP_TO_SPARE" && (
                       <SparePartIssuanceComponent
                         machineParentHierarchy={{
                           cell: {

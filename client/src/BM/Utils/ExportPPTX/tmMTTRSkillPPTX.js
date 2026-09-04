@@ -141,7 +141,7 @@ async function genSlide01(pptx, urlOptions) {
     //
     chartColors: ["2f79bf"],
   };
-  // console.log("mttrTrendOptions:", mttrTrendOptions);
+  console.log("mttrTrendData:", mttrTrendData);
   // Add chart to the slide with specified options
   if (mttrTrendData.length > 0) {
     slide.addChart(pptx.ChartType.bar, mttrTrendData, mttrTrendOptions);

@@ -8,7 +8,7 @@ import useSafeGetRequest from "../CustomHooks/useSafeGetRequest";
 const ExistingSafetyForm = ({ reset, params, otherFormSubmitParams }) => {
   const [selectedSafetyForm, setSelectedSafetyForm] = useState("");
 
-  const [{ isLoading, isError, data }] = useSafeGetRequest({
+  const [{ isLoading, data }] = useSafeGetRequest({
     url: "/pm/v1/safetyForm/list",
     axiosConfig: {
       params: { ...params, ...otherFormSubmitParams },

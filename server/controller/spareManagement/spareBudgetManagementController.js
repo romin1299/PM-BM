@@ -6,11 +6,10 @@ const getFY = require("../../utils/getFY");
 const Cell = require("../../model/cellSchema");
 const SpareBudget = require("../../model/spareBudgetSchema");
 
-const filterKeys = {
-  "based-on-section": "section",
-  "based-on-subSection": "subSection",
-  "based-on-cell": "cell",
-};
+const {
+  filterKeys,
+  sumArrayField,
+} = require("../../utils/spareManagementUtils");
 
 const handleMapGeneration = (firstArr = "$plan", secondArr = "$BPDActual") => ({
   $map: {
@@ -31,28 +30,15 @@ const handleMapGeneration = (firstArr = "$plan", secondArr = "$BPDActual") => ({
   },
 });
 
-function sumArrayField(fieldName) {
-  return {
-    $map: {
-      input: { $range: [0, 12] },
-      as: "i",
-      in: {
-        $sum: {
-          $map: {
-            input: `$${fieldName}Arr`,
-            as: "arr",
-            in: { $arrayElemAt: ["$$arr", "$$i"] },
-          },
-        },
-      },
-    },
-  };
-}
-
 exports.budgetFilterMiddleware = tryCatchHandler(async (req, res, next) => {
   let $match = {
     financialYear: getFY(),
   };
+
+  if (req.query?.selectedYear)
+    $match = {
+      "financialYear.inString": req.query?.selectedYear,
+    };
 
   if (req.query.selectedValue) {
     let matchingKey = filterKeys?.[req.query?.flagForTogglingFilter] || "cell";
@@ -277,6 +263,88 @@ exports.getFYPlanVsActualBudget = tryCatchHandler(async (req, res, next) => {
   });
 });
 
+// exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
+//   const { requestedFor, selectedMonth } = req.query;
+
+//   if (!selectedMonth || !requestedFor)
+//     return res.status(400).json({
+//       message: "Please provide required data",
+//       showToast: true,
+//     });
+
+//   const month =
+//     (moment(
+//       selectedMonth,
+//       `MMM${["June", "July"].includes(selectedMonth) ? "M" : ""}`,
+//     ).month() +
+//       12 -
+//       3) %
+//     12;
+
+//   let keys = {
+//     planKey: "$plan",
+//     actualKey: "$BPDActual",
+//   };
+
+//   if (requestedFor === "cumulative")
+//     keys = {
+//       planKey: "$cumulativePlan",
+//       actualKey: "$cumulativeActual",
+//     };
+
+//   let pipeline = [],
+//     $gte = [
+//       { $arrayElemAt: [keys.planKey, month] },
+//       { $arrayElemAt: [keys.actualKey, month] },
+//     ];
+
+//   if (
+//     req.query.selectedValue &&
+//     req.query?.flagForTogglingFilter !== "based-on-cell"
+//   ) {
+//     const matchingKey = filterKeys?.[req.query?.flagForTogglingFilter];
+//     pipeline = [
+//       {
+//         $group: {
+//           _id: `$${matchingKey}._id`,
+//           groupedPlan: {
+//             $sum: { $arrayElemAt: [keys.planKey, month] },
+//           },
+//           groupedActual: {
+//             $sum: { $arrayElemAt: [keys.actualKey, month] },
+//           },
+//         },
+//       },
+//     ];
+
+//     $gte = ["$groupedPlan", "$groupedActual"];
+//   }
+
+//   const budget = await SpareBudget.aggregate([
+//     {
+//       $match: req.$match,
+//     },
+//     ...pipeline,
+//     {
+//       $project: {
+//         status: {
+//           $cond: [{ $gte }, "Ok", "NG"],
+//         },
+//       },
+//     },
+//   ]);
+
+//   if (!budget || budget?.length <= 0)
+//     return res.status(404).json({
+//       message: "No data to display",
+//     });
+
+//   return res.status(201).json({
+//     message: "FY Plant Vs actual budget get successfully",
+//     ...budget[0],
+//   });
+// });
+
 exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
   const { requestedFor, selectedMonth } = req.query;
 
@@ -295,22 +363,35 @@ exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
       3) %
     12;
 
-  let keys = {
-    planKey: "$plan",
-    actualKey: "$BPDActual",
-  };
+  let keys = [
+    {
+      label: "Monthly",
+      planKey: "$plan",
+      actualKey: "$BPDActual",
+      groupKey: {
+        key1: "groupedPlan1",
+        key2: "groupedActual1",
+      },
+    },
+  ];
 
-  if (requestedFor === "cumulative")
-    keys = {
+  if (requestedFor !== "simple") {
+    const cumulativeObj = {
+      label: "Cumu",
       planKey: "$cumulativePlan",
       actualKey: "$cumulativeActual",
+      groupKey: {
+        key1: "groupedPlan2",
+        key2: "groupedActual2",
+      },
     };
 
+    if (requestedFor === "cumulative") keys = [cumulativeObj];
+    else keys.push(cumulativeObj);
+  }
+
   let pipeline = [],
-    $gte = [
-      { $arrayElemAt: [keys.planKey, month] },
-      { $arrayElemAt: [keys.actualKey, month] },
-    ];
+    status = [];
 
   if (
     req.query.selectedValue &&
@@ -321,17 +402,49 @@ exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
       {
         $group: {
           _id: `$${matchingKey}._id`,
-          groupedPlan: {
-            $sum: { $arrayElemAt: [keys.planKey, month] },
-          },
-          groupedActual: {
-            $sum: { $arrayElemAt: [keys.actualKey, month] },
-          },
         },
       },
     ];
 
-    $gte = ["$groupedPlan", "$groupedActual"];
+    keys.map((item) => {
+      pipeline[0].$group[item?.groupKey?.key1] = {
+        $sum: { $arrayElemAt: [item?.planKey, month] },
+      };
+      pipeline[0].$group[item?.groupKey?.key2] = {
+        $sum: { $arrayElemAt: [item?.actualKey, month] },
+      };
+
+      status.push({
+        label: item?.label,
+        value: {
+          $cond: [
+            {
+              $gte: [`$${item?.groupKey?.key1}`, `$${item?.groupKey?.key2}`],
+            },
+            "Ok",
+            "NG",
+          ],
+        },
+      });
+    });
+  } else {
+    keys.map((item) =>
+      status.push({
+        label: item?.label,
+        value: {
+          $cond: [
+            {
+              $gte: [
+                { $arrayElemAt: [item?.planKey, month] },
+                { $arrayElemAt: [item?.actualKey, month] },
+              ],
+            },
+            "Ok",
+            "NG",
+          ],
+        },
+      }),
+    );
   }
 
   const budget = await SpareBudget.aggregate([
@@ -341,9 +454,7 @@ exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
     ...pipeline,
     {
       $project: {
-        status: {
-          $cond: [{ $gte }, "Ok", "NG"],
-        },
+        status,
       },
     },
   ]);

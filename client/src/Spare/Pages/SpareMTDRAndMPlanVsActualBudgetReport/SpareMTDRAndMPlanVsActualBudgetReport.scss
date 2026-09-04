@@ -1,0 +1,18 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(max(280px, calc((100% - 2 * 12px) / 3)), 1fr)
+  );
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;   
+  min-height: 220px;  
+  overflow: hidden;
+}

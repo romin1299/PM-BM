@@ -18152,7 +18152,10 @@ const responseFilterMiddleWareForSpare = async (req, res, next) => {
   try {
     if (req.query?.moduleType !== "Spare") return next();
 
-    if (req.section.dashboardLevel === "No") {
+    if (
+      req.section.dashboardLevel === "No" ||
+      req.query?.upTo === "subSection"
+    ) {
       return res.status(201).json({
         message: "SubSections get successfully",
 
@@ -18381,9 +18384,16 @@ const functionForFindingCellBasedOnSelectedSubSection = async (
   next,
 ) => {
   try {
-    const cells = await Cell.find({
-      subSection_names: mongoose.Types.ObjectId(req.params?.id),
-    });
+    const cells = await Cell.find(
+      {
+        subSection_names: mongoose.Types.ObjectId(req.params?.id),
+      },
+      {
+        cell_id: 1,
+        cell_name: 1,
+        subSection_names: 1,
+      },
+    );
 
     return res.status(201).json({
       message: "Cell dropdown value get successfully",
@@ -18408,9 +18418,16 @@ const functionForFindingCellBasedOnSelectedSubSection = async (
 
 const functionForFindingLineBasedOnSelectedCell = async (req, res, next) => {
   try {
-    const lines = await Line.find({
-      cell_names: mongoose.Types.ObjectId(req.params?.id),
-    });
+    const lines = await Line.find(
+      {
+        cell_names: mongoose.Types.ObjectId(req.params?.id),
+      },
+      {
+        line_id: 1,
+        line_name: 1,
+        cell_names: 1,
+      },
+    );
 
     return res.status(201).json({
       message: "Line dropdown value get successfully",
@@ -20865,3 +20882,32 @@ const migrateSafetyForms = async () => {
 };
 
 // migrateSafetyForms();
+
+const handleUpdate = async () => {
+  //CE-O2-2W Line-03-8-BM-147, CE-O2 2W Line-02-8-BM-1025, CE-O2 2W Line-02-8-BM-1028
+
+  await RequestSheetOfBM.updateMany(
+    {
+      requestSheetNoOfBM: {
+        $in: [
+          "CE-O2-2W Line-03-8-BM-147",
+          "CE-O2 2W Line-02-8-BM-1025",
+          "CE-O2 2W Line-02-8-BM-1028",
+        ],
+      },
+    },
+    [
+      {
+        $set: {
+          approvalOfMTD_TL: { $slice: ["$approvalOfMTD_TL", 1] },
+          approvalStatusOfMTD_TL: { $slice: ["$approvalStatusOfMTD_TL", 1] },
+          approverNameLogOfMTD_TL: { $slice: ["$approverNameLogOfMTD_TL", 1] },
+        },
+      },
+    ],
+  );
+
+  console.log("Updated successfully");
+};
+
+// handleUpdate();

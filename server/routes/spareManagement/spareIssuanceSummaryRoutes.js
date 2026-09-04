@@ -20,6 +20,7 @@ const {
   exportIssuanceSummaryResponse,
   getIssuanceSummeryCounters,
   handleSetPartApproval,
+  submitApprovalResponse,
   getPartApprovalFilter,
   sendApprovalProjection,
   getPartApprovalResponse,
@@ -69,7 +70,13 @@ router
 
 router
   .route("/spareIssuance/approval")
-  .post(handleSetPartApproval)
+  .post(
+    handleSetPartApproval,
+    requiredBudgetCalculation,
+    issuanceSummeryProjection,
+    getIssuanceSummery,
+    submitApprovalResponse,
+  )
   .get(
     getPartApprovalFilter,
     sendApprovalProjection,

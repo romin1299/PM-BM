@@ -110,6 +110,7 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
           quantityRequired: "$changeParts.quantityRequired",
           maker: "$changeParts.maker",
           supplierName: "$changeParts.supplierName",
+          supplierCategory: "$changeParts.supplierCategory",
         },
       },
     ]);
@@ -150,6 +151,35 @@ exports.handleMasterConfiguration = tryCatchHandler(async (req, res, next) => {
       success: false,
       message: "Invalid ObjectId format",
     });
+
+  const existingRSSheet = await RequestSheetOfSpare.findOne(
+    {
+      _id: sheetId,
+    },
+    {
+      machine: 1,
+      line: 1,
+      cell: 1,
+      subSection: 1,
+      section: 1,
+      plant: 1,
+    },
+  );
+
+  if (!existingRSSheet)
+    return res.status(400).json({
+      success: false,
+      message: "Request sheet does not exists",
+    });
+
+  const { machine, line, cell, subSection, section, plant } = existingRSSheet;
+
+  req.body["machine"] = machine;
+  req.body["line"] = line;
+  req.body["cell"] = cell;
+  req.body["subSection"] = subSection;
+  req.body["section"] = section;
+  req.body["plant"] = plant;
 
   req.body["createdBy"] = req.rootUser;
   req.body["rsTimeStamp"] = generateTimestampIndividually();

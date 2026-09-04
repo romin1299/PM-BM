@@ -46,6 +46,26 @@ const spareIssuanceSummarySchema = new mongoose.Schema(
         approvalOfMTD_HOD: approvalSchemaObj,
         approvalOfPRD_HOD: approvalSchemaObj,
         approvalOfTOOL_ROOM: approvalSchemaObj,
+
+        isStockOut: {
+          type: Boolean,
+          default: false,
+        },
+        consumption: {
+          cost: {
+            type: Number,
+          },
+          quantity: {
+            type: Number,
+          },
+        },
+
+        reminderTracking: [
+          {
+            level: { type: Number },
+            sentAt: { type: Date, default: Date.now },
+          },
+        ],
       },
     ],
 
@@ -57,6 +77,26 @@ const spareIssuanceSummarySchema = new mongoose.Schema(
       enum: ["MTD", "PRD"],
       default: "MTD",
     },
+
+    isTemporaryPartSelected: Boolean,
+    emailReminderMTL: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+    },
+    emailReminderHOSS: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+    },
+    emailReminderHOS: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+    },
+    emailReminderHOD: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+    },
+
+    reminderEmails: [String],
 
     createdBy: {
       _id: {

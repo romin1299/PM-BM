@@ -1978,10 +1978,10 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
                   [],
                 ],
               },
+              {
+                $eq: ["$requestSheetCreatedBy.tm_no", req.rootUser?.tm_no],
+              },
             ],
-          },
-          {
-            $eq: ["$requestSheetCreatedBy.tm_no", req.rootUser?.tm_no],
           },
         ],
       },
@@ -4133,7 +4133,7 @@ router
         },
         {
           $set: {
-            ["commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].isSafetyFormSubmitted"]: true,
+            "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].isSafetyFormSubmitted": true,
           },
         },
         {
@@ -4280,7 +4280,7 @@ router.put("/jobs/:id", async (req, res) => {
     const updatedJob = await Jobs.findByIdAndUpdate(
       req.params.id,
       { job_name, job_content },
-      { new: true }
+      { new: true },
     );
     if (!updatedJob) return res.status(404).json({ message: "Job not found" });
     res.json(updatedJob);
@@ -4350,7 +4350,7 @@ router.delete("/jobs/:id/job-content/:subJobId", async (req, res) => {
     // Filter out the sub job with the given _id
     const initialLength = job.job_content.length;
     job.job_content = job.job_content.filter(
-      (content) => content._id.toString() !== subJobId
+      (content) => content._id.toString() !== subJobId,
     );
 
     // Check if any item was actually removed
@@ -4432,7 +4432,7 @@ const approvalSendMiddleware = (
   parentKeyOfObject,
   updateObj,
   otherArrayFilters,
-  isOtherFieldsEditableOrNot
+  isOtherFieldsEditableOrNot,
 ) => {
   // Guard clause: Only proceed if the approval field exists in request
   if (specificUserObj?.[key]) {
@@ -4503,7 +4503,7 @@ const approvalSendMiddleware = (
     otherArrayFilters.push({
       [`${key}userFilter._id`]: mongoose.Types.ObjectId(
         // The _id of the existing approval entry to update
-        AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField
+        AddNewOrUpdateExistingArrayField?.refIdFOrUpdateExitingField,
       ),
     });
   }
@@ -4593,7 +4593,7 @@ router.post(
 
         // If it's already an array, keep it; otherwise convert object values to array
         payload.newMachineRequestFilledByPED.modificationWork = Array.isArray(
-          mw
+          mw,
         )
           ? mw
           : Object.values(mw);
@@ -4670,7 +4670,7 @@ router.post(
             "newMachineRequestFilledByPED",
             updateObj,
             otherArrayFilters,
-            req?.query?.isOtherFieldsEditableOrNot
+            req?.query?.isOtherFieldsEditableOrNot,
           );
           delete payload?.newMachineRequestFilledByPED?.checkedByPED_HOS;
 
@@ -4697,7 +4697,7 @@ router.post(
             "newMachineRequestFilledByPED",
             updateObj,
             otherArrayFilters,
-            req?.query?.isOtherFieldsEditableOrNot
+            req?.query?.isOtherFieldsEditableOrNot,
           );
           delete payload?.newMachineRequestFilledByPED?.approvedByPED_HOD;
         }
@@ -4710,7 +4710,7 @@ router.post(
             "filledByMTD_User",
             updateObj,
             otherArrayFilters,
-            req?.query?.isOtherFieldsEditableOrNot
+            req?.query?.isOtherFieldsEditableOrNot,
           );
           delete payload?.filledByMTD_User?.modificationWork_ApprovedByMTD_HOS;
         }
@@ -4723,7 +4723,7 @@ router.post(
             "filledByMTD_User",
             updateObj,
             otherArrayFilters,
-            req?.query?.isOtherFieldsEditableOrNot
+            req?.query?.isOtherFieldsEditableOrNot,
           );
           delete payload?.filledByMTD_User?.modificationWork_ApprovedByMTD_HOD;
         }
@@ -4765,7 +4765,7 @@ router.post(
           { $set: setObj },
           {
             arrayFilters: otherArrayFilters,
-          }
+          },
         );
 
         // Phase 2: If $push operations exist, execute them in a second update
@@ -4776,7 +4776,7 @@ router.post(
             { $push: updateObj._push },
             {
               arrayFilters: otherArrayFilters,
-            }
+            },
           );
         }
 
@@ -4839,7 +4839,7 @@ router.post(
         error: err.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -5082,19 +5082,19 @@ const getNewMachineCMRequestSheet = tryCatchHandler(async (req, res, next) => {
         // Each approval stage needs to know whether to ADD_NEW or UPDATE_EXISTING
         PED_Filled_CheckedBy_PED_HOS: addFieldsForTheApprovalAddAndUpdate(
           "$newMachineRequestFilledByPED",
-          "checkedByPED_HOS"
+          "checkedByPED_HOS",
         ),
         PED_Filled_ApprovedBy_PED_HOD: addFieldsForTheApprovalAddAndUpdate(
           "$newMachineRequestFilledByPED",
-          "approvedByPED_HOD"
+          "approvedByPED_HOD",
         ),
         MTD_Modification_ApprovedByMTD_HOS: addFieldsForTheApprovalAddAndUpdate(
           "$filledByMTD_User",
-          "modificationWork_ApprovedByMTD_HOS"
+          "modificationWork_ApprovedByMTD_HOS",
         ),
         MTD_Modification_ApprovedByMTD_HOD: addFieldsForTheApprovalAddAndUpdate(
           "$filledByMTD_User",
-          "modificationWork_ApprovedByMTD_HOD"
+          "modificationWork_ApprovedByMTD_HOD",
         ),
 
         // ============== MACHINE HIERARCHY FIELDS ==============
@@ -5162,7 +5162,7 @@ router.get(
       newMachineReqSheetCM: req.result, // Array of request sheets from aggregation
       // counters: counters?.[0],
     });
-  })
+  }),
 );
 
 /**
@@ -5215,7 +5215,7 @@ router.get(
     successResponse(res, "Request sheet fetched successfully", {
       requestSheet: req?.result?.[0], // Single request sheet object
     });
-  })
+  }),
 );
 
 /**
@@ -5260,7 +5260,7 @@ router.get(
     req.queryObj = {
       ...req?.queryObj, // Preserve existing filters from filterMiddleware
       "getDataForApprovalDashboard.Id": mongoose.Types.ObjectId(
-        req.rootUser?._id // Convert user ID to MongoDB ObjectId
+        req.rootUser?._id, // Convert user ID to MongoDB ObjectId
       ),
     };
     return next();
@@ -5292,7 +5292,7 @@ router.get(
         .status(500)
         .json({ message: error?.message, error: new Error(error) });
     }
-  }
+  },
 );
 
 /**
@@ -5485,14 +5485,69 @@ router.patch(
           },
         ],
         new: true, // Return the updated document
-      }
+      },
     );
 
     // 9️⃣ STEP 9: Send success response with updated request sheet
     successResponse(res, "Request-sheet approved successfully", {
       requestSheetOfNewMachineCM,
     });
-  })
+  }),
 );
 
 module.exports = router;
+
+async function handleUpdate() {
+  // _id encodes seconds-since-epoch at creation time — build range bounds from that
+  const startId = mongoose.Types.ObjectId.createFromTime(
+    Math.floor(new Date("2025-01-01T00:00:00.000Z").getTime() / 1000),
+  );
+  const endId = mongoose.Types.ObjectId.createFromTime(
+    Math.floor(new Date("2027-01-01T00:00:00.000Z").getTime() / 1000), // exclusive upper bound
+  );
+
+  const linkedRefs = await SafetyForm.distinct("requestSheetRef", {
+    _id: { $gte: startId, $lt: endId },
+  });
+  if (!linkedRefs.length) {
+    console.log("No data");
+  }
+
+  console.log(linkedRefs.length);
+
+  // Step 2: narrow to CM docs that both have a linked safety form
+  // AND have at least one 2026-2027 aggregation block
+  const cmDocs = await RequestSheetOfCM.find(
+    {
+      _id: { $in: linkedRefs },
+      "commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet.requestSheet_year":
+        "2026-2027",
+    },
+    { _id: 1 },
+  ).lean();
+
+  if (!cmDocs.length) console.log("No Update");
+
+  // Step 3: bulkWrite - flag every quarter entry inside the 2026-2027 block(s)
+  const bulkOps = cmDocs.map((doc) => ({
+    updateOne: {
+      filter: { _id: doc._id },
+      update: {
+        $set: {
+          "commonDataFilledByAssignUser.$[outer].quarterlyDataOfTheCM.$[].isSafetyFormSubmitted": true,
+        },
+      },
+      arrayFilters: [
+        {
+          "outer.preAggregationTimeStampOfRequestSheet.requestSheet_year":
+            "2026-2027",
+        },
+      ],
+    },
+  }));
+
+  const result = await RequestSheetOfCM.bulkWrite(bulkOps);
+  console.log("Updated successfully");
+}
+
+// handleUpdate();

@@ -46,6 +46,17 @@ export const partTypes = [
   },
 ];
 
+export const supplierCategoryTypes = [
+  {
+    label: "Local",
+    value: "Local",
+  },
+  {
+    label: "Imported",
+    value: "Imported",
+  },
+];
+
 export const partRequirementTypes = [
   {
     label: "Normal Part",

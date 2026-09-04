@@ -13,8 +13,6 @@ const partFields = new Set([
   "rsMRNApproved",
 ]);
 
-const url = "/v1/spare/spareRequestSheet/manualApprovalStatus";
-
 const columns = [
   {
     label: "Required Qty",
@@ -39,6 +37,14 @@ const columns = [
     isDropdown: true,
     registerProp: {
       required: "Currency unit is required",
+    },
+  },
+  {
+    label: "Balance Qty",
+    fieldName: "costDetails.balanceQty",
+    inputProps: { type: "number", disabled: true },
+    registerProp: {
+      required: false,
     },
   },
   {
@@ -99,6 +105,8 @@ const CommonTimeStampWithRemarksComponent = memo(
     handleModal,
     children,
     OtherComponent = null,
+    isOnlyContainsRemark = false,
+    url = "/v1/spare/spareRequestSheet/manualApprovalStatus",
   }) => {
     const {
       register,
@@ -165,27 +173,31 @@ const CommonTimeStampWithRemarksComponent = memo(
             <Modal.Title>{popupRef?.popupTitle}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {OtherComponent && (
-              <OtherComponent
-                popupRef={popupRef}
-                register={register}
-                setValue={setValue}
-                control={control}
-                errors={errors}
-                disableFieldAfterOneTimeConfiguration={watch(
-                  "disableFieldAfterOneTimeConfiguration",
+            {!isOnlyContainsRemark && (
+              <>
+                {OtherComponent && (
+                  <OtherComponent
+                    popupRef={popupRef}
+                    register={register}
+                    setValue={setValue}
+                    control={control}
+                    errors={errors}
+                    disableFieldAfterOneTimeConfiguration={watch(
+                      "disableFieldAfterOneTimeConfiguration",
+                    )}
+                  />
                 )}
-              />
+                <CustomTextField
+                  label={`${popupRef?.popupTitle} timestamp`}
+                  fieldName={`${popupRef?.key}TimeStamp.inString`}
+                  inputProps={{
+                    type: "datetime-local",
+                  }}
+                  register={register}
+                  errors={errors}
+                />
+              </>
             )}
-            <CustomTextField
-              label={`${popupRef?.popupTitle} timestamp`}
-              fieldName={`${popupRef?.key}TimeStamp.inString`}
-              inputProps={{
-                type: "datetime-local",
-              }}
-              register={register}
-              errors={errors}
-            />
             <CustomTextField
               label={`${popupRef?.popupTitle} remarks`}
               fieldName={`${popupRef?.key}Remarks`}
@@ -263,6 +275,13 @@ const FirstTimePartConfiguration = ({
 
   const cost = useWatch({ name: "costDetails.cost", control });
   const currencyUnit = useWatch({ name: "costDetails.currencyUnit", control });
+
+  useEffect(() => {
+    if (currencyUnit || currencyMap.size === 0) return;
+    if (currencyMap.has("INR")) {
+      setValue("costDetails.currencyUnit", "INR", { shouldDirty: true });
+    }
+  }, [currencyMap, currencyUnit, setValue]);
 
   useEffect(() => {
     if (!cost || !currencyUnit) return;

@@ -6,8 +6,6 @@ import Loading from "../../../components/Loading/Loading";
 import { axiosGetOrDelete, axiosPostOrPatch } from "../../Utils/axiosUtils";
 import SparePartSearchBar from "../../Component/SparePartSearchBar";
 
-const url = `/v1/spare/customization/customizeField`;
-
 const filterOptions = [
   { title: "Maker", schemaKey: "maker" },
   { title: "Supplier name", schemaKey: "supplierName" },
@@ -21,6 +19,7 @@ const AddEditComponent = ({
   defaultValues = {},
   handleCancel = () => {},
   handleRow = () => {},
+  url,
 }) => {
   const { register, handleSubmit } = useForm({
     defaultValues: defaultValues,
@@ -83,7 +82,11 @@ const AddEditComponent = ({
   );
 };
 
-const TableComponent = ({ requestedFor = filterOptions[0] }) => {
+export const TableComponent = ({
+  url = `/v1/spare/customization/customizeField`,
+  requestedFor = filterOptions[0],
+  canAddNewRow = true,
+}) => {
   const cursorRef = useRef(null);
 
   const [isAdding, setIsAdding] = useState(false);
@@ -132,7 +135,7 @@ const TableComponent = ({ requestedFor = filterOptions[0] }) => {
     } else {
       setData((prev) => ({ ...prev, isLoading: false, hasMore: false }));
     }
-  }, [data.hasMore, data.isLoading, requestedFor, search]);
+  }, [url, data.hasMore, data.isLoading, requestedFor, search]);
 
   useEffect(() => {
     cursorRef.current = null;
@@ -197,14 +200,16 @@ const TableComponent = ({ requestedFor = filterOptions[0] }) => {
       <div className="d-flex align-content-center justify-content-between p-1 td-padding">
         <h5>{requestedFor?.title}</h5>
         <div className="d-flex align-content-center justify-content-center">
-          <div className="d-block align-content-center justify-content-center">
-            <button
-              className="bg-warning text-white border-0"
-              onClick={() => setIsAdding(true)}
-            >
-              New
-            </button>
-          </div>
+          {canAddNewRow && (
+            <div className="d-block align-content-center justify-content-center">
+              <button
+                className="bg-warning text-white border-0"
+                onClick={() => setIsAdding(true)}
+              >
+                New
+              </button>
+            </div>
+          )}
           &nbsp;
           <SparePartSearchBar
             handleSelectOtherFilters={handleSelectOtherFilters}
@@ -226,6 +231,7 @@ const TableComponent = ({ requestedFor = filterOptions[0] }) => {
           {data?.tableData?.map((item) =>
             selectedValuesToEdit.has(item?._id) ? (
               <AddEditComponent
+                url={url}
                 action="Edit"
                 key={item?._id}
                 defaultValues={item}
@@ -255,6 +261,7 @@ const TableComponent = ({ requestedFor = filterOptions[0] }) => {
 
           {isAdding && (
             <AddEditComponent
+              url={url}
               handleRow={handleAddNewRow}
               handleCancel={handleCancelAdd}
               requestedFor={requestedFor}

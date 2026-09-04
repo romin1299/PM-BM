@@ -1,34 +1,20 @@
-import React, { useReducer } from "react";
-import { Container } from "react-bootstrap";
-import SpareTitlebar from "../../Component/SpareTitlebar";
-import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
-import {
-  initialState,
-  reducer,
-} from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
-import KPISummery from "./KPISummery";
+import React, { memo } from "react";
+import AllKPIAndReportWrapper from "./AllKPIAndReportWrapper";
 
-const SpareKPI = () => {
-  const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
+import KPIRow1 from "./KPIRow1";
+import KPIRow2 from "./KPIRow2";
+import KPIRow3 from "./KPIRow3";
 
+const PropComp = memo(({ yearAndMonth }) => {
   return (
-    <Container fluid>
-      <SpareTitlebar
-        title="Spare KPI"
-        Toolbar={
-          <ChartsToolbar
-            baseUrlForFiltering="/getFiltrationValue/all-filtration"
-            reduceState={reduceState}
-            reducerDispatch={reducerDispatch}
-            monthFiltration
-            yearFiltration
-            resetButtonFiltration
-          />
-        }
-      />
-      <KPISummery {...reduceState} />
-    </Container>
+    <>
+      <KPIRow1 {...yearAndMonth} />
+      <KPIRow2 {...yearAndMonth} />
+      <KPIRow3 {...yearAndMonth} />
+    </>
   );
-};
+});
+
+const SpareKPI = () => <AllKPIAndReportWrapper PropComp={PropComp} />;
 
 export default SpareKPI;

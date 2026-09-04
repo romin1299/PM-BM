@@ -70,10 +70,6 @@ export async function exportPPTX(reportName, urlOptions) {
       await generateTopMachineBdDefaultPpt(pptx, urlOptions);
       break;
 
-    case EXPORT_REPORT.LINE_WISE_KPI_STATUS:
-      await generateLineWiseKpiStatusPpt(pptx, urlOptions);
-      break;
-
     case EXPORT_REPORT.TEST:
       await generateTestPpt(pptx, urlOptions);
       break;

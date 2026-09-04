@@ -76,6 +76,7 @@ exports.findSearchMaster = tryCatchHandler(async (req, res, next) => {
         partName: 1,
         partModel: 1,
         maker: 1,
+        closingStatusIfTemporary: "Open",
         budgetDetails: {
           $reduce: {
             input: "$costDetails",

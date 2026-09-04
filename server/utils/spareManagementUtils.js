@@ -76,6 +76,17 @@ const mongoDBUserFilters = {
   },
 };
 
+const hooksFormReferenceOfEmailReminder = {
+  MTD_TL: { displayName: "MTD TL", approvalKey: "emailReminderMTL" },
+  MTD_HOSS: { displayName: "MTD HOSS", approvalKey: "emailReminderHOSS" },
+  PRD_TL: { displayName: "PRD TL", approvalKey: "emailReminderMTL" },
+  PRD_HOSS: { displayName: "PRD HOSS", approvalKey: "emailReminderHOSS" },
+  MTD_HOS: { displayName: "MTD HOS", approvalKey: "emailReminderHOS" },
+  PRD_HOS: { displayName: "PRD HOS", approvalKey: "emailReminderHOS" },
+  MTD_HOD: { displayName: "MTD HOD", approvalKey: "emailReminderHOD" },
+  PRD_HOD: { displayName: "PRD HOD", approvalKey: "emailReminderHOD" },
+};
+
 const hooksFormReferenceOfApproval = {
   MTD_TL: { displayName: "MTD TL", approvalKey: "approvalOfMTD_TL" },
   MTD_HOSS: { displayName: "MTD HOSS", approvalKey: "approvalOfMTD_HOSS" },
@@ -173,6 +184,39 @@ const generateRegexSearchString = (search) => {
   return new RegExp(escapeRegex(search.trim()), "i");
 };
 
+const filterKeys = {
+  "based-on-section": "section",
+  "based-on-subSection": "subSection",
+  "based-on-cell": "cell",
+};
+
+function sumArrayField(fieldName) {
+  return {
+    $map: {
+      input: { $range: [0, 12] },
+      as: "i",
+      in: {
+        $sum: {
+          $map: {
+            input: `$${fieldName}Arr`,
+            as: "arr",
+            in: { $arrayElemAt: ["$$arr", "$$i"] },
+          },
+        },
+      },
+    },
+  };
+}
+
+const oneMil = 1000000;
+
+const convertCostInMilUnitInJS = (cost = 0) =>
+  Number((cost / oneMil).toFixed(2));
+
+const convertCostInMilUnitInMongoose = (costKey = "") => ({
+  $round: [{ $divide: [costKey, oneMil] }, 2],
+});
+
 module.exports = {
   spareApprovalStatus,
   spareApprovalUserType,
@@ -185,4 +229,9 @@ module.exports = {
   timezone,
   buildSearchQuery,
   generateRegexSearchString,
+  filterKeys,
+  sumArrayField,
+  convertCostInMilUnitInJS,
+  convertCostInMilUnitInMongoose,
+  hooksFormReferenceOfEmailReminder,
 };

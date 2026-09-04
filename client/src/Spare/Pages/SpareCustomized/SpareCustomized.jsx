@@ -1,29 +1,34 @@
+import { useContext } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
 import DynamicApproval from "./DynamicApproval";
 import OrderTrackingBackendData from "./OrderTrackingBackendData";
 import DynamicCRUDTable from "./DynamicCRUDTable";
+import RoutingContext from "../../../context/routing/RoutingContext";
 
 const SpareCustomized = () => {
+  const context = useContext(RoutingContext);
+
   return (
     <Container fluid>
       <Row>
-        <Col className="col-5">
-          <DynamicApproval />
+        <Col className="col-6">
+          <DynamicApproval toolRoomPerson={context?.toolRoomPerson} />
         </Col>
         <Col className="col-6">
-          <OrderTrackingBackendData />
+          <DynamicApproval
+            approvalKey="spareIssuanceDynamicApproval"
+            title="Spare Issuance Dynamic Approval"
+            toolRoomPerson={context?.toolRoomPerson}
+          />
         </Col>
       </Row>
       <Row>
         <Col className="col-5">
-          <DynamicApproval
-            approvalKey="spareIssuanceDynamicApproval"
-            title="Spare Issuance Dynamic Approval"
-          />
+          <OrderTrackingBackendData toolRoomPerson={context?.toolRoomPerson} />
         </Col>
         <Col>
-          <DynamicCRUDTable />
+          <DynamicCRUDTable toolRoomPerson={context?.toolRoomPerson} />
         </Col>
       </Row>
       {/* <Row>

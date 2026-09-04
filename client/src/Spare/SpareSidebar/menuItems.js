@@ -1,4 +1,9 @@
+import PieChartIcon from "@mui/icons-material/PieChart";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import StackedBarChartIcon from "@mui/icons-material/StackedBarChart";
+import InsightsIcon from "@mui/icons-material/Insights";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -10,6 +15,8 @@ import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import PageviewIcon from "@mui/icons-material/Pageview";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
+import ModeStandbyIcon from "@mui/icons-material/ModeStandby";
 
 const allusers = [
   //From PM
@@ -27,9 +34,49 @@ export const menuItems = [
   {
     title: "KPI Dashboard",
     icon: (
-      <AnalyticsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+      <PieChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare",
+    allowedRoles: allusers,
+  },
+  {
+    title: "Inventory Dashboard",
+    icon: (
+      <BarChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/inventoryReport",
+    allowedRoles: allusers,
+  },
+  {
+    title: "Stock Level Wise Analysis",
+    icon: (
+      <TableChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/stockLevelWiseAnalysisReport",
+    allowedRoles: allusers,
+  },
+  {
+    title: "MTD R & M Plan Vs Actual",
+    icon: (
+      <AnalyticsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/mtdRAndMPlanVsActualBudgetReport",
+    allowedRoles: allusers,
+  },
+  {
+    title: "Each Cell-wise Inventory Bifurcation",
+    icon: (
+      <StackedBarChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/eachCellWiseInventoryBifurcation",
+    allowedRoles: allusers,
+  },
+  {
+    title: "MTD Toolroom KPI",
+    icon: (
+      <InsightsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/mtdToolRoomKPI",
     allowedRoles: allusers,
   },
   {
@@ -114,17 +161,25 @@ export const menuItems = [
   //   allowedRoles: allusers,
   // },
   {
-    title: "Customized Dashboard",
+    title: "Approval / Lead time / currency Configuration",
     icon: (
       <ControlPointIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/customizedDashboard",
-    allowedRoles: ["Plant-Admin", "Section-Admin"],
+    allowedRoles: [
+      "Plant-Admin",
+      "Section-Admin",
+      "Plant-Admin",
+      "Section-Admin", //From spare toolRoom
+      "HOSS",
+      "Supervisor",
+      "Office Person",
+    ],
   },
   {
     title: "Customized Fields",
     icon: (
-      <ControlPointIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+      <DynamicFeedIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/customizedDashboard/dynamicFieldsConfiguration",
     allowedRoles: [
@@ -135,5 +190,22 @@ export const menuItems = [
       "Supervisor",
       "Office Person",
     ],
+    hasToolRoomFilter: true,
+  },
+  {
+    title: "Target Dashboard",
+    icon: (
+      <ModeStandbyIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/targetDashboard",
+    allowedRoles: [
+      "Plant-Admin",
+      "Section-Admin",
+      //From spare toolRoom
+      "HOSS",
+      "Supervisor",
+      "Office Person",
+    ],
+    hasToolRoomFilter: true,
   },
 ];

@@ -46,7 +46,7 @@ const leadTimeFieldsWithLabel = [
   },
 ];
 
-const OrderTrackingBackendData = () => {
+const OrderTrackingBackendData = ({ toolRoomPerson = "No" }) => {
   const {
     register,
     handleSubmit,
@@ -98,11 +98,13 @@ const OrderTrackingBackendData = () => {
         </>
       ))}
 
-      <Box className="m-2" sx={{ display: "flex", justifyContent: "start" }}>
-        <button type="submit" className="btn bg-succ ">
-          Submit Lead time
-        </button>
-      </Box>
+      {toolRoomPerson === "Yes" && (
+        <Box className="m-2" sx={{ display: "flex", justifyContent: "start" }}>
+          <button type="submit" className="btn bg-succ ">
+            Submit Lead time
+          </button>
+        </Box>
+      )}
     </form>
   );
 };

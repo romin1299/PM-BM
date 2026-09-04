@@ -5,7 +5,13 @@ import { Row } from "react-bootstrap";
 import ChartTitleBar from "../../../BM/Reports/Common/ChartTitleBar";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
 
-const DynamicCRUDTable = ({ title, url, columns, dynamicTableKey }) => {
+const DynamicCRUDTable = ({
+  title,
+  url,
+  columns,
+  dynamicTableKey,
+  toolRoomPerson = "No",
+}) => {
   const {
     register,
     handleSubmit,
@@ -44,7 +50,8 @@ const DynamicCRUDTable = ({ title, url, columns, dynamicTableKey }) => {
       axiosBody: formValue,
     });
 
-    if (!response?.isError) reset(response?.[dynamicTableKey]);
+    if (!response?.isError)
+      reset({ [dynamicTableKey]: response?.[dynamicTableKey] });
   };
 
   return (
@@ -114,7 +121,12 @@ const DynamicCRUDTable = ({ title, url, columns, dynamicTableKey }) => {
                 {index !== 0 && (
                   <button
                     type="button"
-                    className="bg-danger text-white border-0"
+                    className={
+                      toolRoomPerson === "Yes"
+                        ? "bg-danger text-white border-0"
+                        : ""
+                    }
+                    disabled={toolRoomPerson !== "Yes"}
                     onClick={() => remove(index)}
                   >
                     Cancel
@@ -128,7 +140,12 @@ const DynamicCRUDTable = ({ title, url, columns, dynamicTableKey }) => {
             <td colSpan={columns.length + 1} className="border p-1">
               <button
                 type="button"
-                className="bg-warning text-white border-0"
+                className={
+                  toolRoomPerson === "Yes"
+                    ? "bg-warning text-white border-0"
+                    : ""
+                }
+                disabled={toolRoomPerson !== "Yes"}
                 onClick={() => append({ currencyUnit: "", currencyRate: 0.0 })}
               >
                 Add
@@ -138,11 +155,13 @@ const DynamicCRUDTable = ({ title, url, columns, dynamicTableKey }) => {
         </table>
       </Row>
 
-      <Box className="m-2" sx={{ display: "flex", justifyContent: "start" }}>
-        <button type="submit" className="btn bg-succ ">
-          Submit
-        </button>
-      </Box>
+      {toolRoomPerson === "Yes" && (
+        <Box className="m-2" sx={{ display: "flex", justifyContent: "start" }}>
+          <button type="submit" className="btn bg-succ ">
+            Submit
+          </button>
+        </Box>
+      )}
     </form>
   );
 };
