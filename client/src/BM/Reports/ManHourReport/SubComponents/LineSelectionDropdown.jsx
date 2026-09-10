@@ -8,6 +8,7 @@ import Select from "@mui/material/Select";
 import { useState, useEffect, useContext } from "react";
 
 import RoutingContext from "../../../../context/routing/RoutingContext";
+import { isPlantWideFiltrationUser } from "../../../../Utils/userScope";
 import { fetchFinancialYears } from "../../../../Integration/APIExports";
 
 import { ACTION, getFiltrationValue } from "./CommonFiltrationComponent";
@@ -377,7 +378,7 @@ export default function LineSelectionDropdown({
     <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
       {(baseUrlForFiltering === "/getFiltrationValue/plant-level-filtration"
         ? true
-        : context?.tm_grade === "HOD") &&
+        : isPlantWideFiltrationUser(context)) &&
         sectionFiltration &&
         sections?.length > 0 && (
           <FormControl size="small">

@@ -1,9 +1,9 @@
 import PieChartIcon from "@mui/icons-material/PieChart";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import TableChartIcon from "@mui/icons-material/TableChart";
-import StackedBarChartIcon from "@mui/icons-material/StackedBarChart";
-import InsightsIcon from "@mui/icons-material/Insights";
+// import AnalyticsIcon from "@mui/icons-material/Analytics";
+// import BarChartIcon from "@mui/icons-material/BarChart";
+// import TableChartIcon from "@mui/icons-material/TableChart";
+// import StackedBarChartIcon from "@mui/icons-material/StackedBarChart";
+// import InsightsIcon from "@mui/icons-material/Insights";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -17,10 +17,11 @@ import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import ModeStandbyIcon from "@mui/icons-material/ModeStandby";
+import StorageIcon from "@mui/icons-material/Storage";
 
 const allusers = [
   //From PM
-  "Admin",
+  // "Admin",
   "Plant-Admin",
   "Section-Admin",
   "TL/HOSS",
@@ -36,57 +37,87 @@ export const menuItems = [
     icon: (
       <PieChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
-    route: "/spare",
-    allowedRoles: allusers,
+    subItems: [
+      {
+        title: "KPI Dashboard",
+        route: "/spare",
+        allowedRoles: allusers,
+      },
+      {
+        title: "Inventory Dashboard",
+        route: "/spare/inventoryReport",
+        allowedRoles: allusers,
+      },
+      {
+        title: "Stock Level Wise Analysis",
+        route: "/spare/stockLevelWiseAnalysisReport",
+        allowedRoles: allusers,
+      },
+      {
+        title: "MTD R & M Plan Vs Actual",
+        route: "/spare/mtdRAndMPlanVsActualBudgetReport",
+        allowedRoles: allusers,
+      },
+      {
+        title: "Each Cell-wise Inventory Bifurcation",
+        route: "/spare/eachCellWiseInventoryBifurcation",
+        allowedRoles: allusers,
+      },
+      {
+        title: "MTD Toolroom KPI",
+        route: "/spare/mtdToolRoomKPI",
+        allowedRoles: allusers,
+      },
+    ],
   },
-  {
-    title: "Inventory Dashboard",
-    icon: (
-      <BarChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/inventoryReport",
-    allowedRoles: allusers,
-  },
-  {
-    title: "Stock Level Wise Analysis",
-    icon: (
-      <TableChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/stockLevelWiseAnalysisReport",
-    allowedRoles: allusers,
-  },
-  {
-    title: "MTD R & M Plan Vs Actual",
-    icon: (
-      <AnalyticsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/mtdRAndMPlanVsActualBudgetReport",
-    allowedRoles: allusers,
-  },
-  {
-    title: "Each Cell-wise Inventory Bifurcation",
-    icon: (
-      <StackedBarChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/eachCellWiseInventoryBifurcation",
-    allowedRoles: allusers,
-  },
-  {
-    title: "MTD Toolroom KPI",
-    icon: (
-      <InsightsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/mtdToolRoomKPI",
-    allowedRoles: allusers,
-  },
-  {
-    title: "Spare Requests",
-    icon: (
-      <DashboardIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/requests",
-    allowedRoles: allusers,
-  },
+  // {
+  //   title: "Inventory Dashboard",
+  //   icon: (
+  //     <BarChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+  //   ),
+  //   route: "/spare/inventoryReport",
+  //   allowedRoles: allusers,
+  // },
+  // {
+  //   title: "Stock Level Wise Analysis",
+  //   icon: (
+  //     <TableChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+  //   ),
+  //   route: "/spare/stockLevelWiseAnalysisReport",
+  //   allowedRoles: allusers,
+  // },
+  // {
+  //   title: "MTD R & M Plan Vs Actual",
+  //   icon: (
+  //     <AnalyticsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+  //   ),
+  //   route: "/spare/mtdRAndMPlanVsActualBudgetReport",
+  //   allowedRoles: allusers,
+  // },
+  // {
+  //   title: "Each Cell-wise Inventory Bifurcation",
+  //   icon: (
+  //     <StackedBarChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+  //   ),
+  //   route: "/spare/eachCellWiseInventoryBifurcation",
+  //   allowedRoles: allusers,
+  // },
+  // {
+  //   title: "MTD Toolroom KPI",
+  //   icon: (
+  //     <InsightsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+  //   ),
+  //   route: "/spare/mtdToolRoomKPI",
+  //   allowedRoles: allusers,
+  // },
+  // {
+  //   title: "Spare Requests",
+  //   icon: (
+  //     <DashboardIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+  //   ),
+  //   route: "/spare/requests",
+  //   allowedRoles: allusers,
+  // },
   {
     title: "User Management",
     icon: (
@@ -120,20 +151,28 @@ export const menuItems = [
     route: "/spare/spareApprovalDashboard",
     allowedRoles: allusers,
   },
+    {
+    title: "Ordering Dashboard",
+    icon: (
+      <ShoppingCartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/spareOrderingDashboard",
+    allowedRoles: allusers,
+  },
+  {
+    title: "Master Dashboard",
+    icon: (
+      <StorageIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/spareMasterDashboard",
+    allowedRoles: allusers,
+  },
   {
     title: "Approval Logs",
     icon: (
       <AssignmentTurnedInIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareApprovalLogs",
-    allowedRoles: allusers,
-  },
-  {
-    title: "Ordering Dashboard",
-    icon: (
-      <ShoppingCartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/spareOrderingDashboard",
     allowedRoles: allusers,
   },
   {

@@ -1,4 +1,8 @@
 const mongoose = require("mongoose");
+const {
+  USER_NAME_SORT,
+  USER_NAME_COLLATION,
+} = require("../../utils/userSort");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const {
   mongoDBUserFilters,
@@ -118,6 +122,15 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
           $or: filters,
         },
       },
+      /**
+       * Sorted before the grouping, because $push keeps the order documents
+       * arrive in — sorting afterwards would mean sorting each group's array by
+       * hand. Collation so mixed-case names interleave alphabetically instead of
+       * every capitalised name sorting ahead of the rest.
+       */
+      {
+        $sort: USER_NAME_SORT,
+      },
       {
         $group: {
           _id: {
@@ -137,7 +150,7 @@ exports.getDynamicApprovalListForSpareSheet = tryCatchHandler(
           },
         },
       },
-    ]);
+    ]).collation(USER_NAME_COLLATION);
 
     if (!allUsers)
       return res.status(400).json({

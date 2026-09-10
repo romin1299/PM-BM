@@ -9,13 +9,23 @@ import {
   supplierCategoryTypes,
 } from "../Utils/dropdownUtils";
 import { DropdownComponent } from "../Pages/SpareMasterRegistration/SpareMasterRegistration";
+import AttachmentField from "./AttachmentField";
 
 const initialState = {};
 
 const PartRow = memo(
-  ({ index, register, control, remove, partData, newPartFor, isViewMode }) => {
+  ({
+    index,
+    register,
+    control,
+    setValue,
+    remove,
+    partData,
+    newPartFor,
+    isReadOnly,
+    onRemoveUploaded,
+  }) => {
     const partType = partData?.standerOrManufacturingPart;
-    const drawingName = partData?.drawingAttachOriginalName;
 
     return (
       <div className="m-0 p-0 w-50">
@@ -24,7 +34,7 @@ const PartRow = memo(
             <small>
               <b>Part Details {index + 1}</b>
             </small>
-            {!isViewMode && (
+            {/* {!isReadOnly && (
               <button
                 type="button"
                 className="bg-danger text-white border-0"
@@ -32,7 +42,7 @@ const PartRow = memo(
               >
                 Delete
               </button>
-            )}
+            )} */}
           </Col>
 
           <Col className="d-flex flex-column border col-auto m-2 mt-0 mb-1 p-2 pt-0 pb-0 flex-wrap align-items-center justify-content-between">
@@ -53,38 +63,6 @@ const PartRow = memo(
                 {...register(`changeParts.${index}.partModel`)}
               />
             </Col>
-
-            <Col className="w-100 d-flex justify-content-between">
-              <small>Quantity required</small>
-              <input
-                type="number"
-                className="w-75"
-                {...register(`changeParts.${index}.quantityRequired`, {
-                  valueAsNumber: true,
-                })}
-              />
-            </Col>
-
-            {newPartFor === newPartRequestForRadioOptions?.[1]?.value && (
-              <>
-                <Col className="w-100 d-flex justify-content-between">
-                  <small>Min quantity</small>
-                  <input
-                    type="number"
-                    className="w-75"
-                    {...register(`changeParts.${index}.minQuantity`)}
-                  />
-                </Col>
-                <Col className="w-100 d-flex justify-content-between">
-                  <small>Max quantity</small>
-                  <input
-                    type="number"
-                    className="w-75"
-                    {...register(`changeParts.${index}.maxQuantity`)}
-                  />
-                </Col>
-              </>
-            )}
 
             <Col className="w-100 d-flex justify-content-between">
               <small>Maker</small>
@@ -120,6 +98,38 @@ const PartRow = memo(
                   />
                 ))}
               </div>
+            </Col>
+
+            {newPartFor === newPartRequestForRadioOptions?.[1]?.value && (
+              <>
+                <Col className="w-100 d-flex justify-content-between">
+                  <small>Min quantity</small>
+                  <input
+                    type="number"
+                    className="w-75"
+                    {...register(`changeParts.${index}.minQuantity`)}
+                  />
+                </Col>
+                <Col className="w-100 d-flex justify-content-between">
+                  <small>Max quantity</small>
+                  <input
+                    type="number"
+                    className="w-75"
+                    {...register(`changeParts.${index}.maxQuantity`)}
+                  />
+                </Col>
+              </>
+            )}
+
+            <Col className="w-100 d-flex justify-content-between">
+              <small>Quantity required</small>
+              <input
+                type="number"
+                className="w-75"
+                {...register(`changeParts.${index}.quantityRequired`, {
+                  valueAsNumber: true,
+                })}
+              />
             </Col>
 
             <Col className="w-100 d-flex justify-content-between">
@@ -170,57 +180,26 @@ const PartRow = memo(
             </Col>
 
             {partType === partTypes?.[1]?.value && (
-              <>
-                <Col className="w-100 d-flex justify-content-between pb-1">
-                  <small>Drawing attach</small>
-                  <input
-                    type="file"
-                    className="w-75"
-                    {...register(`changeParts.${index}.drawingAttach`)}
-                  />
-                </Col>
-
-                {drawingName && (
-                  <Col className="w-100 d-flex flex-column justify-content-between pb-1">
-                    <small>Previously uploaded</small>
-                    <a
-                      target="_blank"
-                      rel="noreferrer"
-                      href={`${process.env.REACT_APP_BASE_URL}/v1/spare/${partData?.drawingAttach}`}
-                    >
-                      {drawingName}
-                    </a>
-                  </Col>
-                )}
-              </>
+              <AttachmentField
+                label="Drawing attach"
+                index={index}
+                fieldName="drawingAttach"
+                control={control}
+                setValue={setValue}
+                isReadOnly={isReadOnly}
+                onRemoveUploaded={onRemoveUploaded}
+              />
             )}
 
-            <Col className="w-100 d-flex justify-content-between pb-1">
-              <small>Additional attachments</small>
-              <input
-                type="file"
-                multiple
-                className="w-75"
-                {...register(`changeParts.${index}.additionalAttachments`)}
-              />
-            </Col>
-
-            {Array.isArray(partData?.additionalAttachments) &&
-              partData.additionalAttachments.length > 0 && (
-                <Col className="w-100 d-flex flex-column justify-content-between pb-1">
-                  <small>Previously uploaded</small>
-                  {partData.additionalAttachments.map((file, fileIdx) => (
-                    <a
-                      key={file?.filename || fileIdx}
-                      target="_blank"
-                      rel="noreferrer"
-                      href={`${process.env.REACT_APP_BASE_URL}/v1/spare/${file?.filename}`}
-                    >
-                      {file?.originalname}
-                    </a>
-                  ))}
-                </Col>
-              )}
+            <AttachmentField
+              label="Additional attachments"
+              index={index}
+              fieldName="additionalAttachments"
+              control={control}
+              setValue={setValue}
+              isReadOnly={isReadOnly}
+              onRemoveUploaded={onRemoveUploaded}
+            />
           </Col>
         </Row>
       </div>
@@ -232,7 +211,9 @@ const PartList = ({
   register,
   control,
   watch,
-  isViewMode,
+  setValue,
+  isReadOnly,
+  onRemoveUploaded,
   changeParts,
   sectionBudget,
   budgetStatus,
@@ -268,16 +249,18 @@ const PartList = ({
             index={index}
             register={register}
             control={control}
+            setValue={setValue}
             remove={remove}
             partData={changeParts?.[index]}
             newPartFor={newPartFor}
-            isViewMode={isViewMode}
+            isReadOnly={isReadOnly}
+            onRemoveUploaded={onRemoveUploaded}
           />
         ))}
       </div>
 
       <Row className="m-2 p-1 border">
-        {!isViewMode &&
+        {!isReadOnly &&
           ((partQty === partQtyOptions?.[0]?.value &&
             (!changeParts?.length || changeParts?.length <= 0)) ||
             partQty === partQtyOptions?.[1]?.value) && (

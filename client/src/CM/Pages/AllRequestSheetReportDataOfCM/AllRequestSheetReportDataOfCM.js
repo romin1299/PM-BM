@@ -40,6 +40,7 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import MainRequestSheetForView from "../../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
 import SparePartsRequestForm from "../../../BM/SparePartsRequest/SparePartsRequestForm";
 import SafetyFormV2 from "../../Components/ReqestSheetOfCM/SafetyFormV2";
+import { updateCMTargetDate } from "../../Integration/cmScheduleApi";
 
 const AllRequestSheetReportDataOfCM = () => {
   const [approvalRequestSheetDataOfCM, setApprovalRequestSheetDataOfCM] =
@@ -248,9 +249,12 @@ const AllRequestSheetReportDataOfCM = () => {
     },
     {
       title: "Target Date",
-      field: "current_commonDataFilledByAssignUser.targetDateOfCM",
+      // The server projects this top-level alias of
+      // current_commonDataFilledByAssignUser.targetDateOfCM. Editing the alias
+      // rather than the nested path keeps the edited value on the row object
+      // that onRowUpdate hands back.
+      field: "targetDateOfCM",
       type: "date",
-      editable: false,
       // customFilterAndSearch: (search, rowData) => {
       //   const targetDate =
       //     rowData?.current_commonDataFilledByAssignUser?.targetDateOfCM;
@@ -492,19 +496,24 @@ const AllRequestSheetReportDataOfCM = () => {
     navigate(`/cm/generateCMRequestSheetMainDashboard`);
   };
 
-  const updateAssignUser = async (updatedRow) => {
+  const updateAssignUser = async (updatedRow, targetDateOfCM) => {
     try {
       const response = await axios.patch(
         `/updateAssignUser/?requestSheet_id=${updatedRow?._id}`,
         {
           data: {
-            targetDateOfCM: updatedRow?.targetDateOfCM,
+            targetDateOfCM,
             assignUserForCM: updatedRow?.assignUserForCM,
           },
         },
         {
           withCredentials: true,
           credentials: "include",
+          // Pins the update to this exact planned occurrence rather than
+          // relying on the year/quarter derived from the target date.
+          params: {
+            occurrenceId: updatedRow?.current_commonDataFilledByAssignUser?._id,
+          },
         },
       );
       if (response.status === 201) {
@@ -515,6 +524,65 @@ const AllRequestSheetReportDataOfCM = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  /** Stable, order-independent signature of a row's assigned users. */
+  const getAssignedUserSignature = (row) =>
+    (row?.assignUserForCM || [])
+      .map((user) => (user?.userRef || user?._id || "").toString())
+      .sort()
+      .join(",");
+
+  /**
+   * Row edit handler for the CM report grid.
+   *
+   * Two independently editable things now live on the row, so each is sent only
+   * when it actually changed:
+   *
+   *  - Target Date -> /cm/requestSheet/targetDate, which also re-derives every
+   *    later pending occurrence from the new date and the sheet's frequency.
+   *  - Assigned users -> the existing /updateAssignUser endpoint.
+   *
+   * Order matters. /updateAssignUser locates the occurrence by the financial
+   * quarter of the date it is given, and the target date update is what rewrites
+   * that quarter on the stored occurrence. Sending the date first means the
+   * assign-user call still resolves to the right occurrence when the new date
+   * crosses a quarter boundary; if the date update fails we stop, rather than
+   * addressing the wrong occurrence.
+   */
+  const handleRowUpdate = async (updatedRow, oldRow) => {
+    const previousTargetDate = oldRow?.targetDateOfCM;
+    const nextTargetDate = updatedRow?.targetDateOfCM;
+
+    const formatForApi = (value) =>
+      value ? moment(value).format("YYYY-MM-DDTHH:mm") : "";
+
+    const isTargetDateChanged =
+      Boolean(nextTargetDate) &&
+      formatForApi(nextTargetDate) !== formatForApi(previousTargetDate);
+
+    if (isTargetDateChanged) {
+      const response = await updateCMTargetDate({
+        requestSheetId: updatedRow?._id,
+        occurrenceId: updatedRow?.current_commonDataFilledByAssignUser?._id,
+        targetDateOfCM: formatForApi(nextTargetDate),
+      });
+
+      // tryCatch has already surfaced the reason to the user.
+      if (response?.isError) return;
+    }
+
+    const isAssignUserChanged =
+      getAssignedUserSignature(oldRow) !== getAssignedUserSignature(updatedRow);
+
+    // Guarded because /updateAssignUser also forces the occurrence status to
+    // "Assigned"; a date-only edit must not flip a "Generated" occurrence.
+    if (isAssignUserChanged) {
+      await updateAssignUser(updatedRow, formatForApi(nextTargetDate));
+      return;
+    }
+
+    if (isTargetDateChanged) getAllCMSheetData();
   };
 
   //Open and close BM request-sheet
@@ -705,9 +773,9 @@ const AllRequestSheetReportDataOfCM = () => {
                   context?.tm_department === "MTD" &&
                   context?.user_type === "TL/HOSS",
 
-                onRowUpdate: (updatedRow) =>
+                onRowUpdate: (updatedRow, oldRow) =>
                   new Promise(async (resolve, reject) => {
-                    await updateAssignUser(updatedRow);
+                    await handleRowUpdate(updatedRow, oldRow);
                     resolve();
                   }),
               }}

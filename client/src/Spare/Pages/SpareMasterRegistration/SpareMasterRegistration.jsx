@@ -22,10 +22,21 @@ const rowWiseFields = [
       required: "Please enter location",
     },
     {
+      // System-assigned (e.g. DNHAP1-0000001) and fixed for the life of the part,
+      // so it is shown for reference and never captured from the form.
       label: "Unique ID",
       fieldName: "uniqueID",
-      required: "Please enter unique ID",
+      required: false,
+      disabled: true,
     },
+  ],
+  [
+    {
+      label: "Part no.",
+      fieldName: "partNumber",
+      required: "Please enter part number",
+    },
+    {},
   ],
   [
     {

@@ -221,6 +221,11 @@ const ExistingMachineReqSheetView = ({
           getDataForApprovalDashboard: watch(
             "current_commonDataFilledByAssignUser.getDataForApprovalDashboard.Id",
           ),
+          // Pins the update to this exact planned occurrence. Without it the
+          // server has to locate the occurrence by the financial year and
+          // quarter derived from the target date, which cannot resolve when the
+          // same submit also moves that date across a quarter or year boundary.
+          occurrenceId: watch("current_commonDataFilledByAssignUser._id"),
           isOtherFieldsEditableOrNot,
         },
       };

@@ -12,6 +12,7 @@ const TaskStatusMappingComponent = memo(
       <td className="td-padding ">{otherData?.whichParts}</td>
       <td className="td-padding ">{otherData?.location}</td>
       <td className="td-padding ">{otherData?.uniqueID}</td>
+      <td className="td-padding ">{otherData?.partNumber}</td>
       <td className="td-padding ">{otherData?.partName}</td>
       <td className="td-padding ">{otherData?.partModel}</td>
       <td className="td-padding ">
@@ -155,6 +156,7 @@ const SpareSearchButton = () => {
             "Master",
             "Location",
             "Unique ID",
+            "Part no",
             "Part name",
             "Part model",
             "Quantity available",

@@ -7,6 +7,10 @@ const {
   gettingMonthForSelectedDate,
   getFinancialQuarter,
 } = require("./gettingFYMonthForPreAgg");
+const {
+  addFrequencyInterval,
+  formatCMDate,
+} = require("../utils/cmFrequency");
 
 const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
   const requestSheets = await RequestSheetOfCM.find(
@@ -42,19 +46,16 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
         ]?.targetDateOfCM;
     }
 
-    let splitTheFrequencyForTheAddValue =
-      requestSheet?.cmBasicDataFilledByMTD_TL?.frequencyValue?.split(" ");
+    const frequencyValue =
+      requestSheet?.cmBasicDataFilledByMTD_TL?.frequencyValue;
 
-    const newTargetDate = lastTargetDate
-      ? moment(lastTargetDate)
-          .add(
-            splitTheFrequencyForTheAddValue?.[0]?.split("/")[1] === "Y"
-              ? 1
-              : splitTheFrequencyForTheAddValue?.[0]?.split("/")[1],
-            splitTheFrequencyForTheAddValue?.[1] === "M" ? "months" : "years"
-          )
-          .format("YYYY-MM-DDTHH:mm")
-      : moment().format("YYYY-MM-DDTHH:mm");
+    // Same arithmetic as before, now sourced from the shared scheduling helper
+    // so the cron, the creation-time expansion and the Target Date update all
+    // derive the next occurrence from one definition.
+    const newTargetDate =
+      (lastTargetDate &&
+        addFrequencyInterval(lastTargetDate, frequencyValue)) ||
+      formatCMDate();
 
     let quarterlyDataEntries;
 
@@ -80,13 +81,11 @@ const commonDataAdditionForOncePerMonthAndThree = async (frequencyValue) => {
       ];
     }
 
-    if (requestSheet?.cmBasicDataFilledByMTD_TL?.frequencyValue === "1/6 M") {
+    if (frequencyValue === "1/6 M") {
       quarterlyDataEntries?.push({
         requestSheet_quarter: getFinancialQuarter(moment().add(6, "months")),
         statusOfPlannedCM: "Planned",
-        targetDateOfCM: moment(newTargetDate)
-          .add(6, "months")
-          .format("YYYY-MM-DDTHH:mm"),
+        targetDateOfCM: addFrequencyInterval(newTargetDate, frequencyValue),
         requestSheetStatusOfCM: "Generated",
       });
     }

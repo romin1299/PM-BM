@@ -34,7 +34,7 @@ import {
 } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
 
 const allusers = [
-  "Admin",
+  // "Admin",
   "Plant-Admin",
   "Section-Admin",
   "TL/HOSS",
@@ -98,7 +98,7 @@ const reportAccess = ["Plant-Admin", "Section-Admin", "TL/HOSS", "Operator"];
 // }
 
 export const menuItems = [
-    {
+  {
     title: "Plant Breakdown Status",
     icon: <FactCheckIcon className="text-white" />,
     route: "/bm/allRequestSheetOfBM",

@@ -13,6 +13,26 @@ const spareApprovalStatus = [
   "Completed",
 ];
 
+/**
+ * Status a sheet lands in when any approver in the chain rejects it.
+ *
+ * Deliberately NOT appended to spareApprovalStatus: three call sites read that
+ * array's last element positionally to mean "Completed"
+ * (spareCRUDController and spareIssuanceSummaryController), so growing it would
+ * silently rename every completion.
+ */
+const spareRejectedStatus = "Rejected";
+
+/**
+ * Statuses in which a request-sheet still belongs to the person who raised it —
+ * newly generated, or handed back by a rejection. In both the requester may
+ * edit it and send it for approval again.
+ */
+const spareRequesterEditableStatuses = [
+  spareApprovalStatus[1],
+  spareRejectedStatus,
+];
+
 const spareApprovalUserType = [
   "NG Budget - Under MTD HOD",
   "MTD TL",
@@ -172,16 +192,28 @@ const paginationRowLimit = 50;
 
 const timezone = "Asia/Kolkata";
 
-const buildSearchQuery = (searchText) => {
-  const search = searchText.trim();
-  const formattedSearch =
-    search.includes("-") || search.includes("/") ? `"${search}"` : search;
-  return `"${search}"`;
-};
-
 const generateRegexSearchString = (search) => {
   const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(escapeRegex(search.trim()), "i");
+};
+
+/**
+ * Case-insensitive "contains" match across several fields.
+ *
+ * Regex rather than a $text search. $text only reads the fields named in the
+ * text index — part name and model were never in it, so searching for them
+ * matched nothing — and it matches whole words, which part numbers and models
+ * do not survive: "SET-AO-PCI(51)-C11" is tokenised on its punctuation, so a
+ * partial like "PCI(51" could never be found. generateRegexSearchString escapes
+ * the input, so those symbols are matched literally instead.
+ *
+ * The trade-off is that an unanchored regex cannot use an index; acceptable
+ * here because the surrounding query already narrows to one financial year.
+ */
+const buildRegexSearchFilter = (search, fields = []) => {
+  const searchRegex = generateRegexSearchString(search);
+
+  return { $or: fields.map((field) => ({ [field]: searchRegex })) };
 };
 
 const filterKeys = {
@@ -219,6 +251,8 @@ const convertCostInMilUnitInMongoose = (costKey = "") => ({
 
 module.exports = {
   spareApprovalStatus,
+  spareRejectedStatus,
+  spareRequesterEditableStatuses,
   spareApprovalUserType,
   dynamicApprovalStatus,
   mongoDBUserFilters,
@@ -227,8 +261,8 @@ module.exports = {
   allMonthsStr,
   paginationRowLimit,
   timezone,
-  buildSearchQuery,
   generateRegexSearchString,
+  buildRegexSearchFilter,
   filterKeys,
   sumArrayField,
   convertCostInMilUnitInJS,

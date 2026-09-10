@@ -103,18 +103,30 @@ const MapComponent = ({
                             : ""
                         }`}
                         onClick={() => {
-                          handleNavigationToRequestSheet({
-                            machine_code: machine?.machine_code,
-                          });
+                          /**
+                           * An MTD user in BM opens the sheet in a modal on this
+                           * page, so there is nothing to navigate to. Doing both
+                           * pushed the CM request-sheet route into history behind
+                           * the modal, which is why closing the sheet and pressing
+                           * Back landed on a new CM sheet instead of returning to
+                           * BM. Every other user really does leave this page.
+                           */
+                          const opensInModal =
+                            context?.tm_department === "MTD" &&
+                            localStorage.getItem("activeKey") === "bm";
+
+                          if (!opensInModal)
+                            handleNavigationToRequestSheet({
+                              machine_code: machine?.machine_code,
+                            });
+
                           reducerDispatch({
                             type: ACTION.SET_BD_DATA,
                             machineCode: machine?.machine_code,
                             requestSheetId: machine?.requestSheet?.[0]?._id,
                           });
-                          if (
-                            context?.tm_department === "MTD" &&
-                            localStorage.getItem("activeKey") === "bm"
-                          ) {
+
+                          if (opensInModal) {
                             handleRequestSheetShowAndCloseState();
                             newParams.set("machineCode", machine?.machine_code);
                             setSearchParams(newParams);
@@ -228,12 +240,14 @@ const GenerateRequestSheetMainDashboard = () => {
     );
   }, []);
 
-  const handleBack = () => {
-    navigate(-1)
-    // localStorage.getItem("activeKey") === "bm"
-    //   ? navigate("/bm")
-    //   : navigate("/cm");
-  };
+  /**
+   * Returns to the module's own dashboard rather than stepping back through
+   * history. navigate(-1) depended on how the user reached this page, so after
+   * opening and closing a sheet it could land anywhere — including the other
+   * module's screens.
+   */
+  const handleBack = () =>
+    navigate(localStorage.getItem("activeKey") === "bm" ? "/bm" : "/cm");
 
   const handleNavigationToRequestSheet = ({ machine_code }) => {
     const urlForSelectMachineForOpenRequestSheet =

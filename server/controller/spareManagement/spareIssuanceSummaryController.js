@@ -23,6 +23,15 @@ const {
 } = require("../../utils/spareTimestamp");
 
 const unparseJSONData = require("../../utils/unparseJSONData");
+const {
+  isBelowReorderLevel,
+  changePartFromMaster,
+  canBuildSheetNumber,
+  findMastersWithOpenReorder,
+  reserveSheetNumbers,
+  formatSheetNo,
+  buildReorderSheet,
+} = require("../../services/spare/reorderSheetService");
 
 const getDynamicApprovalFromThePlant = async (plant_id) =>
   await Plant.findOne({ plant_id }, { spareIssuanceDynamicApproval: 1 });
@@ -1181,83 +1190,54 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
       /****************************
        * Reordering - Min qty touch
        ****************************/
-      if (updatedMaster) {
-        const overallRemaining = (updatedMaster.costDetails ?? []).reduce(
-          (sum, tranche) => sum + (tranche.availableQty ?? 0),
-          0,
-        );
+      if (updatedMaster && isBelowReorderLevel(updatedMaster)) {
+        const openReorders = await findMastersWithOpenReorder([
+          updatedMaster._id,
+        ]);
 
-        if (overallRemaining <= (updatedMaster.minQuantity ?? 0)) {
-          const existingOpenRequest = await RequestSheetOfSpare.findOne(
-            {
-              newOrReOrderRequest: "REORDER",
-              changeParts: {
-                $elemMatch: {
-                  masterId: updatedMaster._id,
-                  $or: [
-                    { "rsMRNApprovedTimeStamp.inString": { $exists: false } },
-                    { "rsMRNApprovedTimeStamp.inString": null },
-                    { "rsMRNApprovedTimeStamp.inString": "" },
-                  ],
-                },
-              },
-            },
-            { _id: 1 },
-          );
+        if (!openReorders.has(String(updatedMaster._id))) {
+          const master = await SpareMaster.findOne({
+            _id: updatedMaster._id,
+          }).lean();
 
-          if (!existingOpenRequest) {
-            const sourceSheet = await RequestSheetOfSpare.findOne({
-              // newOrReOrderRequest: "NEW",
-              changeParts: { $elemMatch: { masterId: updatedMaster._id } },
-            })
-              .sort({ createdAt: -1 })
-              .lean();
+          /**
+           * The sheet is always rebuilt from the master rather than cloned from
+           * the previous one. A reorder raised on a later cycle has to reflect
+           * today's stock, today's price and today's dates: cloning carried the
+           * old quantity, the old budget and — worst — the previous cycle's
+           * submitted/approval timestamps, which the Ordering Dashboard measures
+           * every later stage against, so a fresh sheet would open already
+           * running late. The earlier sheet is still consulted, but only for the
+           * standing choices a person made that the master does not record.
+           */
+          const sourceSheet = await RequestSheetOfSpare.findOne({
+            changeParts: { $elemMatch: { masterId: updatedMaster._id } },
+          })
+            .sort({ createdAt: -1 })
+            .lean();
 
-            if (sourceSheet) {
-              const {
-                _id,
-                requestSheetStatus,
-                pendingApprovalBy,
-                dynamicApprovalKeys,
-                isSpareSheetSendForApproval,
-                changeParts,
-                ...rest
-              } = sourceSheet;
+          if (master && canBuildSheetNumber(master)) {
+            const changePart = changePartFromMaster(master);
 
-              await RequestSheetOfSpare.create({
-                ...rest,
-                newOrReOrderRequest: "REORDER",
-                requestSheetStatus:
-                  spareApprovalStatus[spareApprovalStatus.length - 1],
-                pendingApprovalBy: null,
-                dynamicApprovalKeys: [],
-                isSpareSheetSendForApproval: false,
-                rsTimeStamp: generateTimestampIndividually(),
-                changeParts: changeParts
-                  .filter(
-                    (part) =>
-                      String(part.masterId) === String(updatedMaster._id),
-                  )
-                  .map((part) => ({
-                    partName: part?.partName,
-                    partModel: part?.partModel,
-                    minQuantity: part?.minQuantity,
-                    maxQuantity: part?.maxQuantity,
-                    quantityRequired: part?.quantityRequired,
-                    maker: part?.maker,
-                    supplierName: part?.supplierName,
-                    supplierCategory: part?.supplierCategory,
-                    approxUnitPrice: part?.approxUnitPrice,
-                    standerOrManufacturingPart:
-                      part?.standerOrManufacturingPart,
-                    normalOrUrgentPart: part?.normalOrUrgentPart,
-                    masterId: part?.masterId,
-                  })),
-              });
+            if (changePart.quantityRequired > 0) {
+              const sequenceByLine = await reserveSheetNumbers([master]);
+
+              await RequestSheetOfSpare.create(
+                buildReorderSheet({
+                  master,
+                  sourceSheet,
+                  requestSheetNo: formatSheetNo(
+                    master,
+                    sequenceByLine.get(String(master.line._id)),
+                  ),
+                  createdBy: req.rootUser,
+                }),
+              );
             }
           }
         }
       }
+
       isIssuanceCompleted = true;
     }
   }

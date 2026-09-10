@@ -3,21 +3,61 @@ const mongoose = require("mongoose");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const {
   paginationRowLimit,
-  buildSearchQuery,
+  buildRegexSearchFilter,
 } = require("../../utils/spareManagementUtils");
 
 const Plant = require("../../model/plantSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 
+/**
+ * Everything the Order Tracking search looks through — the columns on screen
+ * plus the hierarchy they sit under, so a search matches whatever the user can
+ * see. Only string paths: a regex never matches a number.
+ */
+const orderTrackingSearchFields = [
+  "requestSheetNo",
+  "requestSheetStatus",
+  "newOrReOrderRequest",
+  "partRequestFor",
+  "partQty",
+  "newPartFor",
+  "budget.budgetStatus",
+  "requestSheetCreatedBy.tm_name",
+  "plant.plant_name",
+  "section.section_name",
+  "subSection.subSection_name",
+  "cell.cell_name",
+  "line.line_name",
+  "machine.machine_code",
+  "machine.machine_name",
+  "changeParts.partName",
+  "changeParts.partModel",
+  "changeParts.maker",
+  "changeParts.supplierName",
+  "changeParts.supplierCategory",
+  "changeParts.standerOrManufacturingPart",
+  "changeParts.normalOrUrgentPart",
+];
+
 exports.orderTrackingAggregationFilters = tryCatchHandler(
   async (req, res, next) => {
-    req.queryObj.$or = [
+    /**
+     * Collected under $and rather than assigned to $or. A sheet reaches this
+     * dashboard once its budget is settled, and the search is a second, separate
+     * condition — writing both to $or would have the later one replace the
+     * former, letting sheets through that the budget rule excludes.
+     */
+    req.queryObj.$and = [
       {
-        "budget.budgetStatus": "OK",
-      },
-      {
-        "budget.budgetStatus": "NG",
-        "mtdHODApprovalIfBudgetIsNG.approvalStatus": "Accepted",
+        $or: [
+          {
+            "budget.budgetStatus": "OK",
+          },
+          {
+            "budget.budgetStatus": "NG",
+            "mtdHODApprovalIfBudgetIsNG.approvalStatus": "Accepted",
+          },
+        ],
       },
     ];
 
@@ -28,9 +68,9 @@ exports.orderTrackingAggregationFilters = tryCatchHandler(
       req.queryObj.partRequestFor = req.query?.partRequestFor;
 
     if (req.query?.search)
-      req.queryObj.$text = {
-        $search: buildSearchQuery(req.query?.search),
-      };
+      req.queryObj.$and.push(
+        buildRegexSearchFilter(req.query.search, orderTrackingSearchFields),
+      );
 
     return next();
   },

@@ -1337,12 +1337,25 @@ const RequestSheetMainDashboard = () => {
             otherFormSubmitParams={{
               selectedYear: reduceState?.selectedYear,
             }}
-            handleUpdateSheet={(isEditableRS) => {
-              if (isEditableRS) {
-                sparePartsRequestModal.selectedRow.isEditableRS = isEditableRS;
-                handleUpdateSheetInTable(sparePartsRequestModal.selectedRow);
-              }
-              return;
+            handleUpdateSheet={(isSafetyFormSaved) => {
+              if (!isSafetyFormSaved) return;
+
+              /**
+               * Submitting the safety form is what unlocks "Update Req-sheet",
+               * and this table gates that action on IsSafetyFormCreated — the
+               * flag the server sets and sends back with the rows. SafetyFormV2
+               * reports success as isEditableRS because that is the field the CM
+               * dashboard reads, so it has to be translated here: writing
+               * isEditableRS onto a BM row set a field nothing reads, leaving the
+               * button disabled until a reload refetched the real flag.
+               *
+               * Replaced rather than mutated in place so the reducer stores a new
+               * row object.
+               */
+              handleUpdateSheetInTable({
+                ...sparePartsRequestModal.selectedRow,
+                IsSafetyFormCreated: true,
+              });
             }}
             modelProp={{
               show: sparePartsRequestModal?.show,

@@ -173,6 +173,9 @@ const SpareOrderingDashboard = lazy(
 const SpareMasterRegistration = lazy(
   () => import("./Pages/SpareMasterRegistration/SpareMasterRegistration"),
 );
+const SpareMasterDashboard = lazy(
+  () => import("./Pages/SpareMasterDashboard/SpareMasterDashboard"),
+);
 const SparePartIssuance = lazy(
   () => import("./Pages/SparePartIssuance/SparePartIssuance"),
 );
@@ -232,7 +235,7 @@ const routes = [
     element: <SpareMTDToolRoomKPI />,
     allowedRoles: allusers,
   },
-  { path: "/spare/requests", element: <SpareSheets />, allowedRoles: allusers },
+  // { path: "/spare/requests", element: <SpareSheets />, allowedRoles: allusers },
   {
     path: "/spare/spareUserManagement",
     element: <SpareUserManagement />,
@@ -267,6 +270,11 @@ const routes = [
   {
     path: "/spare/spareMasterRegistration",
     element: <SpareMasterRegistration />,
+    allowedRoles: allusers,
+  },
+  {
+    path: "/spare/spareMasterDashboard",
+    element: <SpareMasterDashboard />,
     allowedRoles: allusers,
   },
   {

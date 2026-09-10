@@ -7,20 +7,62 @@ const {
   paginationRowLimit,
 } = require("../../utils/spareManagementUtils");
 
+/** Params that steer the request rather than filter it. */
+const searchControlParams = new Set(["cursor", "showToast"]);
+
+/**
+ * Picked from a fixed list, so matched exactly. Everything else is free text a
+ * person typed and is matched as a fragment.
+ */
+const searchExactMatchFields = new Set(["whichParts"]);
+
+/**
+ * Filters for the Spare Part Search Button.
+ *
+ * Every typed field is matched as a case-insensitive fragment. They used to be
+ * copied into the match as-is, which meant an exact, case-sensitive equality:
+ * searching a part name found the part only if the whole name was typed with the
+ * same capitalisation, and a model like "SET-AO-PCI(51)-C11" could not be found
+ * by any part of it. generateRegexSearchString escapes the term, so the symbols
+ * in these codes are matched literally rather than as regex syntax.
+ *
+ * The query is also built field by field rather than spread wholesale, so that
+ * cursor — which paginates the request and is not a field on the document —
+ * cannot end up in the match. It previously did, and since no master has a
+ * "cursor" field, every page after the first came back empty.
+ */
 exports.getSearchParts = tryCatchHandler(async (req, res, next) => {
-  if (Object.values(req.query)?.length <= 0)
+  const { machine_code, ...restQuery } = req.query;
+
+  const $match = {};
+
+  Object.entries(restQuery).forEach(([field, value]) => {
+    if (searchControlParams.has(field)) return;
+
+    const term = typeof value === "string" ? value.trim() : value;
+    if (!term) return;
+
+    $match[field] = searchExactMatchFields.has(field)
+      ? term
+      : generateRegexSearchString(String(term));
+  });
+
+  if (machine_code)
+    $match["machine.machine_code"] = generateRegexSearchString(machine_code);
+
+  if (Object.keys($match).length <= 0)
     return res.status(400).json({
       message: "Please provide required search text",
     });
 
-  const { machine_code, ...restQuery } = req.query;
+  if (req.query.cursor) {
+    if (!mongoose.Types.ObjectId.isValid(req.query.cursor))
+      return res.status(400).json({
+        message: "Invalid cursor",
+      });
 
-  const $match = restQuery;
-
-  if (req.query.cursor)
     $match._id = { $lt: mongoose.Types.ObjectId(req.query.cursor) };
-
-  if (machine_code) $match["machine.machine_code"] = machine_code;
+  }
 
   req.$match = $match;
   req.otherPipeline = [{ $sort: { _id: -1 } }, { $limit: paginationRowLimit }];
@@ -73,6 +115,7 @@ exports.findSearchMaster = tryCatchHandler(async (req, res, next) => {
         whichParts: 1,
         location: 1,
         uniqueID: 1,
+        partNumber: 1,
         partName: 1,
         partModel: 1,
         maker: 1,
@@ -148,6 +191,7 @@ exports.getMasterList = tryCatchHandler(async (req, res, next) => {
       { whichParts: searchRegex },
       { location: searchRegex },
       { uniqueID: searchRegex },
+      { partNumber: searchRegex },
       { partName: searchRegex },
       { unit: searchRegex },
       { partModel: searchRegex },

@@ -69,8 +69,18 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
         approxUnitPrice: Number,
         standerOrManufacturingPart: String,
         normalOrUrgentPart: String,
-        drawingAttach: String,
-        drawingAttachOriginalName: String,
+        /**
+         * Drawings for the part. An array like additionalAttachments because a
+         * part can need several drawings; it replaced a single filename plus a
+         * drawingAttachOriginalName companion field, which could only ever hold
+         * one and had no way to be added to.
+         */
+        drawingAttach: [
+          {
+            filename: String,
+            originalname: String,
+          },
+        ],
         additionalAttachments: [
           {
             filename: String,

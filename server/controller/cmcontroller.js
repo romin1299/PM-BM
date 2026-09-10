@@ -40,6 +40,11 @@ const {
 const {
   newRequestSheetDataStore,
 } = require("../middleware/findMachineDataForNewRequestSheetOfCM");
+const {
+  updateCMTargetDate,
+  buildOccurrenceArrayFilters,
+  hasAddressableOccurrence,
+} = require("../services/cm/cmScheduleService");
 const { format } = require("path");
 const {
   ALL_MONTHS,
@@ -1298,16 +1303,19 @@ router.patch(
        *    $pull: Remove elements from arrays
        *
        * 3. Array Filters: Dynamic filters for nested array updates
-       *    [0]: yearFilter - Match specific financial year
-       *         Condition: requestSheet_year = current financial year
-       *    [1]: quarterFilter - Match specific quarter
-       *         Condition: requestSheet_quarter = calculated quarter from date
+       *    [0]: yearFilter - Match the occurrence's financial-year bucket
+       *    [1]: quarterFilter - Match the occurrence itself
        *    [2+]: Additional filters for approval arrays (mtdtluserfilter, etc.)
        *         Match specific approval entry by _id
        *
        * 4. Options:
        *    new: true - Return updated document (not original)
        */
+      const occurrenceArrayFilters = buildOccurrenceArrayFilters({
+        targetDateOfCM: requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
+        occurrenceId: req.query?.occurrenceId,
+      });
+
       const requestSheetOfCM = await RequestSheetOfCM.findOneAndUpdate(
         {
           _id: mongoose.Types.ObjectId(req.params?.reqId),
@@ -1316,37 +1324,15 @@ router.patch(
         {
           arrayFilters: [
             /**
-             * YEAR FILTER (arrayFilters[0])
+             * OCCURRENCE FILTERS (arrayFilters[0] and [1])
              *
-             * Match request sheet data from current financial year
-             * Example: If current year = "2024-2025", only update data from that year
-             *
-             * Financial Year Format: "2024-2025" (April 2024 - March 2025)
-             * Common in India, UK, Australia
+             * Address the one planned occurrence being updated. Built by
+             * cmScheduleService so the year is derived from this occurrence's
+             * own target date rather than from a process-wide "current year",
+             * and so an occurrenceId, when the caller sends one, pins the
+             * occurrence directly.
              */
-            {
-              "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
-                currentYear,
-            },
-            /**
-             * QUARTER FILTER (arrayFilters[1])
-             *
-             * Match request sheet data from calculated quarter
-             * Quarter calculated from targetDateOfCM
-             *
-             * Example: If targetDateOfCM = "2024-11-15", quarter = Q3 (Nov-Dec-Jan)
-             *
-             * Why needed? Each financial year has 4 quarters:
-             * Q1: April-May-June
-             * Q2: July-August-September
-             * Q3: October-November-December
-             * Q4: January-February-March
-             */
-            {
-              "quarterFilter.requestSheet_quarter": getFinancialQuarter(
-                requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
-              ),
-            },
+            ...occurrenceArrayFilters,
             /**
              * APPROVAL USER FILTERS (arrayFilters[2+])
              *
@@ -1366,6 +1352,23 @@ router.patch(
           new: true,
         },
       );
+
+      /**
+       * findOneAndUpdate returns the document whenever the _id matched, even if
+       * the arrayFilters addressed no occurrence. Without this check a no-op
+       * write is reported to the user as a successful update.
+       */
+      if (
+        !hasAddressableOccurrence(requestSheetOfCM, {
+          targetDateOfCM: requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
+          occurrenceId: req.query?.occurrenceId,
+        })
+      )
+        return res.status(404).json({
+          message:
+            "The planned occurrence for this request-sheet could not be found, so nothing was updated",
+          showToast: true,
+        });
 
       /**
        * SUCCESS RESPONSE
@@ -2941,19 +2944,30 @@ router.patch(
       updateObj,
       {
         arrayFilters: [
-          {
-            "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
-              currentYear,
-          },
-          {
-            "quarterFilter.requestSheet_quarter":
-              getFinancialQuarter(targetDateOfCM),
-          },
+          // Year derived from this occurrence's own target date, not from a
+          // process-wide current year, so occurrences planned in any financial
+          // year remain addressable.
+          ...buildOccurrenceArrayFilters({
+            targetDateOfCM,
+            occurrenceId: req.query?.occurrenceId,
+          }),
           { "userFilter._id": mongoose.Types.ObjectId(ObjForUserFilter?._id) },
         ],
         new: true,
       },
     );
+
+    if (
+      !hasAddressableOccurrence(requestSheetOfCM, {
+        targetDateOfCM,
+        occurrenceId: req.query?.occurrenceId,
+      })
+    )
+      return res.status(404).json({
+        message:
+          "The planned occurrence for this request-sheet could not be found, so nothing was updated",
+        showToast: true,
+      });
 
     if (pushOperation) {
       await RequestSheetOfCM.findByIdAndUpdate(requestSheetID, {
@@ -4065,8 +4079,8 @@ router.patch(
   "/updateAssignUser",
   authenticate,
   tryCatchHandler(async (req, res, next) => {
-    let keyForUpdateTheAssignUserQuaterly =
-        "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter].assignUserForCM",
+    let commonKey =
+        "commonDataFilledByAssignUser.$[yearFilter].quarterlyDataOfTheCM.$[quarterFilter]",
       updateObj = {};
 
     updateObj.$set = {
@@ -4090,25 +4104,86 @@ router.patch(
       },
       updateObj,
       {
-        arrayFilters: [
-          {
-            "yearFilter.preAggregationTimeStampOfRequestSheet.requestSheet_year":
-              currentYear,
-          },
-          {
-            "quarterFilter.requestSheet_quarter": getFinancialQuarter(
-              req?.body?.data?.targetDateOfCM,
-            ),
-          },
-        ],
+        arrayFilters: buildOccurrenceArrayFilters({
+          targetDateOfCM: req?.body?.data?.targetDateOfCM,
+          occurrenceId: req?.query?.occurrenceId,
+        }),
         new: true,
       },
     );
+
+    if (
+      !hasAddressableOccurrence(requestSheetOfCM, {
+        targetDateOfCM: req?.body?.data?.targetDateOfCM,
+        occurrenceId: req?.query?.occurrenceId,
+      })
+    )
+      return res.status(404).json({
+        message:
+          "The planned occurrence for this request-sheet could not be found, so nothing was updated",
+        showToast: true,
+      });
 
     successResponse(res, "Assign user update successfully", {
       requestSheetOfCM,
     });
   }),
+);
+
+/**
+ * ENDPOINT: PATCH /cm/requestSheet/targetDate
+ *
+ * PURPOSE
+ * Move the Target Date of one planned CM occurrence and re-derive the schedule
+ * that follows it from the new date plus the sheet's existing frequency.
+ *
+ * QUERY
+ *   requestSheet_id : CM request-sheet _id
+ *   occurrenceId    : _id of the quarterlyDataOfTheCM entry being moved
+ *                     (already sent to the client as
+ *                      current_commonDataFilledByAssignUser._id)
+ * BODY
+ *   { data: { targetDateOfCM } }  -- a bare { targetDateOfCM } is also accepted
+ *
+ * A dedicated route rather than an extension of /updateAssignUser, because that
+ * endpoint force-sets requestSheetStatusOfCM to "Assigned" and would flip a
+ * "Generated" occurrence on a pure date edit.
+ *
+ * All rules live in services/cm/cmScheduleService.js; this handler only maps
+ * HTTP to that service.
+ */
+router.patch(
+  "/cm/requestSheet/targetDate",
+  authenticate,
+  tryCatchHandler(async (req, res, next) => {
+    const { requestSheet_id: requestSheetId, occurrenceId } = req.query || {};
+    const targetDateOfCM =
+      req.body?.data?.targetDateOfCM ?? req.body?.targetDateOfCM;
+
+    if (!requestSheetId || !occurrenceId || !targetDateOfCM)
+      return res.status(400).json({
+        message: "Please provide the request-sheet, occurrence and target date",
+        showToast: true,
+      });
+
+    const result = await updateCMTargetDate({
+      requestSheetId,
+      occurrenceId,
+      newTargetDate: targetDateOfCM,
+      actingUser: req.rootUser,
+    });
+
+    if (result?.isError)
+      return res.status(result?.statusCode || 400).json({
+        message: result?.message,
+        showToast: true,
+      });
+
+    return successResponse(res, result?.message, {
+      showToast: true,
+      ...result?.data,
+    });
+  }, maintenanceType?.[3]),
 );
 
 // safety form CRUD Operations

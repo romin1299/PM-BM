@@ -1,7 +1,13 @@
 const moment = require("moment-timezone");
 
-const generateTimestampIndividually = () => {
-  const now = moment();
+/**
+ * Financial-year stamp for a point in time. Defaults to now, so every existing
+ * caller is unaffected; the Spare Master importer passes the legacy CreateDate so
+ * imported records land in the financial year they were actually created in
+ * rather than the year of the import run.
+ */
+const generateTimestampIndividually = (propDate = undefined) => {
+  const now = propDate ? moment(propDate) : moment();
   const monthNum = now.month() + 1;
   const fyStartYear = monthNum >= 4 ? now.year() : now.year() - 1;
 

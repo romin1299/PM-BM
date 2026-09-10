@@ -15161,6 +15161,20 @@ router.get("/getFinancialYears", authenticate, async (req, res) => {
   }
 });
 
+/**
+ * Financial years for every year dropdown in the app.
+ *
+ * The catch here must answer the request. It previously only logged, so any error
+ * — a dropped database connection, a slow query, anything thrown — left the
+ * request open with no reply. The browser eventually reports that as "Failed to
+ * fetch", and because this endpoint backs a filter rendered on most pages, the
+ * hung sockets count against the browser's per-host connection limit and take
+ * unrelated requests down with them. Always replying keeps a failure to one
+ * request.
+ *
+ * Read-only single document, so .lean() skips building a Mongoose document for a
+ * payload that is serialised to JSON immediately.
+ */
 router.get(
   "/getFinancialYearsDropdownValue",
   authenticate,
@@ -15168,15 +15182,20 @@ router.get(
     try {
       const getFinancialYearsArray = await FinancialYear1.findOne({
         yearDropdownID: "FY01",
-      });
+      }).lean();
 
       if (getFinancialYearsArray)
         return res.status(201).json({ getFinancialYearsArray });
-      else return res.status(400).json("Checksheet not copied!!!");
+
+      return res
+        .status(400)
+        .json({ message: "Financial year dropdown values are not configured" });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
-      console.log("User data not send or get!!!");
+      return res
+        .status(500)
+        .json({ message: "Could not load financial years, please retry" });
     }
   },
 );

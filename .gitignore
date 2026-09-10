@@ -26,6 +26,7 @@
 
 # Spare
 /server/spareDocuments
+/server/spareMasterImports
 
 # misc
 .DS_Store

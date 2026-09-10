@@ -7,8 +7,10 @@ const fs = require("fs");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const {
   spareApprovalStatus,
+  spareRejectedStatus,
   spareApprovalUserType,
   dynamicApprovalStatus,
+  hooksFormReferenceOfApproval,
   timezone,
 } = require("../../utils/spareManagementUtils");
 const {
@@ -257,14 +259,38 @@ const handleSetSpareSheetDynamicApproval = async ({
 
       let allUser_Ids = [];
 
+      console.log(data);
+
+      /**
+       * The form sends only the fields the user actually changed, so a slot they
+       * left untouched never reaches this point. Fall back to whatever is already
+       * stored for that slot, otherwise editing a single approver would be
+       * reported as "Please select all the approvals" even though the rest are
+       * validly selected.
+       *
+       * This does not weaken the post-rejection rule: a rejection nulls every
+       * slot, so nothing falls back and the requester has to pick the whole
+       * chain from the start.
+       */
+      const selectedApprovalUserIds = {};
+
       for (let i = 0; i < dynamicApproval.length; i++) {
-        if (!data?.[`approvalOf${dynamicApproval[i]}`]?.user?._id)
+        const approvalKey = `approvalOf${dynamicApproval[i]}`;
+        const selectedUserId =
+          data?.[approvalKey]?.user?._id ??
+          existingSpare?.[approvalKey]?.user?._id;
+
+        if (!selectedUserId)
           return {
             isError: true,
-            message: "Please select all the approvals",
+            message: `Please select the ${
+              hooksFormReferenceOfApproval?.[dynamicApproval[i]]?.displayName ||
+              dynamicApproval[i]
+            } approval`,
           };
 
-        allUser_Ids.push(data?.[`approvalOf${dynamicApproval[i]}`]?.user?._id);
+        selectedApprovalUserIds[approvalKey] = selectedUserId.toString();
+        allUser_Ids.push(selectedUserId);
       }
 
       const users = await User.find(
@@ -294,7 +320,7 @@ const handleSetSpareSheetDynamicApproval = async ({
         const user = users.find(
           (item) =>
             item?._id.toString() ===
-            data[`approvalOf${dynamicApproval[i]}`]?.user?._id,
+            selectedApprovalUserIds[`approvalOf${dynamicApproval[i]}`],
         );
 
         if (user) {
@@ -491,6 +517,7 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     data,
     uploadFileIndexesStr: req.body?.uploadFileIndexes,
     filesInfo: req.files?.drawingAttach,
+    multiple: true,
   });
 
   data = await handleSetUploadedFileName({
@@ -676,15 +703,24 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
           spareApprovalStatus[spareApprovalStatus?.length - 1];
       }
     } else {
+      // Rejected sheets carry their own status so the requester can see what
+      // happened, but are otherwise identical to "Generated": the chain is
+      // cleared and the sheet is theirs to edit and re-submit.
       data["pendingApprovalBy"] = null;
-      data["requestSheetStatus"] = spareApprovalStatus?.[1];
+      data["requestSheetStatus"] = spareRejectedStatus;
       data["dynamicApprovalKeys"] = [];
       data["isSpareSheetSendForApproval"] = false;
 
-      for (let i = 1; i < spare?.dynamicApprovalKeys.length; i++) {
-        const element = spare?.dynamicApprovalKeys[i];
-        data[element] = null;
-      }
+      // Clear every approver slot, not only the ones after the rejection.
+      // The requester re-picks the whole chain from the start, and a slot left
+      // holding its previous user would render pre-filled, so the form would
+      // never mark it dirty, never send it back, and the re-submit would fail
+      // with "Please select all the approvals".
+      // mtdHODApprovalIfBudgetIsNG is deliberately untouched: it is a separate
+      // budget gate, not part of the approval chain being restarted.
+      Object.values(hooksFormReferenceOfApproval).forEach(({ approvalKey }) => {
+        data[approvalKey] = null;
+      });
     }
   }
 
@@ -692,6 +728,7 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
     data,
     uploadFileIndexesStr: req.body?.uploadFileIndexes,
     filesInfo: req.files?.drawingAttach,
+    multiple: true,
   });
 
   data = await handleSetUploadedFileName({
@@ -710,31 +747,35 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
       },
     );
 
-  if (req.body?.removeFileIDs) {
-    const removeFileIDs = JSON.parse(req.body?.removeFileIDs);
-    for (let i = 0; i < removeFileIDs?.length; i++) {
-      const drawingAttach = spare?.changeParts?.find(
-        (item) => item?._id === removeFileIDs[i],
-      );
-
-      if (drawingAttach) handleRemoveFile(drawingAttach);
-    }
-  }
-
-  if (req.body?.removeAdditionalFileIDs) {
-    const removeAdditionalFileIDs = JSON.parse(
-      req.body?.removeAdditionalFileIDs,
+  /**
+   * Files the requester deleted from the form, named directly.
+   *
+   * Replaces two lists of change-part ids that meant "drop everything attached
+   * to this part": with several drawings and several additional files per part,
+   * removing one has to be able to leave the rest alone. The stored arrays are
+   * pruned by the changeParts the client sends back, so all that is left to do
+   * here is delete the files themselves.
+   *
+   * Only files this sheet actually holds are unlinked, so a crafted request
+   * cannot reach anything else in the documents folder.
+   */
+  if (req.body?.removedAttachmentFiles) {
+    const removedAttachmentFiles = new Set(
+      JSON.parse(req.body.removedAttachmentFiles),
     );
-    for (let i = 0; i < removeAdditionalFileIDs?.length; i++) {
-      const part = spare?.changeParts?.find(
-        (item) => item?._id === removeAdditionalFileIDs[i],
-      );
 
-      if (part?.additionalAttachments?.length)
-        part.additionalAttachments.forEach((file) =>
-          handleRemoveFile(file?.filename),
-        );
-    }
+    const ownedFileNames = new Set();
+
+    (spare?.changeParts ?? []).forEach((part) => {
+      [...(part?.drawingAttach ?? []), ...(part?.additionalAttachments ?? [])]
+        .map((file) => file?.filename)
+        .filter(Boolean)
+        .forEach((filename) => ownedFileNames.add(filename));
+    });
+
+    removedAttachmentFiles.forEach((filename) => {
+      if (ownedFileNames.has(filename)) handleRemoveFile(filename);
+    });
   }
 
   const { budget } = data;

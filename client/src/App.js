@@ -593,6 +593,18 @@ function App() {
   );
 
   const tabs = useMemo(() => {
+    const pmTab = {
+      name: "PM",
+      keyUrl: "pm",
+      icon: PM,
+      component: <PMTabdashboard commonRoutes={commonRoutes} />,
+    };
+
+    if (loggedUser?.user_type === "Admin") {
+      setIsLoading(false);
+      return [pmTab];
+    }
+
     const MODE = process.env.REACT_APP_MODE;
 
     let spareTab = {};
@@ -616,12 +628,7 @@ function App() {
     }
 
     const baseTabs = [
-      {
-        name: "PM",
-        keyUrl: "pm",
-        icon: PM,
-        component: <PMTabdashboard commonRoutes={commonRoutes} />,
-      },
+      pmTab,
       {
         name: "BM",
         keyUrl: "bm",

@@ -45,6 +45,17 @@ const SpareSheetCustomTable = ({
   showOnlySelected = false,
   selectedRows = new Map(),
   isNormalRowActions = false,
+  /**
+   * Identifies a row. Defaults to the request-sheet part id, which is what every
+   * sheet-based caller keys on; a caller listing something else (the master
+   * catalogue, say) supplies its own.
+   */
+  rowKey = (row) => row?.changeParts?._id,
+  /**
+   * Receives each raw page as it arrives, so a caller can read values that sit
+   * alongside the rows — a total count, for instance — without a second request.
+   */
+  onPageLoaded,
 }) => {
   const cursorRef = useRef(null);
 
@@ -78,7 +89,7 @@ const SpareSheetCustomTable = ({
 
     setData((prev) => ({ ...prev, isLoading: true }));
 
-    const { isError, tableData, hasMore, nextCursor } = await axiosGetOrDelete({
+    const response = await axiosGetOrDelete({
       url,
       axiosProps: {
         params: {
@@ -88,7 +99,11 @@ const SpareSheetCustomTable = ({
       },
     });
 
+    const { isError, tableData, hasMore, nextCursor } = response;
+
     if (!isError) {
+      if (onPageLoaded) onPageLoaded(response);
+
       setData((prev) => ({
         tableData: cursorRef.current
           ? [...prev.tableData, ...tableData].slice(-200)
@@ -106,6 +121,7 @@ const SpareSheetCustomTable = ({
     data.hasMore,
     data.isLoading,
     apiReferencePropsBasedOnFilters?.params,
+    onPageLoaded,
   ]);
 
   useEffect(() => {
@@ -205,7 +221,7 @@ const SpareSheetCustomTable = ({
           {visibleRows?.map((otherData) => (
             <tr
               className="ar-table-thead-header4 tableRowColor"
-              key={otherData?.changeParts?._id}
+              key={rowKey(otherData)}
             >
               {OtherComp && (
                 <OtherComp

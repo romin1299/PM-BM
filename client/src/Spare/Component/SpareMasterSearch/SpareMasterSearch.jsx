@@ -8,6 +8,7 @@ const RowMappingComponent = memo(({ otherData, append }) => (
     <td className="td-padding">{otherData?.whichParts}</td>
     <td className="td-padding">{otherData?.location}</td>
     <td className="td-padding">{otherData?.uniqueID}</td>
+    <td className="td-padding">{otherData?.partNumber}</td>
     <td className="td-padding">{otherData?.partName}</td>
     <td className="td-padding">{otherData?.partModel}</td>
     <td className="td-padding">{otherData?.maker}</td>
@@ -59,6 +60,7 @@ const SpareMasterSearch = ({ append }) => {
             "Master",
             "Location",
             "UniqueID",
+            "Part no",
             "Part name",
             "Part modal",
             "Maker",

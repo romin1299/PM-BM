@@ -103,7 +103,7 @@ const DynamicCRUDTable = ({
                 <td key={field} className="border p-1">
                   <input
                     type={type}
-                    step={type === "number" ? "0.01" : undefined}
+                    step={type === "number" ? "0.0001" : undefined}
                     style={{
                       width: "100%",
                       fontSize: "12px",

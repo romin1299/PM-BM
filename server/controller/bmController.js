@@ -23,6 +23,14 @@ const sendMailForBD = require("../sendMailForBM/sendMailForBDRequestSheet");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 const truncValue = require("../utils/truncValue");
+const {
+  isPlantWideFiltrationUser,
+  hasNoDefaultFilterSelection,
+} = require("../utils/userScope");
+const {
+  USER_NAME_SORT,
+  USER_NAME_COLLATION,
+} = require("../utils/userSort");
 const sendMailForSpareRequest = require("../sendMailForBM/sendMailForSpareRequest");
 const logger = require("../utils/LoggingController/loggers");
 const maintenanceType = require("../utils/maintenanceType");
@@ -373,12 +381,30 @@ router.post(
 
         let requestSheet;
 
+        /**
+         * reqId names the sheet being updated. Registering a brand new sheet has
+         * no sheet to name, and the client interpolates its empty value into the
+         * query string, so reqId arrives absent or as the literal text
+         * "undefined" — which ObjectId() rejects, failing the request before a
+         * sheet could be created.
+         *
+         * The branch below is the update path, so it needs both an MTD/Operator
+         * caller *and* an existing sheet to update. Without a usable id the
+         * request is a registration and belongs in the create path, which is what
+         * lets a new sheet be raised. A valid reqId still takes the update path
+         * exactly as before.
+         */
+        const existingSheetId = mongoose.isValidObjectId(req.query?.reqId)
+          ? req.query.reqId
+          : null;
+
         if (
-          req.rootUser.user_type === "Operator" ||
-          req.rootUser.tm_department === "MTD"
+          (req.rootUser.user_type === "Operator" ||
+            req.rootUser.tm_department === "MTD") &&
+          existingSheetId
         ) {
           const getRequestSheetData = await RequestSheetOfBM.findOne({
-            _id: mongoose.Types.ObjectId(req.query?.reqId),
+            _id: mongoose.Types.ObjectId(existingSheetId),
           });
 
           let requestSheetDataFilledByMTDUser = JSON.parse(req.body.otherData);
@@ -422,7 +448,7 @@ router.post(
             );
 
             requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-              { _id: mongoose.Types.ObjectId(req.query?.reqId) },
+              { _id: mongoose.Types.ObjectId(existingSheetId) },
               {
                 $set: {
                   ...queryObjForUpdateDataByOtherUser,
@@ -564,7 +590,7 @@ router.post(
             );
 
             await RequestSheetOfBM.findOneAndUpdate(
-              { _id: mongoose.Types.ObjectId(req.query?.reqId) },
+              { _id: mongoose.Types.ObjectId(existingSheetId) },
               {
                 $unset: {
                   attachedDataSheets: "",
@@ -592,7 +618,7 @@ router.post(
             });
 
             await RequestSheetOfBM.findOneAndUpdate(
-              { _id: mongoose.Types.ObjectId(req.query?.reqId) },
+              { _id: mongoose.Types.ObjectId(existingSheetId) },
               {
                 $unset: {
                   attachedDrawings: "",
@@ -602,7 +628,7 @@ router.post(
           }
 
           requestSheet = await RequestSheetOfBM.findOneAndUpdate(
-            { _id: mongoose.Types.ObjectId(req.query?.reqId) },
+            { _id: mongoose.Types.ObjectId(existingSheetId) },
             {
               $set: queryObj,
               $push: {
@@ -1521,7 +1547,6 @@ const findTLandOperatorList = async (req, res, next) => {
       TLHOSS_and_TM_user_list = await User.find(
         {
           ...req.queryObj,
-          tm_no: { $ne: req?.rootUser?.tm_no },
           $or: [
             {
               user_type: "Operator",
@@ -1544,7 +1569,9 @@ const findTLandOperatorList = async (req, res, next) => {
           tm_grade: 1,
           user_type: 1,
         },
-      );
+      )
+        .sort(USER_NAME_SORT)
+        .collation(USER_NAME_COLLATION);
       if (TLHOSS_and_TM_user_list?.length === 0) {
         return res.status(400).json({
           message: "No data to display",
@@ -4053,9 +4080,20 @@ const getRequestSheetData = async (req, res, next) => {
       queryObjForPreiousAndNextBM = [];
     delete req?.queryObj?.maintenanceType;
 
-    if (req.query?._id) {
+    /**
+     * A machine that has no request-sheet yet still opens this endpoint — that is
+     * the "generate a new sheet" case — and the client interpolates its empty id
+     * into the query string, so _id arrives as the literal text "undefined".
+     * That is a truthy string, so it used to reach ObjectId() and throw before any
+     * of the fallbacks below could run.
+     */
+    const requestedSheetId = mongoose.isValidObjectId(req.query?._id)
+      ? req.query._id
+      : null;
+
+    if (requestedSheetId) {
       queryObjForGetRequestSheetData = {
-        _id: mongoose.Types.ObjectId(req.query?._id),
+        _id: mongoose.Types.ObjectId(requestedSheetId),
       };
     }
 
@@ -4075,25 +4113,58 @@ const getRequestSheetData = async (req, res, next) => {
       };
     }
 
-    if (req?.query?.currentCount > 0) {
+    const currentCount = Number(req?.query?.currentCount) || 0;
+
+    /**
+     * True when the caller asked for a machine rather than a specific sheet — the
+     * "open this machine" case, where the machine may legitimately have no sheet
+     * for this month yet.
+     */
+    const isBrowsingMachine =
+      !requestedSheetId &&
+      !req?.params?.reqId &&
+      !req.query?.getDataForApprovalDashboardId &&
+      mongoose.isValidObjectId(req?.query?.machineId);
+
+    if (currentCount > 0 && mongoose.isValidObjectId(req?.query?.machineId)) {
       queryObjForGetRequestSheetData = {
         machineRef: mongoose.Types.ObjectId(req?.query?.machineId),
         "preAggregationTimeStampOfRequestSheet.requestSheet_year":
           req?.query?.selectedYear,
       };
-      if (Number(req?.query?.currentCount) > 0) {
-        queryObjForGetRequestSheetData = {
-          ...queryObjForGetRequestSheetData,
-          "preAggregationTimeStampOfRequestSheet.requestSheet_month":
-            currentMonth,
-        };
-      }
-      const currentCount = Number(req?.query?.currentCount);
+
+      /**
+       * Paging back from a sheet opened by id stays inside the current month, as
+       * it always has. Paging back from the blank sheet a machine opens on must
+       * not: the whole point is to reach the sheets that exist in earlier months,
+       * which is exactly what the old "not found for the current month" response
+       * was blocking.
+       */
+      if (requestedSheetId)
+        queryObjForGetRequestSheetData[
+          "preAggregationTimeStampOfRequestSheet.requestSheet_month"
+        ] = currentMonth;
+
+      /**
+       * Position 0 is the sheet already on screen. When that was a sheet opened
+       * by id, the first step back skips it. When it was the blank new sheet no
+       * stored sheet was consumed, so the first step back lands on the newest one.
+       */
       queryObjForPreiousAndNextBM = [
         { $sort: { _id: -1 } }, // latest first
-        { $skip: currentCount }, // skip N docs
+        { $skip: requestedSheetId ? currentCount : currentCount - 1 },
         { $limit: 1 },
       ];
+    }
+
+    /**
+     * Opening a machine with nothing selected means starting a new sheet, so
+     * answer with no sheet rather than searching for one. The client renders a
+     * blank form, and the back arrow pages into the history above.
+     */
+    if (isBrowsingMachine && currentCount === 0) {
+      req.requestSheetData = [];
+      return next();
     }
 
     const requestSheetData = await RequestSheetOfBM.aggregate([
@@ -4767,7 +4838,12 @@ const getRequestSheetData = async (req, res, next) => {
     ]);
     req.requestSheetData = requestSheetData;
 
-    if (requestSheetData?.length === 0) {
+    /**
+     * Only a lookup that named a specific sheet can be "not found". Browsing a
+     * machine that has run out of history is a normal end state, so it returns an
+     * empty list and lets the client keep showing the form.
+     */
+    if (requestSheetData?.length === 0 && !isBrowsingMachine) {
       return res.status(404).json({
         message:
           "No any request-sheet found for this machine for the current month | No data to display",
@@ -4932,10 +5008,11 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
       section_id: req?.rootUser?.section_data?.split("-")?.[0],
     });
 
+    // Caller not excluded — see /sendApprovalForRequestSheetOfBM for why a user
+    // may legitimately appear among the approvers of their own sheet.
     let queryObj = {
       plant_data: req?.rootUser?.plant_data,
       user_type: { $ne: "Operator" },
-      _id: { $ne: req?.rootUser?._id },
     };
 
     if (req?.rootUser?.tm_grade !== "HOD") {
@@ -4985,7 +5062,6 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
       TLHOSS_and_TM_user_list = await User.find(
         {
           ...queryObj,
-          tm_no: { $ne: req?.rootUser?.tm_no },
           $or: [
             {
               user_type: "Operator",
@@ -5008,7 +5084,9 @@ router.get("/getDataForEditingTheRS", authenticate, async (req, res, next) => {
           tm_grade: 1,
           user_type: 1,
         },
-      );
+      )
+        .sort(USER_NAME_SORT)
+        .collation(USER_NAME_COLLATION);
       if (TLHOSS_and_TM_user_list?.length === 0) {
         return res.status(400).json({
           message: "No data to display",
@@ -5519,24 +5597,54 @@ router.patch(
         approvalOfRequestSheet,
         rejectedRemarksOfRequestSheet,
       } = req.body;
-      if (
-        !assignApprovalList?.MTD_TL?.id &&
-        (requestSheetDataOfBM?.assignUser?._id ===
+      /**
+       * This endpoint serves two different actions: the person the sheet is
+       * assigned to sending it into the approval chain, and an approver acting on
+       * it. Which one runs used to be decided purely by identity — "is the caller
+       * the assigned user?" — and the submit branch returns before the approval
+       * code is ever reached.
+       *
+       * That made it impossible for the assigned user to also be an approver: on
+       * approving, the caller was still the assigned user, so the submit branch
+       * ran a second time, pushed another "Pending" onto approvalOfMTD_TL and
+       * reset the status to "Under MTD TL Approval". The sheet could never clear
+       * its first approval, which is why approvers were being filtered so the
+       * caller could not pick themselves.
+       *
+       * The two actions are really distinguished by the state of the sheet, not
+       * by who is calling: a sheet that is not waiting on anyone is being
+       * submitted, a sheet that is waiting is being approved.
+       * getDataForApprovalDashboard is set when a sheet enters the chain and
+       * unset when it is completed or rejected, so its presence answers this
+       * exactly — including for a re-submission after a rejection.
+       *
+       * Read from the database rather than from requestSheetDataOfBM, which
+       * arrives in the request body and so cannot decide which branch to trust.
+       */
+      const sheetApprovalState = await RequestSheetOfBM.findOne(
+        { _id: mongoose.Types.ObjectId(req.params?.reqId) },
+        { getDataForApprovalDashboard: 1 },
+      ).lean();
+
+      const isSheetAwaitingApproval = Boolean(
+        sheetApprovalState?.getDataForApprovalDashboard?.Id,
+      );
+
+      const isSheetOwner =
+        requestSheetDataOfBM?.assignUser?._id ===
           (req?.rootUser?._id).toString() ||
-          requestSheetDataOfBM?.handOverUser?._id ===
-            (req?.rootUser?._id).toString())
-      ) {
+        requestSheetDataOfBM?.handOverUser?._id ===
+          (req?.rootUser?._id).toString();
+
+      const isSubmittingForApproval = isSheetOwner && !isSheetAwaitingApproval;
+
+      if (!assignApprovalList?.MTD_TL?.id && isSubmittingForApproval) {
         return res
           .status(400)
           .json({ message: "Please select required MTD TL" });
       }
 
-      if (
-        requestSheetDataOfBM?.assignUser?._id ===
-          (req?.rootUser?._id).toString() ||
-        requestSheetDataOfBM?.handOverUser?._id ===
-          (req?.rootUser?._id).toString()
-      ) {
+      if (isSubmittingForApproval) {
         const updateAssignApprovalOfMTD_TL =
           await RequestSheetOfBM.findOneAndUpdate(
             {
@@ -18059,7 +18167,7 @@ router.get(
 
 const plantFiltrationMiddleware = async (req, res, next) => {
   try {
-    if (req.rootUser?.tm_grade !== "HOD") {
+    if (!isPlantWideFiltrationUser(req.rootUser)) {
       return next();
     }
 
@@ -18204,6 +18312,42 @@ const responseFilterMiddleWareForSpare = async (req, res, next) => {
   }
 };
 
+/**
+ * Opens the filters with nothing selected for users who have no section of their
+ * own, handing back only the plant's section list to choose from. Everything
+ * downstream then cascades through the existing sectionBased / subSectionBased /
+ * cellBased endpoints exactly as it does for any other user.
+ *
+ * Only wired into all-filtration/byDefault; plant-level-filtration keeps its own
+ * defaults untouched.
+ */
+const noDefaultFiltrationSelectionMiddleware = async (req, res, next) => {
+  try {
+    if (!hasNoDefaultFilterSelection(req.rootUser)) return next();
+
+    return res.status(201).json({
+      message: "Sections get successfully",
+
+      flagForTogglingFilter: "",
+      selectedValue: "",
+
+      selectedSection: "",
+      sections: req.sections || [],
+      selectedSubSection: "",
+      subSections: [],
+      selectedCell: "",
+      cells: [],
+      selectedLine: "",
+      lines: [],
+      selectedMachine: "",
+      machines: [],
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[1] });
+    res.status(500).json({ message: error?.message, error });
+  }
+};
+
 const cellFiltrationMiddleware = async (req, res, next) => {
   try {
     const cells = await Cell.find(req.cellQuery, {
@@ -18212,7 +18356,7 @@ const cellFiltrationMiddleware = async (req, res, next) => {
       subSection_names: 1,
     });
 
-    if (req.rootUser?.tm_grade === "HOD") {
+    if (isPlantWideFiltrationUser(req.rootUser)) {
       if (req.section.dashboardLevel === "No") {
         return res.status(201).json({
           message: "SubSections get successfully",
@@ -18307,7 +18451,7 @@ const conditionMiddlewareForSubSectionQuery = async (req, res, next) => {
     let subSectionQuery = {};
 
     if (req.section.dashboardLevel === "Yes") {
-      if (req.rootUser?.tm_grade === "HOD") {
+      if (isPlantWideFiltrationUser(req.rootUser)) {
         return res.status(201).json({
           message: "Sections get successfully",
 
@@ -18331,7 +18475,7 @@ const conditionMiddlewareForSubSectionQuery = async (req, res, next) => {
         section_names: req.section?._id,
       };
     } else {
-      if (req.rootUser?.tm_grade === "HOD") {
+      if (isPlantWideFiltrationUser(req.rootUser)) {
         subSectionQuery = {
           section_names: req.section?._id,
         };
@@ -18452,6 +18596,7 @@ router.get(
   "/getFiltrationValue/all-filtration/byDefault",
   authenticate,
   plantFiltrationMiddleware,
+  noDefaultFiltrationSelectionMiddleware,
   conditionMiddlewareForSectionQuery,
   sectionFiltrationMiddleware,
   conditionMiddlewareForSubSectionQuery,
@@ -18460,7 +18605,7 @@ router.get(
     try {
       const cells = await Cell.find(req.cellQuery);
 
-      if (req.rootUser?.tm_grade === "HOD") {
+      if (isPlantWideFiltrationUser(req.rootUser)) {
         if (req.section.dashboardLevel === "No") {
           return res.status(201).json({
             message: "SubSections get successfully",

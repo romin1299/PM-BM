@@ -21,6 +21,7 @@ const {
 const {
   spareFilterMiddleware,
   getSpareRequestSheets,
+  ensureSpareSheetIsEditable,
 } = require("../../controller/spareManagement/spareMiddleware");
 
 const {
@@ -49,9 +50,10 @@ router
       { name: "documentByRequestGenerator", maxCount: 1 },
     ]),
     findSpareSheetBasedOnId,
+    ensureSpareSheetIsEditable,
     updateSpareRequestSheet,
   )
-  .delete(deleteSparePartRequest);
+  .delete(ensureSpareSheetIsEditable, deleteSparePartRequest);
 
 router
   .route("/spareRequestSheet/all")

@@ -1,4 +1,10 @@
-import React, { useReducer, useContext, useMemo } from "react";
+import React, {
+  useReducer,
+  useContext,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Row, Col, Form, Container, Table } from "react-bootstrap";
@@ -10,19 +16,27 @@ import {
   initialState,
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
 import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
+import {
+  buildPartAttachments,
+  mergeAttachmentsIntoParts,
+  collectNewFiles,
+} from "../../Utils/attachmentUtils";
 import PartList from "../../Component/PartList";
 import {
   // partFor,
   newPartRequestForRadioOptions,
   partQtyOptions,
   partRequestDepartmentList,
-  partTypes,
+  SPARE_SHEET_REQUESTER_EDITABLE_STATUSES,
+  SPARE_SHEET_REJECTED_STATUS,
+  SPARE_APPROVAL_LOG_FIELD_KEYS,
 } from "../../Utils/dropdownUtils";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
 import NGBudgetApprovalSelection from "./NGBudgetApprovalSelection";
 import NewSpareRequestSheetNo from "./NewSpareRequestSheetNo";
 import RSDynamicApprovalSelection from "./RSDynamicApprovalSelection";
 import AcceptOrRejectDynamicApproval from "./AcceptOrRejectDynamicApproval";
+import SpareSheetRejectionRemark from "./SpareSheetRejectionRemark";
 import useGetSectionWiseBudget from "../../SpareCustomHooks/useGetSectionWiseBudget";
 
 const url = "/v1/spare/spareRequestSheet";
@@ -44,6 +58,7 @@ const SpareNewPartRequest = () => {
     register,
     watch,
     setValue,
+    getValues,
     control,
     handleSubmit,
     formState: { isLoading, errors, dirtyFields },
@@ -70,7 +85,13 @@ const SpareNewPartRequest = () => {
           },
         },
       });
-      if (!isError) return spare;
+      // partAttachments mirrors changeParts so the attachment editor has state
+      // of its own, outside the useFieldArray that owns changeParts.
+      if (!isError)
+        return {
+          ...spare,
+          partAttachments: buildPartAttachments(spare?.changeParts),
+        };
       return {};
     },
   });
@@ -85,6 +106,50 @@ const SpareNewPartRequest = () => {
     control,
     name: "changeParts",
   });
+
+  const pendingApprovalBy = useWatch({ control, name: "pendingApprovalBy" });
+  const requestSheetStatus = useWatch({ control, name: "requestSheetStatus" });
+
+  const isApprover =
+    Boolean(pendingApprovalBy) &&
+    String(pendingApprovalBy) === String(loggedUser?._id ?? "");
+
+  /**
+   * Once a sheet is sent for approval it stops belonging to the person who
+   * raised it. It is theirs while it is "Generated" or "Rejected" — a new sheet,
+   * or one an approver has handed back. In every other status it is either with
+   * an approver, who alone may change it, or finished and no longer editable at
+   * all.
+   */
+  const isReadOnly = useMemo(() => {
+    if (isViewMode) return true;
+    if (!searchParams.get("_id")) return false;
+    if (isApprover) return false;
+
+    return !SPARE_SHEET_REQUESTER_EDITABLE_STATUSES.includes(
+      requestSheetStatus,
+    );
+  }, [isViewMode, searchParams, isApprover, requestSheetStatus]);
+
+  const approvalLogs = useWatch({
+    control,
+    name: SPARE_APPROVAL_LOG_FIELD_KEYS,
+  });
+
+  /**
+   * A rejection clears the approval slots so the requester re-picks the chain,
+   * which leaves the append-only logs as the record of who sent the sheet back.
+   * Only the newest entry per slot is considered: re-submitting pushes a fresh
+   * "Pending" entry to every slot, so an earlier rejection stops being last and
+   * correctly stops showing.
+   */
+  const rejection = useMemo(() => {
+    if (requestSheetStatus !== SPARE_SHEET_REJECTED_STATUS) return undefined;
+
+    return approvalLogs
+      ?.map((log) => log?.[log?.length - 1])
+      ?.find((entry) => entry?.approvalStatus === "Rejected");
+  }, [requestSheetStatus, approvalLogs]);
 
   const budget = useMemo(() => {
     if (!changeParts?.length)
@@ -127,8 +192,22 @@ const SpareNewPartRequest = () => {
 
   const handleNavigation = () => {
     if (searchParams.get("_id")) return navigate(-1);
-    return navigate("/spare/requests");
+    // return navigate("/spare/requests");
+    return navigate("/spare/spareOrderingDashboard");
   };
+
+  /**
+   * Filenames the requester removed from previously-uploaded attachments.
+   *
+   * A ref rather than state: nothing renders from it, and it only needs to be
+   * read once at submit, so keeping it out of state avoids re-rendering every
+   * part row each time a file is removed.
+   */
+  const removedAttachmentFilesRef = useRef([]);
+
+  const handleRemoveUploadedAttachment = useCallback((filename) => {
+    if (filename) removedAttachmentFilesRef.current.push(filename);
+  }, []);
 
   const handleNewPartRequest = async (formValue) => {
     if (searchParams.get("_id") && Object.keys(dirtyFields).length === 0)
@@ -145,18 +224,24 @@ const SpareNewPartRequest = () => {
       let uploadFileIndexes = [],
         uploadAdditionalFileIndexes = [];
 
-      formValue.changeParts.forEach((row, index) => {
-        if (row.drawingAttach?.length > 0) {
-          formData.append(`drawingAttach`, row.drawingAttach?.[0]);
+      /**
+       * One entry per file, not per part: the server walks the uploaded files and
+       * this list side by side to know which part each belongs to, so a part
+       * contributing three drawings has to appear three times.
+       */
+      collectNewFiles(formValue.partAttachments, "drawingAttach").forEach(
+        ({ index, file }) => {
+          formData.append(`drawingAttach`, file);
           uploadFileIndexes.push(index);
-        }
+        },
+      );
 
-        if (row.additionalAttachments?.length > 0) {
-          Array.from(row.additionalAttachments).forEach((file) => {
-            formData.append(`additionalAttachments`, file);
-            uploadAdditionalFileIndexes.push(index);
-          });
-        }
+      collectNewFiles(
+        formValue.partAttachments,
+        "additionalAttachments",
+      ).forEach(({ index, file }) => {
+        formData.append(`additionalAttachments`, file);
+        uploadAdditionalFileIndexes.push(index);
       });
 
       formData.append("uploadFileIndexes", JSON.stringify(uploadFileIndexes));
@@ -164,63 +249,80 @@ const SpareNewPartRequest = () => {
         "uploadAdditionalFileIndexes",
         JSON.stringify(uploadAdditionalFileIndexes),
       );
+
+      formValue.changeParts = mergeAttachmentsIntoParts(
+        formValue.changeParts,
+        formValue.partAttachments,
+      );
+      delete formValue.partAttachments;
     }
 
     if (searchParams.get("_id")) {
-      if (dirtyFields?.changeParts) {
+      /**
+       * Attachments are tracked outside changeParts, so a part whose only change
+       * is an added or removed file leaves changeParts untouched in dirtyFields.
+       * Both signals therefore have to be considered, or the edit would be sent
+       * without the attachment work the requester just did.
+       */
+      const attachmentsChanged =
+        Boolean(dirtyFields?.partAttachments) ||
+        removedAttachmentFilesRef.current.length > 0;
+
+      if (dirtyFields?.changeParts || attachmentsChanged) {
         let uploadFileIndexes = [],
-          removeFileIDs = [],
-          uploadAdditionalFileIndexes = [],
-          removeAdditionalFileIDs = [];
+          uploadAdditionalFileIndexes = [];
 
-        dirtyFields?.changeParts?.map((item, index) => {
-          if (
-            item?.drawingAttach &&
-            formValue?.changeParts?.[index]?.drawingAttach?.[0]
-          ) {
-            formData.append(
-              `drawingAttach`,
-              formValue?.changeParts?.[index]?.drawingAttach?.[0],
-            );
+        collectNewFiles(formValue?.partAttachments, "drawingAttach").forEach(
+          ({ index, file }) => {
+            formData.append(`drawingAttach`, file);
             uploadFileIndexes.push(index);
-            removeFileIDs.push(formValue?.changeParts?.[index]?._id);
-          }
+          },
+        );
 
-          if (item?.standerOrManufacturingPart === partTypes?.[1]?.value) {
-            removeFileIDs.push(formValue?.changeParts?.[index]?._id);
-          }
-
-          if (
-            item?.additionalAttachments &&
-            formValue?.changeParts?.[index]?.additionalAttachments?.length > 0
-          ) {
-            Array.from(
-              formValue?.changeParts?.[index]?.additionalAttachments,
-            ).forEach((file) => {
-              formData.append(`additionalAttachments`, file);
-              uploadAdditionalFileIndexes.push(index);
-            });
-            removeAdditionalFileIDs.push(formValue?.changeParts?.[index]?._id);
-          }
-          return item;
+        collectNewFiles(
+          formValue?.partAttachments,
+          "additionalAttachments",
+        ).forEach(({ index, file }) => {
+          formData.append(`additionalAttachments`, file);
+          uploadAdditionalFileIndexes.push(index);
         });
 
         formData.append("uploadFileIndexes", JSON.stringify(uploadFileIndexes));
-        formData.append("removeFileIDs", JSON.stringify(removeFileIDs));
         formData.append(
           "uploadAdditionalFileIndexes",
           JSON.stringify(uploadAdditionalFileIndexes),
         );
+
+        /**
+         * Files the requester removed. The pruned arrays travel with changeParts
+         * and detach them from the part; this list is what lets the server also
+         * delete them from disk instead of leaving them orphaned.
+         */
         formData.append(
-          "removeAdditionalFileIDs",
-          JSON.stringify(removeAdditionalFileIDs),
+          "removedAttachmentFiles",
+          JSON.stringify(removedAttachmentFilesRef.current),
         );
       }
 
+      const partAttachments = formValue?.partAttachments;
+
       formValue = dirtyValues(formValue);
+      delete formValue.partAttachments;
+
+      if (attachmentsChanged || formValue?.changeParts)
+        /**
+         * getValues rather than the dirty subset: changing only an attachment
+         * leaves changeParts out of dirtyValues, and sending the parts without
+         * their attachment arrays is exactly what made the server replace every
+         * stored file with an empty list.
+         */
+        formValue.changeParts = mergeAttachmentsIntoParts(
+          formValue.changeParts ?? getValues("changeParts"),
+          partAttachments,
+        );
     }
 
-    if (!searchParams.get("_id") || dirtyFields?.changeParts)
+    if (!searchParams.get("_id") || formValue?.changeParts)
       formValue["budget"] = budget;
 
     if (formValue?.ifBudgetIsNG?.documentByRequestGenerator)
@@ -266,27 +368,27 @@ const SpareNewPartRequest = () => {
             <Row className="border">
               <Col className="d-flex flex-column col-3">
                 {/* <div className="d-flex">
-                  {partFor?.map((item) => (
-                    <>
-                      &nbsp;
-                      <Form.Check
-                        style={{ fontSize: "14px" }}
-                        type="checkbox"
-                        {...item}
-                        {...register("whichParts", {
-                          required: searchParams.get("_id")
-                            ? false
-                            : "Please select part use for",
-                        })}
-                      />
-                    </>
-                  ))}
-                </div>
-                {errors?.["whichParts"] && (
-                  <p className="text-error mb-1">
-                    {errors?.["whichParts"]?.message}
-                  </p>
-                )} */}
+                {partFor?.map((item) => (
+                  <>
+                    &nbsp;
+                    <Form.Check
+                      style={{ fontSize: "14px" }}
+                      type="checkbox"
+                      {...item}
+                      {...register("whichParts", {
+                        required: searchParams.get("_id")
+                          ? false
+                          : "Please select part use for",
+                      })}
+                    />
+                  </>
+                ))}
+              </div>
+              {errors?.["whichParts"] && (
+                <p className="text-error mb-1">
+                  {errors?.["whichParts"]?.message}
+                </p>
+              )} */}
 
                 {searchParams.get("_id") && (
                   <div>
@@ -313,106 +415,80 @@ const SpareNewPartRequest = () => {
                 />
               </Col>
             </Row>
-            <Row className="border">
-              <Col>
-                {searchParams.get("_id") ? (
-                  <>
-                    {watch("cell.cell_name")} |&nbsp;{watch("line.line_name")} |{" "}
-                    &nbsp; {watch("machine.machine_name")}
-                  </>
-                ) : (
-                  <ChartsToolbar
-                    baseUrlForFiltering="/getFiltrationValue/all-filtration"
-                    reduceState={reduceState}
-                    reducerDispatch={reducerDispatch}
-                    sectionFiltration
-                    subSectionFiltration
-                    cellFiltration
-                    lineFiltration
-                    machineFiltration
-                  />
-                )}
-              </Col>
-            </Row>
-            <Row>
-              {searchParams.get("_id") ? (
-                <Col className="border d-flex align-items-center col-auto pt-0 pb-0">
-                  {watch("requestSheetNo")}
-                </Col>
-              ) : (
-                reduceState?.selectedLine && (
-                  <Col className="border d-flex align-items-center col-auto pt-0 pb-0">
-                    <NewSpareRequestSheetNo
-                      selectedLine={reduceState?.selectedLine}
-                      watch={watch}
-                      setValue={setValue}
-                    />
-                  </Col>
-                )
-              )}
-              <Col className="border d-flex flex-column col-auto pt-0 pb-0">
-                <div className="d-flex align-items-center">
-                  {newPartRequestForRadioOptions?.map((item) => (
-                    <Form.Check
-                      key={item?.value}
-                      flex
-                      style={{ fontSize: "14px" }}
-                      className="m-1"
-                      type="radio"
-                      id={`inline-radio-1`}
-                      {...item}
-                      {...register("newPartFor", {
-                        required: searchParams.get("_id")
-                          ? false
-                          : "Please select",
-                      })}
-                    />
-                  ))}
-                </div>
-                {errors?.["newPartFor"] && (
-                  <p className="text-error mb-1">
-                    {errors?.["newPartFor"]?.message}
-                  </p>
-                )}
-              </Col>
-              <Col className="border col-auto pt-0 pb-0">
-                <div className="d-flex align-items-center">
-                  {partQtyOptions?.map((item) => (
-                    <Form.Check
-                      key={item?.value}
-                      flex
-                      style={{ fontSize: "14px" }}
-                      type="radio"
-                      className="m-1"
-                      id={`inline-radio-1`}
-                      {...item}
-                      {...register("partQty", {
-                        required: searchParams.get("_id")
-                          ? false
-                          : "Please select",
-                      })}
-                      // onClick={(e) => {
-                      //   e.target.value === partQtyOptions?.[0]?.value &&
-                      //     watch("changeParts")?.length > 1 &&
-                      //     setValue("changeParts", [watch("changeParts")?.[0]], {
-                      //       shouldDirty: true,
-                      //     });
-                      // }}
-                    />
-                  ))}
-                </div>
-                {errors?.["partQty"] && (
-                  <p className="text-error">{errors?.["partQty"]?.message}</p>
-                )}
-              </Col>
-              <Col className="border col-auto pt-0 pb-0">
-                <div className="d-flex align-items-center">
-                  <small>Part request for: </small>
 
+            {/* Everything the sheet is made of sits in one disabled fieldset,
+                which natively disables every descendant control — inputs,
+                selects, radios, file pickers and the add/remove row buttons — so
+                read-only stays a single decision instead of a flag repeated on
+                each field. The header row above is deliberately outside it, so
+                Back stays usable on a read-only sheet. Links and text are never
+                affected, keeping the sheet and its approval status viewable. */}
+            <fieldset disabled={isReadOnly} className="border-0 p-0 m-0">
+              <Row className="border">
+                <Col>
                   {searchParams.get("_id") ? (
-                    <>&nbsp;{watch("partRequestFor")}</>
+                    <>
+                      {watch("cell.cell_name")} |&nbsp;{watch("line.line_name")}{" "}
+                      | &nbsp; {watch("machine.machine_name")}
+                    </>
                   ) : (
-                    partRequestDepartmentList?.map((item) => (
+                    <ChartsToolbar
+                      baseUrlForFiltering="/getFiltrationValue/all-filtration"
+                      reduceState={reduceState}
+                      reducerDispatch={reducerDispatch}
+                      sectionFiltration
+                      subSectionFiltration
+                      cellFiltration
+                      lineFiltration
+                      machineFiltration
+                    />
+                  )}
+                </Col>
+              </Row>
+              <Row>
+                {searchParams.get("_id") ? (
+                  <Col className="border d-flex align-items-center col-auto pt-0 pb-0">
+                    {watch("requestSheetNo")}
+                  </Col>
+                ) : (
+                  reduceState?.selectedLine && (
+                    <Col className="border d-flex align-items-center col-auto pt-0 pb-0">
+                      <NewSpareRequestSheetNo
+                        selectedLine={reduceState?.selectedLine}
+                        watch={watch}
+                        setValue={setValue}
+                      />
+                    </Col>
+                  )
+                )}
+                <Col className="border d-flex flex-column col-auto pt-0 pb-0">
+                  <div className="d-flex align-items-center">
+                    {newPartRequestForRadioOptions?.map((item) => (
+                      <Form.Check
+                        key={item?.value}
+                        flex
+                        style={{ fontSize: "14px" }}
+                        className="m-1"
+                        type="radio"
+                        id={`inline-radio-1`}
+                        {...item}
+                        {...register("newPartFor", {
+                          required: searchParams.get("_id")
+                            ? false
+                            : "Please select",
+                        })}
+                      />
+                    ))}
+                  </div>
+                  {errors?.["newPartFor"] && (
+                    <p className="text-error mb-1">
+                      {errors?.["newPartFor"]?.message}
+                    </p>
+                  )}
+                </Col>
+                <Col className="border col-auto pt-0 pb-0">
+                  <div className="d-flex align-items-center">
+                    {partQtyOptions?.map((item) => (
                       <Form.Check
                         key={item?.value}
                         flex
@@ -421,150 +497,203 @@ const SpareNewPartRequest = () => {
                         className="m-1"
                         id={`inline-radio-1`}
                         {...item}
-                        {...register("partRequestFor", {
+                        {...register("partQty", {
                           required: searchParams.get("_id")
                             ? false
                             : "Please select",
                         })}
+                        // onClick={(e) => {
+                        //   e.target.value === partQtyOptions?.[0]?.value &&
+                        //     watch("changeParts")?.length > 1 &&
+                        //     setValue("changeParts", [watch("changeParts")?.[0]], {
+                        //       shouldDirty: true,
+                        //     });
+                        // }}
                       />
-                    ))
+                    ))}
+                  </div>
+                  {errors?.["partQty"] && (
+                    <p className="text-error">{errors?.["partQty"]?.message}</p>
                   )}
-                </div>
-                {errors?.["partRequestFor"] && (
-                  <p className="text-error">
-                    {errors?.["partRequestFor"]?.message}
-                  </p>
-                )}
-              </Col>
-            </Row>
-            {watch("partQty") && (
-              <Row>
-                <PartList
-                  register={register}
-                  control={control}
-                  isViewMode={isViewMode}
-                  changeParts={changeParts}
-                  sectionBudget={sectionBudget?.sectionWiseCurrentMonthBudget}
-                  {...budget}
-                />
-              </Row>
-            )}
+                </Col>
+                <Col className="border col-auto pt-0 pb-0">
+                  <div className="d-flex align-items-center">
+                    <small>Part request for: </small>
 
-            {(watch("requestSheetCreatedBy.tm_name") ||
-              budget?.budgetStatus === "NG") && (
-              <Row className="border d-flex align-items-center">
-                {watch("requestSheetCreatedBy.tm_name") && (
-                  <Col className="d-flex align-items-center col-auto border gap-2">
-                    <small>Created by: </small>
-                    <small>
-                      {watch("requestSheetCreatedBy.tm_name")} &nbsp;
-                      {budget?.budgetStatus === "NG" && (
-                        <>
-                          {watch("ifBudgetIsNG.remarkByRequestGenerator") && (
-                            <>
-                              |&nbsp;
-                              {watch("ifBudgetIsNG.remarkByRequestGenerator")}
-                              &nbsp;
-                            </>
-                          )}
-                          {watch(
-                            "ifBudgetIsNG.documentByRequestGenerator.originalname",
-                          ) && (
-                            <>
-                              |&nbsp;
-                              <a
-                                target="_blank"
-                                rel="noreferrer"
-                                href={`${
-                                  process.env.REACT_APP_BASE_URL
-                                }/v1/spare/${watch(
-                                  "ifBudgetIsNG.documentByRequestGenerator.filename",
-                                )}`}
-                              >
-                                {watch(
-                                  "ifBudgetIsNG.documentByRequestGenerator.originalname",
-                                )}
-                              </a>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </small>
-                  </Col>
-                )}
-                {budget?.budgetStatus === "NG" &&
-                  watch("mtdHODApprovalIfBudgetIsNG.user.tm_name") && (
+                    {searchParams.get("_id") ? (
+                      <>&nbsp;{watch("partRequestFor")}</>
+                    ) : (
+                      partRequestDepartmentList?.map((item) => (
+                        <Form.Check
+                          key={item?.value}
+                          flex
+                          style={{ fontSize: "14px" }}
+                          type="radio"
+                          className="m-1"
+                          id={`inline-radio-1`}
+                          {...item}
+                          {...register("partRequestFor", {
+                            required: searchParams.get("_id")
+                              ? false
+                              : "Please select",
+                          })}
+                        />
+                      ))
+                    )}
+                  </div>
+                  {errors?.["partRequestFor"] && (
+                    <p className="text-error">
+                      {errors?.["partRequestFor"]?.message}
+                    </p>
+                  )}
+                </Col>
+              </Row>
+              {watch("partQty") && (
+                <Row>
+                  <PartList
+                    register={register}
+                    control={control}
+                    setValue={setValue}
+                    onRemoveUploaded={handleRemoveUploadedAttachment}
+                    isReadOnly={isReadOnly}
+                    changeParts={changeParts}
+                    sectionBudget={sectionBudget?.sectionWiseCurrentMonthBudget}
+                    {...budget}
+                  />
+                </Row>
+              )}
+
+              {(watch("requestSheetCreatedBy.tm_name") ||
+                budget?.budgetStatus === "NG") && (
+                <Row className="border d-flex align-items-center">
+                  {watch("requestSheetCreatedBy.tm_name") && (
                     <Col className="d-flex align-items-center col-auto border gap-2">
-                      <small>NG budget approval: </small>
+                      <small>Created by: </small>
                       <small>
-                        {watch("mtdHODApprovalIfBudgetIsNG.user.tm_name")} |{" "}
-                        {watch("mtdHODApprovalIfBudgetIsNG.approvalStatus")}
+                        {watch("requestSheetCreatedBy.tm_name")} &nbsp;
+                        {budget?.budgetStatus === "NG" && (
+                          <>
+                            {watch("ifBudgetIsNG.remarkByRequestGenerator") && (
+                              <>
+                                |&nbsp;
+                                {watch("ifBudgetIsNG.remarkByRequestGenerator")}
+                                &nbsp;
+                              </>
+                            )}
+                            {watch(
+                              "ifBudgetIsNG.documentByRequestGenerator.originalname",
+                            ) && (
+                              <>
+                                |&nbsp;
+                                <a
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  href={`${
+                                    process.env.REACT_APP_BASE_URL
+                                  }/v1/spare/${watch(
+                                    "ifBudgetIsNG.documentByRequestGenerator.filename",
+                                  )}`}
+                                >
+                                  {watch(
+                                    "ifBudgetIsNG.documentByRequestGenerator.originalname",
+                                  )}
+                                </a>
+                              </>
+                            )}
+                          </>
+                        )}
                       </small>
                     </Col>
                   )}
-              </Row>
-            )}
+                  {budget?.budgetStatus === "NG" &&
+                    watch("mtdHODApprovalIfBudgetIsNG.user.tm_name") && (
+                      <Col className="d-flex align-items-center col-auto border gap-2">
+                        <small>NG budget approval: </small>
+                        <small>
+                          {watch("mtdHODApprovalIfBudgetIsNG.user.tm_name")} |{" "}
+                          {watch("mtdHODApprovalIfBudgetIsNG.approvalStatus")}
+                        </small>
+                      </Col>
+                    )}
+                </Row>
+              )}
 
-            {budget?.budgetStatus === "NG" &&
-              (watch("mtdHODApprovalIfBudgetIsNG.user._id") ===
-                loggedUser?._id &&
-              watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") === "Pending"
-                ? ""
-                : // <HODNGBudgetApproval
-                  //   register={register}
-                  //   errors={errors}
-                  //   watch={watch}
-                  // />
-                  !watch("mtdHODApprovalIfBudgetIsNG.user.tm_name") && (
-                    <NGBudgetApprovalSelection
-                      register={register}
-                      errors={errors}
-                    />
-                  ))}
+              <SpareSheetRejectionRemark rejection={rejection} />
 
-            {watch("pendingApprovalBy") === loggedUser?._id && (
-              <AcceptOrRejectDynamicApproval
-                register={register}
-                errors={errors}
-                watch={watch}
-              />
-            )}
+              {budget?.budgetStatus === "NG" &&
+                (watch("mtdHODApprovalIfBudgetIsNG.user._id") ===
+                  loggedUser?._id &&
+                watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") === "Pending"
+                  ? ""
+                  : // <HODNGBudgetApproval
+                    //   register={register}
+                    //   errors={errors}
+                    //   watch={watch}
+                    // />
+                    !watch("mtdHODApprovalIfBudgetIsNG.user.tm_name") && (
+                      <NGBudgetApprovalSelection
+                        register={register}
+                        errors={errors}
+                      />
+                    ))}
 
-            {((budget?.budgetStatus === "OK" &&
-              budget?.requiredBudget >= 0 &&
-              sectionBudget?.sectionWiseCurrentMonthBudget >= 0) ||
-              (budget?.budgetStatus === "NG" &&
-                watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
-                  "Accepted")) &&
-              !watch("isSpareSheetSendForApproval") &&
-              watch("partRequestFor") && (
-                <RSDynamicApprovalSelection
+              {watch("pendingApprovalBy") === loggedUser?._id && (
+                <AcceptOrRejectDynamicApproval
                   register={register}
                   errors={errors}
-                  partRequestFor={watch("partRequestFor")}
+                  watch={watch}
                 />
               )}
 
-            {!isViewMode && (
-              <Row className="border d-flex align-items-center ">
-                <Col className="d-flex align-items-center gap-2">
-                  {Object.keys(dirtyFields).length > 0 &&
-                    searchParams.get("_id") && (
-                      <button
-                        type="button"
-                        className="btn bg-warning"
-                        onClick={() => reset()}
-                      >
-                        Cancel
-                      </button>
-                    )}
+              {((budget?.budgetStatus === "OK" &&
+                budget?.requiredBudget >= 0 &&
+                sectionBudget?.sectionWiseCurrentMonthBudget >= 0) ||
+                (budget?.budgetStatus === "NG" &&
+                  watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
+                    "Accepted")) &&
+                !watch("isSpareSheetSendForApproval") &&
+                watch("partRequestFor") && (
+                  <RSDynamicApprovalSelection
+                    register={register}
+                    errors={errors}
+                    partRequestFor={watch("partRequestFor")}
+                  />
+                )}
 
-                  <button type="submit" className="btn bg-success">
-                    Submit
-                  </button>
-                </Col>
-              </Row>
-            )}
+              {isReadOnly && !isViewMode && (
+                <Row className="border d-flex align-items-center">
+                  <Col className="d-flex align-items-center col-auto">
+                    <small>
+                      This request-sheet is {requestSheetStatus} and
+                      {pendingApprovalBy
+                        ? " can only be changed by the approver it is waiting on."
+                        : " has completed its approval, so it can no longer be edited."}
+                    </small>
+                  </Col>
+                </Row>
+              )}
+
+              {!isReadOnly && (
+                <Row className="border d-flex align-items-center ">
+                  <Col className="d-flex align-items-center gap-2">
+                    {Object.keys(dirtyFields).length > 0 &&
+                      searchParams.get("_id") && (
+                        <button
+                          type="button"
+                          className="btn bg-warning"
+                          onClick={() => reset()}
+                        >
+                          Cancel
+                        </button>
+                      )}
+
+                    <button type="submit" className="btn bg-success">
+                      Submit
+                    </button>
+                  </Col>
+                </Row>
+              )}
+            </fieldset>
           </Container>
         </Table>
       </Form>

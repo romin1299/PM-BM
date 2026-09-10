@@ -1,4 +1,5 @@
 const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
+const { sortedByName } = require("../utils/userSort");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 const logger = require("../utils/LoggingController/loggers");
@@ -122,9 +123,14 @@ exports.getUserData =
         section_id: req?.rootUser?.section_data?.split("-")?.[0],
       });
 
+      /**
+       * The caller is intentionally NOT excluded. A user may be an approver on a
+       * sheet assigned to them; the submit-versus-approve decision is made from
+       * the sheet's state in /sendApprovalForRequestSheetOfBM, not from whether
+       * the caller happens to appear in this list.
+       */
       let queryObj = {
         plant_data: req?.rootUser?.plant_data,
-        _id: { $ne: req?.rootUser?._id },
       };
 
       if (req?.rootUser?.tm_grade !== "HOD") {
@@ -142,82 +148,105 @@ exports.getUserData =
         }
       }
 
-      const mtdHOS = await userModel.find(
+      const mtdHOSQuery = sortedByName(userModel.find(
         {
           ...queryObj,
           tm_department: "MTD",
           tm_grade: "HOS",
         },
         { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
-      );
-      const mtdTL = await userModel.find(
+      ));
+      const mtdTLQuery = sortedByName(userModel.find(
         {
           ...queryObj,
           tm_department: "MTD",
           user_type: "TL/HOSS",
         },
         { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
-      );
-      const mtdHOD = await userModel.find(
+      ));
+      const mtdHODQuery = sortedByName(userModel.find(
         {
           plant_data: req?.rootUser?.plant_data,
-          _id: { $ne: req?.rootUser?._id },
           tm_department: "MTD",
           tm_grade: "HOD",
         },
         { tm_name: 1, line_names: 1, email: 1 }
-      );
-      const prdHOD = await userModel.find(
+      ));
+      const prdHODQuery = sortedByName(userModel.find(
         {
           plant_data: req?.rootUser?.plant_data,
-          _id: { $ne: req?.rootUser?._id },
           tm_department: "PRD",
           tm_grade: "HOD",
         },
         { tm_name: 1, line_names: 1, email: 1 }
-      );
-      const prdHOS = await userModel.find(
+      ));
+      const prdHOSQuery = sortedByName(userModel.find(
         {
           ...queryObj,
           tm_department: "PRD",
           tm_grade: "HOS",
         },
         { tm_name: 1, line_names: 1, email: 1 }
-      );
-      const prdTL = await userModel.find(
+      ));
+      const prdTLQuery = sortedByName(userModel.find(
         {
           ...queryObj,
           tm_department: "PRD",
           user_type: "TL/HOSS",
         },
         { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
-      );
+      ));
 
-      const pedHOD = await userModel.find(
+      const pedHODQuery = sortedByName(userModel.find(
         {
           plant_data: req?.rootUser?.plant_data,
-          _id: { $ne: req?.rootUser?._id },
           tm_department: "PED",
           tm_grade: "HOD",
         },
         { tm_name: 1, line_names: 1, email: 1 }
-      );
-      const pedHOS = await userModel.find(
+      ));
+      const pedHOSQuery = sortedByName(userModel.find(
         {
           ...queryObj,
           tm_department: "PED",
           tm_grade: "HOS",
         },
         { tm_name: 1, line_names: 1, email: 1 }
-      );
-      const pedTL = await userModel.find(
+      ));
+      const pedTLQuery = sortedByName(userModel.find(
         {
           ...queryObj,
           tm_department: "PED",
           user_type: "TL/HOSS",
         },
         { userRef: "$_id", tm_name: 1, line_names: 1, email: 1 }
-      );
+      ));
+
+      /**
+       * The nine lookups are independent, so they run together instead of as
+       * nine sequential round trips to the database.
+       */
+      const [
+        mtdHOS,
+        mtdTL,
+        mtdHOD,
+        prdHOD,
+        prdHOS,
+        prdTL,
+        pedHOD,
+        pedHOS,
+        pedTL,
+      ] = await Promise.all([
+        mtdHOSQuery,
+        mtdTLQuery,
+        mtdHODQuery,
+        prdHODQuery,
+        prdHOSQuery,
+        prdTLQuery,
+        pedHODQuery,
+        pedHOSQuery,
+        pedTLQuery,
+      ]);
 
       const requestSheetApprovalList = {
         mtdHOS,

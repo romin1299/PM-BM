@@ -39,6 +39,28 @@ app.use(
 // const { dummyCron } = require(path.join(__dirname, "./controller/dummyCron"));
 // dummyCron();
 
+// One-off Spare Master load from a parts-master workbook. Left commented: it is
+// run by hand when a new/updated Excel arrives, not on every boot. Omit
+// `commit` for a dry run that validates and reports without writing anything.
+// const {
+//   runSpareMasterImport,
+// } = require(path.join(__dirname, "./scripts/importSpareMaster"));
+// runSpareMasterImport({
+//   filePath: "Old Master data/dbo_VM_PartsMaster-All Data31-08-2026.xlsx",
+//   commit: true,
+//   tmNo: 89898,
+// });
+
+// Catch-up sweep that raises a REORDER request-sheet for every master already at
+// or below its minimum level. The per-issuance trigger only sees the one part
+// just issued, so a bulk-loaded catalogue needs this once. Safe to re-run — an
+// open reorder for a part blocks a second one. Omit `commit` to dry-run and just
+// write the skipped-parts report.
+// const {
+//   runReorderGeneration,
+// } = require(path.join(__dirname, "./scripts/generateReorderSheets"));
+// runReorderGeneration({ commit: true, tmNo: 89898 });
+
 app.use(require(path.join(__dirname, "./controller/auth")));
 app.use(require(path.join(__dirname, "./controller/bmController")));
 app.use(require(path.join(__dirname, "./controller/cmcontroller")));

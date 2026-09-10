@@ -5,6 +5,8 @@ const {
   Supplier,
   Unit,
   PartGroup,
+  VendorGroup,
+  SupplierCategory,
 } = require("../../model/customizedFieldSchema");
 
 const {
@@ -17,6 +19,8 @@ const schema = {
   supplierName: Supplier,
   unit: Unit,
   partGroup: PartGroup,
+  vendorGroup: VendorGroup,
+  supplierCategory: SupplierCategory,
 };
 
 exports.requiredFieldsValidation = tryCatchHandler(async (req, res, next) => {

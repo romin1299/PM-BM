@@ -32,4 +32,30 @@ const partGroupSchema = new mongoose.Schema({
 
 const PartGroup = new mongoose.model("PartGroups", partGroupSchema);
 
-module.exports = { Maker, Supplier, Unit, PartGroup };
+const vendorGroupSchema = new mongoose.Schema({
+  vendorGroup: {
+    type: String,
+  },
+});
+
+const VendorGroup = new mongoose.model("VendorGroups", vendorGroupSchema);
+
+const supplierCategorySchema = new mongoose.Schema({
+  supplierCategory: {
+    type: String,
+  },
+});
+
+const SupplierCategory = new mongoose.model(
+  "SupplierCategories",
+  supplierCategorySchema,
+);
+
+module.exports = {
+  Maker,
+  Supplier,
+  Unit,
+  PartGroup,
+  VendorGroup,
+  SupplierCategory,
+};

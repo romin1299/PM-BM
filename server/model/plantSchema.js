@@ -56,6 +56,16 @@ const plantSchema = new mongoose.Schema({
     MRNIssuedToMRNApproved: { type: Number, default: 0 },
   },
 
+  /**
+   * Last sequence number handed out for a Spare Master uniqueID in this plant.
+   * Incremented with $inc so concurrent registrations cannot be given the same
+   * number; gaps are acceptable, collisions are not.
+   */
+  spareMasterUniqueIDSeq: {
+    type: Number,
+    default: 0,
+  },
+
   spareCurrenciesWithUnit: [
     {
       currencyUnit: String,
