@@ -151,6 +151,9 @@ const SpareSearchButton = () => {
         <SpareSheetCustomTable
           apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
           url="/v1/spare/spareSearch"
+          // Masters, not request-sheet parts, so the default row key does not
+          // apply — without this every row was keyed undefined.
+          rowKey={(row) => row?.masterId}
           tableHeaders={[
             "Plant",
             "Master",

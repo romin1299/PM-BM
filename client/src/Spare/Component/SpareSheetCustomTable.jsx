@@ -59,6 +59,18 @@ const SpareSheetCustomTable = ({
 }) => {
   const cursorRef = useRef(null);
 
+  /**
+   * The paging guards are refs, not state.
+   *
+   * As state they had to be dependencies of fetchData, which rebuilt the
+   * callback — and with it the IntersectionObserver — twice per page as
+   * isLoading went true and false. A fresh observer fires immediately on an
+   * element already in view, so every page re-armed the request for the next
+   * one whether or not the reader had scrolled.
+   */
+  const isFetchingRef = useRef(false);
+  const hasMoreRef = useRef(true);
+
   const [data, setData] = useState({
     isLoading: false,
     hasMore: true,
@@ -85,8 +97,9 @@ const SpareSheetCustomTable = ({
   const observerRef = useRef(null);
 
   const fetchData = useCallback(async () => {
-    if (data.isLoading || !data.hasMore) return;
+    if (isFetchingRef.current || !hasMoreRef.current) return;
 
+    isFetchingRef.current = true;
     setData((prev) => ({ ...prev, isLoading: true }));
 
     const response = await axiosGetOrDelete({
@@ -101,31 +114,43 @@ const SpareSheetCustomTable = ({
 
     const { isError, tableData, hasMore, nextCursor } = response;
 
-    if (!isError) {
-      if (onPageLoaded) onPageLoaded(response);
-
-      setData((prev) => ({
-        tableData: cursorRef.current
-          ? [...prev.tableData, ...tableData].slice(-200)
-          : tableData,
-        hasMore,
-        isLoading: false,
-      }));
-
-      if (hasMore) cursorRef.current = nextCursor;
-    } else {
-      setData((prev) => ({ ...prev, isLoading: false, hasMore: false }));
+    if (isError) {
+      hasMoreRef.current = false;
+      isFetchingRef.current = false;
+      return setData((prev) => ({ ...prev, isLoading: false, hasMore: false }));
     }
-  }, [
-    url,
-    data.hasMore,
-    data.isLoading,
-    apiReferencePropsBasedOnFilters?.params,
-    onPageLoaded,
-  ]);
+
+    if (onPageLoaded) onPageLoaded(response);
+
+    const rows = tableData ?? [];
+
+    /**
+     * A further page is only possible when the server hands back a cursor to
+     * continue from. Taking hasMore on its own left the observer requesting for
+     * ever against a response that kept saying "more" while returning the first
+     * page again — which is what it did while nextCursor was coming back
+     * undefined.
+     */
+    const canContinue = Boolean(hasMore) && Boolean(nextCursor) && rows.length > 0;
+
+    setData((prev) => ({
+      // Appended in full: capping the list dropped rows off the top, which held
+      // the sentinel at the foot of an unchanged scroll height and started the
+      // whole cycle again.
+      tableData: cursorRef.current ? [...prev.tableData, ...rows] : rows,
+      hasMore: canContinue,
+      isLoading: false,
+    }));
+
+    if (canContinue) cursorRef.current = nextCursor;
+    hasMoreRef.current = canContinue;
+    isFetchingRef.current = false;
+  }, [url, apiReferencePropsBasedOnFilters?.params, onPageLoaded]);
 
   useEffect(() => {
     cursorRef.current = null;
+    isFetchingRef.current = false;
+    hasMoreRef.current = true;
     setData({
       isLoading: false,
       hasMore: true,
@@ -235,11 +260,38 @@ const SpareSheetCustomTable = ({
           ))}
 
           <tr className="ar-table-thead-header4 tableRowColor">
-            <div ref={sentinelRef} style={{ height: "10px" }} />
+            {/*
+              In a cell of its own: a bare div under a tr is laid out through an
+              anonymous table-cell box, and the sentinel's position is what the
+              observer measures.
+
+              Its height stays the same whether or not a page is in flight, so
+              loading the next page cannot move the sentinel and ask for another.
+            */}
+            <td colSpan={tableHeaders?.length || 1} className="border-0 p-0">
+              <div
+                ref={sentinelRef}
+                style={{
+                  height: "34px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {data?.isLoading && visibleRows?.length > 0 && (
+                  <small className="text-muted">Loading more…</small>
+                )}
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
-      {data?.isLoading && <Loading />}
+      {/*
+        The full panel belongs to the first page only. Between pages it added and
+        removed 300px at the foot of the scroll area, which read as a flashing
+        loading screen while the reader was scrolling.
+      */}
+      {data?.isLoading && visibleRows?.length === 0 && <Loading />}
     </div>
   );
 };

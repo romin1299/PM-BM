@@ -11,6 +11,47 @@ const {
 const searchControlParams = new Set(["cursor", "showToast"]);
 
 /**
+ * Cursor paging on _id: `_id < cursor` against a descending sort walks the
+ * collection at a constant cost per page.
+ *
+ * Returns null for a cursor that is not an id at all, which the caller answers
+ * with a 400 — mongoose.Types.ObjectId throws on anything else.
+ */
+const buildCursorMatch = (cursor) => {
+  if (!cursor) return {};
+
+  if (!mongoose.Types.ObjectId.isValid(cursor)) return null;
+
+  return { _id: { $lt: mongoose.Types.ObjectId(cursor) } };
+};
+
+/**
+ * The page envelope shared by the two cursor-scrolled master searches.
+ *
+ * The cursor is read from masterId rather than _id. findSearchMaster projects
+ * the document id out and re-exposes it under that name, so reading _id here
+ * handed back an undefined cursor on every page while hasMore stayed true. The
+ * scrolling table then re-requested page one for each scroll: the results were
+ * capped at the first 50 rows and the loading panel flashed continuously as the
+ * same page was fetched over and over.
+ *
+ * hasMore is therefore tied to holding a usable cursor, so that a page which
+ * cannot be continued from ends the scroll instead of restarting it.
+ */
+const searchPageResponse = (message) =>
+  tryCatchHandler(async (req, res, next) => {
+    const tableData = req.tableData ?? [];
+    const nextCursor = tableData[tableData.length - 1]?.masterId ?? null;
+
+    return res.status(201).json({
+      message,
+      tableData,
+      nextCursor,
+      hasMore: Boolean(nextCursor) && tableData.length >= paginationRowLimit,
+    });
+  });
+
+/**
  * Picked from a fixed list, so matched exactly. Everything else is free text a
  * person typed and is matched as a fragment.
  */
@@ -55,31 +96,20 @@ exports.getSearchParts = tryCatchHandler(async (req, res, next) => {
       message: "Please provide required search text",
     });
 
-  if (req.query.cursor) {
-    if (!mongoose.Types.ObjectId.isValid(req.query.cursor))
-      return res.status(400).json({
-        message: "Invalid cursor",
-      });
+  const cursorMatch = buildCursorMatch(req.query.cursor);
 
-    $match._id = { $lt: mongoose.Types.ObjectId(req.query.cursor) };
-  }
+  if (cursorMatch === null)
+    return res.status(400).json({
+      message: "Invalid cursor",
+    });
 
-  req.$match = $match;
+  req.$match = { ...$match, ...cursorMatch };
   req.otherPipeline = [{ $sort: { _id: -1 } }, { $limit: paginationRowLimit }];
 
   return next();
 });
 
-exports.searchPartResponse = tryCatchHandler(async (req, res, next) => {
-  return res.status(201).json({
-    message: "Spare details get successfully",
-    tableData: req.tableData,
-    nextCursor: req.tableData?.length
-      ? req.tableData?.[req.tableData?.length - 1]._id
-      : null,
-    hasMore: req.tableData?.length >= paginationRowLimit,
-  });
-});
+exports.searchPartResponse = searchPageResponse("Spare details get successfully");
 
 exports.getSearchPartsBasedOnLocation = tryCatchHandler(
   async (req, res, next) => {
@@ -208,22 +238,17 @@ exports.getMasterList = tryCatchHandler(async (req, res, next) => {
     ],
   };
 
-  if (req.query.cursor)
-    $match._id = { $lt: mongoose.Types.ObjectId(req.query.cursor) };
+  const cursorMatch = buildCursorMatch(req.query.cursor);
 
-  req.$match = $match;
+  if (cursorMatch === null)
+    return res.status(400).json({
+      message: "Invalid cursor",
+    });
+
+  req.$match = { ...$match, ...cursorMatch };
   req.otherPipeline = [{ $sort: { _id: -1 } }, { $limit: paginationRowLimit }];
 
   return next();
 });
 
-exports.masterListResponse = tryCatchHandler(async (req, res, next) => {
-  return res.status(201).json({
-    message: "Master details get successfully",
-    nextCursor: req.tableData.length
-      ? req.tableData[req.tableData.length - 1]._id
-      : null,
-    hasMore: req.tableData.length >= paginationRowLimit,
-    tableData: req.tableData,
-  });
-});
+exports.masterListResponse = searchPageResponse("Master details get successfully");
