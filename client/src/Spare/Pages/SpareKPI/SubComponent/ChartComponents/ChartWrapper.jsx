@@ -57,6 +57,7 @@ const ChartWrapper = ({
   filters = [],
   csvOrPDfFileNamePostPix = "",
   header = ["Sections", "Quantity", "Cost in Mil"],
+  chartHeight = { xs: "250px", md: "300px" },
 }) => {
   const [{ isLoading, isError, data }] = useSafeGetRequest({
     url,
@@ -110,7 +111,7 @@ const ChartWrapper = ({
 
       <Box
         sx={{
-          height: { xs: "250px", md: "300px" },
+          height: chartHeight,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

@@ -1060,7 +1060,39 @@ exports.getInventoryBifurcationHierarchyWise = tryCatchHandler(
   },
 );
 
+/**
+ * The line-wise inventory charts are rankings, not censuses.
+ *
+ * The catalogue spans 76 production lines, of which the first ten hold roughly
+ * four fifths of the stock. Plotting every one of them left bars a pixel wide
+ * under a row of labels overlapping each other, so both charts take the top few
+ * by quantity and let the reader ask for more.
+ */
+const TOP_INVENTORY_DEFAULT_LIMIT = 10;
+const TOP_INVENTORY_MAX_LIMIT = 50;
+
+const resolveTopLimit = (limit) => {
+  const requested = Math.trunc(Number(limit));
+
+  if (!Number.isFinite(requested) || requested < 1)
+    return TOP_INVENTORY_DEFAULT_LIMIT;
+
+  return Math.min(requested, TOP_INVENTORY_MAX_LIMIT);
+};
+
+/**
+ * Masters that never resolved to a machine carry no line either, and they hold
+ * close to half the stock. Naming that bucket keeps the chart honest; dropping
+ * it would quietly hide the larger half of the catalogue.
+ */
+const UNASSIGNED_LINE_LABEL = "Unassigned line";
+
+/** Every master imported from the old catalogue arrived without this field. */
+const UNSPECIFIED_SUPPLIER_CATEGORY = "Not specified";
+
 exports.getTopInventoryItems = tryCatchHandler(async (req, res, next) => {
+  const limit = resolveTopLimit(req.query.limit);
+
   const counters = await SpareMaster.aggregate([
     {
       $match: { ...req.$match, ...req.queryObj },
@@ -1080,10 +1112,18 @@ exports.getTopInventoryItems = tryCatchHandler(async (req, res, next) => {
         },
       },
     },
+    // Quantity is what the bars are drawn from, so it is what they are ranked
+    // by; _id only breaks ties so equal lines keep a stable order between calls.
+    {
+      $sort: { overAllAvailableQty: -1, _id: 1 },
+    },
+    {
+      $limit: limit,
+    },
     {
       $group: {
         _id: null,
-        labels: { $push: "$label" },
+        labels: { $push: { $ifNull: ["$label", UNASSIGNED_LINE_LABEL] } },
         data1: { $push: "$overAllAvailableQty" },
         data2: { $push: convertCostInMilUnitInMongoose("$overAllCostInINR") },
       },
@@ -1103,9 +1143,9 @@ exports.getTopInventoryItems = tryCatchHandler(async (req, res, next) => {
 
 exports.getSpareDetailsSupplierCategoryWise = tryCatchHandler(
   async (req, res, next) => {
-    const { flagForTogglingFilter } = req.query;
+    const limit = resolveTopLimit(req.query.limit);
 
-    const counters = await SpareMaster.aggregate([
+    const lines = await SpareMaster.aggregate([
       {
         $match: { ...req.$match, ...req.queryObj },
       },
@@ -1115,107 +1155,76 @@ exports.getSpareDetailsSupplierCategoryWise = tryCatchHandler(
       {
         $group: {
           _id: {
-            supplierCategory: "$supplierCategory",
+            supplierCategory: {
+              $ifNull: ["$supplierCategory", UNSPECIFIED_SUPPLIER_CATEGORY],
+            },
             groupId: `$line._id`,
           },
           label: { $first: `$line.line_name` },
           availableQty: {
             $sum: { $ifNull: ["$costDetails.availableQty", 0] },
           },
-          costInINR: {
-            $sum: { $ifNull: ["$costDetails.overAllCost", 0] },
-          },
         },
       },
       {
         $group: {
-          _id: `$groupId._id`,
+          _id: "$_id.groupId",
           label: { $first: "$label" },
-          array: {
+          overAllAvailableQty: { $sum: "$availableQty" },
+          categories: {
             $push: {
               supplierCategory: "$_id.supplierCategory",
               availableQty: "$availableQty",
-              costInINR: convertCostInMilUnitInMongoose("$costInINR"),
             },
           },
         },
       },
       {
-        $project: {
-          _id: 1,
-          label: 1,
-          allSupplierCategoryWiseData: {
-            $map: {
-              input: ["Local", "Imported"],
-              as: "supplierCategory",
-              in: {
-                $cond: [
-                  { $in: ["$$supplierCategory", "$array.supplierCategory"] },
-                  {
-                    supplierCategory: "$$supplierCategory",
-                    value: {
-                      $arrayElemAt: [
-                        "$array",
-                        {
-                          $indexOfArray: [
-                            "$array.supplierCategory",
-                            "$$supplierCategory",
-                          ],
-                        },
-                      ],
-                    },
-                  },
-                  {
-                    supplierCategory: "$$supplierCategory",
-                    value: {
-                      availableQty: 0,
-                      costInINR: 0,
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
+        $sort: { overAllAvailableQty: -1, _id: 1 },
       },
-      { $unwind: "$allSupplierCategoryWiseData" },
       {
-        $group: {
-          _id: "$allSupplierCategoryWiseData.supplierCategory",
-          labels: { $push: "$label" },
-          availableQty: {
-            $push: "$allSupplierCategoryWiseData.value.availableQty",
-          },
-          costInINR: { $push: "$allSupplierCategoryWiseData.value.costInINR" },
-        },
+        $limit: limit,
       },
     ]);
 
-    if (counters?.length <= 0)
+    if (lines?.length <= 0)
       return res.status(404).json({
         message: "No data found",
       });
 
-    const dataLength = counters?.length;
-    let labels = [],
-      datasets = [];
+    /**
+     * The stack is built from the categories the data actually holds rather
+     * than a fixed Local/Imported pair. Supplier category is a customisable
+     * field, and the imported catalogue carries none at all — against a fixed
+     * pair that rendered as two series of zeroes with nothing to read.
+     */
+    const supplierCategories = [
+      ...new Set(
+        lines.flatMap(({ categories }) =>
+          categories.map(({ supplierCategory }) => supplierCategory),
+        ),
+      ),
+    ].sort();
 
-    counters?.map((item, index) => {
-      datasets.push({
-        type: "bar",
-        stack: "bar-stacked",
-        backgroundColor: `hsl(${Math.round((360 / dataLength) * index)}, 65%, 62%)`,
-        borderColor: "#fff",
-        borderWidth: 1,
-        label: item?._id,
-        data: item?.availableQty,
-      });
-    });
+    const datasets = supplierCategories.map((supplierCategory, index) => ({
+      type: "bar",
+      stack: "bar-stacked",
+      backgroundColor: `hsl(${Math.round((360 / supplierCategories.length) * index)}, 65%, 62%)`,
+      borderColor: "#fff",
+      borderWidth: 1,
+      label: supplierCategory,
+      data: lines.map(
+        ({ categories }) =>
+          categories.find(
+            (category) => category.supplierCategory === supplierCategory,
+          )?.availableQty ?? 0,
+      ),
+    }));
 
     return res.status(201).json({
       message: "Data get successfully",
       chartData: {
-        labels: counters?.[0]?.labels,
+        labels: lines.map(({ label }) => label ?? UNASSIGNED_LINE_LABEL),
         datasets,
       },
     });

@@ -2,11 +2,22 @@ import React, { useMemo } from "react";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { BarElement } from "chart.js";
 
-const StackedBarChart = ({ ChartComponent, chartData }) => {
-  const options = useMemo(
-    () => ({
+const StackedBarChart = ({ ChartComponent, chartData, indexAxis = "x" }) => {
+  const options = useMemo(() => {
+    const isHorizontal = indexAxis === "y";
+
+    // Built per axis rather than shared, so the three scales never end up
+    // pointing at one another's grid and tick objects.
+    const axis = () => ({
+      stacked: true,
+      grid: { display: false },
+      ticks: { color: "black" },
+    });
+
+    return {
       maintainAspectRatio: false,
       responsive: true,
+      indexAxis,
       interaction: {
         mode: "index",
         intersect: false,
@@ -22,51 +33,23 @@ const StackedBarChart = ({ ChartComponent, chartData }) => {
         datalabels: false,
       },
       scales: {
-        x: {
-          stacked: true,
-          grid: {
-            display: false,
-          },
-          title: {
-            display: false,
-            text: "Months",
-          },
-          ticks: {
-            color: "black",
-          },
-        },
+        x: axis(),
         y: {
-          stacked: true,
-          grid: {
-            display: false,
-          },
+          ...axis(),
           position: "left",
-          title: {
-            display: false,
-            text: "BD Hours",
-          },
-          ticks: {
-            color: "black",
-          },
+          // Ranked rows are named, and chart.js would otherwise drop some of
+          // those names to save space.
+          ...(isHorizontal
+            ? { ticks: { color: "black", autoSkip: false } }
+            : {}),
         },
-        y1: {
-          stacked: true,
-          grid: {
-            display: false,
-          },
-          position: "right",
-          title: {
-            display: false,
-            text: "BD Hours",
-          },
-          ticks: {
-            color: "black",
-          },
-        },
+        // The right-hand value axis belongs to the vertical charts that assign
+        // datasets to it. Laid horizontally it would only add a second, unasked
+        // for category axis down the other side.
+        ...(isHorizontal ? {} : { y1: { ...axis(), position: "right" } }),
       },
-    }),
-    [],
-  );
+    };
+  }, [indexAxis]);
 
   return (
     <ChartComponent

@@ -182,10 +182,11 @@ export const handleDownloadDynamicDataOtherFormatCSVOrPDF = ({
   },
   fileName = "Inventory Trend Vs Holding ratio",
   csvOrPDfFileNamePostPix = "",
+  labelColumnHeader = "Cell",
 }) => {
   let bodyData = [];
   let filterData = ["Filters", ...filters];
-  let header = ["Cell"];
+  let header = [labelColumnHeader];
 
   if (format === "csv") {
     bodyData[0] = filterData;

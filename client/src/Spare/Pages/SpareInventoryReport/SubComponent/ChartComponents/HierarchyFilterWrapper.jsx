@@ -10,6 +10,7 @@ import { findOtherFilters } from "../../../SpareKPI/SubComponent/handleDownloadC
 const HierarchyFilterWrapper = ({
   otherToolbarCompProps = {},
   filters = [],
+  ExtraToolbar = null,
   ...props
 }) => {
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
@@ -34,12 +35,15 @@ const HierarchyFilterWrapper = ({
       }}
       otherEffectReference={[reduceState?.selectedValue]}
       OtherToolbar={
-        <ChartsToolbar
-          baseUrlForFiltering="/getFiltrationValue/plant-level-filtration"
-          reduceState={reduceState}
-          reducerDispatch={reducerDispatch}
-          {...otherToolbarCompProps}
-        />
+        <>
+          {ExtraToolbar}
+          <ChartsToolbar
+            baseUrlForFiltering="/getFiltrationValue/plant-level-filtration"
+            reduceState={reduceState}
+            reducerDispatch={reducerDispatch}
+            {...otherToolbarCompProps}
+          />
+        </>
       }
     />
   );
