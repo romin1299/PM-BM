@@ -193,8 +193,8 @@ export const TableComponent = ({
 
   return (
     <div
-      style={{ maxHeight: "70vh", overflowY: "auto" }}
-      className="cell"
+      style={{ "--spare-table-max-height": "70vh" }}
+      className="cell spare-scroll-table"
       ref={containerRef}
     >
       <div className="d-flex align-content-center justify-content-between p-1 td-padding">
@@ -269,7 +269,11 @@ export const TableComponent = ({
           )}
 
           <tr className="ar-table-thead-header4 tableRowColor">
-            <div ref={sentinelRef} style={{ height: "10px" }} />
+            {/* In a cell of its own: a bare div under a tr is laid out through
+                an anonymous cell, and its position is what the observer reads. */}
+            <td colSpan={2} className="border-0 p-0">
+              <div ref={sentinelRef} style={{ height: "10px" }} />
+            </td>
           </tr>
         </tbody>
       </table>

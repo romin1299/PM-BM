@@ -43,12 +43,7 @@ const MonthlyGeneratedAndCompletedCountTable = ({
       }}
       PropComponent={({ tableData }) => (
         <Box className="cell p-2 rounded-2">
-          <Box
-            sx={{
-              width: "100%",
-              overflowX: "auto",
-            }}
-          >
+          <Box className="spare-scroll-table" sx={{ width: "100%" }}>
             <Table bordered hover className="m-0">
               <thead>
                 <tr>

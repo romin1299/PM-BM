@@ -21,44 +21,50 @@ const columns = [
 
 const SpareMastCostTable = ({ costDetails = [] }) => {
   return (
-    <table
-      style={{
-        width: "100%",
-        // tableLayout: "fixed",
-        borderCollapse: "collapse",
-      }}
-      className="mtd-parts-section"
-    >
-      <tr>
-        {columns.map(({ label }) => (
-          <td
-            key={label}
-            className="border p-1"
-            style={{
-              fontWeight: "bold",
-              fontSize: "12px",
-              textAlign: "center",
-            }}
-          >
-            {label}
-          </td>
-        ))}
-      </tr>
+    <div className="spare-scroll-table">
+      <table
+        style={{
+          width: "100%",
+          // tableLayout: "fixed",
+          borderCollapse: "collapse",
+        }}
+        className="mtd-parts-section"
+      >
+        <thead>
+          <tr>
+            {columns.map(({ label }) => (
+              <td
+                key={label}
+                className="border p-1"
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "12px",
+                  textAlign: "center",
+                }}
+              >
+                {label}
+              </td>
+            ))}
+          </tr>
+        </thead>
 
-      {costDetails.map((item, index) => (
-        <tr key={item._id ?? index}>
-          {columns.map(({ field }) => (
-            <td
-              key={field}
-              className="border p-1"
-              style={{ fontSize: "12px", textAlign: "center" }}
-            >
-              {item[field] ?? "-"}
-            </td>
+        <tbody>
+          {costDetails.map((item, index) => (
+            <tr key={item._id ?? index}>
+              {columns.map(({ field }) => (
+                <td
+                  key={field}
+                  className="border p-1"
+                  style={{ fontSize: "12px", textAlign: "center" }}
+                >
+                  {item[field] ?? "-"}
+                </td>
+              ))}
+            </tr>
           ))}
-        </tr>
-      ))}
-    </table>
+        </tbody>
+      </table>
+    </div>
   );
 };
 

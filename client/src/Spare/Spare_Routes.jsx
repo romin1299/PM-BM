@@ -135,6 +135,9 @@ import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
 import { menuItems } from "./SpareSidebar/menuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
 
+// Loaded with the module's routes so every Spare page shares it, and only they.
+import "./Component/SpareScrollTable.scss";
+
 const SpareKPI = lazy(() => import("./Pages/SpareKPI/SpareKPI"));
 const SpareInventoryReport = lazy(
   () => import("./Pages/SpareInventoryReport/SpareInventoryReport"),

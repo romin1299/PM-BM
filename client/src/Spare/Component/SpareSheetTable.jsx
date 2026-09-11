@@ -82,6 +82,17 @@ const TableComponent = ({ tableData, tableProps = defaultTableProps }) => {
     return {
       ...MaterialTableOptions,
       pageSize: tableProps?.pageSize ?? 50,
+      /**
+       * MaterialTable already scrolls the body under maxBodyHeight; this pins
+       * the header inside that scroll box. Set here rather than in the shared
+       * options because those are the BM module's as well.
+       */
+      headerStyle: {
+        ...MaterialTableOptions.headerStyle,
+        position: "sticky",
+        top: 0,
+        zIndex: 2,
+      },
       exportMenu: [
         {
           label: "Export PDF",

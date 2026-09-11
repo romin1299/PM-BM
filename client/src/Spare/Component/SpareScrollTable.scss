@@ -1,0 +1,37 @@
+/*
+ * Frozen header, scrolling body — the one treatment for every data table in the
+ * Spare module, whichever way the table itself is built.
+ *
+ * The class goes on the element that scrolls, never on the table: a sticky cell
+ * pins itself to its nearest scrolling ancestor, so the wrapper has to be the
+ * thing with the overflow. The cells are made sticky rather than the <thead>,
+ * which browsers do not reliably honour as a sticky box.
+ *
+ * Override the depth per table with --spare-table-max-height on the wrapper.
+ */
+.spare-scroll-table {
+  max-height: var(--spare-table-max-height, 75vh);
+  overflow: auto;
+
+  > table > thead > tr > th,
+  > table > thead > tr > td {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    // A stuck cell floats over the rows scrolling beneath it, so it has to be
+    // opaque. It takes its row's colour so the existing header styling — the
+    // dark .bg-button rows, the teal inline backgrounds — carries through.
+    background-color: inherit;
+
+    // Under border-collapse the borders belong to the table and do not travel
+    // with a stuck cell, so the header's bottom edge is painted on the cell.
+    box-shadow: inset 0 -1px 0 #000;
+  }
+}
+
+// The fallback for header rows that set no colour of their own. Zero-specificity
+// so any class or inline colour a row already carries still wins.
+:where(.spare-scroll-table) > table > thead > tr {
+  background-color: #fff;
+}

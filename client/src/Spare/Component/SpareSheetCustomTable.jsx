@@ -224,11 +224,7 @@ const SpareSheetCustomTable = ({
   }, []);
 
   return (
-    <div
-      style={{ maxHeight: "75vh", overflowY: "auto" }}
-      className="cell"
-      ref={containerRef}
-    >
+    <div className="cell spare-scroll-table" ref={containerRef}>
       <table className="ar-table pmSheetApprovalTableCol">
         <thead className="mt-5">
           <tr className="bg-button">

@@ -239,6 +239,10 @@ const SpareUserManagement = () => {
                 headerStyle: {
                   position: "sticky",
                   top: "0",
+                  // A stuck header floats over the rows scrolling beneath it,
+                  // so it cannot stay see-through.
+                  zIndex: 2,
+                  backgroundColor: "#fff",
                   fontSize: "13px",
                   fontWeight: "bold",
                 },

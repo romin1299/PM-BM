@@ -62,97 +62,103 @@ const DynamicCRUDTable = ({
       <ChartTitleBar title={title} />
 
       <Row>
-        <table
-          style={{
-            width: "100%",
-            // tableLayout: "fixed",
-            borderCollapse: "collapse",
-          }}
-          className="mtd-parts-section"
-        >
-          <tr>
-            {columns.map(({ label }) => (
-              <td
-                key={label}
-                className="border p-1"
-                style={{
-                  fontWeight: "bold",
-                  fontSize: "12px",
-                  textAlign: "center",
-                }}
-              >
-                {label}
-              </td>
-            ))}
-            <td
-              className="border p-1"
-              style={{
-                fontWeight: "bold",
-                fontSize: "12px",
-                textAlign: "center",
-                width: "70px",
-              }}
-            >
-              Action
-            </td>
-          </tr>
-
-          {fields?.map((item, index) => (
-            <tr key={item.id}>
-              {columns.map(({ field, type }) => (
-                <td key={field} className="border p-1">
-                  <input
-                    type={type}
-                    step={type === "number" ? "0.0001" : undefined}
+        <div className="spare-scroll-table">
+          <table
+            style={{
+              width: "100%",
+              // tableLayout: "fixed",
+              borderCollapse: "collapse",
+            }}
+            className="mtd-parts-section"
+          >
+            <thead>
+              <tr>
+                {columns.map(({ label }) => (
+                  <td
+                    key={label}
+                    className="border p-1"
                     style={{
-                      width: "100%",
+                      fontWeight: "bold",
                       fontSize: "12px",
                       textAlign: "center",
-                      backgroundColor: index === 0 ? "#f5f5f5" : "white",
                     }}
-                    readOnly={index === 0}
-                    {...register(`${dynamicTableKey}.${index}.${field}`, {
-                      valueAsNumber: type === "number",
-                    })}
-                  />
+                  >
+                    {label}
+                  </td>
+                ))}
+                <td
+                  className="border p-1"
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "12px",
+                    textAlign: "center",
+                    width: "70px",
+                  }}
+                >
+                  Action
                 </td>
+              </tr>
+            </thead>
+
+            <tbody>
+              {fields?.map((item, index) => (
+                <tr key={item.id}>
+                  {columns.map(({ field, type }) => (
+                    <td key={field} className="border p-1">
+                      <input
+                        type={type}
+                        step={type === "number" ? "0.0001" : undefined}
+                        style={{
+                          width: "100%",
+                          fontSize: "12px",
+                          textAlign: "center",
+                          backgroundColor: index === 0 ? "#f5f5f5" : "white",
+                        }}
+                        readOnly={index === 0}
+                        {...register(`${dynamicTableKey}.${index}.${field}`, {
+                          valueAsNumber: type === "number",
+                        })}
+                      />
+                    </td>
+                  ))}
+                  <td className="border p-1" style={{ textAlign: "center" }}>
+                    {index !== 0 && (
+                      <button
+                        type="button"
+                        className={
+                          toolRoomPerson === "Yes"
+                            ? "bg-danger text-white border-0"
+                            : ""
+                        }
+                        disabled={toolRoomPerson !== "Yes"}
+                        onClick={() => remove(index)}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </td>
+                </tr>
               ))}
-              <td className="border p-1" style={{ textAlign: "center" }}>
-                {index !== 0 && (
+
+              <tr>
+                <td colSpan={columns.length + 1} className="border p-1">
                   <button
                     type="button"
                     className={
                       toolRoomPerson === "Yes"
-                        ? "bg-danger text-white border-0"
+                        ? "bg-warning text-white border-0"
                         : ""
                     }
                     disabled={toolRoomPerson !== "Yes"}
-                    onClick={() => remove(index)}
+                    onClick={() => append({ currencyUnit: "", currencyRate: 0.0 })}
                   >
-                    Cancel
+                    Add
                   </button>
-                )}
-              </td>
-            </tr>
-          ))}
-
-          <tr>
-            <td colSpan={columns.length + 1} className="border p-1">
-              <button
-                type="button"
-                className={
-                  toolRoomPerson === "Yes"
-                    ? "bg-warning text-white border-0"
-                    : ""
-                }
-                disabled={toolRoomPerson !== "Yes"}
-                onClick={() => append({ currencyUnit: "", currencyRate: 0.0 })}
-              >
-                Add
-              </button>
-            </td>
-          </tr>
-        </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </Row>
 
       {toolRoomPerson === "Yes" && (

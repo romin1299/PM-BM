@@ -62,7 +62,7 @@ const ModalApproveAndPendingUsersWiseCount = ({
           Display Accepted And Total Approval
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="container overflow-auto">
+      <Modal.Body className="container spare-scroll-table">
         <Table bordered hover className="m-0">
           <thead>
             <tr style={{ background: "#0fa3b1" }}>

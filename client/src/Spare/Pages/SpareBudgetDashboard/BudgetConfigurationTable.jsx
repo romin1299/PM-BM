@@ -114,84 +114,90 @@ const BudgetConfigurationTable = ({
 
   return (
     <form className="m-2" onSubmit={handleSubmit(handleSubmitBudget)}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          tableLayout: "fixed",
-        }}
-        className="mtd-parts-section budget-table"
-      >
-        <tr>
-          <td
-            key="Months"
-            className="border p-1"
-            style={{
-              fontWeight: "bold",
-              fontSize: "12px",
-              textAlign: "center",
-            }}
-          >
-            Months
-          </td>
-          {fyMonths.map((label) => (
-            <td
-              key={label}
-              className="border p-1"
-              style={{
-                fontWeight: "bold",
-                fontSize: "12px",
-                textAlign: "center",
-              }}
-            >
-              {label}
-            </td>
-          ))}
-        </tr>
-
-        {editableFields.map(
-          (f) =>
-            (!params?.selectedValue
-              ? !sectionOnlyFields.has(f.key)
-              : f.key === "remarks"
-                ? params?.flagForTogglingFilter === "based-on-cell"
-                : true) && (
-              <tr key={f.key}>
+      <div className="spare-scroll-table">
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            tableLayout: "fixed",
+          }}
+          className="mtd-parts-section budget-table"
+        >
+          <thead>
+            <tr>
+              <td
+                key="Months"
+                className="border p-1"
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "12px",
+                  textAlign: "center",
+                }}
+              >
+                Months
+              </td>
+              {fyMonths.map((label) => (
                 <td
-                  key={f.label}
+                  key={label}
                   className="border p-1"
                   style={{
                     fontWeight: "bold",
                     fontSize: "12px",
+                    textAlign: "center",
                   }}
                 >
-                  {f.label}
+                  {label}
                 </td>
-                {fyMonths.map((_, i) => {
-                  let style = { width: "100%" };
-                  if (f.isStatusField) {
-                    style.color = "white";
-                    style.background = colorsBasedOnOkNGStatus(
-                      watch(`${f.key}.${i}`),
-                    );
-                  }
-                  return (
-                    <td key={i} className="border p-1">
-                      <input
-                        type={f.type}
-                        style={style}
-                        disabled={f.disabled}
-                        {...register(`${f.key}.${i}`, {
-                          valueAsNumber: f.type === "number",
-                        })}
-                      />
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {editableFields.map(
+              (f) =>
+                (!params?.selectedValue
+                  ? !sectionOnlyFields.has(f.key)
+                  : f.key === "remarks"
+                    ? params?.flagForTogglingFilter === "based-on-cell"
+                    : true) && (
+                  <tr key={f.key}>
+                    <td
+                      key={f.label}
+                      className="border p-1"
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {f.label}
                     </td>
-                  );
-                })}
-              </tr>
-            ),
-        )}
-      </table>
+                    {fyMonths.map((_, i) => {
+                      let style = { width: "100%" };
+                      if (f.isStatusField) {
+                        style.color = "white";
+                        style.background = colorsBasedOnOkNGStatus(
+                          watch(`${f.key}.${i}`),
+                        );
+                      }
+                      return (
+                        <td key={i} className="border p-1">
+                          <input
+                            type={f.type}
+                            style={style}
+                            disabled={f.disabled}
+                            {...register(`${f.key}.${i}`, {
+                              valueAsNumber: f.type === "number",
+                            })}
+                          />
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ),
+            )}
+          </tbody>
+        </table>
+      </div>
       {(!params?.flagForTogglingFilter ||
         params?.flagForTogglingFilter === "based-on-cell") && (
         <button

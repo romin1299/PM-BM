@@ -36,7 +36,12 @@ const rowWiseFields = [
       fieldName: "partNumber",
       required: "Please enter part number",
     },
-    {},
+    {
+      label: "Lead time",
+      fieldName: "leadTime",
+      required: "Please enter lead time",
+      type: "number",
+    },
   ],
   [
     {
@@ -98,14 +103,14 @@ const rowWiseFields = [
   ],
   [
     {
-      label: "Lead time",
-      fieldName: "leadTime",
-      required: "Please enter lead time",
-      type: "number",
-    },
-    {
       label: "M/C no",
       fieldName: "machine.machine_code",
+      required: false,
+      disabled: true,
+    },
+    {
+      label: "M/C name",
+      fieldName: "machine.machine_name",
       required: false,
       disabled: true,
     },
@@ -118,8 +123,9 @@ const rowWiseFields = [
       type: "number",
     },
     {
-      label: "M/C name",
-      fieldName: "machine.machine_name",
+      label: "Over all available qty",
+      fieldName: "budgetDetails.overAllAvailableQty",
+      type: "number",
       required: false,
       disabled: true,
     },
@@ -131,16 +137,6 @@ const rowWiseFields = [
       required: "Please enter max quantity",
       type: "number",
     },
-    {
-      label: "Over all available qty",
-      fieldName: "budgetDetails.overAllAvailableQty",
-      type: "number",
-      required: false,
-      disabled: true,
-    },
-  ],
-  [
-    {},
     {
       label: "Over all cost in INR",
       fieldName: "budgetDetails.overAllCostInINR",
