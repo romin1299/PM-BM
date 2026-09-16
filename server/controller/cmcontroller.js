@@ -194,6 +194,13 @@ const findTLandOperatorList = async (req, res, next) => {
 };
 
 const findMachineUsing_id = tryCatchHandler(async (req, res, next) => {
+  // A page whose machine lookup failed sends the literal string "undefined",
+  // which the id cast rejects with a 500; answer it as the bad request it is.
+  if (!mongoose.isValidObjectId(req.query?.machineRef))
+    return res.status(400).json({
+      message: "Machine reference is missing or invalid",
+    });
+
   req.findMachineQuery = {
     _id: req.query?.machineRef,
   };
@@ -4584,6 +4591,101 @@ const approvalSendMiddleware = (
   }
 };
 
+const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
+
+/**
+ * The user-list fields of the sheet, as [section, key] — a null section is the
+ * sheet root, where the completion sign-offs live.
+ */
+const NEW_MACHINE_CM_USER_LISTS = [
+  ["newMachineRequestFilledByPED", "checkedByPED_HOS"],
+  ["newMachineRequestFilledByPED", "approvedByPED_HOD"],
+  ["filledByMTD_User", "modificationWork_ApprovedByMTD_HOS"],
+  ["filledByMTD_User", "modificationWork_ApprovedByMTD_HOD"],
+  ["filledByMTD_User", "modificationWork_AssignedMTD_TL"],
+  [null, "preparedAndCheckedByMTD_TL"],
+  [null, "approvedByMTD_HOS"],
+  [null, "checkedByPED_TL"],
+  [null, "approvedByPED_HOS"],
+];
+
+const isObjectIdString = (value) => OBJECT_ID_PATTERN.test(String(value ?? ""));
+
+/**
+ * One user-list entry in the schema's shape, or null if it holds no user.
+ *
+ * The form's controls have sent these as a user object, a bare id, an empty
+ * string from an untouched select, or a { userRef: "" } shell — the last three
+ * all failed the ObjectId cast and took the whole submission down with them.
+ */
+const toUserEntry = (entry) => {
+  if (isObjectIdString(entry)) return { userRef: entry };
+  if (entry && typeof entry === "object" && isObjectIdString(entry.userRef))
+    return entry;
+  return null;
+};
+
+/**
+ * Brings the sheet's user fields into the shape the schema stores: every list
+ * an array of users with real ids, entries without one dropped rather than left
+ * to fail the cast.
+ *
+ * preparedByPED_TL is a user object stamped from the logged-in user on create;
+ * a name typed into a form field is not one and is discarded.
+ */
+const normaliseNewMachineCMUsers = (payload = {}) => {
+  NEW_MACHINE_CM_USER_LISTS.forEach(([section, key]) => {
+    const target = section ? payload[section] : payload;
+    if (!target || typeof target !== "object" || !(key in target)) return;
+
+    const entries = Array.isArray(target[key]) ? target[key] : [target[key]];
+    const kept = entries.map(toUserEntry).filter(Boolean);
+
+    if (kept.length) target[key] = kept;
+    else delete target[key];
+  });
+
+  const ped = payload.newMachineRequestFilledByPED;
+  if (ped && "preparedByPED_TL" in ped && !toUserEntry(ped.preparedByPED_TL))
+    delete ped.preparedByPED_TL;
+
+  return payload;
+};
+
+/**
+ * Fills in the name, number and type of any user entry that arrived as an id
+ * alone, so what the approval dashboards display is stored with the sheet.
+ */
+const hydrateNewMachineCMUsers = async (payload = {}) => {
+  const bare = [];
+
+  NEW_MACHINE_CM_USER_LISTS.forEach(([section, key]) => {
+    const target = section ? payload[section] : payload;
+    (target?.[key] ?? []).forEach((entry) => {
+      if (!entry.tm_name) bare.push(entry);
+    });
+  });
+
+  if (!bare.length) return payload;
+
+  const users = await User.find(
+    { _id: { $in: bare.map((entry) => entry.userRef) } },
+    { user_type: 1, tm_no: 1, tm_name: 1, email: 1 },
+  ).lean();
+  const byId = new Map(users.map((user) => [String(user._id), user]));
+
+  bare.forEach((entry) => {
+    const user = byId.get(String(entry.userRef));
+    if (!user) return;
+    entry.user_type = user.user_type;
+    entry.tm_no = user.tm_no;
+    entry.tm_name = user.tm_name;
+    entry.email = user.email;
+  });
+
+  return payload;
+};
+
 // ✅ Create / Update Request Sheet (New-Machine-CM)
 /**
  * POST: /newMachineCM-requestSheets
@@ -4637,11 +4739,16 @@ router.post(
         }
       }
 
+      await hydrateNewMachineCMUsers(normaliseNewMachineCMUsers(payload));
+
       // ========================================
       // STEP 2: Build hierarchy ID object from middleware results
       // ========================================
       // This object stores references to all parent entities in the hierarchy
       // Used for filtering and organizing request sheets by hierarchy level
+      // Declared per request: it used to be an implicit global, so one request
+      // could inherit the previous request's machine.
+      let _idObject = {};
       if (req?.machine) {
         _idObject = {
           machineRef: req?.machine?._id, // Machine reference
@@ -4877,6 +4984,20 @@ router.post(
       payload.requestSheetNoOfNewMachineCM = newReqNo;
       payload.statusOfNewRequestOfCM = "Generated"; // Initial status
 
+      // The creator is stamped from the session, never taken from the form.
+      // Set on the section itself rather than through a dotted key alongside
+      // it, so it cannot depend on which of the two Mongoose applies last.
+      payload.newMachineRequestFilledByPED = {
+        ...(payload.newMachineRequestFilledByPED ?? {}),
+        preparedByPED_TL: {
+          userRef: mongoose.Types.ObjectId(req?.rootUser?._id),
+          user_type: req?.rootUser?.user_type,
+          tm_no: req?.rootUser?.tm_no,
+          tm_name: req?.rootUser?.tm_name,
+          email: req?.rootUser?.email,
+        },
+      };
+
       // ========================================
       // STEP 7: Create new request sheet document
       // ========================================
@@ -4888,14 +5009,6 @@ router.post(
           requestSheet_month: currentMonth,
         },
         plantToMachineHierarchyRef: req?.plantToMachineHierarchyRef,
-        "newMachineRequestFilledByPED.preparedByPED_TL": {
-          // Record who created the sheet
-          userRef: mongoose?.Types?.ObjectId(req?.rootUser?._id),
-          user_type: req?.rootUser?.user_type,
-          tm_no: req?.rootUser?.tm_no,
-          tm_name: req?.rootUser?.tm_name,
-          email: req?.rootUser?.email,
-        },
       });
 
       // ========================================
@@ -5225,7 +5338,9 @@ const getNewMachineCMRequestSheet = tryCatchHandler(async (req, res, next) => {
 router.get(
   "/getAllNewMachineCmReqSheet/:filter/:selectedId",
   authenticate,
-  filterMiddleware,
+  // A New-Machine-CM sheet carries its year/month on the document itself, not
+  // on the per-quarter array a regular CM sheet has.
+  filterMiddleware.forRootTimeStamp,
   tryCatchHandler(async (req, res, next) => {
     return next();
   }),
@@ -5324,7 +5439,8 @@ router.get(
   authenticate,
 
   // ✅ MIDDLEWARE 2: Apply initial filters based on filter type and selectedId
-  filterMiddleware,
+  // (root-timestamp variant: this sheet has no per-quarter array to match on)
+  filterMiddleware.forRootTimeStamp,
 
   // ✅ MIDDLEWARE 3: Add additional filter for current approver
   tryCatchHandler(async (req, res, next) => {

@@ -641,31 +641,29 @@ export default function NewMachineRequestForViewAndUpdate({
 
   // local lists (jobs, users, machines)
   const [jobsList, setJobsList] = useState([]);
-  const [usersList, setUsersList] = useState([]);
+  // The approval users come back grouped by role — an object of lists, not a list.
+  const [usersList, setUsersList] = useState({});
   const [machineDetails, setMachineDetails] = useState(null);
   const [parts, setParts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // load initial data
+  /**
+   * The two lists are independent, so each is stored as soon as its own
+   * request lands rather than one failure leaving both unset.
+   */
   useEffect(() => {
     const fetch = async () => {
-      try {
-        const [job, userList] = await Promise.all([
-          axios.get(`${API_BASE}`),
-          // axios.get(
-          //   `/getMachineDetailsOnScanningRequest/?machine_code=${machine_code}&&current_year=${selectedYear}`
-          // ),
-          axios.get(`/getApprovalUserList`),
-        ]);
-        setJobsList(job?.data || []);
-        setUsersList(
-          userList?.data?.userList
-          // requestSheetApprovalList?.data?.requestSheetApprovalList || []
-        );
-        // setMachineDetails(requestSheetApprovalList?.data?.machine);
-      } catch (err) {
-        console.error("Fetch init failed", err);
-      }
+      const [job, userList] = await Promise.allSettled([
+        axios.get(`${API_BASE}`),
+        axios.get(`/getApprovalUserList`),
+      ]);
+
+      if (job.status === "fulfilled") setJobsList(job.value?.data || []);
+      else console.error("Fetch jobs failed", job.reason);
+
+      if (userList.status === "fulfilled")
+        setUsersList(userList.value?.data?.userList ?? {});
+      else console.error("Fetch approval users failed", userList.reason);
     };
     fetch();
   }, []);
@@ -1577,35 +1575,39 @@ export default function NewMachineRequestForViewAndUpdate({
                     <Col md={4}>
                       <Form.Label>Requested Dept.</Form.Label>
                       <div className="d-flex">
+                        {/*
+                          Sign-offs are user lists in the schema, so each
+                          select is bound to entry 0 of its list and stores the
+                          whole user record the way the approver dropdowns
+                          above do. Plain selects here sent a bare or empty
+                          string into an array of user records, which the save
+                          rejected.
+                        */}
                         <Col md={6}>
                           <Form.Label>Approved By (PED HOS)</Form.Label>
-                          <Form.Select
-                            {...register("approvedByPED_HOS")}
-                            size="sm"
-                            disabled={!isEditable}
-                          >
-                            <option value="">Select</option>
-                            {usersList?.PEDHOSList?.map((u) => (
-                              <option key={u._id} value={u._id}>
-                                {u.tm_name}
-                              </option>
-                            ))}
-                          </Form.Select>
+                          <DropdownComponent
+                            requiredMSG={false}
+                            isEditable={isEditable}
+                            setValue={setValue}
+                            userDropdown={usersList?.PEDHOSList}
+                            label="Select"
+                            formKey="approvedByPED_HOS.0"
+                            register={register}
+                            watch={watch}
+                          />
                         </Col>
                         <Col md={6}>
                           <Form.Label>Checked By (PED TL/HOSS)</Form.Label>
-                          <Form.Select
-                            {...register("checkedByPED_TL")}
-                            size="sm"
-                            disabled={!isEditable}
-                          >
-                            <option value="">Select</option>
-                            {usersList?.PEDTLList?.map((u) => (
-                              <option key={u._id} value={u._id}>
-                                {u.tm_name}
-                              </option>
-                            ))}
-                          </Form.Select>
+                          <DropdownComponent
+                            requiredMSG={false}
+                            isEditable={isEditable}
+                            setValue={setValue}
+                            userDropdown={usersList?.PEDTLList}
+                            label="Select"
+                            formKey="checkedByPED_TL.0"
+                            register={register}
+                            watch={watch}
+                          />
                         </Col>
                       </div>
                     </Col>
@@ -1615,18 +1617,16 @@ export default function NewMachineRequestForViewAndUpdate({
                       <div className="d-flex">
                         <Col md={4}>
                           <Form.Label>Approved By (MTD HOS)</Form.Label>
-                          <Form.Select
-                            {...register("approvedByMTD_HOS")}
-                            size="sm"
-                            disabled={!isEditable}
-                          >
-                            <option value="">Select</option>
-                            {usersList?.MTDHOSList?.map((u) => (
-                              <option key={u._id} value={u._id}>
-                                {u.tm_name}
-                              </option>
-                            ))}
-                          </Form.Select>
+                          <DropdownComponent
+                            requiredMSG={false}
+                            isEditable={isEditable}
+                            setValue={setValue}
+                            userDropdown={usersList?.MTDHOSList}
+                            label="Select"
+                            formKey="approvedByMTD_HOS.0"
+                            register={register}
+                            watch={watch}
+                          />
                         </Col>
                         <Col md={6}>
                           <Form.Label>

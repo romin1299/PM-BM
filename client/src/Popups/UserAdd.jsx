@@ -12,34 +12,15 @@ import {
   FormControl,
 } from "@material-ui/core";
 
-const useRole = (context) => ({
-  isSectionAdmin: context.user_type === "Section-Admin",
-  isTLHOSS: context.user_type === "TL/HOSS",
-  isPlantAdmin: context.user_type === "Plant-Admin",
-  isAdmin: context.user_type === "Admin",
-  isMTD: context.tm_department === "MTD",
-});
-
-const getUserTypeOptions = (role, tmDepartment) => {
-  if (role.isSectionAdmin) {
-    return [
-      { label: "TL/HOSS", value: "TL/HOSS" },
-      tmDepartment === "PRD"
-        ? { label: "Section-Admin", value: "Section-Admin" }
-        : { label: "Operator/Office Person", value: "Operator" },
-    ];
-  }
-  if (role.isTLHOSS && role.isMTD) {
-    return [
-      { label: "TL/HOSS", value: "TL/HOSS" },
-      { label: "Operator/Office Person", value: "Operator" },
-    ];
-  }
-  return [];
-};
-
-const TM_GRADES = ["HOS", "HOD"];
-const DEPARTMENTS = ["PRD", "MTD", "PED"];
+import {
+  DEPARTMENTS,
+  TM_GRADES,
+  TL_HOSS_COUNTERPART_DEPARTMENTS,
+  USER_TYPE,
+  useRole,
+  getUserTypeOptions,
+  isAddingDepartmentHOS,
+} from "./userManagementRoles";
 
 const MENU_PROPS = {
   PaperProps: { style: { maxHeight: 30 * 4.5 + 8 } },
@@ -55,6 +36,7 @@ const RadioGroup = ({ name, options, value, onChange, error }) => (
             name={name}
             id="outlined-number"
             value={opt.value}
+            checked={value === opt.value}
             onChange={onChange}
           />
           <span
@@ -165,20 +147,19 @@ const buildSubmitPayload = (values, context, role, subsections, cells) => {
     values.user_type || (role.isAdmin ? "Plant-Admin" : "Section-Admin");
 
   const resolvedGrade = (() => {
-    if (
-      role.isSectionAdmin &&
-      values.tm_department === "PRD" &&
-      values.user_type === "Section-Admin"
-    )
-      return "HOS";
+    if (isAddingDepartmentHOS(role, values.user_type)) return "HOS";
     if (role.isPlantAdmin) return "HOS";
     return values.tm_grade;
   })();
 
   const resolvedDepartment = (() => {
     if (values.tm_department) return values.tm_department;
-    if (values.user_type === "Operator") return "MTD";
-    if (role.isTLHOSS && values.user_type === "TL/HOSS") return "PRD";
+    if (values.user_type === USER_TYPE.OPERATOR.value) return "MTD";
+    // A TL/HOSS's counterpart defaults to production when none was picked.
+    if (role.isTLHOSS && values.user_type === USER_TYPE.TL_HOSS.value)
+      return TL_HOSS_COUNTERPART_DEPARTMENTS[0];
+    // A HOD's Section-Admin is the HOS of the HOD's own department.
+    if (role.isPlantAdmin) return context.tm_department;
     return values.tm_department;
   })();
 
@@ -451,6 +432,19 @@ const UserAdd = () => {
                 onChange={(e) => {
                   setUsertype(e.target.value);
                   formik.handleChange(e);
+                  /**
+                   * A TL/HOSS chooses the department only for a new TL/HOSS,
+                   * defaulting to production; an operator is always MTD, so
+                   * a department left over from a previous choice is cleared
+                   * rather than carried onto them.
+                   */
+                  if (role.isTLHOSS)
+                    formik.setFieldValue(
+                      "tm_department",
+                      e.target.value === USER_TYPE.TL_HOSS.value
+                        ? TL_HOSS_COUNTERPART_DEPARTMENTS[0]
+                        : "",
+                    );
                 }}
                 error={formik.touched.user_type && formik.errors.user_type}
               />
@@ -465,9 +459,7 @@ const UserAdd = () => {
           )}
 
           {role.isPlantAdmin ||
-          (role.isSectionAdmin &&
-            formik.values.tm_department === "PRD" &&
-            formik.values.user_type === "Section-Admin") ? (
+          isAddingDepartmentHOS(role, formik.values.user_type) ? (
             <ReadOnlyField label="TM Grade" value="HOS" />
           ) : !role.isSectionAdmin && !role.isTLHOSS ? (
             <div className="pwd-container">
@@ -497,9 +489,25 @@ const UserAdd = () => {
               </div>
             )}
 
-          {/* TM Dept read-only (TL/HOSS selecting TL/HOSS) */}
-          {role.isTLHOSS && usertype === "TL/HOSS" && (
-            <ReadOnlyField label="TM Department" value="PRD" />
+          {/* An MTD TL/HOSS places a new TL/HOSS in a counterpart department. */}
+          {role.isTLHOSS && usertype === USER_TYPE.TL_HOSS.value && (
+            <div className="pwd-container">
+              <span>TM Department:</span>
+              <RadioGroup
+                name="tm_department"
+                options={TL_HOSS_COUNTERPART_DEPARTMENTS.map((d) => ({
+                  label: d,
+                  value: d,
+                }))}
+                value={formik.values.tm_department}
+                onChange={formik.handleChange}
+              />
+            </div>
+          )}
+
+          {/* A HOD's Section-Admin is the HOS of the HOD's own department. */}
+          {role.isPlantAdmin && context.tm_department && (
+            <ReadOnlyField label="TM Department" value={context.tm_department} />
           )}
 
           {/* Plant */}

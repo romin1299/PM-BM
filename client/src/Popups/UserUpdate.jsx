@@ -13,36 +13,37 @@ import {
   FormControl,
 } from "@material-ui/core";
 
-const useRole = (context) => ({
-  isSectionAdmin: context.user_type === "Section-Admin",
-  isTLHOSS: context.user_type === "TL/HOSS",
-  isPlantAdmin: context.user_type === "Plant-Admin",
-  isAdmin: context.user_type === "Admin",
-  isMTD: context.tm_department === "MTD",
-});
+import {
+  DEPARTMENTS,
+  TM_GRADES,
+  TL_HOSS_COUNTERPART_DEPARTMENTS,
+  USER_TYPE,
+  useRole,
+  getUserTypeOptions,
+  isAddingDepartmentHOS,
+} from "./userManagementRoles";
 
-const getUserTypeOptions = (role, tmDepartment) => {
-  if (role.isSectionAdmin) {
-    return [
-      { lable: "TL/HOSS", value: "TL/HOSS" },
-      tmDepartment === "PRD"
-        ? { lable: "Section-Admin", value: "Section-Admin" }
-        : { lable: "Operator", value: "Operator" },
-    ];
-  }
-  if (role.isTLHOSS && role.isMTD) {
-    return [
-      { lable: "TL/HOSS", value: "TL/HOSS" },
-      { lable: "Operator", value: "Operator" },
-    ];
-  }
-  return [];
+const radioLabelStyle = {
+  paddingLeft: "0.5rem",
+  fontWeight: "550",
+  color: "black",
 };
 
-const TM_GRADES = [
-  { label: "HOS", value: "HOS" },
-  { label: "HOD", value: "HOD" },
-];
+/** One radio per department, drawn from the shared list. */
+const DepartmentRadios = ({ departments = DEPARTMENTS, value, onChange }) =>
+  departments.map((department) => (
+    <React.Fragment key={department}>
+      <input
+        type="radio"
+        name="tm_department"
+        id="outlined-number"
+        value={department}
+        checked={value === department}
+        onChange={onChange}
+      />
+      <span style={radioLabelStyle}>{department}</span>
+    </React.Fragment>
+  ));
 
 const ITEM_HEIGHT = 30;
 const ITEM_PADDING_TOP = 8;
@@ -84,9 +85,13 @@ const buildUpdatePayload = (
 
   const resolvedDepartment = (() => {
     if (values.tm_department) return values.tm_department;
-    if (values.user_type === "Operator") return "MTD";
-    if (context?.user_type === "TL/HOSS" && values?.user_type === "TL/HOSS")
-      return "PRD";
+    if (values.user_type === USER_TYPE.OPERATOR.value) return "MTD";
+    // A TL/HOSS's counterpart defaults to production when none was picked.
+    if (
+      context?.user_type === "TL/HOSS" &&
+      values?.user_type === USER_TYPE.TL_HOSS.value
+    )
+      return TL_HOSS_COUNTERPART_DEPARTMENTS[0];
     return selectedRow?.tm_department;
   })();
 
@@ -386,46 +391,14 @@ const UserUpdate = ({ selectedRow }) => {
                   <span>TM Department:</span>
                   <div>
                     <div>
-                      <input
-                        type="radio"
-                        name="tm_department"
-                        id="outlined-number"
-                        value="PRD"
+                      <DepartmentRadios
+                        value={formik.values.tm_department}
                         onChange={(e) => {
                           formik.setFieldValue("user_type", "");
                           setUsertype();
                           formik.handleChange(e);
                         }}
                       />
-                      <span
-                        style={{
-                          paddingLeft: "0.5rem",
-                          fontWeight: "550",
-                          color: "black",
-                        }}
-                      >
-                        PRD
-                      </span>
-                      <input
-                        type="radio"
-                        name="tm_department"
-                        id="outlined-number"
-                        value="MTD"
-                        onChange={(e) => {
-                          formik.setFieldValue("user_type", "");
-                          setUsertype();
-                          formik.handleChange(e);
-                        }}
-                      />
-                      <span
-                        style={{
-                          paddingLeft: "0.5rem",
-                          fontWeight: "550",
-                          color: "black",
-                        }}
-                      >
-                        MTD
-                      </span>
                       <div>
                         <p
                           style={{
@@ -468,8 +441,8 @@ const UserUpdate = ({ selectedRow }) => {
                           Please select
                         </option>
                         {userTypeOptions.map((option) => (
-                          <option key={option.value} value={option?.lable}>
-                            {option?.value}
+                          <option key={option.value} value={option.value}>
+                            {option.label}
                           </option>
                         ))}
                       </select>
@@ -490,8 +463,7 @@ const UserUpdate = ({ selectedRow }) => {
                   </div>
                 )}
 
-                {formik.values.tm_department === "PRD" &&
-                  formik.values.user_type === "Section-Admin" && (
+                {isAddingDepartmentHOS(role, formik.values.user_type) && (
                     <div className="pwd-container">
                       <span>TM Grade:</span>
                       <div style={{ width: "100%", marginTop: "0.5rem" }}>
@@ -545,6 +517,18 @@ const UserUpdate = ({ selectedRow }) => {
                       onChange={(e) => {
                         setUsertype(e.target.value);
                         formik.handleChange(e);
+                        /**
+                         * The department is chosen only for a TL/HOSS,
+                         * defaulting to production; an operator is always
+                         * MTD, so a department left over from a previous
+                         * choice is cleared rather than carried onto them.
+                         */
+                        formik.setFieldValue(
+                          "tm_department",
+                          e.target.value === USER_TYPE.TL_HOSS.value
+                            ? TL_HOSS_COUNTERPART_DEPARTMENTS[0]
+                            : "",
+                        );
                       }}
                       variant="standard"
                     >
@@ -552,8 +536,8 @@ const UserUpdate = ({ selectedRow }) => {
                         Please select
                       </option>
                       {userTypeOptions.map((option) => (
-                        <option key={option.value} value={option.lable}>
-                          {option.value}
+                        <option key={option.value} value={option.value}>
+                          {option.label}
                         </option>
                       ))}
                     </select>
@@ -573,19 +557,18 @@ const UserUpdate = ({ selectedRow }) => {
                   </div>
                 </div>
 
-                {usertype === "TL/HOSS" && (
+                {/* An MTD TL/HOSS places a TL/HOSS in a counterpart department. */}
+                {usertype === USER_TYPE.TL_HOSS.value && (
                   <div className="pwd-container">
                     <span>TM Department:</span>
-                    <div style={{ width: "100%", marginTop: "0.5rem" }}>
-                      <TextField
-                        id="outlined-number"
-                        className="textField"
-                        autoComplete="off"
-                        fullWidth
-                        type="text"
-                        name="tm_department"
-                        value="PRD"
-                      />
+                    <div>
+                      <div>
+                        <DepartmentRadios
+                          departments={TL_HOSS_COUNTERPART_DEPARTMENTS}
+                          value={formik.values.tm_department}
+                          onChange={formik.handleChange}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -652,9 +635,9 @@ const UserUpdate = ({ selectedRow }) => {
                       <option selected disabled value="">
                         Please select
                       </option>
-                      {TM_GRADES.map((option) => (
-                        <option key={option.value} value={option.label}>
-                          {option.value}
+                      {TM_GRADES.map((grade) => (
+                        <option key={grade} value={grade}>
+                          {grade}
                         </option>
                       ))}
                     </select>
@@ -672,42 +655,10 @@ const UserUpdate = ({ selectedRow }) => {
                     value={selectedRow?.tm_department}
                   />
                   <div>
-                    <input
-                      type="radio"
-                      name="tm_department"
-                      style={{ float: "left" }}
-                      id="outlined-number"
-                      value="PRD"
+                    <DepartmentRadios
+                      value={formik.values.tm_department}
                       onChange={formik.handleChange}
                     />
-                    <span
-                      style={{
-                        margin: "0 0 0.5rem 0.5rem",
-                        fontWeight: "550",
-                        color: "black",
-                        float: "left",
-                      }}
-                    >
-                      PRD
-                    </span>
-                    <input
-                      type="radio"
-                      name="tm_department"
-                      style={{ float: "left" }}
-                      id="outlined-number"
-                      value="MTD"
-                      onChange={formik.handleChange}
-                    />
-                    <span
-                      style={{
-                        margin: "0 0 0.5rem 0.5rem",
-                        fontWeight: "550",
-                        color: "black",
-                        float: "left",
-                      }}
-                    >
-                      MTD
-                    </span>
                   </div>
                 </div>
               </div>

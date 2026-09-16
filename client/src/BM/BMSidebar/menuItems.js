@@ -32,6 +32,7 @@ import {
   LIST_OF_COMPANY,
   BASE_URL,
 } from "../../ConditionsForDNINandDNHA/ConditionBasedDisplay";
+import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 
 const allusers = [
   // "Admin",
@@ -126,6 +127,15 @@ export const menuItems = [
       {
         title: "Request Sheet Status Monitoring",
         route: "/bm/requestSheetMonitoring",
+        allowedRoles: reportAccess,
+      },
+      {
+        // The page decides what a machine click does by department: PRD
+        // raises a new sheet, everyone else views the existing one. Opens on
+        // the current financial year, the same way the dashboard button does;
+        // the page's own year dropdown moves to other years from there.
+        title: "Generate Request-Sheet",
+        route: `/bm/generateRequestSheetMainDashboard?selectedYear=${currentYear}`,
         allowedRoles: reportAccess,
       },
 

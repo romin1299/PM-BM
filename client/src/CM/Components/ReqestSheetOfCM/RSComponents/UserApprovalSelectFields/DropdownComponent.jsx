@@ -11,15 +11,24 @@ const DropdownComponent = ({
   isEditable,
   requiredMSG = "Please select",
 }) => {
+  const selectedUserRef = watch(`${formKey}.userRef`);
+
+  /**
+   * Mirrors the chosen user's full record onto the form key, so the sheet
+   * carries the name alongside the id.
+   *
+   * Nothing is written while the list is still loading: doing so wrote
+   * undefined over whatever the form already held, which erased a pre-filled
+   * approver on a sheet opened before the user list arrived.
+   */
   useEffect(() => {
+    if (!userDropdown) return;
+
     setValue(
       formKey,
-      userDropdown?.find(
-        (item) => item?.userRef === watch(`${formKey}.userRef`)
-      )
+      userDropdown.find((item) => item?.userRef === selectedUserRef)
     );
-    return;
-  }, [watch, formKey, userDropdown, watch(`${formKey}.userRef`)]);
+  }, [setValue, formKey, userDropdown, selectedUserRef]);
 
   return (
     <>
@@ -44,8 +53,11 @@ const DropdownComponent = ({
         })}
       >
         <option value="">{label} </option>
-        {userDropdown.map((value) => (
-          <option value={value?.userRef}>{value?.tm_name}</option>
+        {/* The list arrives after first render, so it is absent for a moment. */}
+        {(userDropdown ?? []).map((value) => (
+          <option key={value?.userRef} value={value?.userRef}>
+            {value?.tm_name}
+          </option>
         ))}
       </select>
     </>

@@ -638,30 +638,41 @@ export default function NewMachineRequestSheet() {
 
   // local lists (jobs, users, machines)
   const [jobsList, setJobsList] = useState([]);
-  const [usersList, setUsersList] = useState([]);
+  // The approval users come back grouped by role — an object of lists, not a list.
+  const [usersList, setUsersList] = useState({});
   const [machineDetails, setMachineDetails] = useState(null);
   const [parts, setParts] = useState([]);
 
-  // load initial data
+  /**
+   * The three lists are independent, so each is stored as soon as its own
+   * request lands. Awaiting them together meant one failing request — the
+   * machine lookup, typically — left the user list unset as well, and every
+   * approver dropdown on the page with nothing to render.
+   */
   useEffect(() => {
     const fetch = async () => {
-      try {
-        const [job, requestSheetApprovalList, userList] = await Promise.all([
-          axios.get(`${API_BASE}`),
-          axios.get(
-            `/getMachineDetailsOnScanningRequest/?machine_code=${machine_code}&&current_year=${selectedYear}`
-          ),
-          axios.get(`/getApprovalUserList`),
-        ]);
-        setJobsList(job?.data || []);
-        setUsersList(
-          userList?.data?.userList
-          // requestSheetApprovalList?.data?.requestSheetApprovalList || []
+      const [job, requestSheetApprovalList, userList] = await Promise.allSettled([
+        axios.get(`${API_BASE}`),
+        axios.get(
+          `/getMachineDetailsOnScanningRequest/?machine_code=${machine_code}&&current_year=${selectedYear}`
+        ),
+        axios.get(`/getApprovalUserList`),
+      ]);
+
+      if (job.status === "fulfilled") setJobsList(job.value?.data || []);
+      else console.error("Fetch jobs failed", job.reason);
+
+      if (requestSheetApprovalList.status === "fulfilled")
+        setMachineDetails(requestSheetApprovalList.value?.data?.machine);
+      else
+        console.error(
+          "Fetch machine details failed",
+          requestSheetApprovalList.reason
         );
-        setMachineDetails(requestSheetApprovalList?.data?.machine);
-      } catch (err) {
-        console.error("Fetch init failed", err);
-      }
+
+      if (userList.status === "fulfilled")
+        setUsersList(userList.value?.data?.userList ?? {});
+      else console.error("Fetch approval users failed", userList.reason);
     };
     fetch();
   }, []);
@@ -730,7 +741,9 @@ export default function NewMachineRequestSheet() {
     const nextNo =
       (machineDetails?.line_names?.requestSheetNoOfNewMachineCM || 0) + 1;
 
-    const reqNo = `${sectionPrefix}-${lineName}-New-Machine-CM-${month}-${nextNo}`;
+    // Same order the server builds the stored number in (globalReqSheetNo),
+    // so what is previewed here is what comes back on the saved sheet.
+    const reqNo = `${sectionPrefix}-${lineName}-${month}-New-Machine-CM-${nextNo}`;
 
     setValue("requestSheetNoOfNewMachineCM", reqNo);
   }, [machineDetails, setValue]);
@@ -761,6 +774,15 @@ export default function NewMachineRequestSheet() {
   };
 
   const onSubmit = async (payload) => {
+    // The sheet hangs off the machine; without its id the request would go
+    // out as machineRef=undefined and be refused.
+    if (!machineDetails?._id) {
+      alert(
+        `Machine ${machine_code} could not be loaded, so the sheet cannot be submitted yet.`,
+      );
+      return;
+    }
+
     try {
       // 🔥 build only changed fields
       const changedPayload = extractDirty(payload, dirtyFields);
@@ -887,12 +909,12 @@ export default function NewMachineRequestSheet() {
               </Col>
               <Col md={2}>
                 <Form.Label>Prepared By (PED TL)</Form.Label>
-                <Form.Control
-                  {...register("newMachineRequestFilledByPED.preparedByPED_TL")}
-                  size="sm"
-                  disabled
-                  value={context?.tm_name}
-                />
+                {/*
+                  Display only. preparedByPED_TL is a user record the server
+                  stamps from the session on create; registering this input
+                  sent the name as a string into that path and failed the save.
+                */}
+                <Form.Control size="sm" disabled value={context?.tm_name ?? ""} />
               </Col>
               <Col md={2}>
                 <Form.Label>Checked By (PED HOS)</Form.Label>
@@ -1342,35 +1364,38 @@ export default function NewMachineRequestSheet() {
               <Col md={4}>
                 <Form.Label>Requested Dept.</Form.Label>
                 <div className="d-flex">
+                  {/*
+                    Sign-offs are user lists in the schema, so each select is
+                    bound to entry 0 of its list and stores the whole user
+                    record the way the approver dropdowns above do. Plain
+                    selects here sent a bare or empty string into an array of
+                    user records, which the save rejected.
+                  */}
                   <Col md={6}>
                     <Form.Label>Approved By (PED HOS)</Form.Label>
-                    <Form.Select
-                      {...register("approvedByPED_HOS.0.userRef")}
-                      size="sm"
-                      disabled={!isMTDEditable}
-                    >
-                      <option value="">Select</option>
-                      {usersList?.PEDHOSList?.map((u) => (
-                        <option key={u._id} value={u._id}>
-                          {u.tm_name}
-                        </option>
-                      ))}
-                    </Form.Select>
+                    <DropdownComponent
+                      requiredMSG={false}
+                      isEditable={isMTDEditable}
+                      setValue={setValue}
+                      userDropdown={usersList?.PEDHOSList}
+                      label="Select"
+                      formKey="approvedByPED_HOS.0"
+                      register={register}
+                      watch={watch}
+                    />
                   </Col>
                   <Col md={6}>
                     <Form.Label>Checked By (PED TL/HOSS)</Form.Label>
-                    <Form.Select
-                      {...register("checkedByPED_TL")}
-                      size="sm"
-                      disabled={!isMTDEditable}
-                    >
-                      <option value="">Select</option>
-                      {usersList?.PEDTLList?.map((u) => (
-                        <option key={u._id} value={u._id}>
-                          {u.tm_name}
-                        </option>
-                      ))}
-                    </Form.Select>
+                    <DropdownComponent
+                      requiredMSG={false}
+                      isEditable={isMTDEditable}
+                      setValue={setValue}
+                      userDropdown={usersList?.PEDTLList}
+                      label="Select"
+                      formKey="checkedByPED_TL.0"
+                      register={register}
+                      watch={watch}
+                    />
                   </Col>
                 </div>
               </Col>
@@ -1380,18 +1405,16 @@ export default function NewMachineRequestSheet() {
                 <div className="d-flex">
                   <Col md={4}>
                     <Form.Label>Approved By (MTD HOS)</Form.Label>
-                    <Form.Select
-                      {...register("approvedByMTD_HOS")}
-                      size="sm"
-                      disabled={!isMTDEditable}
-                    >
-                      <option value="">Select</option>
-                      {usersList?.MTDHOSList?.map((u) => (
-                        <option key={u._id} value={u._id}>
-                          {u.tm_name}
-                        </option>
-                      ))}
-                    </Form.Select>
+                    <DropdownComponent
+                      requiredMSG={false}
+                      isEditable={isMTDEditable}
+                      setValue={setValue}
+                      userDropdown={usersList?.MTDHOSList}
+                      label="Select"
+                      formKey="approvedByMTD_HOS.0"
+                      register={register}
+                      watch={watch}
+                    />
                   </Col>
                   <Col md={6}>
                     <Form.Label>

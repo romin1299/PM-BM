@@ -6,6 +6,35 @@ import currentYear from "../../pages/Dashboard/DashboardComponent/currentYear";
 import LoadingAnimation from "../../pages/Reports/ReportComponents/LoadingAnimation";
 import RoutingContext from "../../context/routing/RoutingContext";
 import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
+import YearDropDown from "../../pages/Dashboard/DashboardComponent/YearDropDown";
+
+/**
+ * Back button and financial-year picker, shared by both layouts of the page.
+ * The year lives in the URL — the dashboard button and the sidebar both arrive
+ * with one — so picking another writes it there rather than into local state.
+ */
+const PageHeader = ({ onBack, selectedYear, onYearChange }) => (
+  <Row className="align-items-center">
+    <Col>
+      <button className="btn bg-button" onClick={onBack}>
+        Back
+      </button>
+    </Col>
+    <Col className="col-auto d-flex align-items-center" style={{ minWidth: 280 }}>
+      <YearDropDown selectedYear={selectedYear} setSelectedYear={onYearChange} />
+    </Col>
+  </Row>
+);
+
+/**
+ * In BM, a machine click does one of two things: a PRD user raises a new sheet
+ * for it, and everyone else opens the machine's existing sheet to view. This
+ * page is reachable by every user from the sidebar, so the viewing side cannot
+ * be MTD-only — as it was, anyone else in BM was sent off to a CM route.
+ */
+const isBMViewer = (context) =>
+  localStorage.getItem("activeKey") === "bm" &&
+  context?.tm_department !== "PRD";
 
 const MapComponent = ({
   propsArray,
@@ -92,8 +121,7 @@ const MapComponent = ({
                       <button
                         key={index}
                         className={`machine ${
-                          context?.tm_department === "MTD" &&
-                          localStorage.getItem("activeKey") === "bm"
+                          isBMViewer(context)
                             ? getStatusClass(
                                 machine?.requestSheet?.[0]?.currentStatusOfBD,
                                 machine?.requestSheet?.[0]?.requestSheetStatus,
@@ -104,16 +132,14 @@ const MapComponent = ({
                         }`}
                         onClick={() => {
                           /**
-                           * An MTD user in BM opens the sheet in a modal on this
+                           * A viewer in BM opens the sheet in a modal on this
                            * page, so there is nothing to navigate to. Doing both
                            * pushed the CM request-sheet route into history behind
                            * the modal, which is why closing the sheet and pressing
                            * Back landed on a new CM sheet instead of returning to
                            * BM. Every other user really does leave this page.
                            */
-                          const opensInModal =
-                            context?.tm_department === "MTD" &&
-                            localStorage.getItem("activeKey") === "bm";
+                          const opensInModal = isBMViewer(context);
 
                           if (!opensInModal)
                             handleNavigationToRequestSheet({
@@ -154,6 +180,12 @@ const GenerateRequestSheetMainDashboard = () => {
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Both the dashboard button and the sidebar link arrive with a year in the
+  // URL; the fallback only covers a hand-typed address.
+  const selectedYear = searchParams.get("selectedYear") || currentYear;
+
+  const handleYearChange = (year) => setSearchParams({ selectedYear: year });
 
   const initialState = {
     dashboardLevel: "",
@@ -198,7 +230,9 @@ const GenerateRequestSheetMainDashboard = () => {
       case ACTION?.SET_BD_DATA:
         return {
           ...state,
-          machineCode: action?.machine_code,
+          // The click dispatches machineCode; reading machine_code here left
+          // the view modal with no machine on sections without dashboard level.
+          machineCode: action?.machineCode,
           requestSheetId: action?.requestSheetId,
         };
       default:
@@ -262,7 +296,7 @@ const GenerateRequestSheetMainDashboard = () => {
     );
   };
   const handleRequestSheetShowAndCloseState = () => {
-    if (context?.tm_department === "MTD") {
+    if (isBMViewer(context)) {
       setRequestSheetModalOpenClose(
         (requestSheetModalOpenClose) => !requestSheetModalOpenClose
       );
@@ -273,13 +307,11 @@ const GenerateRequestSheetMainDashboard = () => {
     return (
       <>
         <Container fluid className="px-2 p-2">
-          <Row>
-            <Col>
-              <button className="btn bg-button" onClick={handleBack}>
-                Back
-              </button>
-            </Col>
-          </Row>
+          <PageHeader
+            onBack={handleBack}
+            selectedYear={selectedYear}
+            onYearChange={handleYearChange}
+          />
           <Row>
             {reduceState?.isLoading ? (
               <div className="justify-content-center d-flex align-items-center">
@@ -294,8 +326,7 @@ const GenerateRequestSheetMainDashboard = () => {
                     </b>
                   </div>
 
-                  {context?.tm_department === "MTD" &&
-                    localStorage.getItem("activeKey") === "bm" && (
+                  {isBMViewer(context) && (
                       <div className="d-flex flex-wrap gap-3">
                         <div className="d-flex align-items-center gap-1">
                           <div className="color-box red"></div> Under BD
@@ -354,7 +385,7 @@ const GenerateRequestSheetMainDashboard = () => {
 
         {requestSheetModalOpenClose && (
           <MainRequestSheetForView
-            selectedYear={searchParams?.get("selectedYear")}
+            selectedYear={selectedYear}
             machine_code={searchParams.get("machineCode")}
             requestSheetID={reduceState?.requestSheetId}
             modelProp={{
@@ -374,13 +405,11 @@ const GenerateRequestSheetMainDashboard = () => {
   return (
     <>
       <Container fluid className="px-2 p-2">
-        <Row>
-          <Col>
-            <button className="btn bg-button" onClick={handleBack}>
-              Back
-            </button>
-          </Col>
-        </Row>
+        <PageHeader
+          onBack={handleBack}
+          selectedYear={selectedYear}
+          onYearChange={handleYearChange}
+        />
         {reduceState?.subSectionArr?.length > 0 && (
           <Row>
             <div className="m-3">
@@ -444,7 +473,7 @@ const GenerateRequestSheetMainDashboard = () => {
 
       {requestSheetModalOpenClose && (
         <MainRequestSheetForView
-          selectedYear={reduceState?.selectedYear}
+          selectedYear={selectedYear}
           machine_code={reduceState?.machineCode}
           requestSheetID={reduceState?.requestSheetId}
           modelProp={{
