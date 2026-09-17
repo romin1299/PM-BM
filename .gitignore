@@ -23,6 +23,9 @@
 /server/images
 /server/logs
 /server/manuals
+/server/dump/
+/server/build/
+/server/Old Master data/
 
 # misc
 .DS_Store
