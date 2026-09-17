@@ -40,6 +40,12 @@ const spareBudgetSchema = new mongoose.Schema({
   plan: { type: [Number], default: () => Array(12).fill(0) },
   actual: { type: [Number], default: () => Array(12).fill(0) },
   BPDActual: { type: [Number], default: () => Array(12).fill(0) },
+  /**
+   * A month is open while it runs: its actual accumulates from every issuance
+   * stock-out. Entering the month-end BPD figure closes it — the BPD value
+   * becomes the month's actual and issuances no longer move it.
+   */
+  closedMonths: { type: [Boolean], default: () => Array(12).fill(false) },
 
   cumulativePlan: { type: [Number], default: () => Array(12).fill(0) },
   cumulativeActual: { type: [Number], default: () => Array(12).fill(0) },

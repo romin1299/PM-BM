@@ -37,6 +37,7 @@ import NewSpareRequestSheetNo from "./NewSpareRequestSheetNo";
 import RSDynamicApprovalSelection from "./RSDynamicApprovalSelection";
 import AcceptOrRejectDynamicApproval from "./AcceptOrRejectDynamicApproval";
 import SpareSheetRejectionRemark from "./SpareSheetRejectionRemark";
+import SpareSheetApprovalTrack from "./SpareSheetApprovalTrack";
 import useGetSectionWiseBudget from "../../SpareCustomHooks/useGetSectionWiseBudget";
 
 const url = "/v1/spare/spareRequestSheet";
@@ -97,8 +98,7 @@ const SpareNewPartRequest = () => {
   });
 
   const sectionBudget = useGetSectionWiseBudget({
-    flagForTogglingFilter: reduceState?.flagForTogglingFilter,
-    selectedValue: reduceState?.selectedValue,
+    selectedCell: reduceState?.selectedCell,
     existingSheetCell: watch("cell._id"),
   });
 
@@ -116,10 +116,9 @@ const SpareNewPartRequest = () => {
 
   /**
    * Once a sheet is sent for approval it stops belonging to the person who
-   * raised it. It is theirs while it is "Generated" or "Rejected" — a new sheet,
-   * or one an approver has handed back. In every other status it is either with
-   * an approver, who alone may change it, or finished and no longer editable at
-   * all.
+   * raised it. It is theirs only while "Generated". In every other status it is
+   * either with an approver, who alone may change it, or finished — completed
+   * or rejected — and no longer editable at all.
    */
   const isReadOnly = useMemo(() => {
     if (isViewMode) return true;
@@ -137,11 +136,9 @@ const SpareNewPartRequest = () => {
   });
 
   /**
-   * A rejection clears the approval slots so the requester re-picks the chain,
-   * which leaves the append-only logs as the record of who sent the sheet back.
-   * Only the newest entry per slot is considered: re-submitting pushes a fresh
-   * "Pending" entry to every slot, so an earlier rejection stops being last and
-   * correctly stops showing.
+   * Who rejected the sheet, from the newest log entry per slot. The append-only
+   * logs are used rather than the slots so sheets rejected before slots kept
+   * their decision still show it.
    */
   const rejection = useMemo(() => {
     if (requestSheetStatus !== SPARE_SHEET_REJECTED_STATUS) return undefined;
@@ -556,6 +553,7 @@ const SpareNewPartRequest = () => {
                     setValue={setValue}
                     onRemoveUploaded={handleRemoveUploadedAttachment}
                     isReadOnly={isReadOnly}
+                    canRemoveParts={!searchParams.get("_id")}
                     changeParts={changeParts}
                     sectionBudget={sectionBudget?.sectionWiseCurrentMonthBudget}
                     {...budget}
@@ -619,6 +617,7 @@ const SpareNewPartRequest = () => {
               )}
 
               <SpareSheetRejectionRemark rejection={rejection} />
+              <SpareSheetApprovalTrack control={control} />
 
               {budget?.budgetStatus === "NG" &&
                 (watch("mtdHODApprovalIfBudgetIsNG.user._id") ===
@@ -652,6 +651,7 @@ const SpareNewPartRequest = () => {
                   watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
                     "Accepted")) &&
                 !watch("isSpareSheetSendForApproval") &&
+                requestSheetStatus !== SPARE_SHEET_REJECTED_STATUS &&
                 watch("partRequestFor") && (
                   <RSDynamicApprovalSelection
                     register={register}
@@ -664,10 +664,13 @@ const SpareNewPartRequest = () => {
                 <Row className="border d-flex align-items-center">
                   <Col className="d-flex align-items-center col-auto">
                     <small>
-                      This request-sheet is {requestSheetStatus} and
-                      {pendingApprovalBy
-                        ? " can only be changed by the approver it is waiting on."
-                        : " has completed its approval, so it can no longer be edited."}
+                      {requestSheetStatus === SPARE_SHEET_REJECTED_STATUS
+                        ? "This request-sheet was rejected. A rejection is final: it cannot be edited or sent for approval again — raise a new request-sheet instead."
+                        : `This request-sheet is ${requestSheetStatus} and${
+                            pendingApprovalBy
+                              ? " can only be changed by the approver it is waiting on."
+                              : " has completed its approval, so it can no longer be edited."
+                          }`}
                     </small>
                   </Col>
                 </Row>

@@ -1,13 +1,12 @@
-Step 0 — reset counters
-mongosh DENSO-PM-BM --eval 'db.plants.updateMany({}, {$set:{spareMasterUniqueIDSeq:0}}); db.lines.updateMany({}, {$set:{requestSheetNoSpare:0}})'
+cd D:\LiveProjects\DENSO\denso_pm_bm_V1\server
 
-Step 1 — import masters
-node scripts/importSpareMaster.js "Old Master data/dbo_VM_PartsMaster-All Data31-08-2026.xlsx" --commit --tm-no=89898
+1. Delete existing masters and spare request sheets, reset the spare sheet-number counters
+   mongosh "mongodb://127.0.0.1:27017/DENSO-PM-BM" --eval "db.sparemasters.deleteMany({}); db.requestsheetofspares.deleteMany({}); db.lines.updateMany({}, { $set: { requestSheetNoSpare: 0 } })"
 
-Step 2 — reorder sheets + skipped report
-node scripts/generateReorderSheets.js --commit --tm-no=89898
-Expected from the verified scratch run:
+2. Import masters — dry run first, then commit
+   node scripts/importSpareMaster.js "Old Master data/dbo_VM_PartsMaster-All Data31-08-2026.xlsx" --tm-no=89898
+   node scripts/importSpareMaster.js "Old Master data/dbo_VM_PartsMaster-All Data31-08-2026.xlsx" --commit --tm-no=89898
 
-Step 1 created 17667 · failed 0 · DNHAP1-0000001 … DNHAP1-0017667
-Step 2 candidates 1438 · eligible 508 · created 508 · skipped 930
-skipped report written to: ...\Old Master data\reorder-skipped.xlsx
+3. Generate reorder request sheets — dry run, then commit
+   node scripts/generateReorderSheets.js --tm-no=89898
+   node scripts/generateReorderSheets.js --commit --tm-no=89898

@@ -6,21 +6,19 @@ const tryCatch = async (prop) => {
 
     const { data, status } = response;
 
-    if (data?.showToast) {
+    if (data?.showToast)
       toastifyContainer({
         type: status === 201 || status === 200 ? "success" : "warn",
         message: data?.message,
       });
-    }
 
     return data;
   } catch ({ response }) {
-    if (response?.data?.showToast) {
+    if (response?.data?.showToast)
       toastifyContainer({
         type: response?.status === 500 ? "error" : "warn",
         message: response?.data?.message,
       });
-    }
 
     return { isError: true };
   }

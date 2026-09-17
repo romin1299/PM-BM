@@ -1,13 +1,13 @@
-import React, { useState, memo } from "react";
+import React, { useState, memo, useCallback } from "react";
 import { Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
 import { partFor } from "../../Utils/dropdownUtils";
 import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 
-const TaskStatusMappingComponent = memo(
-  ({ otherData, navigate, handleDelete, removeRow, mode, handleModal }) => (
+const TaskStatusMappingComponent = memo(({ otherData, rowIndex }) => (
     <>
+      <td className="td-padding ">{rowIndex}</td>
       <td className="td-padding ">{otherData?.plantName}</td>
       <td className="td-padding ">{otherData?.whichParts}</td>
       <td className="td-padding ">{otherData?.location}</td>
@@ -20,8 +20,7 @@ const TaskStatusMappingComponent = memo(
       </td>
       <td className="td-padding ">{otherData?.unitCost}</td>
     </>
-  ),
-);
+));
 
 const SpareSearchButton = () => {
   const {
@@ -45,6 +44,16 @@ const SpareSearchButton = () => {
       referenceArrayForUseEffect: [],
     });
 
+  /**
+   * How many parts the search matched in all. The server counts it once, with
+   * the first page; the table only ever holds the pages scrolled so far.
+   */
+  const [totalCount, setTotalCount] = useState(null);
+
+  const handlePageLoaded = useCallback((response) => {
+    if (response?.totalCount !== undefined) setTotalCount(response.totalCount);
+  }, []);
+
   const dirtyValues = (allValues) => {
     let newVal = {};
     Object.keys(dirtyFields).map((key) => (newVal[key] = allValues[key]));
@@ -54,6 +63,7 @@ const SpareSearchButton = () => {
   const handleSearchParts = async (formValue) => {
     if (Object.keys(dirtyFields).length === 0) return;
     formValue = dirtyValues(formValue);
+    setTotalCount(null);
     setApiReferencePropsBasedOnFilters({
       params: formValue,
       referenceArrayForUseEffect: [JSON.stringify(formValue)],
@@ -61,6 +71,7 @@ const SpareSearchButton = () => {
   };
   const handleClear = () => {
     reset();
+    setTotalCount(null);
     setApiReferencePropsBasedOnFilters({
       params: null,
       referenceArrayForUseEffect: [],
@@ -148,25 +159,36 @@ const SpareSearchButton = () => {
       </form>
 
       {apiReferencePropsBasedOnFilters?.params && (
-        <SpareSheetCustomTable
-          apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
-          url="/v1/spare/spareSearch"
-          // Masters, not request-sheet parts, so the default row key does not
-          // apply — without this every row was keyed undefined.
-          rowKey={(row) => row?.masterId}
-          tableHeaders={[
-            "Plant",
-            "Master",
-            "Location",
-            "Unique ID",
-            "Part no",
-            "Part name",
-            "Part model",
-            "Quantity available",
-            "Unit cost",
-          ]}
-          OtherComp={TaskStatusMappingComponent}
-        />
+        <>
+          {totalCount !== null && (
+            <div className="m-1 size-14">
+              <small>
+                <b>Total searched parts:</b> {totalCount}
+              </small>
+            </div>
+          )}
+          <SpareSheetCustomTable
+            apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
+            url="/v1/spare/spareSearch"
+            // Masters, not request-sheet parts, so the default row key does not
+            // apply — without this every row was keyed undefined.
+            rowKey={(row) => row?.masterId}
+            onPageLoaded={handlePageLoaded}
+            tableHeaders={[
+              "S.No",
+              "Plant",
+              "Master",
+              "Location",
+              "Unique ID",
+              "Part no",
+              "Part name",
+              "Part model",
+              "Quantity available",
+              "Unit cost",
+            ]}
+            OtherComp={TaskStatusMappingComponent}
+          />
+        </>
       )}
     </div>
   );

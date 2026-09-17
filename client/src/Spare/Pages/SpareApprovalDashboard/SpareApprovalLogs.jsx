@@ -127,8 +127,9 @@ const ApproveAndPendingUsersWiseCount = (prop) => {
   );
 };
 
-const ApprovalMappingComponent = memo(({ otherData }) => (
+const ApprovalMappingComponent = memo(({ otherData, rowIndex }) => (
   <>
+    <td className="td-padding">{rowIndex}</td>
     <UptoMachineHeaders otherData={otherData} needToIncludeMaker={false} />
     {LogsMappingKeys?.map((key = "") => (
       <td className="td-padding">
@@ -179,6 +180,7 @@ const LogsComponent = (props) => {
       <SpareSheetCustomTable
         apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
         tableHeaders={[
+          "S.No",
           "Request No",
           "Product",
           // "Maker",

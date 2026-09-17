@@ -29,36 +29,34 @@ const filterKeys = {
   "based-on-machine": "machine",
 };
 
-const dateBasedOnLastUpdate = {
-  $dateDiff: {
-    startDate: "$updatedAt",
-    endDate: new Date(),
-    unit: "year",
-  },
+/**
+ * When stock of a master last moved: its latest issue (kept up to date by the
+ * issuance stock-out, seeded from the legacy ShippingDate), or, for a part never
+ * issued, the day it entered stock. The rotation buckets and the dead-stock
+ * list are both judged on this, so they agree. The master's updatedAt is not a
+ * movement — any edit or a re-import would have made every part "moving".
+ */
+const lastMovementDate = {
+  $ifNull: ["$lastIssuedDate", { $ifNull: ["$createDate", "$dateTime.inDate"] }],
 };
 
+/** True when the last movement is within the past `years` years, to the day. */
+const movedWithinYears = (years) => ({
+  $gt: [
+    lastMovementDate,
+    { $dateSubtract: { startDate: "$$NOW", unit: "year", amount: years } },
+  ],
+});
+
 const addFieldsForInventoryBifurcation = {
+  // Exact elapsed time rather than $dateDiff's calendar-year boundaries, so a
+  // part counted as dead here is the same part the dead-stock list shows.
   ageBucket: {
     $switch: {
       branches: [
-        {
-          case: {
-            $lt: [dateBasedOnLastUpdate, 1],
-          },
-          then: "LESS_THEN_1",
-        },
-        {
-          case: {
-            $lt: [dateBasedOnLastUpdate, 5],
-          },
-          then: "1_TO_5",
-        },
-        {
-          case: {
-            $lt: [dateBasedOnLastUpdate, 10],
-          },
-          then: "5_TO_10",
-        },
+        { case: movedWithinYears(1), then: "LESS_THEN_1" },
+        { case: movedWithinYears(5), then: "1_TO_5" },
+        { case: movedWithinYears(10), then: "5_TO_10" },
       ],
       default: "GRATER_THEN_10",
     },
@@ -85,10 +83,18 @@ const addFieldsForInventoryBifurcation = {
   },
 };
 
+/**
+ * Rotation buckets over the parts that are actually in stock — a master with
+ * nothing on the shelf is the "Zero stock" figure, not a slow mover — counted
+ * as masters, the same unit as the inventory count, so the five figures add up
+ * to the catalogue. availableQty is kept for the quantity charts.
+ */
 const inventoryBifurcationPipeline = [
+  { $match: { "budgetDetails.overAllAvailableQty": { $gt: 0 } } },
   {
     $group: {
       _id: "$ageBucket",
+      masterCount: { $sum: 1 },
       availableQty: { $sum: "$budgetDetails.overAllAvailableQty" },
       costInINR: {
         $sum: convertCostInMilUnitInMongoose("$budgetDetails.overAllCostInINR"),
@@ -143,6 +149,7 @@ const inventoryBifurcationPipeline = [
                 title: "$$stockTimeFrame.title",
                 value: {
                   _id: "$$stockTimeFrame.key",
+                  masterCount: 0,
                   availableQty: 0,
                   costInINR: 0,
                 },
@@ -186,30 +193,30 @@ exports.yearMonthFilter = tryCatchHandler(async (req, res, next) => {
   return next();
 });
 
+/**
+ * The inventory as it stands: every master in the catalogue, whatever year it
+ * was registered in. It used to be narrowed by the dashboard's FY / month
+ * filter, which turned a stock figure into "masters created this year" — a
+ * small fraction of the real inventory value.
+ */
 exports.getInventorySummery = tryCatchHandler(async (req, res, next) => {
   const summery = await SpareMaster.aggregate([
     {
-      $match: req.$match,
-    },
-    {
-      $unwind: "$costDetails",
-    },
-    {
       $group: {
         _id: null,
-        overAllAvailableQty: {
-          $sum: { $ifNull: ["$costDetails.availableQty", 0] },
-        },
+        masterCount: { $sum: 1 },
+        // Inner $sum adds a master's tranches; the outer accumulates masters.
         overAllCostInINR: {
-          $sum: { $ifNull: ["$costDetails.overAllCost", 0] },
+          $sum: { $sum: { $ifNull: ["$costDetails.overAllCost", []] } },
         },
       },
     },
     {
       $project: {
         _id: 0,
-        overAllAvailableQty: 1,
-        overAllCostInINR: convertCostInMilUnitInMongoose("$overAllCostInINR"),
+        masterCount: 1,
+        overAllCostInINR: 1,
+        overAllCostInMil: convertCostInMilUnitInMongoose("$overAllCostInINR"),
       },
     },
   ]);
@@ -219,16 +226,16 @@ exports.getInventorySummery = tryCatchHandler(async (req, res, next) => {
       message: "No summery found",
     });
 
-  const [{ overAllAvailableQty, overAllCostInINR }] = summery;
+  const [{ masterCount, overAllCostInINR, overAllCostInMil }] = summery;
 
   let counters = [
     {
       title: "Inventory Cost (Mil.)",
-      value: overAllCostInINR || 0,
+      value: overAllCostInMil || 0,
     },
     {
       title: "Inventory Count (Nos.)",
-      value: overAllAvailableQty || 0,
+      value: masterCount || 0,
     },
   ];
 
@@ -237,6 +244,8 @@ exports.getInventorySummery = tryCatchHandler(async (req, res, next) => {
       ID: "MC1",
     });
 
+    // Both sides in rupees: dividing the millions figure by a rupee machine
+    // cost rounded the ratio to 0 every time.
     counters.push({
       title: "Holding ratio",
       value:
@@ -914,7 +923,8 @@ exports.getInventoryBifurcation = tryCatchHandler(async (req, res, next) => {
       borderColor: "#fff",
       borderWidth: 1,
       label: item?.title,
-      data: [item?.value?.availableQty],
+      // Masters per bucket, matching the counters above the chart.
+      data: [item?.value?.masterCount],
     });
   });
 
@@ -1365,37 +1375,78 @@ exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
   });
 });
 
+const DEAD_STOCK_YEARS = 10;
+
+/**
+ * Masters that have been issued from within the dead-stock window through this
+ * application. Any master here has moved recently by definition, whatever its
+ * legacy dates say, so the dead-stock list excludes it.
+ */
+const mastersIssuedSince = async (since) =>
+  SpareIssuanceSummary.distinct("changeParts.masterId", {
+    createdAt: { $gte: since },
+  });
+
+/**
+ * Zero-stock and dead-stock part lists.
+ *
+ * Zero stock: nothing available, within the dashboard's FY / month filter.
+ *
+ * Dead stock: stock lying without any stock-out for DEAD_STOCK_YEARS. The last
+ * movement is the newest of the legacy last-issued date and any issuance made
+ * here; a part never issued at all counts from the day it entered stock
+ * (createDate, else the master's own creation stamp). The FY filter is not
+ * applied — a part that has not moved for ten years belongs to no particular
+ * year, and filtering on the year the master was registered would hide the
+ * whole list. It used to be built on the master's updatedAt, so any edit to a
+ * master — or a re-import — made it "moving" again.
+ */
 exports.getZeroStockPartList = tryCatchHandler(async (req, res, next) => {
   const { requestFor } = req.query;
-  let $match = req.$match;
+  const isDeadStock = requestFor === "reasonForKeepingDeadStock";
 
-  if (requestFor === "reasonForKeepingDeadStock") {
-    $match.$expr = {
-      $lt: [dateBasedOnLastUpdate, 1],
-    };
+  const projection = {
+    budgetDetails: addFieldsForInventoryBifurcation?.budgetDetails,
+    location: 1,
+    partName: 1,
+    partModel: 1,
+    [`${requestFor}Remarks`]: 1,
+    line: 1,
+    machine: 1,
+  };
+
+  let pipeline;
+
+  if (isDeadStock) {
+    const since = moment().subtract(DEAD_STOCK_YEARS, "years").toDate();
+    const recentlyIssued = await mastersIssuedSince(since);
+
+    pipeline = [
+      {
+        $match: {
+          _id: { $nin: recentlyIssued },
+          $expr: { $lte: [lastMovementDate, since] },
+        },
+      },
+      {
+        $project: {
+          ...projection,
+          lastMovementDate,
+          hasBeenIssued: { $gt: ["$lastIssuedDate", null] },
+        },
+      },
+      { $match: { "budgetDetails.overAllAvailableQty": { $gt: 0 } } },
+      { $sort: { lastMovementDate: 1 } },
+    ];
+  } else {
+    pipeline = [
+      { $match: req.$match },
+      { $project: projection },
+      { $match: { "budgetDetails.overAllAvailableQty": { $lte: 0 } } },
+    ];
   }
 
-  const tableData = await SpareMaster.aggregate([
-    {
-      $match: req.$match,
-    },
-    {
-      $project: {
-        budgetDetails: addFieldsForInventoryBifurcation?.budgetDetails,
-        location: 1,
-        partName: 1,
-        partModel: 1,
-        [`${requestFor}Remarks`]: 1,
-        line: 1,
-        machine: 1,
-      },
-    },
-    {
-      $match: {
-        "budgetDetails.overAllAvailableQty": { $lte: 0 },
-      },
-    },
-  ]);
+  const tableData = await SpareMaster.aggregate(pipeline);
 
   if (tableData?.length <= 0)
     return res.status(404).json({

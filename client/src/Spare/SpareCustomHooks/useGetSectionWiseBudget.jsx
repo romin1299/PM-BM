@@ -1,15 +1,15 @@
-import { useMemo } from "react";
 import useSafeGetRequest from "../../CustomHooks/useSafeGetRequest";
 
-const useGetSectionWiseBudget = ({
-  flagForTogglingFilter = "",
-  selectedValue = "",
-  existingSheetCell = "",
-}) => {
-  const cellId = useMemo(() => {
-    if (existingSheetCell) return existingSheetCell;
-    else if (flagForTogglingFilter === "based-on-cell") return selectedValue;
-  }, [flagForTogglingFilter, selectedValue, existingSheetCell]);
+/**
+ * The budget a new request-sheet draws on, which is held per cell.
+ *
+ * On a new sheet the cell comes from the toolbar's own cell selection, not from
+ * the "deepest selected value": the requester goes on to pick a line and a
+ * machine (which the sheet records) and the budget must stay with the cell they
+ * chose. An existing sheet already carries its cell.
+ */
+const useGetSectionWiseBudget = ({ selectedCell = "", existingSheetCell = "" }) => {
+  const cellId = existingSheetCell || selectedCell || "";
 
   const [{ data }] = useSafeGetRequest({
     url: "/v1/spare/budget/forNewPartRequest",

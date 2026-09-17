@@ -98,6 +98,22 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
         rsPOIssueToVendorTimeStamp: orderTrackingTimestamp,
         rsPOIssueToVendorRemarks: String,
 
+        /**
+         * What was received against a "For use" part. Such a part is consumed
+         * on the machine and never becomes a stock master, so the receipt has
+         * nowhere else to go: a stock-in part records the same figures as a
+         * cost tranche on its master instead. Quantity accumulates across
+         * receipts; the unit cost is fixed by the first.
+         */
+        receivedDetails: {
+          quantity: Number,
+          currencyUnit: String,
+          cost: Number,
+          costInINR: Number,
+          balanceQty: Number,
+          overAllCost: Number,
+        },
+
         //Part wise
         rsPartReceiveTimeStamp: orderTrackingTimestamp,
         rsPartReceiveRemarks: String,

@@ -48,6 +48,8 @@ const searchPageResponse = (message) =>
       tableData,
       nextCursor,
       hasMore: Boolean(nextCursor) && tableData.length >= paginationRowLimit,
+      // Only on the first page; later pages continue the same search.
+      ...(req.totalCount !== undefined ? { totalCount: req.totalCount } : {}),
     });
   });
 
@@ -105,6 +107,11 @@ exports.getSearchParts = tryCatchHandler(async (req, res, next) => {
 
   req.$match = { ...$match, ...cursorMatch };
   req.otherPipeline = [{ $sort: { _id: -1 } }, { $limit: paginationRowLimit }];
+
+  // How many parts the search matches in all, for the reader to see above a
+  // list that only ever shows a page at a time. Counted once, with the first
+  // page; the cursor pages are the same search continued.
+  if (!req.query.cursor) req.totalCount = await SpareMaster.countDocuments($match);
 
   return next();
 });

@@ -5,6 +5,15 @@ import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 import OtherTaskStatusConfiguration from "../SpareOrderingDashboard/OtherTaskStatusConfiguration";
 import SpareTitlebar from "../../Component/SpareTitlebar";
 
+const DEAD_STOCK_KEY = "reasonForKeepingDeadStock";
+
+/** The date the dead-stock rule was judged on, with what it was. */
+const lastMovementText = ({ lastMovementDate, hasBeenIssued }) => {
+  if (!lastMovementDate) return "-";
+  const date = new Date(lastMovementDate).toLocaleDateString("en-GB");
+  return hasBeenIssued ? `Issued ${date}` : `In stock since ${date}`;
+};
+
 const RowMappingComponent = memo(
   ({ otherData, popupRef, updateRow, handleModal }) => (
     <>
@@ -20,6 +29,9 @@ const RowMappingComponent = memo(
       <td className="td-padding">
         {otherData?.budgetDetails?.overAllCostInINR}
       </td>
+      {popupRef?.key === DEAD_STOCK_KEY && (
+        <td className="td-padding">{lastMovementText(otherData ?? {})}</td>
+      )}
       <td className="td-padding">{otherData?.[`${popupRef?.key}Remarks`]}</td>
       <td className="td-padding">
         <button
@@ -101,6 +113,7 @@ const ZeroOrDeadStockParts = ({
           "Part modal",
           "Available Qty",
           "Total cost(in INR)",
+          ...(popupRef?.key === DEAD_STOCK_KEY ? ["Last movement"] : []),
           popupRef?.popupTitle,
           "Action",
         ]}
@@ -130,7 +143,7 @@ const StockLevelRow2 = (props) => {
         {...props}
         title="Dead Stock"
         popupRef={{
-          key: "reasonForKeepingDeadStock",
+          key: DEAD_STOCK_KEY,
           popupTitle: "Reason For Keeping",
         }}
       />

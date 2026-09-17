@@ -15,12 +15,21 @@ const {
 const {
   toolRoomAuthorizedToCustomize,
 } = require("../../controller/spareManagement/spareDynamicApprovalCURDController");
+const {
+  uploadDrawingAttach,
+} = require("../../controller/spareManagement/spareCRUDController");
+
+// Drawings on a master share the request-sheet uploader, so they land in the
+// same spareDocuments folder the sheets' drawings do and are served the same way.
+const masterDrawings = uploadDrawingAttach.fields([
+  { name: "drawingAttach", maxCount: 10 },
+]);
 
 router
   .route("/master")
   .get(getDefaultValueForMasterRegistration)
-  .post(handleMasterConfiguration)
-  .patch(handleMasterUpdate);
+  .post(masterDrawings, handleMasterConfiguration)
+  .patch(masterDrawings, handleMasterUpdate);
 
 // The whole master catalogue, paged by cursor as the client scrolls. Deliberately
 // unfiltered — a master is a standing record of a part, not a per-year or

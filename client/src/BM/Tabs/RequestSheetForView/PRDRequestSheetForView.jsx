@@ -8,7 +8,6 @@ import DownloadIcon from "@mui/icons-material/Download";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import moment from "moment-timezone";
-import { ToastContainer } from "react-toastify";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { useLocation } from "react-router-dom";
 import MachineStatusBox from "../SubComponents/MachineStatusBox";
@@ -98,7 +97,6 @@ function MyTable({
 
   return (
     <>
-      {/* <ToastContainer /> */}
       {problemModeCardModal && (
         <ProblemModeHistory
           machineId={machineId}

@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { Row, Col, Form, Container, Table } from "react-bootstrap";
@@ -8,11 +14,19 @@ import RoutingContext from "../../../context/routing/RoutingContext";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
 import { partFor } from "../../Utils/dropdownUtils";
 import SearchableScrollDropdown from "../../Component/SearchableScrollDropdown";
+import AttachmentField from "../../Component/AttachmentField";
 
 import "./SpareMasterRegistration.scss";
 
 const url = "/v1/spare/master";
 const filterOptions = ["maker", "supplierName", "unit", "partGroup"];
+
+/**
+ * The master's drawings are edited through the same AttachmentField the
+ * request-sheet parts use. It keeps two lists under one form key: the files
+ * already stored (`drawingAttach`) and the ones picked now (`drawingAttachFiles`).
+ */
+const DRAWINGS_KEY = "drawings";
 
 const rowWiseFields = [
   [
@@ -194,10 +208,14 @@ const SpareMasterRegistration = () => {
 
   const [costDetails, setCostDetails] = useState([]);
 
+  // Drawings the user removed on this form; deleted on the server on save.
+  const removedDrawingFilesRef = useRef([]);
+
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { isLoading, errors, dirtyFields },
     watch,
   } = useForm({
@@ -210,6 +228,15 @@ const SpareMasterRegistration = () => {
       if (!isError) {
         setCostDetails(master?.costDetails);
         delete master.costDetails;
+
+        // Lifted out of the flat fields into the attachment editor's slot; a
+        // new master starts with the drawings its request-sheet part carried.
+        master[DRAWINGS_KEY] = {
+          drawingAttach: master.drawingAttach ?? [],
+          drawingAttachFiles: [],
+        };
+        delete master.drawingAttach;
+
         return master;
       }
       return {};
@@ -227,8 +254,17 @@ const SpareMasterRegistration = () => {
 
   const handleNavigation = () => navigate(-1);
 
+  const handleRemoveDrawing = useCallback((filename) => {
+    if (filename) removedDrawingFilesRef.current.push(filename);
+  }, []);
+
   const handleNewMasterRequest = async (formValue, status) => {
-    if (params?._id && Object.keys(dirtyFields).length === 0) return;
+    const drawingsTouched =
+      Boolean(dirtyFields?.[DRAWINGS_KEY]) ||
+      removedDrawingFilesRef.current.length > 0;
+
+    if (params?._id && Object.keys(dirtyFields).length === 0 && !drawingsTouched)
+      return;
 
     let axiosParams = params;
 
@@ -239,10 +275,35 @@ const SpareMasterRegistration = () => {
 
     formValue["status"] = status;
 
+    /**
+     * The drawings travel as multipart: the kept list as part of the JSON
+     * fields, the newly picked files alongside it. The fields object is sent
+     * as before when no drawing was touched.
+     */
+    const drawings = formValue[DRAWINGS_KEY];
+    delete formValue[DRAWINGS_KEY];
+
+    let axiosBody = formValue;
+
+    if (drawingsTouched || params?.sheetId) {
+      const formData = new FormData();
+
+      if (drawings) formValue.drawingAttach = drawings.drawingAttach ?? [];
+      if (removedDrawingFilesRef.current.length)
+        formValue.removedDrawingFiles = removedDrawingFilesRef.current;
+
+      formData.append("data", JSON.stringify(formValue));
+      (drawings?.drawingAttachFiles ?? []).forEach((file) =>
+        formData.append("drawingAttach", file),
+      );
+
+      axiosBody = formData;
+    }
+
     const { isError } = await axiosPostOrPatch({
       url,
       apiType: params?._id ? "patch" : "post",
-      axiosBody: formValue,
+      axiosBody,
       axiosProps: { params: axiosParams },
     });
 
@@ -364,6 +425,19 @@ const SpareMasterRegistration = () => {
             ))}
             <Row className="border size-14 m-2">
               <SpareMastCostTable costDetails={costDetails} />
+            </Row>
+            <Row className="border size-14 m-2 p-1">
+              <Col md={6} className="d-flex flex-column">
+                <AttachmentField
+                  label="Drawing attach"
+                  basePath={DRAWINGS_KEY}
+                  fieldName="drawingAttach"
+                  control={control}
+                  setValue={setValue}
+                  isReadOnly={false}
+                  onRemoveUploaded={handleRemoveDrawing}
+                />
+              </Col>
             </Row>
             <Row className="border size-14">
               <Col className="d-flex col-auto gap-2 justify-content-between align-items-center">

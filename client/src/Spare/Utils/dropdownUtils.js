@@ -1,18 +1,14 @@
 export const SPARE_SHEET_REJECTED_STATUS = "Rejected";
 
 /**
- * Statuses in which the sheet still belongs to the person who raised it — a
- * freshly generated sheet, or one an approver has handed back. Every other
- * status means it is sitting with an approver or has finished its chain, and is
- * no longer theirs to change.
+ * Statuses in which the sheet still belongs to the person who raised it: only
+ * while freshly generated. Once sent it sits with an approver, and a rejection
+ * is final — the sheet is closed, not handed back for another attempt.
  *
  * Mirrors spareRequesterEditableStatuses in
  * server/utils/spareManagementUtils.js.
  */
-export const SPARE_SHEET_REQUESTER_EDITABLE_STATUSES = [
-  "Generated",
-  SPARE_SHEET_REJECTED_STATUS,
-];
+export const SPARE_SHEET_REQUESTER_EDITABLE_STATUSES = ["Generated"];
 
 /**
  * Every approval slot a request-sheet can carry, in chain order.
@@ -20,6 +16,20 @@ export const SPARE_SHEET_REQUESTER_EDITABLE_STATUSES = [
  * Mirrors hooksFormReferenceOfApproval plus the NG-budget slot in
  * server/utils/spareManagementUtils.js.
  */
+/** Stage shown for a slot whose stored userType is missing. */
+export const SPARE_APPROVAL_STAGE_LABELS = {
+  mtdHODApprovalIfBudgetIsNG: "NG Budget - MTD HOD",
+  approvalOfMTD_TL: "MTD TL",
+  approvalOfMTD_HOSS: "MTD HOSS",
+  approvalOfPRD_TL: "PRD TL",
+  approvalOfPRD_HOSS: "PRD HOSS",
+  approvalOfMTD_HOS: "MTD HOS",
+  approvalOfPRD_HOS: "PRD HOS",
+  approvalOfMTD_HOD: "MTD HOD",
+  approvalOfPRD_HOD: "PRD HOD",
+  approvalOfTOOL_ROOM: "Tool Room",
+};
+
 export const SPARE_APPROVAL_FIELD_KEYS = [
   "mtdHODApprovalIfBudgetIsNG",
   "approvalOfMTD_TL",
@@ -34,9 +44,8 @@ export const SPARE_APPROVAL_FIELD_KEYS = [
 ];
 
 /**
- * Per-slot approval history. A rejection clears the approval slots themselves so
- * the requester re-picks the whole chain, but the logs are append-only, so the
- * last entry of each is where the rejecting approver and their remarks survive.
+ * Per-slot approval history, append-only: one entry per time the sheet was put
+ * in front of that approver. The slots themselves hold the latest decision.
  */
 export const SPARE_APPROVAL_LOG_FIELD_KEYS = SPARE_APPROVAL_FIELD_KEYS.map(
   (key) => `${key}ApprovalLogs`,

@@ -6,11 +6,13 @@ const { transformRow } = require("./rowTransformer");
 const { validateRow } = require("./rowValidator");
 const { createImportResult } = require("./importResult");
 const { seedCatalogues, syncPlantCurrencies } = require("./referenceSeeder");
+const { planUniqueIds } = require("./uniqueIdPlanner");
+const { resetMasterUniqueIdSequences } = require("./masterUniqueIdService");
 const {
-  resolvePlantIdentity,
-  reserveMasterUniqueIds,
-  formatMasterUniqueId,
-} = require("./masterUniqueIdService");
+  defaultReportPath,
+  collectUnresolvedMachines,
+  writeUnresolvedMachinesReport,
+} = require("./unresolvedMachinesReport");
 
 /**
  * Reusable Spare Master import service.
@@ -52,6 +54,9 @@ const UPDATABLE_FIELDS = [
   "remarks",
   "lastIssuedDate",
   "previousIssuedDate",
+  "createDate",
+  "changeDate",
+  "currencyRate",
   "totalIssuedQty",
   "secondaryTotalIssuedQty",
   "legacyRef",
@@ -107,6 +112,7 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
     seedCatalogueValues = true,
     syncCurrencies = true,
     detailLimit,
+    unresolvedMachinesReportPath = defaultReportPath(filePath),
   } = options;
 
   const result = createImportResult({ detailLimit });
@@ -133,48 +139,37 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
   let batch = [];
 
   /**
-   * Ids are reserved per batch, and only for part numbers the catalogue does not
-   * already hold — an existing master keeps the id it was given. One extra query
-   * and one counter update per batch, rather than per row.
+   * An import into an empty catalogue is a fresh start, so the plant counters
+   * restart at 1 rather than continuing from ids that no longer exist. Guarded
+   * on emptiness because resetting while masters exist would reissue their ids.
    */
-  const assignUniqueIds = async (pending) => {
-    const partNumbers = pending.map(({ document }) => document.partNumber);
+  const catalogueIsEmpty = !(await SpareMaster.exists({}));
+  if (catalogueIsEmpty && !dryRun) {
+    const plantsReset = await resetMasterUniqueIdSequences();
+    result.setMeta("sequencesReset", { plants: plantsReset });
+  }
 
-    const existing = new Set(
-      (
-        await SpareMaster.find(
-          { partNumber: { $in: partNumbers } },
-          { partNumber: 1 },
-        ).lean()
-      ).map((doc) => doc.partNumber),
-    );
+  /**
+   * Ids come from a plan made over the whole file before any row is written,
+   * ordered by the source's CreateDate — blank dates first, then oldest to
+   * newest — rather than being reserved batch by batch in row order. Only
+   * part numbers the catalogue does not hold are in the plan; an existing
+   * master keeps its id. In a dry run the plan is made but nothing reserved.
+   */
+  const plan = await planUniqueIds(filePath, {
+    sheetName,
+    references,
+    createdBy,
+    reserve: !dryRun,
+  });
+  result.setMeta("uniqueIdPlan", plan.summary);
 
-    const needingId = pending.filter(
-      ({ document }) => !existing.has(document.partNumber),
-    );
-
-    if (!needingId.length) return;
-
-    const { plantId, plantName } = resolvePlantIdentity({
-      master: needingId[0].document,
-      fallbackUser: createdBy,
+  const assignUniqueIds = (pending) =>
+    pending.forEach((entry) => {
+      entry.uniqueID = plan.idByPartNumber.get(entry.document.partNumber);
     });
 
-    const reserved = await reserveMasterUniqueIds({
-      plantId,
-      plantName,
-      count: needingId.length,
-    });
-
-    if (!reserved) return;
-
-    needingId.forEach((entry, index) => {
-      entry.uniqueID = formatMasterUniqueId(
-        reserved.prefix,
-        reserved.firstSequence + index,
-      );
-    });
-  };
+  const unresolvedMachines = collectUnresolvedMachines();
 
   const flush = async () => {
     if (!batch.length) return;
@@ -183,7 +178,7 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
       return;
     }
     try {
-      await assignUniqueIds(batch);
+      assignUniqueIds(batch);
 
       const bulkResult = await SpareMaster.bulkWrite(
         batch.map(buildUpsertOperation),
@@ -219,7 +214,8 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
     result.countRow();
 
     const transformed = transformRow({ raw, references });
-    const { document, costDetails, currency, hasMachine, notes } = transformed;
+    const { document, costDetails, currency, hasMachine, machineSource, notes, createDate } =
+      transformed;
 
     const { errors, warnings } = validateRow({ excelRow, document, costDetails, currency, raw });
 
@@ -234,11 +230,19 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
 
     notes
       .filter((note) => note.type === "unresolvedMachine" || note.type === "incompleteHierarchy")
-      .forEach((note) =>
+      .forEach((note) => {
         result.addWarnings([
           { excelRow, column: "MachineName / Equipment1", value: raw.machineName ?? raw.equipment1 ?? null, message: note.message },
-        ]),
-      );
+        ]);
+        if (note.type === "unresolvedMachine")
+          unresolvedMachines.add({
+            excelRow,
+            partNumber: document.partNumber,
+            partName: document.partName,
+            machineSource,
+            reason: note.message,
+          });
+      });
 
     // A part number repeated inside one file would make two operations in the
     // same batch target one document, which an unordered bulkWrite may apply in
@@ -278,6 +282,29 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
   if (!dryRun && syncCurrencies) {
     const plantIds = options.plantId ? [options.plantId] : [...touchedPlantIds];
     result.setMeta("currencies", await syncPlantCurrencies(plantIds, currencies));
+  }
+
+  /**
+   * The machines the file names that the catalogue lacks, written beside the
+   * source file on every run (a dry run is exactly when this list is wanted).
+   * A locked or unwritable path must not fail the import itself.
+   */
+  if (unresolvedMachinesReportPath && unresolvedMachines.rows.length) {
+    try {
+      await writeUnresolvedMachinesReport(unresolvedMachines, unresolvedMachinesReportPath);
+      result.setMeta("unresolvedMachinesReport", {
+        path: unresolvedMachinesReportPath,
+        machines: unresolvedMachines.machines.length,
+        rows: unresolvedMachines.rows.length,
+      });
+    } catch (error) {
+      result.setMeta("unresolvedMachinesReport", {
+        path: unresolvedMachinesReportPath,
+        machines: unresolvedMachines.machines.length,
+        rows: unresolvedMachines.rows.length,
+        error: error?.message ?? String(error),
+      });
+    }
   }
 
   if (dryRun) {

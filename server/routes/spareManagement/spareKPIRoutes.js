@@ -45,7 +45,7 @@ const {
 
 router
   .route("/kpi/summery/inventory")
-  .get(yearMonthFilter, getInventorySummery);
+  .get(getInventorySummery);
 
 router
   .route("/kpi/summery/requestSheet")

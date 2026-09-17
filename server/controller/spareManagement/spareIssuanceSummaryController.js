@@ -3,6 +3,62 @@ const moment = require("moment");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const getFY = require("../../utils/getFY");
 
+/** `array` with `amount` added to the element at `index`, other months untouched. */
+const addAtMonth = (array, index, amount) => ({
+  $concatArrays: [
+    { $slice: [array, index] },
+    [{ $add: [{ $ifNull: [{ $arrayElemAt: [array, index] }, 0] }, amount] }],
+    { $slice: [array, { $add: [index, 1] }, { $size: array }] },
+  ],
+});
+
+/**
+ * Books a stock-out against the cell's budget for the running month.
+ *
+ * The running month's actual grows with every stock-out. A month that has been
+ * closed with its month-end BPD figure is left alone — that figure is the
+ * month's actual — so the update is conditioned on the month still being open.
+ * The cumulative is rebuilt from the twelve actuals rather than incremented, so
+ * it always agrees with them.
+ */
+const applyIssuanceToBudget = ({ cellId, monthIndex, usedBudget }) =>
+  SpareBudget.updateOne(
+    {
+      "cell._id": cellId,
+      financialYear: getFY(),
+      [`closedMonths.${monthIndex}`]: { $ne: true },
+    },
+    [
+      {
+        $set: {
+          actual: addAtMonth("$actual", monthIndex, usedBudget),
+          BPDActual: addAtMonth("$BPDActual", monthIndex, usedBudget),
+        },
+      },
+      {
+        $set: {
+          cumulativeActual: {
+            $reduce: {
+              input: "$actual",
+              initialValue: { total: 0, out: [] },
+              in: {
+                total: { $add: ["$$value.total", { $ifNull: ["$$this", 0] }] },
+                out: {
+                  $concatArrays: [
+                    "$$value.out",
+                    [{ $add: ["$$value.total", { $ifNull: ["$$this", 0] }] }],
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      { $set: { cumulativeActual: "$cumulativeActual.out" } },
+    ],
+  );
+
+
 const User = require("../../model/userSchema");
 const Plant = require("../../model/plantSchema");
 const Machine = require("../../model/machineSchema");
@@ -984,6 +1040,10 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
           [
             {
               $set: {
+                // The stock-out is the part's latest movement; the rotation
+                // buckets and the dead-stock list are judged on it.
+                previousIssuedDate: "$lastIssuedDate",
+                lastIssuedDate: "$$NOW",
                 costDetails: {
                   $let: {
                     vars: {
@@ -1115,76 +1175,7 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
             },
           },
         ),
-        SpareBudget.updateOne(
-          {
-            "cell._id": cell?._id,
-            financialYear: getFY(),
-          },
-          [
-            {
-              $set: {
-                actual: {
-                  $concatArrays: [
-                    { $slice: ["$actual", monthIndex] },
-                    [
-                      {
-                        $add: [
-                          { $arrayElemAt: ["$actual", monthIndex] },
-                          usedBudget,
-                        ],
-                      },
-                    ],
-                    {
-                      $slice: [
-                        "$actual",
-                        { $add: [monthIndex, 1] },
-                        { $size: "$actual" },
-                      ],
-                    },
-                  ],
-                },
-                BPDActual: {
-                  $concatArrays: [
-                    { $slice: ["$BPDActual", monthIndex] },
-                    [
-                      {
-                        $add: [
-                          { $arrayElemAt: ["$BPDActual", monthIndex] },
-                          usedBudget,
-                        ],
-                      },
-                    ],
-                    {
-                      $slice: [
-                        "$BPDActual",
-                        { $add: [monthIndex, 1] },
-                        { $size: "$BPDActual" },
-                      ],
-                    },
-                  ],
-                },
-                cumulativeActual: {
-                  $map: {
-                    input: { $range: [0, { $size: "$cumulativeActual" }] },
-                    as: "i",
-                    in: {
-                      $cond: [
-                        { $gte: ["$$i", monthIndex] },
-                        {
-                          $add: [
-                            { $arrayElemAt: ["$cumulativeActual", "$$i"] },
-                            usedBudget,
-                          ],
-                        },
-                        { $arrayElemAt: ["$cumulativeActual", "$$i"] },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          ],
-        ),
+        applyIssuanceToBudget({ cellId: cell?._id, monthIndex, usedBudget }),
       ]);
 
       /****************************
@@ -1263,3 +1254,5 @@ exports.issuanceSheetCompletedResponse = tryCatchHandler(
     });
   },
 );
+
+exports.applyIssuanceToBudget = applyIssuanceToBudget;

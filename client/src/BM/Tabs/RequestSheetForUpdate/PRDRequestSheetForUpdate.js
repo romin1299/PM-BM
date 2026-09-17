@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import moment from "moment-timezone";
-import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
@@ -144,7 +143,6 @@ function MyTable({ requestSheetDataOfBM, machineStatus, machineId }) {
 
   return (
     <>
-      {/* <ToastContainer /> */}
       {requestSheetDataOfBM?._id && safetyFormModalOpen && (
         <SafetyFormV2
           moduleType="bm"

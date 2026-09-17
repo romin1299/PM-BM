@@ -43,11 +43,15 @@ const AttachmentField = memo(
     setValue,
     isReadOnly,
     onRemoveUploaded,
+    /**
+     * Where the two lists live in the form. Defaults to the request-sheet's
+     * per-part slot; the master form, which has one set of drawings and no
+     * parts, names its own.
+     */
+    basePath = `partAttachments.${index}`,
   }) => {
-    const uploadedPath = `partAttachments.${index}.${fieldName}`;
-    const newFilesPath = `partAttachments.${index}.${newFilesFieldName(
-      fieldName,
-    )}`;
+    const uploadedPath = `${basePath}.${fieldName}`;
+    const newFilesPath = `${basePath}.${newFilesFieldName(fieldName)}`;
 
     const watchedUploaded = useWatch({ control, name: uploadedPath });
     const watchedNewFiles = useWatch({ control, name: newFilesPath });

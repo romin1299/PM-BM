@@ -29,6 +29,7 @@ const logger = require("../utils/LoggingController/loggers");
 const tryCatchHandler = require("../errorHandler/tryCatchHandler");
 const maintenanceType = require("../utils/maintenanceType");
 const filterMiddleware = require("../middleware/filterMiddleware");
+const filterMiddlewareForRootTimeStamp = require("../middleware/filterMiddlewareForRootTimeStamp");
 const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
 // const { gettingFYYear } = require("../middleware/gettingFYYear");
 const {
@@ -5340,10 +5341,7 @@ router.get(
   authenticate,
   // A New-Machine-CM sheet carries its year/month on the document itself, not
   // on the per-quarter array a regular CM sheet has.
-  filterMiddleware.forRootTimeStamp,
-  tryCatchHandler(async (req, res, next) => {
-    return next();
-  }),
+  filterMiddlewareForRootTimeStamp,
   getNewMachineCMRequestSheet,
   // getRequestSheetData,
   tryCatchHandler(async (req, res, next) => {
@@ -5440,7 +5438,7 @@ router.get(
 
   // ✅ MIDDLEWARE 2: Apply initial filters based on filter type and selectedId
   // (root-timestamp variant: this sheet has no per-quarter array to match on)
-  filterMiddleware.forRootTimeStamp,
+  filterMiddlewareForRootTimeStamp,
 
   // ✅ MIDDLEWARE 3: Add additional filter for current approver
   tryCatchHandler(async (req, res, next) => {

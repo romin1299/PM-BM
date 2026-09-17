@@ -383,12 +383,60 @@ router.post("/deleteUser", async (req, res) => {
  */
 router.get("/displayUser", authenticate, async (req, res) => {
   try {
-    const usersInfo = await User.find({ user_type: "Plant-Admin" }).sort({
+    let query = {};
+    if (req.rootUser?.user_type === "Admin")
+      query = { user_type: "Plant-Admin" };
+    else if (req.rootUser?.user_type === "Plant-Admin")
+      query = {
+        user_type: "Section-Admin",
+        plant_data: req.rootUser?.plant_data,
+      };
+    else if (req.rootUser?.user_type === "Section-Admin")
+      query = {
+        section_data: req.rootUser?.section_data,
+        $or: [
+          {
+            tm_department: "PRD",
+            tm_grade: "HOS",
+            user_type: "Section-Admin",
+          },
+          {
+            user_type: "TL/HOSS",
+          },
+          {
+            user_type: "Operator",
+          },
+        ],
+      };
+    else if (req.rootUser?.user_type === "TL/HOSS")
+      query = {
+        section_data: req.rootUser?.section_data,
+        $or: [
+          {
+            $and: [
+              {
+                user_type: "TL/HOSS",
+              },
+              {
+                tm_department: "PRD",
+              },
+            ],
+          },
+          {
+            user_type: "Operator",
+          },
+        ],
+      };
+
+    const usersInfo = await User.find(query).sort({
       _id: -1,
     });
-    //req.usersInfo=usersInfo;
-    // console.log(usersInfo)
-    res.json(usersInfo);
+
+    return res.status(201).json({
+      message: "User data get successfully",
+      // showToast: true,
+      tableData: usersInfo,
+    });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
@@ -1307,6 +1355,32 @@ router.get("/fetchPlantList", authenticate, async (req, res) => {
   }
 });
 
+//fetch all section head for showing or selecting in dropdown by common user
+router.get("/v2/fetchPlantList", authenticate, async (req, res) => {
+  try {
+    const plants = await Plant.find({}, { plant_id: 1, plant_name: 1 });
+    return res.status(201).json({
+      message: "Plant data get successfully",
+      plants,
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
+  }
+});
+
+//fetch all section head for showing or selecting in dropdown by common user
+router.get("/v2/fetchPlantList", authenticate, async (req, res) => {
+  try {
+    const plants = await Plant.find({}, { plant_id: 1, plant_name: 1 });
+    return res.status(201).json({
+      message: "Plant data get successfully",
+      plants,
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
+  }
+});
+
 /**
  * POST: /postPlantToGetSectionList
  * Returns sections belonging to a selected plant
@@ -1615,6 +1689,48 @@ router.post(
   },
 );
 
+router.get(
+  "/v2/postPlantToGetSectionListOfUserAssign",
+  authenticate,
+  async (req, res) => {
+    try {
+      const sections = await Section.find(req.query, {
+        section_id: 1,
+        section_name: 1,
+        dashboardLevel: 1,
+      });
+
+      return res.status(201).json({
+        message: "Section data get successfully",
+        sections,
+      });
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
+    }
+  },
+);
+
+router.get(
+  "/v2/postPlantToGetSectionListOfUserAssign",
+  authenticate,
+  async (req, res) => {
+    try {
+      const sections = await Section.find(req.query, {
+        section_id: 1,
+        section_name: 1,
+        dashboardLevel: 1,
+      });
+
+      return res.status(201).json({
+        message: "Section data get successfully",
+        sections,
+      });
+    } catch (error) {
+      logger.error(error, { maintenanceType: maintenanceType?.[0] });
+    }
+  },
+);
+
 //based on section selection sub-section list will display on sub-section list dropdown in User Assign in plant user
 /**
  * POST: /postSectionToGetSubSectionListOfUserAssign
@@ -1785,6 +1901,29 @@ router.post("/postUserAssign", async (req, res) => {
   }
 });
 
+router.post("/v2/postUserAssign", async (req, res) => {
+  try {
+    const userExist = await User.findOne({ tm_no: req.body.tm_no });
+
+    if (userExist)
+      return res.status(409).json({ error: "Employee number already exists" });
+
+    req.body["password"] = process.env.COMMON_PASSWORD;
+
+    const user = new User(req.body);
+    await user.save();
+
+    return res.status(201).json({
+      message: "Employee register successfully",
+      user,
+    });
+  } catch (error) {
+    logger.error(error, { maintenanceType: maintenanceType?.[0] });
+    console.log(error);
+    console.log("Data not valid or received !!!");
+  }
+});
+
 //Get the data from database and show on User management table in plant user
 /**
  * GET: /displayAssignUser
@@ -1797,8 +1936,11 @@ router.get("/displayAssignUser", authenticate, async (req, res) => {
       user_type: "Section-Admin",
       plant_data: loggedUserData.plant_data,
     }).sort({ _id: -1 });
-    //req.usersInfo=usersInfo;
-    res.json(usersInfo);
+    return res.status(201).json({
+      message: "User data get successfully",
+      showToast: true,
+      tableData: usersInfo,
+    });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
@@ -2038,13 +2180,11 @@ router.get("/displaySectionAssignUser", authenticate, async (req, res) => {
       ],
     }).sort({ _id: -1 });
 
-    // }
-
-    // console.log(req.rootUser, sectionId)
-    //req.usersInfo=usersInfo;
-
-    // console.log(usersInfo)
-    res.json(usersInfo);
+    return res.status(201).json({
+      message: "User data get successfully",
+      showToast: true,
+      tableData: usersInfo,
+    });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("User data not send or get!!!");
@@ -24118,8 +24258,7 @@ const handleUpdate = async () => {
     { machine_code: "M-EN-O2-2BA-03-020-1" },
     {
       $set: {
-        "checkSheet_data.$[outer].checksheet_status":
-          "Implementation",
+        "checkSheet_data.$[outer].checksheet_status": "Implementation",
       },
     },
     {

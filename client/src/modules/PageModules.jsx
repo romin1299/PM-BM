@@ -1,5 +1,5 @@
 // Dashboards
-import { React, useEffect, useState, useContext, useReducer } from "react";
+import { useEffect, useState, useContext, useReducer } from "react";
 
 import MaterialTable from "@material-table/core";
 import tableIcons from "../components/MatrialTableIcon";

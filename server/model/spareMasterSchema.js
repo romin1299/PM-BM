@@ -31,6 +31,18 @@ const spareMasterSchema = new mongoose.Schema(
     registerSection: String,
     supplierName: String,
     supplierCategory: String,
+    /**
+     * Drawings for the part, in the same shape a request-sheet part holds them
+     * and sharing the same files under spareDocuments. Drawings attached to a
+     * part on a request-sheet are added here for its master; the master's own
+     * edit page can add to and prune the list independently of any sheet.
+     */
+    drawingAttach: [
+      {
+        filename: String,
+        originalname: String,
+      },
+    ],
     costDetails: [
       {
         partId: {
@@ -84,10 +96,23 @@ const spareMasterSchema = new mongoose.Schema(
     secondaryTotalIssuedQty: Number,
 
     /**
+     * The legacy system's record dates (its CreateDate / ChangeDate columns),
+     * kept as they were. createDate stays unset when the source had none;
+     * dateTime below is the application's own creation stamp and always exists.
+     */
+    createDate: Date,
+    changeDate: Date,
+
+    /** Exchange rate the source quoted for the part's currency at import. */
+    currencyRate: Number,
+
+    /**
      * The legacy system's own keys and flags, kept for traceability and for
      * matching on a future re-import. Namespaced rather than promoted because the
      * codes duplicate values already stored by name and the flags are constant
      * across the export, so none of them are business fields on their own.
+     * machineName / equipmentCodes are the source's machine columns verbatim,
+     * whether or not they resolved to a machine in this application.
      */
     legacyRef: {
       supplierCode: String,
@@ -102,7 +127,8 @@ const spareMasterSchema = new mongoose.Schema(
       drawingPrintYN: String,
       drawingPrintQty: Number,
       subPartsSwitch: String,
-      changedOn: Date,
+      machineName: String,
+      equipmentCodes: [String],
     },
     status: {
       type: String,

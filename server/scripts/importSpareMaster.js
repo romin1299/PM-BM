@@ -54,6 +54,7 @@ const runSpareMasterImport = async ({
   plantId,
   tmNo,
   createdBy,
+  unresolvedMachinesReportPath,
   verbose = true,
   errorSampleSize = 20,
 } = {}) => {
@@ -78,6 +79,7 @@ const runSpareMasterImport = async ({
       sheetName,
       plantId,
       createdBy: importUser,
+      unresolvedMachinesReportPath,
     });
 
     if (verbose) {
@@ -91,6 +93,32 @@ const runSpareMasterImport = async ({
         if (result.truncated.errors)
           console.log(`  ...and ${result.truncated.errors} more not listed`);
         console.log("");
+      }
+
+      if (result.sequencesReset)
+        console.log(
+          `catalogue was empty: unique id sequence restarted at 1 for ${result.sequencesReset.plants} plant(s)`,
+        );
+
+      if (result.uniqueIdPlan) {
+        const plan = result.uniqueIdPlan;
+        console.log(
+          `unique ids: ${plan.planned} to assign (${plan.alreadyInCatalogue} already in catalogue)${plan.reserved ? "" : " — not reserved (dry run)"}`,
+        );
+        plan.plants.forEach((p) =>
+          console.log(
+            `  ${p.plant}: ${p.toAssign} ids${p.firstId ? ` ${p.firstId} .. ${p.lastId}` : ""} | ${p.withoutCreateDate} without CreateDate first, then ${p.oldestCreateDate ? new Date(p.oldestCreateDate).toISOString().slice(0, 10) : "-"} -> ${p.newestCreateDate ? new Date(p.newestCreateDate).toISOString().slice(0, 10) : "-"}`,
+          ),
+        );
+      }
+
+      if (result.unresolvedMachinesReport) {
+        const r = result.unresolvedMachinesReport;
+        console.log(
+          r.error
+            ? `unresolved machines: ${r.machines} machine(s) / ${r.rows} row(s) — report NOT written (${r.error})`
+            : `unresolved machines: ${r.machines} machine(s) / ${r.rows} row(s) -> ${r.path}`,
+        );
       }
 
       if (result.catalogues) console.log("catalogues:", JSON.stringify(result.catalogues));
@@ -111,6 +139,10 @@ const runSpareMasterImport = async ({
  * CLI entry:
  *   node scripts/importSpareMaster.js "Old Master data/file.xlsx"
  *   node scripts/importSpareMaster.js "Old Master data/file.xlsx" --commit --tm-no=89898
+ *
+ * Every run also writes "<file>-unresolved-machines.xlsx" beside the source
+ * (override with --unresolved-report=<path>), listing the machines the file
+ * names that the catalogue does not hold.
  */
 if (require.main === module) {
   const args = process.argv.slice(2);
@@ -122,6 +154,7 @@ if (require.main === module) {
     sheetName: flag("sheet"),
     plantId: flag("plant-id"),
     tmNo: flag("tm-no") ? Number(flag("tm-no")) : undefined,
+    unresolvedMachinesReportPath: flag("unresolved-report"),
   })
     .then(() => process.exit(0))
     .catch((error) => {

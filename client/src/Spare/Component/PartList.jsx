@@ -23,6 +23,7 @@ const PartRow = memo(
     partData,
     newPartFor,
     isReadOnly,
+    canRemove,
     onRemoveUploaded,
   }) => {
     const partType = partData?.standerOrManufacturingPart;
@@ -34,7 +35,7 @@ const PartRow = memo(
             <small>
               <b>Part Details {index + 1}</b>
             </small>
-            {/* {!isReadOnly && (
+            {canRemove && (
               <button
                 type="button"
                 className="bg-danger text-white border-0"
@@ -42,7 +43,7 @@ const PartRow = memo(
               >
                 Delete
               </button>
-            )} */}
+            )}
           </Col>
 
           <Col className="d-flex flex-column border col-auto m-2 mt-0 mb-1 p-2 pt-0 pb-0 flex-wrap align-items-center justify-content-between">
@@ -213,6 +214,12 @@ const PartList = ({
   watch,
   setValue,
   isReadOnly,
+  /**
+   * Parts can be taken off a sheet only while it is being generated. Once it is
+   * saved its parts are tracked individually (approval, ordering, receipt), so
+   * removing one later would orphan that history; the caller decides.
+   */
+  canRemoveParts = false,
   onRemoveUploaded,
   changeParts,
   sectionBudget,
@@ -254,6 +261,8 @@ const PartList = ({
             partData={changeParts?.[index]}
             newPartFor={newPartFor}
             isReadOnly={isReadOnly}
+            // A sheet needs at least one part, so the last row cannot be removed.
+            canRemove={canRemoveParts && !isReadOnly && fields.length > 1}
             onRemoveUploaded={onRemoveUploaded}
           />
         ))}

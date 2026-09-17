@@ -1,4 +1,4 @@
-import { React, useState } from "../modules/LoginModules";
+import { useState } from "../modules/LoginModules";
 import "./Login.scss";
 import Footer from "../components/Footer/Footer";
 import { useEffect } from "react";

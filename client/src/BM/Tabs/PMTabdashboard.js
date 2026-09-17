@@ -3,12 +3,9 @@ import { useState, useContext } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Container from "../../components/Container/Container";
-import RightNavbar from "../../components/RightNavbar/RightNavbar";
 import NavContext from "../../context/NavContext";
-import AdminDashboard from "../../pages/Admin/AdminDashboard";
 
 import RoutingContext from "../../context/routing/RoutingContext";
-import ContextAPI from "../../context/ContextAPI/ContextAPI";
 import Profile from "../../pages/Profile";
 
 import AdminCreationDashboard from "../../pages/Admin/AdminCreationDashboard";
@@ -16,16 +13,12 @@ import AdminCreationDashboard from "../../pages/Admin/AdminCreationDashboard";
 
 // plant dashboard
 
-import PlantCreation from "../../pages/Plant/PlantCreation";
 import SectionPage from "../../pages/Plant/SectionPage";
 import CreationDashboardForPlant from "../../pages/Plant/CreationDashboardForPlant";
-import UserAssign from "../../pages/Plant/UserAssign";
 import SixMonthApprovalDashboard from "../../pages/Plant/SixMonthApprovalDashboard";
 
 //Section Dashboard
-import SectionDashboard from "../../pages/Section/SectionDashboard";
 import OperatorDashboard from "../../pages/Operator/OperatorDashboard";
-import UserAssignSection from "../../pages/Section/UserAssignSection";
 import CreationDashboardForSection from "../../pages/Section/CreationDashboardForSection";
 import CheckSheetDashboard from "../../pages/Section/CheckSheetDashboard";
 import ChecksheetCreationDashboard from "../../pages/Section/Checksheet/ChecksheetCreationDashboard";
@@ -44,8 +37,6 @@ import PmAllReportDashboard from "../../pages/Reports/PmAllReportDashboard";
 import OpenAbnormalityTrack from "../../pages/Reports/OpenAbnormalityTracking";
 import MTDTLandHOSChecksheetCreationDashboard from "../../pages/Section/Checksheet/MTDTLandHOSChecksheetCreationDashboard";
 import CreationDashboardForTLHOSS from "../../pages/MTD_TL_HOSS/CreationDashboardForTLHOSS";
-import UserAssignTLHOSS from "../../pages/MTD_TL_HOSS/UserAssignTLHOSS";
-import SparePartUsageHistory from "../../pages/MTD_TL_HOSS/SparePartUsageHistory";
 import OperatorDataEntry from "../../pages/MTD_TL_HOSS/OperatorDataEntry";
 import AllSparePartsUsageHistory from "../../pages/MTD_TL_HOSS/AllSparePartsUsageHistory";
 //for Operator
@@ -82,6 +73,10 @@ import PreparationApprovalDashboard from "../../pages/Section/Checksheet/Prepara
 import PlanningApprovalDashboard from "../../pages/Section/Checksheet/PlanningApprovalDashboard";
 import ImplementationApprovalDashboard from "../../pages/Section/Checksheet/ImplementationApprovalDashboard";
 import Footer from "../../components/Footer/Footer";
+import UserManagement, {
+  AdminUser,
+  PlantAdminUser,
+} from "../../pages/UserManagement/UserManagement";
 
 // import { RouteMap } from "../../Common/CommonRoutes/CommonRoutesContainer";
 
@@ -119,7 +114,7 @@ function App({ commonRoutes }) {
                     />
                   )
                 )}
-                <Route path="/pm/adminDashboard" element={<AdminDashboard />} />
+                <Route path="/pm/adminDashboard" element={<AdminUser />} />
                 <Route path="/pm" element={<AdminCreationDashboard />} />
                 <Route path="/pm/profile" element={<Profile />} />
                 <Route
@@ -166,7 +161,7 @@ function App({ commonRoutes }) {
                   element={<CreationDashboardForPlant />}
                 />
                 <Route path="/pm/section" element={<SectionPage />} />
-                <Route path="/pm/userAssign" element={<UserAssign />} />
+                <Route path="/pm/userAssign" element={<PlantAdminUser />} />
                 <Route path="/pm/profile" element={<Profile />} />
                 <Route
                   path="/pm/machineWiseCheckSheet"
@@ -296,13 +291,16 @@ function App({ commonRoutes }) {
                 )}
                 <Route path="/pm" element={<OperatorDashboard />} />
 
-                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+                <Route
+                  path="/pm/checkApprovalSendOrNotMainDashboard"
+                  element={<CheckApprovalSendOrNotMainDashboard />}
+                />
 
                 <Route
                   path="/pm/creationDashboard"
                   element={<CreationDashboardForSection />}
                 />
-                <Route path="/pm/userAssign" element={<UserAssignSection />} />
+                <Route path="/pm/userAssign" element={<UserManagement />} />
                 <Route path="/pm/profile" element={<Profile />} />
                 {/* <Route path="/pm/approvalDashboard" element={<CheckSheetApprovalDashboardForHOS />} /> */}
                 <Route
@@ -435,7 +433,10 @@ function App({ commonRoutes }) {
                   )
                 )}
                 <Route path="/pm" element={<OperatorDashboard />} />
-                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+                <Route
+                  path="/pm/checkApprovalSendOrNotMainDashboard"
+                  element={<CheckApprovalSendOrNotMainDashboard />}
+                />
 
                 <Route
                   path="/pm/machineWiseCheckSheetForImplemetation"
@@ -562,13 +563,16 @@ function App({ commonRoutes }) {
                   )
                 )}
                 <Route path="/pm" element={<OperatorDashboard />} />
-                <Route path="/pm/checkApprovalSendOrNotMainDashboard" element={<CheckApprovalSendOrNotMainDashboard />} />
+                <Route
+                  path="/pm/checkApprovalSendOrNotMainDashboard"
+                  element={<CheckApprovalSendOrNotMainDashboard />}
+                />
 
                 <Route
                   path="/pm/creationDashboard"
                   element={<CreationDashboardForTLHOSS />}
                 />
-                <Route path="/pm/userAssign" element={<UserAssignTLHOSS />} />
+                <Route path="/pm/userAssign" element={<UserManagement />} />
                 <Route
                   path="/pm/machineWiseCheckSheet"
                   element={<CheckSheet />}

@@ -14,7 +14,9 @@ const spareApprovalStatus = [
 ];
 
 /**
- * Status a sheet lands in when any approver in the chain rejects it.
+ * Status a sheet lands in when any approver in the chain rejects it. Final: a
+ * rejected sheet is not edited or sent for approval again; a fresh sheet is
+ * raised instead.
  *
  * Deliberately NOT appended to spareApprovalStatus: three call sites read that
  * array's last element positionally to mean "Completed"
@@ -24,14 +26,11 @@ const spareApprovalStatus = [
 const spareRejectedStatus = "Rejected";
 
 /**
- * Statuses in which a request-sheet still belongs to the person who raised it —
- * newly generated, or handed back by a rejection. In both the requester may
- * edit it and send it for approval again.
+ * Statuses in which a request-sheet still belongs to the person who raised it:
+ * only while newly generated. Once sent it is the approvers', and a rejection
+ * closes it for good.
  */
-const spareRequesterEditableStatuses = [
-  spareApprovalStatus[1],
-  spareRejectedStatus,
-];
+const spareRequesterEditableStatuses = [spareApprovalStatus[1]];
 
 const spareApprovalUserType = [
   "NG Budget - Under MTD HOD",

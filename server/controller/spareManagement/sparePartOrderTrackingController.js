@@ -243,10 +243,29 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
           machine: 1,
           requestSheetStatus: 1,
           partQty: 1,
+          newPartFor: 1,
           "budget.budgetStatus": 1,
           "changeParts.batchId": 1,
           "changeParts.partName": 1,
           "changeParts.partModel": 1,
+          /**
+           * Whether the part can move through ordering (batch, PR, PO, receipt…).
+           * A stock-in part waits for its master, which is created only after
+           * Tool Room approval; a "For use" part never gets a master — it is
+           * consumed on the machine — so it is ready as soon as its approval
+           * chain completes.
+           */
+          canTrack: {
+            $or: [
+              { $gt: ["$changeParts.masterId", null] },
+              {
+                $and: [
+                  { $eq: ["$newPartFor", "For use"] },
+                  { $eq: ["$requestSheetStatus", "Completed"] },
+                ],
+              },
+            ],
+          },
           ...req.$project,
         },
       },

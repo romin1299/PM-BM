@@ -84,10 +84,23 @@ const generateMasterUniqueId = async ({ master, fallbackUser }) => {
   return formatMasterUniqueId(reserved.prefix, reserved.firstSequence);
 };
 
+/**
+ * Restarts every plant's sequence at 1, for loading a catalogue from scratch.
+ * Returns how many plant counters were reset.
+ */
+const resetMasterUniqueIdSequences = async () => {
+  const { modifiedCount } = await Plant.updateMany(
+    {},
+    { $set: { spareMasterUniqueIDSeq: 0 } },
+  );
+  return modifiedCount;
+};
+
 module.exports = {
   plantPrefix,
   formatMasterUniqueId,
   resolvePlantIdentity,
   reserveMasterUniqueIds,
   generateMasterUniqueId,
+  resetMasterUniqueIdSequences,
 };

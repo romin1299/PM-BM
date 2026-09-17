@@ -1,4 +1,4 @@
-import { React, useContext } from "react";
+import { useContext } from "react";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import "../../SCSS/ProfileCard.scss";
 

@@ -10,7 +10,6 @@ import { Table, Input, ConfigProvider } from "antd";
 import moment from "moment";
 import RoutingContext from "../../context/routing/RoutingContext";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { ToastContainer } from "react-toastify";
 import { SuccessToast } from "../../BM/Component/ShowTostify";
 import { CSVLink } from "react-csv";
 import { Button } from "@mui/material";
@@ -346,7 +345,6 @@ const AllSparePartsUsageHistory = () => {
 
   return (
     <>
-      <ToastContainer />
       <Container fluid>
         <BMTitlebar
           title="Spare Usage History"

@@ -202,7 +202,6 @@
 // export default AdminDashboard;
 
 import {
-  React,
   useEffect,
   useState,
   MaterialTable,

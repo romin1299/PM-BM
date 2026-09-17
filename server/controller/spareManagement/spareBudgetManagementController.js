@@ -11,6 +11,36 @@ const {
   sumArrayField,
 } = require("../../utils/spareManagementUtils");
 
+/** Running total of a monthly plan, Apr through Mar; blanks count as 0. */
+const cumulativeOf = (plan = []) => {
+  let total = 0;
+  return Array.from({ length: 12 }, (_, i) => {
+    const value = Number(plan[i]);
+    total += Number.isFinite(value) ? value : 0;
+    return total;
+  });
+};
+
+/**
+ * Applies month-end BPD figures. Each month whose BPD value was entered or
+ * changed is closed: the BPD value becomes that month's actual, and the
+ * cumulative actual is rebuilt from the twelve actuals.
+ */
+const applyBPDActual = ({ existing = {}, incoming }) => {
+  const actual = [...(existing.actual ?? Array(12).fill(0))];
+  const closedMonths = [...(existing.closedMonths ?? Array(12).fill(false))];
+  const previous = existing.BPDActual ?? Array(12).fill(0);
+
+  incoming.forEach((raw, i) => {
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value === Number(previous[i] ?? 0)) return;
+    actual[i] = value;
+    closedMonths[i] = true;
+  });
+
+  return { actual, closedMonths, cumulativeActual: cumulativeOf(actual) };
+};
+
 const handleMapGeneration = (firstArr = "$plan", secondArr = "$BPDActual") => ({
   $map: {
     input: { $range: [0, 12] },
@@ -171,6 +201,13 @@ exports.addFYBudget = tryCatchHandler(async (req, res, next) => {
     req.body["isSectionWise"] = true;
   }
   req.body["financialYear"] = getFY();
+  if (req.body.plan) req.body.cumulativePlan = cumulativeOf(req.body.plan);
+  // Actuals come from issuances and month-end BPD figures, never typed in.
+  delete req.body["actual"];
+  delete req.body["cumulativeActual"];
+  delete req.body["closedMonths"];
+  if (req.body.BPDActual)
+    Object.assign(req.body, applyBPDActual({ incoming: req.body.BPDActual }));
 
   const budget = new SpareBudget(req.body);
   await budget.save();
@@ -185,6 +222,25 @@ exports.addFYBudget = tryCatchHandler(async (req, res, next) => {
 exports.updateFYBudget = tryCatchHandler(async (req, res, next) => {
   delete req.body["actual"];
   delete req.body["cumulativeActual"];
+  delete req.body["closedMonths"];
+  // A changed plan re-derives its cumulative; a client cannot send one alone.
+  if (req.body.plan) req.body.cumulativePlan = cumulativeOf(req.body.plan);
+  else delete req.body["cumulativePlan"];
+
+  if (req.body.BPDActual) {
+    const existing = await SpareBudget.findOne(
+      { _id: req.query?._id },
+      { actual: 1, BPDActual: 1, closedMonths: 1 },
+    ).lean();
+
+    if (!existing)
+      return res.status(404).json({ message: "Budget not found", showToast: true });
+
+    Object.assign(
+      req.body,
+      applyBPDActual({ existing, incoming: req.body.BPDActual }),
+    );
+  }
 
   const budget = await SpareBudget.findOneAndUpdate(
     {

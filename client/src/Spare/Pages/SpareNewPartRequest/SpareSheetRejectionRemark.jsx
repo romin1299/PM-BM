@@ -4,9 +4,8 @@ import { Row, Col } from "react-bootstrap";
 /**
  * Shows who rejected the sheet and why.
  *
- * A rejection clears the approval chain but leaves the rejecting approver's slot
- * intact, carrying its status, timestamp and remarks. Surfacing it here is what
- * tells the requester what to fix before sending the sheet again.
+ * A rejection is final, so this is the sheet's closing note: which approver
+ * stopped it, when, and why. The full chain is shown by SpareSheetApprovalTrack.
  */
 const SpareSheetRejectionRemark = ({ rejection }) => {
   if (!rejection) return null;

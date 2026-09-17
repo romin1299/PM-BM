@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { useState } from "react";
 // import "../SCSS/LoginPage.css";
 import { Button } from "../modules/LoginModules";
 import * as yup from "yup";

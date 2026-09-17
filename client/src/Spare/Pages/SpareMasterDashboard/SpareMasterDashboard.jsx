@@ -1,8 +1,9 @@
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useContext, useMemo, useState } from "react";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 
+import RoutingContext from "../../../context/routing/RoutingContext";
 import SpareTitlebar from "../../Component/SpareTitlebar";
 import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 import ExportCSV from "../SparePartIssuance/ExportCSV";
@@ -48,9 +49,12 @@ const tableHeaders = [
   "Available Qty",
   "Overall Cost (INR)",
   "Status",
+  "Drawings",
   "Registered On",
-  "Action",
 ];
+
+// Only Tool Room may open a master for editing, so only they get the column.
+const editHeader = "Action";
 
 const numberOrBlank = (value) =>
   value === null || value === undefined ? "" : value;
@@ -58,7 +62,7 @@ const numberOrBlank = (value) =>
 const inrFormat = (value) =>
   Number(value ?? 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 
-const MasterRow = memo(({ otherData, navigate }) => (
+const MasterRow = memo(({ otherData, navigate, canEdit }) => (
   <>
     <td className="td-padding">{otherData?.uniqueID}</td>
     <td className="td-padding">{otherData?.partNumber}</td>
@@ -90,21 +94,43 @@ const MasterRow = memo(({ otherData, navigate }) => (
     <td className="td-padding">{numberOrBlank(otherData?.availableQty)}</td>
     <td className="td-padding">{inrFormat(otherData?.overAllCostInINR)}</td>
     <td className="td-padding">{otherData?.status}</td>
-    <td className="td-padding">{otherData?.registeredOn}</td>
     <td className="td-padding">
-      <AppRegistrationIcon
-        fontSize="small"
-        className="button-style text-primary"
-        onClick={() =>
-          navigate(`/spare/spareMasterRegistration/?masterId=${otherData?._id}`)
-        }
-      />
+      {/* Numbered so several drawings read as separate items. */}
+      {otherData?.drawingAttach?.length > 0 && (
+        <ol className="m-0 ps-3">
+          {otherData.drawingAttach.map((file, index) => (
+            <li key={file?.filename ?? index}>
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={`${process.env.REACT_APP_BASE_URL}/v1/spare/${file?.filename}`}
+              >
+                {file?.originalname}
+              </a>
+            </li>
+          ))}
+        </ol>
+      )}
     </td>
+    <td className="td-padding">{otherData?.registeredOn}</td>
+    {canEdit && (
+      <td className="td-padding">
+        <AppRegistrationIcon
+          fontSize="small"
+          className="button-style text-primary"
+          onClick={() =>
+            navigate(`/spare/spareMasterRegistration/?masterId=${otherData?._id}`)
+          }
+        />
+      </td>
+    )}
   </>
 ));
 
 const SpareMasterDashboard = () => {
   const navigate = useNavigate();
+  const { toolRoomPerson } = useContext(RoutingContext) ?? {};
+  const canEdit = toolRoomPerson === "Yes";
   const [totalMasters, setTotalMasters] = useState(null);
 
   /**
@@ -123,7 +149,15 @@ const SpareMasterDashboard = () => {
     [totalMasters],
   );
 
-  const otherParentProps = useMemo(() => ({ navigate }), [navigate]);
+  const otherParentProps = useMemo(
+    () => ({ navigate, canEdit }),
+    [navigate, canEdit],
+  );
+
+  const headers = useMemo(
+    () => (canEdit ? [...tableHeaders, editHeader] : tableHeaders),
+    [canEdit],
+  );
 
   return (
     <Container fluid>
@@ -136,7 +170,7 @@ const SpareMasterDashboard = () => {
 
       <SpareSheetCustomTable
         url={url}
-        tableHeaders={tableHeaders}
+        tableHeaders={headers}
         OtherComp={MasterRow}
         otherParentProps={otherParentProps}
         rowKey={(row) => row?._id}

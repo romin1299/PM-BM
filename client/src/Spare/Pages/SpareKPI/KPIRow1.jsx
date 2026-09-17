@@ -59,7 +59,7 @@ const MapComponent = ({ counters }) => {
             }}
           >
             {value?._id
-              ? `${value?.availableQty} Parts | ${value?.costInINR} Mil`
+              ? `${value?.masterCount} Parts | ${value?.costInINR} Mil`
               : value}
           </Typography>
         </Paper>

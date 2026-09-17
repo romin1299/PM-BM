@@ -14,6 +14,30 @@ const { generateTimestampIndividually } = require("../../utils/spareTimestamp");
 const {
   generateMasterUniqueId,
 } = require("../../services/spareMaster/masterUniqueIdService");
+const {
+  toFileEntry,
+  removeDrawingFileIfUnreferenced,
+} = require("../../services/spare/masterDrawingService");
+
+/**
+ * The master form posts multipart when it carries drawings, with its fields
+ * as a JSON string under `data`; without drawings it posts plain JSON. Either
+ * way this is the field object, with the uploaded drawings alongside.
+ */
+const readMasterRequest = (req) => {
+  const body =
+    typeof req.body?.data === "string" ? JSON.parse(req.body.data) : req.body;
+
+  const uploadedDrawings = (req.files?.drawingAttach ?? []).map(toFileEntry);
+
+  const removedDrawings =
+    typeof body?.removedDrawingFiles === "string"
+      ? JSON.parse(body.removedDrawingFiles)
+      : (body?.removedDrawingFiles ?? []);
+  delete body?.removedDrawingFiles;
+
+  return { body, uploadedDrawings, removedDrawings };
+};
 
 exports.getDefaultValueForMasterRegistration = tryCatchHandler(
   async (req, res, next) => {
@@ -50,6 +74,7 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
           quantityRequired: 1,
           machine: 1,
           status: 1,
+          drawingAttach: 1,
           budgetDetails: {
             $reduce: {
               input: "$costDetails",
@@ -120,6 +145,9 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
           maker: "$changeParts.maker",
           supplierName: "$changeParts.supplierName",
           supplierCategory: "$changeParts.supplierCategory",
+          // The part's drawings seed the master's, so they show on the
+          // registration form and are stored with the master on save.
+          drawingAttach: { $ifNull: ["$changeParts.drawingAttach", []] },
         },
       },
     ]);
@@ -176,6 +204,7 @@ const spareMasterRowProjection = {
   totalIssuedQty: 1,
   status: 1,
   additionalMachineCodes: 1,
+  drawingAttach: 1,
   machineCode: "$machine.machine_code",
   machineName: "$machine.machine_name",
   lineName: "$line.line_name",
@@ -286,6 +315,13 @@ const spareMasterExportProjection = {
   stockTaking: 1,
 
   remarks: 1,
+  drawings: {
+    $map: {
+      input: { $ifNull: ["$drawingAttach", []] },
+      as: "drawing",
+      in: "$$drawing.originalname",
+    },
+  },
   reasonForZeroStockRemarks: 1,
   reasonForKeepingDeadStockRemarks: 1,
 
@@ -421,6 +457,7 @@ const spareMasterExportColumns = [
   ["Previous Issued On", "previousIssuedDate"],
 
   ["Remarks", "remarks"],
+  ["Drawings", "drawings"],
   ["Zero Stock Remarks", "reasonForZeroStockRemarks"],
   ["Dead Stock Remarks", "reasonForKeepingDeadStockRemarks"],
 
@@ -513,6 +550,9 @@ exports.exportSpareMasterDashboard = tryCatchHandler(async (req, res, next) => {
 exports.handleMasterConfiguration = tryCatchHandler(async (req, res, next) => {
   const { sheetId, partId } = req.query;
 
+  const { body, uploadedDrawings } = readMasterRequest(req);
+  req.body = body;
+
   if (!sheetId || !partId)
     return res.status(400).json({
       success: false,
@@ -580,6 +620,14 @@ exports.handleMasterConfiguration = tryCatchHandler(async (req, res, next) => {
     inDate: moment(inString),
   };
 
+  // The drawings kept on the form (seeded from the part) plus any picked now.
+  req.body["drawingAttach"] = [
+    ...(Array.isArray(req.body.drawingAttach)
+      ? req.body.drawingAttach.filter((f) => f?.filename).map(toFileEntry)
+      : []),
+    ...uploadedDrawings,
+  ];
+
   const master = await new SpareMaster(req.body).save();
 
   await RequestSheetOfSpare.findOneAndUpdate(
@@ -616,11 +664,36 @@ exports.handleMasterUpdate = tryCatchHandler(async (req, res, next) => {
       message: "Invalid ObjectId format",
     });
 
+  const { body, uploadedDrawings, removedDrawings } = readMasterRequest(req);
+
   // uniqueID identifies the part across every request-sheet ever raised for it,
   // so it is fixed once assigned and an update can never carry a new one.
-  delete req.body["uniqueID"];
+  delete body["uniqueID"];
 
-  await SpareMaster.findOneAndUpdate(req.query, req.body);
+  /**
+   * Drawings. The form sends the list it kept only when it changed; new files
+   * arrive as uploads either way. So: a kept list replaces the stored one (with
+   * the uploads appended), while uploads alone are added to what is stored.
+   */
+  const update = { ...body };
+  delete update.drawingAttach;
+
+  const keptDrawings = Array.isArray(body.drawingAttach)
+    ? body.drawingAttach.filter((f) => f?.filename).map(toFileEntry)
+    : null;
+
+  if (keptDrawings) update.drawingAttach = [...keptDrawings, ...uploadedDrawings];
+  else if (uploadedDrawings.length)
+    update.$push = { drawingAttach: { $each: uploadedDrawings } };
+
+  await SpareMaster.findOneAndUpdate(req.query, update);
+
+  // A drawing dropped from the master keeps its file while a request-sheet
+  // still shows it; otherwise the file goes with it.
+  for (const filename of removedDrawings)
+    await removeDrawingFileIfUnreferenced(filename, {
+      except: { masterId: _id },
+    });
 
   return res.status(201).json({
     message: "Master updated successfully",

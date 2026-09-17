@@ -9,7 +9,16 @@ exports.getUserData =
   (machineModel, sectionModel, userModel) => async (req, res) => {
     try {
       const machine = await machineModel
-        .findOne({ machine_code: req.query?.machine_code })
+        .findOne(
+          { machine_code: req.query?.machine_code },
+          {
+            machine_name: 1,
+            machine_code: 1,
+            line_names: 1,
+            machine_problems_faced: 1,
+            checkSheet_data: 1,
+          }
+        )
         .populate({
           path: "line_names",
           populate: {
@@ -28,8 +37,6 @@ exports.getUserData =
         })
         .exec();
 
-      // console.log("machine", machine);
-
       const startDate = moment().tz(timezone).year();
       const endDate = moment().tz(timezone).year() + 1;
       // console.log(startDate);
@@ -45,59 +52,36 @@ exports.getUserData =
         currentMonth = moment().format("MMM");
       }
 
-      const pmStatus = await machineModel.aggregate([
-        {
-          $match: { machine_code: req.query?.machine_code },
-        },
-        {
-          $unwind: "$checkSheet_data",
-        },
-        {
-          $match: {
-            "checkSheet_data.current_year":
-              req?.query?.current_year || `${startDate}-${endDate}`,
-            // [`checkSheet_data.PMStatus.${currentMonth}`]: currentMonth,
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            PMStatus: `$checkSheet_data.PMStatus.${currentMonth}`,
-            PMdate: {
-              $arrayElemAt: [
-                `$checkSheet_data.implemetation_completed_date.${currentMonth}`,
-                0,
-              ],
-            },
-          },
-        },
-      ]);
-
-      //  console.log("pmstatus",pmStatus?.[0])
+      // The year asked for, else the current one — the fallback belongs to the
+      // comparison, not or-ed after it, which matched every entry.
+      const pmYear = req?.query?.current_year || `${startDate}-${endDate}`;
+      const pmStatus = machine?.checkSheet_data?.find(
+        (item) => item?.current_year === pmYear
+      );
 
       const bmData = await RequestSheetOfBM.aggregate([
-        // {
-        //   $match : {
-        //     machineRef : mongoose.Types.ObjectId(req.query?.selectedId),
-        //   }
-        // },
-        {
-          $lookup: {
-            from: "machinesalldatas",
-            localField: "machineRef",
-            foreignField: "_id",
-            as: "machines",
-          },
-        },
-        {
-          $unwind: "$machines",
-        },
         {
           $match: {
-            "machines.machine_code": req?.query?.machine_code,
-            // "machines.machine_code" : "M-EN-O2-BOA-030-1",
+            machineRef: machine?._id,
           },
         },
+        // {
+        //   $lookup: {
+        //     from: "machinesalldatas",
+        //     localField: "machineRef",
+        //     foreignField: "_id",
+        //     as: "machines",
+        //   },
+        // },
+        // {
+        //   $unwind: "$machines",
+        // },
+        // {
+        //   $match: {
+        //     "machines.machine_code": req?.query?.machine_code,
+        //     // "machines.machine_code" : "M-EN-O2-BOA-030-1",
+        //   },
+        // },
 
         {
           $group: {
@@ -263,9 +247,21 @@ exports.getUserData =
       if (machine) {
         res.status(201).json({
           message: "Sheet data get successfully",
-          machine,
+          // Trimmed to what the sheet pages read, so checkSheet_data stays out
+          // of the response. _id is what they key the sheet lookup on: the view
+          // page does not fetch the sheet until it has it.
+          machine: {
+            _id: machine?._id,
+            machine_name: machine?.machine_name,
+            machine_code: machine?.machine_code,
+            line_names: machine?.line_names,
+            machine_problems_faced: machine?.machine_problems_faced,
+          },
           requestSheetApprovalList,
-          pmStatusData: pmStatus?.[0],
+          pmStatusData: {
+            PMStatus: pmStatus?.PMStatus?.[currentMonth],
+            PMdate: pmStatus?.implemetation_completed_date?.[currentMonth]?.[0],
+          },
           bmStatusData: bmData?.[0],
         });
       } else {

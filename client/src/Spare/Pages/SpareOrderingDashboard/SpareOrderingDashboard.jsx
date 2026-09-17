@@ -1,15 +1,12 @@
-import React, { memo, useMemo, useCallback, useState } from "react";
+import React, { memo, useMemo, useCallback, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import CircleIcon from "@mui/icons-material/Circle";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import DescriptionIcon from "@mui/icons-material/Description";
-import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
-
-import { axiosGetOrDelete } from "../../Utils/axiosUtils";
 
 import WithFilters from "../../Component/Common/WithFilters";
 import SpareSheetCustomTable, {
@@ -146,16 +143,6 @@ const MasterTD = memo(
   },
 );
 
-const RejectTD = memo(({ _id, partId, onDelete }) => (
-  <TDWrapper>
-    <DeleteIcon
-      fontSize="small"
-      className="button-style text-primary"
-      onClick={() => onDelete({ _id, partId })}
-    />
-  </TDWrapper>
-));
-
 const EditOtherTrackingFields = memo(
   ({ popupRef, otherData, updateRow, handleModal }) => (
     <div className="d-flex align-items-center justify-content-center flex-column">
@@ -183,22 +170,14 @@ const EditOtherTrackingFields = memo(
 );
 
 const SelectTD = memo(
-  ({
-    setObj,
-    isSelected,
-    handleToggleSelect,
-    masterId,
-    batchId,
-    showOnlySelected,
-  }) =>
-    !masterId || batchId ? (
+  ({ setObj, isSelected, handleToggleSelect, canTrack, batchId }) =>
+    !canTrack || batchId ? (
       <TDWrapper></TDWrapper>
     ) : (
       <TDWrapper>
         <input
           type="checkbox"
           checked={isSelected}
-          disabled={!masterId}
           onChange={() => handleToggleSelect(setObj?.partId, setObj)}
         />
       </TDWrapper>
@@ -212,7 +191,7 @@ const TaskStatusTd = memo(
     mode,
     handleModal,
     updateRow,
-    masterId,
+    canTrack,
     isEditableRow = false,
     isViewOnly = true,
   }) =>
@@ -239,7 +218,7 @@ const TaskStatusTd = memo(
             {mode === "Edit" &&
               otherData?.requestSheetStatus === "Completed" &&
               !isViewOnly &&
-              masterId &&
+              canTrack &&
               (otherData?.rsPRGeneration?.taskStatus || isEditableRow) && (
                 <EditOtherTrackingFields
                   handleModal={handleModal}
@@ -258,7 +237,6 @@ const TaskStatusMappingComponent = memo(
   ({
     otherData,
     navigate,
-    handleDelete,
     removeRow,
     selectedRows,
     handleToggleSelect,
@@ -273,11 +251,6 @@ const TaskStatusMappingComponent = memo(
       <ViewTD _id={otherData?._id} navigate={navigate} />
       <PRLinkTD />
       <EditTD _id={otherData?._id} navigate={navigate} />
-      <RejectTD
-        _id={otherData?._id}
-        partId={otherData?.changeParts?._id}
-        onDelete={(props) => handleDelete(props, removeRow)}
-      />
       <TaskStatusTd
         mappingArray={taskStatusMappingKeys1}
         otherData={otherData}
@@ -302,12 +275,12 @@ const TaskStatusMappingComponent = memo(
           batchId={otherData?.changeParts?.batchId}
           isSelected={selectedRows.has(otherData?.changeParts?._id)}
           handleToggleSelect={handleToggleSelect}
-          masterId={otherData?.changeParts?.masterId}
+          canTrack={otherData?.canTrack}
         />
       )}
 
       <TaskStatusTd
-        masterId={otherData?.changeParts?.masterId}
+        canTrack={otherData?.canTrack}
         mappingArray={taskStatusMappingKeys2}
         otherData={otherData}
         isEditableRow={isEditableRow}
@@ -320,17 +293,6 @@ const TaskStatusMappingComponent = memo(
 
 const OrderTrackingDashboard = memo((props) => {
   const navigate = useNavigate();
-
-  const handleDelete = useCallback(async (params, removeRow) => {
-    const { isError } = await axiosGetOrDelete({
-      apiType: "delete",
-      url: "/v1/spare/spareRequestSheet",
-      axiosProps: {
-        params,
-      },
-    });
-    if (!isError) return removeRow(params);
-  }, []);
 
   const [modelState, setModelState] = useState({
     show: false,
@@ -365,6 +327,54 @@ const OrderTrackingDashboard = memo((props) => {
     });
   }, []);
 
+  /**
+   * A part that has been batched loses its checkbox, so if it stayed selected
+   * the selection could neither be seen nor undone — and the next PR Generation
+   * would send that finished part again and re-batch it. Batched parts are
+   * therefore dropped from the selection. On the L2 sheet the drop waits until
+   * the reader goes back to L1: rows there are shown *because* they are
+   * selected, and the batch must stay in view for its remaining stages. Ticks on
+   * parts that were not batched survive the round trip, so the reader can go
+   * back to L1 to add rows and return.
+   */
+  const batchedWhileOnL2Ref = useRef(new Set());
+
+  const dropFromSelection = useCallback((partIds) => {
+    setSelectedRows((prev) => {
+      if (!partIds.some((id) => prev.has(id))) return prev;
+      const next = new Map(prev);
+      partIds.forEach((id) => next.delete(id));
+      return next;
+    });
+  }, []);
+
+  const handleRowsUpdated = useCallback(
+    (spareParts = []) => {
+      modelState.updateRow(spareParts);
+
+      const batched = spareParts
+        .filter((row) => row?.changeParts?.batchId)
+        .map((row) => row.changeParts._id);
+      if (!batched.length) return;
+
+      if (showOnlySelected)
+        batched.forEach((id) => batchedWhileOnL2Ref.current.add(id));
+      else dropFromSelection(batched);
+    },
+    [modelState.updateRow, showOnlySelected, dropFromSelection],
+  );
+
+  const handleToggleL2Sheet = useCallback(() => {
+    setShowOnlySelected((prev) => {
+      if (prev) {
+        setMode("View");
+        dropFromSelection([...batchedWhileOnL2Ref.current]);
+        batchedWhileOnL2Ref.current = new Set();
+      }
+      return !prev;
+    });
+  }, [dropFromSelection]);
+
   const handleSelectOtherFilters = useCallback(
     (next) =>
       setOtherSelectedFilters((prev) => ({
@@ -386,7 +396,6 @@ const OrderTrackingDashboard = memo((props) => {
   const otherParentProps = useMemo(
     () => ({
       navigate,
-      handleDelete,
       handleModal,
       mode,
       selectedRows,
@@ -396,7 +405,6 @@ const OrderTrackingDashboard = memo((props) => {
     }),
     [
       navigate,
-      handleDelete,
       handleModal,
       mode,
       selectedRows,
@@ -444,7 +452,6 @@ const OrderTrackingDashboard = memo((props) => {
       "View",
       "PR Link",
       "Edit",
-      "Reject",
       "Request Submitted",
       "Internal Approval",
       "Tool Room Approval",
@@ -487,6 +494,7 @@ const OrderTrackingDashboard = memo((props) => {
       {modelState?.show && (
         <OtherTaskStatusConfiguration
           {...modelState}
+          updateRow={handleRowsUpdated}
           selectedRows={selectedRows}
           handleModal={handleModal}
         />
@@ -496,12 +504,7 @@ const OrderTrackingDashboard = memo((props) => {
         <button
           disabled={selectedRows.size === 0}
           className="btn bg-success"
-          onClick={() =>
-            setShowOnlySelected((prev) => {
-              if (prev) setMode("View");
-              return !prev;
-            })
-          }
+          onClick={handleToggleL2Sheet}
         >
           {showOnlySelected
             ? "Back to L1 sheet"

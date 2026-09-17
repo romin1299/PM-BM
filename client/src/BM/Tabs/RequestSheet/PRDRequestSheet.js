@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Row, Col, Form, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Table } from "react-bootstrap";
+import axios from "axios";
 
 import moment from "moment-timezone";
-import { ToastContainer } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { SuccessToast, WarningToast } from "../../Component/ShowTostify";
 import RoutingContext from "../../../context/routing/RoutingContext";
@@ -17,6 +17,9 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   const navigate = useNavigate();
   const { machine_code, selectedYear } = useParams();
   const context = useContext(RoutingContext);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [plantShiftsData, setPlantShiftsData] = useState([]);
 
   const {
     register,
@@ -30,15 +33,23 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   } = useForm({
     defaultValues: {
       problemOccurredDateAndTimeOfBM: moment(new Date()).format(
-        "YYYY-MM-DDTHH:mm"
+        "YYYY-MM-DDTHH:mm",
       ),
       sheetIssuedDateAndTimeOfBM: moment(new Date()).format("YYYY-MM-DDTHH:mm"),
     },
   });
 
   const newRequestSheetRegistration = async (requestSheetData) => {
+    // const machineRef = "63b67ccea716e21c95cd471a";
+    // requestSheetData.maintenanceType = selectedMaintenanceType;
+    // requestSheetData.priorityCode = selectedPriorityCode;
+    // requestSheetData.qualityRelated = selectedQuality;
+    // requestSheetData.shiftOfBM = selectedShift;
+    setIsLoading(true);
+
     try {
       if (errors?.["problemFaced"]) {
+        setIsLoading(false);
         return;
       }
 
@@ -59,7 +70,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
       ) {
         formData.append(
           "attachedImagesOrVideoByPRDUser",
-          requestSheetData?.attachedImagesOrVideoByPRDUser[i]
+          requestSheetData?.attachedImagesOrVideoByPRDUser[i],
         );
       }
 
@@ -70,7 +81,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await res.json();
@@ -85,7 +96,77 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
     } catch (error) {
       console.log(error);
     }
+    setIsLoading(false);
   };
+
+  const timezone = "Asia/Kolkata";
+  const startedDate = moment().tz(timezone).month() + 1;
+
+  let sheetIssuedTime = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  // console.log("watch", defaultValues);
+  // const momentTime = moment(sheetIssuedTime, "HH:mm");
+  const problemOccurredDateAndTimeOfBM = watch(
+    "problemOccurredDateAndTimeOfBM",
+  );
+  const [date, time] = problemOccurredDateAndTimeOfBM.split("T");
+  const momentTime = moment(time, "HH:mm");
+
+  useEffect(() => {
+    const getCurrentShiftName = () => {
+      for (let shiftInfo of plantShiftsData) {
+        const startTime = moment(shiftInfo.shiftStartTime, "HH:mm");
+        const endTime = moment(shiftInfo.shiftEndTime, "HH:mm");
+
+        // if (
+        //   momentTime > moment(shiftInfo?.shiftStartTime, "HH:mm") &&
+        //   momentTime < moment(shiftInfo?.shiftEndTime, "HH:mm")
+        // )
+
+        if (endTime.isBefore(startTime)) {
+          if (
+            momentTime.isSameOrAfter(startTime) ||
+            momentTime.isSameOrBefore(endTime)
+          ) {
+            return shiftInfo.shiftName;
+          }
+        } else {
+          if (momentTime.isBetween(startTime, endTime)) {
+            return shiftInfo.shiftName;
+          }
+        }
+      }
+
+      return "";
+    };
+
+    setValue("shiftOfBM", getCurrentShiftName());
+  }, [problemOccurredDateAndTimeOfBM, plantShiftsData]);
+
+  React.useEffect(() => {
+    const fetchShiftData = async () => {
+      const url = "/getAllShifts";
+
+      try {
+        const res = await axios.get(url, {
+          withCredentials: true,
+          credentials: "include",
+        });
+
+        // console.log("fetch shifts res:", res);
+        setPlantShiftsData(res?.data?.getShifts);
+      } catch (error) {
+        console.log("error:", error);
+      }
+    };
+
+    fetchShiftData();
+  }, []);
 
   const handleBack = () => {
     navigate("/bm", { replace: true });
@@ -94,7 +175,6 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
   const isEnable = selectedMachineDetails?.machine_problems_faced?.length > 0;
   return (
     <>
-      {/* <ToastContainer /> */}
       <form onSubmit={handleSubmit(newRequestSheetRegistration)}>
         <Table className="m-0">
           <tbody className="m-1 border p-3">
@@ -114,10 +194,12 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                         className="btn bg-button"
                         onClick={(e) => {
                           e.preventDefault();
-
+                          // navigate(
+                          //   `/machine-history/${machine_code}/${selectedYear}/?machineId=${machineId}`
+                          // );
                           window.open(
                             `/machine-history/${machine_code}/${selectedYear}/?machineId=${selectedMachineDetails?._id}`,
-                            "_blank"
+                            "_blank",
                           );
                         }}
                       >
@@ -141,7 +223,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                           bodyText1={
                             machineStatus?.bmStatusData?.totalHours &&
                             `${(machineStatus?.bmStatusData?.totalHours).toFixed(
-                              1
+                              1,
                             )} Hrs./${machineStatus?.bmStatusData?.count} Count`
                           }
                         />
@@ -330,7 +412,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                                   onChange: (event) =>
                                     setValue(
                                       "problemOccurredDateAndTimeOfBM",
-                                      event.target.value
+                                      event.target.value,
                                     ),
                                 })}
                               />
@@ -446,7 +528,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                             {selectedMachineDetails?.machine_problems_faced?.map(
                               (problem, index) => {
                                 return <option key={index}>{problem}</option>;
-                              }
+                              },
                             )}
                             <option
                               key={
@@ -485,7 +567,8 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                   <Col lg={5}>
                     <p className="mb-0 pt-1" style={{ fontSize: "12px" }}>
                       <b>
-                        PRD OBSERVATION FOR THIS PROBLEM BASED ON (5WHY-1HOW){" "}
+                        PRD OBSERVATION FOR THIS PROBLEM BASED ON
+                        (5WHY-1HOW){" "}
                       </b>
                     </p>
                   </Col>
@@ -685,7 +768,7 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
                             e.target.files,
                             {
                               shouldDirty: true,
-                            }
+                            },
                           );
                           clearErrors("attachedImagesOrVideoByPRDUser");
                         }}
@@ -698,23 +781,27 @@ function MyTable({ selectedMachineDetails, machineStatus }) {
 
             <tr>
               <td>
-                <button
-                  type="submit"
-                  className="btn bg-success"
-                  onClick={() => {
-                    if (
-                      !watch("problemFaced") &&
-                      !watch("select_problemFaced")
-                    ) {
-                      return setError("error_problemFaced", {
-                        type: "custom",
-                        message: "Please fill or select this field",
-                      });
-                    }
-                  }}
-                >
-                  Submit Request-Sheet
-                </button>
+                {isLoading ? (
+                  <h6>Loading....</h6>
+                ) : (
+                  <button
+                    type="submit"
+                    className="btn bg-success"
+                    onClick={() => {
+                      if (
+                        !watch("problemFaced") &&
+                        !watch("select_problemFaced")
+                      ) {
+                        return setError("error_problemFaced", {
+                          type: "custom",
+                          message: "Please fill or select this field",
+                        });
+                      }
+                    }}
+                  >
+                    Submit Request-Sheet
+                  </button>
+                )}
               </td>
             </tr>
           </tbody>

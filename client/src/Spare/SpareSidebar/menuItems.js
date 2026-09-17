@@ -10,7 +10,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import DescriptionIcon from "@mui/icons-material/Description";
 import AddCardIcon from "@mui/icons-material/AddCard";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-// import AssessmentIcon from "@mui/icons-material/Assessment";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import ControlPointIcon from "@mui/icons-material/ControlPoint";
 import PageviewIcon from "@mui/icons-material/Pageview";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
@@ -191,14 +191,15 @@ export const menuItems = [
     route: "/spare/spareBudgetDashboard",
     allowedRoles: allusers,
   },
-  // {
-  //   title: "Spare Reports",
-  //   icon: (
-  //     <AssessmentIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-  //   ),
-  //   route: "/spare/spareReports",
-  //   allowedRoles: allusers,
-  // },
+  {
+    // Every downloadable KPI chart in one table, each with its own filter dialog.
+    title: "Spare Reports",
+    icon: (
+      <AssessmentIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/spareReports",
+    allowedRoles: allusers,
+  },
   {
     title: "Approval / Lead time / currency Configuration",
     icon: (

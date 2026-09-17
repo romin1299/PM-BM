@@ -1,6 +1,5 @@
 import Footer from "../../components/Footer/Footer";
 import {
-  React,
   useEffect,
   useState,
   MaterialTable,

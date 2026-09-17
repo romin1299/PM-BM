@@ -17,6 +17,11 @@ const NON_NEGATIVE_NUMERIC_FIELDS = [
 
 const columnFor = (canonical) => SPARE_MASTER_COLUMNS[canonical]?.aliases?.[0] ?? canonical;
 
+/** Date columns; each lands on the master under its own canonical name. */
+const DATE_FIELDS = ["createDate", "changeDate", "lastIssuedDate", "previousIssuedDate"];
+
+const isBlank = (value) => value === null || value === undefined || String(value).trim() === "";
+
 const validateRow = ({ excelRow, document, costDetails, currency, raw }) => {
   const errors = [];
   const warnings = [];
@@ -35,6 +40,14 @@ const validateRow = ({ excelRow, document, costDetails, currency, raw }) => {
 
   if (!document.partName)
     fail(columnFor("partName"), raw.partName, "Part name is required");
+
+  // A date that was written but could not be read would otherwise be dropped
+  // without a trace, and CreateDate decides the master's place in the id sequence.
+  DATE_FIELDS.forEach((canonical) => {
+    if (!isBlank(raw[canonical]) && !document[canonical])
+      warn(columnFor(canonical), raw[canonical],
+        "Date could not be read (expected e.g. 17-05-2025 08:28:00 or 17-05-2025); it was left blank");
+  });
 
   NON_NEGATIVE_NUMERIC_FIELDS.forEach(({ field, column }) => {
     const value = document[field];

@@ -82,22 +82,54 @@ const userSchema = new mongoose.Schema({
     default: "No",
   },
 
-  plant_ref_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Plants",
+  toolRoomPerson: {
+    type: String,
+    default: "No",
   },
-  section_ref_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Sections",
+
+  plant: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plants",
+    },
+    plant_name: {
+      type: String,
+    },
   },
-  subSection_ref_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "SubSections",
+  section: {
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Sections",
+    },
+    section_name: {
+      type: String,
+    },
+    dashboardLevel: {
+      type: String,
+    },
   },
-  cell_ref_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Cells",
-  },
+  subSection: [
+    {
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SubSections",
+      },
+      subSection_name: {
+        type: String,
+      },
+    },
+  ],
+  cell: [
+    {
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Cells",
+      },
+      cell_name: {
+        type: String,
+      },
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {

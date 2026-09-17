@@ -27,6 +27,10 @@ const Line = require("../../model/lineSchema");
 const Machine = require("../../model/machineSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 const SpareMaster = require("../../model/spareMasterSchema");
+const {
+  syncSheetDrawingsToMasters,
+  removeDrawingFileIfUnreferenced,
+} = require("../../services/spare/masterDrawingService");
 
 const partFields = new Set([
   "rsPartReceive",
@@ -590,6 +594,11 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
   const spare = new RequestSheetOfSpare(data);
   await spare.save();
 
+  // A drawing attached to a part belongs to the part's master as well. Parts
+  // raised against an existing master (re-orders) carry it across now; a new
+  // part's drawings follow when its master is registered.
+  await syncSheetDrawingsToMasters(spare);
+
   return res.status(201).json({
     message,
     showToast: true,
@@ -662,6 +671,13 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
         data["rsToolroomApprovalTimeStamp"] = generateTimeStampWithBothFormat();
     }
 
+    /**
+     * The decision is recorded on the approver's own slot, so the sheet itself
+     * shows who accepted, who rejected and who never got to see it. Slots are
+     * never cleared: a rejection is final, and the chain as it stood is the
+     * record. Written as an object when the client posted the slot, else as
+     * child paths — never both ways for one slot, which MongoDB would refuse.
+     */
     if (data?.[key]) {
       data[key].approvalStatus = approvalStatus;
       data[key].approvalDateAndTime = approvalDateAndTime;
@@ -703,24 +719,15 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
           spareApprovalStatus[spareApprovalStatus?.length - 1];
       }
     } else {
-      // Rejected sheets carry their own status so the requester can see what
-      // happened, but are otherwise identical to "Generated": the chain is
-      // cleared and the sheet is theirs to edit and re-submit.
+      /**
+       * A rejection ends the sheet. Nothing further is pending, the remaining
+       * chain is dropped, and isSpareSheetSendForApproval stays true so the
+       * sheet is never offered for approval selection again. The approvers who
+       * had already accepted keep their slots for the record.
+       */
       data["pendingApprovalBy"] = null;
       data["requestSheetStatus"] = spareRejectedStatus;
       data["dynamicApprovalKeys"] = [];
-      data["isSpareSheetSendForApproval"] = false;
-
-      // Clear every approver slot, not only the ones after the rejection.
-      // The requester re-picks the whole chain from the start, and a slot left
-      // holding its previous user would render pre-filled, so the form would
-      // never mark it dirty, never send it back, and the re-submit would fail
-      // with "Please select all the approvals".
-      // mtdHODApprovalIfBudgetIsNG is deliberately untouched: it is a separate
-      // budget gate, not part of the approval chain being restarted.
-      Object.values(hooksFormReferenceOfApproval).forEach(({ approvalKey }) => {
-        data[approvalKey] = null;
-      });
     }
   }
 
@@ -757,7 +764,9 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
    * here is delete the files themselves.
    *
    * Only files this sheet actually holds are unlinked, so a crafted request
-   * cannot reach anything else in the documents folder.
+   * cannot reach anything else in the documents folder. A drawing the part's
+   * master also holds stays on disk: dropping it from the sheet does not drop
+   * it from the master, and the master's link must keep working.
    */
   if (req.body?.removedAttachmentFiles) {
     const removedAttachmentFiles = new Set(
@@ -773,9 +782,12 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
         .forEach((filename) => ownedFileNames.add(filename));
     });
 
-    removedAttachmentFiles.forEach((filename) => {
-      if (ownedFileNames.has(filename)) handleRemoveFile(filename);
-    });
+    for (const filename of removedAttachmentFiles) {
+      if (ownedFileNames.has(filename))
+        await removeDrawingFileIfUnreferenced(filename, {
+          except: { sheetId: spare._id },
+        });
+    }
   }
 
   const { budget } = data;
@@ -820,6 +832,9 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
   spare = await RequestSheetOfSpare.findOneAndUpdate(req.query, data, {
     new: true,
   });
+
+  // Newly attached drawings reach the parts' masters; see registration.
+  await syncSheetDrawingsToMasters(spare);
 
   return res.status(201).json({
     message: "Spare sheet updated successfully",
@@ -1005,89 +1020,123 @@ exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
       {
         ...partArrayFilter,
         new: true,
+        // Change-parts are keyed by _id; matching on a "partId" field returned
+        // nothing, which left quantityRequired undefined and the "more than
+        // required" check below never firing.
         projection: {
-          changeParts: { $elemMatch: { partId } },
+          changeParts: { $elemMatch: { _id: partId } },
         },
       },
     );
 
     if (requestedField === "rsPartReceive") {
-      const existingCostDetails = await getCostDetailsBasedOnPartId({
-        masterId,
-        partId,
-      });
+      const part = spareSheet?.changeParts?.[0];
+      const receivedNow = req.body?.formValue?.costDetails?.quantity * 1 || 0;
+      const overRequired = (total) =>
+        res.status(400).json({
+          message: `You can't add more then required qty (required ${part?.quantityRequired ?? "?"}, would be ${total})`,
+          showToast: true,
+        });
 
-      if (!existingCostDetails) {
-        if (
-          spareSheet?.changeParts?.[0]?.quantityRequired <
-          req.body?.formValue?.costDetails?.quantity * 1
-        )
-          return res.status(400).json({
-            message: "You can't add more then required qty",
-            showToast: true,
-          });
+      /**
+       * A "For use" part has no master to carry a cost tranche — it is consumed
+       * on the machine, not stocked — so its receipt is kept on the part
+       * itself, accumulating quantity with the unit cost fixed by the first
+       * receipt, exactly as the master tranche does for a stock-in part.
+       */
+      if (!masterId) {
+        // Mongoose hands back the nested path as an empty object before any
+        // receipt, so "existing" means a quantity has actually been recorded.
+        const existing = part?.receivedDetails?.quantity
+          ? part.receivedDetails
+          : null;
+        const quantity = (existing?.quantity || 0) + receivedNow;
 
-        await SpareMaster.updateOne(
-          { _id: masterId },
+        if (part?.quantityRequired < quantity) return overRequired(quantity);
+
+        const costInINR = existing
+          ? existing.costInINR || 0
+          : req.body?.formValue?.costDetails?.costInINR * 1 || 0;
+
+        await RequestSheetOfSpare.updateOne(
+          { _id, "changeParts._id": partId },
           {
-            $push: {
-              costDetails: {
-                partId,
-                quantity: req.body?.formValue?.costDetails?.quantity * 1,
-                currencyUnit:
-                  req.body?.formValue?.costDetails?.currencyUnit || "INR",
-                cost: req.body?.formValue?.costDetails?.cost || 0,
-                costInINR: req.body?.formValue?.costDetails?.costInINR || 0,
-                issuedQty: 0,
-                issuedCost: 0,
-                balanceQty:
-                  spareSheet?.changeParts?.[0]?.quantityRequired -
-                  req.body?.formValue?.costDetails?.quantity * 1,
-                availableQty: req.body?.formValue?.costDetails?.quantity * 1,
-                overAllCost:
-                  req.body?.formValue?.costDetails?.quantity *
-                  1 *
-                  (req.body?.formValue?.costDetails?.costInINR || 0),
+            $set: {
+              "changeParts.$.receivedDetails": {
+                quantity,
+                currencyUnit: existing
+                  ? existing.currencyUnit || "INR"
+                  : req.body?.formValue?.costDetails?.currencyUnit || "INR",
+                cost: existing
+                  ? existing.cost || 0
+                  : req.body?.formValue?.costDetails?.cost * 1 || 0,
+                costInINR,
+                balanceQty: (part?.quantityRequired ?? 0) - quantity,
+                overAllCost: quantity * costInINR,
               },
             },
           },
         );
       } else {
-        const availableQty =
-          (existingCostDetails?.availableQty || 0) +
-          (req.body?.formValue?.costDetails?.quantity * 1 || 0);
+        const existingCostDetails = await getCostDetailsBasedOnPartId({
+          masterId,
+          partId,
+        });
 
-        const quantity =
-          existingCostDetails?.quantity +
-            req.body?.formValue?.costDetails?.quantity * 1 || 0;
+        if (!existingCostDetails) {
+          if (part?.quantityRequired < receivedNow) return overRequired(receivedNow);
 
-        if (spareSheet?.changeParts?.[0]?.quantityRequired < quantity)
-          return res.status(400).json({
-            message: "You can't add more then required qty",
-            showToast: true,
-          });
-
-        await SpareMaster.updateOne(
-          { _id: masterId, "costDetails.partId": partId },
-          {
-            $set: {
-              "costDetails.$": {
-                partId,
-                quantity,
-                currencyUnit: existingCostDetails?.currencyUnit || "INR",
-                cost: existingCostDetails?.cost || 0,
-                costInINR: existingCostDetails?.costInINR || 0,
-                issuedQty: existingCostDetails?.issuedQty || 0,
-                issuedCost: existingCostDetails?.issuedCost || 0,
-                balanceQty:
-                  spareSheet?.changeParts?.[0]?.quantityRequired - quantity,
-                availableQty,
-                overAllCost:
-                  availableQty * (existingCostDetails?.costInINR || 0),
+          await SpareMaster.updateOne(
+            { _id: masterId },
+            {
+              $push: {
+                costDetails: {
+                  partId,
+                  quantity: receivedNow,
+                  currencyUnit:
+                    req.body?.formValue?.costDetails?.currencyUnit || "INR",
+                  cost: req.body?.formValue?.costDetails?.cost || 0,
+                  costInINR: req.body?.formValue?.costDetails?.costInINR || 0,
+                  issuedQty: 0,
+                  issuedCost: 0,
+                  balanceQty: part?.quantityRequired - receivedNow,
+                  availableQty: receivedNow,
+                  overAllCost:
+                    receivedNow *
+                    (req.body?.formValue?.costDetails?.costInINR || 0),
+                },
               },
             },
-          },
-        );
+          );
+        } else {
+          const availableQty =
+            (existingCostDetails?.availableQty || 0) + receivedNow;
+
+          const quantity = (existingCostDetails?.quantity || 0) + receivedNow;
+
+          if (part?.quantityRequired < quantity) return overRequired(quantity);
+
+          await SpareMaster.updateOne(
+            { _id: masterId, "costDetails.partId": partId },
+            {
+              $set: {
+                "costDetails.$": {
+                  partId,
+                  quantity,
+                  currencyUnit: existingCostDetails?.currencyUnit || "INR",
+                  cost: existingCostDetails?.cost || 0,
+                  costInINR: existingCostDetails?.costInINR || 0,
+                  issuedQty: existingCostDetails?.issuedQty || 0,
+                  issuedCost: existingCostDetails?.issuedCost || 0,
+                  balanceQty: part?.quantityRequired - quantity,
+                  availableQty,
+                  overAllCost:
+                    availableQty * (existingCostDetails?.costInINR || 0),
+                },
+              },
+            },
+          );
+        }
       }
     }
   } else
@@ -1231,8 +1280,10 @@ exports.getManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
     [`${requestedField}Remarks`]: `$changePart.${requestedField}Remarks`,
   };
 
-  if (requestedField === "rsPartReceive")
+  if (requestedField === "rsPartReceive") {
     $project["changePart.quantityRequired"] = 1;
+    $project["changePart.receivedDetails"] = 1;
+  }
 
   let spare = await RequestSheetOfSpare.aggregate([
     {
@@ -1272,7 +1323,13 @@ exports.getManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
   spare = spare?.[0];
 
   if (requestedField === "rsPartReceive") {
-    const costDetails = await getCostDetailsBasedOnPartId({ masterId, partId });
+    // A stock-in part's receipts sit on its master; a "For use" part keeps them
+    // on the part itself. Either way the popup shows what has come in so far.
+    const costDetails = masterId
+      ? await getCostDetailsBasedOnPartId({ masterId, partId })
+      : spare?.changePart?.receivedDetails?.quantity
+        ? spare.changePart.receivedDetails
+        : null;
     if (!costDetails) spare["disableFieldAfterOneTimeConfiguration"] = false;
     else {
       spare["disableFieldAfterOneTimeConfiguration"] = true;

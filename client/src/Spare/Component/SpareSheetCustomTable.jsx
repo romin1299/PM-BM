@@ -71,6 +71,21 @@ const SpareSheetCustomTable = ({
   const isFetchingRef = useRef(false);
   const hasMoreRef = useRef(true);
 
+  /**
+   * Which list the table is currently loading. A filter change (or the second
+   * mount that StrictMode performs in development) restarts the list while a
+   * request for the previous one can still be in flight; when that older
+   * response lands it must be dropped, not appended. Appending it put the same
+   * rows in twice, and duplicate keys left React unable to reconcile the rows —
+   * ticks landed on the wrong rows and the L2 sheet showed a half-updated list.
+   */
+  const listVersionRef = useRef(0);
+
+  // Read through a ref so a caller passing an inline rowKey does not rebuild
+  // fetchData — and with it the observer — on every render.
+  const rowKeyRef = useRef(rowKey);
+  rowKeyRef.current = rowKey;
+
   const [data, setData] = useState({
     isLoading: false,
     hasMore: true,
@@ -102,6 +117,8 @@ const SpareSheetCustomTable = ({
     isFetchingRef.current = true;
     setData((prev) => ({ ...prev, isLoading: true }));
 
+    const listVersion = listVersionRef.current;
+
     const response = await axiosGetOrDelete({
       url,
       axiosProps: {
@@ -111,6 +128,10 @@ const SpareSheetCustomTable = ({
         },
       },
     });
+
+    // The list was restarted while this request was out: its guards and cursor
+    // now belong to the newer request, so touch nothing.
+    if (listVersion !== listVersionRef.current) return;
 
     const { isError, tableData, hasMore, nextCursor } = response;
 
@@ -133,14 +154,24 @@ const SpareSheetCustomTable = ({
      */
     const canContinue = Boolean(hasMore) && Boolean(nextCursor) && rows.length > 0;
 
-    setData((prev) => ({
+    setData((prev) => {
+      if (!cursorRef.current)
+        return { tableData: rows, hasMore: canContinue, isLoading: false };
+
       // Appended in full: capping the list dropped rows off the top, which held
       // the sentinel at the foot of an unchanged scroll height and started the
-      // whole cycle again.
-      tableData: cursorRef.current ? [...prev.tableData, ...rows] : rows,
-      hasMore: canContinue,
-      isLoading: false,
-    }));
+      // whole cycle again. Rows already listed are skipped — a row must appear
+      // once whatever the server paged back.
+      const listed = new Set(prev.tableData.map(rowKeyRef.current));
+      return {
+        tableData: [
+          ...prev.tableData,
+          ...rows.filter((row) => !listed.has(rowKeyRef.current(row))),
+        ],
+        hasMore: canContinue,
+        isLoading: false,
+      };
+    });
 
     if (canContinue) cursorRef.current = nextCursor;
     hasMoreRef.current = canContinue;
@@ -148,6 +179,7 @@ const SpareSheetCustomTable = ({
   }, [url, apiReferencePropsBasedOnFilters?.params, onPageLoaded]);
 
   useEffect(() => {
+    listVersionRef.current += 1;
     cursorRef.current = null;
     isFetchingRef.current = false;
     hasMoreRef.current = true;
@@ -162,6 +194,13 @@ const SpareSheetCustomTable = ({
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
 
+    /**
+     * No paging while only the selected rows are shown: the short list leaves
+     * the sentinel permanently in view, and the L2 sheet can only ever contain
+     * rows the reader has already selected, so there is nothing to page for.
+     */
+    if (showOnlySelected) return undefined;
+
     observerRef.current = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && data?.hasMore) {
@@ -175,7 +214,7 @@ const SpareSheetCustomTable = ({
 
     if (sentinelRef.current) observerRef.current.observe(sentinelRef.current);
     return () => observerRef.current?.disconnect();
-  }, [data?.hasMore, fetchData]);
+  }, [data?.hasMore, fetchData, showOnlySelected]);
 
   const updateRow = useCallback((spareParts = []) => {
     if (!spareParts.length) return;
@@ -188,11 +227,15 @@ const SpareSheetCustomTable = ({
         ),
       }));
 
-    const partsMap = new Map(
-      spareParts.map((item) => [item?.changeParts?._id, item]),
-    );
-
     setData((prev) => {
+      /**
+       * Built inside the updater because the updater consumes it: React may run
+       * an updater more than once, and a map emptied by the first run made the
+       * second run see every part as new and append the whole batch again.
+       */
+      const partsMap = new Map(
+        spareParts.map((item) => [item?.changeParts?._id, item]),
+      );
       let hasChange = false;
 
       const nextTableData = prev.tableData.map((row) => {
@@ -239,7 +282,7 @@ const SpareSheetCustomTable = ({
           </tr>
         </thead>
         <tbody>
-          {visibleRows?.map((otherData) => (
+          {visibleRows?.map((otherData, index) => (
             <tr
               className="ar-table-thead-header4 tableRowColor"
               key={rowKey(otherData)}
@@ -247,6 +290,8 @@ const SpareSheetCustomTable = ({
               {OtherComp && (
                 <OtherComp
                   otherData={otherData}
+                  // 1-based position in the list as shown, for a serial column.
+                  rowIndex={index + 1}
                   {...otherParentProps}
                   removeRow={removeRow}
                   updateRow={updateRow}
@@ -274,7 +319,7 @@ const SpareSheetCustomTable = ({
                   justifyContent: "center",
                 }}
               >
-                {data?.isLoading && visibleRows?.length > 0 && (
+                {data?.isLoading && !showOnlySelected && visibleRows?.length > 0 && (
                   <small className="text-muted">Loading more…</small>
                 )}
               </div>

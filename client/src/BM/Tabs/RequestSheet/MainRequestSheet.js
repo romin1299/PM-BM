@@ -10,7 +10,6 @@ function MyTable() {
 
   const { machine_code, generateType, selectedYear } = useParams();
   const [selectedMachineDetails, setMachineDetails] = useState("");
-  const [approvalListOfBM, setApprovalListOfBM] = useState([]);
 
   const [machineStatus, setMachineStatus] = useState({
     pmStatusData: "",
@@ -37,15 +36,9 @@ function MyTable() {
           navigate("/bm/generateRequestSheetMainDashboard", { replace: true });
         }
       } else {
-        const {
-          machine,
-          requestSheetApprovalList,
-          pmStatusData,
-          bmStatusData,
-        } = await res.json();
+        const { machine, pmStatusData, bmStatusData } = await res.json();
 
         setMachineDetails(machine);
-        setApprovalListOfBM(requestSheetApprovalList);
         setMachineStatus({
           bmStatusData,
           pmStatusData,

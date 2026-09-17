@@ -16,20 +16,91 @@ const EXCEL_EPOCH_OFFSET_DAYS = 25569; // days between 1899-12-30 and 1970-01-01
 const MS_PER_DAY = 86400000;
 
 /**
+ * Text dates as the legacy export writes them: "17-05-2025 08:28:00",
+ * "17-05-2025", "17/05/2025 08:28", optionally with AM/PM; year-first
+ * "2025-05-17 08:28:00" is accepted too. Read in the server's local time, which
+ * is the time the export shows.
+ */
+const TIME_PART = String.raw`(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AP]M)?)?`;
+const DAY_FIRST = new RegExp(String.raw`^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})${TIME_PART}$`, "i");
+const YEAR_FIRST = new RegExp(String.raw`^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})${TIME_PART}$`, "i");
+
+const buildLocalDate = ({ year, month, day, hour = 0, minute = 0, second = 0, meridiem }) => {
+  let hours = hour;
+  if (meridiem) {
+    if (hours < 1 || hours > 12) return null;
+    hours = (hours % 12) + (meridiem.toUpperCase() === "PM" ? 12 : 0);
+  }
+
+  const date = new Date(year, month - 1, day, hours, minute, second);
+  // A rolled-over date ("31-02-2025" becoming 3 March) is rejected, not kept.
+  const intact =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day &&
+    date.getHours() === hours &&
+    date.getMinutes() === minute &&
+    date.getSeconds() === second;
+  return intact ? date : null;
+};
+
+const parseTextDate = (text) => {
+  const num = (part) => (part === undefined ? undefined : Number(part));
+
+  const dayFirst = text.match(DAY_FIRST);
+  if (dayFirst) {
+    const [, a, b, year, hour, minute, second, meridiem] = dayFirst;
+    const time = { year: num(year), hour: num(hour), minute: num(minute), second: num(second), meridiem };
+    // Day first, as the export writes it; month first only when that cannot be
+    // what was meant (a "month" above 12).
+    return (
+      buildLocalDate({ ...time, day: num(a), month: num(b) }) ??
+      buildLocalDate({ ...time, day: num(b), month: num(a) })
+    );
+  }
+
+  const yearFirst = text.match(YEAR_FIRST);
+  if (yearFirst) {
+    const [, year, month, day, hour, minute, second, meridiem] = yearFirst;
+    return buildLocalDate({
+      year: num(year), month: num(month), day: num(day),
+      hour: num(hour), minute: num(minute), second: num(second), meridiem,
+    });
+  }
+
+  const iso = moment(text, moment.ISO_8601, true);
+  return iso.isValid() ? iso.toDate() : null;
+};
+
+/**
+ * Excel has no time zone: a cell holding "06-05-2013 14:17" is handed over as
+ * 14:17 UTC. Re-read as 14:17 local so what is stored — and shown back in
+ * dateTime.inString — is the time the sheet shows, the same as a text date.
+ */
+const fromExcelWallTime = (date) =>
+  new Date(
+    date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
+    date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(),
+  );
+
+/**
  * The streaming reader returns dates as raw Excel serials where the buffered
- * reader would have returned Date objects, so both shapes have to be accepted.
+ * reader would have returned Date objects, and a column typed as text in the
+ * source arrives as a string, so all three shapes have to be accepted.
  */
 const toDate = (value) => {
   if (value === null || value === undefined || value === "") return null;
-  if (value instanceof Date) return value;
+  if (value instanceof Date) return fromExcelWallTime(value);
 
   if (typeof value === "number") {
     if (!Number.isFinite(value) || value <= 0) return null;
-    return new Date(Math.round((value - EXCEL_EPOCH_OFFSET_DAYS) * MS_PER_DAY));
+    return fromExcelWallTime(
+      new Date(Math.round((value - EXCEL_EPOCH_OFFSET_DAYS) * MS_PER_DAY)),
+    );
   }
 
-  const parsed = moment(value, [moment.ISO_8601, "DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"], true);
-  return parsed.isValid() ? parsed.toDate() : null;
+  const text = String(value).trim();
+  return text ? parseTextDate(text) : null;
 };
 
 const toNumber = (value) => {
@@ -75,7 +146,9 @@ const buildOpeningCostTranche = (raw) => {
 /**
  * Canonical field -> master field, grouped by the conversion each needs. Kept as
  * data so a newly mapped column is added in one line here rather than another
- * hand-written assignment in the document literal below.
+ * hand-written assignment in the document literal below. Every column in
+ * columnMapping lands somewhere: these lists, costDetails[0], the machine block,
+ * or legacyRef.
  */
 const TEXT_FIELDS = [
   "partNumber",
@@ -100,9 +173,10 @@ const NUMBER_FIELDS = [
   "orderQty",
   "totalIssuedQty",
   "secondaryTotalIssuedQty",
+  "currencyRate",
 ];
 
-const DATE_FIELDS = ["lastIssuedDate", "previousIssuedDate"];
+const DATE_FIELDS = ["createDate", "changeDate", "lastIssuedDate", "previousIssuedDate"];
 
 const LEGACY_TEXT_FIELDS = [
   "supplierCode",
@@ -118,8 +192,6 @@ const LEGACY_TEXT_FIELDS = [
 ];
 
 const LEGACY_NUMBER_FIELDS = ["secondaryUnitPrice", "drawingPrintQty"];
-
-const LEGACY_DATE_FIELDS = ["changedOn"];
 
 const assign = (target, fields, raw, convert) => {
   fields.forEach((field) => {
@@ -146,7 +218,9 @@ const transformRow = ({ raw, references }) => {
   const legacyRef = {};
   assign(legacyRef, LEGACY_TEXT_FIELDS, raw, toText);
   assign(legacyRef, LEGACY_NUMBER_FIELDS, raw, toNumber);
-  assign(legacyRef, LEGACY_DATE_FIELDS, raw, toDate);
+  // The source's machine columns as written, independent of resolution.
+  if (machineName) legacyRef.machineName = machineName;
+  if (equipmentCodes.length) legacyRef.equipmentCodes = equipmentCodes;
   if (Object.keys(legacyRef).length) document.legacyRef = legacyRef;
 
   // Equipment2 / Equipment3 are recorded as codes only and never resolved — a
@@ -180,7 +254,7 @@ const transformRow = ({ raw, references }) => {
     notes.push({ type: "unresolvedMachine", message: reason });
   }
 
-  const createDate = toDate(raw.createDate);
+  const createDate = document.createDate ?? null;
 
   document.dateTime = {
     inString: moment(createDate ?? undefined).format("YYYY-MM-DDTHH:mm"),
@@ -196,6 +270,12 @@ const transformRow = ({ raw, references }) => {
       currencyRate: toNumber(raw.currencyRate),
     },
     hasMachine: Boolean(machine),
+    // The source's own creation date, null when the cell was blank. The id
+    // sequence is ordered by it, so it is exposed as parsed rather than as the
+    // "now" that dateTime falls back to.
+    createDate,
+    // What the row said about its machine, for the unresolved-machine report.
+    machineSource: { machineName, equipmentCodes },
     notes,
   };
 };

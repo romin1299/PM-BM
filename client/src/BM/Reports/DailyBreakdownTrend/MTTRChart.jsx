@@ -3,7 +3,6 @@ import { Chart } from "react-chartjs-2";
 import { Box, Divider, Paper, Typography } from "@mui/material";
 import { chartColors } from "../../Utils/ChartUtils/chartEnums";
 import { Col, Row } from "react-bootstrap";
-import { CountFilters } from "./DailyBDTrendChart";
 import ChartTitleBar, { ChartDownloadMenu } from "../Common/ChartTitleBar";
 import Loading from "../../../components/Loading/Loading";
 import DataNotFound from "../Common/DataNotFound";
