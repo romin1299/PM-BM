@@ -15,8 +15,9 @@ const lastMovementText = ({ lastMovementDate, hasBeenIssued }) => {
 };
 
 const RowMappingComponent = memo(
-  ({ otherData, popupRef, updateRow, handleModal }) => (
+  ({ otherData, rowIndex, popupRef, updateRow, handleModal }) => (
     <>
+      <td className="td-padding">{rowIndex}</td>
       <td className="td-padding">{otherData?.line?.line_name}</td>
       <td className="td-padding">{otherData?.machine?.machine_name}</td>
       <td className="td-padding">{otherData?.machine?.machine_code}</td>
@@ -105,6 +106,7 @@ const ZeroOrDeadStockParts = ({
         apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
         url={`/v1/spare/kpi/partList`}
         tableHeaders={[
+          "S.No",
           "Line name",
           "Mc name",
           "Mc number",

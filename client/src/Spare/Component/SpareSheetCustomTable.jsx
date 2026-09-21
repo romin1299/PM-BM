@@ -10,6 +10,16 @@ import Loading from "../../components/Loading/Loading";
 
 import { axiosGetOrDelete } from "../Utils/axiosUtils";
 
+/**
+ * How many rows before the foot of the list the next page is requested.
+ * Requesting only once the last row had scrolled into view left the table
+ * looking finished for a moment, with nothing to tell the reader more was
+ * coming; the page now lands while there are still rows left to scroll past.
+ */
+const PREFETCH_ROWS = 5;
+// Used until a row has rendered to measure — the sentinel row's own height.
+const FALLBACK_ROW_HEIGHT = 34;
+
 export const UptoMachineHeaders = ({
   otherData,
   needToIncludeMaker = true,
@@ -107,6 +117,8 @@ const SpareSheetCustomTable = ({
     return data.tableData;
   }, [showOnlySelected, selectedRows, data.tableData]);
 
+  const hasRows = data.tableData.length > 0;
+
   const containerRef = useRef(null);
   const sentinelRef = useRef(null);
   const observerRef = useRef(null);
@@ -201,6 +213,12 @@ const SpareSheetCustomTable = ({
      */
     if (showOnlySelected) return undefined;
 
+    // Measured from a rendered row, since row height depends on the columns a
+    // caller shows and how their text wraps.
+    const rowHeight =
+      containerRef.current?.querySelector("tbody tr")?.getBoundingClientRect()
+        .height || FALLBACK_ROW_HEIGHT;
+
     observerRef.current = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && data?.hasMore) {
@@ -209,12 +227,18 @@ const SpareSheetCustomTable = ({
       },
       {
         root: containerRef.current,
+        // Extends the container's detection box below its visible edge, so the
+        // sentinel counts as in view while PREFETCH_ROWS rows still separate it
+        // from the reader.
+        rootMargin: `0px 0px ${Math.round(rowHeight * PREFETCH_ROWS)}px 0px`,
       },
     );
 
     if (sentinelRef.current) observerRef.current.observe(sentinelRef.current);
     return () => observerRef.current?.disconnect();
-  }, [data?.hasMore, fetchData, showOnlySelected]);
+    // hasRows re-arms the observer once real rows exist to measure; it does
+    // not change again from page to page.
+  }, [data?.hasMore, fetchData, showOnlySelected, hasRows]);
 
   const updateRow = useCallback((spareParts = []) => {
     if (!spareParts.length) return;
