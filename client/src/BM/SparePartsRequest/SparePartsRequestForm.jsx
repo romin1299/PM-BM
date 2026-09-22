@@ -14,6 +14,29 @@ import useSafeGetRequest from "../../CustomHooks/useSafeGetRequest";
 
 const url = "/v1/spare/spareIssuanceSheet";
 
+const refId = (ref) => ref?._id ?? ref ?? null;
+
+/**
+ * The form's machine hierarchy, from a PM/BM/CM request-sheet row. Those rows
+ * carry the hierarchy two ways: cellRef / lineRef / machineRef, which are bare
+ * ObjectIds unless the endpoint populated them, and the display strings line,
+ * machineNo and machineName. The ids are what the server needs to create the
+ * issuance sheet; the names are what the popup shows, so both are taken —
+ * passing the refs alone left the Line and Machine fields blank.
+ */
+export const machineParentHierarchyFromSheet = (row) => ({
+  cell: { _id: refId(row?.cellRef), cell_name: row?.cellRef?.cell_name },
+  line: {
+    _id: refId(row?.lineRef),
+    line_name: row?.lineRef?.line_name ?? row?.line,
+  },
+  machine: {
+    _id: refId(row?.machineRef),
+    machine_code: row?.machineRef?.machine_code ?? row?.machineNo,
+    machine_name: row?.machineRef?.machine_name ?? row?.machineName,
+  },
+});
+
 const ReminderEmailsSelection = ({ register, errors }) => {
   const [{ data, isLoading }] = useSafeGetRequest({
     url: "/v1/spare/approvalUsers",

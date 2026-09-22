@@ -134,10 +134,28 @@ exports.getApprovalLogs = tryCatchHandler(async (req, res, next) => {
 
   if (cursor) matchStage._id = { $lt: mongoose.Types.ObjectId(cursor) };
 
+  /**
+   * One row per part. The page is cut at sheet level first, so the cursor keeps
+   * walking sheets and a sheet's parts are never split across two pages; the
+   * unwind then repeats the sheet's hierarchy and approval columns on each of
+   * its parts. A part carries no part number of its own — that lives on the
+   * master it was raised against — so it is looked up, and stays empty for a
+   * new part that has no master yet.
+   */
   const tableData = await RequestSheetOfSpare.aggregate([
     { $match: matchStage },
     { $sort: { _id: -1 } },
     { $limit: limit },
+    { $unwind: { path: "$changeParts", preserveNullAndEmptyArrays: true } },
+    {
+      $lookup: {
+        from: "sparemasters",
+        localField: "changeParts.masterId",
+        foreignField: "_id",
+        pipeline: [{ $project: { partNumber: 1 } }],
+        as: "master",
+      },
+    },
     {
       $project: {
         requestSheetNo: 1,
@@ -148,6 +166,9 @@ exports.getApprovalLogs = tryCatchHandler(async (req, res, next) => {
         // requestSheetStatus: 1,
         partQty: 1,
         budgetStatus: "$budget.budgetStatus",
+        "changeParts._id": 1,
+        "changeParts.partName": 1,
+        "changeParts.partNumber": { $first: "$master.partNumber" },
 
         mtdHODApprovalIfBudgetIsNGApprovalLogs: 1,
         approvalOfMTD_TLApprovalLogs: 1,
@@ -163,11 +184,15 @@ exports.getApprovalLogs = tryCatchHandler(async (req, res, next) => {
     },
   ]);
 
+  // Rows outnumber sheets after the unwind; the page is full when it holds
+  // `limit` distinct sheets, not `limit` rows.
+  const sheetCount = new Set(tableData.map((row) => String(row._id))).size;
+
   return res.status(200).json({
     message: "Approval logs fetched",
     tableData,
     nextCursor: tableData.length ? tableData[tableData.length - 1]._id : null,
-    hasMore: tableData.length === limit,
+    hasMore: sheetCount === limit,
   });
 });
 

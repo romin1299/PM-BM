@@ -4,12 +4,15 @@ import { saveAs } from "file-saver";
 
 const ExportCSV = ({ url, axiosParams }) => {
   const exportCSV = async () => {
-    const { tableData, fileName } = await axiosGetOrDelete({
+    const { isError, tableData, fileName } = await axiosGetOrDelete({
       url,
       axiosProps: {
         params: axiosParams,
       },
     });
+    // The request helper has already shown the error; an empty list must not
+    // become a file that says "undefined".
+    if (isError || !tableData) return;
     saveAs(
       new Blob([tableData], {
         type: "text/csv;charset=utf-8;",

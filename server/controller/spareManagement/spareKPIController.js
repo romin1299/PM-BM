@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const moment = require("moment");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
+const unparseJSONData = require("../../utils/unparseJSONData");
 
 // const Cell = require("../../model/cellSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
@@ -194,6 +195,16 @@ exports.yearMonthFilter = tryCatchHandler(async (req, res, next) => {
 });
 
 /**
+ * Holding ratio = inventory cost / machine cost x 100, as a percentage to two
+ * decimals. Used by the KPI card and the inventory-trend chart alike, so the
+ * chart's line and its percentage target share one scale.
+ */
+const holdingRatioPercent = (costInINR, machineCost) => {
+  if (!machineCost) return 0;
+  return Number(((costInINR / machineCost) * 100).toFixed(2)) || 0;
+};
+
+/**
  * The inventory as it stands: every master in the catalogue, whatever year it
  * was registered in. It used to be narrowed by the dashboard's FY / month
  * filter, which turned a stock figure into "masters created this year" — a
@@ -244,14 +255,14 @@ exports.getInventorySummery = tryCatchHandler(async (req, res, next) => {
       ID: "MC1",
     });
 
-    // Both sides in rupees: dividing the millions figure by a rupee machine
-    // cost rounded the ratio to 0 every time.
+    // Holding ratio = inventory cost / machine cost x 100, both sides in rupees
+    // (dividing the millions figure by a rupee machine cost rounded to 0).
     counters.push({
-      title: "Holding ratio",
-      value:
-        Number(
-          (overAllCostInINR / machineCostDetails?.machineCost).toFixed(2),
-        ) || 0,
+      title: "Holding ratio (%)",
+      value: holdingRatioPercent(
+        overAllCostInINR,
+        machineCostDetails?.machineCost,
+      ),
     });
   }
   return res.status(201).json({
@@ -580,10 +591,41 @@ exports.getStockLifeTimelineSummery = tryCatchHandler(
 
     return res.status(201).json({
       message: "Data get successfully",
-      counters,
+      counters: foldSlowMovingIntoDeadStock(counters),
     });
   },
 );
+
+/**
+ * The summary cards show three rotation figures — Moving, Slow moving (1 to 5)
+ * and Dead stock — so on the cards anything not moved for over five years is
+ * dead stock. The shared pipeline keeps its 5-to-10 bucket because the charts
+ * and the dead-stock list still split at ten years; only the cards fold it in.
+ */
+const foldSlowMovingIntoDeadStock = (counters) => {
+  const slow = counters.find((c) => c?.value?._id === "5_TO_10");
+  const empty = { masterCount: 0, availableQty: 0, costInINR: 0 };
+
+  return counters
+    .filter((c) => c !== slow)
+    .map((c) => {
+      if (typeof c?.value !== "object") return c;
+      const add = c.value._id === "GRATER_THEN_10" ? slow?.value ?? empty : empty;
+      return {
+        ...c,
+        value: {
+          ...c.value,
+          ...(c.value._id === "GRATER_THEN_10" ? { _id: "GRATER_THEN_5" } : {}),
+          masterCount: (c.value.masterCount ?? 0) + (add.masterCount ?? 0),
+          availableQty: (c.value.availableQty ?? 0) + (add.availableQty ?? 0),
+          // Summed from per-master millions, so the total picks up float noise.
+          costInINR: Number(
+            ((c.value.costInINR ?? 0) + (add.costInINR ?? 0)).toFixed(2),
+          ),
+        },
+      };
+    });
+};
 
 exports.getNewAndStockInSparesOrderingTrend = tryCatchHandler(
   async (req, res, next) => {
@@ -811,10 +853,14 @@ exports.getInventoryTrend = tryCatchHandler(async (req, res, next) => {
         dataWithMonth: {
           $push: {
             month: "$_id.month",
+            // Holding ratio as a percentage; see holdingRatioPercent.
             data: {
               $round: [
                 {
-                  $divide: ["$overAllCostInINR", machineCost],
+                  $multiply: [
+                    { $divide: ["$overAllCostInINR", machineCost] },
+                    100,
+                  ],
                 },
                 2,
               ],
@@ -1401,9 +1447,14 @@ const mastersIssuedSince = async (since) =>
  * whole list. It used to be built on the master's updatedAt, so any edit to a
  * master — or a re-import — made it "moving" again.
  */
-exports.getZeroStockPartList = tryCatchHandler(async (req, res, next) => {
-  const { requestFor } = req.query;
-  const isDeadStock = requestFor === "reasonForKeepingDeadStock";
+const DEAD_STOCK_REQUEST = "reasonForKeepingDeadStock";
+
+/**
+ * The rows of one list, in table order. Shared by the table and its CSV export
+ * so the file always holds exactly what the table shows.
+ */
+const zeroOrDeadStockParts = async ({ requestFor, yearMonthMatch }) => {
+  const isDeadStock = requestFor === DEAD_STOCK_REQUEST;
 
   const projection = {
     budgetDetails: addFieldsForInventoryBifurcation?.budgetDetails,
@@ -1440,13 +1491,20 @@ exports.getZeroStockPartList = tryCatchHandler(async (req, res, next) => {
     ];
   } else {
     pipeline = [
-      { $match: req.$match },
+      { $match: yearMonthMatch },
       { $project: projection },
       { $match: { "budgetDetails.overAllAvailableQty": { $lte: 0 } } },
     ];
   }
 
-  const tableData = await SpareMaster.aggregate(pipeline);
+  return SpareMaster.aggregate(pipeline);
+};
+
+exports.getZeroStockPartList = tryCatchHandler(async (req, res, next) => {
+  const tableData = await zeroOrDeadStockParts({
+    requestFor: req.query.requestFor,
+    yearMonthMatch: req.$match,
+  });
 
   if (tableData?.length <= 0)
     return res.status(404).json({
@@ -1456,6 +1514,58 @@ exports.getZeroStockPartList = tryCatchHandler(async (req, res, next) => {
   return res.status(201).json({
     message: "Data get successfully",
     tableData,
+  });
+});
+
+/**
+ * The same list as CSV, one column per table column. The dead-stock table's
+ * "Last movement" text is reproduced as written on screen.
+ */
+exports.exportZeroStockPartList = tryCatchHandler(async (req, res, next) => {
+  const { requestFor } = req.query;
+  const isDeadStock = requestFor === DEAD_STOCK_REQUEST;
+
+  const tableData = await zeroOrDeadStockParts({
+    requestFor,
+    yearMonthMatch: req.$match,
+  });
+
+  if (tableData?.length <= 0)
+    return res.status(404).json({
+      message: "No data found",
+      showToast: true,
+    });
+
+  const lastMovementText = ({ lastMovementDate: date, hasBeenIssued }) => {
+    if (!date) return "-";
+    const formatted = moment(date).format("DD/MM/YYYY");
+    return hasBeenIssued ? `Issued ${formatted}` : `In stock since ${formatted}`;
+  };
+
+  const rows = tableData.map((row, index) => ({
+    "S.No": index + 1,
+    "Line name": row.line?.line_name ?? "",
+    "Mc name": row.machine?.machine_name ?? "",
+    "Mc number": row.machine?.machine_code ?? "",
+    Location: row.location ?? "",
+    "Part name": row.partName ?? "",
+    "Part model": row.partModel ?? "",
+    "Available Qty": row.budgetDetails?.overAllAvailableQty ?? 0,
+    "Total cost(in INR)": row.budgetDetails?.overAllCostInINR ?? 0,
+    ...(isDeadStock ? { "Last movement": lastMovementText(row) } : {}),
+    [isDeadStock ? "Reason For Keeping" : "Reason For Zero Stock"]:
+      row[`${requestFor}Remarks`] ?? "",
+  }));
+
+  const title = isDeadStock ? "Dead Stock" : "Zero Stock";
+  const period = [req.query.selectedYear, req.query.selectedMonth]
+    .filter(Boolean)
+    .join(" ");
+
+  return res.status(201).json({
+    message: "Data get successfully",
+    tableData: unparseJSONData(rows),
+    fileName: `${title} Parts${!isDeadStock && period ? ` ${period}` : ""} ${moment().format("DD-MM-YYYY")}.csv`,
   });
 });
 

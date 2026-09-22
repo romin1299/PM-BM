@@ -7,6 +7,8 @@ const {
   handleMasterUpdate,
   getSpareMasterDashboard,
   exportSpareMasterDashboard,
+  getSpareMasterColumnValues,
+  resolveSpareMasterType,
 } = require("../../controller/spareManagement/spareMasterController");
 const {
   uploadSpareMasterFile,
@@ -40,12 +42,43 @@ router.route("/master/dashboard").get(getSpareMasterDashboard);
 // regardless of how far the table has been scrolled.
 router.route("/master/dashboard/export").get(exportSpareMasterDashboard);
 
+// Distinct values of one dashboard column, for its Excel-style filter list.
+router.route("/master/dashboard/columnValues").get(getSpareMasterColumnValues);
+
 // Bulk load from a legacy/updated parts-master workbook. Dry-runs unless the
 // caller passes commit=Yes, and is restricted to Tool Room like every other
 // Spare-wide configuration action.
 router
   .route("/master/import")
   .post(
+    toolRoomAuthorizedToCustomize,
+    uploadSpareMasterFile.single("file"),
+    handleSpareMasterImport,
+  );
+
+/**
+ * The uploaded masters — Recycle Parts and Repaired Parts — under
+ * /master/:masterType. Same dashboard, export and import handlers as the
+ * stock-in master; the segment selects the catalogue. Registered after the
+ * literal /master/... routes so "dashboard" and "import" are never read as a
+ * type name.
+ */
+router
+  .route("/master/:masterType/dashboard")
+  .get(resolveSpareMasterType, getSpareMasterDashboard);
+
+router
+  .route("/master/:masterType/dashboard/export")
+  .get(resolveSpareMasterType, exportSpareMasterDashboard);
+
+router
+  .route("/master/:masterType/dashboard/columnValues")
+  .get(resolveSpareMasterType, getSpareMasterColumnValues);
+
+router
+  .route("/master/:masterType/import")
+  .post(
+    resolveSpareMasterType,
     toolRoomAuthorizedToCustomize,
     uploadSpareMasterFile.single("file"),
     handleSpareMasterImport,

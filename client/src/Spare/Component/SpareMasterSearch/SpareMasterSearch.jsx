@@ -65,7 +65,7 @@ const SpareMasterSearch = ({ append }) => {
             "UniqueID",
             "Part no",
             "Part name",
-            "Part modal",
+            "Part model",
             "Maker",
             "Available Qty",
             "Unit cost",

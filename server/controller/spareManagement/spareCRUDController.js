@@ -31,6 +31,9 @@ const {
   syncSheetDrawingsToMasters,
   removeDrawingFileIfUnreferenced,
 } = require("../../services/spare/masterDrawingService");
+const {
+  notifyApprovalChange,
+} = require("../../services/spare/spareApprovalMailService");
 
 const partFields = new Set([
   "rsPartReceive",
@@ -50,6 +53,31 @@ const getCostDetailsBasedOnPartId = async ({ masterId, partId }) =>
       },
     ).lean()
   )?.costDetails?.[0];
+
+const isBlank = (value) => value === "" || value == null;
+
+/**
+ * Min/Max are stock levels, so they are checked only on a stock-in sheet; a
+ * blank on either side is "no bound". Returns the message to refuse with, or
+ * null when every part is in order. Mirrors the client rule so a request that
+ * skips the form gets the same answer.
+ */
+const minMaxViolationMessage = ({ changeParts, newPartFor }) => {
+  if (newPartFor !== "For stock in" || !Array.isArray(changeParts)) return null;
+
+  const offending = changeParts
+    .map((part, index) => ({ part, index }))
+    .filter(({ part }) => {
+      if (isBlank(part?.minQuantity) || isBlank(part?.maxQuantity)) return false;
+      const min = Number(part.minQuantity);
+      const max = Number(part.maxQuantity);
+      return Number.isFinite(min) && Number.isFinite(max) && min > max;
+    })
+    .map(({ part, index }) => part?.partName?.trim() || `Part Details ${index + 1}`);
+
+  if (!offending.length) return null;
+  return `Min quantity cannot be greater than max quantity: ${offending.join(", ")}`;
+};
 
 const storageForDataSheetsOfBD = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -394,6 +422,10 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
       showToast: true,
     });
 
+  const minMaxMessage = minMaxViolationMessage(data);
+  if (minMaxMessage)
+    return res.status(400).json({ message: minMaxMessage, showToast: true });
+
   const incomingModels = data?.changeParts
     .map((p) => p?.partModel?.trim())
     .filter(Boolean);
@@ -599,6 +631,10 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
   // part's drawings follow when its master is registered.
   await syncSheetDrawingsToMasters(spare);
 
+  // A new sheet may already be with its first approver (or with MTD HOD for an
+  // NG budget); they are told by mail. Not awaited: the mail is a courtesy.
+  notifyApprovalChange({ before: null, after: spare, actor: req.rootUser });
+
   return res.status(201).json({
     message,
     showToast: true,
@@ -642,6 +678,21 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
 
   let spare = req.spare,
     data = JSON.parse(req.body?.data);
+
+  // The sheet as it stood, for deciding afterwards whom the save affects: who
+  // it moved on to, or whose request was rejected.
+  const previousSpare = req.spare;
+
+  // Checked when the requester saves the parts. An approval decision is not a
+  // part edit, so it is not held up by figures the approver cannot change.
+  if (data?.changeParts && !data?.isApproved) {
+    const minMaxMessage = minMaxViolationMessage({
+      changeParts: data.changeParts,
+      newPartFor: data?.newPartFor ?? spare?.newPartFor,
+    });
+    if (minMaxMessage)
+      return res.status(400).json({ message: minMaxMessage, showToast: true });
+  }
 
   if (data?.isApproved) {
     let key = spare?.dynamicApprovalKeys?.[0];
@@ -723,11 +774,21 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
        * A rejection ends the sheet. Nothing further is pending, the remaining
        * chain is dropped, and isSpareSheetSendForApproval stays true so the
        * sheet is never offered for approval selection again. The approvers who
-       * had already accepted keep their slots for the record.
+       * had already accepted keep their slots for the record; the ones who were
+       * still to come never got a decision to make, so their slot and the
+       * "Pending" log entry they were given when the sheet was sent are
+       * cleared — otherwise the logs would show them as pending for ever.
        */
       data["pendingApprovalBy"] = null;
       data["requestSheetStatus"] = spareRejectedStatus;
       data["dynamicApprovalKeys"] = [];
+
+      spare?.dynamicApprovalKeys?.slice(1).forEach((laterKey) => {
+        data[laterKey] = null;
+        data[`${laterKey}ApprovalLogs`] = (spare?.[`${laterKey}ApprovalLogs`] ?? [])
+          .map((entry) => entry?.toObject?.() ?? entry)
+          .filter((entry) => entry?.approvalStatus !== "Pending");
+      });
     }
   }
 
@@ -835,6 +896,14 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
 
   // Newly attached drawings reach the parts' masters; see registration.
   await syncSheetDrawingsToMasters(spare);
+
+  // Next approver in the chain, or the requester on a rejection.
+  notifyApprovalChange({
+    before: previousSpare,
+    after: spare,
+    actor: req.rootUser,
+    rejectedRemarks: data?.rejectedRemarks,
+  });
 
   return res.status(201).json({
     message: "Spare sheet updated successfully",

@@ -65,6 +65,14 @@ const taskStatusMappingKeys2 = [
   },
 ];
 
+/**
+ * A "For use" part is consumed on the machine rather than stocked, so it skips
+ * inspection: receipt goes straight to MRN. The server sends no status for the
+ * stage; the cell says so instead of sitting blank.
+ */
+const isStageSkipped = (otherData, key) =>
+  key === "rsPartInspection" && otherData?.newPartFor === "For use";
+
 const colorsBasedOnTaskStatus = {
   assigned: "white",
   runningLate: "red",
@@ -197,6 +205,13 @@ const TaskStatusTd = memo(
   }) =>
     mappingArray?.map((item) => (
       <td className="td-padding " key={item?.key}>
+        {isStageSkipped(otherData, item?.key) && (
+          <div className="d-flex justify-content-center">
+            <small className="text-muted" title="Not required for a part for use">
+              N/A
+            </small>
+          </div>
+        )}
         {otherData?.[item?.key]?.taskStatus && (
           <div className="d-flex align-items-center justify-content-center flex-column">
             <CircleIcon

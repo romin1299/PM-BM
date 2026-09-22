@@ -5,7 +5,17 @@ import AllKPIAndReportWrapper from "../SpareKPI/AllKPIAndReportWrapper";
 import EachChartComponent from "./ChartComponent/EachChartComponent";
 import WithLoadingAndError from "../../Component/Common/WithLoadingAndError";
 
-const ChartMappingComponent = memo(({ chartData }) => (
+/**
+ * Every card on a page plots the same thing for a different cell, so the axis
+ * titles are decided once per page: rupees for the budget report, quantities
+ * for the rotation bifurcation. Both run month by month.
+ */
+const AXIS_TITLES = {
+  MRDRAndMBudget: { x: "Month", y: "Budget (INR)" },
+  eachCellWiseBifurcation: { x: "Month", y: "Available quantity (Nos.)" },
+};
+
+const ChartMappingComponent = memo(({ chartData, axisTitles }) => (
   <div className="dashboard-grid">
     {chartData?.data?.map(
       ({ cell = {}, monthlyStatus = [], datasets = [] }) => (
@@ -17,6 +27,7 @@ const ChartMappingComponent = memo(({ chartData }) => (
               labels: chartData?.labels,
               datasets,
             }}
+            axisTitles={axisTitles}
           />
         </div>
       ),
@@ -60,6 +71,7 @@ const PropComp = memo(
           },
         }}
         PropComponent={ChartMappingComponent}
+        otherProps={{ axisTitles: AXIS_TITLES[componentFor] }}
       />
     );
   },

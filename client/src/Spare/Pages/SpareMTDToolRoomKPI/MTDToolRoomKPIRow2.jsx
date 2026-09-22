@@ -20,6 +20,10 @@ const MTDToolRoomKPICol1 = ({ selectedYear }) => {
         title="Temporary Part Issue trend"
         url="/v1/spare/kpi/temporaryPartIssueTrend"
         ChartMiddlewareComponent={StackedBarChart}
+        // One stacked bar per month; the segments are the issuing cells.
+        otherProps={{
+          axisTitles: { x: "Month", y: "Temporary parts issued (Qty)" },
+        }}
         csvOrPDfFileNamePostPix={selectedYear}
         filters={[selectedYear]}
         handleDownloadCSVOrPDF={handleDownloadDynamicDataCSVOrPDF}

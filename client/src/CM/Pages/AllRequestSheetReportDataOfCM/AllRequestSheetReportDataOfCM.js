@@ -38,7 +38,9 @@ import Multiselect from "multiselect-react-dropdown";
 import { SuccessToast } from "../../../BM/Component/ShowTostify";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MainRequestSheetForView from "../../../BM/Tabs/RequestSheetForView/MainRequestSheetForView";
-import SparePartsRequestForm from "../../../BM/SparePartsRequest/SparePartsRequestForm";
+import SparePartsRequestForm, {
+  machineParentHierarchyFromSheet,
+} from "../../../BM/SparePartsRequest/SparePartsRequestForm";
 import SafetyFormV2 from "../../Components/ReqestSheetOfCM/SafetyFormV2";
 import { updateCMTargetDate } from "../../Integration/cmScheduleApi";
 
@@ -850,11 +852,9 @@ const AllRequestSheetReportDataOfCM = () => {
         (sparePartsRequestModal?.modelType === "SPARE_ISSUANCE" ? (
           <SparePartsRequestForm
             issuedFrom="CM"
-            machineParentHierarchy={{
-              cell: sparePartsRequestModal?.selectedRow?.cellRef,
-              line: sparePartsRequestModal?.selectedRow?.lineRef,
-              machine: sparePartsRequestModal?.selectedRow?.machineRef,
-            }}
+            machineParentHierarchy={machineParentHierarchyFromSheet(
+              sparePartsRequestModal?.selectedRow,
+            )}
             modelProp={{
               show: sparePartsRequestModal?.show,
               onHide: handleSparePartsModelState,

@@ -43,8 +43,14 @@ const TopConsumption = ({
         selectedMonth,
       }}
       referenceArrayForUseEffect={[limit, selectedYear, selectedMonth]}
-      chartProps={{
+      // Horizontal ranking: the named items run down the side, the consumed
+      // quantity (labelled with its cost) runs along the bottom.
+      otherProps={{
         indexAxis: "y",
+        axisTitles: {
+          x: "Consumed quantity (cost in Mil INR)",
+          y: headerKey0,
+        },
       }}
       ChartMiddlewareComponent={BarChart}
       OtherToolbar={<TopLimit handleSetParentLimit={handleSetParentLimit} />}

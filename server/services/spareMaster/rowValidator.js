@@ -31,11 +31,11 @@ const validateRow = ({ excelRow, document, costDetails, currency, raw }) => {
   const warn = (column, value, message) =>
     warnings.push({ excelRow, column, value: value ?? null, message });
 
-  if (!document.partNumber)
+  if (!document.location)
     fail(
-      columnFor("partNumber"),
-      raw.partNumber,
-      "Part number is required and is the key used to match existing masters",
+      columnFor("location"),
+      raw.location,
+      "Location (PartsNumber) is required and is the key used to match existing masters",
     );
 
   if (!document.partName)

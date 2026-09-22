@@ -66,6 +66,11 @@ const SpareSheetCustomTable = ({
    * alongside the rows — a total count, for instance — without a second request.
    */
   onPageLoaded,
+  /**
+   * Renders a header cell's content from its label — for a filter or sort
+   * control beside the text. Without it the label is shown as is.
+   */
+  renderHeader,
 }) => {
   const cursorRef = useRef(null);
 
@@ -300,7 +305,7 @@ const SpareSheetCustomTable = ({
                 className={"ar-table-thead-header5 td-padding text-white"}
                 key={tColumn}
               >
-                {tColumn}
+                {renderHeader ? renderHeader(tColumn) : tColumn}
               </th>
             ))}
           </tr>

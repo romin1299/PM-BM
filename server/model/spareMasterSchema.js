@@ -4,6 +4,12 @@ const { plantToMachineHierarchyObj } = require("./common");
 const spareMasterSchema = new mongoose.Schema(
   {
     whichParts: String,
+
+    /**
+     * Storage location code, e.g. "A01A01". For an imported master this is the
+     * legacy parts-master's PartsNumber column — that system keyed parts by
+     * where they were kept — and it is what a re-import matches on.
+     */
     location: String,
 
     /**
@@ -16,10 +22,10 @@ const spareMasterSchema = new mongoose.Schema(
     uniqueID: String,
 
     /**
-     * The manufacturer's / legacy system's part number (the parts-master
-     * PartsNumber column). This is the human-facing key people search by and the
-     * key a re-import matches on; uniqueID is this application's own identity for
-     * the same part and the two are deliberately separate.
+     * The manufacturer's part number, entered on the master form. The legacy
+     * export carries no such column, so an imported master has none until
+     * someone fills it in; uniqueID is this application's own identity for the
+     * same part and the two are deliberately separate.
      */
     partNumber: String,
 
@@ -213,12 +219,21 @@ spareMasterSchema.index(
 spareMasterSchema.index({ "machine._id": 1, createdAt: -1 });
 
 /**
- * partNumber is the business key the Excel importer upserts on. Without this
- * index every upsert in a bulk load scans the whole collection, which turns an
- * import into quadratic work — indexing it took a 17.6k-row import from ~171s to
- * a few seconds. Not declared unique: the collection predates the key and may
- * still hold records that never had one.
+ * location is the key the Excel importer upserts on (the legacy PartsNumber).
+ * Without this index every upsert in a bulk load scans the whole collection,
+ * which turns an import into quadratic work — indexing the upsert key took a
+ * 17.6k-row import from ~171s to a few seconds. Not declared unique: the
+ * collection predates the key and may still hold records that never had one.
  */
+spareMasterSchema.index(
+  { location: 1 },
+  {
+    name: "SpareMasterLocationIndex",
+    background: true,
+  },
+);
+
+/** partNumber is searched on directly (part search, master search). */
 spareMasterSchema.index(
   { partNumber: 1 },
   {
@@ -237,5 +252,14 @@ spareMasterSchema.index(
 );
 
 const SpareMaster = new mongoose.model("SpareMaster", spareMasterSchema);
+
+/**
+ * The Recycle and Repaired parts masters hold the same record shape but are
+ * separate catalogues in separate collections: they are uploaded by the Tool
+ * Room from their own workbooks, and nothing that counts stock-in inventory
+ * (KPIs, reorders, issuance) may see them. See model/spareMasterTypes.js.
+ */
+mongoose.model("RecyclePartsMaster", spareMasterSchema);
+mongoose.model("RepairedPartsMaster", spareMasterSchema);
 
 module.exports = SpareMaster;

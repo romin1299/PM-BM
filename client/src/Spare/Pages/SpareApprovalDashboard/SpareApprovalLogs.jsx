@@ -131,6 +131,8 @@ const ApprovalMappingComponent = memo(({ otherData, rowIndex }) => (
   <>
     <td className="td-padding">{rowIndex}</td>
     <UptoMachineHeaders otherData={otherData} needToIncludeMaker={false} />
+    <td className="td-padding">{otherData?.changeParts?.partName}</td>
+    <td className="td-padding">{otherData?.changeParts?.partNumber}</td>
     {LogsMappingKeys?.map((key = "") => (
       <td className="td-padding">
         {otherData?.[key]?.map(
@@ -187,6 +189,8 @@ const LogsComponent = (props) => {
           "Line",
           "Machine No",
           // "Machine Name",
+          "Part Name",
+          "Part Number",
           "HOD NG Budget Approval",
           "MTD TL",
           "MTD HOSS",
@@ -199,6 +203,8 @@ const LogsComponent = (props) => {
           "TOOL ROOM",
         ]}
         OtherComp={ApprovalMappingComponent}
+        // One row per part; a sheet raised with no parts still gets a row of its own.
+        rowKey={(row) => row?.changeParts?._id ?? row?._id}
       />
     </div>
   );

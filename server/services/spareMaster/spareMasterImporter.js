@@ -76,10 +76,12 @@ const pick = (source, fields) =>
   }, {});
 
 /**
- * `partNumber` (the legacy PartsNumber) is the business key: it is unique and
- * populated across every row of the source, and it is the key people search by.
- * Upserting on it is what makes repeated imports safe — the same file applied
- * twice updates in place instead of doubling the catalogue.
+ * `location` (the legacy PartsNumber, a storage location code) is the import
+ * key: it is unique and populated across every row of the source, and it was the
+ * legacy system's own key for the part. Upserting on it is what makes repeated
+ * imports safe — the same file applied twice updates in place instead of
+ * doubling the catalogue. It is not among UPDATABLE_FIELDS: matching on a field
+ * and rewriting it in the same operation would be a no-op at best.
  *
  * `uniqueID` is this application's own identity for the part and is generated
  * here, so it goes in $setOnInsert alone: a re-import must never reassign the id
@@ -87,11 +89,11 @@ const pick = (source, fields) =>
  */
 const buildUpsertOperation = ({ document, costDetails, createdBy, uniqueID }) => ({
   updateOne: {
-    filter: { partNumber: document.partNumber },
+    filter: { location: document.location },
     update: {
       $set: pick(document, UPDATABLE_FIELDS),
       $setOnInsert: {
-        partNumber: document.partNumber,
+        location: document.location,
         ...(uniqueID ? { uniqueID } : {}),
         status: "masterCreated",
         costDetails,
@@ -104,6 +106,17 @@ const buildUpsertOperation = ({ document, costDetails, createdBy, uniqueID }) =>
   },
 });
 
+/**
+ * `model` picks the catalogue: the stock-in master by default, or one of the
+ * uploaded masters (see model/spareMasterTypes.js). Every step — mapping,
+ * validation, machine resolution, the location upsert, unique ids — is the
+ * same; only the collection written differs.
+ *
+ * `resetSequencesWhenEmpty` restarts the plant id counters when the target
+ * catalogue is empty. Meant for the one-off legacy load of the stock-in master
+ * and off by default: the counters are shared by all three masters, so an
+ * empty recycle catalogue says nothing about ids already issued elsewhere.
+ */
 const importSpareMasterFromExcel = async (filePath, options = {}) => {
   const {
     sheetName,
@@ -113,11 +126,14 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
     syncCurrencies = true,
     detailLimit,
     unresolvedMachinesReportPath = defaultReportPath(filePath),
+    model: Model = SpareMaster,
+    resetSequencesWhenEmpty = false,
   } = options;
 
   const result = createImportResult({ detailLimit });
   result.setMeta("file", filePath);
   result.setMeta("dryRun", dryRun);
+  result.setMeta("collection", Model.collection.name);
 
   const [references, createdBy] = await Promise.all([
     loadReferenceData(),
@@ -126,7 +142,7 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
 
   result.setMeta("createdBy", createdBy ? { tm_no: createdBy.tm_no, tm_name: createdBy.tm_name } : null);
 
-  const seenPartNumbers = new Map();
+  const seenLocations = new Map();
   const catalogueValues = {
     maker: new Set(),
     supplierName: new Set(),
@@ -143,8 +159,8 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
    * restart at 1 rather than continuing from ids that no longer exist. Guarded
    * on emptiness because resetting while masters exist would reissue their ids.
    */
-  const catalogueIsEmpty = !(await SpareMaster.exists({}));
-  if (catalogueIsEmpty && !dryRun) {
+  const catalogueIsEmpty = !(await Model.exists({}));
+  if (catalogueIsEmpty && !dryRun && resetSequencesWhenEmpty) {
     const plantsReset = await resetMasterUniqueIdSequences();
     result.setMeta("sequencesReset", { plants: plantsReset });
   }
@@ -153,7 +169,7 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
    * Ids come from a plan made over the whole file before any row is written,
    * ordered by the source's CreateDate — blank dates first, then oldest to
    * newest — rather than being reserved batch by batch in row order. Only
-   * part numbers the catalogue does not hold are in the plan; an existing
+   * locations the catalogue does not hold are in the plan; an existing
    * master keeps its id. In a dry run the plan is made but nothing reserved.
    */
   const plan = await planUniqueIds(filePath, {
@@ -161,12 +177,13 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
     references,
     createdBy,
     reserve: !dryRun,
+    model: Model,
   });
   result.setMeta("uniqueIdPlan", plan.summary);
 
   const assignUniqueIds = (pending) =>
     pending.forEach((entry) => {
-      entry.uniqueID = plan.idByPartNumber.get(entry.document.partNumber);
+      entry.uniqueID = plan.idByLocation.get(entry.document.location);
     });
 
   const unresolvedMachines = collectUnresolvedMachines();
@@ -180,7 +197,7 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
     try {
       assignUniqueIds(batch);
 
-      const bulkResult = await SpareMaster.bulkWrite(
+      const bulkResult = await Model.bulkWrite(
         batch.map(buildUpsertOperation),
         { ordered: false },
       );
@@ -194,8 +211,8 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
       result.addErrors(
         writeErrors.slice(0, 25).map((writeError) => ({
           excelRow: null,
-          column: "partNumber",
-          value: writeError?.err?.op?.q?.partNumber ?? null,
+          column: "PartsNumber",
+          value: writeError?.err?.op?.q?.location ?? null,
           message: `Database rejected the record: ${writeError?.errmsg ?? writeError?.err?.errmsg ?? "unknown error"}`,
         })),
       );
@@ -237,27 +254,27 @@ const importSpareMasterFromExcel = async (filePath, options = {}) => {
         if (note.type === "unresolvedMachine")
           unresolvedMachines.add({
             excelRow,
-            partNumber: document.partNumber,
+            location: document.location,
             partName: document.partName,
             machineSource,
             reason: note.message,
           });
       });
 
-    // A part number repeated inside one file would make two operations in the
+    // A location repeated inside one file would make two operations in the
     // same batch target one document, which an unordered bulkWrite may apply in
     // either order. Keep the first and report the rest.
-    const duplicateOf = seenPartNumbers.get(document.partNumber);
+    const duplicateOf = seenLocations.get(document.location);
     if (duplicateOf) {
       result.addDuplicate({
         excelRow,
         column: "PartsNumber",
-        value: document.partNumber,
-        message: `Duplicate part number, first seen on Excel row ${duplicateOf}`,
+        value: document.location,
+        message: `Duplicate location (PartsNumber), first seen on Excel row ${duplicateOf}`,
       });
       continue;
     }
-    seenPartNumbers.set(document.partNumber, excelRow);
+    seenLocations.set(document.location, excelRow);
 
     if (document.maker) catalogueValues.maker.add(document.maker);
     if (document.supplierName) catalogueValues.supplierName.add(document.supplierName);

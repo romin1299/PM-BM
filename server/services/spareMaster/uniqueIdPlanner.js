@@ -17,7 +17,7 @@ const {
  * creation date to the newest, so the newest parts carry the highest ids. That
  * needs the whole file to be seen before the first id is handed out, which is
  * why this is a separate pass over the file — a cheap one, since it keeps only
- * a part number and a date per row, not the row.
+ * a location and a date per row, not the row.
  *
  * Parts the catalogue already holds keep their id and are not planned; a
  * re-import of the same file therefore assigns nothing. Ids are reserved per
@@ -34,26 +34,31 @@ const byCreateDate = (a, b) => {
   return a.createDate - b.createDate || a.excelRow - b.excelRow;
 };
 
-const findExistingPartNumbers = async (partNumbers) => {
+const findExistingLocations = async (Model, locations) => {
   const existing = new Set();
-  for (let i = 0; i < partNumbers.length; i += EXISTING_LOOKUP_CHUNK) {
-    const chunk = partNumbers.slice(i, i + EXISTING_LOOKUP_CHUNK);
-    const docs = await SpareMaster.find(
-      { partNumber: { $in: chunk } },
-      { partNumber: 1 },
+  for (let i = 0; i < locations.length; i += EXISTING_LOOKUP_CHUNK) {
+    const chunk = locations.slice(i, i + EXISTING_LOOKUP_CHUNK);
+    const docs = await Model.find(
+      { location: { $in: chunk } },
+      { location: 1 },
     ).lean();
-    docs.forEach((doc) => existing.add(doc.partNumber));
+    docs.forEach((doc) => existing.add(doc.location));
   }
   return existing;
 };
 
 /**
- * Returns { idByPartNumber, summary }. With `reserve: false` (a dry run) the
+ * Returns { idByLocation, summary }. With `reserve: false` (a dry run) the
  * ordering is computed and reported but no sequence numbers are taken.
+ *
+ * `model` is the catalogue being loaded — the stock-in master unless told
+ * otherwise. Existing rows are looked up there, while ids are always drawn
+ * from the plant's one counter, so a part is numbered once whichever master
+ * it belongs to.
  */
 const planUniqueIds = async (
   filePath,
-  { sheetName, references, createdBy, reserve = true },
+  { sheetName, references, createdBy, reserve = true, model = SpareMaster },
 ) => {
   const candidates = [];
   const seen = new Set();
@@ -67,19 +72,19 @@ const planUniqueIds = async (
 
     // The same acceptance rules as the import itself: a row that will not be
     // written must not take an id.
-    if (errors.length || seen.has(document.partNumber)) continue;
-    seen.add(document.partNumber);
+    if (errors.length || seen.has(document.location)) continue;
+    seen.add(document.location);
 
     candidates.push({
       excelRow,
-      partNumber: document.partNumber,
+      location: document.location,
       createDate,
       plant: resolvePlantIdentity({ master: document, fallbackUser: createdBy }),
     });
   }
 
-  const existing = await findExistingPartNumbers(candidates.map((c) => c.partNumber));
-  const fresh = candidates.filter((c) => !existing.has(c.partNumber));
+  const existing = await findExistingLocations(model, candidates.map((c) => c.location));
+  const fresh = candidates.filter((c) => !existing.has(c.location));
 
   /**
    * One sequence per plant, each ordered on its own. Keyed by plant name: a row
@@ -98,7 +103,7 @@ const planUniqueIds = async (
     group.parts.push(candidate);
   });
 
-  const idByPartNumber = new Map();
+  const idByLocation = new Map();
   const plants = [];
 
   for (const { plant, parts } of byPlant.values()) {
@@ -110,8 +115,8 @@ const planUniqueIds = async (
 
     if (reserved)
       parts.forEach((part, index) =>
-        idByPartNumber.set(
-          part.partNumber,
+        idByLocation.set(
+          part.location,
           formatMasterUniqueId(reserved.prefix, reserved.firstSequence + index),
         ),
       );
@@ -132,7 +137,7 @@ const planUniqueIds = async (
   }
 
   return {
-    idByPartNumber,
+    idByLocation,
     summary: {
       candidates: candidates.length,
       alreadyInCatalogue: candidates.length - fresh.length,

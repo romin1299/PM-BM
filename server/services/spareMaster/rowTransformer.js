@@ -151,7 +151,7 @@ const buildOpeningCostTranche = (raw) => {
  * or legacyRef.
  */
 const TEXT_FIELDS = [
-  "partNumber",
+  "location",
   "partName",
   "partModel",
   "partGroup",

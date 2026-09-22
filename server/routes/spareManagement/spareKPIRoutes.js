@@ -25,6 +25,7 @@ const {
   getSpareDetailsSupplierCategoryWise,
   getStockLevelWiseAnalysis,
   getZeroStockPartList,
+  exportZeroStockPartList,
   getReasonForZeroStock,
   handleReasonForZeroStock,
 
@@ -103,6 +104,9 @@ router
 router.route("/kpi/stockLevelWiseAnalysis").get(getStockLevelWiseAnalysis);
 
 router.route("/kpi/partList").get(yearMonthFilter, getZeroStockPartList);
+router
+  .route("/kpi/partList/export")
+  .get(yearMonthFilter, exportZeroStockPartList);
 
 router
   .route("/kpi/remarks")

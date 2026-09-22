@@ -56,11 +56,15 @@ async function getTransporter() {
   }
 
   cachedTransporter = nodemailer.createTransport({
+    service: "smtp-mail.outlook.com",
     host: emailConfData.serverIP,
     port: emailConfData.emailPort,
     secure: false,
     pool: true,
     maxConnections: 3,
+    tls: {
+      ciphers: "SSLv3",
+    },
   });
   cachedHost = emailConfData.serverIP;
 

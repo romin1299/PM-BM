@@ -4,6 +4,7 @@ import { Row, Col } from "react-bootstrap";
 import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 import OtherTaskStatusConfiguration from "../SpareOrderingDashboard/OtherTaskStatusConfiguration";
 import SpareTitlebar from "../../Component/SpareTitlebar";
+import ExportCSV from "../SparePartIssuance/ExportCSV";
 
 const DEAD_STOCK_KEY = "reasonForKeepingDeadStock";
 
@@ -101,7 +102,17 @@ const ZeroOrDeadStockParts = ({
 
   return (
     <Col md={12} lg={6}>
-      <SpareTitlebar title={title} />
+      <SpareTitlebar
+        title={title}
+        inlineToolbar
+        // Same filters as the table, so the file holds exactly what is shown.
+        Toolbar={
+          <ExportCSV
+            url="/v1/spare/kpi/partList/export"
+            axiosParams={apiReferencePropsBasedOnFilters.params}
+          />
+        }
+      />
       <SpareSheetCustomTable
         apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
         url={`/v1/spare/kpi/partList`}
@@ -112,7 +123,7 @@ const ZeroOrDeadStockParts = ({
           "Mc number",
           "Location",
           "Part name",
-          "Part modal",
+          "Part model",
           "Available Qty",
           "Total cost(in INR)",
           ...(popupRef?.key === DEAD_STOCK_KEY ? ["Last movement"] : []),

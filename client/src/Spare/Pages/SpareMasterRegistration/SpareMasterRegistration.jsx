@@ -193,17 +193,22 @@ const SpareMasterRegistration = () => {
   const loggedUser = useContext(RoutingContext);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  // Which catalogue the master lives in: absent for the stock-in master, set
+  // by the Recycle / Repaired dashboards when they open one of theirs.
+  const masterType = searchParams.get("masterType");
+
   const params = useMemo(
     () =>
       searchParams.get("masterId")
         ? {
             _id: searchParams.get("masterId"),
+            ...(masterType ? { masterType } : {}),
           }
         : {
             sheetId: searchParams.get("sheetId"),
             partId: searchParams.get("partId"),
           },
-    [searchParams],
+    [searchParams, masterType],
   );
 
   const [costDetails, setCostDetails] = useState([]);
@@ -269,7 +274,7 @@ const SpareMasterRegistration = () => {
     let axiosParams = params;
 
     if (params?._id) {
-      axiosParams = { _id: formValue?._id };
+      axiosParams = { _id: formValue?._id, ...(masterType ? { masterType } : {}) };
       formValue = dirtyValues(formValue);
     }
 

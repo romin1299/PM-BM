@@ -4,6 +4,7 @@ const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 const SpareMaster = require("../../model/spareMasterSchema");
+const { spareMasterTypeFor } = require("../../model/spareMasterTypes");
 
 const unparseJSONData = require("../../utils/unparseJSONData");
 const {
@@ -39,6 +40,17 @@ const readMasterRequest = (req) => {
   return { body, uploadedDrawings, removedDrawings };
 };
 
+/**
+ * The catalogue a request is about: the stock-in master unless a route named
+ * one of the uploaded masters (see resolveSpareMasterType) or the query
+ * carries `masterType`, which the registration form sends when it edits a
+ * Recycle or Repaired master. One implementation then serves all three.
+ */
+const masterModelOf = (req) =>
+  req.spareMasterType?.model ??
+  spareMasterTypeFor(req.query?.masterType)?.model ??
+  SpareMaster;
+
 exports.getDefaultValueForMasterRegistration = tryCatchHandler(
   async (req, res, next) => {
     const { _id } = req.query;
@@ -50,7 +62,7 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
           message: "Invalid ObjectId format",
         });
 
-      const master = await SpareMaster.findOne(
+      const master = await masterModelOf(req).findOne(
         {
           _id,
         },
@@ -232,32 +244,185 @@ const spareMasterRowProjection = {
 };
 
 /**
+ * Excel-style column filters.
+ *
+ * The client sends `filters` as JSON — `{ maker: ["SKF", null], status: [...] }`
+ * — one entry per filtered column, listing the values the reader ticked; `null`
+ * stands for the blank cells Excel shows as "(Blanks)". Columns are the keys
+ * of the dashboard row (spareMasterRowProjection), computed ones included, so
+ * the match runs after the projection: 17k light rows is cheap, and it keeps
+ * one set of column names between the table, the filter and the export.
+ */
+const FILTERABLE_COLUMNS = new Set(
+  Object.keys(spareMasterRowProjection).filter((key) => key !== "drawingAttach"),
+);
+
+const parseColumnFilters = (raw) => {
+  if (!raw) return {};
+  let parsed;
+  try {
+    parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+  } catch {
+    return {};
+  }
+  const filters = {};
+  Object.entries(parsed ?? {}).forEach(([column, values]) => {
+    if (FILTERABLE_COLUMNS.has(column) && Array.isArray(values) && values.length)
+      filters[column] = values;
+  });
+  return filters;
+};
+
+/** The $match over projected rows for the given filters; null when none. */
+const columnFilterMatch = (filters, { except } = {}) => {
+  const clauses = Object.entries(filters)
+    .filter(([column]) => column !== except)
+    .map(([column, values]) => {
+      const wantsBlank = values.includes(null) || values.includes("");
+      const present = values.filter((v) => v !== null && v !== "");
+      const alternatives = [];
+      if (present.length) alternatives.push({ [column]: { $in: present } });
+      if (wantsBlank) alternatives.push({ [column]: { $in: [null, ""] } });
+      return alternatives.length === 1 ? alternatives[0] : { $or: alternatives };
+    });
+  if (!clauses.length) return null;
+  return clauses.length === 1 ? clauses[0] : { $and: clauses };
+};
+
+/** The same $match with every field path under `prefix`. */
+const prefixMatch = (match, prefix) => {
+  if (Array.isArray(match)) return match.map((m) => prefixMatch(m, prefix));
+  if (match && typeof match === "object" && !(match instanceof Date))
+    return Object.fromEntries(
+      Object.entries(match).map(([key, value]) =>
+        key.startsWith("$")
+          ? [key, prefixMatch(value, prefix)]
+          : [`${prefix}${key}`, value],
+      ),
+    );
+  return match;
+};
+
+/**
+ * The dashboard row as an expression object, for building it as a sub-document
+ * next to the full record: inside `$set` a bare `1` is not an inclusion, so
+ * each plain field becomes a "$field" reference and computed fields stay as
+ * they are.
+ */
+const spareMasterRowExpression = Object.fromEntries(
+  Object.entries(spareMasterRowProjection).map(([key, value]) => [
+    key,
+    value === 1 ? `$${key}` : value,
+  ]),
+);
+
+/** Projection then filter — the stages every filtered read starts with. */
+const projectedAndFiltered = (filters) => {
+  const match = columnFilterMatch(filters);
+  return [
+    { $project: spareMasterRowProjection },
+    ...(match ? [{ $match: match }] : []),
+  ];
+};
+
+/**
+ * Dashboard order: by Unique ID, ascending unless the reader flips it. The ids
+ * are zero-padded per plant ("DNHAP1-0000001"), so a plain string sort is
+ * their numeric order; _id breaks the tie for the few masters that have no id
+ * yet, which sort first (last, descending).
+ */
+const sortDirectionOf = (query) => (query?.sort === "desc" ? -1 : 1);
+const dashboardSort = (direction) => ({ uniqueID: direction, _id: direction });
+
+/**
+ * Keyset cursor for that order: the last row's (uniqueID, _id), opaque to the
+ * client. Walking `(uniqueID, _id) > cursor` costs the same for every page,
+ * where skip/limit would re-count a growing prefix, and a row added or removed
+ * while the reader scrolls cannot shift the others between pages.
+ */
+const encodeCursor = (row) =>
+  Buffer.from(
+    JSON.stringify({ u: row.uniqueID ?? null, i: String(row._id) }),
+  ).toString("base64url");
+
+const decodeCursor = (cursor) => {
+  try {
+    const { u, i } = JSON.parse(Buffer.from(cursor, "base64url").toString());
+    if (!mongoose.Types.ObjectId.isValid(i)) return null;
+    return { uniqueID: typeof u === "string" ? u : null, _id: new mongoose.Types.ObjectId(i) };
+  } catch {
+    return null;
+  }
+};
+
+// $expr, so a missing uniqueID compares as null (below every string) the same
+// way the sort places it; a query-operator $gt against null would match nothing.
+// "After" follows the sort direction: greater when ascending, less when not.
+const afterCursorMatch = ({ uniqueID, _id }, direction) => {
+  const beyond = direction === -1 ? "$lt" : "$gt";
+  return {
+    $expr: {
+      $or: [
+        { [beyond]: [{ $ifNull: ["$uniqueID", null] }, uniqueID] },
+        {
+          $and: [
+            { $eq: [{ $ifNull: ["$uniqueID", null] }, uniqueID] },
+            { [beyond]: ["$_id", _id] },
+          ],
+        },
+      ],
+    },
+  };
+};
+
+/**
  * A page of the Spare Master catalogue.
  *
- * Unfiltered by design. A master is a standing record of a part, not something
- * that belongs to a financial year or to one place in the hierarchy, so the whole
- * catalogue is browsable and the client pages through it by scrolling.
- *
- * Cursor paging on _id rather than skip/limit: _id is monotonic, so `_id < cursor`
- * walks the collection at a constant cost per page instead of re-counting a
- * growing prefix, and rows cannot shift between pages as records are added.
+ * No year or hierarchy filter by design: a master is a standing record of a
+ * part, so the whole catalogue is browsable and the client pages through it by
+ * scrolling. What it does take is the column filters above.
  */
+/**
+ * Reads the master type out of the `:masterType` route segment. Only the
+ * uploaded catalogues are reachable this way; the stock-in master keeps its
+ * own unsegmented routes.
+ */
+exports.resolveSpareMasterType = tryCatchHandler(async (req, res, next) => {
+  const type = spareMasterTypeFor(req.params?.masterType);
+
+  if (!type?.uploadable)
+    return res.status(404).json({
+      message: `Unknown master type "${req.params?.masterType}"`,
+      showToast: true,
+    });
+
+  req.spareMasterType = type;
+  return next();
+});
+
 exports.getSpareMasterDashboard = tryCatchHandler(async (req, res, next) => {
   const { cursor } = req.query;
+  const Model = masterModelOf(req);
 
-  if (cursor && !mongoose.Types.ObjectId.isValid(cursor))
+  const after = cursor ? decodeCursor(cursor) : null;
+  if (cursor && !after)
     return res.status(400).json({
       success: false,
       message: "Invalid cursor",
     });
 
-  const tableData = await SpareMaster.aggregate([
-    ...(cursor
-      ? [{ $match: { _id: { $lt: mongoose.Types.ObjectId(cursor) } } }]
-      : []),
-    { $sort: { _id: -1 } },
-    { $limit: paginationRowLimit },
-    { $project: spareMasterRowProjection },
+  const filters = parseColumnFilters(req.query.filters);
+  const isFiltered = Object.keys(filters).length > 0;
+  const direction = sortDirectionOf(req.query);
+
+  const tableData = await Model.aggregate([
+    ...(after ? [{ $match: afterCursorMatch(after, direction) }] : []),
+    { $sort: dashboardSort(direction) },
+    // Unfiltered, the limit comes first and the projection touches one page;
+    // filtered, the match has to see the projected rows before the limit.
+    ...(isFiltered
+      ? [...projectedAndFiltered(filters), { $limit: paginationRowLimit }]
+      : [{ $limit: paginationRowLimit }, { $project: spareMasterRowProjection }]),
   ]);
 
   /**
@@ -265,14 +430,89 @@ exports.getSpareMasterDashboard = tryCatchHandler(async (req, res, next) => {
    * scrolls, so repeating it for every page of 50 would be a full count per
    * page for a number the client already has.
    */
-  const totalCount = cursor ? undefined : await SpareMaster.estimatedDocumentCount();
+  let totalCount;
+  if (!cursor) {
+    if (isFiltered) {
+      const [counted] = await Model.aggregate([
+        ...projectedAndFiltered(filters),
+        { $count: "n" },
+      ]);
+      totalCount = counted?.n ?? 0;
+    } else totalCount = await Model.estimatedDocumentCount();
+  }
 
   return res.status(201).json({
     message: "Master details get successfully",
     tableData,
-    nextCursor: tableData.length ? tableData[tableData.length - 1]._id : null,
+    nextCursor: tableData.length ? encodeCursor(tableData[tableData.length - 1]) : null,
     hasMore: tableData.length >= paginationRowLimit,
     ...(totalCount === undefined ? {} : { totalCount }),
+  });
+});
+
+/**
+ * Distinct values of one column with how many rows hold each — the list the
+ * filter dropdown shows. Narrowed by the other columns' filters, as Excel
+ * does, and by an optional search, so a 17k-row column is browsed a few
+ * hundred values at a time. Blank cells come back as a single null entry.
+ */
+const COLUMN_VALUES_LIMIT = 300;
+
+const escapeRegex = (text) => String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+exports.getSpareMasterColumnValues = tryCatchHandler(async (req, res, next) => {
+  const { column, search = "" } = req.query;
+
+  if (!FILTERABLE_COLUMNS.has(column))
+    return res.status(400).json({
+      message: `"${column}" is not a filterable column`,
+      showToast: true,
+    });
+
+  const otherMatch = columnFilterMatch(parseColumnFilters(req.query.filters), {
+    except: column,
+  });
+
+  const values = await masterModelOf(req).aggregate([
+    { $project: spareMasterRowProjection },
+    ...(otherMatch ? [{ $match: otherMatch }] : []),
+    // A list column (other machine codes) is counted per entry, as Excel
+    // counts a multi-value cell once per value.
+    { $unwind: { path: `$${column}`, preserveNullAndEmptyArrays: true } },
+    {
+      $set: {
+        value: {
+          $cond: [{ $in: [`$${column}`, [null, ""]] }, null, `$${column}`],
+        },
+      },
+    },
+    ...(search
+      ? [
+          {
+            $match: {
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: { $ifNull: ["$value", ""] } },
+                  regex: escapeRegex(search),
+                  options: "i",
+                },
+              },
+            },
+          },
+        ]
+      : []),
+    { $group: { _id: "$value", count: { $sum: 1 } } },
+    { $sort: { _id: 1 } },
+    { $limit: COLUMN_VALUES_LIMIT + 1 },
+    { $project: { _id: 0, value: "$_id", count: 1 } },
+  ]);
+
+  const truncated = values.length > COLUMN_VALUES_LIMIT;
+
+  return res.status(201).json({
+    message: "Column values get successfully",
+    values: truncated ? values.slice(0, COLUMN_VALUES_LIMIT) : values,
+    truncated,
   });
 });
 
@@ -526,8 +766,20 @@ const toExportValue = (value) => {
  * view, so the file is complete however far the user got.
  */
 exports.exportSpareMasterDashboard = tryCatchHandler(async (req, res, next) => {
-  const tableData = await SpareMaster.aggregate([
-    { $sort: { _id: -1 } },
+  const filterMatch = columnFilterMatch(parseColumnFilters(req.query.filters));
+
+  // Filtered the same way the table is, so the file is what the reader sees.
+  // The filters name dashboard columns while the export projection is wider,
+  // so the row is projected alongside the document, matched, then dropped.
+  const tableData = await masterModelOf(req).aggregate([
+    ...(filterMatch
+      ? [
+          { $set: { row: spareMasterRowExpression } },
+          { $match: prefixMatch(filterMatch, "row.") },
+          { $unset: "row" },
+        ]
+      : []),
+    { $sort: dashboardSort(sortDirectionOf(req.query)) },
     { $project: spareMasterExportProjection },
   ]);
 
@@ -543,7 +795,7 @@ exports.exportSpareMasterDashboard = tryCatchHandler(async (req, res, next) => {
   return res.status(201).json({
     message: "Master details get successfully",
     tableData: unparseJSONData(rows),
-    fileName: `Spare Master Details ${moment().format("DD-MM-YYYY")}.csv`,
+    fileName: `${req.spareMasterType?.label ?? "Spare Master"} Details ${moment().format("DD-MM-YYYY")}.csv`,
   });
 });
 
@@ -686,7 +938,8 @@ exports.handleMasterUpdate = tryCatchHandler(async (req, res, next) => {
   else if (uploadedDrawings.length)
     update.$push = { drawingAttach: { $each: uploadedDrawings } };
 
-  await SpareMaster.findOneAndUpdate(req.query, update);
+  // Filtered on the id alone: the query may also name the master type.
+  await masterModelOf(req).findOneAndUpdate({ _id }, update);
 
   // A drawing dropped from the master keeps its file while a request-sheet
   // still shows it; otherwise the file goes with it.

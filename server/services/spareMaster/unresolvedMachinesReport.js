@@ -22,11 +22,11 @@ const collectUnresolvedMachines = () => {
   const machines = new Map();
 
   return {
-    add({ excelRow, partNumber, partName, machineSource, reason }) {
+    add({ excelRow, location, partName, machineSource, reason }) {
       const { machineName, equipmentCodes = [] } = machineSource ?? {};
       const [equipment1, equipment2, equipment3] = equipmentCodes;
 
-      rows.push({ excelRow, partNumber, partName, machineName, equipment1, equipment2, equipment3, reason });
+      rows.push({ excelRow, location, partName, machineName, equipment1, equipment2, equipment3, reason });
 
       const key = machineKey(machineSource ?? {});
       const entry = machines.get(key) ?? {
@@ -80,7 +80,7 @@ const writeUnresolvedMachinesReport = async (collected, filePath) => {
     "Rows",
     [
       { header: "Excel Row", key: "excelRow", width: 10 },
-      { header: "Part No", key: "partNumber", width: 16 },
+      { header: "Location (PartsNumber)", key: "location", width: 22 },
       { header: "Part Name", key: "partName", width: 38 },
       { header: "Machine Name", key: "machineName", width: 34 },
       { header: "Equipment 1", key: "equipment1", width: 18 },

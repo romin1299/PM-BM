@@ -80,6 +80,9 @@ const runSpareMasterImport = async ({
       plantId,
       createdBy: importUser,
       unresolvedMachinesReportPath,
+      // A load into an empty stock-in catalogue is the fresh start the ids
+      // restart for; see the importer.
+      resetSequencesWhenEmpty: true,
     });
 
     if (verbose) {

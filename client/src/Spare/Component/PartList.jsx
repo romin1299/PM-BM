@@ -1,6 +1,6 @@
 import { memo, useEffect } from "react";
 import { Col, Row, Form } from "react-bootstrap";
-import { useFieldArray, useWatch } from "react-hook-form";
+import { useFieldArray, useFormState, useWatch } from "react-hook-form";
 import {
   newPartRequestForRadioOptions,
   partQtyOptions,
@@ -12,6 +12,25 @@ import { DropdownComponent } from "../Pages/SpareMasterRegistration/SpareMasterR
 import AttachmentField from "./AttachmentField";
 
 const initialState = {};
+
+const isBlank = (value) => value === "" || value == null;
+
+/**
+ * Min/Max are stock levels and only mean anything for a stock-in part, so
+ * they are only enforced while that is the request type — a stale pair left
+ * behind after switching to "For use" must not block the sheet. A blank on
+ * either side is "no bound", which the server treats the same way.
+ */
+const minNotAboveMax = (index) => (max, values) => {
+  const min = values?.changeParts?.[index]?.minQuantity;
+  if (values?.newPartFor !== newPartRequestForRadioOptions?.[1]?.value)
+    return true;
+  if (isBlank(min) || isBlank(max)) return true;
+  return (
+    Number(min) <= Number(max) ||
+    "Min quantity cannot be greater than max quantity"
+  );
+};
 
 const PartRow = memo(
   ({
@@ -27,6 +46,12 @@ const PartRow = memo(
     onRemoveUploaded,
   }) => {
     const partType = partData?.standerOrManufacturingPart;
+
+    const { errors } = useFormState({
+      control,
+      name: `changeParts.${index}.maxQuantity`,
+    });
+    const minMaxError = errors?.changeParts?.[index]?.maxQuantity?.message;
 
     return (
       <div className="m-0 p-0 w-50">
@@ -108,17 +133,27 @@ const PartRow = memo(
                   <input
                     type="number"
                     className="w-75"
-                    {...register(`changeParts.${index}.minQuantity`)}
+                    {...register(`changeParts.${index}.minQuantity`, {
+                      // Editing Min re-checks the pair, which is validated on Max.
+                      deps: [`changeParts.${index}.maxQuantity`],
+                    })}
                   />
                 </Col>
                 <Col className="w-100 d-flex justify-content-between">
                   <small>Max quantity</small>
                   <input
                     type="number"
-                    className="w-75"
-                    {...register(`changeParts.${index}.maxQuantity`)}
+                    className={`w-75${minMaxError ? " border-danger" : ""}`}
+                    {...register(`changeParts.${index}.maxQuantity`, {
+                      validate: minNotAboveMax(index),
+                    })}
                   />
                 </Col>
+                {minMaxError && (
+                  <Col className="w-100 text-end">
+                    <p className="text-error m-0">{minMaxError}</p>
+                  </Col>
+                )}
               </>
             )}
 
@@ -161,7 +196,7 @@ const PartRow = memo(
 
             <Col className="w-100 d-flex justify-content-between pb-1">
               <small>
-                Stander/
+                Standard/
                 <br />
                 Manufacturing part
               </small>
@@ -261,8 +296,9 @@ const PartList = ({
             partData={changeParts?.[index]}
             newPartFor={newPartFor}
             isReadOnly={isReadOnly}
-            // A sheet needs at least one part, so the last row cannot be removed.
-            canRemove={canRemoveParts && !isReadOnly && fields.length > 1}
+            // Any row can go, the last one included: "Add Part" comes back for
+            // an empty list, and the server refuses a sheet with no parts.
+            canRemove={canRemoveParts && !isReadOnly}
             onRemoveUploaded={onRemoveUploaded}
           />
         ))}

@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { BarElement } from "chart.js";
+import { axisTitle } from "../../../SpareInventoryReport/SubComponent/ChartComponents/StackedBarChart";
 // import { ArcElement, Tooltip, Legend } from "chart.js";
 
 /**
@@ -10,7 +11,13 @@ import { BarElement } from "chart.js";
  * (Spare)", "SEALER ENG-01" — and those names can only be read lying flat. Laid
  * vertically they are rotated under bars narrower than the text itself.
  */
-const BarChart = ({ ChartComponent, counters, indexAxis = "y" }) => {
+const BarChart = ({
+  ChartComponent,
+  counters,
+  indexAxis = "y",
+  // What each axis measures — { x, y } — set per chart by the caller.
+  axisTitles = {},
+}) => {
   const isHorizontal = indexAxis === "y";
 
   const dataset = useMemo(
@@ -64,18 +71,20 @@ const BarChart = ({ ChartComponent, counters, indexAxis = "y" }) => {
           grid: {
             display: false,
           },
+          title: axisTitle(axisTitles.x),
         },
         y: {
           grid: {
             display: false,
           },
+          title: axisTitle(axisTitles.y),
           // Every ranked row must keep its name. Chart.js drops labels to save
           // room, which on a ranking leaves bars with nothing to identify them.
           ...(isHorizontal ? { ticks: { autoSkip: false } } : {}),
         },
       },
     }),
-    [counters, indexAxis, isHorizontal],
+    [counters, indexAxis, isHorizontal, axisTitles.x, axisTitles.y],
   );
 
   return (

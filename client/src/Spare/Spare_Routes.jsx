@@ -179,6 +179,9 @@ const SpareMasterRegistration = lazy(
 const SpareMasterDashboard = lazy(
   () => import("./Pages/SpareMasterDashboard/SpareMasterDashboard"),
 );
+const SpareUploadedMasterDashboard = lazy(
+  () => import("./Pages/SpareMasterDashboard/SpareUploadedMasterDashboard"),
+);
 const SparePartIssuance = lazy(
   () => import("./Pages/SparePartIssuance/SparePartIssuance"),
 );
@@ -278,6 +281,16 @@ const routes = [
   {
     path: "/spare/spareMasterDashboard",
     element: <SpareMasterDashboard />,
+    allowedRoles: allusers,
+  },
+  {
+    path: "/spare/recyclePartsMaster",
+    element: <SpareUploadedMasterDashboard masterType="recycle" />,
+    allowedRoles: allusers,
+  },
+  {
+    path: "/spare/repairedPartsMaster",
+    element: <SpareUploadedMasterDashboard masterType="repaired" />,
     allowedRoles: allusers,
   },
   {

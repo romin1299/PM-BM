@@ -36,7 +36,9 @@ import { ReactComponent as EditSheetIcon } from "../../static/svg/edit-sheet-2.s
 import EditIcon from "@mui/icons-material/Edit";
 import MainRequestSheetForView from "../Tabs/RequestSheetForView/MainRequestSheetForView";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
-import SparePartsRequestForm from "../SparePartsRequest/SparePartsRequestForm";
+import SparePartsRequestForm, {
+  machineParentHierarchyFromSheet,
+} from "../SparePartsRequest/SparePartsRequestForm";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import SafetyForm from "../Tabs/SafetyForm/SafetyForm";
 import SafetyFormV2 from "../../CM/Components/ReqestSheetOfCM/SafetyFormV2";
@@ -1332,11 +1334,9 @@ const RequestSheetMainDashboard = () => {
         (sparePartsRequestModal?.modelType === "SPARE_ISSUANCE" ? (
           <SparePartsRequestForm
             issuedFrom="BM"
-            machineParentHierarchy={{
-              cell: sparePartsRequestModal?.selectedRow?.cellRef,
-              line: sparePartsRequestModal?.selectedRow?.lineRef,
-              machine: sparePartsRequestModal?.selectedRow?.machineRef,
-            }}
+            machineParentHierarchy={machineParentHierarchyFromSheet(
+              sparePartsRequestModal?.selectedRow,
+            )}
             modelProp={{
               show: sparePartsRequestModal?.show,
               onHide: handleSparePartsModelState,

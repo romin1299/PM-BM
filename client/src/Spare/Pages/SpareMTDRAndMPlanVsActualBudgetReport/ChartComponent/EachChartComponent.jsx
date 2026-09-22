@@ -12,6 +12,7 @@ const EachChartComponent = ({
     labels: [],
     datasets: [],
   },
+  axisTitles = {},
 }) => {
   // const handleDownload = async () => {};
 
@@ -65,6 +66,7 @@ const EachChartComponent = ({
         <StackedBarChart
           chartData={chartData}
           ChartComponent={ChartComponent}
+          axisTitles={axisTitles}
         />
       </Box>
     </Box>

@@ -44,6 +44,8 @@ const LineWiseTopChart = ({
   ChartMiddlewareComponent,
   handleDownload,
   header,
+  // What runs along the bottom; the lines themselves run down the side.
+  valueAxisTitle,
   selectedYear,
   selectedMonth,
 }) => {
@@ -81,6 +83,7 @@ const LineWiseTopChart = ({
       ChartMiddlewareComponent={ChartMiddlewareComponent}
       otherProps={{
         indexAxis: "y",
+        axisTitles: { x: valueAxisTitle, y: "Line" },
       }}
       chartHeight={chartHeightFor(limit)}
       ExtraToolbar={<TopLimit handleSetParentLimit={handleSetParentLimit} />}
@@ -109,6 +112,7 @@ const InventoryRow3 = ({ selectedYear, selectedMonth }) => {
           ChartMiddlewareComponent={BarChart}
           handleDownload={handleDownloadCSVOrPDF}
           header={["Lines", "Quantity", "Cost in Mil"]}
+          valueAxisTitle="Available quantity (cost in Mil INR)"
           selectedYear={selectedYear}
           selectedMonth={selectedMonth}
         />
@@ -119,6 +123,7 @@ const InventoryRow3 = ({ selectedYear, selectedMonth }) => {
           url="/v1/spare/kpi/supplierCategoryWise"
           ChartMiddlewareComponent={StackedBarChart}
           handleDownload={handleDownloadLineWiseCSVOrPDF}
+          valueAxisTitle="Available quantity by supplier category (Nos.)"
           selectedYear={selectedYear}
           selectedMonth={selectedMonth}
         />

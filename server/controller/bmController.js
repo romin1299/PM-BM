@@ -1062,6 +1062,11 @@ const findRequestSheetMiddleware = async (req, res, next) => {
           line: "$line.line_name",
           machineNo: "$machine.machine_code",
           machineName: "$machine.machine_name",
+          // The spare-issuance popup raised from a row creates its sheet
+          // against the machine id; the names above are what it displays.
+          cellRef: 1,
+          lineRef: 1,
+          machineRef: 1,
           problem: "$breakDownBasicDataFilledByPRD.problemFaced",
           problemOccurredDateAndTimeOfBM: {
             $dateToString: {

@@ -26,6 +26,7 @@ const options = {
       grid: {
         display: false,
       },
+      title: { display: true, text: "Financial year" },
       ticks: {
         color: "black",
       },
@@ -34,6 +35,7 @@ const options = {
       grid: {
         display: false,
       },
+      title: { display: true, text: "Budget (INR)" },
       ticks: {
         color: "black",
       },

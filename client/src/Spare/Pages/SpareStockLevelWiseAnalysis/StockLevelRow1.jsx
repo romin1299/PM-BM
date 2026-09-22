@@ -31,6 +31,15 @@ const StockLevelRow1 = ({ selectedYear, selectedMonth }) => {
           title="Stock Level Wise Analysis"
           url="/v1/spare/kpi/stockLevelWiseAnalysis"
           ChartMiddlewareComponent={StackedBarChart}
+          // Parts grouped by how many are on the shelf: quantity as bars on the
+          // left axis, the cost of that stock as a line on the right.
+          otherProps={{
+            axisTitles: {
+              x: "Stock level (available qty per part)",
+              y: "Available quantity (Nos.)",
+              y1: "Cost (Mil INR)",
+            },
+          }}
           csvOrPDfFileNamePostPix={csvOrPDfFileNamePostPix}
           filters={filters}
           handleDownloadCSVOrPDF={handleDownloadDynamicDataCSVOrPDF}

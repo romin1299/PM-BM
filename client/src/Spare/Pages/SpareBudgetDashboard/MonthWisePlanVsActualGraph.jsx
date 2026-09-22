@@ -43,7 +43,7 @@ const options = {
       },
       title: {
         display: true,
-        text: "Months",
+        text: "Month",
       },
       ticks: {
         color: "black",
@@ -53,8 +53,10 @@ const options = {
       grid: {
         display: false,
       },
+      // Plan, actual and their cumulatives are all rupee figures.
       title: {
         display: true,
+        text: "Budget (INR)",
       },
       ticks: {
         color: "black",
@@ -125,7 +127,7 @@ const MonthWisePlanVsActualGraph = ({
         {
           type: "bar",
           stack: "bar-stacked",
-          label: "Monthly Plant",
+          label: "Monthly Plan",
           data: budget?.plan,
           backgroundColor: chartColors.barChart,
           borderRadius: 4,

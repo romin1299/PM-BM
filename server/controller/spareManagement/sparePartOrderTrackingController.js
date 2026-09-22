@@ -150,6 +150,8 @@ exports.orderTrackingDashboardProjection = tryCatchHandler(
         ],
       });
 
+      const isForUsePart = { $eq: ["$newPartFor", "For use"] };
+
       $project = {
         "changeParts._id": 1,
         "changeParts.masterId": 1,
@@ -184,16 +186,40 @@ exports.orderTrackingDashboardProjection = tryCatchHandler(
           "changeParts.rsPartReceiveTimeStamp",
           plant?.leadTime?.POIssueToVendorToPartReceive,
         ),
-        rsPartInspection: generateTrackingValueProjection(
-          "changeParts.rsPartReceiveTimeStamp",
-          "changeParts.rsPartInspectionTimeStamp",
-          plant?.leadTime?.partReceiveToPartInspection,
-        ),
-        rsMRNIssued: generateTrackingValueProjection(
-          "changeParts.rsPartInspectionTimeStamp",
-          "changeParts.rsMRNIssuedTimeStamp",
-          plant?.leadTime?.partInspectionToMRNIssued,
-        ),
+        /**
+         * A "For use" part is consumed on the machine, not taken into stock, so
+         * it has no inspection stage: the receipt goes straight to MRN. Its
+         * inspection cell carries no status (nothing to show, nothing to edit)
+         * and MRN Issued is timed from the receipt instead, with the two
+         * stages' allowances combined since the one step now spans both.
+         */
+        rsPartInspection: {
+          $cond: [
+            isForUsePart,
+            { timeStamp: "", taskStatus: null },
+            generateTrackingValueProjection(
+              "changeParts.rsPartReceiveTimeStamp",
+              "changeParts.rsPartInspectionTimeStamp",
+              plant?.leadTime?.partReceiveToPartInspection,
+            ),
+          ],
+        },
+        rsMRNIssued: {
+          $cond: [
+            isForUsePart,
+            generateTrackingValueProjection(
+              "changeParts.rsPartReceiveTimeStamp",
+              "changeParts.rsMRNIssuedTimeStamp",
+              (plant?.leadTime?.partReceiveToPartInspection ?? 0) +
+                (plant?.leadTime?.partInspectionToMRNIssued ?? 0),
+            ),
+            generateTrackingValueProjection(
+              "changeParts.rsPartInspectionTimeStamp",
+              "changeParts.rsMRNIssuedTimeStamp",
+              plant?.leadTime?.partInspectionToMRNIssued,
+            ),
+          ],
+        },
         rsMRNApproved: generateTrackingValueProjection(
           "changeParts.rsMRNIssuedTimeStamp",
           "changeParts.rsMRNApprovedTimeStamp",
