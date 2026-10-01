@@ -523,6 +523,16 @@ const MasterLogTable = ({
           value: "Under PRD HOD Approval",
           text: "Under PRD HOD Approval",
         },
+        // A CM raised from a New-Machine modification request ends with the
+        // requesting department's two approvals.
+        {
+          value: "Under PED TL Approval",
+          text: "Under PED TL Approval",
+        },
+        {
+          value: "Under PED HOS Approval",
+          text: "Under PED HOS Approval",
+        },
 
         {
           value: "Current Plan",

@@ -21163,7 +21163,31 @@ const handleUpdateDB3 = async function () {
   console.log("started...");
   const requestSheetData = await RequestSheetOfBM.aggregate([
     {
-      $match: {},
+      /**
+       * Only the sheets this migration has not reached yet, so a run that died
+       * part-way can simply be started again.
+       *
+       * `machine` is the marker because one sheet's updateOne writes all eleven
+       * fields in a single atomic call: once `machine` is an embedded object,
+       * that sheet finished and everything its lookups resolved was stored.
+       * Before the migration the field holds an ObjectId — or nothing — so
+       * "not an object" is exactly the set still to do.
+       *
+       * Re-running is harmless either way: every write is the same value
+       * derived from the same refs, so a sheet processed twice is unchanged.
+       * A sheet whose machineRef points at a machine that no longer exists
+       * resolves to nothing, keeps a non-object `machine`, and so is picked up
+       * by every run without ever being able to finish; it writes nothing, and
+       * the `$and` below leaves it alone once any other field has been filled.
+       */
+      $match: {
+        machine: { $not: { $type: "object" } },
+        line: { $not: { $type: "object" } },
+        cell: { $not: { $type: "object" } },
+        subSection: { $not: { $type: "object" } },
+        section: { $not: { $type: "object" } },
+        plant: { $not: { $type: "object" } },
+      },
     },
     {
       $lookup: {

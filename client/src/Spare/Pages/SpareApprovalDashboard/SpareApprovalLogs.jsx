@@ -132,7 +132,7 @@ const ApprovalMappingComponent = memo(({ otherData, rowIndex }) => (
     <td className="td-padding">{rowIndex}</td>
     <UptoMachineHeaders otherData={otherData} needToIncludeMaker={false} />
     <td className="td-padding">{otherData?.changeParts?.partName}</td>
-    <td className="td-padding">{otherData?.changeParts?.partNumber}</td>
+    <td className="td-padding">{otherData?.changeParts?.partModel}</td>
     {LogsMappingKeys?.map((key = "") => (
       <td className="td-padding">
         {otherData?.[key]?.map(
@@ -190,7 +190,7 @@ const LogsComponent = (props) => {
           "Machine No",
           // "Machine Name",
           "Part Name",
-          "Part Number",
+          "Part Model",
           "HOD NG Budget Approval",
           "MTD TL",
           "MTD HOSS",

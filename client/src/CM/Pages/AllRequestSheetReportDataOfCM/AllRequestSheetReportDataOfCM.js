@@ -22,6 +22,7 @@ import {
   initialState,
   reducer,
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import { cmCategoryCards } from "../../GlobalDataAccess/GlobalData";
 import axios from "axios";
 import tableIcons from "../../../components/MatrialTableIcon";
 import {
@@ -439,30 +440,12 @@ const AllRequestSheetReportDataOfCM = () => {
     "Under MTD HOSS Approval",
     "Under PRD TL Approval",
     "Under MTD HOS Approval",
+    // Only a PED-reflection CM reaches these two.
+    "Under PED TL Approval",
+    "Under PED HOS Approval",
     "Completed",
   ];
-  const CM_CategoryArrayForFilter = [
-    {
-      title: "Overhauling",
-      background: "#ffb4a1ff",
-      count: counters?.overhaulingCMCategory,
-    },
-    {
-      title: "Upgradation",
-      background: "#FFFF9D",
-      count: counters?.upgradationCMCategory,
-    },
-    {
-      title: "BM Reflection",
-      background: "#BEEB9F",
-      count: counters?.BM_ReflectionCMCategory,
-    },
-    {
-      title: "Others",
-      background: "#9fbfe0ff",
-      count: counters?.othersCMCategory,
-    },
-  ];
+  const CM_CategoryArrayForFilter = cmCategoryCards(counters);
   // ==============================================================
 
   const filtration = [

@@ -3,6 +3,7 @@ import React, {
   useContext,
   useMemo,
   useRef,
+  useState,
   useCallback,
 } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -32,6 +33,7 @@ import {
   SPARE_APPROVAL_LOG_FIELD_KEYS,
 } from "../../Utils/dropdownUtils";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
+import CopyFromRejectedSheet from "./CopyFromRejectedSheet";
 import NGBudgetApprovalSelection from "./NGBudgetApprovalSelection";
 import NewSpareRequestSheetNo from "./NewSpareRequestSheetNo";
 import RSDynamicApprovalSelection from "./RSDynamicApprovalSelection";
@@ -54,6 +56,9 @@ const SpareNewPartRequest = () => {
   const navigate = useNavigate();
 
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
+
+  // Where a copied rejected sheet was raised, for the filter bar to land on.
+  const [copiedHierarchy, setCopiedHierarchy] = useState(null);
 
   const {
     register,
@@ -205,6 +210,44 @@ const SpareNewPartRequest = () => {
   const handleRemoveUploadedAttachment = useCallback((filename) => {
     if (filename) removedAttachmentFilesRef.current.push(filename);
   }, []);
+
+  /**
+   * Fills the form from a rejected sheet.
+   *
+   * reset rather than setValue per field: changeParts is owned by a
+   * useFieldArray, which only picks up a wholesale replacement this way. What
+   * the requester has already chosen outside the copied fields — the approval
+   * slots above all — is kept by spreading the current values underneath.
+   *
+   * The copied sheet's stored drawings arrive as the "previously uploaded" side
+   * of partAttachments, so they travel onto the new sheet's parts at submit
+   * without being uploaded again.
+   */
+  const handleCopyFromRejectedSheet = useCallback(
+    (sheet, hierarchy) => {
+      if (!sheet) return;
+
+      reset({
+        ...getValues(),
+        ...sheet,
+        partAttachments: buildPartAttachments(sheet?.changeParts),
+      });
+
+      // The filter bar walks its own cascade down to this place; the machine it
+      // settles on is what the sheet is raised against.
+      if (hierarchy?.section) setCopiedHierarchy(hierarchy);
+    },
+    [reset, getValues],
+  );
+
+  // Whether copying would discard work: a part the requester has begun filling in.
+  const hasEnteredParts = useMemo(
+    () =>
+      Boolean(
+        changeParts?.some((part) => part?.partName || part?.partModel),
+      ),
+    [changeParts],
+  );
 
   const handleNewPartRequest = async (formValue) => {
     if (searchParams.get("_id") && Object.keys(dirtyFields).length === 0)
@@ -438,10 +481,23 @@ const SpareNewPartRequest = () => {
                       cellFiltration
                       lineFiltration
                       machineFiltration
+                      preselect={copiedHierarchy}
                     />
                   )}
                 </Col>
               </Row>
+
+              {!searchParams.get("_id") && (
+                <Row className="border">
+                  <Col className="d-flex align-items-center col-auto pt-1 pb-1">
+                    <CopyFromRejectedSheet
+                      onCopy={handleCopyFromRejectedSheet}
+                      hasEnteredParts={hasEnteredParts}
+                    />
+                  </Col>
+                </Row>
+              )}
+
               <Row>
                 {searchParams.get("_id") ? (
                   <Col className="border d-flex align-items-center col-auto pt-0 pb-0">
@@ -550,6 +606,7 @@ const SpareNewPartRequest = () => {
                   <PartList
                     register={register}
                     control={control}
+                    getValues={getValues}
                     setValue={setValue}
                     onRemoveUploaded={handleRemoveUploadedAttachment}
                     isReadOnly={isReadOnly}
@@ -632,6 +689,7 @@ const SpareNewPartRequest = () => {
                     !watch("mtdHODApprovalIfBudgetIsNG.user.tm_name") && (
                       <NGBudgetApprovalSelection
                         register={register}
+                        control={control}
                         errors={errors}
                       />
                     ))}
@@ -655,6 +713,7 @@ const SpareNewPartRequest = () => {
                 watch("partRequestFor") && (
                   <RSDynamicApprovalSelection
                     register={register}
+                    control={control}
                     errors={errors}
                     partRequestFor={watch("partRequestFor")}
                   />

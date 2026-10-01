@@ -1,8 +1,13 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
+import { useWatch } from "react-hook-form";
 import useSafeGetRequest from "../../../CustomHooks/useSafeGetRequest";
 
-const MTDHODApproval = ({ register = () => {}, errors = () => {} }) => {
+const MTDHODApproval = ({
+  register = () => {},
+  control,
+  errors = () => {},
+}) => {
   const [{ data }] = useSafeGetRequest({
     url: "/v1/spare/user",
     axiosConfig: {
@@ -20,6 +25,13 @@ const MTDHODApproval = ({ register = () => {}, errors = () => {} }) => {
     },
   });
 
+  // Read from form state, so a value set before the list arrived — copying a
+  // rejected sheet does exactly that — is still shown once it does.
+  const selectedUserId = useWatch({
+    control,
+    name: "mtdHODApprovalIfBudgetIsNG.user._id",
+  });
+
   return (
     <Col className="d-flex flex-column col-auto">
       <div className="d-flex align-items-center justify-content-between gap-2">
@@ -30,12 +42,15 @@ const MTDHODApproval = ({ register = () => {}, errors = () => {} }) => {
           {...register("mtdHODApprovalIfBudgetIsNG.user._id", {
             required: "Please select MTD HOD",
           })}
+          value={selectedUserId ?? ""}
         >
-          <option selected disabled value="">
+          <option disabled value="">
             Please select
           </option>
           {data?.users?.map((obj) => (
-            <option value={obj?._id}>{obj?.tm_name}</option>
+            <option key={obj?._id} value={obj?._id}>
+              {obj?.tm_name}
+            </option>
           ))}
         </select>
       </div>
@@ -50,11 +65,12 @@ const MTDHODApproval = ({ register = () => {}, errors = () => {} }) => {
 
 const NGBudgetApprovalSelection = ({
   register = () => {},
+  control,
   errors = () => {},
 }) => {
   return (
     <Row className="border d-flex align-items-center gap-2">
-      <MTDHODApproval register={register} errors={errors} />
+      <MTDHODApproval register={register} control={control} errors={errors} />
       <Col className="d-flex flex-column col-auto">
         <div className="d-flex align-items-center justify-content-between gap-2">
           <small>Remarks</small>

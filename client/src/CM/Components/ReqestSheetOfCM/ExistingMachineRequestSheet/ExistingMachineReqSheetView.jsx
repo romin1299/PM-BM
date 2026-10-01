@@ -11,7 +11,10 @@ import {
 import axios from "axios";
 import DownloadIcon from "@mui/icons-material/Download";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
-import { SuccessToast } from "../../../../BM/Component/ShowTostify";
+import {
+  SuccessToast,
+  WarningToast,
+} from "../../../../BM/Component/ShowTostify";
 
 import SendForApprovalRadioButtons from "../RSComponents/SendForApprovalRadioButtons";
 import MiddlewareForTablesOfMTD from "./MiddlewareForTablesOfMTD";
@@ -66,6 +69,13 @@ const ExistingMachineReqSheetView = ({
     },
   });
 
+  /**
+   * A CM raised from an approved New-Machine modification request. It carries
+   * two more approvals at the end — the requesting department checks and
+   * approves the work — which an ordinary CM does not have.
+   */
+  const isPEDReflection = Boolean(watch("requestSheetOfNewMachineCMRef"));
+
   const handleDirtyFields = (requestSheetDataOfCM) => {
     let newVal = {};
 
@@ -113,6 +123,15 @@ const ExistingMachineReqSheetView = ({
     }
     return field?.length;
   };
+  /**
+   * What a sheet must carry before it can go for approval. Returns the reason
+   * it cannot, or null when it can.
+   *
+   * It returns the reason rather than just a flag because the inline message
+   * it sets sits far above the Submit button on a sheet this long: on a sheet
+   * whose work has not been recorded yet, pressing Submit simply did nothing
+   * and said nothing. The caller now says why.
+   */
   const handleCustomError = async ({
     changedParts,
     // actionAndCounterMeasureStep,
@@ -141,6 +160,9 @@ const ExistingMachineReqSheetView = ({
     try {
       if (requestSheetDataOfCM?.wantToSendForApproval === "Yes") {
         if (await handleCustomError(requestSheetDataOfCM)) {
+          WarningToast(
+            "Please record the work details before sending this sheet for approval.",
+          );
           return;
         }
       }
@@ -177,6 +199,13 @@ const ExistingMachineReqSheetView = ({
         otherFields.approvalObj_MTD_HOSS = watch("approvalObj_MTD_HOSS");
         otherFields.approvalObj_MTD_HOS = watch("approvalObj_MTD_HOS");
         prdApproval();
+
+        // A rejected PED-reflection sheet re-sends its closing approvers too,
+        // for the same reason as the MTD ones: the whole chain is re-opened.
+        if (isPEDReflection) {
+          otherFields.approvalObj_PED_TL = watch("approvalObj_PED_TL");
+          otherFields.approvalObj_PED_HOS = watch("approvalObj_PED_HOS");
+        }
       } else {
         if (requestSheetDataOfCM?.approvalObj_PRD_TL) {
           prdApproval();
@@ -1316,6 +1345,7 @@ const ExistingMachineReqSheetView = ({
                     isOtherFieldsEditableOrNot === "Yes"
                   }
                   isRequired={watch("wantToSendForApproval") === "Yes"}
+                  isPEDReflection={isPEDReflection}
                 />
 
                 {[

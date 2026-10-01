@@ -13,13 +13,12 @@ const SpareCustomized = () => {
     <Container fluid>
       <Row>
         <Col className="col-6">
-          <DynamicApproval toolRoomPerson={context?.toolRoomPerson} />
+          <DynamicApproval />
         </Col>
         <Col className="col-6">
           <DynamicApproval
             approvalKey="spareIssuanceDynamicApproval"
             title="Spare Issuance Dynamic Approval"
-            toolRoomPerson={context?.toolRoomPerson}
           />
         </Col>
       </Row>

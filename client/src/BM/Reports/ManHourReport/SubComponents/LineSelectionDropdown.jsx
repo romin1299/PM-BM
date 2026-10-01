@@ -35,6 +35,9 @@ const products = [
 
 const QUARTER_LIST = ["Q1", "Q2", "Q3", "Q4"];
 
+/** The cascade, outermost first. Used to key a `preselect` walk. */
+const HIERARCHY_ORDER = ["section", "subSection", "cell", "line", "machine"];
+
 function getStyles(name, personName, theme) {
   return {
     fontWeight:
@@ -105,6 +108,18 @@ export default function LineSelectionDropdown({
   selectedCurrentStatusOfRS = "",
 
   queryParams = {},
+
+  /**
+   * A place to select on the caller's behalf, as
+   * `{ section, subSection, cell, line, machine }` ids. Left undefined the bar
+   * behaves as it always has, choosing its own defaults.
+   *
+   * Each level's options are only known once its parent has been fetched, so a
+   * caller cannot simply dispatch the five selections: the lists would be empty
+   * and the selects would show nothing. The cascade therefore has to be walked,
+   * and it is walked here because this is where it already lives.
+   */
+  preselect,
 }) {
   const context = useContext(RoutingContext);
 
@@ -373,6 +388,56 @@ export default function LineSelectionDropdown({
       getFiltrationValueByDefault();
     }
   }, []);
+
+  /**
+   * Walks the cascade down to `preselect`, one level at a time, because each
+   * fetch is what produces the next level's options. Every step both names its
+   * own selection and clears the ones below it, so the step that follows is
+   * what fills them back in; the machine has nothing under it and is simply
+   * selected.
+   *
+   * Keyed on the ids rather than the object, so a caller passing a fresh object
+   * of the same place does not re-run the walk.
+   */
+  const preselectKey = HIERARCHY_ORDER.map((level) => preselect?.[level] ?? "")
+    .join("|")
+    .replace(/\|+$/, "");
+
+  useEffect(() => {
+    if (!preselect?.section) return;
+
+    // A walk already on its way is abandoned when a newer one starts, so two
+    // selections in quick succession cannot interleave.
+    let isCurrent = true;
+
+    (async () => {
+      await getFiltrationValueBasedOnSection({ section: preselect.section });
+
+      if (isCurrent && preselect.subSection)
+        await getFiltrationValueBasedOnSubSection({
+          subSection: preselect.subSection,
+        });
+
+      if (isCurrent && preselect.cell)
+        await getFiltrationValueBasedOnCell({ cell: preselect.cell });
+
+      if (isCurrent && preselect.line)
+        await getFiltrationValueBasedOnLine({ line: preselect.line });
+
+      if (isCurrent && preselect.machine)
+        reducerDispatch({
+          type: ACTION.HANDLE_SELECT_MACHINE,
+          isWithLocalStorageForFiltration,
+          flagForTogglingFilter: "based-on-machine",
+          selectedMachine: preselect.machine,
+        });
+    })();
+
+    return () => {
+      isCurrent = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preselectKey]);
 
   return (
     <Box sx={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>

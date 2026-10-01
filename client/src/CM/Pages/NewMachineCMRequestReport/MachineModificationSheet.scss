@@ -1,0 +1,180 @@
+/**
+ * The controlled form FO/MTD/17/01/05 as a page: one fixed 30-column grid,
+ * every band of the paper sheet a row of it. Kept to a stylesheet rather than
+ * inline styles so the whole sheet reads as one table, and so print and screen
+ * stay in step.
+ */
+.mm-sheet {
+  --mm-border: 1px solid #000;
+  --mm-band: #d9d9d9;
+  --mm-sub-band: #f2f2f2;
+
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #000;
+  background: #fff;
+
+  td,
+  th {
+    border: var(--mm-border);
+    padding: 2px 4px;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  /* Bands that name a section of the form. */
+  .mm-band {
+    background: var(--mm-band);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* Column captions and signature-box captions. */
+  .mm-label {
+    background: var(--mm-sub-band);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* A caption too long for its column, which the form prints over two lines. */
+  .mm-wrap {
+    white-space: normal;
+  }
+
+  .mm-center {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .mm-title {
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+  }
+
+  .mm-logo {
+    text-align: center;
+    vertical-align: middle;
+
+    img {
+      max-height: 46px;
+      max-width: 100%;
+    }
+  }
+
+  .mm-note {
+    font-size: 11px;
+  }
+
+  /* Inputs sit inside their cell without drawing a second box around it. */
+  input,
+  select,
+  textarea {
+    width: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    padding: 0;
+
+    &:disabled,
+    &[readonly] {
+      color: #000;
+      /* A greyed control reads as broken; the sheet is a document first. */
+      opacity: 1;
+      cursor: default;
+    }
+
+    &:focus {
+      background: #fffbe6;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100%;
+    display: block;
+  }
+
+  select {
+    appearance: auto;
+  }
+
+  /* A Yes / No pair, as the form prints them: one per line beside its label. */
+  .mm-yesno {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+
+    input {
+      width: auto;
+    }
+  }
+
+  .mm-required {
+    color: #b02a37;
+  }
+
+  /* Parts table: a row of inputs the requester adds to and removes from. */
+  .mm-row-action {
+    border: 0;
+    background: transparent;
+    color: #b02a37;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0 4px;
+    cursor: pointer;
+  }
+
+  .mm-add {
+    border: 0;
+    background: transparent;
+    color: #0d6efd;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+  }
+}
+
+/* Printing: the sheet alone, at the size it was drawn. */
+@media print {
+  .mm-sheet {
+    font-size: 10px;
+
+    .mm-band,
+    .mm-label {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  .mm-no-print {
+    display: none !important;
+  }
+}
+
+/* Detail sheets attached to a Yes declaration. */
+.mm-sheet {
+  .mm-files {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 11px;
+  }
+
+  .mm-file-input {
+    font-size: 11px;
+  }
+
+  .mm-error {
+    color: #b02a37;
+    font-size: 11px;
+  }
+}

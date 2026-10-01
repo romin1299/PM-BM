@@ -34,6 +34,15 @@ const {
 const {
   notifyApprovalChange,
 } = require("../../services/spare/spareApprovalMailService");
+const {
+  resolveMachineHierarchy,
+  requestSheetNoPrefix,
+  nextSpareRequestSheetCount,
+} = require("../../services/spare/machineHierarchyService");
+const {
+  listRejectedSheets,
+  buildSheetCopy,
+} = require("../../services/spare/rejectedSheetCopyService");
 
 const partFields = new Set([
   "rsPartReceive",
@@ -121,24 +130,15 @@ exports.getNewSpareSheetNoByDefault = tryCatchHandler(
       },
     });
 
-    let requestSheetNoPrefix = "";
+    const subSection = lineDetails?.cell_names?.subSection_names;
 
-    if (
-      lineDetails?.cell_names?.subSection_names?.section_names
-        ?.dashboardLevel === "Yes"
-    )
-      requestSheetNoPrefix = `${(lineDetails?.cell_names?.subSection_names?.section_names?.section_name)
-        .trim()
-        .substring(0, 2)
-        .toUpperCase()}`;
-    else
-      requestSheetNoPrefix = `${(lineDetails?.cell_names?.subSection_names?.subSection_name)
-        .trim()
-        .substring(0, 2)
-        .toUpperCase()}`;
-
+    // The number is only previewed here, so the line's counter is read rather
+    // than taken; submitting the sheet is what advances it.
     const requestSheetNo =
-      `${requestSheetNoPrefix}-${(lineDetails?.line_name).trim()}-${
+      `${requestSheetNoPrefix({
+        section: subSection?.section_names,
+        subSection,
+      })}-${(lineDetails?.line_name ?? "").trim()}-${
         moment().tz("Asia/Kolkata").month() + 1
       }-SPARE-${
         lineDetails?.requestSheetNoSpare
@@ -152,6 +152,36 @@ exports.getNewSpareSheetNoByDefault = tryCatchHandler(
     });
   },
 );
+/** Options for the "copy from a rejected sheet" dropdown on a new request. */
+exports.getRejectedSheetsForCopy = tryCatchHandler(async (req, res, next) => {
+  const { tableData, nextCursor, hasMore } = await listRejectedSheets({
+    search: req.query?.search,
+    cursor: req.query?.cursor,
+  });
+
+  return res.status(200).json({
+    message: "Rejected request-sheets fetched",
+    tableData,
+    nextCursor,
+    hasMore,
+  });
+});
+
+/** The copyable content of one rejected sheet, for prefilling a new request. */
+exports.getRejectedSheetCopy = tryCatchHandler(async (req, res, next) => {
+  const { isError, message, sheet, hierarchy } = await buildSheetCopy(
+    req.query?._id,
+  );
+
+  if (isError) return res.status(400).json({ message, showToast: true });
+
+  return res.status(200).json({
+    message: "Request-sheet copied",
+    sheet,
+    hierarchy,
+  });
+});
+
 const handleSetUploadedFileName = async ({
   data = {},
   uploadFileIndexesStr = "",
@@ -463,91 +493,27 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     });
   }
 
-  const machine = await Machine.findOne(
-    {
-      _id: selectedMachine,
-    },
-    {
-      machine_code: 1,
-      machine_name: 1,
-      machine_nickname: 1,
-      plant_names: 1,
-      section_names: 1,
-      subSection_names: 1,
-      cell_names: 1,
-      line_names: 1,
-    },
-  )
-    .populate({
-      path: "plant_names",
-      select: "plant_id plant_name",
-    })
-    .populate({
-      path: "section_names",
-      select: "section_id section_name dashboardLevel",
-    })
-    .populate({
-      path: "subSection_names",
-      select: "subSection_id subSection_name",
-    })
-    .populate({
-      path: "cell_names",
-      select: "cell_id cell_name",
-    })
-    .populate({
-      path: "line_names",
-      select: "line_id line_name requestSheetNoSpare",
-    });
+  const hierarchy = await resolveMachineHierarchy(selectedMachine);
 
-  if (
-    !machine?.plant_names ||
-    !machine?.section_names ||
-    !machine?.subSection_names ||
-    !machine?.cell_names ||
-    !machine?.line_names ||
-    !machine
-  )
+  if (hierarchy?.isError)
     return res.status(400).json({
-      message: "Plant/Section/Sub-section/Cell/Line/Machine not exist",
+      message: hierarchy?.message,
       showToast: true,
     });
 
-  data["plant"] = machine?.plant_names;
-  data["section"] = machine?.section_names;
-  data["subSection"] = machine?.subSection_names;
-  data["cell"] = machine?.cell_names;
-  data["line"] = machine?.line_names;
-  data["machine"] = machine;
+  data["plant"] = hierarchy?.plant;
+  data["section"] = hierarchy?.section;
+  data["subSection"] = hierarchy?.subSection;
+  data["cell"] = hierarchy?.cell;
+  data["line"] = hierarchy?.line;
+  data["machine"] = hierarchy?.machine;
 
-  let increaseCountOfRequestSheetInLine = await Line.findOneAndUpdate(
-    { _id: machine?.line_names?._id },
-    {
-      $set: {
-        requestSheetNoSpare: machine?.line_names?.requestSheetNoSpare
-          ? machine?.line_names?.requestSheetNoSpare + 1
-          : 1,
-      },
-    },
-    { new: true },
-  );
-
-  let requestSheetNoPrefix = "";
-
-  if (machine?.section_names?.dashboardLevel === "Yes")
-    requestSheetNoPrefix = `${(machine?.section_names?.section_name)
-      .trim()
-      .substring(0, 2)
-      .toUpperCase()}`;
-  else
-    requestSheetNoPrefix = `${(machine?.subSection_names?.subSection_name)
-      .trim()
-      .substring(0, 2)
-      .toUpperCase()}`;
+  const sheetCount = await nextSpareRequestSheetCount(hierarchy?.line?._id);
 
   data["requestSheetNo"] =
-    `${requestSheetNoPrefix}-${(machine?.line_names?.line_name).trim()}-${
+    `${requestSheetNoPrefix(hierarchy)}-${(hierarchy?.line?.line_name ?? "").trim()}-${
       moment().tz("Asia/Kolkata").month() + 1
-    }-SPARE-${increaseCountOfRequestSheetInLine?.requestSheetNoSpare}`.trim();
+    }-SPARE-${sheetCount}`.trim();
 
   data = await handleSetUploadedFileName({
     data,

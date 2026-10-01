@@ -38,7 +38,10 @@ const filterKeys = {
  * movement — any edit or a re-import would have made every part "moving".
  */
 const lastMovementDate = {
-  $ifNull: ["$lastIssuedDate", { $ifNull: ["$createDate", "$dateTime.inDate"] }],
+  $ifNull: [
+    "$lastIssuedDate",
+    { $ifNull: ["$createDate", "$dateTime.inDate"] },
+  ],
 };
 
 /** True when the last movement is within the past `years` years, to the day. */
@@ -195,13 +198,17 @@ exports.yearMonthFilter = tryCatchHandler(async (req, res, next) => {
 });
 
 /**
- * Holding ratio = inventory cost / machine cost x 100, as a percentage to two
- * decimals. Used by the KPI card and the inventory-trend chart alike, so the
- * chart's line and its percentage target share one scale.
+ * Holding ratio = Inventory Cost (Mil.) / Machine Cost (Mil.) x 100, as a
+ * percentage to two decimals. Used by the KPI card and the inventory-trend
+ * chart alike, so the chart's line and its percentage target share one scale.
+ *
+ * Both sides are in millions — the unit the machine cost is entered in and the
+ * unit the inventory card shows — so the figure can be checked against the two
+ * numbers on screen rather than against rupee totals that are never displayed.
  */
-const holdingRatioPercent = (costInINR, machineCost) => {
-  if (!machineCost) return 0;
-  return Number(((costInINR / machineCost) * 100).toFixed(2)) || 0;
+const holdingRatioPercent = (costInMil, machineCostInMil) => {
+  if (!machineCostInMil) return 0;
+  return Number(((costInMil / machineCostInMil) * 100).toFixed(2)) || 0;
 };
 
 /**
@@ -237,7 +244,7 @@ exports.getInventorySummery = tryCatchHandler(async (req, res, next) => {
       message: "No summery found",
     });
 
-  const [{ masterCount, overAllCostInINR, overAllCostInMil }] = summery;
+  const [{ masterCount, overAllCostInMil }] = summery;
 
   let counters = [
     {
@@ -255,12 +262,12 @@ exports.getInventorySummery = tryCatchHandler(async (req, res, next) => {
       ID: "MC1",
     });
 
-    // Holding ratio = inventory cost / machine cost x 100, both sides in rupees
-    // (dividing the millions figure by a rupee machine cost rounded to 0).
+    // The same millions figure the Inventory Cost card above shows, so the two
+    // cards and the ratio between them agree.
     counters.push({
       title: "Holding ratio (%)",
       value: holdingRatioPercent(
-        overAllCostInINR,
+        overAllCostInMil,
         machineCostDetails?.machineCost,
       ),
     });
@@ -610,7 +617,8 @@ const foldSlowMovingIntoDeadStock = (counters) => {
     .filter((c) => c !== slow)
     .map((c) => {
       if (typeof c?.value !== "object") return c;
-      const add = c.value._id === "GRATER_THEN_10" ? slow?.value ?? empty : empty;
+      const add =
+        c.value._id === "GRATER_THEN_10" ? (slow?.value ?? empty) : empty;
       return {
         ...c,
         value: {
@@ -853,12 +861,19 @@ exports.getInventoryTrend = tryCatchHandler(async (req, res, next) => {
         dataWithMonth: {
           $push: {
             month: "$_id.month",
-            // Holding ratio as a percentage; see holdingRatioPercent.
+            // Holding ratio as a percentage; see holdingRatioPercent. The
+            // cost is taken to millions first, the unit the machine cost is
+            // held in, so both sides of the division are on one scale.
             data: {
               $round: [
                 {
                   $multiply: [
-                    { $divide: ["$overAllCostInINR", machineCost] },
+                    {
+                      $divide: [
+                        convertCostInMilUnitInMongoose("$overAllCostInINR"),
+                        machineCost,
+                      ],
+                    },
                     100,
                   ],
                 },
@@ -1436,7 +1451,14 @@ const mastersIssuedSince = async (since) =>
 /**
  * Zero-stock and dead-stock part lists.
  *
- * Zero stock: nothing available, within the dashboard's FY / month filter.
+ * Zero stock: nothing available, across the whole catalogue.
+ *
+ * The FY / month filter is not applied. What is on the shelf is a fact about
+ * today, not about a financial year, and the filter matches on the year the
+ * master was *registered* — so the list held only the parts registered in the
+ * selected year, 404 of the 1418 the Inventory Dashboard counts. The dashboard
+ * counter never filtered, which is why the two disagreed; the same reasoning
+ * already governs the inventory summary and the dead-stock list below.
  *
  * Dead stock: stock lying without any stock-out for DEAD_STOCK_YEARS. The last
  * movement is the newest of the legacy last-issued date and any issuance made
@@ -1453,7 +1475,7 @@ const DEAD_STOCK_REQUEST = "reasonForKeepingDeadStock";
  * The rows of one list, in table order. Shared by the table and its CSV export
  * so the file always holds exactly what the table shows.
  */
-const zeroOrDeadStockParts = async ({ requestFor, yearMonthMatch }) => {
+const zeroOrDeadStockParts = async ({ requestFor }) => {
   const isDeadStock = requestFor === DEAD_STOCK_REQUEST;
 
   const projection = {
@@ -1491,7 +1513,6 @@ const zeroOrDeadStockParts = async ({ requestFor, yearMonthMatch }) => {
     ];
   } else {
     pipeline = [
-      { $match: yearMonthMatch },
       { $project: projection },
       { $match: { "budgetDetails.overAllAvailableQty": { $lte: 0 } } },
     ];
@@ -1503,7 +1524,6 @@ const zeroOrDeadStockParts = async ({ requestFor, yearMonthMatch }) => {
 exports.getZeroStockPartList = tryCatchHandler(async (req, res, next) => {
   const tableData = await zeroOrDeadStockParts({
     requestFor: req.query.requestFor,
-    yearMonthMatch: req.$match,
   });
 
   if (tableData?.length <= 0)
@@ -1525,10 +1545,7 @@ exports.exportZeroStockPartList = tryCatchHandler(async (req, res, next) => {
   const { requestFor } = req.query;
   const isDeadStock = requestFor === DEAD_STOCK_REQUEST;
 
-  const tableData = await zeroOrDeadStockParts({
-    requestFor,
-    yearMonthMatch: req.$match,
-  });
+  const tableData = await zeroOrDeadStockParts({ requestFor });
 
   if (tableData?.length <= 0)
     return res.status(404).json({
@@ -1539,7 +1556,9 @@ exports.exportZeroStockPartList = tryCatchHandler(async (req, res, next) => {
   const lastMovementText = ({ lastMovementDate: date, hasBeenIssued }) => {
     if (!date) return "-";
     const formatted = moment(date).format("DD/MM/YYYY");
-    return hasBeenIssued ? `Issued ${formatted}` : `In stock since ${formatted}`;
+    return hasBeenIssued
+      ? `Issued ${formatted}`
+      : `In stock since ${formatted}`;
   };
 
   const rows = tableData.map((row, index) => ({
@@ -1557,15 +1576,14 @@ exports.exportZeroStockPartList = tryCatchHandler(async (req, res, next) => {
       row[`${requestFor}Remarks`] ?? "",
   }));
 
+  // No period in the name: neither list is scoped to one, so naming a year
+  // would claim a narrowing the file does not have.
   const title = isDeadStock ? "Dead Stock" : "Zero Stock";
-  const period = [req.query.selectedYear, req.query.selectedMonth]
-    .filter(Boolean)
-    .join(" ");
 
   return res.status(201).json({
     message: "Data get successfully",
     tableData: unparseJSONData(rows),
-    fileName: `${title} Parts${!isDeadStock && period ? ` ${period}` : ""} ${moment().format("DD-MM-YYYY")}.csv`,
+    fileName: `${title} Parts ${moment().format("DD-MM-YYYY")}.csv`,
   });
 });
 
@@ -1669,7 +1687,7 @@ exports.getMTDRAndPlanVsActual = tryCatchHandler(async (req, res, next) => {
         datasets: [
           {
             type: "line",
-            label: "Cum Plant",
+            label: "Cum Plan",
             data: "$cumulativePlan",
             borderColor: "#fdb515",
             backgroundColor: "#fdb515",
@@ -1686,7 +1704,7 @@ exports.getMTDRAndPlanVsActual = tryCatchHandler(async (req, res, next) => {
           {
             type: "bar",
             stack: "bar-stacked",
-            label: "Monthly Plant",
+            label: "Monthly Plan",
             data: "$plan",
             backgroundColor: "#4A6EA8",
             borderRadius: 4,

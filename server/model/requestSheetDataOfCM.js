@@ -11,6 +11,39 @@ const requestSheetOfCMSchema = new mongoose.Schema({
     default: null,
   },
 
+  /**
+   * The New-Machine (modification) request this CM was raised from, once MTD
+   * HOD has approved it — the PED-reflection counterpart of
+   * requestSheetOfBMRef. It is also what stops a second CM being raised if the
+   * final approval is ever replayed.
+   */
+  requestSheetOfNewMachineCMRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "newMachineRequestSheet",
+    default: null,
+  },
+
+  /**
+   * The PM check point this CM was raised from, when an operator marked it NG
+   * on the implementation sheet — the PM-reflection counterpart of the two
+   * references above.
+   *
+   * A check point is not a document of its own: it lives inside the machine's
+   * check sheet, so the row it came from is named by the four things that
+   * identify one occurrence of it. That is also what stops a second CM being
+   * raised if the same row is submitted again.
+   */
+  pmAbnormalityRef: {
+    machineRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MachinesAllData",
+      default: null,
+    },
+    checkSheetYear: { type: String },
+    checkSheetMonth: { type: String },
+    tableRowId: { type: Number },
+  },
+
   //If require else byDefault is BM
   maintenanceType: {
     type: String,
@@ -166,6 +199,25 @@ const requestSheetOfCMSchema = new mongoose.Schema({
             },
           ],
           approvalOfMTD_HOD: [
+            {
+              ...userObj,
+              ...approvalObj,
+            },
+          ],
+
+          /**
+           * The requesting department's closing approvals, filled only on a CM
+           * raised from a New-Machine modification request (PED reflection):
+           * PED TL/HOSS checks the work, then PED HOS approves it. An ordinary
+           * CM leaves both empty and completes after MTD.
+           */
+          approvalOfPED_TL: [
+            {
+              ...userObj,
+              ...approvalObj,
+            },
+          ],
+          approvalOfPED_HOS: [
             {
               ...userObj,
               ...approvalObj,

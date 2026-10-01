@@ -61,7 +61,6 @@ const applyIssuanceToBudget = ({ cellId, monthIndex, usedBudget }) =>
 
 const User = require("../../model/userSchema");
 const Plant = require("../../model/plantSchema");
-const Machine = require("../../model/machineSchema");
 const SpareIssuanceSummary = require("../../model/spareIssuanceSummarySchema");
 const SpareMaster = require("../../model/spareMasterSchema");
 const SpareBudget = require("../../model/spareBudgetSchema");
@@ -79,6 +78,9 @@ const {
 } = require("../../utils/spareTimestamp");
 
 const unparseJSONData = require("../../utils/unparseJSONData");
+const {
+  resolveMachineHierarchy,
+} = require("../../services/spare/machineHierarchyService");
 const {
   isBelowReorderLevel,
   changePartFromMaster,
@@ -184,61 +186,20 @@ exports.handleSpareIssuanceSheet = tryCatchHandler(async (req, res, next) => {
       showToast: true,
     });
 
-  const machine = await Machine.findOne(
-    {
-      _id: req.body?.machine?._id,
-    },
-    {
-      machine_code: 1,
-      machine_name: 1,
-      machine_nickname: 1,
-      plant_names: 1,
-      section_names: 1,
-      subSection_names: 1,
-      cell_names: 1,
-      line_names: 1,
-    },
-  )
-    .populate({
-      path: "plant_names",
-      select: "plant_id plant_name",
-    })
-    .populate({
-      path: "section_names",
-      select: "section_id section_name dashboardLevel",
-    })
-    .populate({
-      path: "subSection_names",
-      select: "subSection_id subSection_name",
-    })
-    .populate({
-      path: "cell_names",
-      select: "cell_id cell_name",
-    })
-    .populate({
-      path: "line_names",
-      select: "line_id line_name requestSheetNoSpare",
-    });
+  const hierarchy = await resolveMachineHierarchy(req.body?.machine?._id);
 
-  if (
-    !machine?.plant_names ||
-    !machine?.section_names ||
-    !machine?.subSection_names ||
-    !machine?.cell_names ||
-    !machine?.line_names ||
-    !machine
-  )
+  if (hierarchy?.isError)
     return res.status(400).json({
-      message: "Plant/Section/Sub-section/Cell/Line/Machine not exist",
+      message: hierarchy?.message,
       showToast: true,
     });
 
-  req.body["plant"] = machine?.plant_names;
-  req.body["section"] = machine?.section_names;
-  req.body["subSection"] = machine?.subSection_names;
-  req.body["cell"] = machine?.cell_names;
-  req.body["line"] = machine?.line_names;
-  req.body["machine"] = machine;
+  req.body["plant"] = hierarchy?.plant;
+  req.body["section"] = hierarchy?.section;
+  req.body["subSection"] = hierarchy?.subSection;
+  req.body["cell"] = hierarchy?.cell;
+  req.body["line"] = hierarchy?.line;
+  req.body["machine"] = hierarchy?.machine;
 
   req.body["createdBy"] = req.rootUser;
   req.body["requestedDepartment"] = req.rootUser?.tm_department

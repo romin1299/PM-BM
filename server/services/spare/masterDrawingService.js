@@ -61,6 +61,12 @@ const syncSheetDrawingsToMasters = async (sheet) => {
  * Whether any request-sheet part or any master still points at the file.
  * `except` names a document whose own reference is being removed and so
  * should not count.
+ *
+ * Both of a part's file lists are checked. Additional attachments used to be
+ * left out, which was survivable only while no two sheets could name the same
+ * file; copying a rejected sheet shares them by design, and an unchecked list
+ * would let removing the file from one sheet delete it out from under the
+ * other.
  */
 const isDrawingReferenced = async (filename, { except = {} } = {}) => {
   const [onMaster, onSheet] = await Promise.all([
@@ -69,7 +75,10 @@ const isDrawingReferenced = async (filename, { except = {} } = {}) => {
       ...(except.masterId ? { _id: { $ne: except.masterId } } : {}),
     }),
     RequestSheetOfSpare.exists({
-      "changeParts.drawingAttach.filename": filename,
+      $or: [
+        { "changeParts.drawingAttach.filename": filename },
+        { "changeParts.additionalAttachments.filename": filename },
+      ],
       ...(except.sheetId ? { _id: { $ne: except.sheetId } } : {}),
     }),
   ]);

@@ -2,11 +2,19 @@ const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 
 const Plant = require("../../model/plantSchema");
 
+const NOT_AUTHORIZED =
+  "You are not authorized to configured this, please contact Plant-Admin or Section-Admin";
+
+const isAdmin = (user) =>
+  ["Plant-Admin", "Section-Admin"]?.includes(user?.user_type);
+
+const isToolRoomPerson = (user) =>
+  Boolean(user?.toolRoomPerson) && user?.toolRoomPerson !== "No";
+
 exports.authorizedToCustomize = tryCatchHandler(async (req, res, next) => {
-  if (!["Plant-Admin", "Section-Admin"]?.includes(req.rootUser?.user_type))
+  if (!isAdmin(req.rootUser))
     return res.status(400).json({
-      message:
-        "You are not authorized to configured this, please contact Plant-Admin or Section-Admin",
+      message: NOT_AUTHORIZED,
       showToast: true,
     });
 
@@ -15,10 +23,26 @@ exports.authorizedToCustomize = tryCatchHandler(async (req, res, next) => {
 
 exports.toolRoomAuthorizedToCustomize = tryCatchHandler(
   async (req, res, next) => {
-    if (!req.rootUser?.toolRoomPerson || req.rootUser?.toolRoomPerson === "No")
+    if (!isToolRoomPerson(req.rootUser))
       return res.status(400).json({
-        message:
-          "You are not authorized to configured this, please contact Plant-Admin or Section-Admin",
+        message: NOT_AUTHORIZED,
+        showToast: true,
+      });
+
+    return next();
+  },
+);
+
+/**
+ * The approval chains are maintained by the Tool Room as well as by the admins,
+ * so this is deliberately wider than `authorizedToCustomize`. Lead time and the
+ * rest of the customization page keep the admin-only rule.
+ */
+exports.approvalSelectionAuthorizedToCustomize = tryCatchHandler(
+  async (req, res, next) => {
+    if (!isAdmin(req.rootUser) && !isToolRoomPerson(req.rootUser))
+      return res.status(400).json({
+        message: NOT_AUTHORIZED,
         showToast: true,
       });
 

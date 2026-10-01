@@ -63,6 +63,11 @@ const ApproveOrRejectComponent = ({
           isPermissionOfPRDTL: watch("isPermissionOfPRDTL"),
           approvalOfPRD_TL: watch("approvalObj_PRD_TL.approvalOfPRD_TL"),
 
+          // Empty on an ordinary CM; on a PED-reflection sheet these are the
+          // two approvals that close it after MTD.
+          approvalOfPED_TL: watch("approvalObj_PED_TL.approvalOfPED_TL"),
+          approvalOfPED_HOS: watch("approvalObj_PED_HOS.approvalOfPED_HOS"),
+
           approvalOfRequestSheet: watch("approvalOfRequestSheet"),
           rejectedRemarksOfRequestSheet: watch("rejectedRemarksOfRequestSheet"),
           targetDateOfCM: targetDateOfCM,

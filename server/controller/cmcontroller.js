@@ -40,7 +40,11 @@ const {
 
 const {
   newRequestSheetDataStore,
+  findMachineWithParentHierarchy,
 } = require("../middleware/findMachineDataForNewRequestSheetOfCM");
+const {
+  generatePEDReflectionCM,
+} = require("../services/cm/pedReflectionCMService");
 const {
   updateCMTargetDate,
   buildOccurrenceArrayFilters,
@@ -51,6 +55,11 @@ const {
   ALL_MONTHS,
   MONTH_LABELS,
 } = require("../GlobalData/RequestSheetApprovalStatus");
+const { cmCategoryCounters } = require("../GlobalData/cmCategories");
+const {
+  PED_REFLECTION_APPROVALS,
+  isPEDReflectionSheet,
+} = require("../GlobalData/cmApprovalChain");
 const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
@@ -210,25 +219,7 @@ const findMachineUsing_id = tryCatchHandler(async (req, res, next) => {
 
 const findMachineDataWithParentHierarchy = tryCatchHandler(
   async (req, res, next) => {
-    const machine = await Machine.findOne(req.findMachineQuery)
-      .populate({
-        path: "line_names",
-        populate: {
-          path: "cell_names",
-          populate: {
-            path: "subSection_names",
-            populate: {
-              path: "section_names",
-              populate: {
-                path: "plant_names",
-                model: "Plants",
-              },
-            },
-          },
-        },
-      })
-      .select(["machine_code", "machine_name", "machine_nickname"])
-      .exec();
+    const machine = await findMachineWithParentHierarchy(req.findMachineQuery);
 
     if (!machine) {
       return res.status(400).json({
@@ -281,7 +272,16 @@ router.get(
       _id: { $ne: req?.rootUser?._id },
     };
 
-    if (req?.rootUser?.tm_grade !== "HOD") {
+    /**
+     * Approvers normally come from the caller's own section. `scope=plant`
+     * lifts that to the whole plant, for a sheet whose approvers are not the
+     * requester's colleagues: the modification-work sheet is approved by MTD,
+     * and MTD's HOD does not sit in every section — narrowed to the
+     * requester's own, that list came back empty.
+     */
+    const isPlantScope = req.query?.scope === "plant";
+
+    if (req?.rootUser?.tm_grade !== "HOD" && !isPlantScope) {
       if (section.dashboardLevel === "Yes") {
         queryObj = {
           ...queryObj,
@@ -456,6 +456,13 @@ const commonKeyGenerationMiddleware = tryCatchHandler(
       approvalOfMTD_HOSS: `${commonKey}.approvalOfMTD_HOSS`,
       approvalOfMTD_HOS: `${commonKey}.approvalOfMTD_HOS`,
       approvalOfPRD_TL: `${commonKey}.approvalOfPRD_TL`,
+      // The PED-reflection tail; empty on an ordinary CM.
+      ...Object.fromEntries(
+        PED_REFLECTION_APPROVALS.map(({ key }) => [
+          `approvalOf${key}`,
+          `${commonKey}.approvalOf${key}`,
+        ]),
+      ),
       requestSheetStatusOfCM: `${commonKey}.requestSheetStatusOfCM`,
     };
     req.commonKey = commonKey;
@@ -990,6 +997,23 @@ router.patch(
           );
         }
       }
+
+      /**
+       * LEVELS 5-6 (PED REFLECTION ONLY): THE REQUESTING DEPARTMENT
+       *
+       * A CM raised from an approved New-Machine modification request goes back
+       * to the department that asked for it once MTD is done: PED TL/HOSS
+       * checks the work, then PED HOS approves it, and only then is the sheet
+       * complete. The form offers these two only on such a sheet, so an
+       * ordinary CM simply sends neither and is unaffected.
+       */
+      PED_REFLECTION_APPROVALS.forEach(({ key }) => {
+        if (requestSheetDataFilledByMTDUserForCM?.[`approvalObj_${key}`])
+          addOrUpdateApprovalUser(
+            key,
+            requestSheetDataFilledByMTDUserForCM?.[`approvalObj_${key}`],
+          );
+      });
 
       /**
        * REQUEST SHEET STATUS WORKFLOW
@@ -1841,7 +1865,21 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
           $cond: [
             {
               $lte: [
-                { $size: `$current_commonDataFilledByAssignUser.${key}` },
+                {
+                  /**
+                   * $size throws on a missing field rather than returning 0,
+                   * which takes the whole aggregation down with it — and with
+                   * it every endpoint that projects an approval object.
+                   *
+                   * An approval array added to the schema after a sheet was
+                   * written simply is not on that document, so every sheet
+                   * predating it is "missing" here. Treated as empty, which is
+                   * what it means: nobody has approved at that level yet.
+                   */
+                  $size: {
+                    $ifNull: [`$current_commonDataFilledByAssignUser.${key}`, []],
+                  },
+                },
                 0,
               ],
             },
@@ -2048,6 +2086,15 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
    *    - Hides actual maintenance data (business logic)
    */
 
+  /**
+   * The occurrence the popup was opened on, as the dashboard row named it.
+   * "undefined" arrives as a string when the row had no target date.
+   */
+  const openedOccurrenceTargetDate =
+    req?.query?.targetDateOfCM && req.query.targetDateOfCM !== "undefined"
+      ? req.query.targetDateOfCM
+      : null;
+
   if (reqUrl?.includes("getReqSheetDataByID")) {
     /**
      * HISTORICAL YEAR-WISE DATA FILTERING STRATEGY
@@ -2083,15 +2130,41 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
                     $filter: {
                       input: "$$yearObj.quarterlyDataOfTheCM",
                       as: "quarterObj",
+                      /**
+                       * Occurrences already due, plus the one being opened.
+                       *
+                       * "Due on or before today" is right for the history the
+                       * sheet lists alongside, but the occurrence the user has
+                       * actually opened can be due later — a PM abnormality is
+                       * raised with the date it must be closed by, which is
+                       * always ahead. Filtered out, the sheet rendered no work
+                       * details, parts or action tables at all, so the
+                       * assigned user could never record the work that sending
+                       * for approval requires: pressing Submit did nothing.
+                       */
                       cond: {
-                        $lte: [
+                        $or: [
                           {
-                            $dateFromString: {
-                              dateString: "$$quarterObj.targetDateOfCM",
-                              timezone,
-                            },
+                            $lte: [
+                              {
+                                $dateFromString: {
+                                  dateString: "$$quarterObj.targetDateOfCM",
+                                  timezone,
+                                },
+                              },
+                              new Date(),
+                            ],
                           },
-                          new Date(),
+                          ...(openedOccurrenceTargetDate
+                            ? [
+                                {
+                                  $eq: [
+                                    "$$quarterObj.targetDateOfCM",
+                                    openedOccurrenceTargetDate,
+                                  ],
+                                },
+                              ]
+                            : []),
                         ],
                       },
                     },
@@ -2184,6 +2257,16 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
           "approvalOfPRD_TL",
           "isPermissionOfPRDTL",
         ),
+
+        // The PED-reflection tail, and the reference that tells the sheet it
+        // has one: without it the form cannot know to ask for these approvers.
+        ...Object.fromEntries(
+          PED_REFLECTION_APPROVALS.map(({ key }) => [
+            `approvalObj_${key}`,
+            getUserApprovalObj(`approvalOf${key}`),
+          ]),
+        ),
+        requestSheetOfNewMachineCMRef: 1,
       },
       aggregationPipeline: [],
     };
@@ -2231,6 +2314,7 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
         $arrayElemAt: ["$plantToMachineHierarchy.machine._id", 0],
       },
       requestSheetOfBMRef: 1,
+      requestSheetOfNewMachineCMRef: 1,
     };
 
     if (req?.query?.selectedRSStatus) {
@@ -2251,6 +2335,13 @@ const getRequestSheetData = tryCatchHandler(async (req, res, next) => {
       "current_commonDataFilledByAssignUser.approvalOfMTD_HOSS": 1,
       "current_commonDataFilledByAssignUser.approvalOfMTD_HOS": 1,
       "current_commonDataFilledByAssignUser.approvalOfPRD_TL": 1,
+      // The PED-reflection tail, so its approvals appear in the logs too.
+      ...Object.fromEntries(
+        PED_REFLECTION_APPROVALS.map(({ key }) => [
+          `current_commonDataFilledByAssignUser.approvalOf${key}`,
+          1,
+        ]),
+      ),
       "current_commonDataFilledByAssignUser.rejectedRemarksOfRequestSheet": 1,
     };
   }
@@ -2600,53 +2691,9 @@ router.get(
             },
           },
 
-          overhaulingCMCategory: {
-            $sum: {
-              $cond: [
-                {
-                  $eq: ["$cmBasicDataFilledByMTD_TL.categories", "Overhauling"],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          upgradationCMCategory: {
-            $sum: {
-              $cond: [
-                {
-                  $eq: ["$cmBasicDataFilledByMTD_TL.categories", "Upgradation"],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          BM_ReflectionCMCategory: {
-            $sum: {
-              $cond: [
-                {
-                  $eq: [
-                    "$cmBasicDataFilledByMTD_TL.categories",
-                    "BM Reflection",
-                  ],
-                },
-                1,
-                0,
-              ],
-            },
-          },
-          othersCMCategory: {
-            $sum: {
-              $cond: [
-                {
-                  $eq: ["$cmBasicDataFilledByMTD_TL.categories", "Others"],
-                },
-                1,
-                0,
-              ],
-            },
-          },
+          // One accumulator per category, from the shared list, so a category
+          // cannot be offered on the sheet and counted nowhere.
+          ...cmCategoryCounters(),
         },
       },
     ]);
@@ -2721,6 +2768,9 @@ router.patch(
       approvalOfMTD_HOS,
       isPermissionOfPRDTL,
       approvalOfPRD_TL,
+      // Sent only on a PED-reflection sheet; undefined on every other CM.
+      approvalOfPED_TL,
+      approvalOfPED_HOS,
       targetDateOfCM,
     } = req.body;
 
@@ -2755,6 +2805,14 @@ router.patch(
         department = "PRD_TL";
         break;
     }
+
+    // The requesting department's closing approvals, on a PED-reflection sheet.
+    const pedStage = PED_REFLECTION_APPROVALS.find(
+      (stage) =>
+        stage.status ===
+        current_commonDataFilledByAssignUser?.requestSheetStatusOfCM,
+    );
+    if (pedStage) department = pedStage.key;
 
     // if (
     //   current_commonDataFilledByAssignUser?.requestSheetStatusOfCM ===
@@ -2865,6 +2923,32 @@ router.patch(
         }
       };
 
+      /**
+       * Hands the sheet to a named approver, or finishes it if nobody holds
+       * that place — a sheet must never be left waiting on no one.
+       */
+      const handOverTo = (status, approver) => {
+        if (!approver?.userRef) return completeApproval();
+
+        nextApprovalObj.requestSheetStatusOfCM = status;
+        nextApprovalObj.getDataForApprovalDashboard = {
+          Id: approver?.userRef,
+          departmentAndGradeOfUser: approver?.user_type,
+        };
+      };
+
+      /**
+       * Where a CM goes once MTD (and PRD, if asked) have approved it.
+       *
+       * An ordinary CM is complete. One raised from a New-Machine modification
+       * request still owes the requesting department its two approvals, so it
+       * goes to PED TL/HOSS first and is completed only after PED HOS.
+       */
+      const completeOrHandToPED = () =>
+        isPEDReflectionSheet(isRequestSheetExist)
+          ? handOverTo(PED_REFLECTION_APPROVALS[0].status, approvalOfPED_TL)
+          : completeApproval();
+
       switch (current_commonDataFilledByAssignUser?.requestSheetStatusOfCM) {
         case "Under MTD TL Approval":
           nextApprovalObj.requestSheetStatusOfCM = "Under MTD HOSS Approval";
@@ -2890,11 +2974,20 @@ router.patch(
               Id: approvalOfPRD_TL?.userRef,
               departmentAndGradeOfUser: approvalOfPRD_TL?.user_type,
             };
-          } else completeApproval();
+          } else completeOrHandToPED();
 
           break;
 
         case "Under PRD TL Approval":
+          completeOrHandToPED();
+          break;
+
+        // ---- the PED-reflection tail ----
+        case "Under PED TL Approval":
+          handOverTo(PED_REFLECTION_APPROVALS[1].status, approvalOfPED_HOS);
+          break;
+
+        case "Under PED HOS Approval":
           completeApproval();
           break;
       }
@@ -4451,9 +4544,14 @@ router.delete("/jobs/:id/job-content/:subJobId", async (req, res) => {
 });
 
 // ✅ Multer setup (store only file name in schema)
+// Created on load: a fresh checkout has no folder for multer to write into,
+// and it fails the upload rather than making one.
+const NEW_MACHINE_CM_UPLOAD_DIR = "./AttachedPhotosOfNewMachineCMByMTD/";
+fs.mkdirSync(NEW_MACHINE_CM_UPLOAD_DIR, { recursive: true });
+
 const storageForRequestSheet = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./AttachedPhotosOfNewMachineCMByMTD/");
+    cb(null, NEW_MACHINE_CM_UPLOAD_DIR);
   },
   filename: function (req, file, cb) {
     const uniqueName = `${Date.now()}_${file.originalname}`;
@@ -4598,16 +4696,125 @@ const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
  * The user-list fields of the sheet, as [section, key] — a null section is the
  * sheet root, where the completion sign-offs live.
  */
+/**
+ * The approval chain of the modification-work sheet, in the order the form
+ * routes it: the requesting department checks and approves its own request,
+ * then MTD approves the work. Twin of the client's APPROVAL_STAGES.
+ *
+ * Every stage is named once here — which box it signs, what the sheet's status
+ * is while it waits there — so opening the chain and advancing it cannot
+ * disagree about the order.
+ */
+const NEW_MACHINE_CM_CHAIN = [
+  {
+    section: "newMachineRequestFilledByPED",
+    key: "checkedByPED_HOS",
+    status: "Under PED HOS Approval",
+  },
+  {
+    section: "newMachineRequestFilledByPED",
+    key: "approvedByPED_HOD",
+    status: "Under PED HOD Approval",
+  },
+  {
+    section: "filledByMTD_User",
+    key: "modificationWork_ApprovedByMTD_HOSS",
+    status: "Under MTD HOSS Approval",
+  },
+  {
+    section: "filledByMTD_User",
+    key: "modificationWork_ApprovedByMTD_HOS",
+    status: "Under MTD HOS Approval",
+  },
+  {
+    section: "filledByMTD_User",
+    key: "modificationWork_ApprovedByMTD_HOD",
+    status: "Under MTD HOD Approval",
+  },
+];
+
+/** Status a sheet carries once the whole chain has approved it. */
+const NEW_MACHINE_CM_CHAIN_COMPLETE = "Assigned";
+
+/**
+ * Opens the chain on a sheet being raised.
+ *
+ * Every approver starts Pending — the sheet records what each of them still
+ * owes, not only where it happens to be — and the sheet is handed to the first
+ * of them, which is what puts it on their approval dashboard. Without this a
+ * raised sheet sat at "Generated" with no approver named and appeared on
+ * nobody's list.
+ */
+const openNewMachineCMApprovalChain = (payload) => {
+  let firstApprover = null;
+
+  NEW_MACHINE_CM_CHAIN.forEach(({ section, key }) => {
+    const signature = payload?.[section]?.[key]?.[0];
+    if (!signature?.userRef) return;
+
+    signature.approvalStatus = "Pending";
+    if (!firstApprover) firstApprover = signature;
+  });
+
+  // A sheet nobody was named on stays where it is rather than being sent into
+  // a chain that has no one in it.
+  if (!firstApprover) return payload;
+
+  payload.statusOfNewRequestOfCM = NEW_MACHINE_CM_CHAIN[0].status;
+  payload.getDataForApprovalDashboard = {
+    Id: firstApprover.userRef,
+    departmentAndGradeOfUser: firstApprover.user_type,
+  };
+
+  return payload;
+};
+
+/**
+ * A nested payload rewritten as the dot-paths `$set` understands.
+ *
+ * `$set` on a path replaces everything under it, so an update carrying only
+ * the fields someone changed — which is what the form sends — would wipe the
+ * siblings it left alone, the approval signatures among them. Flattened to
+ * leaves, each changed field is set on its own and nothing else is touched.
+ *
+ * Arrays are leaves: a parts table with a row taken out has to replace the
+ * array rather than merge into it. `_id` is dropped — it is immutable, and the
+ * form carries it only because it read it.
+ */
+const toDotPaths = (value, prefix = "", out = {}) => {
+  Object.entries(value ?? {}).forEach(([key, entry]) => {
+    if (!prefix && key === "_id") return;
+
+    const path = prefix ? `${prefix}.${key}` : key;
+    const isBranch =
+      entry !== null &&
+      typeof entry === "object" &&
+      !Array.isArray(entry) &&
+      !(entry instanceof Date);
+
+    if (isBranch && Object.keys(entry).length) toDotPaths(entry, path, out);
+    else out[path] = entry;
+  });
+
+  return out;
+};
+
+/** Every signature box on the modification-work form, in sheet order. */
 const NEW_MACHINE_CM_USER_LISTS = [
-  ["newMachineRequestFilledByPED", "checkedByPED_HOS"],
+  // Requested department, top band
   ["newMachineRequestFilledByPED", "approvedByPED_HOD"],
+  ["newMachineRequestFilledByPED", "checkedByPED_HOS"],
+  ["newMachineRequestFilledByPED", "preparedByPED_TL"],
+  // Modification work approval from MTD
+  ["filledByMTD_User", "modificationWork_ApprovedByMTD_HOSS"],
   ["filledByMTD_User", "modificationWork_ApprovedByMTD_HOS"],
   ["filledByMTD_User", "modificationWork_ApprovedByMTD_HOD"],
-  ["filledByMTD_User", "modificationWork_AssignedMTD_TL"],
-  [null, "preparedAndCheckedByMTD_TL"],
-  [null, "approvedByMTD_HOS"],
-  [null, "checkedByPED_TL"],
+  // Closing band: requested department, then MTD
   [null, "approvedByPED_HOS"],
+  [null, "checkedByPED_TL"],
+  [null, "approvedByMTD_HOD"],
+  [null, "approvedByMTD_HOS"],
+  [null, "preparedAndCheckedByMTD_TL"],
 ];
 
 const isObjectIdString = (value) => OBJECT_ID_PATTERN.test(String(value ?? ""));
@@ -4645,10 +4852,6 @@ const normaliseNewMachineCMUsers = (payload = {}) => {
     if (kept.length) target[key] = kept;
     else delete target[key];
   });
-
-  const ped = payload.newMachineRequestFilledByPED;
-  if (ped && "preparedByPED_TL" in ped && !toUserEntry(ped.preparedByPED_TL))
-    delete ped.preparedByPED_TL;
 
   return payload;
 };
@@ -4710,7 +4913,6 @@ const hydrateNewMachineCMUsers = async (payload = {}) => {
  * WORKFLOW:
  * 1. Parse request body (handles multipart/form-data)
  * 2. Extract machine hierarchy and build ID object
- * 3. Normalize modificationWork data (convert object to array)
  * 4. Process and attach uploaded files
  * 5. Check if update or create:
  *    - UPDATE: Handle approval middleware, merge data, perform two-phase update
@@ -4764,22 +4966,6 @@ router.post(
             req?.machine?.line_names?.cell_names?.subSection_names
               ?.section_names?.plant_names?._id, // Parent plant
         };
-      }
-
-      // ========================================
-      // STEP 3: Normalize modificationWork data structure
-      // ========================================
-      // Convert modificationWork from object to array if needed
-      // Frontend may send as object {0: {...}, 1: {...}} instead of array
-      if (payload?.newMachineRequestFilledByPED?.modificationWork) {
-        const mw = payload.newMachineRequestFilledByPED.modificationWork;
-
-        // If it's already an array, keep it; otherwise convert object values to array
-        payload.newMachineRequestFilledByPED.modificationWork = Array.isArray(
-          mw,
-        )
-          ? mw
-          : Object.values(mw);
       }
 
       // ========================================
@@ -4940,7 +5126,9 @@ router.post(
         // STEP 5C: Two-phase update (SET then PUSH)
         // ========================================
         // Phase 1: Update fields using $set operator
-        let setObj = { ...payload, ...(updateObj._set || {}) },
+        // Flattened, so only the fields in the payload are written; see
+        // toDotPaths. updateObj._set is already dotted.
+        let setObj = { ...toDotPaths(payload), ...(updateObj._set || {}) },
           resultOfUpdatedSheet;
 
         resultOfUpdatedSheet = await NewMachineCM.findByIdAndUpdate(
@@ -4983,21 +5171,29 @@ router.post(
       // Generate globally unique request sheet number for this machine
       const newReqNo = await globalReqSheetNo(machine._id, "New-Machine-CM");
       payload.requestSheetNoOfNewMachineCM = newReqNo;
-      payload.statusOfNewRequestOfCM = "Generated"; // Initial status
+      payload.statusOfNewRequestOfCM = "Generated"; // Replaced below once the
+      // chain is opened; kept for a sheet raised with no approvers named.
 
-      // The creator is stamped from the session, never taken from the form.
-      // Set on the section itself rather than through a dotted key alongside
-      // it, so it cannot depend on which of the two Mongoose applies last.
-      payload.newMachineRequestFilledByPED = {
-        ...(payload.newMachineRequestFilledByPED ?? {}),
-        preparedByPED_TL: {
-          userRef: mongoose.Types.ObjectId(req?.rootUser?._id),
-          user_type: req?.rootUser?.user_type,
-          tm_no: req?.rootUser?.tm_no,
-          tm_name: req?.rootUser?.tm_name,
-          email: req?.rootUser?.email,
-        },
-      };
+      /**
+       * "Prepared by" is a signature box the requester picks, like the rest of
+       * the band. Left empty it falls back to whoever raised the sheet, so the
+       * form is never stored without a preparer.
+       */
+      const ped = payload.newMachineRequestFilledByPED ?? {};
+      if (!ped.preparedByPED_TL?.length)
+        ped.preparedByPED_TL = [
+          {
+            userRef: mongoose.Types.ObjectId(req?.rootUser?._id),
+            user_type: req?.rootUser?.user_type,
+            tm_no: req?.rootUser?.tm_no,
+            tm_name: req?.rootUser?.tm_name,
+            email: req?.rootUser?.email,
+          },
+        ];
+      payload.newMachineRequestFilledByPED = ped;
+
+      // Every approver starts Pending and the sheet goes to the first of them.
+      openNewMachineCMApprovalChain(payload);
 
       // ========================================
       // STEP 7: Create new request sheet document
@@ -5159,14 +5355,9 @@ const getNewMachineCMRequestSheet = tryCatchHandler(async (req, res, next) => {
    *
    * EDITABLE CONDITIONS:
    * 1. Sheet status is in ["Generated", "Assigned", "Fill Sheet", "Rejected", "Ongoing"]
-   * AND one of these is true:
-   *    a) Sheet is "Generated" or "Assigned" AND no MTD TL assignments exist (first-time edit)
-   *    b) Current user is assigned as MTD TL for this sheet
+   *    — the sheet is still being worked on, so whoever opens it may fill the
+   *    band their department owns; the form itself has no "assigned to" box.
    * 2. OR: Current user is next approver (getDataForApprovalDashboard.Id matches current user)
-   *
-   * LOGIC FLOW:
-   * - First check: Is status editable?
-   * - Second check: Does user have edit permissions (unassigned OR user is assigned OR user is approver)
    */
   let isEditableRS = {
     $cond: [
@@ -5177,53 +5368,8 @@ const getNewMachineCMRequestSheet = tryCatchHandler(async (req, res, next) => {
           ["Generated", "Assigned", "Fill Sheet", "Rejected", "Ongoing"],
         ],
       },
-      {
-        // INNER CONDITIONS: Multiple edit permission checks
-        $or: [
-          {
-            // PERMISSION 1: First-time edit by MTD TL
-            // Sheet is "Generated" or "Assigned" AND no MTD assignments yet
-            $and: [
-              {
-                $in: ["$statusOfNewRequestOfCM", ["Generated", "Assigned"]],
-              },
-              {
-                // Check if modificationWork_AssignedMTD_TL array is empty
-                $eq: [
-                  {
-                    $cond: [
-                      {
-                        $isArray:
-                          "$filledByMTD_User.modificationWork_AssignedMTD_TL",
-                      },
-                      {
-                        $size:
-                          "$filledByMTD_User.modificationWork_AssignedMTD_TL",
-                      },
-                      0,
-                    ],
-                  },
-                  0,
-                ],
-              },
-            ],
-          },
-          {
-            // PERMISSION 2: User is assigned as MTD TL
-            // Check if current user exists in the assigned TL list
-            $ne: [
-              {
-                $filter: {
-                  input: "$filledByMTD_User.modificationWork_AssignedMTD_TL",
-                  as: "item",
-                  cond: { $eq: ["$$item.userRef", req.rootUser?._id] },
-                },
-              },
-              [], // Not empty = user found
-            ],
-          },
-        ],
-      },
+      // An open sheet is editable.
+      true,
       {
         // PERMISSION 3: User is next approver
         $eq: ["$getDataForApprovalDashboard.Id", req.rootUser?._id],
@@ -5249,6 +5395,62 @@ const getNewMachineCMRequestSheet = tryCatchHandler(async (req, res, next) => {
         localField: "plantToMachineHierarchyRef", // Field in current doc
         foreignField: "_id", // Field in lookup collection
         as: "plantToMachineHierarchy", // Output array name
+      },
+    },
+
+    /**
+     * STAGE 2b: The CM sheet this request turned into, if MTD HOD has approved
+     * it — the PED reflection.
+     *
+     * Only what it takes to open that sheet is carried back: its id, its
+     * number, and the financial year, quarter and target date its popup is
+     * addressed by. The CM documents themselves hold every work detail and
+     * part ever recorded against them, and none of that belongs in a dashboard
+     * listing.
+     */
+    {
+      $lookup: {
+        from: "cm_requestsheetdatas",
+        localField: "_id",
+        foreignField: "requestSheetOfNewMachineCMRef",
+        as: "generatedCM",
+        pipeline: [
+          {
+            $project: {
+              requestSheetNoOfCM: 1,
+              selectedYear: {
+                $arrayElemAt: [
+                  "$commonDataFilledByAssignUser.preAggregationTimeStampOfRequestSheet.requestSheet_year",
+                  0,
+                ],
+              },
+              occurrence: {
+                $let: {
+                  // A reflected CM is one-time, so it has exactly one planned
+                  // occurrence; the first is the one to open.
+                  vars: {
+                    first: {
+                      $arrayElemAt: [
+                        {
+                          $arrayElemAt: [
+                            "$commonDataFilledByAssignUser.quarterlyDataOfTheCM",
+                            0,
+                          ],
+                        },
+                        0,
+                      ],
+                    },
+                  },
+                  in: {
+                    requestSheet_quarter: "$$first.requestSheet_quarter",
+                    targetDateOfCM: "$$first.targetDateOfCM",
+                    requestSheetStatusOfCM: "$$first.requestSheetStatusOfCM",
+                  },
+                },
+              },
+            },
+          },
+        ],
       },
     },
 
@@ -5303,6 +5505,11 @@ const getNewMachineCMRequestSheet = tryCatchHandler(async (req, res, next) => {
         machineName: {
           $arrayElemAt: ["$plantToMachineHierarchy.machine.machine_name", 0],
         },
+
+        // ============== THE CM RAISED FROM THIS REQUEST ==============
+        // Null until MTD HOD approves; the dashboard's "CM Sheet" action
+        // shows only for rows that have one.
+        generatedCM: { $arrayElemAt: ["$generatedCM", 0] },
       },
     },
   ]);
@@ -5525,8 +5732,8 @@ router.patch(
       preparedByPED_TL,
       checkedByPED_HOS,
       approvedByPED_HOD,
+      modificationWork_ApprovedByMTD_HOSS,
       modificationWork_ApprovedByMTD_HOS,
-      modificationWork_AssignedMTD_TL,
       modificationWork_ApprovedByMTD_HOD,
 
       // Main approval decision fields
@@ -5535,35 +5742,32 @@ router.patch(
       statusOfNewRequestOfCM, // Current approval stage status
     } = req.body;
 
-    // 3️⃣ STEP 3: Determine the correct approval path based on current status
-    // This switch identifies which approval array to update in the database based on current workflow stage
-    let department, ObjForUserFilter;
+    /**
+     * 3️⃣ STEP 3: Which signature box this decision belongs to — the one the
+     * sheet's current status says it is waiting at. Read from the chain rather
+     * than listed again here, so a stage cannot exist in one place and not the
+     * other.
+     */
+    const signatures = {
+      checkedByPED_HOS,
+      approvedByPED_HOD,
+      modificationWork_ApprovedByMTD_HOSS,
+      modificationWork_ApprovedByMTD_HOS,
+      modificationWork_ApprovedByMTD_HOD,
+    };
 
-    switch (statusOfNewRequestOfCM) {
-      case "Under PED HOS Approval":
-        // Target the PED HOS approval array within the PED section
-        department = "newMachineRequestFilledByPED.checkedByPED_HOS";
-        ObjForUserFilter = checkedByPED_HOS;
-        break;
+    const stageIndex = NEW_MACHINE_CM_CHAIN.findIndex(
+      (stage) => stage.status === statusOfNewRequestOfCM,
+    );
+    const stage = NEW_MACHINE_CM_CHAIN[stageIndex];
 
-      case "Under PED HOD Approval":
-        // Target the PED HOD approval array within the PED section
-        department = "newMachineRequestFilledByPED.approvedByPED_HOD";
-        ObjForUserFilter = approvedByPED_HOD;
-        break;
+    if (!stage)
+      return res.status(400).json({
+        message: `This sheet is not waiting for an approval (${statusOfNewRequestOfCM}).`,
+      });
 
-      case "Under MTD HOS Approval":
-        // Target the MTD HOS approval array within the MTD section
-        department = "filledByMTD_User.modificationWork_ApprovedByMTD_HOS";
-        ObjForUserFilter = modificationWork_ApprovedByMTD_HOS;
-        break;
-
-      case "Under MTD HOD Approval":
-        // Target the MTD HOD approval array within the MTD section
-        department = "filledByMTD_User.modificationWork_ApprovedByMTD_HOD";
-        ObjForUserFilter = modificationWork_ApprovedByMTD_HOD;
-        break;
-    }
+    const department = `${stage.section}.${stage.key}`;
+    const ObjForUserFilter = signatures[stage.key];
 
     // 4️⃣ STEP 4: Build the MongoDB update path using array filters
     // The $[userFilter] placeholder will be replaced with the actual approver's document
@@ -5585,6 +5789,13 @@ router.patch(
       departmentAndGradeOfUser: null,
     };
 
+    /**
+     * Whether this decision is the one that takes the sheet out of the chain —
+     * the last approval. That is what raises the PED-reflection CM sheet, once
+     * the update below has been written.
+     */
+    let isChainCompleted = false;
+
     // 6️⃣ STEP 6: Handle REJECTION scenario
     if (approvalOfRequestSheet === "No") {
       // When rejected, update the approval record and halt the workflow
@@ -5604,41 +5815,22 @@ router.patch(
         getDataForApprovalDashboard: NULL_Obj_getDataForApprovalDashboard,
       };
 
-      // Define the workflow progression
-      switch (statusOfNewRequestOfCM) {
-        // STAGE 1 → STAGE 2: After PED HOS approves, send to PED HOD
-        case "Under PED HOS Approval":
-          nextApprovalObj.statusOfNewRequestOfCM = "Under PED HOD Approval";
-          nextApprovalObj.getDataForApprovalDashboard = {
-            Id: approvedByPED_HOD?.userRef, // Next approver's ID
-            departmentAndGradeOfUser: approvedByPED_HOD?.user_type, // Next approver's designation
-          };
-          break;
+      /**
+       * On to the next stage of the chain, or out of it: the last approval
+       * finishes the sheet and it waits on nobody.
+       */
+      const nextStage = NEW_MACHINE_CM_CHAIN[stageIndex + 1];
 
-        // STAGE 2 → STAGE 3: After PED HOD approves, send to MTD HOS
-        case "Under PED HOD Approval":
-          nextApprovalObj.statusOfNewRequestOfCM = "Under MTD HOS Approval";
-          nextApprovalObj.getDataForApprovalDashboard = {
-            Id: modificationWork_ApprovedByMTD_HOS?.userRef,
-            departmentAndGradeOfUser:
-              modificationWork_ApprovedByMTD_HOS?.user_type,
-          };
-          break;
-
-        // STAGE 3 → STAGE 4: After MTD HOS approves, send to MTD HOD
-        case "Under MTD HOS Approval":
-          nextApprovalObj.statusOfNewRequestOfCM = "Under MTD HOD Approval";
-          nextApprovalObj.getDataForApprovalDashboard = {
-            Id: modificationWork_ApprovedByMTD_HOD?.userRef,
-            departmentAndGradeOfUser:
-              modificationWork_ApprovedByMTD_HOD?.user_type,
-          };
-          break;
-
-        // STAGE 4 → FINAL: After MTD HOD approves, workflow is complete
-        case "Under MTD HOD Approval":
-          nextApprovalObj.statusOfNewRequestOfCM = "Assigned"; // Workflow complete, ready for assignment
-          break;
+      if (nextStage) {
+        const nextApprover = signatures[nextStage.key];
+        nextApprovalObj.statusOfNewRequestOfCM = nextStage.status;
+        nextApprovalObj.getDataForApprovalDashboard = {
+          Id: nextApprover?.userRef,
+          departmentAndGradeOfUser: nextApprover?.user_type,
+        };
+      } else {
+        nextApprovalObj.statusOfNewRequestOfCM = NEW_MACHINE_CM_CHAIN_COMPLETE;
+        isChainCompleted = true;
       }
 
       // Update with acceptance and next stage details
@@ -5677,14 +5869,51 @@ router.patch(
       },
     );
 
-    // 9️⃣ STEP 9: Send success response with updated request sheet
+    /**
+     * 9️⃣ STEP 9: MTD HOD's approval is the point the modification becomes work
+     * to be carried out, so the CM sheet for it is raised here — the PED
+     * reflection, the counterpart of the BM reflection. Nothing is asked of the
+     * approver: the sheet is built from the request they just approved.
+     *
+     * A failure here must not undo the approval, which is already written, so
+     * it is logged and the approver still gets their success.
+     */
+    let generatedPEDReflectionCM = null;
+
+    if (isChainCompleted) {
+      try {
+        generatedPEDReflectionCM = await generatePEDReflectionCM({
+          sheet: requestSheetOfNewMachineCM,
+          rootUser: req?.rootUser,
+        });
+      } catch (error) {
+        console.error(
+          `PED reflection CM could not be raised for ${requestSheetID}:`,
+          error,
+        );
+      }
+    }
+
+    // 🔟 STEP 10: Send success response with updated request sheet
     successResponse(res, "Request-sheet approved successfully", {
       requestSheetOfNewMachineCM,
+      requestSheetNoOfGeneratedCM:
+        generatedPEDReflectionCM?.requestSheetNoOfCM ?? null,
     });
   }),
 );
 
 module.exports = router;
+
+/**
+ * Exposed for tests: the two steps every New-Machine-CM payload goes through
+ * before it is written, which decide what a half-filled form is allowed to
+ * store.
+ */
+module.exports.normaliseNewMachineCMUsers = normaliseNewMachineCMUsers;
+module.exports.hydrateNewMachineCMUsers = hydrateNewMachineCMUsers;
+module.exports.NEW_MACHINE_CM_USER_LISTS = NEW_MACHINE_CM_USER_LISTS;
+
 
 async function handleUpdate() {
   // _id encodes seconds-since-epoch at creation time — build range bounds from that

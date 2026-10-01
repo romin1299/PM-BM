@@ -6,7 +6,36 @@ const { globalReqSheetNo } = require("./globalReqSheetNo");
 const moment = require("moment-timezone");
 const timezone = "Asia/Kolkata";
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
+const Machine = require("../model/machineSchema");
 const mongoose = require("mongoose");
+
+/**
+ * A machine with the line → cell → sub-section → section → plant chain above
+ * it, which is what every CM sheet needs to store its hierarchy references.
+ *
+ * Kept here, next to the sheet creator that consumes it, so the populate chain
+ * is written once rather than repeated at each call site.
+ */
+exports.findMachineWithParentHierarchy = (filter) =>
+  Machine.findOne(filter)
+    .populate({
+      path: "line_names",
+      populate: {
+        path: "cell_names",
+        populate: {
+          path: "subSection_names",
+          populate: {
+            path: "section_names",
+            populate: {
+              path: "plant_names",
+              model: "Plants",
+            },
+          },
+        },
+      },
+    })
+    .select(["machine_code", "machine_name", "machine_nickname"])
+    .exec();
 
 const quarterlyDataAdd = (
   frequencyValue,
@@ -185,7 +214,14 @@ exports.newRequestSheetDataStore = async (
   requestSheetDataFilledByMTDUserForCM,
   plantToMachineHierarchyRef,
   rootUser,
-  attachedFilesByMTDUser = []
+  attachedFilesByMTDUser = [],
+  /**
+   * For callers that are neither the BM reflection nor the MTD's own
+   * registration: `requestSheetStatusOfCM` is the status the first quarter
+   * opens at, and `extraFields` are sheet-level fields only that caller knows
+   * about — the New-Machine-CM back-reference, for one.
+   */
+  { requestSheetStatusOfCM, extraFields = {} } = {}
 ) => {
   try {
     const generalDateFormat = (propDate = new Date()) =>
@@ -233,7 +269,7 @@ exports.newRequestSheetDataStore = async (
       requestSheetDataFilledByMTDUserForCM?.targetDateOfCM,
       requestSheetDataFilledByMTDUserForCM?.cmBasicDataFilledByMTD_TL
         ?.activityEndDateOfCM,
-      requestSheetIdOfBM ? "Generated" : "Assigned"
+      requestSheetStatusOfCM ?? (requestSheetIdOfBM ? "Generated" : "Assigned")
     );
     // requestSheetDataFilledByMTDUserForCM.sheetIssuedDateAndTimeOfCM =
     //   generalDateFormat(
@@ -302,11 +338,15 @@ exports.newRequestSheetDataStore = async (
         commonDataFilledByAssignUser,
         requestSheetOfBMRef: requestSheetIdOfBM,
         ...requestSheetDataFilledByMTDUserForCM,
+        // Last, so a caller's own sheet-level fields are not overwritten by the
+        // spread above.
+        ...extraFields,
       });
 
       return await requestSheetOfCM.save();
     }
   } catch (error) {
-    console.error();
+    // Was `console.error()` with no argument, which hid every failure here.
+    console.error("newRequestSheetDataStore failed:", error);
   }
 };

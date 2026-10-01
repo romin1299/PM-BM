@@ -108,7 +108,7 @@ const MonthWisePlanVsActualGraph = ({
       datasets: [
         {
           type: "line",
-          label: "Cum Plant",
+          label: "Cum Plan",
           data: budget?.cumulativePlan,
           borderColor: chartColors[0],
           backgroundColor: chartColors[0],

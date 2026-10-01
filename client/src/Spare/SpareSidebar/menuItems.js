@@ -18,8 +18,6 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import ModeStandbyIcon from "@mui/icons-material/ModeStandby";
 import StorageIcon from "@mui/icons-material/Storage";
-import RecyclingIcon from "@mui/icons-material/Recycling";
-import HandymanIcon from "@mui/icons-material/Handyman";
 
 const allusers = [
   //From PM
@@ -162,28 +160,29 @@ export const menuItems = [
     allowedRoles: allusers,
   },
   {
+    // The three master catalogues are one group, the way the KPI dashboards are:
+    // same record shape and same table, one per collection.
     title: "Master Dashboard",
     icon: (
       <StorageIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
-    route: "/spare/spareMasterDashboard",
-    allowedRoles: allusers,
-  },
-  {
-    title: "Recycle Parts Master",
-    icon: (
-      <RecyclingIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/recyclePartsMaster",
-    allowedRoles: allusers,
-  },
-  {
-    title: "Repaired Parts Master",
-    icon: (
-      <HandymanIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-    ),
-    route: "/spare/repairedPartsMaster",
-    allowedRoles: allusers,
+    subItems: [
+      {
+        title: "Master Dashboard",
+        route: "/spare/spareMasterDashboard",
+        allowedRoles: allusers,
+      },
+      {
+        title: "Recycle Parts Master",
+        route: "/spare/recyclePartsMaster",
+        allowedRoles: allusers,
+      },
+      {
+        title: "Repaired Parts Master",
+        route: "/spare/repairedPartsMaster",
+        allowedRoles: allusers,
+      },
+    ],
   },
   {
     title: "Approval Logs",

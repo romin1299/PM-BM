@@ -36,6 +36,9 @@ const ChartsToolbar = ({
   currentStatusOfRSFiltration,
   currentStatusOfRequestSheet,
   queryParams = {},
+  // A place for the filters to land on, chosen by the page rather than by the
+  // bar's own defaults. See `preselect` on LineSelectionDropdown.
+  preselect,
 }) => {
   // const generatePPT = () => {
   //   const pptx = new pptxgen();
@@ -135,6 +138,7 @@ const ChartsToolbar = ({
           currentStatusOfRequestSheet={currentStatusOfRequestSheet}
           currentStatusOfRSFiltration={currentStatusOfRSFiltration}
           queryParams={queryParams}
+          preselect={preselect}
         />
       </Box>
 

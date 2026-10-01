@@ -289,14 +289,14 @@ exports.getFYPlanVsActualBudget = tryCatchHandler(async (req, res, next) => {
     ];
   }
 
-  const plantVsActual = await SpareBudget.aggregate([
+  const planVsActual = await SpareBudget.aggregate([
     {
       $match: req.$match,
     },
     ...pipeline,
     {
       $project: {
-        plantVsActual: [
+        planVsActual: [
           {
             $sum: "$plan",
           },
@@ -308,14 +308,14 @@ exports.getFYPlanVsActualBudget = tryCatchHandler(async (req, res, next) => {
     },
   ]);
 
-  if (!plantVsActual || plantVsActual?.length <= 0)
+  if (!planVsActual || planVsActual?.length <= 0)
     return res.status(404).json({
       message: "No data to display",
     });
 
   return res.status(201).json({
-    message: "FY Plant Vs actual budget get successfully",
-    ...plantVsActual[0],
+    message: "FY Plan Vs actual budget get successfully",
+    ...planVsActual[0],
   });
 });
 
@@ -396,7 +396,7 @@ exports.getFYPlanVsActualBudget = tryCatchHandler(async (req, res, next) => {
 //     });
 
 //   return res.status(201).json({
-//     message: "FY Plant Vs actual budget get successfully",
+//     message: "FY Plan Vs actual budget get successfully",
 //     ...budget[0],
 //   });
 // });
@@ -521,7 +521,7 @@ exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
     });
 
   return res.status(201).json({
-    message: "FY Plant Vs actual budget get successfully",
+    message: "FY Plan Vs actual budget get successfully",
     ...budget[0],
   });
 });
@@ -546,7 +546,7 @@ exports.getSectionWiseBudget = tryCatchHandler(async (req, res, next) => {
     });
 
   return res.status(201).json({
-    message: "FY Plant Vs actual budget get successfully",
+    message: "FY Plan Vs actual budget get successfully",
     budget: sectionWiseBudget[0],
   });
 });

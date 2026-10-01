@@ -1,4 +1,4 @@
-import { memo, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { Col, Row, Form } from "react-bootstrap";
 import { useFieldArray, useFormState, useWatch } from "react-hook-form";
 import {
@@ -8,6 +8,7 @@ import {
   partRequirementTypes,
   supplierCategoryTypes,
 } from "../Utils/dropdownUtils";
+import { ATTACHMENT_FIELDS } from "../Utils/attachmentUtils";
 import { DropdownComponent } from "../Pages/SpareMasterRegistration/SpareMasterRegistration";
 import AttachmentField from "./AttachmentField";
 
@@ -246,7 +247,7 @@ const PartRow = memo(
 const PartList = ({
   register,
   control,
-  watch,
+  getValues,
   setValue,
   isReadOnly,
   /**
@@ -276,11 +277,55 @@ const PartList = ({
     name: "newPartFor",
   });
 
+  /**
+   * Drops the attachment slots of parts that are no longer on the sheet.
+   *
+   * `partAttachments` is a plain array running parallel to changeParts, and
+   * everything that reads it — the file pickers, and the merge and upload at
+   * submit time — goes by position. A part taken out of the field array alone
+   * would leave its slot behind, so the next part to occupy that position
+   * showed, and submitted, the removed part's files.
+   *
+   * Files already stored on the sheet are reported as they go, so the server
+   * can unlink the ones nothing else references.
+   */
+  const dropPartAttachments = useCallback(
+    (keep) => {
+      const partAttachments = getValues?.("partAttachments") ?? [];
+
+      partAttachments.forEach((attachments, position) => {
+        if (keep(position)) return;
+        ATTACHMENT_FIELDS.forEach((fieldName) =>
+          (attachments?.[fieldName] ?? []).forEach((file) =>
+            onRemoveUploaded?.(file?.filename),
+          ),
+        );
+      });
+
+      setValue(
+        "partAttachments",
+        partAttachments.filter((_, position) => keep(position)),
+        { shouldDirty: true },
+      );
+    },
+    [getValues, setValue, onRemoveUploaded],
+  );
+
+  const handleRemovePart = useCallback(
+    (index) => {
+      dropPartAttachments((position) => position !== index);
+      remove(index);
+    },
+    [dropPartAttachments, remove],
+  );
+
   useEffect(() => {
     if (partQty === partQtyOptions?.[0]?.value && changeParts?.length > 1) {
+      // Switching to a single part discards the rest, attachments included.
+      dropPartAttachments((position) => position === 0);
       replace([fields[0]]);
     }
-  }, [partQty, replace, fields, changeParts]);
+  }, [partQty, replace, fields, changeParts, dropPartAttachments]);
 
   return (
     <div className="mtd-parts-section">
@@ -292,7 +337,7 @@ const PartList = ({
             register={register}
             control={control}
             setValue={setValue}
-            remove={remove}
+            remove={handleRemovePart}
             partData={changeParts?.[index]}
             newPartFor={newPartFor}
             isReadOnly={isReadOnly}

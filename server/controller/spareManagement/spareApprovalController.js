@@ -138,24 +138,15 @@ exports.getApprovalLogs = tryCatchHandler(async (req, res, next) => {
    * One row per part. The page is cut at sheet level first, so the cursor keeps
    * walking sheets and a sheet's parts are never split across two pages; the
    * unwind then repeats the sheet's hierarchy and approval columns on each of
-   * its parts. A part carries no part number of its own — that lives on the
-   * master it was raised against — so it is looked up, and stays empty for a
-   * new part that has no master yet.
+   * its parts. The part model is the part's own field, so the logs read it
+   * straight off the sheet — unlike the part number, which lives on the master
+   * and had to be joined in.
    */
   const tableData = await RequestSheetOfSpare.aggregate([
     { $match: matchStage },
     { $sort: { _id: -1 } },
     { $limit: limit },
     { $unwind: { path: "$changeParts", preserveNullAndEmptyArrays: true } },
-    {
-      $lookup: {
-        from: "sparemasters",
-        localField: "changeParts.masterId",
-        foreignField: "_id",
-        pipeline: [{ $project: { partNumber: 1 } }],
-        as: "master",
-      },
-    },
     {
       $project: {
         requestSheetNo: 1,
@@ -168,7 +159,7 @@ exports.getApprovalLogs = tryCatchHandler(async (req, res, next) => {
         budgetStatus: "$budget.budgetStatus",
         "changeParts._id": 1,
         "changeParts.partName": 1,
-        "changeParts.partNumber": { $first: "$master.partNumber" },
+        "changeParts.partModel": 1,
 
         mtdHODApprovalIfBudgetIsNGApprovalLogs: 1,
         approvalOfMTD_TLApprovalLogs: 1,

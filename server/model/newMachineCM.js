@@ -1,41 +1,38 @@
 /**
- * SCHEMA: New Machine Commissioning (CM) Request Sheet
+ * SCHEMA: Machine Modification Work Request / Report (CM)
  *
- * PURPOSE: Document and track new machine installation, modification, and commissioning workflow
+ * Mirrors the controlled form FO/MTD/17/01/05, section for section, so a
+ * stored sheet and the printed one hold the same fields in the same order:
  *
- * WORKFLOW:
- * 1. PED (Production Engineering Dept) submits: scope, purpose, safety/quality requirements
- * 2. PED TL/HOS/HOD review and approve/reject
- * 3. MTD (Maintenance Tech Dept) reviews and assigns TL
- * 4. MTD TL manages jobs (parent/sub-jobs) with work details and spare parts
- * 5. Multiple approval levels (MTD_HOS, PED_HOS) verify completion
- * 6. Final confirmation and status tracking
+ *   1. Requested department fills the request — scope, concept, background,
+ *      current vs proposed, purpose, the three Yes/No declarations — and names
+ *      its HOD (approves), HOS (checks) and TL (prepares).
+ *   2. MTD approves the work: HOSS, HOS, HOD.
+ *   3. MTD reports the work done — started/ended, who attended, description,
+ *      and the parts used.
+ *   4. Both departments close the sheet: the requester confirms completion and
+ *      signs off (HOS approves, TL checks), MTD signs off (HOD approves, HOS
+ *      checks, TL prepares).
  *
- * KEY DIFFERENCE FROM REGULAR CM:
- * - New machine installation (not corrective/preventive maintenance)
- * - Includes job/task structure with parent-child relationships
- * - Spare parts and modification tracking
- * - Multi-department approval chain (PED + MTD)
+ * The three stages are separately editable, which is why each keeps its own
+ * block rather than the fields being flattened.
  */
 const mongoose = require("mongoose");
 const { userObj, approvalObj } = require("./common");
 
-/**
- * REUSABLE WORK ENTRY FIELDS
- *
- * Used for both parent jobs and sub-jobs
- * Tracks work execution details, time, and responsible users
- */
-const commonFields = {
-  date: { type: String }, // Work execution date
-  from: { type: String }, // Start time
-  to: { type: String }, // End time
-  time_taken: { type: Number }, // Duration in hours
-  percentage: { type: Number, min: 0, max: 100, default: 0 }, // Completion %
-  doneBy: [userObj], // Workers who completed task
-  remarks: { type: String }, // Work notes/observations
-  attachedPhotosByMTD: { type: [String] }, // Evidence photos
-};
+/** A signature box on the form: who was named, and what they decided. */
+const signatureObj = [
+  {
+    ...userObj,
+    ...approvalObj,
+  },
+];
+
+/** The form's Yes / No declarations, which carry a detail sheet when Yes. */
+const yesNo = { type: String, enum: ["Yes", "No"] };
+
+/** Shifts the plant runs; the form prints them as "A  B  C  G". */
+const SHIFTS = ["A", "B", "C", "G"];
 
 const newMachineSchema = new mongoose.Schema(
   {
@@ -71,38 +68,51 @@ const newMachineSchema = new mongoose.Schema(
      * Purpose: Captures what needs to be done and why
      */
     newMachineRequestFilledByPED: {
-      scopeOfCM: {
-        type: String,
-      },
-      requestOn: { type: String }, // Request submission date
-      requiredOn: { type: String }, // Required completion date
-      modificationWork: [
-        {
-          modificationConcept: { type: String }, // Description of modification
-        },
-      ],
-      purposeOfCM: { type: String }, // Why this machine/modification
-      riskAssessment: { type: String }, // Safety risks identified
-      safetyRelated: { type: String }, // Safety implications (Yes/No)
-      qualityRelated: { type: String }, // Quality impact (Yes/No)
-      shiftOfNewCM: { type: String }, // Which shift to perform
+      scopeOfCM: { type: String }, // "Scope:" band at the head of the form
 
-      // ---- PED APPROVAL CHAIN ----
-      preparedByPED_TL: userObj, // TL who prepared request
-      checkedByPED_HOS: [
-        // HOS review (can have comments/rejection)
-        {
-          ...userObj,
-          ...approvalObj,
-        },
-      ],
-      approvedByPED_HOD: [
-        // Final PED approval (HOD)
-        {
-          ...userObj,
-          ...approvalObj,
-        },
-      ],
+      /**
+       * REQUEST ON / REQUIRED ON. The form prints a date and a time box for
+       * each; both are captured as one datetime-local value, since a date
+       * without its time was never meaningful on its own.
+       */
+      requestOn: { type: String },
+      requiredOn: { type: String },
+
+      /**
+       * The machine as the form names it. Copied from the machine the sheet is
+       * raised against at the moment it is raised, so a renamed or re-coded
+       * machine does not rewrite sheets already signed.
+       */
+      machineJigName: { type: String },
+      machineJigNo: { type: String },
+      deptLine: { type: String }, // "DEPT / LINE", e.g. "PRD-ECU/CBMU"
+
+      shiftOfNewCM: { type: String, enum: SHIFTS }, // SHIFT box
+
+      // ---- THE REQUEST ITSELF ----
+      modificationWorkRequest: { type: String }, // "...(With Concept):"
+      background: { type: String },
+      currentSituation: { type: String }, // "Current-"
+      proposedSituation: { type: String }, // "Proposed-"
+      purposeOfCM: { type: String },
+
+      /**
+       * The three declarations. Each is Yes or No on the form, and a Yes is
+       * what obliges the requester to attach a detail sheet — "(**) : If Yes,
+       * Please attach detail sheet" — so each carries its own attachments,
+       * held as filenames the way every other upload on this sheet is.
+       */
+      riskAssessment: yesNo, // "**Risk Assessment done"
+      riskAssessmentAttachments: { type: [String] },
+      safetyRelated: yesNo, // "**Safety related"
+      safetyRelatedAttachments: { type: [String] },
+      qualityRelated: yesNo, // "**Quality related"
+      qualityRelatedAttachments: { type: [String] },
+
+      // ---- REQUESTED DEPARTMENT SIGNATURES (top row of the form) ----
+      approvedByPED_HOD: signatureObj, // "Approved by HOD*" — mandatory
+      checkedByPED_HOS: signatureObj, // "Checked by"
+      preparedByPED_TL: signatureObj, // "Prepared by"
     },
 
     // ==================== STAGE 2: MTD EXECUTION ====================
@@ -114,74 +124,23 @@ const newMachineSchema = new mongoose.Schema(
      * Activities: Jobs/tasks, spare parts, completion verification
      */
     filledByMTD_User: {
-      // ---- MTD APPROVAL CHAIN ----
-      /**
-       * MTD HOS review of modification work plan (before execution)
-       * Verifies feasibility, safety, resource allocation
-       */
-      modificationWork_ApprovedByMTD_HOS: [
-        {
-          ...userObj,
-          ...approvalObj,
-        },
-      ],
-      /**
-       * MTD HOD final approval for modification execution
-       */
-      modificationWork_ApprovedByMTD_HOD: [
-        {
-          ...userObj,
-          ...approvalObj,
-        },
-      ],
-      /**
-       * MTD TL who assigned the modification work
-       * TL is responsible for coordinating technicians
-       */
-      modificationWork_AssignedMTD_TL: [userObj],
+      // ---- "MODIFICATION WORK APPROVAL FROM MTD" (stage 2) ----
+      modificationWork_ApprovedByMTD_HOSS: signatureObj,
+      modificationWork_ApprovedByMTD_HOS: signatureObj,
+      modificationWork_ApprovedByMTD_HOD: signatureObj,
 
-      // ---- JOB/TASK STRUCTURE ----
-      /**
-       * Hierarchical job structure for tracking work
-       *
-       * Format:
-       * Parent Job (e.g., "Machine Installation")
-       *   ├─ Sub-Job 1 (e.g., "Electrical connections")
-       *   └─ Sub-Job 2 (e.g., "Hydraulic setup")
-       *
-       * Each has: date, time, completion %, photos, personnel
-       * Allows fine-grained tracking of each task
-       */
-      job_details: {
-        job_name: {
-          type: String,
-          trim: true,
-        },
-        job_content: [
-          {
-            parent_job_name: { type: String, trim: true }, // Main task
-            expectedTime: { type: Number }, // Estimated hours
-            ...commonFields, // Actual work details
-            sub_job_content: [
-              {
-                child_job_name: { type: String, trim: true }, // Subtask
-                ...commonFields, // Work tracking
-              },
-            ],
-          },
-        ],
-      },
+      // ---- "MODIFICATION WORK REPORT ( To be filled by MTD)" (stage 3) ----
+      /** WORK STARTED / WORK ENDED: a date and a time box each on the form. */
+      workStartedOn: { type: String },
+      workEndedOn: { type: String },
+      /** "Attended By" — the MTD person who carried the work out. */
+      attendedBy: userObj,
+      workDescription: { type: String }, // "MODIFICATION WORK DESCRIPTION:"
 
-      // ---- SPARE PARTS TRACKING ----
       /**
-       * Whether spare parts were used during modification
-       * Yes/No flag for quick filtering of parts-replacement jobs
-       */
-      sparePartUsedOrNot: { type: String },
-      /**
-       * List of parts replaced/used
-       * Tracks: part number, name, maker, quantity, cost
-       * Used for inventory and financial reporting
+       * "PARTS  FOR MODIFICATION" — the form prints three rows; the table
+       * grows as needed. Price and cost centre are what the accounts side of
+       * the form asks for, and are not on any other CM sheet.
        */
       changedParts: [
         {
@@ -189,15 +148,16 @@ const newMachineSchema = new mongoose.Schema(
           partName: { type: String },
           makerName: { type: String },
           quantity: { type: Number },
-          cost: { type: Number },
+          price: { type: Number },
+          costCenter: { type: String },
         },
       ],
     },
 
     // ==================== COMPLETION & STATUS ====================
     /**
-     * Verification that modification meets PED requirements
-     * Yes/No confirmation after execution complete
+     * "Requested dept. Confirmation After Completion:" — the requester's own
+     * account of the finished work, written as prose on the form.
      */
     modificationConfirmationAfterCompletion: { type: String },
     /**
@@ -210,49 +170,17 @@ const newMachineSchema = new mongoose.Schema(
      * Tracks progression through approval chain
      */
     statusOfNewRequestOfCM: { type: String },
-    /**
-     * Final flag: "Yes"/"No" - is work completely finished?
-     * May differ from status (partial completion scenarios)
-     */
-    isJobFinished: { type: String },
-
     // ==================== APPROVAL SIGNATURES ====================
     /**
-     * MTD TL prepared and verified - initial technical check
+     * The closing signatures, the form's last band: the requested department
+     * on the left, MTD on the right. These are the sheet being closed, not the
+     * work being authorised — that is the top and middle bands.
      */
-    preparedAndCheckedByMTD_TL: [
-      {
-        ...userObj,
-        ...approvalObj,
-      },
-    ],
-    /**
-     * MTD HOS approved - senior technical approval
-     */
-    approvedByMTD_HOS: [
-      {
-        ...userObj,
-        ...approvalObj,
-      },
-    ],
-    /**
-     * PED TL checked technical execution - verifies work meets PED requirements
-     */
-    checkedByPED_TL: [
-      {
-        ...userObj,
-        ...approvalObj,
-      },
-    ],
-    /**
-     * PED HOS final approval - official sign-off on completion
-     */
-    approvedByPED_HOS: [
-      {
-        ...userObj,
-        ...approvalObj,
-      },
-    ],
+    approvedByPED_HOS: signatureObj, // Requested Dept. — "Approved by"
+    checkedByPED_TL: signatureObj, // Requested Dept. — "Checked by"
+    approvedByMTD_HOD: signatureObj, // MTD — "Approved by"
+    approvedByMTD_HOS: signatureObj, // MTD — "Checked by"
+    preparedAndCheckedByMTD_TL: signatureObj, // MTD — "Prepared by"
 
     // ==================== APPROVAL DASHBOARD ====================
     /**

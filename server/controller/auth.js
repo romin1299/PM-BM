@@ -31,6 +31,9 @@ const sendMailForAnnualPmScheduleReport = require("../sendMail/sendMailForAnnual
 const filterMiddleware = require("../middleware/filterMiddleware");
 const FinancialYear1 = require("../model/financialYearSchema");
 const CM_RequestSheetData = require("../model/requestSheetDataOfCM");
+const {
+  generatePMReflectionCM,
+} = require("../services/cm/pmReflectionCMService");
 
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
@@ -10547,6 +10550,43 @@ router.post(
               },
             );
           }
+        }
+      }
+
+      /**
+       * NG means the check point could not be put right during the PM itself,
+       * so the work is carried as a CM of its own — the PM reflection, the
+       * counterpart of the BM and PED ones.
+       *
+       * Nothing extra is asked of the operator: the check sheet already knows
+       * the machine and its hierarchy, and the popup has just asked for the
+       * date the abnormality is to be closed by, which becomes the CM's target
+       * date.
+       *
+       * A failure here must not lose the PM data that has just been written,
+       * so it is logged and the operator still gets their success.
+       */
+      if (workedOnPM === "No") {
+        try {
+          await generatePMReflectionCM({
+            machineCode: machineId,
+            machineRef: machinePopulateData?.[0]?._id,
+            tableRowId,
+            checkSheetRow:
+              machinePopulateData?.[0]?.checkSheet_data?.checkSheet?.find(
+                (row) => String(row?.tableRowId) === String(tableRowId),
+              ),
+            abnormalityRemarks,
+            targetDate,
+            checkSheetYear: yearOfCheckSheet,
+            checkSheetMonth: monthForCompareSystemMonth,
+            rootUser: loggedUserData,
+          });
+        } catch (error) {
+          console.error(
+            `PM reflection CM could not be raised for ${machineId} row ${tableRowId}:`,
+            error,
+          );
         }
       }
 

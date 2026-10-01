@@ -3,13 +3,25 @@ import { Autocomplete, TextField, CircularProgress } from "@mui/material";
 import { debounce } from "lodash";
 import { axiosGetOrDelete } from "../Utils/axiosUtils";
 
-const url = `/v1/spare/customization/customizeField`;
+const customizedFieldUrl = `/v1/spare/customization/customizeField`;
 
+/**
+ * Searchable dropdown over a cursor-paged endpoint: debounced search, more rows
+ * fetched as the list is scrolled.
+ *
+ * Any endpoint answering `{ tableData, nextCursor, hasMore }` can back it. It
+ * defaults to the customized-field values it was written for, where an option's
+ * label is the field named by `extraParams.requestedFor`; callers listing
+ * something else pass their own `url` and `optionLabel`.
+ */
 const SearchableScrollDropdown = ({
   label = "Search",
   onChange,
   value,
   extraParams = {},
+  url = customizedFieldUrl,
+  optionLabel,
+  sx = { width: "75%" },
 }) => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -37,13 +49,13 @@ const SearchableScrollDropdown = ({
       });
 
       if (!isError) {
-        setOptions((prev) => (append ? [...prev, ...tableData] : tableData));
+        setOptions((prev) => (append ? [...prev, ...(tableData ?? [])] : (tableData ?? [])));
         setHasMore(more);
         cursorRef.current = more ? nextCursor : null;
       }
       setIsLoading(false);
     },
-    [extraParams],
+    [extraParams, url],
   );
 
   // Debounced search — resets pagination on new search term
@@ -95,9 +107,13 @@ const SearchableScrollDropdown = ({
       onOpen={handleOpen}
       onClose={() => setOpen(false)}
       options={options}
-      getOptionLabel={(option) => option?.[extraParams?.requestedFor] ?? ""}
+      getOptionLabel={
+        optionLabel ?? ((option) => option?.[extraParams?.requestedFor] ?? "")
+      }
       isOptionEqualToValue={(option, val) =>
-        option?.[extraParams?.requestedFor] === val
+        optionLabel
+          ? option?._id === (val?._id ?? val)
+          : option?.[extraParams?.requestedFor] === val
       }
       value={value}
       onChange={(event, newValue) => onChange(newValue)}
@@ -109,7 +125,7 @@ const SearchableScrollDropdown = ({
         style: { maxHeight: 250 },
       }}
       size="small"
-      sx={{ width: "75%" }}
+      sx={sx}
       renderInput={(params) => (
         <TextField
           {...params}

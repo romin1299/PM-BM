@@ -20,6 +20,7 @@ import {
   initialState,
   reducer,
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import { cmCategoryCards } from "../../GlobalDataAccess/GlobalData";
 import axios from "axios";
 import tableIcons from "../../../components/MatrialTableIcon";
 import {
@@ -76,8 +77,29 @@ const NewMachineCMRequestSheetReport = () => {
     defaultStateForBmRequestSheet
   );
 
+  /**
+   * The CM sheet raised from a row, opened read-only in the same popup the CM
+   * dashboards use. Kept in its own state: it is addressed by the CM's id,
+   * year and occurrence, none of which are the New-Machine sheet's.
+   */
+  const defaultGeneratedCMState = {
+    cmReqSheetView: false,
+    isEditable: false,
+    selectedRowRequestSheetId: "",
+    selectedYear: "",
+    quarterOfSelectedRq: "",
+    targetDateOfCM: "",
+  };
+
+  const [generatedCMPopupData, setGeneratedCMPopupData] = useState(
+    defaultGeneratedCMState
+  );
+
   const handlePopupStatus = () =>
     setSelectedNewMachineCMRequestSheetPopupData(defaultState);
+
+  const handleGeneratedCMPopupStatus = () =>
+    setGeneratedCMPopupData(defaultGeneratedCMState);
 
   const getAllCMSheetData = async () => {
     try {
@@ -311,20 +333,30 @@ const NewMachineCMRequestSheetReport = () => {
         });
       },
     }),
-    // (row) => ({
-    //   icon: () => <ReceiptLongIcon className="text-primary" />,
-    //   tooltip: "BD Sheet",
-    //   position: "row",
-    //   hidden: row?.requestSheetOfBMRef === null,
-    //   onClick: (event, selectedRow) => {
-    //     setRequestSheetModalOpenClose({
-    //       ...requestSheetModalOpenClose,
-    //       requestSheetID: selectedRow?.requestSheetOfBMRef,
-    //       machine_code: selectedRow?.machineNo,
-    //       modalOpenClose: true,
-    //     });
-    //   },
-    // }),
+    /**
+     * The CM sheet this request turned into, once MTD HOD approved it. Hidden
+     * on rows that have none, the way the BD Sheet action is on a CM with no
+     * BM behind it — there is nothing to open until the reflection happens.
+     */
+    (row) => ({
+      icon: () => <ReceiptLongIcon className="text-primary" />,
+      tooltip: row?.generatedCM
+        ? `View CM sheet ${row?.generatedCM?.requestSheetNoOfCM ?? ""}`.trim()
+        : "CM Sheet",
+      position: "row",
+      hidden: !row?.generatedCM?._id,
+      onClick: (event, selectedRow) =>
+        setGeneratedCMPopupData({
+          cmReqSheetView: true,
+          // Read-only: the CM is worked on from the CM dashboards, not here.
+          isEditable: false,
+          selectedRowRequestSheetId: selectedRow?.generatedCM?._id,
+          selectedYear: selectedRow?.generatedCM?.selectedYear,
+          quarterOfSelectedRq:
+            selectedRow?.generatedCM?.occurrence?.requestSheet_quarter,
+          targetDateOfCM: selectedRow?.generatedCM?.occurrence?.targetDateOfCM,
+        }),
+    }),
   ];
   if (context?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus === "Yes") {
     requestSheetApprovalAction?.push((row) => ({
@@ -361,28 +393,7 @@ const NewMachineCMRequestSheetReport = () => {
     "Under MTD HOS Approval",
     "Completed",
   ];
-  const CM_CategoryArrayForFilter = [
-    {
-      title: "Overhauling",
-      background: "#ffb4a1ff",
-      count: counters?.overhaulingCMCategory,
-    },
-    {
-      title: "Upgradation",
-      background: "#FFFF9D",
-      count: counters?.upgradationCMCategory,
-    },
-    {
-      title: "BM Reflection",
-      background: "#BEEB9F",
-      count: counters?.BM_ReflectionCMCategory,
-    },
-    {
-      title: "Others",
-      background: "#9fbfe0ff",
-      count: counters?.othersCMCategory,
-    },
-  ];
+  const CM_CategoryArrayForFilter = cmCategoryCards(counters);
   // ==============================================================
 
   const filtration = [
@@ -703,6 +714,15 @@ const NewMachineCMRequestSheetReport = () => {
             />
           )}
         </div>
+
+        {/* The CM sheet this request was reflected into, viewed in place. */}
+        {generatedCMPopupData?.cmReqSheetView &&
+          generatedCMPopupData?.selectedRowRequestSheetId && (
+            <ExistingMachineReqSheetView
+              handlePopupStatus={handleGeneratedCMPopupStatus}
+              {...generatedCMPopupData}
+            />
+          )}
       </>
       {/* {requestSheetModalOpenClose?.modalOpenClose && (
         <MainRequestSheetForView

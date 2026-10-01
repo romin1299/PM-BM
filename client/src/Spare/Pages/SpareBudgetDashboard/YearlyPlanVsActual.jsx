@@ -55,7 +55,7 @@ const YearlyPlanVsActual = ({
       isLoading: true,
       isError: false,
       data: {
-        plantVsActual: [],
+        planVsActual: [],
       },
     },
   });
@@ -93,7 +93,7 @@ const YearlyPlanVsActual = ({
                 datasets: [
                   {
                     label: ["Plan", "Actual"],
-                    data: data?.plantVsActual,
+                    data: data?.planVsActual,
                     backgroundColor: chartColors.barChart,
                     borderRadius: 4,
                   },

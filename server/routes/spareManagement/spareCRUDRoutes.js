@@ -3,6 +3,8 @@ const router = express.Router();
 
 const {
   getNewSpareSheetNoByDefault,
+  getRejectedSheetsForCopy,
+  getRejectedSheetCopy,
   uploadDrawingAttach,
   registerNewSpareRequest,
   findSpareSheetBasedOnId,
@@ -31,6 +33,10 @@ const {
 } = require("../../controller/spareManagement/sparePartOrderTrackingController");
 
 router.route("/spareRequestSheet/newSheetNo").get(getNewSpareSheetNoByDefault);
+
+// Raising a new sheet from a rejected one: the picker, then the copied content.
+router.route("/spareRequestSheet/rejected").get(getRejectedSheetsForCopy);
+router.route("/spareRequestSheet/rejected/copy").get(getRejectedSheetCopy);
 
 router
   .route("/spareRequestSheet")

@@ -32,17 +32,23 @@ const DropdownComponent = ({
 
   return (
     <>
-      <small
-        className="mb-0 pt-1 "
-        style={{
-          fontSize: "15px",
-          width: "fit-content",
-          whiteSpace: "nowrap",
-        }}
-      >
-        <b>{title}</b>
-      </small>
-      &nbsp;&nbsp;
+      {/* A caller whose layout already names the field — a table header, say —
+          passes no title, and gets the control alone. */}
+      {title ? (
+        <>
+          <small
+            className="mb-0 pt-1 "
+            style={{
+              fontSize: "15px",
+              width: "fit-content",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <b>{title}</b>
+          </small>
+          &nbsp;&nbsp;
+        </>
+      ) : null}
       <select
         size="small"
         label={label}

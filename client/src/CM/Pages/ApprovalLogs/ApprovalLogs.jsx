@@ -216,6 +216,28 @@ const ApprovalLogs = () => {
 
       width: "20%",
     },
+    // Filled only on a CM raised from a New-Machine modification request; blank
+    // on every other sheet, like PRD TL is when its approval was not asked for.
+    {
+      title: "PED TL/HOSS",
+      render: (text, record) =>
+        renderApprovalUser(
+          record?.current_commonDataFilledByAssignUser?.approvalOfPED_TL,
+          record?.current_commonDataFilledByAssignUser
+            ?.rejectedRemarksOfRequestSheet
+        ),
+      width: "20%",
+    },
+    {
+      title: "PED HOS",
+      render: (text, record) =>
+        renderApprovalUser(
+          record?.current_commonDataFilledByAssignUser?.approvalOfPED_HOS,
+          record?.current_commonDataFilledByAssignUser
+            ?.rejectedRemarksOfRequestSheet
+        ),
+      width: "20%",
+    },
   ];
   const [reduceState, reducerDispatch] = useReducer(reducer, initialState());
   const baseUrlForFiltering = "/getFiltrationValue/all-filtration";

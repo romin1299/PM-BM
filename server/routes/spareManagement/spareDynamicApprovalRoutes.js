@@ -3,6 +3,7 @@ const router = express.Router();
 
 const {
   authorizedToCustomize,
+  approvalSelectionAuthorizedToCustomize,
   configureSpareDynamicApproval,
   getSpareDynamicApproval,
   toolRoomAuthorizedToCustomize,
@@ -14,7 +15,7 @@ const {
 
 router
   .route("/customization/dynamicApproval")
-  .patch(authorizedToCustomize, configureSpareDynamicApproval)
+  .patch(approvalSelectionAuthorizedToCustomize, configureSpareDynamicApproval)
   .get(getSpareDynamicApproval);
 
 router

@@ -135,6 +135,11 @@ app.use(express.static(path.join(__dirname, "OtherLossFiles")));
 app.use(express.static(path.join(__dirname, "manuals")));
 
 //for CM Files uploaded by MTD user while creation of the CM sheet
+// Detail sheets attached to a New-Machine-CM modification request, and the
+// work photos MTD adds to it; both land in this folder.
+app.use(
+  express.static(path.join(__dirname, "AttachedPhotosOfNewMachineCMByMTD")),
+);
 app.use(express.static(path.join(__dirname, "AttachedFilesByAssignedUser")));
 
 //for CM Files uploaded by MTD OperATOR user while filling the CM request-sheet

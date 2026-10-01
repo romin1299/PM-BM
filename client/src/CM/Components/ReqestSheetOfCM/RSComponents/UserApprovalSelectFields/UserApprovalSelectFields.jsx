@@ -3,6 +3,28 @@ import { Row, Col, Form } from "react-bootstrap";
 import axios from "axios";
 import DropdownComponent from "./DropdownComponent";
 
+/**
+ * The requesting department's closing approvals, asked for only on a CM raised
+ * from an approved New-Machine modification request. Each is a plain approval
+ * dropdown like the MTD ones above it.
+ */
+const PED_REFLECTION_APPROVALS = [
+  {
+    key: "PED_TL",
+    title: "Checked by PED TL/HOSS:",
+    label: "Select PED TL/HOSS",
+    shortLabel: "PED TL/HOSS",
+    listKey: "PEDTLList",
+  },
+  {
+    key: "PED_HOS",
+    title: "Approved by PED HOS:",
+    label: "Select PED HOS",
+    shortLabel: "PED HOS",
+    listKey: "PEDHOSList",
+  },
+];
+
 const UserApprovalSelectFields = ({
   watch,
   setValue,
@@ -10,8 +32,21 @@ const UserApprovalSelectFields = ({
   errors,
   isEditable,
   isRequired,
+  isPEDReflection = false,
 }) => {
   const [dropdownUsers, setDropdownUsers] = useState({});
+
+  /**
+   * PED's approvers are held apart from the rest, not merged into one bag.
+   *
+   * The endpoint answers every call with all eight lists, filling only the ones
+   * asked for and leaving the rest empty. Merged into shared state, whichever
+   * response arrived second overwrote the other's lists with those empties —
+   * and since the MTD call asks for every MTD and PRD TL/HOSS in the plant
+   * while PED's asks for a handful, the MTD reply was the one that landed last
+   * and left both PED dropdowns with nothing to offer.
+   */
+  const [pedDropdownUsers, setPedDropdownUsers] = useState({});
 
   const getApprovalListOfCM = async () => {
     try {
@@ -23,14 +58,40 @@ const UserApprovalSelectFields = ({
       console.log(error);
     }
   };
+
+  /**
+   * PED's approvers need their own call, and a plant-wide one: they are not the
+   * MTD requester's colleagues, so narrowed to the requester's own section the
+   * list comes back empty. Kept separate so the MTD and PRD lists above stay
+   * scoped exactly as they were.
+   */
+  const getPEDApprovalListOfCM = async () => {
+    try {
+      const response = await axios.get(
+        `/getApprovalUserList/?departmentFilterForTL=PED&departmentFilterForHOS=PED&scope=plant`
+      );
+      setPedDropdownUsers(response?.data?.userList ?? {});
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (isEditable) getApprovalListOfCM();
   }, [isEditable]);
+
+  useEffect(() => {
+    if (isEditable && isPEDReflection) getPEDApprovalListOfCM();
+  }, [isEditable, isPEDReflection]);
 
   return (
     <>
       <div className="p-2 ">
         <b>Approval flow:</b> MTD TL -&gt; MTD HOSS -&gt; MTD HOS -&gt; PRD TL
+        {isPEDReflection &&
+          PED_REFLECTION_APPROVALS.map(({ shortLabel }) => (
+            <React.Fragment key={shortLabel}> -&gt; {shortLabel}</React.Fragment>
+          ))}
       </div>
       <div className="border">
         <Row className="m-0 d-flex border align-items-start p-2">
@@ -235,6 +296,52 @@ const UserApprovalSelectFields = ({
             </div>
           </Col>
         </Row>
+
+        {/*
+          Only a PED-reflection CM carries these: the department that asked for
+          the modification checks and approves the work before the sheet closes.
+        */}
+        {isPEDReflection && (
+          <Row className="m-0 d-flex border align-items-start p-2">
+            {PED_REFLECTION_APPROVALS.map(
+              ({ key, title, label, shortLabel, listKey }) => {
+                const formKey = `approvalObj_${key}.approvalOf${key}`;
+                const fieldError =
+                  errors?.[`approvalObj_${key}`]?.[`approvalOf${key}`]?.userRef;
+
+                return (
+                  <Col key={key}>
+                    {isEditable ? (
+                      pedDropdownUsers?.[listKey] && (
+                        <DropdownComponent
+                          requiredMSG={isRequired ? "Please select" : false}
+                          isEditable={isEditable}
+                          setValue={setValue}
+                          title={title}
+                          userDropdown={pedDropdownUsers?.[listKey]}
+                          label={label}
+                          formKey={formKey}
+                          register={register}
+                          watch={watch}
+                        />
+                      )
+                    ) : (
+                      <>
+                        <b>{shortLabel}:</b>&nbsp;
+                        {(watch(`${formKey}.tm_name`) || "") +
+                          " - " +
+                          (watch(`${formKey}.approvalStatus`) || "")}
+                      </>
+                    )}
+                    {fieldError && (
+                      <p className="text-error">{fieldError?.message}</p>
+                    )}
+                  </Col>
+                );
+              }
+            )}
+          </Row>
+        )}
       </div>
     </>
   );

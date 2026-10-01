@@ -32,12 +32,18 @@ const MachineCost = () => {
   return (
     <form onSubmit={handleSubmit(handleSubmitForm)} className="col-auto">
       <Row>
-        <Col className="col-auto">Machine cost:</Col>
+        <Col className="col-auto">Machine cost (Mil.):</Col>
         <Col className="col-auto">
+          {/* Entered in millions — 11.5 means 11.5 million — so `step` has to
+              allow decimals: a number input steps by 1 by default and would
+              reject anything with a fraction. */}
           <input
             type="number"
+            step="0.01"
+            min="0"
             {...register("machineCost", {
               required: "Machine cost is required",
+              valueAsNumber: true,
             })}
           />
           {errors?.["machineCost"] && (

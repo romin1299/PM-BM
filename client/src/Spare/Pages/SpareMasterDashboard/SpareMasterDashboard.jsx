@@ -57,7 +57,6 @@ export const MASTER_COLUMNS = [
   { header: "Issued Qty", key: "issuedQty" },
   { header: "Available Qty", key: "availableQty" },
   { header: "Overall Cost (INR)", key: "overAllCostInINR" },
-  { header: "Status", key: "status" },
   { header: "Drawings", key: null },
   { header: "Registered On", key: "registeredOn" },
 ];
@@ -189,7 +188,6 @@ export const MasterRow = memo(({ otherData, navigate, canEdit, masterType }) => 
     <td className="td-padding">{numberOrBlank(otherData?.issuedQty)}</td>
     <td className="td-padding">{numberOrBlank(otherData?.availableQty)}</td>
     <td className="td-padding">{inrFormat(otherData?.overAllCostInINR)}</td>
-    <td className="td-padding">{otherData?.status}</td>
     <td className="td-padding">
       {/* Numbered so several drawings read as separate items. */}
       {otherData?.drawingAttach?.length > 0 && (

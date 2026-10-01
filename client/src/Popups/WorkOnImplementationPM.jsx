@@ -61,6 +61,14 @@ function WorkOnImplementationPM({
         formik.values.workedOnPM === "No",
       then: yup.string().required("Please select spare part option"),
     }),
+    /**
+     * NG raises a CM for the work, and this is the date that CM is to be done
+     * by — so it can no longer be left blank, or the CM arrives with no target.
+     */
+    targetDate: yup.string().when({
+      is: () => formik.values.workedOnPM === "No",
+      then: yup.string().required("Please select the target date"),
+    }),
   });
 
   //get the date and time
@@ -402,6 +410,16 @@ function WorkOnImplementationPM({
                             value={formik.values.targetDate}
                             onChange={formik.handleChange}
                           />
+                          <p
+                            style={{
+                              color: "#F44336",
+                              fontWeight: "normal",
+                              fontSize: "0.80rem",
+                            }}
+                          >
+                            {formik.touched.targetDate &&
+                              formik.errors.targetDate}
+                          </p>
                         </div>
 
                         <div className="mb-2 row">

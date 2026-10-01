@@ -17,6 +17,7 @@ import {
   initialState,
   reducer,
 } from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import { cmCategoryCards } from "../../GlobalDataAccess/GlobalData";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ExistingMachineReqSheetView from "../../Components/ReqestSheetOfCM/ExistingMachineRequestSheet/ExistingMachineReqSheetView";
@@ -184,15 +185,18 @@ const ActivityStatusDashboardOfCM = () => {
     "Under MTD HOSS Approval",
     "Under PRD TL Approval",
     "Under MTD HOS Approval",
+    // Only a PED-reflection CM reaches these two.
+    "Under PED TL Approval",
+    "Under PED HOS Approval",
     "Completed",
   ];
-  const CM_CategoryArrayForFilter = [
-    "Overhauling",
-    "Upgradation",
-    "BM Reflection",
-    "LTPM",
-    "Others",
-  ];
+  /**
+   * The filter reads each entry's `title`, so a list of plain strings left
+   * every option in the dropdown blank and unselectable.
+   */
+  const CM_CategoryArrayForFilter = cmCategoryCards(
+    activityStatusDashboardData?.counters,
+  );
   // ==============================================================
 
   const filtration = [

@@ -62,9 +62,9 @@ router
   .route("/kpi/consumptionTrend")
   .get(yearMonthFilter, getConsumptionTrendData);
 
-router
-  .route("/kpi/summery/stockLifeTime")
-  .get(yearMonthFilter, getStockLifeTimelineSummery);
+// Likewise unfiltered — the handler has always ignored the filter, and the
+// zero-stock and rotation figures it returns are current-state counts.
+router.route("/kpi/summery/stockLifeTime").get(getStockLifeTimelineSummery);
 
 router
   .route("/kpi/newAndStockInSparesOrderingTrend")
@@ -103,10 +103,13 @@ router
 
 router.route("/kpi/stockLevelWiseAnalysis").get(getStockLevelWiseAnalysis);
 
-router.route("/kpi/partList").get(yearMonthFilter, getZeroStockPartList);
-router
-  .route("/kpi/partList/export")
-  .get(yearMonthFilter, exportZeroStockPartList);
+/**
+ * No yearMonthFilter: what is on the shelf is a fact about today, and these
+ * lists are counted whole so they agree with the Inventory Dashboard's stock
+ * figures, which never filtered either.
+ */
+router.route("/kpi/partList").get(getZeroStockPartList);
+router.route("/kpi/partList/export").get(exportZeroStockPartList);
 
 router
   .route("/kpi/remarks")

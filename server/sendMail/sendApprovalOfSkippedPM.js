@@ -15,7 +15,7 @@ const sendApprovalOfSkippedPM = async (
   approvalStatusOfPRDHOS,
   approvalStatusOfPRDHOD,
   rejected_remarks,
-  reasonForDelayOfTL
+  reasonForDelayOfTL,
 ) => {
   try {
     // console.log("}}}}}}}}}}}}", firstEmail, secondEmail)
@@ -98,8 +98,8 @@ const sendApprovalOfSkippedPM = async (
       approvalStatusOfMTDHOS === "Accepted"
         ? "Accepted"
         : approvalStatusOfMTDHOS === "Rejected"
-        ? "Rejected"
-        : "Pending"
+          ? "Rejected"
+          : "Pending"
     }</td>
   </tr>
   
@@ -109,8 +109,8 @@ const sendApprovalOfSkippedPM = async (
       approvalStatusOfMTDHOD === "Accepted"
         ? "Accepted"
         : approvalStatusOfMTDHOD === "Rejected"
-        ? "Rejected"
-        : "Pending"
+          ? "Rejected"
+          : "Pending"
     }</td>
   </tr>
   
@@ -120,8 +120,8 @@ const sendApprovalOfSkippedPM = async (
         approvalStatusOfPRDHOS === "Accepted"
           ? "Accepted"
           : approvalStatusOfPRDHOS === "Rejected"
-          ? "Rejected"
-          : "Pending"
+            ? "Rejected"
+            : "Pending"
       }</td>
   </tr>
   
@@ -131,8 +131,8 @@ const sendApprovalOfSkippedPM = async (
         approvalStatusOfPRDHOD === "Accepted"
           ? "Accepted"
           : approvalStatusOfPRDHOD === "Rejected"
-          ? "Rejected"
-          : "Pending"
+            ? "Rejected"
+            : "Pending"
       }</td>
   </tr>
    
