@@ -20,7 +20,9 @@ const Machine = require("../model/machineSchema");
 const User = require("../model/userSchema");
 const Section = require("../model/sectionSchema");
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
-const PlantToMachineHierarchy = require("../model/plantToMachineHierarchySchema");
+const {
+  resolvePlantToMachineHierarchyRef,
+} = require("../services/plantToMachineHierarchyService");
 const SafetyForm = require("../model/safetyFormSchema");
 
 const authenticate = require("../middleware/authenticate");
@@ -397,27 +399,9 @@ router.get(
 
 const findPlantToMachineHierarchyObj = tryCatchHandler(
   async (req, res, next) => {
-    let hierarchy = await PlantToMachineHierarchy.findOne({
-      "machine._id": req?.machine?._id,
-    });
+    req.plantToMachineHierarchyRef =
+      await resolvePlantToMachineHierarchyRef(req?.machine);
 
-    if (!hierarchy) {
-      hierarchy = new PlantToMachineHierarchy({
-        machine: req?.machine,
-        line: req?.machine?.line_names,
-        cell: req?.machine?.line_names?.cell_names,
-        subSection: req?.machine?.line_names?.cell_names?.subSection_names,
-        section:
-          req?.machine?.line_names?.cell_names?.subSection_names?.section_names,
-        plant:
-          req?.machine?.line_names?.cell_names?.subSection_names?.section_names
-            ?.plant_names,
-      });
-
-      await hierarchy.save();
-    }
-
-    req.plantToMachineHierarchyRef = hierarchy?._id;
     return next();
   },
 );

@@ -18,7 +18,9 @@
 const moment = require("moment-timezone");
 
 const RequestSheetOfCM = require("../../model/requestSheetDataOfCM");
-const PlantToMachineHierarchy = require("../../model/plantToMachineHierarchySchema");
+const {
+  resolvePlantToMachineHierarchyRef,
+} = require("../plantToMachineHierarchyService");
 const {
   newRequestSheetDataStore,
   findMachineWithParentHierarchy,
@@ -37,28 +39,8 @@ const generalDateFormat = (propDate = new Date()) =>
  * The hierarchy document for a machine, reused when the originating sheet
  * already holds one rather than looked up again.
  */
-const resolvePlantToMachineHierarchyRef = async (existingRef, machine) => {
-  if (existingRef) return existingRef;
-
-  let hierarchy = await PlantToMachineHierarchy.findOne({
-    "machine._id": machine?._id,
-  });
-
-  if (!hierarchy) {
-    hierarchy = await new PlantToMachineHierarchy({
-      machine,
-      line: machine?.line_names,
-      cell: machine?.line_names?.cell_names,
-      subSection: machine?.line_names?.cell_names?.subSection_names,
-      section: machine?.line_names?.cell_names?.subSection_names?.section_names,
-      plant:
-        machine?.line_names?.cell_names?.subSection_names?.section_names
-          ?.plant_names,
-    }).save();
-  }
-
-  return hierarchy?._id;
-};
+const resolveHierarchyRef = async (existingRef, machine) =>
+  existingRef || resolvePlantToMachineHierarchyRef(machine);
 
 /**
  * Raises one reflected CM.
@@ -128,7 +110,7 @@ const raiseReflectedCM = async ({
         plannedDateAndTimeOfCM: generalDateFormat(),
       },
     },
-    await resolvePlantToMachineHierarchyRef(hierarchyRef, machine),
+    await resolveHierarchyRef(hierarchyRef, machine),
     rootUser,
     [],
     {

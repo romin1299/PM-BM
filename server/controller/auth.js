@@ -34,6 +34,10 @@ const CM_RequestSheetData = require("../model/requestSheetDataOfCM");
 const {
   generatePMReflectionCM,
 } = require("../services/cm/pmReflectionCMService");
+const {
+  syncMachineRename,
+  syncLineRename,
+} = require("../services/plantToMachineHierarchyService");
 
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
@@ -1218,10 +1222,16 @@ router.post("/updateLine", authenticate, async (req, res) => {
     // if (!line_id || !line_name || !tm_group) {
     //     return res.status(422).send("plz fill all the details !!!");
     // }
-    await Line.updateOne(
+    const updatedLine = await Line.findOneAndUpdate(
       { line_id: line_id },
       { $set: { line_name: line_name, line_sequence } },
+      { new: true, projection: { _id: 1 } },
     );
+
+    // Every machine under the line reports its name from the hierarchy
+    // snapshot, so the rename has to reach those as well.
+    await syncLineRename(updatedLine?._id, line_name);
+
     res.status(201).json({ message: "Line updated successfully" });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -2429,6 +2439,14 @@ router.post("/updateMachine", authenticate, async (req, res) => {
         },
       },
     );
+
+    /**
+     * BM and CM sheets report the machine from a hierarchy snapshot, so a
+     * rename has to reach that too — otherwise their reports keep showing the
+     * old name while the sheet's own machineRef points at the renamed machine.
+     */
+    await syncMachineRename(machine_code, { machine_name, machine_nickname });
+
     res.status(201).json({ message: "Machine updated successfully" });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });

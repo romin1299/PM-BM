@@ -44,7 +44,9 @@ const {
 } = require("../GlobalData/RequestSheetApprovalStatus");
 const { globalReqSheetNo } = require("../middleware/globalReqSheetNo");
 const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
-const PlantToMachineHierarchy = require("../model/plantToMachineHierarchySchema");
+const {
+  resolvePlantToMachineHierarchyRef,
+} = require("../services/plantToMachineHierarchyService");
 const SafetyForm = require("../model/safetyFormSchema");
 const { pipeline } = require("stream");
 
@@ -303,28 +305,9 @@ const findMachineDataWithParentHierarchy = tryCatchHandler(
   },
 );
 
-const findPlantToMachineHierarchyObj = tryCatchHandler(async (machine) => {
-  let hierarchy = await PlantToMachineHierarchy.findOne({
-    "machine._id": machine?._id,
-  });
-
-  if (!hierarchy) {
-    hierarchy = new PlantToMachineHierarchy({
-      machine: machine,
-      line: machine?.line_names,
-      cell: machine?.line_names?.cell_names,
-      subSection: machine?.line_names?.cell_names?.subSection_names,
-      section: machine?.line_names?.cell_names?.subSection_names?.section_names,
-      plant:
-        machine?.line_names?.cell_names?.subSection_names?.section_names
-          ?.plant_names,
-    });
-
-    await hierarchy.save();
-  }
-
-  return hierarchy?._id;
-});
+const findPlantToMachineHierarchyObj = tryCatchHandler(async (machine) =>
+  resolvePlantToMachineHierarchyRef(machine),
+);
 
 router.post(
   "/newRequestSheetRegistration",
