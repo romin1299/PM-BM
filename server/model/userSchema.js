@@ -140,15 +140,21 @@ userSchema.pre("save", async function (next) {
 });
 
 //Generating authenticate token
+/**
+ * Throws rather than returning nothing when signing fails.
+ *
+ * It used to log and fall off the end, handing back `undefined`. The caller
+ * put that straight into `res.cookie`, which stringifies it, so the browser
+ * was given the literal text `Token=undefined` while being told the login had
+ * succeeded. Every later request then failed `jwt.verify` with "jwt malformed"
+ * for the 12 hours the cookie lived. A login that cannot mint a token has to
+ * fail as a login.
+ */
 userSchema.methods.generateAuthToken = async function () {
-  try {
-    let jwtToken = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
-    this.jwtTokens = this.jwtTokens.concat({ jwtToken: jwtToken });
-    await this.save();
-    return jwtToken;
-  } catch (err) {
-    console.log(err);
-  }
+  let jwtToken = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
+  this.jwtTokens = this.jwtTokens.concat({ jwtToken: jwtToken });
+  await this.save();
+  return jwtToken;
 };
 
 //Here crete User collection for storing documents.

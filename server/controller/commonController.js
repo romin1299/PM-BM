@@ -18,6 +18,10 @@ const logger = require("../utils/LoggingController/loggers");
 const maintenanceType = require("../utils/maintenanceType");
 const moment = require("moment");
 const { default: mongoose } = require("mongoose");
+const {
+  sectionScopeFilter,
+  subSectionScopeFilter,
+} = require("../services/common/hierarchyRefScopeService");
 
 const filterMiddleware = async (req, res, next) => {
   try {
@@ -65,9 +69,17 @@ const filterMiddleware = async (req, res, next) => {
         plant_names: mongoose.Types.ObjectId(req.params?.selectedId),
       };
     } else if (req.params?.filter === "based-on-section") {
+      /**
+       * Scoped as a union rather than on `sectionRef` alone: a sheet fills in
+       * the ref for whichever level its section's `dashboardLevel` named when
+       * it was raised, so a single-ref match loses every sheet written while
+       * the other level was current.
+       */
       queryObj = {
         ...queryObj,
-        sectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        ...(await sectionScopeFilter(
+          mongoose.Types.ObjectId(req.params?.selectedId),
+        )),
       };
 
       queryObjForPM = {
@@ -76,7 +88,9 @@ const filterMiddleware = async (req, res, next) => {
     } else if (req.params?.filter === "based-on-subSection") {
       queryObj = {
         ...queryObj,
-        subSectionRef: mongoose.Types.ObjectId(req.params?.selectedId),
+        ...(await subSectionScopeFilter(
+          mongoose.Types.ObjectId(req.params?.selectedId),
+        )),
       };
 
       queryObjForPM = {

@@ -2,10 +2,71 @@ const dotenv = require("dotenv");
 const express = require("express");
 const app = express();
 const path = require("path");
-dotenv.config({ path: "./config.env" });
+/**
+ * Resolved against this file, not the working directory. Left relative, the
+ * config was only found when the server happened to be started from its own
+ * folder: a Windows service, Task Scheduler or a shortcut with the wrong
+ * "Start in" loads nothing, and the first symptom is Mongoose reporting a
+ * connection error while MongoDB itself is running perfectly.
+ */
+dotenv.config({ path: path.join(__dirname, "config.env") });
+
+/**
+ * Refuse to start without a signing key.
+ *
+ * Running on without one is worse than not running: /signIn cannot mint a
+ * token, so every user who "logs in" is handed the cookie `Token=undefined`
+ * and then fails every request with "jwt malformed" for the 12 hours that
+ * cookie lives. A server that stops here is fixed in a minute; one that keeps
+ * serving takes the shop floor down for half a day.
+ */
+if (!process.env.SECRET_KEY) {
+  console.error(
+    [
+      "FATAL: SECRET_KEY is not set — refusing to start.",
+      `config.env expected at: ${path.join(__dirname, "config.env")}`,
+      `server started from  : ${process.cwd()}`,
+      "Without it no one can log in, and every login would hand the browser a",
+      "broken session cookie lasting 12 hours.",
+    ].join("\n  "),
+  );
+  process.exit(1);
+}
+
 const https = require("https");
 const fs = require("fs");
 const compression = require("compression");
+
+/**
+ * Last-resort net, and the reason the server could disappear mid-shift.
+ *
+ * Node terminates the process on an unhandled promise rejection. Nothing here
+ * registered a handler, so one stray async error anywhere — a failed query in
+ * a helper with no response object to answer with — ended the server outright,
+ * long after a clean start. The shop floor then has nothing at all.
+ *
+ * Staying up is the lesser harm for a maintenance logbook: the one request
+ * that failed is lost, every other user carries on, and the reason is written
+ * down with a timestamp so the cause can be found afterwards.
+ */
+const logFatal = (label) => (problem) => {
+  const when = new Date().toLocaleString();
+  console.error(`\n${label} at ${when} — server kept alive`);
+  console.error(problem?.stack ?? problem);
+  try {
+    require(path.join(__dirname, "./utils/LoggingController/loggers")).error(
+      problem instanceof Error ? problem : new Error(String(problem)),
+      {
+        maintenanceType: label,
+      },
+    );
+  } catch {
+    // Never let the logger itself bring down the handler of last resort.
+  }
+};
+
+process.on("unhandledRejection", logFatal("UNHANDLED REJECTION"));
+process.on("uncaughtException", logFatal("UNCAUGHT EXCEPTION"));
 
 require("./db/conn");
 
@@ -158,6 +219,29 @@ const PORT = process.env.PORT;
 //for when deploying application on AWS
 // const server = https.createServer(keys, app);
 
-app.listen(PORT, () => {
-  console.log(`server is running in port ${PORT} `);
-});
+app
+  .listen(PORT, () => {
+    console.log(`server is running in port ${PORT} `);
+  })
+  /**
+   * A server that cannot take the port has to stop, and say why.
+   *
+   * This is the one failure the net above must not swallow: left alive, the
+   * process sits there having bound nothing, so a deploy looks like it started
+   * while the old copy is still the one answering — which is how you end up
+   * believing new code is live when it is not.
+   */
+  .on("error", (error) => {
+    if (error?.code === "EADDRINUSE")
+      console.error(
+        [
+          `FATAL: port ${PORT} is already in use — another copy of this server is still running.`,
+          "Stop it first, then start this one:",
+          `  netstat -ano | findstr :${PORT}`,
+          "  taskkill /PID <pid> /F",
+        ].join("\n  "),
+      );
+    else console.error(`FATAL: could not listen on port ${PORT}`, error);
+
+    process.exit(1);
+  });

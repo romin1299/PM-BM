@@ -38,6 +38,9 @@ const {
   syncMachineRename,
   syncLineRename,
 } = require("../services/plantToMachineHierarchyService");
+const {
+  logHistoryCellScope,
+} = require("../services/pm/logHistoryScopeService");
 
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
@@ -171,6 +174,21 @@ router.post("/signIn", async (req, res) => {
         //generate JWT token for authentication
         jwtToken = await userLogin.generateAuthToken();
         // console.log(jwtToken);
+
+        /**
+         * Only a real token is worth a cookie. Express stringifies whatever it
+         * is given, so setting a missing one stored the text "undefined" in the
+         * browser and every later request failed with "jwt malformed".
+         */
+        if (!jwtToken || typeof jwtToken !== "string") {
+          logger.error(new Error("signIn could not mint a token"), {
+            maintenanceType: maintenanceType?.[0],
+          });
+          return res
+            .status(500)
+            .json({ error: "Could not start a session. Contact IT." });
+        }
+
         res.cookie("Token", jwtToken, {
           expires: new Date(Date.now() + 43200000),
           httpOnly: true,
@@ -198,6 +216,9 @@ router.post("/signIn", async (req, res) => {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("Credential not valid or received!!!");
     console.log(error);
+    // Without this the login request never completes and the page just spins.
+    if (!res.headersSent)
+      res.status(500).json({ error: "Could not sign in. Contact IT." });
   }
 });
 
@@ -10718,6 +10739,14 @@ router.post("/submitLogHistory", authenticate, async (req, res) => {
       section_id: req?.rootUser?.section_data?.split("-")?.[0],
     }).populate({ path: "plant_names" });
 
+    /**
+     * Which level this names depends on the section's `dashboardLevel` at the
+     * moment the log is written, so it stops matching as soon as a section is
+     * moved between levels. Display only — do not filter logs by it. Scope a
+     * log query by `cellInfo.cell_Id`, which is read off the machine and so
+     * means the same thing whatever level the dashboard is drawn at
+     * (services/pm/logHistoryScopeService.js).
+     */
     if (sectionInfo?.dashboardLevel === "Yes") {
       ((sectionOrSubSection_Id = sectionInfo?.section_id),
         (sectionOrSubSection_name = sectionInfo?.section_name));
@@ -11070,6 +11099,13 @@ router.post(
         section_id: req?.rootUser?.section_data?.split("-")?.[0],
       }).populate({ path: "plant_names" });
 
+      /**
+       * Display only — do not filter logs by this. Which level it names
+       * depends on the section's `dashboardLevel` when the log was written, so
+       * it stops matching once a section is moved between levels. Scope a log
+       * query by `cellInfo.cell_Id` instead
+       * (services/pm/logHistoryScopeService.js).
+       */
       if (sectionInfo?.dashboardLevel === "Yes") {
         ((sectionOrSubSection_Id = sectionInfo?.section_id),
           (sectionOrSubSection_name = sectionInfo?.section_name));
@@ -11290,6 +11326,13 @@ router.post(
         section_id: req?.rootUser?.section_data?.split("-")?.[0],
       }).populate({ path: "plant_names" });
 
+      /**
+       * Display only — do not filter logs by this. Which level it names
+       * depends on the section's `dashboardLevel` when the log was written, so
+       * it stops matching once a section is moved between levels. Scope a log
+       * query by `cellInfo.cell_Id` instead
+       * (services/pm/logHistoryScopeService.js).
+       */
       if (sectionInfo?.dashboardLevel === "Yes") {
         ((sectionOrSubSection_Id = sectionInfo?.section_id),
           (sectionOrSubSection_name = sectionInfo?.section_name));
@@ -22902,99 +22945,45 @@ router.post(
     try {
       const { section, selectedYear } = req.body;
 
-      let logHistoryData, conditionVarForLogHistory;
-      let commonFilterForSectionLevel = {
-        reason_for_delay: conditionVarForLogHistory,
-        current_year: selectedYear,
-      };
-      conditionVarForLogHistory =
-        req.params.id === "simpleLogHistory" ? undefined : { $ne: undefined };
+      /**
+       * Scoped by cell rather than by the section id stored on the row: a row
+       * carries whichever level `dashboardLevel` named when it was written, so
+       * matching on the section's id today loses every year recorded before
+       * the section was last moved between levels.
+       */
+      const cellIdsInScope = await logHistoryCellScope({
+        section,
+        rootUser: req?.rootUser,
+      });
 
-      if (typeof section !== "object") {
-        const sectionInfo = await Section.findOne({
-          section_id: section?.split("-")?.[0],
-        }).populate({ path: "plant_names" });
-
-        if (sectionInfo?.dashboardLevel === "Yes") {
-          commonFilterForSectionLevel = {
-            ...commonFilterForSectionLevel,
-            "sectionOrSubSectionInfo.sectionOrSubSection_Id":
-              sectionInfo?.section_id,
-          };
-        } else {
-          commonFilterForSectionLevel = {
-            ...commonFilterForSectionLevel,
-            "sectionOrSubSectionInfo.sectionOrSubSection_Id": {
-              $in: req?.rootUser?.subSection_data?.map(
-                (item, index) => item?.split("-")?.[0],
-              ),
-            },
-          };
-        }
-
-        logHistoryData = await LogHistory.aggregate([
-          {
-            $match: {
-              ...commonFilterForSectionLevel,
-            },
+      const logHistoryData = await LogHistory.aggregate([
+        {
+          $match: {
+            /**
+             * Left as found. This filter was read one line before
+             * `simpleLogHistory` / `pendingLogHistory` was resolved, so both
+             * dashboards have always matched a null `reason_for_delay` — and
+             * since no log row carries the field, that selects every row.
+             * Honouring the distinction would empty the Pending PM Log
+             * History dashboard, which is a separate decision.
+             */
+            reason_for_delay: null,
+            current_year: selectedYear,
+            "cellInfo.cell_Id": { $in: cellIdsInScope },
           },
-          {
-            $addFields: {
-              abnormality: {
-                $cond: {
-                  if: { $gt: [{ $type: "$abnormality_remarks" }, "missing"] },
-                  then: "Yes",
-                  else: "No",
-                },
+        },
+        {
+          $addFields: {
+            abnormality: {
+              $cond: {
+                if: { $gt: [{ $type: "$abnormality_remarks" }, "missing"] },
+                then: "Yes",
+                else: "No",
               },
             },
           },
-        ]);
-      } else {
-        if (section?.dashboardLevel === "Yes") {
-          const sectionInfo = await Section.findOne({
-            _id: section?._id,
-          }).populate({ path: "plant_names" });
-
-          commonFilterForSectionLevel = {
-            ...commonFilterForSectionLevel,
-            "sectionOrSubSectionInfo.sectionOrSubSection_Id":
-              sectionInfo?.section_id,
-          };
-        } else {
-          let subSectionInfo = await SubSection.findOne({
-            _id: section?._id,
-          });
-          commonFilterForSectionLevel = {
-            ...commonFilterForSectionLevel,
-            "sectionOrSubSectionInfo.sectionOrSubSection_Id":
-              subSectionInfo?.subSection_id,
-          };
-        }
-        logHistoryData = await LogHistory.aggregate([
-          {
-            $match: {
-              ...commonFilterForSectionLevel,
-            },
-          },
-          {
-            $addFields: {
-              abnormality: {
-                $cond: {
-                  if: { $gt: [{ $type: "$abnormality_remarks" }, "missing"] },
-                  then: "Yes",
-                  else: "No",
-                },
-              },
-            },
-          },
-        ]);
-      }
-      // console.log(
-      //     logHistoryData
-      // )
-
-      // const logHistoryData = await LogHistory.find({ section_names: sectionInfo._id }).sort({ subSection_sequence: 1 })
+        },
+      ]);
 
       res.status(201).json({ logHistoryData });
     } catch (error) {

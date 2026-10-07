@@ -26359,3 +26359,134 @@
     at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:149:13)
     at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:33:5)
     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+2026-10-06T14:17 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:30:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\cookie-parser\index.js:71:5)
+2026-10-06T14:17 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:30:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+2026-10-06T14:17 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:30:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\cookie-parser\index.js:71:5)
+2026-10-06T14:17 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:30:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+2026-10-06T14:31 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:47:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\cookie-parser\index.js:71:5)
+2026-10-06T14:31 | PM | invalid signature
+		JsonWebTokenError: invalid signature
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:133:19
+    at getSecret (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:47:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+2026-10-06T14:31 | PM | jwt expired
+		TokenExpiredError: jwt expired
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:152:21
+    at getSecret (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:90:14)
+    at module.exports [as verify] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:94:10)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:47:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+2026-10-06T14:31 | PM | Operation `users.findOne()` buffering timed out after 10000ms
+		MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:188:23)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+2026-10-06T14:48 | CM | hierarchy resolve failed (e.g. users.findOne buffering timed out)
+		Error: hierarchy resolve failed (e.g. users.findOne buffering timed out)
+    at C:\Users\JD\AppData\Local\Temp\t2.js:6:9
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\errorHandler\tryCatchHandler.js:8:19
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async C:\Users\JD\AppData\Local\Temp\t2.js:14:17
+2026-10-06T14:48 | UNCAUGHT EXCEPTION | listen EADDRINUSE: address already in use :::7000
+		Error: listen EADDRINUSE: address already in use :::7000
+    at Server.setupListenHandle [as _listen2] (node:net:1948:16)
+    at listenInCluster (node:net:2005:12)
+    at Server.listen (node:net:2110:7)
+    at app.listen (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\application.js:635:24)
+    at Object.<anonymous> (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\app.js:221:5)
+    at Module._compile (node:internal/modules/cjs/loader:1812:14)
+    at Object..js (node:internal/modules/cjs/loader:1943:10)
+    at Module.load (node:internal/modules/cjs/loader:1533:32)
+    at Module._load (node:internal/modules/cjs/loader:1335:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1556:12)
+    at require (node:internal/modules/helpers:152:16)
+    at [eval]:2:1
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [eval]-wrapper:6:24
+2026-10-06T14:50 | PM | jwt malformed
+		JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\jsonwebtoken\verify.js:63:17)
+    at authenticate (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\middleware\authenticate.js:47:29)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:280:10)
+    at cookieParser (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\cookie-parser\index.js:46:14)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:328:13)
+    at D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:346:12)
+    at next (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:175:3)
+    at router (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\index.js:47:12)
+    at Layer.handle [as handle_request] (D:\LiveProjects\DENSO\denso_pm_bm_V1\server\node_modules\express\lib\router\layer.js:95:5)

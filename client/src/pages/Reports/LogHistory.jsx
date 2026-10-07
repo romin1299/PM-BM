@@ -156,8 +156,17 @@ const LogHistory = () => {
 
         // getDataOfSkippedApprovalStatus(data?.sectionDataArray?.[0]);
 
-        postSectionToGetAllDataForLogHistory(data?.sectionDataArray?.[0]);
-        fetchSectionWiseLogHistory(data?.sectionDataArray?.[0]);
+        /**
+         * This also runs when the year changes, and the Section dropdown keeps
+         * showing whatever the user picked — so reload that section, not the
+         * first one, or the year change quietly swaps in another section's log.
+         */
+        const sectionToReload =
+          data?.sectionDataArray?.[selectedSectionOrSubSection] ??
+          data?.sectionDataArray?.[0];
+
+        postSectionToGetAllDataForLogHistory(sectionToReload);
+        fetchSectionWiseLogHistory(sectionToReload);
       }
     } catch (error) {
       console.log(error);

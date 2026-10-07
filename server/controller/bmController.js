@@ -47,6 +47,10 @@ const RequestSheetOfCM = require("../model/requestSheetDataOfCM");
 const {
   resolvePlantToMachineHierarchyRef,
 } = require("../services/plantToMachineHierarchyService");
+const {
+  resolveSheetHierarchyRefs,
+  definedRefsOnly,
+} = require("../services/common/sheetHierarchyRefsService");
 const SafetyForm = require("../model/safetyFormSchema");
 const { pipeline } = require("stream");
 
@@ -20416,6 +20420,20 @@ router.post(
           subCategory: noLossRequestSheetData?.categories?.[key],
         }));
 
+      /**
+       * The form only sends the levels its dashboard shows — a section or a
+       * sub-section, never both — so the rest is read from the masters off the
+       * machine it did send. Storing the full chain is what keeps the sheet
+       * findable from either level after a section is moved between them.
+       */
+      const hierarchyRefs = await resolveSheetHierarchyRefs({
+        sectionRef: noLossRequestSheetData?.selectedSection,
+        subSectionRef: noLossRequestSheetData?.selectedSubSection,
+        cellRef: noLossRequestSheetData?.selectedCell,
+        lineRef: noLossRequestSheetData?.selectedLine,
+        machineRef: noLossRequestSheetData?.selectedMachine,
+      });
+
       if (noLossBDSheetExistsOrNot) {
         if (dataSheet?.attachedFilesForOtherLoss?.length > 0) {
           noLossBDSheetExistsOrNot?.attachedFilesForOtherLoss?.map(
@@ -20453,6 +20471,11 @@ router.post(
                 dataSheet?.attachedFilesForOtherLoss?.map(
                   (obj) => obj?.filename,
                 ),
+              /**
+               * Only the levels that resolved, so editing a sheet completes
+               * its hierarchy without a null blanking a ref it already holds.
+               */
+              ...definedRefsOnly(hierarchyRefs),
             },
           },
           {
@@ -20490,12 +20513,10 @@ router.post(
           attachedFilesForOtherLoss: dataSheet?.attachedFilesForOtherLoss?.map(
             (obj) => obj?.filename,
           ),
-          plantRef: getPlantIdForNoLossBDEntry?._id || null,
-          sectionRef: noLossRequestSheetData?.selectedSection || null,
-          subSectionRef: noLossRequestSheetData?.selectedSubSection || null,
-          cellRef: noLossRequestSheetData?.selectedCell || null,
-          lineRef: noLossRequestSheetData?.selectedLine || null,
-          machineRef: noLossRequestSheetData?.selectedMachine || null,
+          ...hierarchyRefs,
+          // The logged-in user's plant stands in only if the chain stopped short.
+          plantRef:
+            hierarchyRefs?.plantRef || getPlantIdForNoLossBDEntry?._id || null,
           preAggregationTimeStampOfRequestSheet: {
             requestSheet_year: gettingFYYearForSelectedDate(new Date()),
             requestSheet_month: gettingMonthForSelectedDate(new Date()),
