@@ -12,6 +12,7 @@ const {
   dynamicApprovalStatus,
   hooksFormReferenceOfApproval,
   timezone,
+  isBudgetChecked,
 } = require("../../utils/spareManagementUtils");
 const {
   generateTimestampIndividually,
@@ -26,6 +27,9 @@ const Cell = require("../../model/cellSchema");
 const Line = require("../../model/lineSchema");
 const Machine = require("../../model/machineSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
+const {
+  findAlreadyOrderedParts,
+} = require("../../services/spare/alreadyOrderedPartsService");
 const SpareMaster = require("../../model/spareMasterSchema");
 const {
   syncSheetDrawingsToMasters,
@@ -43,6 +47,10 @@ const {
   listRejectedSheets,
   buildSheetCopy,
 } = require("../../services/spare/rejectedSheetCopyService");
+
+const {
+  appendLedgerEntry,
+} = require("../../services/spare/stockLedgerService");
 
 const partFields = new Set([
   "rsPartReceive",
@@ -77,12 +85,16 @@ const minMaxViolationMessage = ({ changeParts, newPartFor }) => {
   const offending = changeParts
     .map((part, index) => ({ part, index }))
     .filter(({ part }) => {
-      if (isBlank(part?.minQuantity) || isBlank(part?.maxQuantity)) return false;
+      if (isBlank(part?.minQuantity) || isBlank(part?.maxQuantity))
+        return false;
       const min = Number(part.minQuantity);
       const max = Number(part.maxQuantity);
       return Number.isFinite(min) && Number.isFinite(max) && min > max;
     })
-    .map(({ part, index }) => part?.partName?.trim() || `Part Details ${index + 1}`);
+    .map(
+      ({ part, index }) =>
+        part?.partName?.trim() || `Part Details ${index + 1}`,
+    );
 
   if (!offending.length) return null;
   return `Min quantity cannot be greater than max quantity: ${offending.join(", ")}`;
@@ -134,17 +146,16 @@ exports.getNewSpareSheetNoByDefault = tryCatchHandler(
 
     // The number is only previewed here, so the line's counter is read rather
     // than taken; submitting the sheet is what advances it.
-    const requestSheetNo =
-      `${requestSheetNoPrefix({
-        section: subSection?.section_names,
-        subSection,
-      })}-${(lineDetails?.line_name ?? "").trim()}-${
-        moment().tz("Asia/Kolkata").month() + 1
-      }-SPARE-${
-        lineDetails?.requestSheetNoSpare
-          ? lineDetails?.requestSheetNoSpare + 1
-          : 1
-      }`.trim();
+    const requestSheetNo = `${requestSheetNoPrefix({
+      section: subSection?.section_names,
+      subSection,
+    })}-${(lineDetails?.line_name ?? "").trim()}-${
+      moment().tz("Asia/Kolkata").month() + 1
+    }-SPARE-${
+      lineDetails?.requestSheetNoSpare
+        ? lineDetails?.requestSheetNoSpare + 1
+        : 1
+    }`.trim();
 
     return res.status(201).json({
       message: "Spare sheet number get successfully based on selected Line",
@@ -470,15 +481,30 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     return res.status(400).json({
       message: `Duplicate part models in your request: ${[...new Set(duplicates)].join(", ")}`,
       showToast: true,
+      // Drawn as the large red alert on the client; the list of clashes is the
+      // whole point of the message and must stay readable.
+      toastVariant: "alert",
     });
   }
 
   const incomingModelsSet = new Set(incomingModels);
 
-  const existingMasters = await SpareMaster.find(
-    { partModel: { $in: incomingModels } },
-    { partModel: 1 },
-  ).lean();
+  /**
+   * The two "already there" checks belong to different requests:
+   *   - For stock in: the part will become a master, so one that already is
+   *     a master cannot be requested again.
+   *   - For use: the part is consumed on the machine and never gets a master,
+   *     so "already exists" does not apply; what matters is whether it is
+   *     already being ordered.
+   */
+  const isForUse = data?.newPartFor === "For use";
+
+  const existingMasters = isForUse
+    ? []
+    : await SpareMaster.find(
+        { partModel: { $in: incomingModels } },
+        { partModel: 1 },
+      ).lean();
 
   if (existingMasters.length > 0) {
     const conflicts = [];
@@ -490,8 +516,29 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     return res.status(400).json({
       message: `Part models already exist: ${conflicts.join(", ")}`,
       showToast: true,
+      toastVariant: "alert",
     });
   }
+
+  /**
+   * For use only: a part already on a request-sheet in the ordering dashboard is
+   * being ordered already; requesting it again would order it twice.
+   */
+  const alreadyOrdered = isForUse
+    ? await findAlreadyOrderedParts([...incomingModelsSet])
+    : [];
+
+  if (alreadyOrdered.length > 0)
+    return res.status(400).json({
+      message: `Duplicate or Already Ordered: ${alreadyOrdered
+        .map(
+          ({ partModel, requestSheetNo }) =>
+            `${partModel} (on ${requestSheetNo})`,
+        )
+        .join(", ")}`,
+      showToast: true,
+      toastVariant: "alert",
+    });
 
   const hierarchy = await resolveMachineHierarchy(selectedMachine);
 
@@ -530,21 +577,35 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
     multiple: true,
   });
 
+  /**
+   * A PRD sheet is not weighed against the budget: whatever the client sent is
+   * set aside and no NG approval is ever asked for. It is recorded as budget OK
+   * (and no amount), which sends it straight to its approval chain and lets it
+   * through the Ordering dashboard like any sheet whose budget is fine.
+   */
+  const budgetChecked = isBudgetChecked(data?.partRequestFor);
+
+  if (!budgetChecked) {
+    data["budget"] = { budgetStatus: "OK" };
+    delete data["ifBudgetIsNG"];
+    delete data["mtdHODApprovalIfBudgetIsNG"];
+  }
+
   const { budget } = data;
 
-  if (!budget?.budgetStatus || !budget?.requiredBudget)
+  if (budgetChecked && (!budget?.budgetStatus || budget?.requiredBudget < 0))
     return res.status(400).json({
       message: "Please provide details",
       showToast: true,
     });
 
-  if (budget?.requiredBudget <= 0)
+  if (budgetChecked && budget?.requiredBudget <= 0)
     return res.status(400).json({
       message: "Required budget should be greater then zero",
       showToast: true,
     });
 
-  if (budget?.budgetStatus === "NG") {
+  if (budgetChecked && budget?.budgetStatus === "NG") {
     delete data["approvalOfMTD_TL"];
     delete data["approvalOfMTD_HOSS"];
     delete data["approvalOfPRD_TL"];
@@ -596,6 +657,30 @@ exports.registerNewSpareRequest = tryCatchHandler(async (req, res, next) => {
   // raised against an existing master (re-orders) carry it across now; a new
   // part's drawings follow when its master is registered.
   await syncSheetDrawingsToMasters(spare);
+
+  // ── Stock-Ledger: ORDER entry ──────────────────────────────────────────
+  // For every part on the new request sheet that has a masterId (i.e. a
+  // re-order for a known stock master), create an ORDER ledger row so the
+  // master's history shows the requested quantity and when the order was placed.
+  // New parts (no masterId yet) will get their first ledger entry when the
+  // master is configured via Tool Room approval.
+  const ledgerHooks = (spare.changeParts ?? [])
+    .filter((p) => p?.masterId)
+    .map(
+      (part) =>
+        appendLedgerEntry({
+          masterId: part.masterId,
+          entryType: "ORDER",
+          processingDate: new Date(),
+          orderQty: part?.quantityRequired ?? null,
+          orderNo: null,
+          referenceId: spare._id,
+          referenceModel: "RequestSheetOfSpare",
+          createdBy: req.rootUser,
+        }).catch(() => {}), // Non-critical: a ledger failure must not abort the sheet save
+    );
+  await Promise.allSettled(ledgerHooks);
+  // ──────────────────────────────────────────────────────────────────────
 
   // A new sheet may already be with its first approver (or with MTD HOD for an
   // NG budget); they are told by mail. Not awaited: the mail is a courtesy.
@@ -751,7 +836,9 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
 
       spare?.dynamicApprovalKeys?.slice(1).forEach((laterKey) => {
         data[laterKey] = null;
-        data[`${laterKey}ApprovalLogs`] = (spare?.[`${laterKey}ApprovalLogs`] ?? [])
+        data[`${laterKey}ApprovalLogs`] = (
+          spare?.[`${laterKey}ApprovalLogs`] ?? []
+        )
           .map((entry) => entry?.toObject?.() ?? entry)
           .filter((entry) => entry?.approvalStatus !== "Pending");
       });
@@ -816,6 +903,9 @@ exports.updateSpareRequestSheet = tryCatchHandler(async (req, res, next) => {
         });
     }
   }
+
+  // A PRD sheet has no budget to change: ignore any the client sends.
+  if (!isBudgetChecked(spare?.partRequestFor)) delete data["budget"];
 
   const { budget } = data;
   if (budget?.budgetStatus === "NG" && spare?.budget?.budgetStatus === "OK") {
@@ -1059,6 +1149,7 @@ exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
         // nothing, which left quantityRequired undefined and the "more than
         // required" check below never firing.
         projection: {
+          requestSheetNo: 1,
           changeParts: { $elemMatch: { _id: partId } },
         },
       },
@@ -1119,7 +1210,8 @@ exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
         });
 
         if (!existingCostDetails) {
-          if (part?.quantityRequired < receivedNow) return overRequired(receivedNow);
+          if (part?.quantityRequired < receivedNow)
+            return overRequired(receivedNow);
 
           await SpareMaster.updateOne(
             { _id: masterId },
@@ -1172,6 +1264,26 @@ exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
             },
           );
         }
+
+        // ── Stock-Ledger: STOCK_IN entry ─────────────────────────────────
+        // Only fire for stock-in parts (those with a masterId). "For use" parts
+        // have no master and never enter the ledger via this route.
+        const orderNo = part?.poNumber || spareSheet?.requestSheetNo || null;
+        const receivedQty =
+          receivedNow ?? (req.body?.formValue?.costDetails?.quantity * 1 || 0);
+
+        await appendLedgerEntry({
+          masterId,
+          entryType: "STOCK_IN",
+          processingDate: req.body?.formValue?.rsPartReceiveTimeStamp?.inDate
+            ? new Date(req.body.formValue.rsPartReceiveTimeStamp.inDate)
+            : new Date(),
+          stockInQtyNew: receivedQty || null,
+          orderNo: null,
+          referenceId: spareSheet?._id ?? null,
+          referenceModel: "RequestSheetOfSpare",
+          createdBy: req.rootUser,
+        }).catch(() => {});
       }
     }
   } else
@@ -1185,7 +1297,6 @@ exports.handelManualApprovalStatus = tryCatchHandler(async (req, res, next) => {
       },
     },
   };
-
   if (!isIndividualPartUpdate) {
     if (batchId)
       req.queryObj = {
@@ -1225,6 +1336,92 @@ exports.manualApprovalStatusResponse = tryCatchHandler(
     });
   },
 );
+
+/**
+ * The PO number beside PO Made on the tracking dashboard. It is a plain field
+ * on the part — no timestamp, no status, no Tool Room gate — so it has its own
+ * light handlers rather than passing through handelManualApprovalStatus, which
+ * is built around a stage's timestamp and remarks. Any logged-in user may read
+ * or set it; the save then reuses the order-tracking projection so the edited
+ * row comes back in the same shape the dashboard already refreshes with.
+ */
+exports.getPartPONumber = tryCatchHandler(async (req, res, next) => {
+  const { _id, partId } = req.query;
+
+  if (!_id || !partId)
+    return res.status(400).json({
+      message: "Please select spare sheet to update",
+      showToast: true,
+    });
+
+  const [spare] = await RequestSheetOfSpare.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(_id),
+        "changeParts._id": mongoose.Types.ObjectId(partId),
+      },
+    },
+    {
+      $addFields: {
+        changePart: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: "$changeParts",
+                as: "part",
+                cond: {
+                  $eq: ["$$part._id", mongoose.Types.ObjectId(partId)],
+                },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+    {
+      $project: { _id: 0, poNumber: "$changePart.poNumber" },
+    },
+  ]);
+
+  return res.status(200).json({ spare: spare ?? {} });
+});
+
+exports.handlePartPONumber = tryCatchHandler(async (req, res, next) => {
+  const { _id, partId } = req.query;
+
+  if (!_id || !partId)
+    return res.status(400).json({
+      message: "Please select spare sheet to update",
+      showToast: true,
+    });
+
+  const poNumber = String(req.body?.formValue?.poNumber ?? "").trim();
+  if (poNumber.length > 100)
+    return res.status(400).json({
+      message: "PO number is too long (maximum 100 characters)",
+      showToast: true,
+    });
+
+  await RequestSheetOfSpare.updateOne(
+    {
+      _id: mongoose.Types.ObjectId(_id),
+      "changeParts._id": mongoose.Types.ObjectId(partId),
+    },
+    { $set: { "changeParts.$.poNumber": poNumber } },
+  );
+
+  // Hand the updated row back through the dashboard projection, as the manual
+  // approval save does, so the client refreshes that one row.
+  req.queryObj = {
+    _id: mongoose.Types.ObjectId(_id),
+    changeParts: {
+      $elemMatch: { _id: mongoose.Types.ObjectId(partId) },
+    },
+  };
+  req.isSpareSheetById = true;
+  return next();
+});
 
 // const handleGeneratePipeline = ({ _id, requestedField, partId }) => {
 //   let $match = {

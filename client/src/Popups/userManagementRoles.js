@@ -17,6 +17,46 @@
 
 export const DEPARTMENTS = ["PRD", "MTD", "PED"];
 
+/**
+ * How a user relates to the tool room, as one choice.
+ *
+ * It is stored as two separate flags - see server/utils/userScope.js - because
+ * `toolRoomPerson` is read in about twenty places to mean "Spare only", and
+ * giving it a third value would have changed all of them at once. The form
+ * offers the three real states and writes the pair, so nobody has to reason
+ * about two radios where only certain combinations make sense.
+ */
+export const TOOL_ROOM_CHOICE = {
+  NONE: "none",
+  ONLY: "only",
+  BOTH: "both",
+};
+
+export const TOOL_ROOM_OPTIONS = [
+  { label: "No", value: TOOL_ROOM_CHOICE.NONE },
+  { label: "Tool room only", value: TOOL_ROOM_CHOICE.ONLY },
+  { label: "Both PM and tool room", value: TOOL_ROOM_CHOICE.BOTH },
+];
+
+/** The stored pair -> the choice shown. */
+export const toolRoomChoiceOf = (user) => {
+  if (user?.toolRoomPerson === "Yes") return TOOL_ROOM_CHOICE.ONLY;
+  if (user?.alsoToolRoomPerson === "Yes") return TOOL_ROOM_CHOICE.BOTH;
+  return TOOL_ROOM_CHOICE.NONE;
+};
+
+/** The choice -> the pair to send. */
+export const toolRoomFlagsOf = (choice) => ({
+  toolRoomPerson: choice === TOOL_ROOM_CHOICE.ONLY ? "Yes" : "No",
+  alsoToolRoomPerson: choice === TOOL_ROOM_CHOICE.BOTH ? "Yes" : "No",
+});
+
+/**
+ * Only dedicated tool-room staff lose the hierarchy fields. Someone who works
+ * in both keeps their section, because PM and BM are scoped by it.
+ */
+export const isToolRoomOnly = (choice) => choice === TOOL_ROOM_CHOICE.ONLY;
+
 export const TM_GRADES = ["HOS", "HOD"];
 
 export const USER_TYPE = {

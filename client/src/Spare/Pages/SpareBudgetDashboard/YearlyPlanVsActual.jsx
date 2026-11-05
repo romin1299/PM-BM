@@ -1,6 +1,8 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { Bar } from "react-chartjs-2";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import { valueDataLabels } from "../../Utils/chartDataLabels";
 import { chartColors } from "../../../BM/Utils/ChartUtils/chartEnums";
 import useSafeGetRequest from "../../../CustomHooks/useSafeGetRequest";
 import ChartTitleBar from "../../../BM/Reports/Common/ChartTitleBar";
@@ -17,9 +19,7 @@ const options = {
     legend: {
       display: false,
     },
-    datalabels: {
-      font: { weight: "bold", size: 12 },
-    },
+    datalabels: valueDataLabels,
   },
   scales: {
     x: {
@@ -87,6 +87,7 @@ const YearlyPlanVsActual = ({
             <h4>Loading...</h4>
           ) : (
             <Bar
+              plugins={[ChartDataLabels]}
               options={options}
               data={{
                 labels: ["Plan", "Actual"],

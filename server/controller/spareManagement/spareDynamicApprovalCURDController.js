@@ -8,8 +8,13 @@ const NOT_AUTHORIZED =
 const isAdmin = (user) =>
   ["Plant-Admin", "Section-Admin"]?.includes(user?.user_type);
 
-const isToolRoomPerson = (user) =>
-  Boolean(user?.toolRoomPerson) && user?.toolRoomPerson !== "No";
+/**
+ * Includes a PM user who also works in the tool room, not just dedicated
+ * tool-room staff. See utils/userScope.js.
+ */
+const { isToolRoomUser } = require("../../utils/userScope");
+
+const isToolRoomPerson = (user) => isToolRoomUser(user);
 
 exports.authorizedToCustomize = tryCatchHandler(async (req, res, next) => {
   if (!isAdmin(req.rootUser))

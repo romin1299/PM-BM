@@ -13,4 +13,11 @@ const fyMonths = [
   "Mar",
 ];
 
+/**
+ * Position of the current month within the financial year (Apr = 0 ... Mar = 11),
+ * the index into any twelve-slot FY array.
+ */
+export const currentFyMonthIndex = (date = new Date()) =>
+  (date.getMonth() + 9) % 12;
+
 export default fyMonths;

@@ -177,14 +177,17 @@ const YearAndMonthFilter = ({
   selectedYear = "",
   selectedMonth = "",
   setYearAndMonth,
+  // What Reset goes back to. Defaults to the current financial year; a page
+  // that opens unfiltered passes its own empty state.
+  resetTo,
 }) => {
   const handleChange = useCallback(
     (next) => {
       setYearAndMonth((prev) =>
-        next?.reset ? initialState() : { ...prev, ...next },
+        next?.reset ? (resetTo ?? initialState()) : { ...prev, ...next },
       );
     },
-    [setYearAndMonth],
+    [setYearAndMonth, resetTo],
   );
 
   return (

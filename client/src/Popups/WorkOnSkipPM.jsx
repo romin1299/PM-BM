@@ -46,7 +46,10 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
     }),
     cost: yup.string().when({
       is: () => formik.values.spareParts === "Yes",
-      then: yup.string().required("Please enter cost"),
+      then: yup
+        .string()
+        .required("Please enter cost")
+        .matches(/^\d+(\.\d+)?$/, "Cost must be a number"),
     }),
     pmTime: yup.string().required("Please enter time"),
   });
@@ -145,7 +148,9 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
             // disabledButtonAfterPM(tableRowId, true);
             close();
             functionToSetRefKey();
-            postNewPendingLogHistory();
+            // The upload reports the name it stored the photo under; the log is
+            // a separate request, so it has to be carried there.
+            postNewPendingLogHistory(res?.data?.uploadedFileName ?? null);
             // window.location.reload();
             // navigate("/machineWiseCheckSheetForImplemetation");
           }
@@ -157,7 +162,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
     },
   });
 
-  const postNewPendingLogHistory = async () => {
+  const postNewPendingLogHistory = async (fileNameForLogHistory) => {
     const res = await fetch("/submitLogHistory", {
       method: "Post",
       headers: { "Content-Type": "application/json" },
@@ -171,6 +176,7 @@ function WorkOnSkipPM({ close, selectedRow, functionToSetRefKey, machineId }) {
         // refKeyForScheduleMonthInLogHistory,
         // machineAllData,
         machineId,
+        fileNameForLogHistory,
       }),
     });
     const data = res.json();

@@ -60,6 +60,40 @@ const handleMapGeneration = (firstArr = "$plan", secondArr = "$BPDActual") => ({
   },
 });
 
+/**
+ * The plant's budget has no record of its own: it is every cell's budget added
+ * up, exactly as a section's is its cells' budgets added up. These two halves
+ * turn a set of cell budgets into one monthly series — `$push` collects each
+ * document's arrays and sumArrayField adds them index by index (Apr..Mar) — so
+ * the plant, section and sub-section views share one summation step and can
+ * never disagree about how a total is formed.
+ */
+const groupedBudgetArrays = () => ({
+  planArr: { $push: "$plan" },
+  actualArr: { $push: "$actual" },
+  BPDActualArr: { $push: "$BPDActual" },
+  cumulativePlanArr: { $push: "$cumulativePlan" },
+  cumulativeActualArr: { $push: "$cumulativeActual" },
+});
+
+const summedBudgetFields = {
+  plan: sumArrayField("plan"),
+  actual: sumArrayField("actual"),
+  BPDActual: sumArrayField("BPDActual"),
+  cumulativePlan: sumArrayField("cumulativePlan"),
+  cumulativeActual: sumArrayField("cumulativeActual"),
+};
+
+/** The group key for the selected level; null is the whole plant. */
+const budgetGroupKey = (req) =>
+  req.query?.selectedValue
+    ? `$${filterKeys?.[req.query?.flagForTogglingFilter]}._id`
+    : null;
+
+const isCellSelected = (req) =>
+  Boolean(req.query?.selectedValue) &&
+  req.query?.flagForTogglingFilter === "based-on-cell";
+
 exports.budgetFilterMiddleware = tryCatchHandler(async (req, res, next) => {
   let $match = {
     financialYear: getFY(),
@@ -75,7 +109,15 @@ exports.budgetFilterMiddleware = tryCatchHandler(async (req, res, next) => {
     $match[`${matchingKey}._id`] = mongoose.Types.ObjectId(
       req.query.selectedValue,
     );
-  } else $match["isSectionWise"] = false;
+  } else {
+    /**
+     * Plant-wide: every cell budget is in scope, across every section — the
+     * overall figure is their sum. The old hand-entered overall record
+     * (isSectionWise false) is deliberately not read any more, so the plant
+     * figure cannot drift from the sections it is made of.
+     */
+    $match["isSectionWise"] = true;
+  }
 
   req.$match = $match;
   return next();
@@ -90,55 +132,48 @@ exports.getFYBudget = tryCatchHandler(async (req, res, next) => {
     ),
   };
 
-  let pipeline = [
-    {
-      $project: {
-        plan: 1,
-        actual: 1,
-        BPDActual: 1,
-        cumulativePlan: 1,
-        cumulativeActual: 1,
+  let pipeline;
+
+  if (isCellSelected(req)) {
+    // One cell's own record, with its remarks.
+    pipeline = [
+      {
+        $project: {
+          plan: 1,
+          actual: 1,
+          BPDActual: 1,
+          cumulativePlan: 1,
+          cumulativeActual: 1,
+          ...statusFields,
+          remarks: 1,
+        },
       },
-    },
-  ];
-
-  if (
-    req.query.selectedValue &&
-    req.query.flagForTogglingFilter !== "based-on-cell"
-  ) {
-    const matchingKey = filterKeys?.[req.query?.flagForTogglingFilter];
-
+    ];
+  } else {
+    /**
+     * A section, a sub-section, or the whole plant: the cells' monthly series
+     * are added up first, then the statuses are derived from the summed plan
+     * and BPD. The plant case groups on null, so all sections — Powertrain,
+     * Electronics and the rest — are in the one figure.
+     */
     pipeline = [
       {
         $group: {
-          _id: `$${matchingKey}._id`,
-          planArr: { $push: "$plan" },
-          actualArr: { $push: "$actual" },
-          BPDActualArr: { $push: "$BPDActual" },
-          cumulativePlanArr: { $push: "$cumulativePlan" },
-          cumulativeActualArr: { $push: "$cumulativeActual" },
+          _id: budgetGroupKey(req),
+          ...groupedBudgetArrays(),
         },
       },
       {
         $project: {
           _id: 1,
-          plan: sumArrayField("plan"),
-          actual: sumArrayField("actual"),
-          BPDActual: sumArrayField("BPDActual"),
-          cumulativePlan: sumArrayField("cumulativePlan"),
-          cumulativeActual: sumArrayField("cumulativeActual"),
+          ...summedBudgetFields,
         },
       },
       {
         $addFields: statusFields,
       },
     ];
-  } else
-    pipeline[0].$project = {
-      ...pipeline[0].$project,
-      ...statusFields,
-      remarks: 1,
-    };
+  }
 
   const budget = await SpareBudget.aggregate([
     {
@@ -159,47 +194,54 @@ exports.getFYBudget = tryCatchHandler(async (req, res, next) => {
 });
 
 exports.addFYBudget = tryCatchHandler(async (req, res, next) => {
-  if (req.query.selectedValue && req.query.flagForTogglingFilter) {
-    if (req.query.flagForTogglingFilter !== "based-on-cell")
-      return res.status(400).json({
-        message: "Please select cell",
-        showToast: true,
-      });
-
-    const cell = await Cell.findOne(
-      { _id: req.query.selectedValue },
-      "cell_id cell_name subSection_names",
-    ).populate({
-      path: "subSection_names",
-      select: "subSection_id subSection_name section_names",
-      populate: {
-        path: "section_names",
-        select: "section_id section_name dashboardLevel",
-      },
+  /**
+   * Budgets are entered per cell; the section, sub-section and plant figures
+   * are all summed from them. A plant-level record would be a second source of
+   * truth for the overall figure, so only a cell may be stored.
+   */
+  if (
+    !req.query.selectedValue ||
+    req.query.flagForTogglingFilter !== "based-on-cell"
+  )
+    return res.status(400).json({
+      message:
+        "The overall budget is calculated from cell budgets. Please select a cell to enter its budget.",
+      showToast: true,
     });
 
-    if (!cell)
-      return res.status(400).json({
-        message: "Cell does not exist",
-        showToast: true,
-      });
-    else if (!cell?.subSection_names?._id)
-      return res.status(400).json({
-        message: "Sub section does not exist",
-        showToast: true,
-      });
-    else if (!cell?.subSection_names?.section_names?._id)
-      return res.status(400).json({
-        message: "Section does not exist",
-        showToast: true,
-      });
+  const cell = await Cell.findOne(
+    { _id: req.query.selectedValue },
+    "cell_id cell_name subSection_names",
+  ).populate({
+    path: "subSection_names",
+    select: "subSection_id subSection_name section_names",
+    populate: {
+      path: "section_names",
+      select: "section_id section_name dashboardLevel",
+    },
+  });
 
-    req.body["section"] = cell?.subSection_names?.section_names;
-    req.body["subSection"] = cell?.subSection_names;
-    req.body["cell"] = cell;
+  if (!cell)
+    return res.status(400).json({
+      message: "Cell does not exist",
+      showToast: true,
+    });
+  else if (!cell?.subSection_names?._id)
+    return res.status(400).json({
+      message: "Sub section does not exist",
+      showToast: true,
+    });
+  else if (!cell?.subSection_names?.section_names?._id)
+    return res.status(400).json({
+      message: "Section does not exist",
+      showToast: true,
+    });
 
-    req.body["isSectionWise"] = true;
-  }
+  req.body["section"] = cell?.subSection_names?.section_names;
+  req.body["subSection"] = cell?.subSection_names;
+  req.body["cell"] = cell;
+  req.body["isSectionWise"] = true;
+
   req.body["financialYear"] = getFY();
   if (req.body.plan) req.body.cumulativePlan = cumulativeOf(req.body.plan);
   // Actuals come from issuances and month-end BPD figures, never typed in.
@@ -265,15 +307,16 @@ exports.getFYPlanVsActualBudget = tryCatchHandler(async (req, res, next) => {
 
   let pipeline = [];
 
-  if (
-    req.query.selectedValue &&
-    req.query?.flagForTogglingFilter !== "based-on-cell"
-  ) {
-    const matchingKey = filterKeys?.[req.query?.flagForTogglingFilter];
+  if (!isCellSelected(req)) {
+    /**
+     * Plant-wide, section or sub-section: each cell's yearly series is summed
+     * first, then the series are summed into the two totals below. A cell
+     * selection is already a single document and needs no grouping.
+     */
     pipeline = [
       {
         $group: {
-          _id: `$${matchingKey}._id`,
+          _id: budgetGroupKey(req),
           plan: {
             $push: {
               $sum: "$plan",
@@ -449,10 +492,11 @@ exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
   let pipeline = [],
     status = [];
 
-  if (
-    req.query.selectedValue &&
-    req.query?.flagForTogglingFilter !== "based-on-cell"
-  ) {
+  const isGrouped =
+    Boolean(req.query.selectedValue) &&
+    req.query?.flagForTogglingFilter !== "based-on-cell";
+
+  if (isGrouped) {
     const matchingKey = filterKeys?.[req.query?.flagForTogglingFilter];
     pipeline = [
       {
@@ -484,6 +528,27 @@ exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
       });
     });
   } else {
+    /**
+     * Plant-wide: the cells' monthly series are summed first, so the plan and
+     * BPD compared below are the plant's, not one cell's. A selected cell is
+     * one document and is compared exactly as stored.
+     */
+    if (!req.query.selectedValue)
+      pipeline = [
+        {
+          $group: {
+            _id: null,
+            ...groupedBudgetArrays(),
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            ...summedBudgetFields,
+          },
+        },
+      ];
+
     keys.map((item) =>
       status.push({
         label: item?.label,
@@ -527,6 +592,18 @@ exports.getMonthlyStatus = tryCatchHandler(async (req, res, next) => {
 });
 
 exports.getSectionWiseBudget = tryCatchHandler(async (req, res, next) => {
+  /**
+   * The budget a request-sheet is weighed against is the cell's, so this
+   * endpoint is cell-only. Without a selection the plant-wide match would
+   * return an arbitrary cell's figure. Answered as "no data" rather than a
+   * refusal: the request form asks before a cell has been chosen, and that
+   * must stay silent.
+   */
+  if (!req.query.selectedValue)
+    return res.status(404).json({
+      message: "No data to display",
+    });
+
   const sectionWiseBudget = await SpareBudget.aggregate([
     {
       $match: req.$match,

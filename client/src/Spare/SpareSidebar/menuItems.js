@@ -1,11 +1,5 @@
 import PieChartIcon from "@mui/icons-material/PieChart";
-// import AnalyticsIcon from "@mui/icons-material/Analytics";
-// import BarChartIcon from "@mui/icons-material/BarChart";
-// import TableChartIcon from "@mui/icons-material/TableChart";
-// import StackedBarChartIcon from "@mui/icons-material/StackedBarChart";
-// import InsightsIcon from "@mui/icons-material/Insights";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import DescriptionIcon from "@mui/icons-material/Description";
 import AddCardIcon from "@mui/icons-material/AddCard";
@@ -18,18 +12,15 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import ModeStandbyIcon from "@mui/icons-material/ModeStandby";
 import StorageIcon from "@mui/icons-material/Storage";
+import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
-const allusers = [
-  //From PM
-  // "Admin",
-  "Plant-Admin",
-  "Section-Admin",
-  "TL/HOSS",
-  //From spare toolRoom
-  "HOSS",
-  "Supervisor",
-  "Office Person",
-];
+import {
+  SPARE_APPROVER_ROLES,
+  SPARE_CONFIGURATION_ROLES,
+  SPARE_ROLES_WITH_OPERATOR,
+  SPARE_USER_MANAGEMENT_ROLES,
+} from "../Utils/spareRoles";
 
 export const menuItems = [
   {
@@ -41,90 +32,42 @@ export const menuItems = [
       {
         title: "KPI Dashboard",
         route: "/spare",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
       {
         title: "Inventory Dashboard",
         route: "/spare/inventoryReport",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
       {
         title: "Stock Level Wise Analysis",
         route: "/spare/stockLevelWiseAnalysisReport",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
       {
         title: "MTD R & M Plan Vs Actual",
         route: "/spare/mtdRAndMPlanVsActualBudgetReport",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
       {
         title: "Each Cell-wise Inventory Bifurcation",
         route: "/spare/eachCellWiseInventoryBifurcation",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
       {
         title: "MTD Toolroom KPI",
         route: "/spare/mtdToolRoomKPI",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
     ],
   },
-  // {
-  //   title: "Inventory Dashboard",
-  //   icon: (
-  //     <BarChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-  //   ),
-  //   route: "/spare/inventoryReport",
-  //   allowedRoles: allusers,
-  // },
-  // {
-  //   title: "Stock Level Wise Analysis",
-  //   icon: (
-  //     <TableChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-  //   ),
-  //   route: "/spare/stockLevelWiseAnalysisReport",
-  //   allowedRoles: allusers,
-  // },
-  // {
-  //   title: "MTD R & M Plan Vs Actual",
-  //   icon: (
-  //     <AnalyticsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-  //   ),
-  //   route: "/spare/mtdRAndMPlanVsActualBudgetReport",
-  //   allowedRoles: allusers,
-  // },
-  // {
-  //   title: "Each Cell-wise Inventory Bifurcation",
-  //   icon: (
-  //     <StackedBarChartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-  //   ),
-  //   route: "/spare/eachCellWiseInventoryBifurcation",
-  //   allowedRoles: allusers,
-  // },
-  // {
-  //   title: "MTD Toolroom KPI",
-  //   icon: (
-  //     <InsightsIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-  //   ),
-  //   route: "/spare/mtdToolRoomKPI",
-  //   allowedRoles: allusers,
-  // },
-  // {
-  //   title: "Spare Requests",
-  //   icon: (
-  //     <DashboardIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
-  //   ),
-  //   route: "/spare/requests",
-  //   allowedRoles: allusers,
-  // },
   {
     title: "User Management",
     icon: (
       <PersonAddIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareUserManagement",
-    allowedRoles: ["Plant-Admin", "Section-Admin", "HOSS", "Supervisor"],
+    allowedRoles: SPARE_USER_MANAGEMENT_ROLES,
     hasToolRoomFilter: true,
   },
   {
@@ -133,7 +76,7 @@ export const menuItems = [
       <PageviewIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareSearchButton",
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     title: "New Part Request",
@@ -141,7 +84,7 @@ export const menuItems = [
       <DescriptionIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareNewPartRequest",
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     title: "Approval Dashboard",
@@ -149,7 +92,7 @@ export const menuItems = [
       <FactCheckIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareApprovalDashboard",
-    allowedRoles: allusers,
+    allowedRoles: SPARE_APPROVER_ROLES,
   },
     {
     title: "Ordering Dashboard",
@@ -157,7 +100,7 @@ export const menuItems = [
       <ShoppingCartIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareOrderingDashboard",
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     // The three master catalogues are one group, the way the KPI dashboards are:
@@ -170,17 +113,17 @@ export const menuItems = [
       {
         title: "Master Dashboard",
         route: "/spare/spareMasterDashboard",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
       {
         title: "Recycle Parts Master",
         route: "/spare/recyclePartsMaster",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
       {
         title: "Repaired Parts Master",
         route: "/spare/repairedPartsMaster",
-        allowedRoles: allusers,
+        allowedRoles: SPARE_ROLES_WITH_OPERATOR,
       },
     ],
   },
@@ -190,7 +133,7 @@ export const menuItems = [
       <AssignmentTurnedInIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareApprovalLogs",
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     title: "Issuance",
@@ -198,7 +141,23 @@ export const menuItems = [
       <AddCardIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/sparePartIssuance",
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
+  },
+  {
+    title: "Change Request",
+    icon: (
+      <PublishedWithChangesIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/changeRequestDashboard",
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
+  },
+  {
+    title: "Delete Request",
+    icon: (
+      <DeleteOutlineIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
+    ),
+    route: "/spare/deleteRequestDashboard",
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     title: "Budget Dashboard",
@@ -206,7 +165,7 @@ export const menuItems = [
       <AccountBalanceWalletIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareBudgetDashboard",
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     // Every downloadable KPI chart in one table, each with its own filter dialog.
@@ -215,7 +174,7 @@ export const menuItems = [
       <AssessmentIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/spareReports",
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     title: "Approval / Lead time / currency Configuration",
@@ -223,15 +182,7 @@ export const menuItems = [
       <ControlPointIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/customizedDashboard",
-    allowedRoles: [
-      "Plant-Admin",
-      "Section-Admin",
-      "Plant-Admin",
-      "Section-Admin", //From spare toolRoom
-      "HOSS",
-      "Supervisor",
-      "Office Person",
-    ],
+    allowedRoles: SPARE_CONFIGURATION_ROLES,
   },
   {
     title: "Customized Fields",
@@ -239,14 +190,7 @@ export const menuItems = [
       <DynamicFeedIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/customizedDashboard/dynamicFieldsConfiguration",
-    allowedRoles: [
-      "Plant-Admin",
-      "Section-Admin",
-      //From spare toolRoom
-      "HOSS",
-      "Supervisor",
-      "Office Person",
-    ],
+    allowedRoles: SPARE_CONFIGURATION_ROLES,
     hasToolRoomFilter: true,
   },
   {
@@ -255,14 +199,7 @@ export const menuItems = [
       <ModeStandbyIcon className="text-white h4 mt-2 align-items-center justify-content-center" />
     ),
     route: "/spare/targetDashboard",
-    allowedRoles: [
-      "Plant-Admin",
-      "Section-Admin",
-      //From spare toolRoom
-      "HOSS",
-      "Supervisor",
-      "Office Person",
-    ],
+    allowedRoles: SPARE_CONFIGURATION_ROLES,
     hasToolRoomFilter: true,
   },
 ];

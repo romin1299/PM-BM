@@ -1,16 +1,20 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import currentMonth from "../../pages/Dashboard/DashboardComponent/currentMonth";
-import { MonthDropdown } from "../../BM/Reports/ManHourReport/SubComponents/LineSelectionDropdown";
 import colorsBasedOnOkNGStatus from "../../Utils/colorsBasedOnOkNGStatus";
 import useSafeGetRequest from "../../CustomHooks/useSafeGetRequest";
 
+/**
+ * The OK / NG badges for the running month.
+ *
+ * These used to carry their own month dropdown. They answer "how is this month
+ * going", on charts that already plot every month, so the month is not a
+ * choice at this spot: it is fixed to the current one.
+ */
 const SpareStatusOkNGTab = ({
   requestedFor = "simple",
   axiosConfig,
   referenceArrayForUseEffect,
 }) => {
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-
   const configProps = useMemo(
     () => ({
       axiosConfig: {
@@ -18,16 +22,16 @@ const SpareStatusOkNGTab = ({
         params: {
           ...axiosConfig?.params,
           requestedFor,
-          selectedMonth,
+          selectedMonth: currentMonth,
         },
       },
       referenceArrayForUseEffect: [
         ...referenceArrayForUseEffect,
         requestedFor,
-        selectedMonth,
+        currentMonth,
       ],
     }),
-    [axiosConfig, referenceArrayForUseEffect, requestedFor, selectedMonth],
+    [axiosConfig, referenceArrayForUseEffect, requestedFor],
   );
 
   const [{ isLoading, data }] = useSafeGetRequest({
@@ -45,23 +49,14 @@ const SpareStatusOkNGTab = ({
   if (isLoading) return <h5>Loading...</h5>;
 
   return (
-    <>
-      <div className="col-auto">
-        <MonthDropdown
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          selectProps={{
-            sx: {
-              width: 130,
-              "& .MuiSelect-select": {
-                p: "3px 10px",
-              },
-            },
-          }}
-        />
-      </div>
+    <div
+      className="col-auto d-flex align-items-center"
+      title={`Status for ${currentMonth}`}
+    >
+      <small className="text-muted me-1">{currentMonth}</small>
       {data?.status?.map((item) => (
         <span
+          key={item?.label}
           className="border col-auto d-flex align-items-center justify-content-center m-1"
           style={{
             width: "5rem",
@@ -73,7 +68,7 @@ const SpareStatusOkNGTab = ({
           {item?.label}
         </span>
       ))}
-    </>
+    </div>
   );
 };
 

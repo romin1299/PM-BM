@@ -55,7 +55,16 @@ export const useMasterColumnFilters = () => {
 };
 
 const MasterColumnFilter = memo(
-  ({ column, label, valuesUrl, filtersParam, selectedValues, onApply }) => {
+  ({
+    column,
+    label,
+    valuesUrl,
+    filtersParam,
+    selectedValues,
+    onApply,
+    // Further request params the values endpoint needs, e.g. which list.
+    extraParams,
+  }) => {
     const [anchor, setAnchor] = useState(null);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
@@ -76,7 +85,12 @@ const MasterColumnFilter = memo(
         const response = await axiosGetOrDelete({
           url: valuesUrl,
           axiosProps: {
-            params: { column, search: searchText || undefined, filters: filtersParam },
+            params: {
+              ...extraParams,
+              column,
+              search: searchText || undefined,
+              filters: filtersParam,
+            },
           },
         });
         if (requestId !== requestRef.current) return;
@@ -87,7 +101,7 @@ const MasterColumnFilter = memo(
           truncated: Boolean(response.truncated),
         });
       },
-      [column, valuesUrl, filtersParam],
+      [column, valuesUrl, filtersParam, extraParams],
     );
 
     // Opening: current selection (or everything) ticked, values fetched.

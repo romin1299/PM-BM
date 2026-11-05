@@ -53,7 +53,10 @@ function WorkOnImplementationPM({
     }),
     cost: yup.string().when({
       is: () => formik.values.spareParts === "Yes",
-      then: yup.string().required("Please enter cost"),
+      then: yup
+        .string()
+        .required("Please enter cost")
+        .matches(/^\d+(\.\d+)?$/, "Cost must be a number"),
     }),
     spareParts: yup.string().when({
       is: () =>
@@ -146,7 +149,9 @@ function WorkOnImplementationPM({
             window.alert("Invalid !");
           } else {
             console.log("Submitted Successfully...");
-            postNewLogHistory();
+            // The upload reports the name it stored the photo under; the log is
+            // a separate request, so it has to be carried there.
+            postNewLogHistory(res?.data?.uploadedFileName ?? null);
             // disabledButtonAfterPM(tableRowId, true);
             close();
             postMachineIdToGetAllDetailsOfMachine();
@@ -156,13 +161,18 @@ function WorkOnImplementationPM({
           }
         })
         .catch((err) => {
-          window.alert("Only .png, .jpg and .jpeg format allowed!");
+          // Say what the server said; the photo-format message was shown for
+          // every failure, whatever its cause.
+          window.alert(
+            err?.response?.data?.message ??
+              "Could not save. Only .png, .jpg and .jpeg photos are allowed.",
+          );
           console.log(err);
         });
     },
   });
 
-  const postNewLogHistory = async () => {
+  const postNewLogHistory = async (fileNameForLogHistory) => {
     const res = await fetch("/submitLogHistory", {
       method: "Post",
       headers: { "Content-Type": "application/json" },
@@ -174,6 +184,7 @@ function WorkOnImplementationPM({
         completionDateOfInspection: timeStamp(),
         refKeyForScheduleMonthInLogHistory,
         machineAllData,
+        fileNameForLogHistory,
       }),
     });
     const data = res.json();

@@ -9,6 +9,8 @@ const NewOrStockInOrder = ({
   title = "New Spares Ordering Trend",
   // Bars are order quantities by month; the cost lines sit on the right axis.
   axisTitles = { x: "Month", y: "Orders (Qty)", y1: "Cost (Mil INR)" },
+  // The card's height; a page showing many cells' segments asks for more.
+  chartHeight,
 }) => {
   return (
     <ChartWrapper
@@ -20,6 +22,7 @@ const NewOrStockInOrder = ({
       url={url}
       ChartMiddlewareComponent={StackedBarChart}
       otherProps={{ axisTitles }}
+      {...(chartHeight ? { chartHeight } : {})}
       csvOrPDfFileNamePostPix={selectedYear}
       filters={[selectedYear]}
       handleDownloadCSVOrPDF={handleDownloadDynamicDataCSVOrPDF}

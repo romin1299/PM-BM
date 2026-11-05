@@ -57,12 +57,20 @@ const BudgetGraphAndTableComponent = ({
     return returnObj;
   }, [data?.budget, axiosConfig]);
 
+  /**
+   * The top panel has no hierarchy selection: it is the plant, and its figures
+   * are every cell's budget added up on the server. There is no document to
+   * edit, so the table is read-only.
+   */
+  const isPlantWide = !axiosConfig?.params?.selectedValue;
+
   if (isLoading) return <h4>Loading...</h4>;
 
   return (
     <div className="d-flex flex-column h-100">
       <div style={{ flex: "0 0 auto" }} className="cell p-2">
         <MonthWisePlanVsActualGraph
+          title={isPlantWide ? "Plant-wise Plan vs Actual" : undefined}
           budget={data?.budget}
           axiosConfig={axiosConfig}
           referenceArrayForUseEffect={referenceArrayForUseEffect}
@@ -72,6 +80,7 @@ const BudgetGraphAndTableComponent = ({
         <BudgetConfigurationTable
           budget={data?.budget}
           params={params}
+          isPlantWide={isPlantWide}
           handleUpdateState={handleUpdateState}
         />
       </div>

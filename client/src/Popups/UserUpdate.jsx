@@ -21,6 +21,10 @@ import {
   useRole,
   getUserTypeOptions,
   isAddingDepartmentHOS,
+  TOOL_ROOM_OPTIONS,
+  toolRoomChoiceOf,
+  toolRoomFlagsOf,
+  isToolRoomOnly,
 } from "./userManagementRoles";
 
 const radioLabelStyle = {
@@ -113,6 +117,20 @@ const buildUpdatePayload = (
     isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
       values?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus ||
       selectedRow?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
+    ...toolRoomFlagsOf(values?.toolRoomChoice ?? toolRoomChoiceOf(selectedRow)),
+    /**
+     * Dedicated tool-room staff belong to the plant, not to a section. Blanked
+     * here as well as hidden on the form, since the fallbacks above would
+     * otherwise carry the stored section straight back.
+     *
+     * Someone who works in both keeps theirs - PM and BM are scoped by it.
+     *
+     * The server applies the same rule and only lets an Admin change either
+     * setting - see services/common/userAssignService.js.
+     */
+    ...(isToolRoomOnly(values?.toolRoomChoice ?? toolRoomChoiceOf(selectedRow))
+      ? { section_data: "", subSection_data: [], cell_data: [] }
+      : {}),
   };
 };
 
@@ -218,6 +236,7 @@ const UserUpdate = ({ selectedRow }) => {
       address: "",
       isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
         selectedRow?.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
+      toolRoomChoice: toolRoomChoiceOf(selectedRow),
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -244,15 +263,32 @@ const UserUpdate = ({ selectedRow }) => {
     },
   });
 
+  /**
+   * This popup stays mounted and is shown by toggling display, so formik's
+   * initial values are only ever those of the first row edited. The tool-room
+   * choice is controlled, so it is re-seeded whenever a different row is opened.
+   */
+  useEffect(() => {
+    formik.setFieldValue("toolRoomChoice", toolRoomChoiceOf(selectedRow));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRow?.tm_no]);
+
   const userTypeOptions = getUserTypeOptions(role, formik.values.tm_department);
+
+  // Plant and nothing below it, but only for dedicated tool-room staff.
+  const toolRoomOnly = isToolRoomOnly(formik.values.toolRoomChoice);
+  const showSection = !toolRoomOnly;
   const showSubSection =
-    grade === "HOD"
+    toolRoomOnly || grade === "HOD"
       ? false
       : selectedRow?.tm_grade === "HOD"
         ? grade === "HOS"
         : true;
   const showCell =
-    !["HOS", "HOD"].includes(grade) && !role.isAdmin && !role.isPlantAdmin;
+    !["HOS", "HOD"].includes(grade) &&
+    !role.isAdmin &&
+    !role.isPlantAdmin &&
+    !toolRoomOnly;
 
   return (
     <>
@@ -352,6 +388,46 @@ const UserUpdate = ({ selectedRow }) => {
                 </div>
               </div>
             </div>
+
+            {/*
+              Only an Admin sets this, matching the Add User form. Controlled
+              rather than defaultChecked so it shows the row actually open.
+            */}
+            {role.isAdmin && (
+              <div className="pwd-container">
+                <span>Tool room:</span>
+                <div>
+                  <span style={{ fontWeight: "normal" }}>
+                    {`Previously selected: `}
+                  </span>
+                  <span style={{ fontWeight: "bold" }}>
+                    {`${
+                      TOOL_ROOM_OPTIONS.find(
+                        (option) =>
+                          option.value === toolRoomChoiceOf(selectedRow),
+                      )?.label
+                    } `}
+                  </span>
+                  <div>
+                    {TOOL_ROOM_OPTIONS.map((option) => (
+                      <React.Fragment key={option.value}>
+                        <input
+                          type="radio"
+                          name="toolRoomChoice"
+                          id="outlined-number"
+                          value={option.value}
+                          checked={
+                            formik.values.toolRoomChoice === option.value
+                          }
+                          onChange={formik.handleChange}
+                        />
+                        <span style={radioLabelStyle}>{option.label}</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {role.isSectionAdmin && (
               <div>
@@ -722,7 +798,7 @@ const UserUpdate = ({ selectedRow }) => {
               </div>
             )}
 
-            {role.isPlantAdmin ? (
+            {!showSection ? null : role.isPlantAdmin ? (
               <div className="pwd-container">
                 <span>Section:</span>
                 <div style={{ width: "100%", marginTop: "0.5rem" }}>

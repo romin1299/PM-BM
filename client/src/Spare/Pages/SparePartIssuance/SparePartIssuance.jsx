@@ -8,8 +8,26 @@ import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 import SpareSummery from "../SpareSheets/SpareSummery";
 import OtherFiltersIssuance from "./OtherFiltersIssuance";
 import ExportCSV from "./ExportCSV";
-import SparePartsRequestForm from "../../../BM/SparePartsRequest/SparePartsRequestForm";
+import SparePartsRequestForm, {
+  ISSUED_FROM_OTHER,
+} from "../../../BM/SparePartsRequest/SparePartsRequestForm";
 import IssuanceSheetApproval from "./IssuanceSheetApproval";
+import { useTableColumnFilters } from "../../Component/Common/useTableColumnFilters";
+
+/** The table's filterable columns: header text and the row field behind it. */
+const TABLE_COLUMNS = [
+  { header: "Issued from", key: "issuedFrom" },
+  { header: "Product", key: "cell.cell_name" },
+  { header: "Line", key: "line.line_name" },
+  { header: "Machine No", key: "machine.machine_code" },
+  { header: "Master", key: "changeParts.whichParts" },
+  { header: "Location", key: "changeParts.location" },
+  { header: "Part name", key: "changeParts.partName" },
+  { header: "Part model", key: "changeParts.partModel" },
+  { header: "Maker", key: "changeParts.maker" },
+  { header: "Temporary/ Permanent", key: "changeParts.temporaryOrPermanent" },
+  { header: "Created By", key: "createdBy.tm_name" },
+];
 
 const TDWrapper = ({ children, otherDivClasses = "" }) => (
   <td className="td-padding ">
@@ -112,12 +130,29 @@ const SpareIssuanceSummaryTable = memo((props) => {
     [],
   );
 
+  // Bumped when a new sheet is saved, so the list and counters reload.
+  const [reloadCount, setReloadCount] = useState(0);
+  const handleOtherIssueSaved = useCallback(
+    () => setReloadCount((count) => count + 1),
+    [],
+  );
+
   const otherParentProps = useMemo(
     () => ({
       handleSparePartsModelState,
     }),
     [handleSparePartsModelState],
   );
+
+  const {
+    renderHeader: renderColumnHeader,
+    filtersParam,
+    activeCount: activeColumnFilters,
+    clearAll: clearColumnFilters,
+  } = useTableColumnFilters({
+    valuesUrl: "/v1/spare/spareIssuanceSummary/columnValues",
+    columns: TABLE_COLUMNS,
+  });
 
   const apiReferencePropsBasedOnFilters = useMemo(
     () => ({
@@ -126,6 +161,7 @@ const SpareIssuanceSummaryTable = memo((props) => {
         selectedValue: props?.selectedValue,
         selectedYear: props?.selectedYear,
         ...otherSelectedFilters,
+        ...(filtersParam ? { filters: filtersParam } : {}),
       },
       referenceArrayForUseEffect: [
         props?.flagForTogglingFilter,
@@ -134,10 +170,14 @@ const SpareIssuanceSummaryTable = memo((props) => {
         otherSelectedFilters?.from,
         otherSelectedFilters?.to,
         otherSelectedFilters?.search,
+        filtersParam,
+        reloadCount,
       ],
     }),
     [
+      reloadCount,
       otherSelectedFilters,
+      filtersParam,
       props?.flagForTogglingFilter,
       props?.selectedValue,
       props?.selectedYear,
@@ -146,21 +186,49 @@ const SpareIssuanceSummaryTable = memo((props) => {
 
   return (
     <div style={{ overflow: "auto" }}>
-      <div className="cell p-2 rounded-2 d-flex justify-content-between">
-        <SpareSummery
-          apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
-          url="/v1/spare/spareIssuanceSummaryCounters"
-          titles={[
-            "Total Requested Parts",
-            "Temporary Parts",
-            "Permanent Parts",
-          ]}
-        />
+      <div className="cell p-2 rounded-2 d-flex justify-content-between align-items-center">
+        <div className="d-flex align-items-center">
+          <SpareSummery
+            apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
+            url="/v1/spare/spareIssuanceSummaryCounters"
+            titles={[
+              "Total Requested Parts",
+              "Temporary Parts",
+              "Permanent Parts",
+            ]}
+          />
+          {/* Beside the summary cards (the last one is Permanent Parts). */}
+          <button
+            type="button"
+            className="btn bg-button ms-3"
+            onClick={() =>
+              handleSparePartsModelState({
+                whichModal: "OTHER_ISSUE",
+                _id: null,
+                selectedRow: {},
+                updateRow: () => {},
+              })
+            }
+          >
+            Issue Other
+          </button>
+        </div>
+
         <div className="d-flex gap-2 justify-content-end">
           <OtherFiltersIssuance
             {...otherSelectedFilters}
             handleSelectOtherFilters={handleSelectOtherFilters}
           />
+
+          {activeColumnFilters > 0 && (
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              onClick={clearColumnFilters}
+            >
+              Clear filters ({activeColumnFilters})
+            </button>
+          )}
 
           <ExportCSV
             axiosParams={apiReferencePropsBasedOnFilters?.params}
@@ -171,6 +239,7 @@ const SpareIssuanceSummaryTable = memo((props) => {
       <SpareSheetCustomTable
         apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
         url="/v1/spare/spareIssuanceSummary"
+        renderHeader={renderColumnHeader}
         tableHeaders={[
           "Issued from",
           "Product",
@@ -203,6 +272,16 @@ const SpareIssuanceSummaryTable = memo((props) => {
           {sparePartsRequestModal?.whichModal === "ISSUANCE_SHEET" && (
             <SparePartsRequestForm
               {...sparePartsRequestModal}
+              modelProp={{
+                show: sparePartsRequestModal?.show,
+                onHide: handleSparePartsModelState,
+              }}
+            />
+          )}
+          {sparePartsRequestModal?.whichModal === "OTHER_ISSUE" && (
+            <SparePartsRequestForm
+              issuedFrom={ISSUED_FROM_OTHER}
+              onSaved={handleOtherIssueSaved}
               modelProp={{
                 show: sparePartsRequestModal?.show,
                 onHide: handleSparePartsModelState,

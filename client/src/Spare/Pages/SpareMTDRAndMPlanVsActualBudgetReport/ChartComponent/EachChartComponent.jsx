@@ -13,6 +13,11 @@ const EachChartComponent = ({
     datasets: [],
   },
   axisTitles = {},
+  // A control for the card's title bar, e.g. "Set target".
+  headerAction = null,
+  hideChartLabels = false,
+  /** Headroom above the value axis, so a line at the top keeps its label visible. */
+  primaryAxisGrace,
 }) => {
   // const handleDownload = async () => {};
 
@@ -25,6 +30,7 @@ const EachChartComponent = ({
         }}
         Toolbar={
           <>
+            {headerAction}
             {monthlyStatus?.length > 0 &&
               monthlyStatus?.map(({ label = "", value = "" }) => (
                 <div className="col-auto">
@@ -67,6 +73,8 @@ const EachChartComponent = ({
           chartData={chartData}
           ChartComponent={ChartComponent}
           axisTitles={axisTitles}
+          primaryAxisGrace={primaryAxisGrace}
+          {...(hideChartLabels ? { dataLabels: { display: false } } : {})}
         />
       </Box>
     </Box>

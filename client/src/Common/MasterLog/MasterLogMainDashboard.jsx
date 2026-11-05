@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, useMemo } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Box, Button } from "@mui/material";
 
@@ -23,7 +23,10 @@ const MasterLogInnerComponent = () => {
 
   const [csvDataOfMasterLog, setCsvDataOfMasterLog] = useState([]);
 
-  const columns = [
+  // Held steady across renders because it is the CSV's header list, and
+  // rebuilding it would rebuild the CSV with it - see csvLink below.
+  const columns = useMemo(
+    () => [
     {
       label: "Month",
       key: "month",
@@ -117,7 +120,34 @@ const MasterLogInnerComponent = () => {
       label: "Status",
       key: "status",
     },
-  ];
+    ],
+    [],
+  );
+
+  /**
+   * Built once per data change rather than once per render.
+   *
+   * react-csv serialises the whole table into a data: URI inside CSVLink's
+   * own render - for the plant view that is 19,489 rows and 23 columns, redone
+   * every time anything in this component re-rendered, including each filter
+   * change in the toolbar beside it. Holding the element in a memo leaves the
+   * download exactly as it was and does that work only when the rows change.
+   */
+  const csvLink = useMemo(
+    () => (
+      <CSVLink
+        headers={columns}
+        className="downloadCSV text-decoration-none"
+        data={csvDataOfMasterLog ? csvDataOfMasterLog : []}
+        filename={`Master_Log`}
+        style={{ textDecoration: "none", color: "white" }}
+      >
+        CSV
+      </CSVLink>
+    ),
+    [columns, csvDataOfMasterLog],
+  );
+
   return (
     <Container fluid>
       <Box>
@@ -141,18 +171,7 @@ const MasterLogInnerComponent = () => {
                     resetButtonFiltration
                     isWithLocalStorageForFiltration="Yes"
                   />
-                  <div className="col-auto">
-                    <CSVLink
-                      headers={columns}
-                      className="downloadCSV text-decoration-none"
-                      data={csvDataOfMasterLog ? csvDataOfMasterLog : []}
-                      filename={`Master_Log`}
-                      style={{ textDecoration: "none", color: "white" }}
-                    >
-                      {/* <FileDownloadIcon style={{ fontSize: "1.15rem" }} /> */}
-                      CSV
-                    </CSVLink>
-                  </div>
+                  <div className="col-auto">{csvLink}</div>
                 </>
               }
             />

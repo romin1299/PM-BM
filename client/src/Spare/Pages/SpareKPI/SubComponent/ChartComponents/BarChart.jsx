@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { BarElement } from "chart.js";
 import { axisTitle } from "../../../SpareInventoryReport/SubComponent/ChartComponents/StackedBarChart";
+import { valueDataLabels } from "../../../../Utils/chartDataLabels";
 // import { ArcElement, Tooltip, Legend } from "chart.js";
 
 /**
@@ -26,6 +27,8 @@ const BarChart = ({
       datasets: [
         {
           data: counters?.data1,
+          // Shown in brackets after the value, e.g. quantity (cost).
+          secondaryValues: counters?.data2,
           backgroundColor: "#70AD47",
           borderColor: "#fff",
           borderWidth: 1,
@@ -53,18 +56,9 @@ const BarChart = ({
         title: {
           display: false,
         },
-        datalabels: {
-          anchor: "end",
-          align: "end",
-          clamp: true,
-          // An empty bar has nothing to report, and its label would only crowd
-          // the one beside it.
-          display: (context) => context.dataset?.data?.[context.dataIndex] > 0,
-          formatter: (value, context) => {
-            return `${value} (${counters?.data2?.[context.dataIndex]})`;
-          },
-          font: { size: 12 },
-        },
+        // The same value labels as every other Spare chart: inside the bar,
+        // or over it when the bar is too short to hold them.
+        datalabels: valueDataLabels,
       },
       scales: {
         x: {
@@ -84,7 +78,7 @@ const BarChart = ({
         },
       },
     }),
-    [counters, indexAxis, isHorizontal, axisTitles.x, axisTitles.y],
+    [indexAxis, isHorizontal, axisTitles.x, axisTitles.y],
   );
 
   return (

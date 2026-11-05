@@ -16,7 +16,13 @@ const PropComp = memo(({ yearAndMonth }) => {
 });
 
 const SpareInventoryReport = () => (
-  <AllKPIAndReportWrapper PropComp={PropComp} title="Inventory Dashboard" />
+  <AllKPIAndReportWrapper
+    PropComp={PropComp}
+    title="Inventory Dashboard"
+    // Every chart here shows all the stock; only the trend is a year, and it
+    // opens on the current financial year by itself.
+    hideYearAndMonthFilter
+  />
 );
 
 export default SpareInventoryReport;

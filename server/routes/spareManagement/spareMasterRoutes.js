@@ -9,6 +9,8 @@ const {
   exportSpareMasterDashboard,
   getSpareMasterColumnValues,
   resolveSpareMasterType,
+  createRepairedQualityConfirmation,
+  actOnRepairedQualityConfirmation,
 } = require("../../controller/spareManagement/spareMasterController");
 const {
   uploadSpareMasterFile,
@@ -83,5 +85,18 @@ router
     uploadSpareMasterFile.single("file"),
     handleSpareMasterImport,
   );
+
+/**
+ * The Repaired Part Quality Confirmation Sheet: submit a confirmed repair and
+ * record the MTD decision. Only the "repaired" catalogue accepts them; the
+ * handlers refuse the other types.
+ */
+router
+  .route("/master/:masterType/qualityConfirmation")
+  .post(resolveSpareMasterType, createRepairedQualityConfirmation);
+
+router
+  .route("/master/:masterType/qualityConfirmation/approval")
+  .patch(resolveSpareMasterType, actOnRepairedQualityConfirmation);
 
 module.exports = router;

@@ -10,6 +10,7 @@ import Select from "@mui/material/Select";
 import OutlinedInput from "@mui/material/OutlinedInput";
 
 import SparePartSearchBar from "../../Component/SparePartSearchBar";
+import { isToolRoomUser } from "../../../Utils/userScope";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -150,7 +151,7 @@ const OtherFilters = memo(
             ))}
           </Select>
         </FormControl>
-        {context?.toolRoomPerson === "Yes" && (
+        {isToolRoomUser(context) && (
           <div>
             <ButtonGroup
               size="small"

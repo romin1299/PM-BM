@@ -17,6 +17,8 @@ const SpareStockLevelWiseAnalysis = () => (
   <AllKPIAndReportWrapper
     PropComp={PropComp}
     title="Stock Level Wise Analysis"
+    // Everything to start with; the year and month narrow it once chosen.
+    noDefaultFilter
   />
 );
 

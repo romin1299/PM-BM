@@ -1,11 +1,27 @@
 import React, { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { axiosPostOrPatch } from "../../Utils/axiosUtils";
-import fyMonths from "../../../Utils/fy";
+import fyMonths, { currentFyMonthIndex } from "../../../Utils/fy";
 import colorsBasedOnOkNGStatus from "../../../Utils/colorsBasedOnOkNGStatus";
 
 const url = "/v1/spare/budget";
-const sectionOnlyFields = new Set(["BPDActual", "remarks"]);
+
+/**
+ * Fields the plant-wide table leaves out.
+ *
+ * BPD Actual is shown there: it is the month-end figure the plan is judged
+ * against, and at plant level it is the sum of the cells' BPD actuals, so it
+ * reads as the plant's own result. Remarks stay per-cell — a note has no
+ * plant-level meaning to add up.
+ */
+const hiddenForPlantWide = new Set(["remarks"]);
+
+/**
+ * The plan is set ahead of time, so it is the one row shown (and editable) for
+ * months that have not started. Everything else is a result or a note on a month
+ * that has happened, and stays blank until then.
+ */
+const SHOWN_FOR_FUTURE_MONTHS = new Set(["plan"]);
 
 /** Running total of the monthly plan, Apr through Mar. */
 const cumulativeOf = (plan = []) => {
@@ -74,6 +90,11 @@ const editableFields = [
 const BudgetConfigurationTable = ({
   budget = {},
   params = {},
+  /**
+   * The top panel: the whole plant's budget, summed from every cell's budget on
+   * the server. It has no document of its own, so nothing here is editable.
+   */
+  isPlantWide = false,
   handleUpdateState = null,
 }) => {
   const {
@@ -87,6 +108,7 @@ const BudgetConfigurationTable = ({
   } = useForm({
     defaultValues: async () => {
       if (params?._id) return budget;
+      if (isPlantWide && Object.keys(budget ?? {}).length) return budget;
       return {
         plan: Array(12).fill(0),
         actual: Array(12).fill(0),
@@ -100,13 +122,16 @@ const BudgetConfigurationTable = ({
 
   /**
    * The form is initialised once, from whatever budget it mounted with; when
-   * the selection changes and a different budget arrives, re-seed it. Keyed on
-   * the budget's identity so a re-render with the same budget leaves edits
-   * alone.
+   * the selection changes, or a save brings a new figure in, re-seed it.
+   *
+   * A cell's budget is identified by its document id. The plant view has no
+   * id — it is an aggregate — so its identity is the object the request
+   * returned, and a refetch after a cell edit re-seeds it that way.
    */
   useEffect(() => {
-    if (budget?._id) reset(budget);
-  }, [budget?._id, reset]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (budget?._id || (isPlantWide && Object.keys(budget ?? {}).length))
+      reset(budget);
+  }, [budget, isPlantWide, reset]);
 
   /**
    * Cum Plan is the running total of Monthly Plan, so it follows every edit to
@@ -129,6 +154,9 @@ const BudgetConfigurationTable = ({
   };
 
   const handleSubmitBudget = async (formValue) => {
+    // The plant figure is derived, so there is nothing to save for it.
+    if (isPlantWide) return;
+
     if (params?._id) {
       if (Object.keys(dirtyFields).length === 0) return;
       formValue = dirtyValues(formValue);
@@ -147,10 +175,18 @@ const BudgetConfigurationTable = ({
     }
   };
 
+  const currentMonthIndex = currentFyMonthIndex();
+
   if (isLoading) return <h4>Loading...</h4>;
 
   return (
     <form className="m-2" onSubmit={handleSubmit(handleSubmitBudget)}>
+      {isPlantWide && (
+        <small className="text-muted d-block mb-1">
+          Read-only: the plant budget is the sum of every cell&apos;s budget.
+          Select a section below to change a cell.
+        </small>
+      )}
       <div className="spare-scroll-table">
         <table
           style={{
@@ -193,7 +229,7 @@ const BudgetConfigurationTable = ({
             {editableFields.map(
               (f) =>
                 (!params?.selectedValue
-                  ? !sectionOnlyFields.has(f.key)
+                  ? !hiddenForPlantWide.has(f.key)
                   : f.key === "remarks"
                     ? params?.flagForTogglingFilter === "based-on-cell"
                     : true) && (
@@ -209,6 +245,12 @@ const BudgetConfigurationTable = ({
                       {f.label}
                     </td>
                     {fyMonths.map((_, i) => {
+                      if (
+                        i > currentMonthIndex &&
+                        !SHOWN_FOR_FUTURE_MONTHS.has(f.key)
+                      )
+                        return <td key={i} className="border p-1" />;
+
                       let style = { width: "100%" };
                       let title;
                       if (f.isStatusField) {
@@ -229,7 +271,7 @@ const BudgetConfigurationTable = ({
                             type={f.type}
                             style={style}
                             title={title}
-                            disabled={f.disabled}
+                            disabled={f.disabled || isPlantWide}
                             {...register(`${f.key}.${i}`, {
                               valueAsNumber: f.type === "number",
                             })}
@@ -243,16 +285,17 @@ const BudgetConfigurationTable = ({
           </tbody>
         </table>
       </div>
-      {(!params?.flagForTogglingFilter ||
-        params?.flagForTogglingFilter === "based-on-cell") && (
-        <button
-          type="submit"
-          className="btn bg-success mt-1"
-          style={{ fontSize: "12px" }}
-        >
-          Submit
-        </button>
-      )}
+      {!isPlantWide &&
+        (!params?.flagForTogglingFilter ||
+          params?.flagForTogglingFilter === "based-on-cell") && (
+          <button
+            type="submit"
+            className="btn bg-success mt-1"
+            style={{ fontSize: "12px" }}
+          >
+            Submit
+          </button>
+        )}
     </form>
   );
 };

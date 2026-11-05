@@ -2,6 +2,8 @@ import { memo, useCallback, useContext, useEffect, useMemo, useState } from "rea
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
@@ -10,6 +12,7 @@ import SpareTitlebar from "../../Component/SpareTitlebar";
 import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 import ExportCSV from "../SparePartIssuance/ExportCSV";
 import MasterColumnFilter, { useMasterColumnFilters } from "./MasterColumnFilter";
+import { isToolRoomUser, canDecideApprovalStep } from "../../../Utils/userScope";
 
 /**
  * The Spare Master catalogue.
@@ -157,78 +160,123 @@ const numberOrBlank = (value) =>
 const inrFormat = (value) =>
   Number(value ?? 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 
-export const MasterRow = memo(({ otherData, navigate, canEdit, masterType }) => (
-  <>
-    <td className="td-padding">{otherData?.uniqueID}</td>
-    <td className="td-padding">{otherData?.partNumber}</td>
-    <td className="td-padding">{otherData?.partName}</td>
-    <td className="td-padding">{otherData?.partModel}</td>
-    <td className="td-padding">{otherData?.partGroup}</td>
-    <td className="td-padding">{otherData?.maker}</td>
-    <td className="td-padding">{otherData?.supplierName}</td>
-    <td className="td-padding">{otherData?.unit}</td>
-    <td className="td-padding">{otherData?.location}</td>
-    <td className="td-padding">{otherData?.registerSection}</td>
-    <td className="td-padding">{otherData?.machineCode}</td>
-    <td className="td-padding">{otherData?.machineName}</td>
-    <td className="td-padding">
-      {otherData?.additionalMachineCodes?.join(", ")}
-    </td>
-    <td className="td-padding">{otherData?.cellName}</td>
-    <td className="td-padding">{otherData?.lineName}</td>
-    <td className="td-padding">{otherData?.subSectionName}</td>
-    <td className="td-padding">{otherData?.sectionName}</td>
-    <td className="td-padding">{otherData?.plantName}</td>
-    <td className="td-padding">{numberOrBlank(otherData?.minQuantity)}</td>
-    <td className="td-padding">{numberOrBlank(otherData?.maxQuantity)}</td>
-    <td className="td-padding">{numberOrBlank(otherData?.orderPoint)}</td>
-    <td className="td-padding">{numberOrBlank(otherData?.orderQty)}</td>
-    <td className="td-padding">{numberOrBlank(otherData?.leadTime)}</td>
-    <td className="td-padding">{numberOrBlank(otherData?.stockQty)}</td>
-    <td className="td-padding">{numberOrBlank(otherData?.issuedQty)}</td>
-    <td className="td-padding">{numberOrBlank(otherData?.availableQty)}</td>
-    <td className="td-padding">{inrFormat(otherData?.overAllCostInINR)}</td>
-    <td className="td-padding">
-      {/* Numbered so several drawings read as separate items. */}
-      {otherData?.drawingAttach?.length > 0 && (
-        <ol className="m-0 ps-3">
-          {otherData.drawingAttach.map((file, index) => (
-            <li key={file?.filename ?? index}>
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href={`${process.env.REACT_APP_BASE_URL}/v1/spare/${file?.filename}`}
-              >
-                {file?.originalname}
-              </a>
-            </li>
-          ))}
-        </ol>
-      )}
-    </td>
-    <td className="td-padding">{otherData?.registeredOn}</td>
-    {canEdit && (
-      <td className="td-padding">
-        <AppRegistrationIcon
-          fontSize="small"
-          className="button-style text-primary"
-          onClick={() =>
-            navigate(
-              `/spare/spareMasterRegistration/?masterId=${otherData?._id}${
-                masterType ? `&masterType=${masterType}` : ""
-              }`,
-            )
-          }
-        />
-      </td>
-    )}
-  </>
-));
+export const MasterRow = memo(
+  ({
+    otherData,
+    navigate,
+    canEdit,
+    masterType,
+    showStatus = false,
+    showPendingWith = false,
+    repairedActions = false,
+    loggedUser,
+    onView,
+    onApprove,
+  }) => {
+    const currentStep =
+      otherData?.approvals?.[otherData?.currentApprovalIndex];
+    const canDecide = canDecideApprovalStep(loggedUser, currentStep?.key);
+
+    const editIcon = canEdit ? (
+      <AppRegistrationIcon
+        fontSize="small"
+        className="button-style text-primary"
+        onClick={() =>
+          navigate(
+            `/spare/spareMasterRegistration/?masterId=${otherData?._id}${
+              masterType ? `&masterType=${masterType}` : ""
+            }`,
+          )
+        }
+      />
+    ) : null;
+
+    return (
+      <>
+        <td className="td-padding">{otherData?.uniqueID}</td>
+        <td className="td-padding">{otherData?.partNumber}</td>
+        <td className="td-padding">{otherData?.partName}</td>
+        <td className="td-padding">{otherData?.partModel}</td>
+        <td className="td-padding">{otherData?.partGroup}</td>
+        <td className="td-padding">{otherData?.maker}</td>
+        <td className="td-padding">{otherData?.supplierName}</td>
+        <td className="td-padding">{otherData?.unit}</td>
+        <td className="td-padding">{otherData?.location}</td>
+        <td className="td-padding">{otherData?.registerSection}</td>
+        <td className="td-padding">{otherData?.machineCode}</td>
+        <td className="td-padding">{otherData?.machineName}</td>
+        <td className="td-padding">
+          {otherData?.additionalMachineCodes?.join(", ")}
+        </td>
+        <td className="td-padding">{otherData?.cellName}</td>
+        <td className="td-padding">{otherData?.lineName}</td>
+        <td className="td-padding">{otherData?.subSectionName}</td>
+        <td className="td-padding">{otherData?.sectionName}</td>
+        <td className="td-padding">{otherData?.plantName}</td>
+        <td className="td-padding">{numberOrBlank(otherData?.minQuantity)}</td>
+        <td className="td-padding">{numberOrBlank(otherData?.maxQuantity)}</td>
+        <td className="td-padding">{numberOrBlank(otherData?.orderPoint)}</td>
+        <td className="td-padding">{numberOrBlank(otherData?.orderQty)}</td>
+        <td className="td-padding">{numberOrBlank(otherData?.leadTime)}</td>
+        <td className="td-padding">{numberOrBlank(otherData?.stockQty)}</td>
+        <td className="td-padding">{numberOrBlank(otherData?.issuedQty)}</td>
+        <td className="td-padding">{numberOrBlank(otherData?.availableQty)}</td>
+        <td className="td-padding">{inrFormat(otherData?.overAllCostInINR)}</td>
+        <td className="td-padding">
+          {/* Numbered so several drawings read as separate items. */}
+          {otherData?.drawingAttach?.length > 0 && (
+            <ol className="m-0 ps-3">
+              {otherData.drawingAttach.map((file, index) => (
+                <li key={file?.filename ?? index}>
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`${process.env.REACT_APP_BASE_URL}/v1/spare/${file?.filename}`}
+                  >
+                    {file?.originalname}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          )}
+        </td>
+        <td className="td-padding">{otherData?.registeredOn}</td>
+        {showStatus && (
+          <td className="td-padding">{otherData?.requestStatus}</td>
+        )}
+        {showPendingWith && (
+          <td className="td-padding">{otherData?.pendingWith || "-"}</td>
+        )}
+        {repairedActions ? (
+          <td className="td-padding">
+            <div className="d-flex align-items-center gap-2">
+              <VisibilityIcon
+                fontSize="small"
+                className="button-style text-primary"
+                onClick={() => onView?.(otherData)}
+              />
+              {canDecide && (
+                <FactCheckIcon
+                  fontSize="small"
+                  className="button-style defaultColor"
+                  onClick={() => onApprove?.(otherData)}
+                />
+              )}
+              {editIcon}
+            </div>
+          </td>
+        ) : (
+          canEdit && <td className="td-padding">{editIcon}</td>
+        )}
+      </>
+    );
+  },
+);
 
 const SpareMasterDashboard = () => {
   const navigate = useNavigate();
-  const { toolRoomPerson } = useContext(RoutingContext) ?? {};
-  const canEdit = toolRoomPerson === "Yes";
+  const loggedUser = useContext(RoutingContext) ?? {};
+  const canEdit = isToolRoomUser(loggedUser);
   const [totalMasters, setTotalMasters] = useState(null);
 
   /**

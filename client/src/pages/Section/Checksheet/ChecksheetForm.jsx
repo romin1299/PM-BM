@@ -653,35 +653,21 @@ function CheckSheetForm() {
 
   const downloadUploadedDataSheet = async () => {
     try {
-      let selectedFileName = machineAllData?.checkSheet_data?.dataSheet
+      const selectedFileName = machineAllData?.checkSheet_data?.dataSheet
         ? machineAllData?.checkSheet_data?.dataSheet
         : downloadingDataSheet?.checkSheet_data?.dataSheet;
-      const res = await fetch("/postDataSheetFileName", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileName: selectedFileName,
-        }),
-      });
-      const data = await res.json();
+      if (!selectedFileName) return;
 
-      // console.log(data);
-      if (res.status === 400 || res.status === 422 || !data) {
-        console.log("Invalid");
-      } else {
-        console.log("FileName Posted");
-        // let fileName1 = selectedFileName.substring(14);
-        // console.log(selectedFileName, "_________-", fileName1);
-        axios({
-          url: "/downloadDataSheetFile",
-          method: "GET",
-          responseType: "blob",
-        }).then((res) => {
-          FileDownload(res.data, selectedFileName);
-        });
-      }
+      // The name travels with the download. It used to be POSTed to
+      // /postDataSheetFileName first and held on the server until this GET
+      // arrived, so concurrent downloads were served each other's sheet.
+      const res = await axios({
+        url: "/downloadDataSheetFile",
+        method: "GET",
+        params: { fileName: selectedFileName },
+        responseType: "blob",
+      });
+      FileDownload(res.data, selectedFileName);
     } catch (error) {
       console.log(error);
     }

@@ -33,6 +33,18 @@ const WithFilters = ({
         Toolbar={
           <ChartsToolbar
             baseUrlForFiltering="/getFiltrationValue/all-filtration"
+            /**
+             * Tells the shared filtration endpoint this is a Spare page, so a
+             * PM user who also works in the tool room gets plant-wide filters
+             * here while staying section-scoped in PM and BM — see
+             * server/utils/userScope.js.
+             *
+             * Deliberately not `moduleType`, which is already read by
+             * responseFilterMiddleWareForSpare and would change the shape of
+             * the response for every user of this page. This one is read only
+             * by the scope helpers.
+             */
+            queryParams={{ scopeModule: "Spare" }}
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
             // monthFiltration

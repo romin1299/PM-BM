@@ -1,9 +1,33 @@
-import React, { useState, memo, useCallback } from "react";
+import React, { useState, memo, useCallback, useEffect, useMemo } from "react";
 import { Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
 import { partFor } from "../../Utils/dropdownUtils";
 import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
+import MasterColumnFilter, {
+  useMasterColumnFilters,
+} from "../SpareMasterDashboard/MasterColumnFilter";
+
+/**
+ * The result columns a reader can filter Excel-style, keyed by the header text
+ * to the row field the server filters on. The same column filter the Master
+ * dashboard uses; the serial, Master, quantity and unit-cost columns are not
+ * value-pickable, so they carry no funnel.
+ */
+const SEARCH_COLUMN_FILTERS = {
+  Plant: "plantName",
+  Location: "location",
+  "Unique ID": "uniqueID",
+  "Part no": "partNumber",
+  "Part name": "partName",
+  "Part model": "partModel",
+  "Machine no": "machineCode",
+  "Machine No": "machineCode",
+  "Machine name": "machineName",
+  "Machine Name": "machineName",
+};
+
+const COLUMN_VALUES_URL = "/v1/spare/spareSearch/columnValues";
 
 const TaskStatusMappingComponent = memo(({ otherData, rowIndex }) => (
     <>
@@ -15,12 +39,29 @@ const TaskStatusMappingComponent = memo(({ otherData, rowIndex }) => (
       <td className="td-padding ">{otherData?.partNumber}</td>
       <td className="td-padding ">{otherData?.partName}</td>
       <td className="td-padding ">{otherData?.partModel}</td>
+      <td className="td-padding ">{otherData?.machineCode}</td>
+      <td className="td-padding ">{otherData?.machineName}</td>
       <td className="td-padding ">
         {otherData?.budgetDetails?.overAllAvailableQty}
       </td>
       <td className="td-padding ">{otherData?.unitCost}</td>
     </>
 ));
+
+const tableHeaders = [
+  "S.No",
+  "Plant",
+  "Master",
+  "Location",
+  "Unique ID",
+  "Part no",
+  "Part name",
+  "Part model",
+  "Machine no",
+  "Machine name",
+  "Quantity available",
+  "Unit cost",
+];
 
 const SpareSearchButton = () => {
   const {
@@ -34,15 +75,16 @@ const SpareSearchButton = () => {
       location: "",
       partName: "",
       partModel: "",
-      "machine.machine_code": "",
+      machine_code: "",
     },
   });
 
-  const [apiReferencePropsBasedOnFilters, setApiReferencePropsBasedOnFilters] =
-    useState({
-      params: null,
-      referenceArrayForUseEffect: [],
-    });
+  // The submitted search (the dirty form fields). The column filters are layered
+  // on top of it without re-submitting the form.
+  const [searchParams, setSearchParams] = useState(null);
+
+  const { filters, setColumnFilter, clearAll, activeCount, filtersParam } =
+    useMasterColumnFilters();
 
   /**
    * How many parts the search matched in all. The server counts it once, with
@@ -54,6 +96,10 @@ const SpareSearchButton = () => {
     if (response?.totalCount !== undefined) setTotalCount(response.totalCount);
   }, []);
 
+  // A changed column filter restarts the list, so the server recounts it on the
+  // next first page.
+  useEffect(() => setTotalCount(null), [filtersParam]);
+
   const dirtyValues = (allValues) => {
     let newVal = {};
     Object.keys(dirtyFields).map((key) => (newVal[key] = allValues[key]));
@@ -64,19 +110,53 @@ const SpareSearchButton = () => {
     if (Object.keys(dirtyFields).length === 0) return;
     formValue = dirtyValues(formValue);
     setTotalCount(null);
-    setApiReferencePropsBasedOnFilters({
-      params: formValue,
-      referenceArrayForUseEffect: [JSON.stringify(formValue)],
-    });
+    // A fresh search is a different result set; start its column filters clean.
+    clearAll();
+    setSearchParams(formValue);
   };
   const handleClear = () => {
     reset();
     setTotalCount(null);
-    setApiReferencePropsBasedOnFilters({
-      params: null,
-      referenceArrayForUseEffect: [],
-    });
+    clearAll();
+    setSearchParams(null);
   };
+
+  // The table (and the column-value dropdowns) search within the submitted
+  // fields; the ticked filters ride alongside and reload the list when they
+  // change.
+  const apiReferencePropsBasedOnFilters = useMemo(() => {
+    if (!searchParams) return { params: null, referenceArrayForUseEffect: [] };
+    return {
+      params: {
+        ...searchParams,
+        ...(filtersParam ? { filters: filtersParam } : {}),
+      },
+      referenceArrayForUseEffect: [JSON.stringify(searchParams), filtersParam ?? ""],
+    };
+  }, [searchParams, filtersParam]);
+
+  const renderHeader = useCallback(
+    (header) => {
+      const column = SEARCH_COLUMN_FILTERS[header];
+      if (!column) return header;
+      return (
+        <span className="d-inline-flex align-items-center gap-1">
+          {header}
+          <MasterColumnFilter
+            column={column}
+            label={header}
+            valuesUrl={COLUMN_VALUES_URL}
+            filtersParam={filtersParam}
+            selectedValues={filters[column]}
+            onApply={setColumnFilter}
+            // So the values on offer are drawn from the current search only.
+            extraParams={searchParams ?? undefined}
+          />
+        </span>
+      );
+    },
+    [filters, filtersParam, setColumnFilter, searchParams],
+  );
 
   return (
     <div>
@@ -160,13 +240,22 @@ const SpareSearchButton = () => {
 
       {apiReferencePropsBasedOnFilters?.params && (
         <>
-          {totalCount !== null && (
-            <div className="m-1 size-14">
+          <div className="m-1 size-14 d-flex align-items-center gap-3">
+            {totalCount !== null && (
               <small>
                 <b>Total searched parts:</b> {totalCount}
               </small>
-            </div>
-          )}
+            )}
+            {activeCount > 0 && (
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm"
+                onClick={clearAll}
+              >
+                Clear filters ({activeCount})
+              </button>
+            )}
+          </div>
           <SpareSheetCustomTable
             apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
             url="/v1/spare/spareSearch"
@@ -174,18 +263,8 @@ const SpareSearchButton = () => {
             // apply — without this every row was keyed undefined.
             rowKey={(row) => row?.masterId}
             onPageLoaded={handlePageLoaded}
-            tableHeaders={[
-              "S.No",
-              "Plant",
-              "Master",
-              "Location",
-              "Unique ID",
-              "Part no",
-              "Part name",
-              "Part model",
-              "Quantity available",
-              "Unit cost",
-            ]}
+            tableHeaders={tableHeaders}
+            renderHeader={renderHeader}
             OtherComp={TaskStatusMappingComponent}
           />
         </>

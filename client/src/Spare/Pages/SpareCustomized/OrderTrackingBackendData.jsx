@@ -29,8 +29,12 @@ const leadTimeFieldsWithLabel = [
     fieldName: "PRAssignToAllBuyersToPOIssueToVendor",
   },
   {
-    label: "PO issue to vendor - Part Receive",
-    fieldName: "POIssueToVendorToPartReceive",
+    label: "Local: PO issue to vendor - Part Receive",
+    fieldName: "localPOIssueToVendorToPartReceive",
+  },
+  {
+    label: "Imported: PO issue to vendor - Part Receive",
+    fieldName: "importedPOIssueToVendorToPartReceive",
   },
   {
     label: "Part receive - Part inspection",
@@ -46,7 +50,7 @@ const leadTimeFieldsWithLabel = [
   },
 ];
 
-const OrderTrackingBackendData = ({ toolRoomPerson = "No" }) => {
+const OrderTrackingBackendData = ({ isToolRoom = false }) => {
   const {
     register,
     handleSubmit,
@@ -57,8 +61,33 @@ const OrderTrackingBackendData = ({ toolRoomPerson = "No" }) => {
       const { isError, trackingObj } = await axiosGetOrDelete({
         url,
       });
-      if (!isError) return trackingObj;
-      return {};
+      if (isError) return {};
+
+      const leadTime = trackingObj?.leadTime ?? {};
+
+      /**
+       * A plant that has only ever configured the single pre-split value gets
+       * it carried into both halves, so opening and saving this form cannot
+       * re-time orders already in flight. 0 stays "not set", as the server
+       * reads it.
+       */
+      const withLegacyValue = (value) =>
+        Number(value) > 0
+          ? value
+          : (leadTime.POIssueToVendorToPartReceive ?? 0);
+
+      return {
+        ...trackingObj,
+        leadTime: {
+          ...leadTime,
+          localPOIssueToVendorToPartReceive: withLegacyValue(
+            leadTime.localPOIssueToVendorToPartReceive,
+          ),
+          importedPOIssueToVendorToPartReceive: withLegacyValue(
+            leadTime.importedPOIssueToVendorToPartReceive,
+          ),
+        },
+      };
     },
   });
 
@@ -98,7 +127,7 @@ const OrderTrackingBackendData = ({ toolRoomPerson = "No" }) => {
         </>
       ))}
 
-      {toolRoomPerson === "Yes" && (
+      {isToolRoom && (
         <Box className="m-2" sx={{ display: "flex", justifyContent: "start" }}>
           <button type="submit" className="btn bg-succ ">
             Submit Lead time

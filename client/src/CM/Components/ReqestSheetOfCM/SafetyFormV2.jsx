@@ -523,6 +523,13 @@ const SafetyFormV2 = ({
     // params.selectedYear = selectedYear;
     // }
 
+    // _id is this form's "already saved" flag - it disables every field and
+    // hides Submit. The PM dropdown's Reset option blanks it to make the form
+    // editable again, so a submit can reach here carrying _id: "". This is
+    // always a create, and mongo issues the id, so never send one: an empty
+    // string cannot be cast to an ObjectId and the save is rejected.
+    const { _id, ...safetyFormData } = data;
+
     const response = await axiosPostOrPatch({
       url,
       // apiType: watch("_id") ? "patch" : "post",
@@ -532,7 +539,7 @@ const SafetyFormV2 = ({
           ...otherFormSubmitParams,
         },
       },
-      axiosBody: data,
+      axiosBody: safetyFormData,
     });
 
     if (!response?.isError) {

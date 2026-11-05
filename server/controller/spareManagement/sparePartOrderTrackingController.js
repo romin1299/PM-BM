@@ -4,6 +4,7 @@ const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const {
   paginationRowLimit,
   buildRegexSearchFilter,
+  partReceiveLeadTimeExpression,
 } = require("../../utils/spareManagementUtils");
 
 const Plant = require("../../model/plantSchema");
@@ -181,10 +182,17 @@ exports.orderTrackingDashboardProjection = tryCatchHandler(
           "changeParts.rsPOIssueToVendorTimeStamp",
           plant?.leadTime?.PRAssignToAllBuyersToPOIssueToVendor,
         ),
+        /**
+         * Receipt is the one stage whose allowance depends on the part, not
+         * only on the plant: an imported part is given the imported lead time
+         * and every other part the local one. The expression falls back to the
+         * single pre-split value, so unconfigured halves keep the old timing;
+         * see partReceiveLeadTimeExpression.
+         */
         rsPartReceive: generateTrackingValueProjection(
           "changeParts.rsPOIssueToVendorTimeStamp",
           "changeParts.rsPartReceiveTimeStamp",
-          plant?.leadTime?.POIssueToVendorToPartReceive,
+          partReceiveLeadTimeExpression(plant?.leadTime),
         ),
         /**
          * A "For use" part is consumed on the machine, not taken into stock, so
@@ -274,6 +282,7 @@ exports.getOKBudgetOrNGApprovedRequestSheets = tryCatchHandler(
           "changeParts.batchId": 1,
           "changeParts.partName": 1,
           "changeParts.partModel": 1,
+          "changeParts.poNumber": 1,
           /**
            * Whether the part can move through ordering (batch, PR, PO, receipt…).
            * A stock-in part waits for its master, which is created only after

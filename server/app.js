@@ -85,6 +85,21 @@ app.use(
 
 app.use(
   compression({
+    /**
+     * Level 3 instead of zlib's default 6.
+     *
+     * Compression is pure single-threaded CPU, and that thread is the shared
+     * bottleneck. On a 10.5 MB dashboard response, measured here: level 6
+     * costs 133ms of CPU to reach 1.26 MB, level 3 costs 60ms to reach
+     * 1.58 MB. Over the plant LAN the extra 320 KB crosses in a few
+     * milliseconds, so level 3 finishes the request sooner AND hands 73ms of
+     * CPU back per large response for other users. It was also the fastest of
+     * every level tested over a 50 Mbps link, so remote users do not lose out.
+     *
+     * Invisible to clients: gzip is gzip, the browser decompresses the same
+     * bytes either way.
+     */
+    level: Number(process.env.GZIP_LEVEL ?? 3),
     filter: (req, res) =>
       req.headers["x-no-compression"] ? false : compression.filter(req, res),
   }),
@@ -122,6 +137,16 @@ app.use(
 // } = require(path.join(__dirname, "./scripts/generateReorderSheets"));
 // runReorderGeneration({ commit: true, tmNo: 89898 });
 
+/**
+ * Before the routes, so it covers every one of them: no request may hang
+ * forever because a catch block logged its error and returned nothing.
+ */
+app.use(
+  require(path.join(__dirname, "./middleware/responseGuard"))({
+    timeoutMs: Number(process.env.REQUEST_TIMEOUT_MS) || 120_000,
+  }),
+);
+
 app.use(require(path.join(__dirname, "./controller/auth")));
 app.use(require(path.join(__dirname, "./controller/bmController")));
 app.use(require(path.join(__dirname, "./controller/cmcontroller")));
@@ -136,6 +161,9 @@ app.use(
   require("./routes/spareManagement/sparePartOrderTrackingRoutes"),
   require("./routes/spareManagement/sparePartSearchRoutes"),
   require("./routes/spareManagement/spareMasterRoutes"),
+  require("./routes/spareManagement/spareMasterStockLedgerRoutes"),
+  require("./routes/spareManagement/spareChangeRequestRoutes"),
+  require("./routes/spareManagement/spareDeleteRequestRoutes"),
   require("./routes/spareManagement/spareIssuanceSummaryRoutes"),
   require("./routes/spareManagement/spareBudgetManagementRoutes"),
   require("./routes/spareManagement/spareCustomizeFieldsRoutes"),
@@ -147,31 +175,54 @@ app.use(
   require(path.join(__dirname, "./controller/commonController")),
 );
 
-require(
-  path.join(
-    __dirname,
-    "./controller/autoMailSendStartingOfEveryMonthController",
-  ),
-);
-require(
-  path.join(
-    __dirname,
-    "./controller/autoMailSendMidAndEndOfEveryMonthController",
-  ),
-);
-require(
-  path.join(__dirname, "./controller/autoUpdateAndSendMailForSixMonthApproval"),
-);
-require(path.join(__dirname, "./controller/financialYearController"));
+/**
+ * Scheduled work: the mail senders, the nightly backup and the CM crons.
+ *
+ * Registered on one process only. Run under cluster.js every worker is a full
+ * copy of the app, so without this guard each monthly approval mail, each
+ * reminder and each backup would fire once per worker and users would get
+ * duplicate mail. cluster.js sets RUN_BACKGROUND_JOBS=no on all but the first
+ * worker; unset — a plain `node app.js` — means yes, so single-process
+ * behaviour is exactly as before.
+ */
+if (process.env.RUN_BACKGROUND_JOBS !== "no") {
+  require(
+    path.join(
+      __dirname,
+      "./controller/autoMailSendStartingOfEveryMonthController",
+    ),
+  );
+  require(
+    path.join(
+      __dirname,
+      "./controller/autoMailSendMidAndEndOfEveryMonthController",
+    ),
+  );
+  require(
+    path.join(
+      __dirname,
+      "./controller/autoUpdateAndSendMailForSixMonthApproval",
+    ),
+  );
+  require(path.join(__dirname, "./controller/financialYearController"));
 
-//When deploying please comment this backup code
-require(path.join(__dirname, "./controller/everyDayAutoBackup"));
+  //When deploying please comment this backup code
+  require(path.join(__dirname, "./controller/everyDayAutoBackup"));
 
-require(path.join(__dirname, "./middleware/cronRunForRequestSheetOfCM"));
+  require(path.join(__dirname, "./middleware/cronRunForRequestSheetOfCM"));
 
-require(
-  path.join(__dirname, "./sendMail/spare/returnTemporaryPartsReminder.js"),
-);
+  require(
+    path.join(__dirname, "./sendMail/spare/returnTemporaryPartsReminder.js"),
+  );
+
+  require(
+    path.join(__dirname, "./sendMail/spare/orderTrackingLeadTimeReminder.js"),
+  );
+} else {
+  console.log(
+    `worker ${process.env.WORKER_INDEX ?? "?"}: serving requests only (scheduled jobs run on worker 0)`,
+  );
+}
 
 //for logos and other image
 app.use(express.static(path.join(__dirname, "images")));
@@ -219,10 +270,33 @@ const PORT = process.env.PORT;
 //for when deploying application on AWS
 // const server = https.createServer(keys, app);
 
-app
-  .listen(PORT, () => {
-    console.log(`server is running in port ${PORT} `);
-  })
+const server = app.listen(PORT, () => {
+  console.log(
+    `server is running in port ${PORT} ` +
+      (process.env.WORKER_INDEX !== undefined
+        ? `[worker ${process.env.WORKER_INDEX}, pid ${process.pid}]`
+        : ""),
+  );
+});
+
+/**
+ * Bound how long a single request may occupy the process. Node's default is
+ * 5 minutes; a request held that long keeps its result set, its JSON and its
+ * socket alive throughout, and it is how many are alive at once that decides
+ * whether the heap runs out.
+ */
+/**
+ * Kept above the responseGuard window on purpose. The guard answers with a
+ * readable 503; Node's own timeout just destroys the socket, which the browser
+ * reports as a network error. Leaving headroom means the guard always gets
+ * there first and the client is told what happened.
+ */
+const GUARD_MS = Number(process.env.REQUEST_TIMEOUT_MS) || 120_000;
+server.requestTimeout = GUARD_MS + 15_000;
+server.headersTimeout = server.requestTimeout + 5_000;
+server.keepAliveTimeout = 65_000;
+
+server
   /**
    * A server that cannot take the port has to stop, and say why.
    *
@@ -245,3 +319,5 @@ app
 
     process.exit(1);
   });
+
+//WORKER_INDEX, RUN_BACKGROUND_JOBS, REQUEST_TIMEOUT_MS, GZIP_LEVEL

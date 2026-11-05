@@ -10,6 +10,18 @@ const spareIssuanceSummarySchema = new mongoose.Schema(
           ref: "SpareMaster",
         },
         whichParts: String,
+        /**
+         * Which parts master masterId belongs to: "stockIn", "recycle" or
+         * "repaired" (see model/spareMasterTypes.js). The three are separate
+         * collections, so the id alone does not say where to look. Sheets made
+         * before the recycle and repaired masters existed have none, and are
+         * stock-in.
+         */
+        masterType: {
+          type: String,
+          enum: ["stockIn", "recycle", "repaired"],
+          default: "stockIn",
+        },
         location: String,
         partName: String,
         partModel: String,

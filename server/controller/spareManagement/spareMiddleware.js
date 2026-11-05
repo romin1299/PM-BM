@@ -32,22 +32,39 @@ const buildHierarchyFilter = ({ selectedValue, flagForTogglingFilter } = {}) => 
   };
 };
 
-exports.spareFilterMiddleware = tryCatchHandler(async (req, res, next) => {
-  const { selectedYear } = req.query;
+/**
+ * Builds the hierarchy filter every Spare list is scoped by.
+ *
+ * `yearRequired` is true for the sheet lists, which are always read for one
+ * financial year. The inventory charts describe stock as it stands, so they
+ * pass false: a year then narrows the result if it is sent, and is not asked
+ * for when it is not.
+ */
+const createSpareFilterMiddleware = ({ yearRequired }) =>
+  tryCatchHandler(async (req, res, next) => {
+    const { selectedYear } = req.query;
 
-  if (!selectedYear)
-    return res.status(400).json({
-      message: "Please provide the required filter value",
-      showToast:
-        req.query.showToast && req.query.showToast === "No" ? false : true,
-    });
+    if (yearRequired && !selectedYear)
+      return res.status(400).json({
+        message: "Please provide the required filter value",
+        showToast:
+          req.query.showToast && req.query.showToast === "No" ? false : true,
+      });
 
-  req.queryObj = {
-    "rsTimeStamp.year.inString": selectedYear,
-    ...buildHierarchyFilter(req.query),
-  };
+    req.queryObj = {
+      ...(selectedYear && { "rsTimeStamp.year.inString": selectedYear }),
+      ...buildHierarchyFilter(req.query),
+    };
 
-  return next();
+    return next();
+  });
+
+exports.spareFilterMiddleware = createSpareFilterMiddleware({
+  yearRequired: true,
+});
+
+exports.spareFilterMiddlewareWithOptionalYear = createSpareFilterMiddleware({
+  yearRequired: false,
 });
 
 /**

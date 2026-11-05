@@ -69,32 +69,52 @@ const SendApprovalComponent = ({
   return (
     <form onSubmit={handleSubmit(handleSubmitApproval)}>
       <Modal.Body>
-        {data?.allUsers?.map((item) => (
-          <Row className="mt-1">
-            <Col className="d-flex align-items-center justify-content-between">
-              <small className="col-4">{item?.fieldRef?.displayName}</small>
-              <select
-                style={{ fontSize: "14px", width: "100%" }}
-                className={"d-inline"}
-                {...register(`${item?.fieldRef?.approvalKey}.user._id`, {
-                  required: `Please select ${item?.fieldRef?.displayName}`,
-                })}
-              >
-                <option selected disabled value="">
-                  Please select
-                </option>
-                {item?.users?.map((obj) => (
-                  <option value={obj?._id}>{obj?.tm_name}</option>
-                ))}
-              </select>
-            </Col>
-            {errors?.[item?.fieldRef?.approvalKey]?.user?._id && (
-              <p className="text-error mb-1">
-                {errors?.[item?.fieldRef?.approvalKey]?.user?._id?.message}
-              </p>
-            )}
-          </Row>
-        ))}
+        {data?.allUsers?.map((item) => {
+          // A step nobody is registered for cannot be filled in: say so here,
+          // not after the sheet has been refused on submit.
+          const hasNoUsers = !item?.users?.length;
+          const displayName = item?.fieldRef?.displayName;
+
+          return (
+            <Row className="mt-1" key={item?.fieldRef?.approvalKey}>
+              <Col className="d-flex align-items-center justify-content-between">
+                <small className="col-4">{displayName}</small>
+                <select
+                  style={{ fontSize: "14px", width: "100%" }}
+                  className={"d-inline"}
+                  {...register(`${item?.fieldRef?.approvalKey}.user._id`, {
+                    // With nobody to choose, the select holds only its
+                    // placeholder, so this always fails - and says why.
+                    required: hasNoUsers
+                      ? `No ${displayName} is registered for your section`
+                      : `Please select ${displayName}`,
+                  })}
+                >
+                  <option selected disabled value="">
+                    {hasNoUsers ? "No user registered" : "Please select"}
+                  </option>
+                  {item?.users?.map((obj) => (
+                    <option key={obj?._id} value={obj?._id}>
+                      {obj?.tm_name}
+                    </option>
+                  ))}
+                </select>
+              </Col>
+              {hasNoUsers && (
+                <p className="text-error mb-1">
+                  No {displayName} is registered for your section. Ask your
+                  admin to register one before sending for approval.
+                </p>
+              )}
+              {!hasNoUsers &&
+                errors?.[item?.fieldRef?.approvalKey]?.user?._id && (
+                  <p className="text-error mb-1">
+                    {errors?.[item?.fieldRef?.approvalKey]?.user?._id?.message}
+                  </p>
+                )}
+            </Row>
+          );
+        })}
       </Modal.Body>
       <ModalFooter />
     </form>

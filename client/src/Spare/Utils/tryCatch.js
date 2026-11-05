@@ -19,6 +19,9 @@ const tryCatch = async (prop) => {
       toastifyContainer({
         type: response?.status === 500 ? "error" : "warn",
         message: response?.data?.message,
+        // Server-marked refusals (e.g. a duplicate part) are drawn larger and
+        // in red; everything else keeps the compact toast.
+        variant: response?.data?.toastVariant,
       });
     }
 

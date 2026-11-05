@@ -4282,6 +4282,10 @@ router
         requestSheetRef, // quarter ID
       } = req.query;
 
+      // Always a new form, so mongo issues the id - never the browser. See the
+      // same guard on /pm/v1/safetyForm.
+      delete req.body._id;
+
       req.body["requestSheetRef"] = requestSheetRef;
       req.body["safetyFormFilledUpBy"] = req?.rootUser?.tm_name;
 

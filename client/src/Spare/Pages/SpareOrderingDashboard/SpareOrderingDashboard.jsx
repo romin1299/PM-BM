@@ -177,6 +177,44 @@ const EditOtherTrackingFields = memo(
   ),
 );
 
+/**
+ * The PO number beside PO Made. Unlike the lead-time stages it is not gated to
+ * Tool Room or to Edit mode: any user may open the popup to add or edit it. It
+ * shows once the part is in the ordering flow (canTrack), matching the other
+ * ordering columns, which are blank until then.
+ */
+const PONumberTD = memo(({ otherData, handleModal, updateRow, canTrack }) => {
+  if (!canTrack) return <td className="td-padding " />;
+
+  return (
+    <td className="td-padding ">
+      <div className="d-flex align-items-center justify-content-center flex-column gap-1">
+        {otherData?.changeParts?.poNumber && (
+          <small>{otherData?.changeParts?.poNumber}</small>
+        )}
+        <EditIcon
+          fontSize="small"
+          className="button-style text-primary"
+          onClick={() =>
+            handleModal({
+              popupRef: {
+                key: "poNumber",
+                popupTitle: "PO Number",
+                variant: "poNumber",
+              },
+              updateRow,
+              axiosParams: {
+                _id: otherData?._id,
+                partId: otherData?.changeParts?._id,
+              },
+            })
+          }
+        />
+      </div>
+    </td>
+  );
+});
+
 const SelectTD = memo(
   ({ setObj, isSelected, handleToggleSelect, canTrack, batchId }) =>
     !canTrack || batchId ? (
@@ -203,49 +241,72 @@ const TaskStatusTd = memo(
     isEditableRow = false,
     isViewOnly = true,
   }) =>
-    mappingArray?.map((item) => (
-      <td className="td-padding " key={item?.key}>
-        {isStageSkipped(otherData, item?.key) && (
-          <div className="d-flex justify-content-center">
-            <small className="text-muted" title="Not required for a part for use">
-              N/A
-            </small>
-          </div>
-        )}
-        {otherData?.[item?.key]?.taskStatus && (
-          <div className="d-flex align-items-center justify-content-center flex-column">
-            <CircleIcon
-              fontSize="small"
-              sx={{
-                display: "inline-flex",
-                border:
-                  colorsBasedOnTaskStatus?.[
-                    otherData?.[item?.key]?.taskStatus
-                  ] === "white"
-                    ? "1px solid grey"
-                    : "none",
-                borderRadius: "50%",
-                color:
-                  colorsBasedOnTaskStatus?.[otherData?.[item?.key]?.taskStatus],
-              }}
-            />
-            {otherData?.[item?.key]?.timeStamp}
-            {mode === "Edit" &&
-              otherData?.requestSheetStatus === "Completed" &&
-              !isViewOnly &&
-              canTrack &&
-              (otherData?.rsPRGeneration?.taskStatus || isEditableRow) && (
-                <EditOtherTrackingFields
-                  handleModal={handleModal}
-                  otherData={otherData}
-                  updateRow={updateRow}
-                  popupRef={item}
-                />
-              )}
-          </div>
-        )}
-      </td>
-    )),
+    mappingArray?.map((item) => {
+      const statusTd = (
+        <td className="td-padding " key={item?.key}>
+          {isStageSkipped(otherData, item?.key) && (
+            <div className="d-flex justify-content-center">
+              <small
+                className="text-muted"
+                title="Not required for a part for use"
+              >
+                N/A
+              </small>
+            </div>
+          )}
+          {otherData?.[item?.key]?.taskStatus && (
+            <div className="d-flex align-items-center justify-content-center flex-column">
+              <CircleIcon
+                fontSize="small"
+                sx={{
+                  display: "inline-flex",
+                  border:
+                    colorsBasedOnTaskStatus?.[
+                      otherData?.[item?.key]?.taskStatus
+                    ] === "white"
+                      ? "1px solid grey"
+                      : "none",
+                  borderRadius: "50%",
+                  color:
+                    colorsBasedOnTaskStatus?.[
+                      otherData?.[item?.key]?.taskStatus
+                    ],
+                }}
+              />
+              {otherData?.[item?.key]?.timeStamp}
+              {mode === "Edit" &&
+                otherData?.requestSheetStatus === "Completed" &&
+                !isViewOnly &&
+                canTrack &&
+                (otherData?.rsPRGeneration?.taskStatus || isEditableRow) && (
+                  <EditOtherTrackingFields
+                    handleModal={handleModal}
+                    otherData={otherData}
+                    updateRow={updateRow}
+                    popupRef={item}
+                  />
+                )}
+            </div>
+          )}
+        </td>
+      );
+
+      // The free-text PO Number sits immediately after PO Made and, unlike the
+      // stages, is open to every user — so it is drawn here regardless of mode.
+      if (item?.key !== "rsPOIssueToVendor") return statusTd;
+
+      return (
+        <React.Fragment key={item?.key}>
+          {statusTd}
+          <PONumberTD
+            otherData={otherData}
+            handleModal={handleModal}
+            updateRow={updateRow}
+            canTrack={canTrack}
+          />
+        </React.Fragment>
+      );
+    }),
 );
 
 const TaskStatusMappingComponent = memo(
@@ -475,6 +536,7 @@ const OrderTrackingDashboard = memo((props) => {
       "PR Generation",
       "PR Approval",
       "PO Made",
+      "PO Number",
       "Part Receipt",
       "Part Inspection",
       "MRN Issued",

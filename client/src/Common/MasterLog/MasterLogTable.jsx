@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, {
+  useState,
+  useEffect,
+  useReducer,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { Table, ConfigProvider, Space, Button } from "antd";
 import axios from "axios";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -8,6 +15,66 @@ import MainRequestSheetForView from "../../BM/Tabs/RequestSheetForView/MainReque
 import ViewNoLossBDEntryForm from "../../BM/NoLossBDDataEntry/ViewNoLossBDEntryForm";
 import moment from "moment";
 import Loading from "../../components/Loading/Loading";
+
+/**
+ * How many more rows to put in the DOM each time the user reaches the bottom.
+ *
+ * Every row the API returns stays in memory, so the filters, the CSV export
+ * and the row counts all still see the whole log - only the number of rows
+ * handed to antd grows. The plant view returns about 19,500 rows, and
+ * rendering all of them at once is roughly 450,000 table cells, which is what
+ * left the page unresponsive after the data had already arrived.
+ *
+ * antd's own `virtual` table is not an option here: it positions rows by a
+ * fixed height, and these rows vary - Problem, Cause, Action, Category and
+ * Done By all render bullet lists - so they would clip and overlap.
+ */
+const ROWS_PER_CHUNK = 150;
+
+/**
+ * How far down the loaded rows the user has to be before the next chunk is
+ * added, as a fraction of the scrollable content.
+ *
+ * Measured against the bottom edge of the visible area, so 0.75 means "three
+ * quarters of what is loaded has been scrolled past". Fetching at three
+ * quarters rather than at the bottom leaves a screenful or so still to scroll
+ * through while the next rows are put in place, so the scroll does not stop.
+ */
+const SCROLL_TRIGGER_RATIO = 0.75;
+
+const initialState = {
+  requestSheetModalOpenClose: false,
+  noLossBMEntryModalOpenClose: false,
+  noLossBMEntryModalDeleteOpenClose: false,
+};
+
+const ACTION = {
+  OPEN_CLOSE_RS: "request-sheet-open-close",
+  OPEN_CLOSE_NO_LOSS_BD: "no-loss-bd-open-close",
+  OPEN_CLOSE_NO_LOSS_BD_DELETE: "no-loss-bd-open-close-delete",
+};
+
+const reducer = (state, action) => {
+  if (action?.type === ACTION?.OPEN_CLOSE_RS) {
+    return {
+      ...state,
+      requestSheetModalOpenClose: !state?.requestSheetModalOpenClose,
+    };
+  } else if (action?.type === ACTION?.OPEN_CLOSE_NO_LOSS_BD) {
+    return {
+      ...state,
+      noLossBMEntryModalOpenClose: !state?.noLossBMEntryModalOpenClose,
+    };
+  } else if (action?.type === ACTION?.OPEN_CLOSE_NO_LOSS_BD_DELETE) {
+    return {
+      ...state,
+      noLossBMEntryModalDeleteOpenClose:
+        !state?.noLossBMEntryModalDeleteOpenClose,
+    };
+  } else {
+    return state;
+  }
+};
 
 const MasterLogTable = ({
   flagForTogglingFilter,
@@ -29,40 +96,6 @@ const MasterLogTable = ({
 
   const [selectedRow, setSelectedRow] = useState();
 
-  const initialState = {
-    requestSheetModalOpenClose: false,
-    noLossBMEntryModalOpenClose: false,
-    noLossBMEntryModalDeleteOpenClose: false,
-  };
-
-  const ACTION = {
-    OPEN_CLOSE_RS: "request-sheet-open-close",
-    OPEN_CLOSE_NO_LOSS_BD: "no-loss-bd-open-close",
-    OPEN_CLOSE_NO_LOSS_BD_DELETE: "no-loss-bd-open-close-delete",
-  };
-
-  const reducer = (state, action) => {
-    if (action?.type === ACTION?.OPEN_CLOSE_RS) {
-      return {
-        ...state,
-        requestSheetModalOpenClose: !state?.requestSheetModalOpenClose,
-      };
-    } else if (action?.type === ACTION?.OPEN_CLOSE_NO_LOSS_BD) {
-      return {
-        ...state,
-        noLossBMEntryModalOpenClose: !state?.noLossBMEntryModalOpenClose,
-      };
-    } else if (action?.type === ACTION?.OPEN_CLOSE_NO_LOSS_BD_DELETE) {
-      return {
-        ...state,
-        noLossBMEntryModalDeleteOpenClose:
-          !state?.noLossBMEntryModalDeleteOpenClose,
-      };
-    } else {
-      return state;
-    }
-  };
-
   const [handleAllModals, handleAllModalsDispatch] = useReducer(
     reducer,
     initialState
@@ -74,17 +107,19 @@ const MasterLogTable = ({
   // const [noLossBMEntryModalOpenClose, seNoLossBMEntryModalOpenClose] =
   //   useState(false);
 
-  const handleRequestSheetShowAndCloseState = () => {
+  // Stable, so the column list below can be held in a memo: useReducer's
+  // dispatch never changes identity.
+  const handleRequestSheetShowAndCloseState = useCallback(() => {
     handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_RS });
-  };
+  }, []);
 
-  const handleNoLossBMEntryShowAndCloseState = () => {
+  const handleNoLossBMEntryShowAndCloseState = useCallback(() => {
     handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_NO_LOSS_BD });
-  };
+  }, []);
 
-  const handleNoLossBMEntryDeleteShowAndCloseState = () => {
+  const handleNoLossBMEntryDeleteShowAndCloseState = useCallback(() => {
     handleAllModalsDispatch({ type: ACTION?.OPEN_CLOSE_NO_LOSS_BD_DELETE });
-  };
+  }, []);
 
   const getMasterLog = async () => {
     setLoading(true);
@@ -133,7 +168,16 @@ const MasterLogTable = ({
     setLoading(false);
   };
 
-  const columns = [
+  /**
+   * Rebuilt only when something it reads changes.
+   *
+   * antd compares the column list by identity to decide what to re-render, and
+   * this list carries the three filter trees - shifts, the plant's category
+   * tree and the whole MTD name list - so handing it a fresh array on every
+   * render had the table rebuild every header and dropdown each time.
+   */
+  const columns = useMemo(
+    () => [
     {
       title: "Sr. No.",
       render: (value, item, idx) => {
@@ -619,7 +663,95 @@ const MasterLogTable = ({
         </>
       ),
     },
-  ];
+    ],
+    [
+      plantShiftsData,
+      plantCategories,
+      supportingTMList,
+      selectedYear,
+      navigate,
+      handleRequestSheetShowAndCloseState,
+      handleNoLossBMEntryShowAndCloseState,
+    ],
+  );
+
+  /**
+   * What the user has picked in the column dropdowns, as antd reports it.
+   *
+   * antd filters whatever dataSource it is handed, so with only part of the
+   * rows given to it, it would filter only that part and a search would miss
+   * everything further down the log. The dropdowns themselves are untouched -
+   * same options, same tree search, same Reset - and their own onFilter
+   * predicates are applied below, over every row.
+   */
+  const [columnFilters, setColumnFilters] = useState({});
+  const [visibleRowCount, setVisibleRowCount] = useState(ROWS_PER_CHUNK);
+  const tableWrapperRef = useRef(null);
+
+  const handleTableChange = useCallback((pagination, filters) => {
+    setColumnFilters(filters ?? {});
+  }, []);
+
+  const filteredRows = useMemo(() => {
+    const activeFilters = Object.entries(columnFilters).filter(
+      ([, values]) => values && values.length
+    );
+    if (!activeFilters.length) return masterLogData ?? [];
+
+    // antd keys a column's filter by its key, falling back to its dataIndex
+    const tests = activeFilters.map(([columnKey, values]) => {
+      const column = columns.find(
+        (candidate) => (candidate.key ?? candidate.dataIndex) === columnKey
+      );
+      // several values picked in one column match any of them, and separate
+      // columns must all match - the same way antd applies them
+      return (row) =>
+        !column?.onFilter || values.some((value) => column.onFilter(value, row));
+    });
+
+    return (masterLogData ?? []).filter((row) =>
+      tests.every((test) => test(row))
+    );
+  }, [masterLogData, columnFilters, columns]);
+
+  const visibleRows = useMemo(
+    () => filteredRows.slice(0, visibleRowCount),
+    [filteredRows, visibleRowCount]
+  );
+
+  // A new filter, or a new fetch, starts the scroll from the top again.
+  useEffect(() => setVisibleRowCount(ROWS_PER_CHUNK), [filteredRows]);
+
+  /**
+   * Read inside the scroll handler so that it does not have to be torn down
+   * and re-attached every time the row count changes.
+   */
+  const filteredRowCountRef = useRef(0);
+  filteredRowCountRef.current = filteredRows.length;
+
+  useEffect(() => {
+    const tableBody =
+      tableWrapperRef.current?.querySelector(".ant-table-body");
+    if (!tableBody) return;
+
+    const onScroll = () => {
+      const { scrollTop, clientHeight, scrollHeight } = tableBody;
+
+      // Nothing to measure against before the rows have been laid out; treat
+      // that as "at the end" so a short table still tops itself up.
+      const scrolledPast =
+        scrollHeight > 0 ? (scrollTop + clientHeight) / scrollHeight : 1;
+
+      if (scrolledPast < SCROLL_TRIGGER_RATIO) return;
+
+      setVisibleRowCount((count) =>
+        count >= filteredRowCountRef.current ? count : count + ROWS_PER_CHUNK
+      );
+    };
+
+    tableBody.addEventListener("scroll", onScroll, { passive: true });
+    return () => tableBody.removeEventListener("scroll", onScroll);
+  }, [loading]);
 
   const removeDataFromMaster = (idOfDeletedSheet) => {
     setMasterLogData(
@@ -721,13 +853,21 @@ const MasterLogTable = ({
                 },
               }}
             >
-              <Table
-                columns={columns}
-                dataSource={masterLogData}
-                scroll={{ x: 2500, y: 700 }}
-                pagination={false}
-                bordered
-              />
+              <div ref={tableWrapperRef}>
+                <Table
+                  columns={columns}
+                  dataSource={visibleRows}
+                  scroll={{ x: 2500, y: 700 }}
+                  pagination={false}
+                  bordered
+                  onChange={handleTableChange}
+                  footer={() =>
+                    filteredRows.length === (masterLogData?.length ?? 0)
+                      ? `Showing ${visibleRows.length} of ${filteredRows.length} rows`
+                      : `Showing ${visibleRows.length} of ${filteredRows.length} matching rows (${masterLogData?.length ?? 0} in total)`
+                  }
+                />
+              </div>
             </ConfigProvider>
           </Box>
         </>

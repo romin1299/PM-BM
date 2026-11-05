@@ -165,7 +165,7 @@ export const spareReportCatalogue = [
   {
     key: "top-inventory",
     dashboard: DASHBOARDS.inventory,
-    title: "Top inventory",
+    title: "Available Stock by Line - Quantity (Cost in Mil INR)",
     url: "/v1/spare/kpi/topInventory",
     params: { showToast: "No" },
     filters: { month: true, hierarchy: PLANT_HIERARCHY, topLimit: true },
@@ -175,7 +175,7 @@ export const spareReportCatalogue = [
   {
     key: "spare-part-details",
     dashboard: DASHBOARDS.inventory,
-    title: "Spare Part Details",
+    title: "Available Stock by Line and Supplier Category(Local/Imported) - Quantity",
     url: "/v1/spare/kpi/supplierCategoryWise",
     params: { showToast: "No" },
     filters: { month: true, hierarchy: PLANT_HIERARCHY, topLimit: true },
@@ -187,7 +187,7 @@ export const spareReportCatalogue = [
   {
     key: "stock-level-wise-analysis",
     dashboard: DASHBOARDS.stockLevel,
-    title: "Stock Level Wise Analysis",
+    title: "Max Stock Level - Count (Cost in Mil INR)",
     url: "/v1/spare/kpi/stockLevelWiseAnalysis",
     params: { requestFor: "barline" },
     filters: { month: true },
@@ -196,12 +196,12 @@ export const spareReportCatalogue = [
   {
     key: "stock-level-wise-analysis-share",
     dashboard: DASHBOARDS.stockLevel,
-    title: "Stock Level Wise Analysis (Share)",
+    title: "Max Stock Level - Share of Count",
     url: "/v1/spare/kpi/stockLevelWiseAnalysis",
     params: { requestFor: "pie" },
     filters: { month: true },
     download: handleDownloadCSVOrPDF,
-    header: ["", "Percentage", "Cost in Mil"],
+    header: ["", "Percentage", "Masters"],
   },
 
   // ------------------------------------------------------- MTD Toolroom KPI

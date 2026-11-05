@@ -28,18 +28,6 @@ const userDataHeaderForCSV = [
     label: "Plant",
     key: "plant_data",
   },
-  {
-    label: "Section",
-    key: "section_data",
-  },
-  {
-    label: "Sub Section",
-    key: "subSection_data",
-  },
-  {
-    label: "Cell/Product",
-    key: "cell_data",
-  },
 ];
 
 const timeStamp = () => {
@@ -126,9 +114,6 @@ const SpareUserManagement = () => {
       { title: "User Type", field: "user_type" },
       { title: "Grade", field: "tm_grade" },
       { title: "Plant", field: "plant_data" },
-      { title: "Section", field: "section_data" },
-      { title: "Sub Section", field: "subSection_data" },
-      { title: "Cell/Product", field: "cell_data" },
     ],
     [],
   );

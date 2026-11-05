@@ -214,6 +214,10 @@ import { useMemo, useCallback } from "react";
 import "../../Login/Login.scss";
 import "../../SCSS/MaterialTable.scss";
 import UserUpdate from "../../Popups/UserUpdate";
+import {
+  TOOL_ROOM_OPTIONS,
+  toolRoomChoiceOf,
+} from "../../Popups/userManagementRoles";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import EmailConfiguration from "../../Popups/EmailConfiguration";
 import Footer from "../../components/Footer/Footer";
@@ -259,6 +263,10 @@ const userDataHeaderForCSV = [
     key: "joining_date",
   },
   {
+    label: "Tool Room",
+    key: "toolRoomPerson",
+  },
+  {
     label: "Contact No",
     key: "contact_no",
   },
@@ -290,6 +298,18 @@ function AdminDashboard() {
       { title: "Grade", field: "tm_grade", editable: "never" },
       { title: "Department", field: "tm_department", editable: "never" },
       { title: "Joining Date", field: "joining_date", editable: "never" },
+      // Set in the Add and Edit popups; shown here so it is visible without
+      // opening one. "Only" is scoped to the plant with no section; "Both"
+      // keeps their PM section and gains the tool-room rights in Spare.
+      {
+        title: "Tool Room",
+        field: "toolRoomPerson",
+        editable: "never",
+        render: (rowData) =>
+          TOOL_ROOM_OPTIONS.find(
+            (option) => option.value === toolRoomChoiceOf(rowData),
+          )?.label,
+      },
       { title: "Contact No", field: "contact_no" },
       { title: "Address", field: "address" },
     ],

@@ -42,6 +42,10 @@ const HierarchyFilterWrapper = ({
             reduceState={reduceState}
             reducerDispatch={reducerDispatch}
             {...otherToolbarCompProps}
+            // All charts using this wrapper load the all-data hierarchy first.
+            // Reset must therefore always be available to return a narrowed
+            // chart and its download filters to that same initial state.
+            resetButtonFiltration
           />
         </>
       }

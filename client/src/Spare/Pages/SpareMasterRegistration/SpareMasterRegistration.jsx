@@ -3,6 +3,7 @@ import React, {
   useContext,
   useMemo,
   useRef,
+  useReducer,
   useState,
 } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -10,11 +11,18 @@ import { useForm, Controller } from "react-hook-form";
 import { Row, Col, Form, Container, Table } from "react-bootstrap";
 
 import SpareMastCostTable from "./SpareMastCostTable";
+import MasterStockLedgerTable from "./MasterStockLedgerTable";
 import RoutingContext from "../../../context/routing/RoutingContext";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
 import { partFor } from "../../Utils/dropdownUtils";
 import SearchableScrollDropdown from "../../Component/SearchableScrollDropdown";
 import AttachmentField from "../../Component/AttachmentField";
+import ChartsToolbar from "../../../BM/Reports/ManHourReport/SubComponents/ChartsToolbar";
+import {
+  initialState,
+  reducer,
+} from "../../../BM/Reports/ManHourReport/SubComponents/CommonFiltrationComponent";
+import { isToolRoomUser } from "../../../Utils/userScope";
 
 import "./SpareMasterRegistration.scss";
 
@@ -161,6 +169,30 @@ const rowWiseFields = [
   ],
 ];
 
+/**
+ * Fields of the Repaired Part Quality Confirmation Sheet, held on the same
+ * master record. They are only shown while editing the Repaired catalogue; the
+ * other two masters never use them.
+ */
+const repairedQualityFields = [
+  [
+    { label: "Issue / Problem", fieldName: "issueProblem" },
+    { label: "Repaired Item", fieldName: "repairedItem" },
+  ],
+  [
+    { label: "Repaired On", fieldName: "repairedOn", type: "date" },
+    { label: "Repaired By", fieldName: "repairedBy" },
+  ],
+  [
+    { label: "Quality Confirmed By", fieldName: "qualityConfirmedBy" },
+    { label: "Quality Confirmation Method", fieldName: "qualityConfirmationMethod" },
+  ],
+  [
+    { label: "Quality Confirmation Date", fieldName: "qualityConfirmationDate", type: "date" },
+    { label: "Tool Room Request", fieldName: "toolRoomRequestStatus" },
+  ],
+];
+
 export const DropdownComponent = ({
   control,
   label = "Maker",
@@ -197,6 +229,16 @@ const SpareMasterRegistration = () => {
   // by the Recycle / Repaired dashboards when they open one of theirs.
   const masterType = searchParams.get("masterType");
 
+  // The Repaired catalogue carries the quality-confirmation fields on the same
+  // record; the stock-in and Recycle masters do not.
+  const formFields = useMemo(
+    () =>
+      masterType === "repaired"
+        ? [...rowWiseFields, ...repairedQualityFields]
+        : rowWiseFields,
+    [masterType],
+  );
+
   const params = useMemo(
     () =>
       searchParams.get("masterId")
@@ -212,6 +254,10 @@ const SpareMasterRegistration = () => {
   );
 
   const [costDetails, setCostDetails] = useState([]);
+  const [additionalMachineFilters, additionalMachineFiltersDispatch] = useReducer(
+    reducer,
+    initialState(),
+  );
 
   // Drawings the user removed on this form; deleted on the server on save.
   const removedDrawingFilesRef = useRef([]);
@@ -220,6 +266,7 @@ const SpareMasterRegistration = () => {
     register,
     handleSubmit,
     control,
+    getValues,
     setValue,
     formState: { isLoading, errors, dirtyFields },
     watch,
@@ -262,6 +309,47 @@ const SpareMasterRegistration = () => {
   const handleRemoveDrawing = useCallback((filename) => {
     if (filename) removedDrawingFilesRef.current.push(filename);
   }, []);
+
+  const activeMasterId = params?._id || watch("masterId");
+  const canManageAdditionalMachineCodes = isToolRoomUser(loggedUser);
+  const additionalMachineCodes = watch("additionalMachineCodes") ?? [];
+  const selectedAdditionalMachine = useMemo(
+    () =>
+      additionalMachineFilters.machines?.find(
+        (machine) => machine?._id === additionalMachineFilters.selectedMachine,
+      ),
+    [additionalMachineFilters.machines, additionalMachineFilters.selectedMachine],
+  );
+
+  const addAdditionalMachineCode = useCallback(() => {
+    const machineCode = selectedAdditionalMachine?.machine_code?.trim();
+    const primaryMachineCode = getValues("machine.machine_code")?.trim();
+    const currentCodes = getValues("additionalMachineCodes") ?? [];
+
+    if (
+      !machineCode ||
+      machineCode === primaryMachineCode ||
+      currentCodes.includes(machineCode)
+    )
+      return;
+
+    setValue("additionalMachineCodes", [...currentCodes, machineCode], {
+      shouldDirty: true,
+    });
+  }, [getValues, selectedAdditionalMachine, setValue]);
+
+  const removeAdditionalMachineCode = useCallback(
+    (machineCode) => {
+      setValue(
+        "additionalMachineCodes",
+        (getValues("additionalMachineCodes") ?? []).filter(
+          (code) => code !== machineCode,
+        ),
+        { shouldDirty: true },
+      );
+    },
+    [getValues, setValue],
+  );
 
   const handleNewMasterRequest = async (formValue, status) => {
     const drawingsTouched =
@@ -379,7 +467,7 @@ const SpareMasterRegistration = () => {
                 </div>
               </Col>
             </Row>
-            {rowWiseFields?.map((colWiseFields) => (
+            {formFields?.map((colWiseFields) => (
               <Row className="size-14">
                 {colWiseFields?.map(
                   ({
@@ -428,9 +516,74 @@ const SpareMasterRegistration = () => {
                 )}
               </Row>
             ))}
+            {canManageAdditionalMachineCodes && (
+              <Row className="border size-14 m-2 p-2">
+                <Col>
+                  <small className="d-block mb-2">
+                    Additional machine codes
+                  </small>
+                  <div className="d-flex flex-wrap align-items-center gap-2">
+                    <ChartsToolbar
+                      baseUrlForFiltering="/getFiltrationValue/all-filtration"
+                      queryParams={{ scopeModule: "Spare" }}
+                      reduceState={additionalMachineFilters}
+                      reducerDispatch={additionalMachineFiltersDispatch}
+                      sectionFiltration
+                      subSectionFiltration
+                      cellFiltration
+                      lineFiltration
+                      machineFiltration
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-sm bg-button"
+                      onClick={addAdditionalMachineCode}
+                      disabled={
+                        !selectedAdditionalMachine?.machine_code ||
+                        selectedAdditionalMachine.machine_code ===
+                          watch("machine.machine_code") ||
+                        additionalMachineCodes.includes(
+                          selectedAdditionalMachine.machine_code,
+                        )
+                      }
+                    >
+                      Add machine
+                    </button>
+                  </div>
+                  <small className="d-block text-muted mt-2">
+                    Select a machine from its parent hierarchy. The primary
+                    machine is kept separately and cannot be added here.
+                  </small>
+                  {additionalMachineCodes.length > 0 && (
+                    <div className="d-flex flex-wrap gap-2 mt-2">
+                      {additionalMachineCodes.map((machineCode) => (
+                        <span
+                          key={machineCode}
+                          className="badge bg-secondary d-inline-flex align-items-center gap-2"
+                        >
+                          {machineCode}
+                          <button
+                            type="button"
+                            className="btn-close btn-close-white"
+                            aria-label={`Remove ${machineCode}`}
+                            onClick={() => removeAdditionalMachineCode(machineCode)}
+                          />
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </Col>
+              </Row>
+            )}
             <Row className="border size-14 m-2">
               <SpareMastCostTable costDetails={costDetails} />
             </Row>
+            {/* Stock-Ledger: shown whenever an existing master is open */}
+            {activeMasterId && (
+              <Row className="border size-14 m-2">
+                <MasterStockLedgerTable masterId={activeMasterId} />
+              </Row>
+            )}
             <Row className="border size-14 m-2 p-1">
               <Col md={6} className="d-flex flex-column">
                 <AttachmentField

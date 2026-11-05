@@ -123,9 +123,25 @@ export default function LineSelectionDropdown({
 }) {
   const context = useContext(RoutingContext);
 
+  /**
+   * The caller-supplied params this bar forwards, by name.
+   *
+   * An allowlist rather than everything in queryParams: callers put other keys
+   * in there that have never been sent - SpareReportDownloadDialog passes
+   * `showToast` and spreads a caller's own object in - and forwarding those
+   * suddenly would change requests nobody asked me to touch.
+   *
+   * `scopeModule` is how a Spare page asks for the wider section list without
+   * also changing the response shape the way `moduleType` does. See
+   * server/utils/userScope.js.
+   */
   let otherParams = useMemo(
     () =>
-      queryParams?.moduleType ? `moduleType=${queryParams?.moduleType}` : "",
+      new URLSearchParams(
+        ["moduleType", "scopeModule"]
+          .filter((key) => queryParams?.[key])
+          .map((key) => [key, queryParams[key]]),
+      ).toString(),
     [queryParams],
   );
 

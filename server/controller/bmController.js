@@ -18190,7 +18190,7 @@ router.get(
 
 const plantFiltrationMiddleware = async (req, res, next) => {
   try {
-    if (!isPlantWideFiltrationUser(req.rootUser)) {
+    if (!isPlantWideFiltrationUser(req.rootUser, req.query)) {
       return next();
     }
 
@@ -18346,7 +18346,7 @@ const responseFilterMiddleWareForSpare = async (req, res, next) => {
  */
 const noDefaultFiltrationSelectionMiddleware = async (req, res, next) => {
   try {
-    if (!hasNoDefaultFilterSelection(req.rootUser)) return next();
+    if (!hasNoDefaultFilterSelection(req.rootUser, req.query)) return next();
 
     return res.status(201).json({
       message: "Sections get successfully",
@@ -18379,7 +18379,7 @@ const cellFiltrationMiddleware = async (req, res, next) => {
       subSection_names: 1,
     });
 
-    if (isPlantWideFiltrationUser(req.rootUser)) {
+    if (isPlantWideFiltrationUser(req.rootUser, req.query)) {
       if (req.section.dashboardLevel === "No") {
         return res.status(201).json({
           message: "SubSections get successfully",
@@ -18474,7 +18474,7 @@ const conditionMiddlewareForSubSectionQuery = async (req, res, next) => {
     let subSectionQuery = {};
 
     if (req.section.dashboardLevel === "Yes") {
-      if (isPlantWideFiltrationUser(req.rootUser)) {
+      if (isPlantWideFiltrationUser(req.rootUser, req.query)) {
         return res.status(201).json({
           message: "Sections get successfully",
 
@@ -18498,7 +18498,7 @@ const conditionMiddlewareForSubSectionQuery = async (req, res, next) => {
         section_names: req.section?._id,
       };
     } else {
-      if (isPlantWideFiltrationUser(req.rootUser)) {
+      if (isPlantWideFiltrationUser(req.rootUser, req.query)) {
         subSectionQuery = {
           section_names: req.section?._id,
         };
@@ -18628,7 +18628,7 @@ router.get(
     try {
       const cells = await Cell.find(req.cellQuery);
 
-      if (isPlantWideFiltrationUser(req.rootUser)) {
+      if (isPlantWideFiltrationUser(req.rootUser, req.query)) {
         if (req.section.dashboardLevel === "No") {
           return res.status(201).json({
             message: "SubSections get successfully",
@@ -20828,6 +20828,10 @@ router.post(
   authenticate,
   async (req, res) => {
     try {
+      // Always a new form, so mongo issues the id - never the browser. See the
+      // same guard on /pm/v1/safetyForm.
+      delete req.body._id;
+
       const safetyForm = await SafetyForm.create({
         requestSheetRef: req.params?.requestSheetRef,
         safetyFormFilledUpBy: req?.rootUser?.tm_name,
@@ -20882,6 +20886,10 @@ router
   .post(authenticate, async (req, res) => {
     try {
       const { selectedYear, requestSheetRef } = req.query;
+
+      // Always a new form, so mongo issues the id - never the browser. See the
+      // same guard on /pm/v1/safetyForm.
+      delete req.body._id;
 
       req.body["financialYear"] = selectedYear;
       req.body["month"] = moment().month();

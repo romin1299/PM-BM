@@ -3,10 +3,12 @@ const router = express.Router();
 
 const {
   spareFilterMiddleware,
+  spareFilterMiddlewareWithOptionalYear,
 } = require("../../controller/spareManagement/spareMiddleware");
 
 const {
   handleSpareIssuanceSheet,
+  getMachineHierarchy,
   issuanceSummeryUpdate,
   getIssuanceSummeryBasedOnId,
   spareIssuanceFilters,
@@ -16,6 +18,7 @@ const {
   responseIssuanceSummeryUpdate,
   getIssuanceSummery,
   issuanceSummaryResponse,
+  getIssuanceColumnValues,
   exportIssuanceSummeryQueryGeneration,
   exportIssuanceSummaryResponse,
   getIssuanceSummeryCounters,
@@ -41,6 +44,8 @@ router
   )
   .get(requiredBudgetCalculation, getIssuanceSummeryBasedOnId);
 
+router.route("/spareIssuanceSheet/machineHierarchy").get(getMachineHierarchy);
+
 router
   .route("/spareIssuanceSummary")
   .get(
@@ -52,6 +57,10 @@ router
     getIssuanceSummery,
     issuanceSummaryResponse,
   );
+
+router
+  .route("/spareIssuanceSummary/columnValues")
+  .get(spareFilterMiddlewareWithOptionalYear, getIssuanceColumnValues);
 
 router
   .route("/spareIssuanceSummary/export")

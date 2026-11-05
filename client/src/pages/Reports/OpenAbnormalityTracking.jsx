@@ -394,35 +394,26 @@ function OpenAbnormalityTracking() {
     },
   ];
 
+  /**
+   * The file name goes with the request that downloads it. It used to be POSTed
+   * to /postFileName first and held on the server until this GET arrived, so
+   * two people downloading at the same time were sent each other's photo.
+   */
   const downloadUploadedPdf = async (fileNameOfUploadedImage) => {
     try {
-      let selectedFileName = fileNameOfUploadedImage;
-      const res = await fetch("/postFileName", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileName: selectedFileName,
-        }),
-      });
-      const data = await res.json();
+      const selectedFileName = fileNameOfUploadedImage;
+      if (!selectedFileName) return;
 
-      // console.log(data);
-      if (res.status === 400 || res.status === 422 || !data) {
-        console.log("Invalid");
-      } else {
-        console.log("FileName Posted");
-        let fileName1 = selectedFileName.substring(14);
-        // console.log(selectedFileName, "_________-", fileName1);
-        axios({
-          url: "/downloadFile",
-          method: "GET",
-          responseType: "blob",
-        }).then((res) => {
-          FileDownload(res.data, fileName1);
-        });
-      }
+      // stored as "<timestamp>_<original name>"; the operator wants the original
+      const saveAs = selectedFileName.substring(14);
+
+      const res = await axios({
+        url: "/downloadFile",
+        method: "GET",
+        params: { fileName: selectedFileName },
+        responseType: "blob",
+      });
+      FileDownload(res.data, saveAs);
     } catch (error) {
       console.log(error);
     }

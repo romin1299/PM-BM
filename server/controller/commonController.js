@@ -22,6 +22,7 @@ const {
   sectionScopeFilter,
   subSectionScopeFilter,
 } = require("../services/common/hierarchyRefScopeService");
+const { buildMasterLog } = require("../services/common/masterLogService");
 
 const filterMiddleware = async (req, res, next) => {
   try {
@@ -171,522 +172,56 @@ router.get(
   "/masterLog/:filter/:selectedId",
   filterMiddleware,
   tryCatchHandler(async (req, res, next) => {
-    let queryPipelineForPm = [
-      {
-        $addFields: {
-          //   data: {
-          //     $map: {
-          //       input: {
-          //         $objectToArray: "$checkSheet_data.implemetation_completed_date",
-          //       },
-          //       as: "firstItem",
-          //       in: {
-          //         month: "$$firstItem.k",
-          //         date: {
-          //           $arrayElemAt: ["$$firstItem.v", -1],
-          //         },
-          //         time: {
-          //           $getField: {
-          //             field: "totalWorkedPMTime",
-          //             input: {
-          //               $getField: {
-          //                 field: "v",
-          //                 input: {
-          //                   $arrayElemAt: [
-          //                     {
-          //                       $filter: {
-          //                         input: {
-          //                           $objectToArray:
-          //                             "$checkSheet_data.totalPMTime",
-          //                         },
-          //                         as: "secondItem",
-          //                         cond: {
-          //                           $eq: ["$$secondItem.k", "$$firstItem.k"],
-          //                         },
-          //                       },
-          //                     },
-          //                     0,
-          //                   ],
-          //                 },
-          //               },
-          //             },
-          //           },
-          //         },
-          //       },
-          //     },
-          //   },
-
-          data: {
-            $map: {
-              input: {
-                $objectToArray: "$checkSheet_data.totalPMTime",
-              },
-              as: "firstItem",
-              in: {
-                month: "$$firstItem.k",
-                time: "$$firstItem.v.totalWorkedPMTime",
-                date: {
-                  $arrayElemAt: [
-                    {
-                      $getField: {
-                        field: "v",
-                        input: {
-                          $arrayElemAt: [
-                            {
-                              $filter: {
-                                input: {
-                                  $objectToArray:
-                                    "$checkSheet_data.implemetation_completed_date",
-                                },
-                                as: "secondItem",
-                                cond: {
-                                  $eq: ["$$secondItem.k", "$$firstItem.k"],
-                                },
-                              },
-                            },
-                            0,
-                          ],
-                        },
-                      },
-                    },
-                    -1,
-                  ],
-                },
-                pmStatus: {
-                  $getField: {
-                    field: "v",
-                    input: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: {
-                              $objectToArray: "$checkSheet_data.PMStatus",
-                            },
-                            as: "secondItem",
-                            cond: {
-                              $eq: ["$$secondItem.k", "$$firstItem.k"],
-                            },
-                          },
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                },
-                doneBy: {
-                  $getField: {
-                    field: "v",
-                    input: {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: {
-                              $objectToArray: "$checkSheet_data.PMworkedTMName",
-                            },
-                            as: "secondItem",
-                            cond: {
-                              $eq: ["$$secondItem.k", "$$firstItem.k"],
-                            },
-                          },
-                        },
-                        0,
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      {
-        $unwind: "$data",
-      },
-    ];
-
-    const commonLookupPipeline = [
-      {
-        $lookup: {
-          from: "lines",
-          localField: "lineRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                line_name: 1,
-              },
-            },
-          ],
-          as: "lines",
-        },
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "cellRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                cell_name: 1,
-              },
-            },
-          ],
-          as: "cells",
-        },
-      },
-      {
-        $lookup: {
-          from: "machinesalldatas",
-          localField: "machineRef",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                machine_code: 1,
-                machine_name: 1,
-              },
-            },
-          ],
-          as: "machines",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "users",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                tm_name: 1,
-              },
-            },
-          ],
-          as: "doneBy",
-        },
-      },
-    ];
-
-    if (req.query?.selectedMonth) {
-      queryPipelineForPm = [
-        {
-          $addFields: {
-            data: {
-              month: req.query?.selectedMonth,
-              time: `$checkSheet_data.totalPMTime.${req.query?.selectedMonth}.totalWorkedPMTime`,
-              date: {
-                $arrayElemAt: [
-                  `$checkSheet_data.implemetation_completed_date.${req.query?.selectedMonth}`,
-                  -1,
-                ],
-              },
-              pmStatus: `$checkSheet_data.PMStatus.${req.query?.selectedMonth}`,
-              doneBy: `$checkSheet_data.PMworkedTMName.${req.query?.selectedMonth}`,
-            },
-          },
-        },
-      ];
-    }
-
-    const pmLog = Machine.aggregate([
-      // {
-      //   $match: req.queryObjForPM,
-      // },
-      // {
-      //   $unwind: "$checkSheet_data",
-      // },
-      // {
-      //   $match: {
-      //     "checkSheet_data.current_year": req.query?.selectedYear,
-      //   },
-      // },
-      ...machineCommonInitialPipeline(
-        req.queryObjForPM,
-        req.query?.selectedYear,
-      ),
-      {
-        $lookup: {
-          from: "lines",
-          localField: "line_names",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                line_name: 1,
-              },
-            },
-          ],
-          as: "lines",
-        },
-      },
-      {
-        $lookup: {
-          from: "cells",
-          localField: "cell_names",
-          foreignField: "_id",
-          pipeline: [
-            {
-              $project: {
-                cell_name: 1,
-              },
-            },
-          ],
-          as: "cells",
-        },
-      },
-      ...queryPipelineForPm,
-      {
-        $project: {
-          month: "$data.month",
-          date: "$data.date",
-          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-          line: { $arrayElemAt: ["$lines.line_name", 0] },
-          // shiftOfBM: 1,
-          maintenanceType: "PM",
-          time: "$data.time",
-          // firstTimeOrRepeat: 1,
-          doneBy: {
-            $map: {
-              input: "$data.doneBy",
-              as: "tm_name",
-              in: {
-                tm_name: "$$tm_name",
-              },
-            },
-          },
-          status: "$data.pmStatus",
-
-          machine_code: 1,
-          machine_name: 1,
-        },
-      },
-      //   {
-      //     $unwind: {
-      //       $map: {
-      //         input: {
-      //           $objectToArray: "$checkSheet_data.implemetation_completed_date",
-      //         },
-      //         as: "firstItem",
-      //         in: {
-      //           month: "$$firstItem.k",
-      //           date: "$$firstItem.v",
-      //           time: {
-      //             $arrayElemAt: [
-      //               {
-      //                 $filter: {
-      //                   input: {
-      //                     $objectToArray: "$checkSheet_data.totalPMTime",
-      //                   },
-      //                   as: "secondItem",
-      //                   cond: { $eq: ["$$secondItem.k", "$$firstItem.k"] },
-      //                 },
-      //               },
-      //               0,
-      //             ],
-      //           },
-      //         },
-      //       },
-      //     },
-      //   },
-    ]);
-
-    //for filter only BM data
-    if (
-      req?.queryObj?.[
-        "preAggregationTimeStampOfRequestSheet.requestSheet_month"
-      ]
-    )
-      delete req?.queryObj?.commonDataFilledByAssignUser;
-
-    const bmLog = RequestSheetOfBM.aggregate([
-      {
-        $match: req?.queryObj,
-      },
-      {
-        $addFields: {
-          users: {
-            $setUnion: [["$assignUser"], ["$handOverUser"], "$supportingTM"],
-          },
-        },
-      },
-
-      ...commonLookupPipeline,
-
-      {
-        $project: {
-          month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-          date: {
-            $dateToString: {
-              format: "%d-%m-%Y T%H:%M",
-              date: "$problemOccurredDateAndTimeOfBM",
-              timezone: "Asia/Kolkata",
-            },
-          },
-          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-          line: { $arrayElemAt: ["$lines.line_name", 0] },
-          machine_name: { $arrayElemAt: ["$machines.machine_name", 0] },
-          machine_code: { $arrayElemAt: ["$machines.machine_code", 0] },
-          shift: "$shiftOfBM",
-          maintenanceType: "$maintenanceType",
-          time: "$maintenanceReportFilledByMTD.breakDownTime",
-
-          problem: "$maintenanceReportFilledByMTD.problemsOfBM",
-          cause: "$maintenanceReportFilledByMTD.whyAnalysis",
-          action: "$maintenanceReportFilledByMTD.actionAndCounterMeasureStep",
-          counterMeasure: "$preventive_corrective_maintenance",
-          category: "$categoriesOfRequestSheet",
-          firstTimeOrRepeat: "$maintenanceReportFilledByMTD.firstTimeOrRepeat",
-          actionTemporaryOrNot: 1,
-          doneBy: 1,
-          status: "$requestSheetStatus",
-        },
-      },
-    ]);
-
-    const noLossLog = NoLossBD.aggregate([
-      {
-        $match: req.queryObj,
-      },
-      {
-        $addFields: {
-          users: {
-            $setUnion: [[{ $toObjectId: "$doneByNoLossBD" }], "$supportingTM"],
-          },
-        },
-      },
-      ...commonLookupPipeline,
-      {
-        $project: {
-          month: "$preAggregationTimeStampOfRequestSheet.requestSheet_month",
-          date: {
-            $dateToString: {
-              format: "%d-%m-%Y T%H:%M",
-              date: "$workStartedDateOfBM",
-              timezone: "Asia/Kolkata",
-            },
-          },
-          cell: { $arrayElemAt: ["$cells.cell_name", 0] },
-          line: { $arrayElemAt: ["$lines.line_name", 0] },
-          machine_name: { $arrayElemAt: ["$machines.machine_name", 0] },
-          machine_code: { $arrayElemAt: ["$machines.machine_code", 0] },
-          shift: "$shiftOfBM",
-          maintenanceType: "$maintenanceType",
-          time: "$breakDownTime",
-
-          problem: "$problemsOfBM",
-          cause: {
-            why: "$causeOfNoLoss",
-          },
-          action: "$actionAndCounterMeasureStep",
-          counterMeasure: "$counterMeasureStep",
-          category: "$categoriesOfRequestSheet",
-
-          actionTemporaryOrNot: 1,
-          doneBy: 1,
-          status: "$machineStatus",
-        },
-      },
-    ]);
-
-    let queryObj = {
-      plant_data: req?.rootUser?.plant_data,
-    };
+    /**
+     * The log itself is built by services/common/masterLogService, which reads
+     * the three sources and merges them. Everything below is the filter lists
+     * the table's own dropdowns need: the plant's shifts and categories, and
+     * the MTD team members the "Done By" filter offers.
+     */
+    let userScope = { plant_data: req?.rootUser?.plant_data };
 
     if (req?.rootUser?.tm_grade !== "HOD") {
       const section = await Section.findOne({
         section_id: req?.rootUser?.section_data?.split("-")?.[0],
       });
-      if (section.dashboardLevel === "Yes") {
-        queryObj = {
-          ...queryObj,
-          section_data: req?.rootUser?.section_data,
-        };
-      } else {
-        queryObj = {
-          ...queryObj,
-          section_data: req?.rootUser?.section_data,
-          subSection_data: { $in: req?.rootUser?.subSection_data },
-        };
-      }
+
+      userScope =
+        section?.dashboardLevel === "Yes"
+          ? { ...userScope, section_data: req?.rootUser?.section_data }
+          : {
+              ...userScope,
+              section_data: req?.rootUser?.section_data,
+              subSection_data: { $in: req?.rootUser?.subSection_data },
+            };
     }
 
-    let TLHOSS_and_TM_user_list = User.find(
-      {
-        ...queryObj,
-        $or: [
-          {
-            user_type: "Operator",
-          },
-          {
-            $and: [
-              {
-                user_type: "TL/HOSS",
-              },
-              {
-                tm_department: "MTD",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        tm_name: 1,
-        tm_department: 1,
-        tm_grade: 1,
-        user_type: 1,
-      },
-    );
-
-    const shifts = Plant.find({
-      plant_id: req?.rootUser?.plant_data?.split("-")?.[0],
-    });
-
-    let values = await Promise.all([
-      bmLog,
-      pmLog,
-      noLossLog,
-      TLHOSS_and_TM_user_list,
-      shifts,
+    const [masterLogData, TLHOSS_and_TM_user_list, shifts] = await Promise.all([
+      buildMasterLog(
+        {
+          sheetMatch: req?.queryObj,
+          machineMatch: req?.queryObjForPM,
+          selectedYear: req.query?.selectedYear,
+          selectedMonth: req.query?.selectedMonth,
+        },
+        { RequestSheetOfBM, Machine, NoLossBD },
+      ),
+      User.find(
+        {
+          ...userScope,
+          $or: [
+            { user_type: "Operator" },
+            { $and: [{ user_type: "TL/HOSS" }, { tm_department: "MTD" }] },
+          ],
+        },
+        { tm_name: 1, tm_department: 1, tm_grade: 1, user_type: 1 },
+      ),
+      Plant.find({ plant_id: req?.rootUser?.plant_data?.split("-")?.[0] }),
     ]);
 
-    const moment = require("moment");
-
-    const dateFormats = [
-      "DD-MM-YYYY[T]HH:mm", // 01-04-2025T00:00
-      "DD-MM-YYYY [T]HH:mm", // 01-04-2025 T00:00
-      "DD-MM-YYYY HH:mm", // 01-04-2025 16:35
-      "D/M/YYYY - h:mm a", // 11/6/2025 - 4:39 am
-      "DD-MM-YYYY", // 01-04-2025
-      "D/M/YYYY", // 1/4/2025
-    ];
-
-    const normalizeDate = (input) => {
-      if (!input) return null;
-
-      const stringInput =
-        typeof input === "string" ? input.trim() : String(input);
-      const parsed = moment(stringInput, dateFormats, true);
-      return parsed.isValid() ? parsed.toISOString() : null;
-    };
-
-    const mergedData = [...values?.[0], ...values?.[1], ...values?.[2]];
-
-    const masterLogData = mergedData.map((item) => ({
-      ...item,
-      normalizedDate: normalizeDate(item.date),
-    }));
-
-    masterLogData.sort((a, b) => {
-      const dateA = a.normalizedDate ? new Date(a.normalizedDate).getTime() : 0;
-      const dateB = b.normalizedDate ? new Date(b.normalizedDate).getTime() : 0;
-      return dateB - dateA; // descending
-    });
-
     successResponse(res, "Master log get successfully", {
-      getShifts: values?.[4]?.[0]?.shiftOfBM,
-      categories: values?.[4]?.[0]?.categories,
-      TLHOSS_and_TM_user_list: values?.[3],
+      getShifts: shifts?.[0]?.shiftOfBM,
+      categories: shifts?.[0]?.categories,
+      TLHOSS_and_TM_user_list,
       masterLogData,
     });
   }),

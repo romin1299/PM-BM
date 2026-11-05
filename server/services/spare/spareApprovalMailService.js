@@ -63,7 +63,15 @@ const machineText = (sheet) =>
 
 const partsTable = (sheet) =>
   gridTable(
-    ["#", "Part name", "Part model", "Maker", "Qty", "Approx. unit price (INR)", "Type"],
+    [
+      "#",
+      "Part name",
+      "Part model",
+      "Maker",
+      "Qty",
+      "Approx. unit price (INR)",
+      "Type",
+    ],
     (sheet.changeParts ?? []).map((part, index) => [
       index + 1,
       part.partName,
@@ -83,7 +91,10 @@ const sheetDetails = (sheet) =>
   detailsTable([
     ["Request No", sheet.requestSheetNo],
     ["Current status", sheet.requestSheetStatus],
-    ["Request type", `${sheet.newOrReOrderRequest ?? "NEW"} — ${sheet.newPartFor ?? "-"}`],
+    [
+      "Request type",
+      `${sheet.newOrReOrderRequest ?? "NEW"} — ${sheet.newPartFor ?? "-"}`,
+    ],
     ["Department", sheet.partRequestFor],
     [
       "Requested by",
@@ -95,7 +106,10 @@ const sheetDetails = (sheet) =>
     ["Machine", machineText(sheet)],
     [
       "Budget",
-      `${sheet.budget?.budgetStatus ?? "-"} (required ₹ ${sheet.budget?.requiredBudget ?? 0})`,
+      // A PRD sheet is recorded as OK with no amount to quote.
+      typeof sheet.budget?.requiredBudget === "number"
+        ? `${sheet.budget?.budgetStatus ?? "-"} (required ₹ ${sheet.budget.requiredBudget})`
+        : (sheet.budget?.budgetStatus ?? "-"),
     ],
     ["Submitted on", sheet.rsSubmittedTimeStamp?.inString],
   ]) +
@@ -127,11 +141,15 @@ const approvalTrack = (sheet) => {
 const pendingSlot = (sheet) => {
   const key = sheet.dynamicApprovalKeys?.[0];
   const slot = key ? sheet[key] : null;
-  if (slot?.user?._id && String(slot.user._id) === String(sheet.pendingApprovalBy))
+  if (
+    slot?.user?._id &&
+    String(slot.user._id) === String(sheet.pendingApprovalBy)
+  )
     return { key, slot };
   // Fall back to whichever slot names the pending user.
   const found = APPROVAL_KEYS.find(
-    (k) => String(sheet[k]?.user?._id ?? "") === String(sheet.pendingApprovalBy),
+    (k) =>
+      String(sheet[k]?.user?._id ?? "") === String(sheet.pendingApprovalBy),
   );
   return found ? { key: found, slot: sheet[found] } : null;
 };
@@ -139,7 +157,9 @@ const pendingSlot = (sheet) => {
 const notifyPendingApprover = async ({ sheet, previousApprover }) => {
   const pending = pendingSlot(sheet);
   if (!pending?.slot?.user?.email) {
-    logger.warn(`Spare sheet ${sheet.requestSheetNo}: pending approver has no email`);
+    logger.warn(
+      `Spare sheet ${sheet.requestSheetNo}: pending approver has no email`,
+    );
     return false;
   }
 
@@ -219,14 +239,20 @@ const notifyApprovalChange = ({ before, after, actor, rejectedRemarks }) => {
         remarks: rejectedRemarks,
       });
 
-    const pendingNow = after.pendingApprovalBy ? String(after.pendingApprovalBy) : null;
-    const pendingBefore = before?.pendingApprovalBy ? String(before.pendingApprovalBy) : null;
+    const pendingNow = after.pendingApprovalBy
+      ? String(after.pendingApprovalBy)
+      : null;
+    const pendingBefore = before?.pendingApprovalBy
+      ? String(before.pendingApprovalBy)
+      : null;
 
     if (pendingNow && pendingNow !== pendingBefore) {
       // Someone other than the requester moved it on: that is the approver who
       // just accepted. The requester sending it announces nothing to credit.
       const actorIsApprover =
-        actor && before && String(before.pendingApprovalBy ?? "") === String(actor._id);
+        actor &&
+        before &&
+        String(before.pendingApprovalBy ?? "") === String(actor._id);
       return notifyPendingApprover({
         sheet: after,
         previousApprover: actorIsApprover ? stageOf(before, actor) : null,

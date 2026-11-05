@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   getSearchParts,
   searchPartResponse,
+  getSearchPartColumnValues,
   getSearchPartsBasedOnLocation,
   searchPartBasedOnLocationResponse,
   getMasterList,
@@ -14,6 +15,8 @@ const {
 router
   .route("/spareSearch")
   .get(getSearchParts, findSearchMaster, searchPartResponse);
+// The distinct values a result column's Excel-style filter dropdown offers.
+router.route("/spareSearch/columnValues").get(getSearchPartColumnValues);
 router
   .route("/spareSearch/location")
   .get(

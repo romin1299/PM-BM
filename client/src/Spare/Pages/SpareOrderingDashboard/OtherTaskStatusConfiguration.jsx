@@ -337,7 +337,74 @@ const PartReceipt = ({
   return <FirstTimePartConfiguration {...rest} />;
 };
 
+const PO_NUMBER_URL = "/v1/spare/spareRequestSheet/poNumber";
+
+/**
+ * The PO number beside PO Made: a single free-text field any user can set or
+ * edit. It has no timestamp or remarks, so it is a small modal of its own
+ * rather than the shared timestamp/remarks one.
+ */
+const PONumberModal = memo(
+  ({ show, popupRef, axiosParams, updateRow, handleModal }) => {
+    const {
+      register,
+      handleSubmit,
+      formState: { errors },
+      reset,
+    } = useForm({
+      defaultValues: async () => {
+        const { isError, spare } = await axiosGetOrDelete({
+          url: PO_NUMBER_URL,
+          axiosProps: { params: axiosParams },
+        });
+        if (!isError) return spare;
+        return {};
+      },
+    });
+
+    const handleSubmitForm = async (formValue) => {
+      const { isError, spareParts } = await axiosPostOrPatch({
+        url: PO_NUMBER_URL,
+        apiType: "patch",
+        axiosBody: { formValue },
+        axiosProps: { params: axiosParams },
+      });
+
+      if (!isError) {
+        updateRow(spareParts);
+        handleModal();
+        reset();
+      }
+    };
+
+    return (
+      <Modal show={show} onHide={handleModal} animation={false} centered>
+        <form onSubmit={handleSubmit(handleSubmitForm)}>
+          <Modal.Header closeButton>
+            <Modal.Title>{popupRef?.popupTitle}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <CustomTextField
+              label="PO Number"
+              fieldName="poNumber"
+              register={register}
+              errors={errors}
+            />
+          </Modal.Body>
+          <Modal.Footer>
+            <button variant="primary" type="submit" className="btn bg-success">
+              Submit
+            </button>
+          </Modal.Footer>
+        </form>
+      </Modal>
+    );
+  },
+);
+
 const OtherTaskStatusConfiguration = memo((props) => {
+  if (props?.popupRef?.variant === "poNumber")
+    return <PONumberModal {...props} />;
   if (props?.popupRef?.key === "rsPartReceive")
     return (
       <CommonTimeStampWithRemarksComponent

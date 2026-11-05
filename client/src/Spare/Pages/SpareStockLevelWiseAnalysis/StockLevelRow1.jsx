@@ -7,20 +7,33 @@ import handleDownloadCSVOrPDF, {
   handleDownloadDynamicDataCSVOrPDF,
 } from "../SpareKPI/SubComponent/handleDownloadCSVOrPDF";
 
+/**
+ * Both charts count masters by the max quantity set on them (1 to 10, then
+ * above 10) - how many masters share each level - rather than adding up the
+ * quantity on the shelf.
+ */
+const BAR_TITLE = "Max Stock Level - Count (Cost in Mil INR)";
+const PIE_TITLE = "Max Stock Level - Share of Count";
+
+const ALL_LABEL = "All";
+
 const StockLevelRow1 = ({ selectedYear, selectedMonth }) => {
+  // No year chosen means all of them; downloads say so rather than print "".
+  const yearLabel = selectedYear || ALL_LABEL;
+
   const csvOrPDfFileNamePostPix = useMemo(
-    () => (selectedMonth ? `${selectedMonth}_${selectedYear}` : selectedYear),
-    [selectedMonth, selectedYear],
+    () => (selectedMonth ? `${selectedMonth}_${yearLabel}` : yearLabel),
+    [selectedMonth, yearLabel],
   );
 
   const filters = useMemo(
-    () => (selectedMonth ? [selectedYear, selectedMonth] : [selectedYear]),
-    [selectedMonth, selectedYear],
+    () => (selectedMonth ? [yearLabel, selectedMonth] : [yearLabel]),
+    [selectedMonth, yearLabel],
   );
 
   return (
     <Row className="mt-3 gx-3 p-1">
-      <Col md={12} lg={9}>
+      <Col md={12} lg={8}>
         <ChartWrapper
           params={{
             requestFor: "barline",
@@ -28,24 +41,26 @@ const StockLevelRow1 = ({ selectedYear, selectedMonth }) => {
             selectedMonth,
           }}
           referenceArrayForUseEffect={[selectedYear, selectedMonth]}
-          title="Stock Level Wise Analysis"
+          title={BAR_TITLE}
           url="/v1/spare/kpi/stockLevelWiseAnalysis"
           ChartMiddlewareComponent={StackedBarChart}
-          // Parts grouped by how many are on the shelf: quantity as bars on the
-          // left axis, the cost of that stock as a line on the right.
+          // Masters grouped by their max quantity: the number of masters as bars
+          // on the left axis, the cost of their stock as a line on the right.
           otherProps={{
             axisTitles: {
-              x: "Stock level (available qty per part)",
-              y: "Available quantity (Nos.)",
+              x: "Max quantity set on the master (Nos.)",
+              y: "Number of masters",
               y1: "Cost (Mil INR)",
             },
           }}
+          // Match the neighbouring pie card so both cards form one aligned row.
+          chartHeight={{ xs: "330px", md: "380px" }}
           csvOrPDfFileNamePostPix={csvOrPDfFileNamePostPix}
           filters={filters}
           handleDownloadCSVOrPDF={handleDownloadDynamicDataCSVOrPDF}
         />
       </Col>
-      <Col md={12} lg={3}>
+      <Col md={12} lg={4}>
         <ChartWrapper
           params={{
             requestFor: "pie",
@@ -53,13 +68,20 @@ const StockLevelRow1 = ({ selectedYear, selectedMonth }) => {
             selectedMonth,
           }}
           referenceArrayForUseEffect={[selectedYear, selectedMonth]}
-          title="Stock Level Wise Analysis"
+          title={PIE_TITLE}
           url="/v1/spare/kpi/stockLevelWiseAnalysis"
           ChartMiddlewareComponent={PieChart}
+          otherProps={{
+            legendPosition: "bottom",
+            compactLegend: true,
+            showDataLabels: false,
+            tooltipValueSuffix: "%",
+          }}
+          chartHeight={{ xs: "330px", md: "380px" }}
           csvOrPDfFileNamePostPix={csvOrPDfFileNamePostPix}
           filters={filters}
           handleDownloadCSVOrPDF={handleDownloadCSVOrPDF}
-          header={["", "Percentage", "Cost in Mil"]}
+          header={["", "Percentage", "Masters"]}
         />
       </Col>
     </Row>

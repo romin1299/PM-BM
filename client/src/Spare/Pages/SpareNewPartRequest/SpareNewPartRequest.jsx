@@ -34,6 +34,7 @@ import {
 } from "../../Utils/dropdownUtils";
 import { axiosPostOrPatch, axiosGetOrDelete } from "../../Utils/axiosUtils";
 import CopyFromRejectedSheet from "./CopyFromRejectedSheet";
+import UploadPartsFromExcel from "./UploadPartsFromExcel";
 import NGBudgetApprovalSelection from "./NGBudgetApprovalSelection";
 import NewSpareRequestSheetNo from "./NewSpareRequestSheetNo";
 import RSDynamicApprovalSelection from "./RSDynamicApprovalSelection";
@@ -102,9 +103,26 @@ const SpareNewPartRequest = () => {
     },
   });
 
+  /**
+   * Only MTD parts are weighed against the section's budget (OK / NG, and the
+   * MTD HOD's approval of an NG). A PRD sheet skips all of it and goes straight
+   * to its approval chain. A PRD sheet raised while the budget did apply carries
+   * the amount it was weighed with, so it is still seen through the way it began;
+   * one raised since has none (the server records it as OK without an amount).
+   */
+  const partRequestFor = useWatch({ control, name: "partRequestFor" });
+  const storedRequiredBudget = useWatch({
+    control,
+    name: "budget.requiredBudget",
+  });
+
+  const isBudgetChecked =
+    partRequestFor !== "PRD" || typeof storedRequiredBudget === "number";
+
   const sectionBudget = useGetSectionWiseBudget({
-    selectedCell: reduceState?.selectedCell,
-    existingSheetCell: watch("cell._id"),
+    // No lookup at all when there is no budget to compare with.
+    selectedCell: isBudgetChecked ? reduceState?.selectedCell : "",
+    existingSheetCell: isBudgetChecked ? watch("cell._id") : "",
   });
 
   const changeParts = useWatch({
@@ -154,7 +172,7 @@ const SpareNewPartRequest = () => {
   }, [requestSheetStatus, approvalLogs]);
 
   const budget = useMemo(() => {
-    if (!changeParts?.length)
+    if (!isBudgetChecked || !changeParts?.length)
       return {
         budgetStatus: "",
         requiredBudget: 0,
@@ -177,7 +195,7 @@ const SpareNewPartRequest = () => {
           : "NG",
       requiredBudget,
     };
-  }, [sectionBudget, changeParts]);
+  }, [sectionBudget, changeParts, isBudgetChecked]);
 
   const dirtyValues = (allValues) => {
     let newVal = {};
@@ -236,6 +254,32 @@ const SpareNewPartRequest = () => {
       // The filter bar walks its own cascade down to this place; the machine it
       // settles on is what the sheet is raised against.
       if (hierarchy?.section) setCopiedHierarchy(hierarchy);
+    },
+    [reset, getValues],
+  );
+
+  /**
+   * Fills the form with the parts read from an uploaded workbook.
+   *
+   * reset for the same reason as copying a rejected sheet: changeParts belongs to
+   * a useFieldArray, which only picks up a wholesale replacement. What is already
+   * chosen elsewhere on the form - the approvals above all - is kept by spreading
+   * the current values underneath. The parts arrive without drawings, so the
+   * attachment slots start empty.
+   */
+  const handlePartsFromExcel = useCallback(
+    (parts) => {
+      if (!parts?.length) return;
+
+      reset({
+        ...getValues(),
+        changeParts: parts,
+        partAttachments: buildPartAttachments(parts),
+        partQty:
+          parts.length > 1
+            ? partQtyOptions[1].value
+            : partQtyOptions[0].value,
+      });
     },
     [reset, getValues],
   );
@@ -362,7 +406,8 @@ const SpareNewPartRequest = () => {
         );
     }
 
-    if (!searchParams.get("_id") || formValue?.changeParts)
+    // A PRD sheet has no budget to record; the server marks it not applicable.
+    if (isBudgetChecked && (!searchParams.get("_id") || formValue?.changeParts))
       formValue["budget"] = budget;
 
     if (formValue?.ifBudgetIsNG?.documentByRequestGenerator)
@@ -474,6 +519,9 @@ const SpareNewPartRequest = () => {
                   ) : (
                     <ChartsToolbar
                       baseUrlForFiltering="/getFiltrationValue/all-filtration"
+                      // A Spare page: widens the section list for a user who
+                      // also works in the tool room. See Utils/userScope.js.
+                      queryParams={{ scopeModule: "Spare" }}
                       reduceState={reduceState}
                       reducerDispatch={reducerDispatch}
                       sectionFiltration
@@ -493,6 +541,18 @@ const SpareNewPartRequest = () => {
                     <CopyFromRejectedSheet
                       onCopy={handleCopyFromRejectedSheet}
                       hasEnteredParts={hasEnteredParts}
+                    />
+                  </Col>
+                </Row>
+              )}
+
+              {!searchParams.get("_id") && (
+                <Row className="border">
+                  <Col className="pt-1 pb-1">
+                    <UploadPartsFromExcel
+                      newPartFor={watch("newPartFor")}
+                      hasEnteredParts={hasEnteredParts}
+                      onPartsRead={handlePartsFromExcel}
                     />
                   </Col>
                 </Row>
@@ -613,6 +673,7 @@ const SpareNewPartRequest = () => {
                     canRemoveParts={!searchParams.get("_id")}
                     changeParts={changeParts}
                     sectionBudget={sectionBudget?.sectionWiseCurrentMonthBudget}
+                    showBudget={isBudgetChecked}
                     {...budget}
                   />
                 </Row>
@@ -702,12 +763,16 @@ const SpareNewPartRequest = () => {
                 />
               )}
 
-              {((budget?.budgetStatus === "OK" &&
-                budget?.requiredBudget >= 0 &&
-                sectionBudget?.sectionWiseCurrentMonthBudget >= 0) ||
-                (budget?.budgetStatus === "NG" &&
-                  watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
-                    "Accepted")) &&
+              {(isBudgetChecked
+                ? (budget?.budgetStatus === "OK" &&
+                    budget?.requiredBudget >= 0 &&
+                    sectionBudget?.sectionWiseCurrentMonthBudget >= 0) ||
+                  (budget?.budgetStatus === "NG" &&
+                    watch("mtdHODApprovalIfBudgetIsNG.approvalStatus") ===
+                      "Accepted")
+                : // No budget to wait on: the approvers can be chosen as soon
+                  // as there is a part to approve.
+                  changeParts?.length > 0) &&
                 !watch("isSpareSheetSendForApproval") &&
                 requestSheetStatus !== SPARE_SHEET_REJECTED_STATUS &&
                 watch("partRequestFor") && (
@@ -716,6 +781,19 @@ const SpareNewPartRequest = () => {
                     control={control}
                     errors={errors}
                     partRequestFor={watch("partRequestFor")}
+                    // A new sheet's section comes from the filter cascade; an
+                    // existing one carries its own. Either way the approvers are
+                    // scoped to the sheet's section, not the logged-in user's.
+                    sectionId={
+                      searchParams.get("_id")
+                        ? watch("section._id")
+                        : reduceState?.selectedSection
+                    }
+                    subSectionId={
+                      searchParams.get("_id")
+                        ? watch("subSection._id")
+                        : reduceState?.selectedSubSection
+                    }
                   />
                 )}
 

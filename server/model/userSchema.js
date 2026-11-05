@@ -77,12 +77,27 @@ const userSchema = new mongoose.Schema({
     default: "No",
   },
 
+  /**
+   * Dedicated tool-room staff: the Spare module and nothing else. Declared
+   * once - it used to appear twice in this schema, and mongoose silently kept
+   * the second copy.
+   */
   toolRoomPerson: {
     type: String,
     default: "No",
   },
 
-  toolRoomPerson: {
+  /**
+   * A PM user who ALSO works in the tool room - the section's HOD who is also
+   * the tool room's HOD, for instance. They keep every PM tab and their own
+   * section, and gain the tool-room rights inside Spare.
+   *
+   * Kept separate from toolRoomPerson rather than folded into it as a third
+   * value, because that flag is read in about twenty places to mean "Spare
+   * only"; a new value would have changed all of them at once.
+   * See utils/userScope.js.
+   */
+  alsoToolRoomPerson: {
     type: String,
     default: "No",
   },

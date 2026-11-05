@@ -66,6 +66,18 @@ const plantToMachineHierarchySchema = new mongoose.Schema({
   },
 });
 
+/**
+ * Every BM sheet, every CM sheet and every reflected CM resolves its snapshot
+ * by `machine._id`, and without an index each of those writes scans the whole
+ * collection first. The lookup is an exact match used by a findOneAndUpdate,
+ * so an index cannot change which document is chosen or the order of anything
+ * — it only stops the scan.
+ */
+plantToMachineHierarchySchema.index(
+  { "machine._id": 1 },
+  { name: "PlantToMachineHierarchyMachineIndex", background: true },
+);
+
 const PlantToMachineHierarchy = new mongoose.model(
   "PlantToMachineHierarchy",
   plantToMachineHierarchySchema

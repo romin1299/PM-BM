@@ -22,6 +22,17 @@ const chartHeightFor = (limit) => {
   return `${Math.max(300, Math.min(rows, MAX_TOP_LIMIT) * 34)}px`;
 };
 
+/**
+ * Both charts plot what is on the shelf now - available quantity and its cost -
+ * not what has been used. Stock-in registers add to it and every approved
+ * issuance takes from it (the master's available quantity and cost both fall),
+ * so the titles say "Available Stock" outright.
+ */
+const TOP_INVENTORY_TITLE =
+  "Available Stock by Line - Quantity (Cost in Mil INR)";
+const SPARE_PART_DETAILS_TITLE =
+  "Available Stock by Line and Supplier Category(Local/Imported) - Quantity";
+
 const handleDownloadLineWiseCSVOrPDF = (props) =>
   handleDownloadDynamicDataOtherFormatCSVOrPDF({
     ...props,
@@ -46,8 +57,6 @@ const LineWiseTopChart = ({
   header,
   // What runs along the bottom; the lines themselves run down the side.
   valueAxisTitle,
-  selectedYear,
-  selectedMonth,
 }) => {
   const [limit, setLimit] = useState(DEFAULT_TOP_LIMIT);
 
@@ -56,18 +65,7 @@ const LineWiseTopChart = ({
     [],
   );
 
-  const csvOrPDfFileNamePostPix = useMemo(
-    () => (selectedMonth ? `${selectedMonth}_${selectedYear}` : selectedYear),
-    [selectedMonth, selectedYear],
-  );
-
-  const filters = useMemo(
-    () =>
-      selectedMonth
-        ? [selectedYear, selectedMonth, `Top ${limit}`]
-        : [selectedYear, `Top ${limit}`],
-    [selectedMonth, selectedYear, limit],
-  );
+  const filters = useMemo(() => ["All", `Top ${limit}`], [limit]);
 
   return (
     <HierarchyFilterWrapper
@@ -75,11 +73,9 @@ const LineWiseTopChart = ({
       url={url}
       params={{
         showToast: "No",
-        selectedYear,
-        selectedMonth,
         limit,
       }}
-      referenceArrayForUseEffect={[selectedYear, selectedMonth, limit]}
+      referenceArrayForUseEffect={[limit]}
       ChartMiddlewareComponent={ChartMiddlewareComponent}
       otherProps={{
         indexAxis: "y",
@@ -95,37 +91,33 @@ const LineWiseTopChart = ({
         lineFiltration: true,
       }}
       filters={filters}
-      csvOrPDfFileNamePostPix={csvOrPDfFileNamePostPix}
+      csvOrPDfFileNamePostPix="All"
       handleDownloadCSVOrPDF={handleDownload}
       header={header}
     />
   );
 };
 
-const InventoryRow3 = ({ selectedYear, selectedMonth }) => {
+const InventoryRow3 = () => {
   return (
     <Row className="mt-3 gx-3 p-1">
       <Col md={12} lg={6}>
         <LineWiseTopChart
-          title="Top inventory"
+          title={TOP_INVENTORY_TITLE}
           url="/v1/spare/kpi/topInventory"
           ChartMiddlewareComponent={BarChart}
           handleDownload={handleDownloadCSVOrPDF}
           header={["Lines", "Quantity", "Cost in Mil"]}
           valueAxisTitle="Available quantity (cost in Mil INR)"
-          selectedYear={selectedYear}
-          selectedMonth={selectedMonth}
         />
       </Col>
       <Col md={12} lg={6}>
         <LineWiseTopChart
-          title="Spare Part Details"
+          title={SPARE_PART_DETAILS_TITLE}
           url="/v1/spare/kpi/supplierCategoryWise"
           ChartMiddlewareComponent={StackedBarChart}
           handleDownload={handleDownloadLineWiseCSVOrPDF}
           valueAxisTitle="Available quantity by supplier category (Nos.)"
-          selectedYear={selectedYear}
-          selectedMonth={selectedMonth}
         />
       </Col>
     </Row>

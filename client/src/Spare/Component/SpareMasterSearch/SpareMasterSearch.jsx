@@ -2,31 +2,41 @@ import React, { useState, useMemo, memo } from "react";
 import SparePartSearchBar from "../SparePartSearchBar";
 import SpareSheetCustomTable from "../SpareSheetCustomTable";
 
-const RowMappingComponent = memo(({ otherData, append }) => (
-  <>
-    <td className="td-padding">{otherData?.plantName}</td>
-    <td className="td-padding">{otherData?.whichParts}</td>
-    <td className="td-padding">{otherData?.location}</td>
-    <td className="td-padding">{otherData?.uniqueID}</td>
-    <td className="td-padding">{otherData?.partNumber}</td>
-    <td className="td-padding">{otherData?.partName}</td>
-    <td className="td-padding">{otherData?.partModel}</td>
-    <td className="td-padding">{otherData?.maker}</td>
-    <td className="td-padding">
-      {otherData?.budgetDetails?.overAllAvailableQty}
-    </td>
-    <td className="td-padding">{otherData?.unitCost}</td>
-    <td className="td-padding">
-      <button
-        className="bg-warning text-white border-0"
-        type="button"
-        onClick={() => append(otherData)}
-      >
-        Add
-      </button>
-    </td>
-  </>
-));
+const RowMappingComponent = memo(({ otherData, append }) => {
+  // A master with nothing in stock cannot be issued: there is no quantity to
+  // take out, so its Add action is disabled (the server refuses it too).
+  const available = otherData?.budgetDetails?.overAllAvailableQty;
+  const noStock =
+    available !== undefined && available !== null && Number(available) <= 0;
+
+  return (
+    <>
+      <td className="td-padding">{otherData?.plantName}</td>
+      <td className="td-padding">{otherData?.whichParts}</td>
+      <td className="td-padding">{otherData?.location}</td>
+      <td className="td-padding">{otherData?.uniqueID}</td>
+      <td className="td-padding">{otherData?.partNumber}</td>
+      <td className="td-padding">{otherData?.partName}</td>
+      <td className="td-padding">{otherData?.partModel}</td>
+      <td className="td-padding">{otherData?.maker}</td>
+      <td className="td-padding">
+        {otherData?.budgetDetails?.overAllAvailableQty}
+      </td>
+      <td className="td-padding">{otherData?.unitCost}</td>
+      <td className="td-padding">
+        <button
+          className="bg-warning text-white border-0"
+          type="button"
+          disabled={noStock}
+          title={noStock ? "No quantity available for this master" : "Add this part"}
+          onClick={() => append(otherData)}
+        >
+          Add
+        </button>
+      </td>
+    </>
+  );
+});
 
 const SpareMasterSearch = ({ append }) => {
   const [search, setSearch] = useState("");
@@ -78,5 +88,7 @@ const SpareMasterSearch = ({ append }) => {
     </div>
   );
 };
+
+export const SpareMasterSearchRow = RowMappingComponent;
 
 export default SpareMasterSearch;

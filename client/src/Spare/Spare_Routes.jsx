@@ -1,142 +1,20 @@
-// import React, { useContext, lazy } from "react";
-
-// import RoutingContext from "../context/routing/RoutingContext";
-
-// import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
-// import { menuItems } from "./SpareSidebar/menuItems";
-// import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
-
-// const SpareKPI = lazy(() => import("./Pages/SpareKPI/SpareKPI"));
-// const SpareSearchButton = lazy(() =>
-//   import("./Pages/SpareSearchButton/SpareSearchButton")
-// );
-// const SpareNewPartRequest = lazy(() =>
-//   import("./Pages/SpareNewPartRequest/SpareNewPartRequest")
-// );
-// const SpareApprovalDashboard = lazy(() =>
-//   import("./Pages/SpareApprovalDashboard/SpareApprovalDashboard")
-// );
-// const SpareApprovalLogs = lazy(() =>
-//   import("./Pages/SpareApprovalDashboard/SpareApprovalLogs")
-// );
-// const SpareOrderingDashboard = lazy(() =>
-//   import("./Pages/SpareOrderingDashboard/SpareOrderingDashboard")
-// );
-// const SpareReceivingDashboard = lazy(() =>
-//   import("./Pages/SpareReceivingDashboard/SpareReceivingDashboard")
-// );
-// const SpareMasterRegistration = lazy(() =>
-//   import("./Pages/SpareMasterRegistration/SpareMasterRegistration")
-// );
-// const SparePartIssuance = lazy(() =>
-//   import("./Pages/SparePartIssuance/SparePartIssuance")
-// );
-// const SpareBudgetDashboard = lazy(() =>
-//   import("./Pages/SpareBudgetDashboard/SpareBudgetDashboard")
-// );
-// const SpareReports = lazy(() => import("./Pages/SpareReports/SpareReports"));
-// const SpareCustomized = lazy(() =>
-//   import("./Pages/SpareCustomized/SpareCustomized")
-// );
-
-// const Spare_Routes = () => {
-//   const context = useContext(RoutingContext);
-//   const routes = [
-//     {
-//       path: "/spare",
-//       element: <SpareKPI />,
-//     },
-//     {
-//       path: "/spare/spareSearchButton",
-//       element: <SpareSearchButton />,
-//     },
-//     {
-//       path: "/spare/spareNewPartRequest",
-//       element: <SpareNewPartRequest />,
-//     },
-//     {
-//       path: "/spare/spareApprovalDashboard",
-//       element: <SpareApprovalDashboard />,
-//     },
-//     {
-//       path: "/spare/spareApprovalLogs",
-//       element: <SpareApprovalLogs />,
-//     },
-//     {
-//       path: "/spare/spareOrderingDashboard",
-//       element: <SpareOrderingDashboard />,
-//     },
-//     {
-//       path: "/spare/spareReceivingDashboard",
-//       element: <SpareReceivingDashboard />,
-//     },
-//     {
-//       path: "/spare/SpareMasterRegistration",
-//       element: <SpareMasterRegistration />,
-//     },
-//     {
-//       path: "/spare/sparePartIssuance",
-//       element: <SparePartIssuance />,
-//     },
-//     {
-//       path: "/spare/spareBudgetDashboard",
-//       element: <SpareBudgetDashboard />,
-//     },
-//     {
-//       path: "/spare/spareReports",
-//       element: <SpareReports />,
-//     },
-//     {
-//       path: "/spare/customizedDashboard",
-//       element: <SpareCustomized />,
-//     },
-//   ];
-
-//   const userRoutes = [
-//     {
-//       user_type: "Plant-Admin",
-//       routes,
-//     },
-//     {
-//       user_type: "Section-Admin",
-//       routes,
-//     },
-//     {
-//       user_type: "TL/HOSS",
-//       routes,
-//     },
-//     {
-//       user_type: "Operator",
-//       routes,
-//     },
-//   ];
-//   const filteredRoutes = userRoutes?.find(
-//     (userRoute) => userRoute?.user_type === context?.user_type
-//   );
-//   const filteredItems = filteredMenuItems(
-//     menuItems,
-//     context?.user_type,
-//     context?.tm_department
-//   );
-//   return (
-//     <CommonRoutesContainer
-//       routes={filteredRoutes?.routes}
-//       sideBarProp={{ userData: context, filteredItems }}
-//     />
-//   );
-// };
-
-// export default Spare_Routes;
-
 import { useContext, lazy, useMemo } from "react";
 
 import RoutingContext from "../context/routing/RoutingContext";
 import { filteredMenuItems } from "../Common/CommonRoutes/filteredMenuItems";
 import { menuItems } from "./SpareSidebar/menuItems";
 import CommonRoutesContainer from "../Common/CommonRoutes/CommonRoutesContainer";
+import {
+  SPARE_APPROVER_ROLES,
+  SPARE_CONFIGURATION_ROLES,
+  SPARE_MODULE_ROLES,
+  SPARE_ROLES_WITH_OPERATOR,
+  SPARE_USER_MANAGEMENT_ROLES,
+} from "./Utils/spareRoles";
 
 // Loaded with the module's routes so every Spare page shares it, and only they.
 import "./Component/SpareScrollTable.scss";
+import { isToolRoomUser } from "../Utils/userScope";
 
 const SpareKPI = lazy(() => import("./Pages/SpareKPI/SpareKPI"));
 const SpareInventoryReport = lazy(
@@ -157,7 +35,6 @@ const SpareEachCellWiseInventoryBifurcation = lazy(
 const SpareMTDToolRoomKPI = lazy(
   () => import("./Pages/SpareMTDToolRoomKPI/SpareMTDToolRoomKPI"),
 );
-const SpareSheets = lazy(() => import("./Pages/SpareSheets/SpareSheets"));
 const SpareSearchButton = lazy(
   () => import("./Pages/SpareSearchButton/SpareSearchButton"),
 );
@@ -185,6 +62,14 @@ const SpareUploadedMasterDashboard = lazy(
 const SparePartIssuance = lazy(
   () => import("./Pages/SparePartIssuance/SparePartIssuance"),
 );
+const SpareChangeRequestDashboard = lazy(
+  () =>
+    import("./Pages/SpareChangeRequestDashboard/SpareChangeRequestDashboard"),
+);
+const SpareDeleteRequestDashboard = lazy(
+  () =>
+    import("./Pages/SpareDeleteRequestDashboard/SpareDeleteRequestDashboard"),
+);
 const SpareBudgetDashboard = lazy(
   () => import("./Pages/SpareBudgetDashboard/SpareBudgetDashboard"),
 );
@@ -202,178 +87,151 @@ const SpareTargetDashboard = lazy(
   () => import("./Pages/SpareTargetDashboard/SpareTargetDashboard"),
 );
 
-const allusers = [
-  //From PM
-  "Admin",
-  "Plant-Admin",
-  "Section-Admin",
-  "TL/HOSS",
-  //From spare toolRoom
-  "HOSS",
-  "Supervisor",
-  "Office Person",
-];
-
 const routes = [
-  { path: "/spare", element: <SpareKPI />, allowedRoles: allusers },
+  {
+    path: "/spare",
+    element: <SpareKPI />,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
+  },
   {
     path: "/spare/inventoryReport",
     element: <SpareInventoryReport />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/stockLevelWiseAnalysisReport",
     element: <SpareStockLevelWiseAnalysis />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/mtdRAndMPlanVsActualBudgetReport",
     element: <SpareMTDRAndMPlanVsActualBudgetReport />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/eachCellWiseInventoryBifurcation",
     element: <SpareEachCellWiseInventoryBifurcation />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/mtdToolRoomKPI",
     element: <SpareMTDToolRoomKPI />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
-  // { path: "/spare/requests", element: <SpareSheets />, allowedRoles: allusers },
   {
     path: "/spare/spareUserManagement",
     element: <SpareUserManagement />,
-    allowedRoles: ["Plant-Admin", "Section-Admin", "HOSS", "Supervisor"],
+    allowedRoles: SPARE_USER_MANAGEMENT_ROLES,
     hasToolRoomFilter: true,
   },
   {
     path: "/spare/spareSearchButton",
     element: <SpareSearchButton />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/spareNewPartRequest",
     element: <SpareNewPartRequest />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/spareApprovalDashboard",
     element: <SpareApprovalDashboard />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_APPROVER_ROLES,
   },
   {
     path: "/spare/spareApprovalLogs",
     element: <SpareApprovalLogs />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/spareOrderingDashboard",
     element: <SpareOrderingDashboard />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/spareMasterRegistration",
     element: <SpareMasterRegistration />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/spareMasterDashboard",
     element: <SpareMasterDashboard />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/recyclePartsMaster",
     element: <SpareUploadedMasterDashboard masterType="recycle" />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/repairedPartsMaster",
     element: <SpareUploadedMasterDashboard masterType="repaired" />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/sparePartIssuance",
     element: <SparePartIssuance />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
+  },
+  {
+    path: "/spare/changeRequestDashboard",
+    element: <SpareChangeRequestDashboard />,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
+  },
+  {
+    path: "/spare/deleteRequestDashboard",
+    element: <SpareDeleteRequestDashboard />,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/spareBudgetDashboard",
     element: <SpareBudgetDashboard />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/spareReports",
     element: <SpareReports />,
-    allowedRoles: allusers,
+    allowedRoles: SPARE_ROLES_WITH_OPERATOR,
   },
   {
     path: "/spare/customizedDashboard",
     element: <SpareCustomized />,
-    allowedRoles: [
-      "Plant-Admin",
-      "Section-Admin", //From spare toolRoom
-      "HOSS",
-      "Supervisor",
-      "Office Person",
-    ],
+    allowedRoles: SPARE_CONFIGURATION_ROLES,
   },
   {
     path: "/spare/customizedDashboard/dynamicFieldsConfiguration",
     element: <DynamicFieldsConfiguration />,
     hasToolRoomFilter: true,
-    allowedRoles: [
-      "Plant-Admin",
-      "Section-Admin",
-      //From spare toolRoom
-      "HOSS",
-      "Supervisor",
-      "Office Person",
-    ],
+    allowedRoles: SPARE_CONFIGURATION_ROLES,
   },
   {
     path: "/spare/targetDashboard",
     element: <SpareTargetDashboard />,
     hasToolRoomFilter: true,
-    allowedRoles: [
-      "Plant-Admin",
-      "Section-Admin",
-      //From spare toolRoom
-      "HOSS",
-      "Supervisor",
-      "Office Person",
-    ],
+    allowedRoles: SPARE_CONFIGURATION_ROLES,
   },
 ];
-
-const ALLOWED_USER_TYPES = new Set([
-  //From PM
-  "Plant-Admin",
-  "Section-Admin",
-  "TL/HOSS",
-
-  //From spare toolRoom
-  "HOSS",
-  "Supervisor",
-  "Office Person",
-]);
 
 const Spare_Routes = () => {
   const context = useContext(RoutingContext);
 
+  /**
+   * Dedicated tool-room staff and PM users who also work in the tool room both
+   * get the tool-room-only screens. See Utils/userScope.js.
+   */
+  const isToolRoom = isToolRoomUser(context);
+
   const filteredRoutes = useMemo(
     () =>
-      ALLOWED_USER_TYPES.has(context?.user_type)
+      SPARE_MODULE_ROLES.has(context?.user_type)
         ? routes?.filter(
             (item) =>
               item?.allowedRoles?.includes(context?.user_type) &&
-              (item?.hasToolRoomFilter
-                ? context?.toolRoomPerson === "Yes"
-                : true),
+              (item?.hasToolRoomFilter ? isToolRoom : true),
           )
         : undefined,
-    [context?.user_type, context?.toolRoomPerson],
+    [context?.user_type, isToolRoom],
   );
 
   const sideBarProp = useMemo(
@@ -383,10 +241,10 @@ const Spare_Routes = () => {
         menuItems,
         context?.user_type,
         context?.tm_department,
-        context?.toolRoomPerson === "Yes",
+        isToolRoom,
       ),
     }),
-    [context],
+    [context, isToolRoom],
   );
 
   return (

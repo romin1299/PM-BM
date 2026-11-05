@@ -5,14 +5,30 @@ import SpareSheetCustomTable from "../../Component/SpareSheetCustomTable";
 import OtherTaskStatusConfiguration from "../SpareOrderingDashboard/OtherTaskStatusConfiguration";
 import SpareTitlebar from "../../Component/SpareTitlebar";
 import ExportCSV from "../SparePartIssuance/ExportCSV";
+import MasterColumnFilter, {
+  useMasterColumnFilters,
+} from "../SpareMasterDashboard/MasterColumnFilter";
+import { ClearFiltersButton } from "../SpareMasterDashboard/SpareMasterDashboard";
 
 const DEAD_STOCK_KEY = "reasonForKeepingDeadStock";
 
-/** The date the dead-stock rule was judged on, with what it was. */
-const lastMovementText = ({ lastMovementDate, hasBeenIssued }) => {
-  if (!lastMovementDate) return "-";
-  const date = new Date(lastMovementDate).toLocaleDateString("en-GB");
-  return hasBeenIssued ? `Issued ${date}` : `In stock since ${date}`;
+const url = "/v1/spare/kpi/partList";
+
+/**
+ * Header text and the field behind it, which is also the name the server
+ * filters on. The reason column's header is the list's own title, so it is
+ * resolved per list.
+ */
+const FILTERABLE_HEADERS = {
+  "Line name": "lineName",
+  "Mc name": "machineName",
+  "Mc number": "machineCode",
+  Location: "location",
+  "Part name": "partName",
+  "Part model": "partModel",
+  "Available Qty": "availableQty",
+  "Total cost(in INR)": "costInINR",
+  "Last movement": "lastMovement",
 };
 
 const RowMappingComponent = memo(
@@ -32,7 +48,7 @@ const RowMappingComponent = memo(
         {otherData?.budgetDetails?.overAllCostInINR}
       </td>
       {popupRef?.key === DEAD_STOCK_KEY && (
-        <td className="td-padding">{lastMovementText(otherData ?? {})}</td>
+        <td className="td-padding">{otherData?.lastMovement}</td>
       )}
       <td className="td-padding">{otherData?.[`${popupRef?.key}Remarks`]}</td>
       <td className="td-padding">
@@ -65,16 +81,51 @@ const ZeroOrDeadStockParts = ({
     popupTitle: "Reason For Zero Stock",
   },
 }) => {
+  const { filters, setColumnFilter, clearAll, activeCount, filtersParam } =
+    useMasterColumnFilters();
+
   const apiReferencePropsBasedOnFilters = useMemo(
     () => ({
       params: {
         selectedYear,
         selectedMonth,
         requestFor: popupRef?.key,
+        ...(filtersParam ? { filters: filtersParam } : {}),
       },
-      referenceArrayForUseEffect: [selectedYear, selectedMonth],
+      referenceArrayForUseEffect: [selectedYear, selectedMonth, filtersParam],
     }),
-    [selectedYear, selectedMonth, popupRef],
+    [selectedYear, selectedMonth, popupRef, filtersParam],
+  );
+
+  // Which of the two lists a column's values are asked for.
+  const extraParams = useMemo(
+    () => ({ requestFor: popupRef?.key }),
+    [popupRef],
+  );
+
+  // A funnel beside each header the table can be filtered by.
+  const renderHeader = useCallback(
+    (header) => {
+      const column =
+        FILTERABLE_HEADERS[header] ??
+        (header === popupRef?.popupTitle ? "remarks" : null);
+      if (!column) return header;
+      return (
+        <span className="d-inline-flex align-items-center gap-1">
+          {header}
+          <MasterColumnFilter
+            column={column}
+            label={header}
+            valuesUrl={`${url}/columnValues`}
+            filtersParam={filtersParam}
+            extraParams={extraParams}
+            selectedValues={filters[column]}
+            onApply={setColumnFilter}
+          />
+        </span>
+      );
+    },
+    [popupRef, extraParams, filters, filtersParam, setColumnFilter],
   );
 
   const [modelState, setModelState] = useState({
@@ -107,15 +158,19 @@ const ZeroOrDeadStockParts = ({
         inlineToolbar
         // Same filters as the table, so the file holds exactly what is shown.
         Toolbar={
-          <ExportCSV
-            url="/v1/spare/kpi/partList/export"
-            axiosParams={apiReferencePropsBasedOnFilters.params}
-          />
+          <div className="d-flex gap-2">
+            <ClearFiltersButton activeCount={activeCount} clearAll={clearAll} />
+            <ExportCSV
+              url="/v1/spare/kpi/partList/export"
+              axiosParams={apiReferencePropsBasedOnFilters.params}
+            />
+          </div>
         }
       />
       <SpareSheetCustomTable
         apiReferencePropsBasedOnFilters={apiReferencePropsBasedOnFilters}
-        url={`/v1/spare/kpi/partList`}
+        url={url}
+        renderHeader={renderHeader}
         tableHeaders={[
           "S.No",
           "Line name",

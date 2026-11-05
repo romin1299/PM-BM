@@ -10,7 +10,7 @@ const DynamicCRUDTable = ({
   url,
   columns,
   dynamicTableKey,
-  toolRoomPerson = "No",
+  isToolRoom = false,
 }) => {
   const {
     register,
@@ -126,11 +126,11 @@ const DynamicCRUDTable = ({
                       <button
                         type="button"
                         className={
-                          toolRoomPerson === "Yes"
+                          isToolRoom
                             ? "bg-danger text-white border-0"
                             : ""
                         }
-                        disabled={toolRoomPerson !== "Yes"}
+                        disabled={!isToolRoom}
                         onClick={() => remove(index)}
                       >
                         Cancel
@@ -145,11 +145,11 @@ const DynamicCRUDTable = ({
                   <button
                     type="button"
                     className={
-                      toolRoomPerson === "Yes"
+                      isToolRoom
                         ? "bg-warning text-white border-0"
                         : ""
                     }
-                    disabled={toolRoomPerson !== "Yes"}
+                    disabled={!isToolRoom}
                     onClick={() => append({ currencyUnit: "", currencyRate: 0.0 })}
                   >
                     Add
@@ -161,7 +161,7 @@ const DynamicCRUDTable = ({
         </div>
       </Row>
 
-      {toolRoomPerson === "Yes" && (
+      {isToolRoom && (
         <Box className="m-2" sx={{ display: "flex", justifyContent: "start" }}>
           <button type="submit" className="btn bg-succ ">
             Submit

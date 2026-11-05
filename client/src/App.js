@@ -443,6 +443,7 @@ import ACTIVITY_Cal from "./static/Icons/ACTIVITY_CAL.png";
 
 import Spare_Routes from "./Spare/Spare_Routes";
 import SparePageLoading from "./Spare/Component/SparePageLoading";
+import { isSpareOnlyUser } from "./Utils/userScope";
 
 const SubComponent = ({ tabs, loggedUser, commonRoutePaths }) => {
   const navigate = useNavigate();
@@ -456,9 +457,12 @@ const SubComponent = ({ tabs, loggedUser, commonRoutePaths }) => {
     const pathParts = location.pathname.split("/");
     const mainPath = pathParts[1];
 
-    const isToolRoomUser = loggedUser?.toolRoomPerson === "Yes";
-
-    if (isToolRoomUser) {
+    /**
+     * Only DEDICATED tool-room staff are confined to Spare. A PM user who also
+     * works in the tool room keeps every tab, so this must not use
+     * isToolRoomUser - see Utils/userScope.js.
+     */
+    if (isSpareOnlyUser(loggedUser)) {
       if (mainPath !== "spare") {
         navigate("/spare", { replace: true });
         return;
@@ -621,7 +625,9 @@ function App() {
         ),
       };
 
-      if (loggedUser?.toolRoomPerson === "Yes") {
+      // Dedicated tool-room staff get Spare and nothing else. Someone who
+      // works in both falls through and collects the PM tabs below as well.
+      if (isSpareOnlyUser(loggedUser)) {
         setIsLoading(false);
         return [spareTab];
       }

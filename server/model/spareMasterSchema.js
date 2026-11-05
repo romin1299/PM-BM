@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { plantToMachineHierarchyObj } = require("./common");
+const { approvalStepSchema } = require("./spareRequestCommon");
 
 const spareMasterSchema = new mongoose.Schema(
   {
@@ -136,6 +137,42 @@ const spareMasterSchema = new mongoose.Schema(
       machineName: String,
       equipmentCodes: [String],
     },
+    /**
+     * Repaired Part Quality Confirmation Sheet (FO/MTD/05/09/00). The paper's
+     * fields land on the master record itself: part name / part no / maker use
+     * the master fields above, and the repair and quality details are kept
+     * here. Only the Repaired Parts Master fills them.
+     */
+    issueProblem: String,
+    repairedItem: String,
+    repairedOn: String,
+    repairedBy: String,
+    qualityConfirmedBy: String,
+    qualityConfirmationMethod: String,
+    qualityConfirmationDate: String,
+    toolRoomRequestStatus: {
+      type: String,
+      enum: ["OK", "NOT OK"],
+      default: null,
+    },
+
+    /**
+     * The MTD approval chain written when a quality confirmation is submitted,
+     * so the record can follow the same route as the request sheets. Empty on
+     * a master loaded from Excel.
+     */
+    approvals: [approvalStepSchema],
+    currentApprovalIndex: {
+      type: Number,
+      default: 0,
+    },
+    pendingApprovalBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
+    },
+    /** "Under MTD TL approval", ... "Completed" or "Rejected". */
+    requestStatus: String,
+
     status: {
       type: String,
       default: "requestSubmitted",

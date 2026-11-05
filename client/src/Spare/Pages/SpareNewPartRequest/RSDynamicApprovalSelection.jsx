@@ -16,6 +16,9 @@ import useSafeGetRequest from "../../../CustomHooks/useSafeGetRequest";
 const ApprovalUserSelect = ({ control, register, errors, fieldRef, users }) => {
   const fieldName = `${fieldRef?.approvalKey}.user._id`;
   const selectedUserId = useWatch({ control, name: fieldName });
+  // A step nobody is registered for can never be filled in, so the sheet cannot
+  // go for approval until the admin registers someone.
+  const hasNoUsers = !users?.length;
 
   return (
     <Col className="d-flex flex-column col-auto">
@@ -25,12 +28,16 @@ const ApprovalUserSelect = ({ control, register, errors, fieldRef, users }) => {
           style={{ fontSize: "14px" }}
           className={"d-inline"}
           {...register(fieldName, {
-            required: `Please select ${fieldRef?.displayName}`,
+            // With nobody to choose the select holds only its placeholder, so
+            // the required rule always fails - and says why.
+            required: hasNoUsers
+              ? `No ${fieldRef?.displayName} is registered for your section`
+              : `Please select ${fieldRef?.displayName}`,
           })}
           value={selectedUserId ?? ""}
         >
           <option disabled value="">
-            Please select
+            {hasNoUsers ? "No user registered" : "Please select"}
           </option>
           {users?.map((obj) => (
             <option key={obj?._id} value={obj?._id}>
@@ -39,7 +46,13 @@ const ApprovalUserSelect = ({ control, register, errors, fieldRef, users }) => {
           ))}
         </select>
       </div>
-      {errors?.[fieldRef?.approvalKey]?.user?._id && (
+      {hasNoUsers && (
+        <p className="text-error mb-1">
+          No {fieldRef?.displayName} is registered for your section. Ask your
+          admin to register one before submitting this sheet.
+        </p>
+      )}
+      {!hasNoUsers && errors?.[fieldRef?.approvalKey]?.user?._id && (
         <p className="text-error mb-1">
           {errors?.[fieldRef?.approvalKey]?.user?._id?.message}
         </p>
@@ -53,6 +66,12 @@ const RSDynamicApprovalSelection = ({
   control,
   errors,
   partRequestFor,
+  // The section (and sub-section) the sheet is raised for. The approvers are
+  // scoped to it rather than to the logged-in user, so a tool-room user raising
+  // a sheet for another section still gets that section's TL/HOSS/HOS - the only
+  // ones who can see the sheet on their dashboard to approve it.
+  sectionId = "",
+  subSectionId = "",
 }) => {
   const [{ data }] = useSafeGetRequest({
     url: "/v1/spare/approvalUsers",
@@ -60,9 +79,11 @@ const RSDynamicApprovalSelection = ({
       params: {
         department: partRequestFor,
         approvalKey: "spareSheetDynamicApproval",
+        sectionId,
+        subSectionId,
       },
     },
-    referenceArrayForUseEffect: [partRequestFor],
+    referenceArrayForUseEffect: [partRequestFor, sectionId, subSectionId],
     initialState: {
       isLoading: true,
       isError: false,

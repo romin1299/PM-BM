@@ -1,14 +1,29 @@
 const mongoose = require("mongoose");
-const moment = require("moment");
+const moment = require("moment-timezone");
+const { gettingFYYear } = require("../../middleware/gettingFYYear");
+const {
+  createColumnFilters,
+  escapeRegex,
+} = require("../../utils/columnFilters");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const unparseJSONData = require("../../utils/unparseJSONData");
+const { isToolRoomUser } = require("../../utils/userScope");
 
-// const Cell = require("../../model/cellSchema");
+const Cell = require("../../model/cellSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
 const SpareMaster = require("../../model/spareMasterSchema");
 const MachineCost = require("../../model/machineCostSchema");
 const SpareIssuanceSummary = require("../../model/spareIssuanceSummarySchema");
 const SpareInventoryTarget = require("../../model/spareInventoryTargetSchema");
+const SpareCellInventoryTarget = require("../../model/spareCellInventoryTargetSchema");
+const {
+  monthKey,
+  buildCumulativeCellInventory,
+} = require("../../services/spare/cumulativeCellInventoryService");
+const {
+  validateCellTargetInput,
+  normalizedTarget,
+} = require("../../services/spare/cellInventoryTargetService");
 const SpareBudget = require("../../model/spareBudgetSchema");
 
 const { budgetDetailsProjection } = require("./spareIssuanceSummaryController");
@@ -94,7 +109,13 @@ const addFieldsForInventoryBifurcation = {
  * to the catalogue. availableQty is kept for the quantity charts.
  */
 const inventoryBifurcationPipeline = [
-  { $match: { "budgetDetails.overAllAvailableQty": { $gt: 0 } } },
+  {
+    $match: {
+      ageBucket: {
+        $in: ["LESS_THEN_1", "1_TO_5", "5_TO_10", "GRATER_THEN_10"],
+      },
+    },
+  },
   {
     $group: {
       _id: "$ageBucket",
@@ -131,7 +152,7 @@ const inventoryBifurcationPipeline = [
             },
             {
               key: "GRATER_THEN_10",
-              title: "Dead stock",
+              title: "No Rotation >10 yr",
             },
           ],
           as: "stockTimeFrame",
@@ -374,8 +395,15 @@ exports.getSpareSheetsSummeryForKPI = tryCatchHandler(
   },
 );
 
+/**
+ * Now includes a PM user who also works in the tool room.
+ *
+ * Also closed a gate that failed open: it rejected only the exact string "No",
+ * so every user whose toolRoomPerson has never been set - 115 of the 342 in the
+ * plant - passed it. It now asks whether they are a tool-room user at all.
+ */
 exports.IsToolRoomPerson = tryCatchHandler(async (req, res, next) => {
-  if (req.rootUser?.toolRoomPerson === "No")
+  if (!isToolRoomUser(req.rootUser))
     return res.status(400).json({
       showToast: true,
       message: "You are not authorizedPerson",
@@ -824,134 +852,152 @@ exports.updateInventoryTarget = tryCatchHandler(async (req, res, next) => {
 });
 
 exports.getInventoryTrend = tryCatchHandler(async (req, res, next) => {
-  const { selectedYear } = req.query;
+  // The dashboard no longer asks for a year: the trend opens on the current
+  // financial year.
+  const selectedYear = req.query?.selectedYear || gettingFYYear(new Date());
 
-  const machineCostDetails = await MachineCost.findOne({
-    ID: "MC1",
+  /**
+   * The bars are each cell's carried-forward inventory value, month by month -
+   * the same running balance the Each-Cell-Wise Bifurcation draws, so the two
+   * agree on what is on the shelf. A running year stops at the current month;
+   * later months carry no figure (null), so the whole chart ends there.
+   */
+  const { rawData, lastMonthIndex, invalid } =
+    await loadCumulativeCellInventory(selectedYear);
+
+  if (invalid) return res.status(400).json({ message: invalid });
+
+  if (!rawData?.length)
+    return res.status(404).json({ message: "No data found" });
+
+  const machineCostDetails = await MachineCost.findOne({ ID: "MC1" });
+
+  /**
+   * Machine cost, in millions - the unit the inventory value is taken to below,
+   * so the holding ratio divides two figures on one scale. Missing or zero
+   * means the ratio cannot be formed, so no label is shown rather than dividing
+   * by zero (see holdingRatioPercent). Entered on the Target Dashboard.
+   */
+  const machineCostMil = Number(machineCostDetails?.machineCost) || 0;
+
+  const monthCount = 12;
+  const reportedMonths = lastMonthIndex === null ? monthCount : lastMonthIndex + 1;
+  const round2 = (value) => Number((Number(value) || 0).toFixed(2));
+
+  // Each cell's inventory value per month, in millions of rupees: its rotation
+  // buckets summed, since this chart does not split by bucket. Months past the
+  // current one carry no figure.
+  const cells = rawData
+    .map(({ cell, buckets }) => ({
+      label: cell?.cell_name ?? "Unassigned cell",
+      cellId: cell?._id ?? null,
+      data: Array.from({ length: monthCount }, (_, monthIndex) => {
+        if (monthIndex >= reportedMonths) return null;
+        const costInINR = Object.values(buckets).reduce(
+          (sum, bucket) => sum + (Number(bucket.cost?.[monthIndex]) || 0),
+          0,
+        );
+        return convertCostInMilUnitInJS(costInINR);
+      }),
+    }))
+    // Stable order, so a cell keeps its colour and legend position between calls.
+    .sort((a, b) => String(a.label).localeCompare(String(b.label)));
+
+  // Total inventory value per month = the height of the stacked bar; the chart
+  // draws it as the label above the bar, and the holding ratio is formed from it.
+  const totalInventory = Array.from({ length: monthCount }, (_, monthIndex) =>
+    monthIndex >= reportedMonths
+      ? null
+      : round2(
+          cells.reduce((sum, cell) => sum + (Number(cell.data[monthIndex]) || 0), 0),
+        ),
+  );
+
+  /**
+   * Holding ratio per month, as a percentage: total inventory value / machine
+   * cost x 100, the same formula the KPI card uses. Null where there is no
+   * machine cost or the month is not reported, so nothing misleading is plotted
+   * and nothing is divided by zero.
+   */
+  const holdingRatio = totalInventory.map((value) =>
+    value !== null && machineCostMil > 0
+      ? round2((value / machineCostMil) * 100)
+      : null,
+  );
+
+  const dataLength = cells.length;
+
+  // One stacked bar series per cell, on the left (inventory value) axis.
+  // A higher `order` than the lines keeps the bars behind the dots and target,
+  // so the holding ratio and target are never hidden by a tall stack.
+  const datasets = cells.map((cell, index) => ({
+    type: "bar",
+    stack: "bar-stacked",
+    yAxisID: "y",
+    unit: "Mil INR",
+    label: cell.label,
+    data: cell.data,
+    order: 2,
+    backgroundColor: `hsl(${Math.round((360 / dataLength) * index)}, 65%, 62%)`,
+    borderColor: "#fff",
+    borderWidth: 1,
+  }));
+
+  // Holding ratio is retained as an invisible dataset on the right-hand
+  // percentage axis. The chart uses it only to render the percentage label
+  // above the corresponding total-inventory label, not as dots on the bars.
+  datasets.push({
+    type: "line",
+    label: "Holding ratio",
+    data: holdingRatio,
+    yAxisID: "y1",
+    unit: "%",
+    role: "ratio",
+    order: 0,
+    showLine: false,
+    spanGaps: false,
+    hideInLegend: true,
+    borderColor: "transparent",
+    backgroundColor: "transparent",
+    pointRadius: 0,
+    pointHoverRadius: 0,
+    pointHitRadius: 0,
   });
 
-  const machineCost = machineCostDetails?.machineCost || 1;
+  /**
+   * The inventory target is an actual inventory value (Mil INR), set per month
+   * on the Target Dashboard. It therefore belongs on the primary inventory
+   * axis, not the holding-ratio percentage axis. Cut at the current month,
+   * like everything else.
+   */
+  const target = await SpareInventoryTarget.findOne({ ID: "IN_TARGET" });
 
-  const cellWiseData = await SpareMaster.aggregate([
-    {
-      $match: {
-        "rsTimeStamp.year.inString": selectedYear,
-      },
-    },
-    {
-      $unwind: "$costDetails",
-    },
-    {
-      $group: {
-        _id: { cellId: "$cell._id", month: "$rsTimeStamp.month.inString" },
-        cell: { $first: "$cell" },
-        // overAllAvailableQty: {
-        //   $sum: { $ifNull: ["$costDetails.availableQty", 0] },
-        // },
-        overAllCostInINR: {
-          $sum: { $ifNull: ["$costDetails.overAllCost", 0] },
-        },
-      },
-    },
-    {
-      $group: {
-        _id: "$_id.cellId",
-        cell: { $first: "$cell" },
-
-        dataWithMonth: {
-          $push: {
-            month: "$_id.month",
-            // Holding ratio as a percentage; see holdingRatioPercent. The
-            // cost is taken to millions first, the unit the machine cost is
-            // held in, so both sides of the division are on one scale.
-            data: {
-              $round: [
-                {
-                  $multiply: [
-                    {
-                      $divide: [
-                        convertCostInMilUnitInMongoose("$overAllCostInINR"),
-                        machineCost,
-                      ],
-                    },
-                    100,
-                  ],
-                },
-                2,
-              ],
-            },
-          },
-        },
-      },
-    },
-    {
-      $project: {
-        label: "$cell.cell_name",
-        data: {
-          $map: {
-            input: allMonths,
-            as: "month",
-            in: {
-              $cond: [
-                { $in: ["$$month.monthName", "$dataWithMonth.month"] },
-                {
-                  $arrayElemAt: [
-                    "$dataWithMonth.data",
-                    {
-                      $indexOfArray: [
-                        "$dataWithMonth.month",
-                        "$$month.monthName",
-                      ],
-                    },
-                  ],
-                },
-                0,
-              ],
-            },
-          },
-        },
-      },
-    },
-  ]);
-
-  if (cellWiseData?.length <= 0)
-    return res.status(404).json({
-      message: "No data found",
-    });
-
-  const dataLength = cellWiseData?.length;
-
-  let datasets = [];
-
-  const target = await SpareInventoryTarget.findOne({
-    ID: "IN_TARGET",
-  });
-
-  if (target)
+  if (target?.inventoryTarget?.length)
     datasets.push({
       type: "line",
       label: "Target",
-      data: target?.inventoryTarget,
+      data: target.inventoryTarget.map((value, monthIndex) =>
+        monthIndex >= reportedMonths ? null : value,
+      ),
+      yAxisID: "y",
+      unit: "Mil INR",
+      role: "target",
+      order: 1,
       borderColor: "#9F0000",
       backgroundColor: "#9F0000",
+      borderDash: [6, 4],
       pointStyle: "rectRot",
+      pointRadius: 4,
     });
-
-  cellWiseData?.map((item, index) => {
-    datasets.push({
-      type: "bar",
-      stack: "bar-stacked",
-      backgroundColor: `hsl(${Math.round((360 / dataLength) * index)}, 65%, 62%)`,
-      borderColor: "#fff",
-      borderWidth: 1,
-      ...item,
-    });
-  });
 
   return res.status(201).json({
     message: "Data get successfully",
     chartData: {
       labels: allMonthsStr,
+      // For the tooltip footer: the stack total and the machine cost behind the
+      // holding ratio. machineCost is null when none is configured.
+      machineCost: machineCostMil || null,
+      totalInventory,
       datasets,
     },
   });
@@ -960,12 +1006,18 @@ exports.getInventoryTrend = tryCatchHandler(async (req, res, next) => {
 exports.getInventoryBifurcation = tryCatchHandler(async (req, res, next) => {
   const counters = await SpareMaster.aggregate([
     {
-      $match: req.$match,
+      $match: req.$match ?? {},
     },
     {
       $addFields: addFieldsForInventoryBifurcation,
     },
-    ...inventoryBifurcationPipeline,
+    {
+      $facet: {
+        rotationBuckets: inventoryBifurcationPipeline,
+      },
+    },
+    { $unwind: "$rotationBuckets" },
+    { $replaceRoot: { newRoot: "$rotationBuckets" } },
   ]);
 
   if (counters?.length <= 0)
@@ -1008,12 +1060,20 @@ exports.getInventoryBifurcationHierarchyWise = tryCatchHandler(
         $addFields: addFieldsForInventoryBifurcation,
       },
       {
+        $match: {
+          ageBucket: {
+            $in: ["LESS_THEN_1", "1_TO_5", "5_TO_10", "GRATER_THEN_10"],
+          },
+        },
+      },
+      {
         $group: {
           _id: {
             timeFrame: "$ageBucket",
             cellId: "$cell._id",
           },
           cell: { $first: "$cell" },
+          masterCount: { $sum: 1 },
           availableQty: { $sum: "$budgetDetails.overAllAvailableQty" },
           costInINR: {
             $sum: "$budgetDetails.overAllCostInINR",
@@ -1027,6 +1087,7 @@ exports.getInventoryBifurcationHierarchyWise = tryCatchHandler(
           array: {
             $push: {
               timeFrame: "$_id.timeFrame",
+              masterCount: "$masterCount",
               availableQty: "$availableQty",
               costInINR: convertCostInMilUnitInMongoose("$costInINR"),
             },
@@ -1079,6 +1140,7 @@ exports.getInventoryBifurcationHierarchyWise = tryCatchHandler(
                     label: "$$stockTimeFrame.label",
                     value: {
                       timeFrame: "$$stockTimeFrame.key",
+                      masterCount: 0,
                       availableQty: 0,
                       costInINR: 0,
                     },
@@ -1093,7 +1155,10 @@ exports.getInventoryBifurcationHierarchyWise = tryCatchHandler(
       {
         $group: {
           _id: "$allTimeFrameData.label",
-          labels: { $push: "$cell.cell_name" },
+          // $push skips a missing field, so a master with no cell dropped its label
+          // but kept its data, and every bar after it carried the next cell's name.
+          labels: { $push: { $ifNull: ["$cell.cell_name", UNASSIGNED_CELL_LABEL] } },
+          masterCount: { $push: "$allTimeFrameData.value.masterCount" },
           availableQty: { $push: "$allTimeFrameData.value.availableQty" },
           costInINR: { $push: "$allTimeFrameData.value.costInINR" },
         },
@@ -1117,7 +1182,10 @@ exports.getInventoryBifurcationHierarchyWise = tryCatchHandler(
         borderColor: "#fff",
         borderWidth: 1,
         label: item?._id,
-        data: item?.availableQty,
+        // This chart is a master-data bifurcation, not a stock-quantity chart:
+        // the four stacks must add up to the same master count as the overall
+        // bifurcation for the active hierarchy filter.
+        data: item?.masterCount,
       });
     });
 
@@ -1157,6 +1225,9 @@ const resolveTopLimit = (limit) => {
  * it would quietly hide the larger half of the catalogue.
  */
 const UNASSIGNED_LINE_LABEL = "Unassigned line";
+
+/** The cell counterpart: masters that never resolved to a machine have no cell. */
+const UNASSIGNED_CELL_LABEL = "Unassigned cell";
 
 /** Every master imported from the old catalogue arrived without this field. */
 const UNSPECIFIED_SUPPLIER_CATEGORY = "Not specified";
@@ -1305,13 +1376,7 @@ exports.getSpareDetailsSupplierCategoryWise = tryCatchHandler(
 const VALID_REQUEST_TYPES = ["barline", "pie"];
 
 exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
-  const { selectedYear, requestFor } = req.query;
-
-  if (typeof selectedYear !== "string" || !selectedYear) {
-    return res.status(400).json({
-      message: "selectedYear is required",
-    });
-  }
+  const { requestFor } = req.query;
 
   if (
     typeof requestFor !== "string" ||
@@ -1325,7 +1390,8 @@ exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
   const stockLevelData = await SpareMaster.aggregate([
     {
       $match: {
-        "rsTimeStamp.year.inString": selectedYear,
+        // The year and/or month the reader chose; nothing chosen is every master.
+        ...req.$match,
         maxQuantity: { $gte: 1 },
       },
     },
@@ -1360,7 +1426,10 @@ exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
     {
       $group: {
         _id: "$stockLevel",
-        availableQty: { $sum: "$stockTotals.overAllAvailableQty" },
+        // How many masters sit at this level - what the charts plot. The
+        // quantity on the shelf is not: the level is a reference value set on
+        // each master, and the charts count the masters that share it.
+        masterCount: { $sum: 1 },
         costInINR: { $sum: "$stockTotals.overAllCostInINR" },
       },
     },
@@ -1375,8 +1444,8 @@ exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
   const allLevels = [...stockLevels, 11];
   const labels = [...stockLevels.map(String), ">10"];
 
-  const availableQty = allLevels.map(
-    (level) => dataByStockLevel.get(level)?.availableQty || 0,
+  const masterCounts = allLevels.map(
+    (level) => dataByStockLevel.get(level)?.masterCount || 0,
   );
   const costInINR = allLevels.map(
     (level) =>
@@ -1384,17 +1453,18 @@ exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
   );
 
   if (requestFor === "pie") {
-    const totalCostInINR = costInINR.reduce((sum, value) => sum + value, 0);
+    const totalMasters = masterCounts.reduce((sum, value) => sum + value, 0);
 
+    // Each slice is the share of masters at that level.
     const pieEntries = allLevels
       .map((level, index) => {
-        const rawCost = costInINR[index];
+        const count = masterCounts[index];
         const percentage =
-          totalCostInINR > 0
-            ? Number(((rawCost / totalCostInINR) * 100).toFixed(2))
+          totalMasters > 0
+            ? Number(((count / totalMasters) * 100).toFixed(2))
             : 0;
 
-        return { label: labels[index], percentage, rawCost };
+        return { label: labels[index], percentage, count };
       })
       .filter((entry) => entry.percentage > 0);
 
@@ -1403,7 +1473,7 @@ exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
       counters: {
         labels: pieEntries.map((entry) => entry.label),
         data1: pieEntries.map((entry) => entry.percentage),
-        data2: pieEntries.map((entry) => entry.rawCost),
+        data2: pieEntries.map((entry) => entry.count),
       },
     });
   }
@@ -1415,7 +1485,7 @@ exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
       datasets: [
         {
           type: "line",
-          label: "Cost in INR",
+          label: "Cost (Mil INR)",
           data: costInINR,
           borderColor: "#7F7F7F",
           backgroundColor: "#7F7F7F",
@@ -1424,8 +1494,8 @@ exports.getStockLevelWiseAnalysis = tryCatchHandler(async (req, res, next) => {
         },
         {
           type: "bar",
-          label: "Available Quantity",
-          data: availableQty,
+          label: "Number of Masters",
+          data: masterCounts,
           backgroundColor: "#70AD47",
           borderColor: "#fff",
           borderWidth: 1,
@@ -1475,26 +1545,93 @@ const DEAD_STOCK_REQUEST = "reasonForKeepingDeadStock";
  * The rows of one list, in table order. Shared by the table and its CSV export
  * so the file always holds exactly what the table shows.
  */
-const zeroOrDeadStockParts = async ({ requestFor }) => {
+const ZERO_STOCK_REQUEST = "reasonForZeroStock";
+
+/**
+ * The columns of both tables as flat fields, named for what the reader sees.
+ * They are what the column filters match on and what the filter dropdowns list,
+ * so a value in the dropdown is exactly the text in the cell.
+ */
+const PART_LIST_COLUMNS = new Set([
+  "lineName",
+  "machineName",
+  "machineCode",
+  "location",
+  "partName",
+  "partModel",
+  "availableQty",
+  "costInINR",
+  "lastMovement",
+  "remarks",
+]);
+
+const partListFilters = createColumnFilters(PART_LIST_COLUMNS);
+
+/** The dead-stock "Last movement" cell, as the table prints it. */
+const lastMovementTextExpression = {
+  $cond: [
+    { $ifNull: ["$lastMovementDate", false] },
+    {
+      $concat: [
+        { $cond: ["$hasBeenIssued", "Issued ", "In stock since "] },
+        {
+          $dateToString: {
+            format: "%d/%m/%Y",
+            date: "$lastMovementDate",
+            timezone: "Asia/Kolkata",
+          },
+        },
+      ],
+    },
+    "-",
+  ],
+};
+
+/**
+ * The rows of one list, in table order. Shared by the table, its CSV export and
+ * the filter dropdowns so all three always agree.
+ *
+ * `filters` are the column filters the reader set; `exceptColumn` leaves one
+ * column's own filter out, the way Excel lists a column's values.
+ */
+const zeroOrDeadStockPipeline = async ({
+  requestFor,
+  filters = {},
+  exceptColumn,
+}) => {
   const isDeadStock = requestFor === DEAD_STOCK_REQUEST;
+  const remarksField = `${isDeadStock ? DEAD_STOCK_REQUEST : ZERO_STOCK_REQUEST}Remarks`;
 
   const projection = {
     budgetDetails: addFieldsForInventoryBifurcation?.budgetDetails,
     location: 1,
     partName: 1,
     partModel: 1,
-    [`${requestFor}Remarks`]: 1,
+    [remarksField]: 1,
     line: 1,
     machine: 1,
   };
 
-  let pipeline;
+  const flatColumns = {
+    $set: {
+      lineName: "$line.line_name",
+      machineName: "$machine.machine_name",
+      machineCode: "$machine.machine_code",
+      availableQty: "$budgetDetails.overAllAvailableQty",
+      costInINR: "$budgetDetails.overAllCostInINR",
+      remarks: `$${remarksField}`,
+      lastMovement: isDeadStock ? lastMovementTextExpression : null,
+    },
+  };
+
+  const columnMatch = partListFilters.match(filters, { except: exceptColumn });
+  const filterStage = columnMatch ? [{ $match: columnMatch }] : [];
 
   if (isDeadStock) {
     const since = moment().subtract(DEAD_STOCK_YEARS, "years").toDate();
     const recentlyIssued = await mastersIssuedSince(since);
 
-    pipeline = [
+    return [
       {
         $match: {
           _id: { $nin: recentlyIssued },
@@ -1509,21 +1646,33 @@ const zeroOrDeadStockParts = async ({ requestFor }) => {
         },
       },
       { $match: { "budgetDetails.overAllAvailableQty": { $gt: 0 } } },
+      flatColumns,
+      ...filterStage,
       { $sort: { lastMovementDate: 1 } },
-    ];
-  } else {
-    pipeline = [
-      { $project: projection },
-      { $match: { "budgetDetails.overAllAvailableQty": { $lte: 0 } } },
     ];
   }
 
-  return SpareMaster.aggregate(pipeline);
+  return [
+    { $project: projection },
+    { $match: { "budgetDetails.overAllAvailableQty": { $lte: 0 } } },
+    flatColumns,
+    ...filterStage,
+  ];
 };
+
+const zeroOrDeadStockParts = async (options) =>
+  SpareMaster.aggregate(await zeroOrDeadStockPipeline(options));
+
+/** Both lists are asked for by `requestFor`; anything else is the zero list. */
+const partListRequestFor = (query) =>
+  query?.requestFor === DEAD_STOCK_REQUEST
+    ? DEAD_STOCK_REQUEST
+    : ZERO_STOCK_REQUEST;
 
 exports.getZeroStockPartList = tryCatchHandler(async (req, res, next) => {
   const tableData = await zeroOrDeadStockParts({
-    requestFor: req.query.requestFor,
+    requestFor: partListRequestFor(req.query),
+    filters: partListFilters.parse(req.query.filters),
   });
 
   if (tableData?.length <= 0)
@@ -1538,28 +1687,85 @@ exports.getZeroStockPartList = tryCatchHandler(async (req, res, next) => {
 });
 
 /**
- * The same list as CSV, one column per table column. The dead-stock table's
- * "Last movement" text is reproduced as written on screen.
+ * Distinct values of one column of a part list, with how many rows hold each -
+ * what the column's filter dropdown shows. Narrowed by the other columns'
+ * filters and by an optional search. Blank cells come back as one null entry.
+ */
+const PART_LIST_COLUMN_VALUES_LIMIT = 300;
+
+exports.getPartListColumnValues = tryCatchHandler(async (req, res, next) => {
+  const { column, search = "" } = req.query;
+
+  if (!PART_LIST_COLUMNS.has(column))
+    return res.status(400).json({
+      message: `"${column}" is not a filterable column`,
+      showToast: true,
+    });
+
+  const pipeline = await zeroOrDeadStockPipeline({
+    requestFor: partListRequestFor(req.query),
+    filters: partListFilters.parse(req.query.filters),
+    exceptColumn: column,
+  });
+
+  const values = await SpareMaster.aggregate([
+    ...pipeline,
+    {
+      $set: {
+        value: {
+          $cond: [{ $in: [`$${column}`, [null, ""]] }, null, `$${column}`],
+        },
+      },
+    },
+    ...(search
+      ? [
+          {
+            $match: {
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: { $ifNull: ["$value", ""] } },
+                  regex: escapeRegex(search),
+                  options: "i",
+                },
+              },
+            },
+          },
+        ]
+      : []),
+    { $group: { _id: "$value", count: { $sum: 1 } } },
+    { $sort: { _id: 1 } },
+    { $limit: PART_LIST_COLUMN_VALUES_LIMIT + 1 },
+    { $project: { _id: 0, value: "$_id", count: 1 } },
+  ]);
+
+  const truncated = values.length > PART_LIST_COLUMN_VALUES_LIMIT;
+
+  return res.status(201).json({
+    message: "Column values get successfully",
+    values: truncated ? values.slice(0, PART_LIST_COLUMN_VALUES_LIMIT) : values,
+    truncated,
+  });
+});
+
+/**
+ * The same list as CSV, one column per table column, with the column filters
+ * applied. The dead-stock table's "Last movement" text is reproduced as written
+ * on screen.
  */
 exports.exportZeroStockPartList = tryCatchHandler(async (req, res, next) => {
-  const { requestFor } = req.query;
+  const requestFor = partListRequestFor(req.query);
   const isDeadStock = requestFor === DEAD_STOCK_REQUEST;
 
-  const tableData = await zeroOrDeadStockParts({ requestFor });
+  const tableData = await zeroOrDeadStockParts({
+    requestFor,
+    filters: partListFilters.parse(req.query.filters),
+  });
 
   if (tableData?.length <= 0)
     return res.status(404).json({
       message: "No data found",
       showToast: true,
     });
-
-  const lastMovementText = ({ lastMovementDate: date, hasBeenIssued }) => {
-    if (!date) return "-";
-    const formatted = moment(date).format("DD/MM/YYYY");
-    return hasBeenIssued
-      ? `Issued ${formatted}`
-      : `In stock since ${formatted}`;
-  };
 
   const rows = tableData.map((row, index) => ({
     "S.No": index + 1,
@@ -1571,9 +1777,9 @@ exports.exportZeroStockPartList = tryCatchHandler(async (req, res, next) => {
     "Part model": row.partModel ?? "",
     "Available Qty": row.budgetDetails?.overAllAvailableQty ?? 0,
     "Total cost(in INR)": row.budgetDetails?.overAllCostInINR ?? 0,
-    ...(isDeadStock ? { "Last movement": lastMovementText(row) } : {}),
+    ...(isDeadStock ? { "Last movement": row.lastMovement ?? "-" } : {}),
     [isDeadStock ? "Reason For Keeping" : "Reason For Zero Stock"]:
-      row[`${requestFor}Remarks`] ?? "",
+      row.remarks ?? "",
   }));
 
   // No period in the name: neither list is scoped to one, so naming a year
@@ -1675,6 +1881,15 @@ exports.getMTDRAndPlanVsActual = tryCatchHandler(async (req, res, next) => {
     ],
   });
 
+  // This report only: plot rupees in millions. Other budget screens keep INR.
+  const toMil = (field) => ({
+    $map: {
+      input: { $ifNull: [field, []] },
+      as: "value",
+      in: convertCostInMilUnitInMongoose("$$value"),
+    },
+  });
+
   const budgets = await SpareBudget.aggregate([
     {
       $match: {
@@ -1688,24 +1903,27 @@ exports.getMTDRAndPlanVsActual = tryCatchHandler(async (req, res, next) => {
           {
             type: "line",
             label: "Cum Plan",
-            data: "$cumulativePlan",
+            data: toMil("$cumulativePlan"),
             borderColor: "#fdb515",
             backgroundColor: "#fdb515",
             pointStyle: "rectRot",
+            // Cumulatives dwarf the monthly bars, so they ride the right axis.
+            yAxisID: "y1",
           },
           {
             type: "line",
             label: "Cum Actual",
-            data: "$cumulativeActual",
+            data: toMil("$cumulativeActual"),
             borderColor: "#667788",
             backgroundColor: "#667788",
             pointStyle: "rectRot",
+            yAxisID: "y1",
           },
           {
             type: "bar",
             stack: "bar-stacked",
             label: "Monthly Plan",
-            data: "$plan",
+            data: toMil("$plan"),
             backgroundColor: "#4A6EA8",
             borderRadius: 4,
             pointStyle: "rect",
@@ -1713,7 +1931,7 @@ exports.getMTDRAndPlanVsActual = tryCatchHandler(async (req, res, next) => {
           {
             type: "bar",
             label: "Monthly Actual",
-            data: "$actual",
+            data: toMil("$actual"),
             backgroundColor: "#837618",
             borderRadius: 4,
             pointStyle: "rect",
@@ -1747,52 +1965,163 @@ exports.getMTDRAndPlanVsActual = tryCatchHandler(async (req, res, next) => {
   });
 });
 
+/**
+ * The month-by-month inventory of one cell, carried forward - see
+ * services/spare/cumulativeCellInventoryService.js for the rule.
+ */
+const IST = "Asia/Kolkata";
+
+/** The master's registration month (when its stock came in) as a month key. */
+const receivedMonthKeyOf = (master) => {
+  const year = master.rsTimeStamp?.year?.inNumber;
+  const month = master.rsTimeStamp?.month?.inNumber;
+
+  // rsTimeStamp holds the financial year's first calendar year.
+  if (year && month)
+    return monthKey(month >= 4 ? year : year + 1, month);
+
+  const date = master.createDate ?? master.dateTime?.inDate;
+  if (!date) return null;
+
+  const when = moment(date).tz(IST);
+  return monthKey(when.year(), when.month() + 1);
+};
+
+const monthKeyOfDate = (date) => {
+  if (!date) return null;
+  const when = moment(date).tz(IST);
+  return monthKey(when.year(), when.month() + 1);
+};
+
+/** The stock-out part's month: when its last approval - the one that issued it - was given. */
+const issueMonthKeyOf = (part, sheetUpdatedAt) => {
+  const lastKey = part.dynamicApprovalKeys?.[part.dynamicApprovalKeys.length - 1];
+  const approvedAt = part[lastKey]?.approvalDateAndTime;
+
+  const parsed = approvedAt
+    ? moment.tz(approvedAt, "D/M/YYYY - h:mm a", IST)
+    : null;
+
+  return monthKeyOfDate(parsed?.isValid() ? parsed.toDate() : sheetUpdatedAt);
+};
+
+/**
+ * The carried-forward inventory of every cell for a financial year: each cell's
+ * stock at the end of each month, split by rotation bucket, up to the current
+ * month (future months blank). Shared by the Each-Cell-Wise Bifurcation and the
+ * Inventory Trend, so both read one definition of "what is on the shelf".
+ *
+ * @returns {Promise<{ rawData, lastMonthIndex } | { invalid: string }>}
+ *   `rawData` is the cumulative service's output (one entry per cell with stock);
+ *   `lastMonthIndex` is the last month to report (0 = April), or null for a past
+ *   year reported in full. `invalid` is set instead when the year is unusable.
+ */
+const loadCumulativeCellInventory = async (selectedYear) => {
+  if (!selectedYear || typeof selectedYear !== "string")
+    return { invalid: "selectedYear is required" };
+
+  const fyStartYear = Number(selectedYear.slice(0, 4));
+  if (!Number.isInteger(fyStartYear))
+    return { invalid: "selectedYear is not valid" };
+
+  // A year still running is reported up to the current month only.
+  const currentFyStart = Number(gettingFYYear(new Date()).slice(0, 4));
+  const currentMonthIndex = (moment().tz(IST).month() + 9) % 12;
+  const lastMonthIndex =
+    fyStartYear === currentFyStart
+      ? currentMonthIndex
+      : fyStartYear > currentFyStart
+        ? -1
+        : null;
+
+  const [mastersRead, issuanceSheets] = await Promise.all([
+    SpareMaster.aggregate([
+      { $addFields: addFieldsForInventoryBifurcation },
+      {
+        $project: {
+          "cell._id": 1,
+          "cell.cell_name": 1,
+          ageBucket: 1,
+          quantity: { $sum: "$costDetails.quantity" },
+          cost: {
+            $sum: {
+              $map: {
+                input: { $ifNull: ["$costDetails", []] },
+                as: "tranche",
+                in: {
+                  $multiply: [
+                    { $ifNull: ["$$tranche.quantity", 0] },
+                    { $ifNull: ["$$tranche.costInINR", 0] },
+                  ],
+                },
+              },
+            },
+          },
+          legacyIssuedQty: { $sum: "$costDetails.issuedQty" },
+          lastIssuedDate: 1,
+          createDate: 1,
+          dateTime: 1,
+          rsTimeStamp: 1,
+        },
+      },
+    ]).allowDiskUse(true),
+    SpareIssuanceSummary.aggregate([
+      { $unwind: "$changeParts" },
+      { $match: { "changeParts.isStockOut": true } },
+      {
+        $project: {
+          updatedAt: 1,
+          "changeParts.masterId": 1,
+          "changeParts.consumption": 1,
+          "changeParts.dynamicApprovalKeys": 1,
+          "changeParts.approvalOfMTD_TL": 1,
+          "changeParts.approvalOfMTD_HOSS": 1,
+          "changeParts.approvalOfPRD_TL": 1,
+          "changeParts.approvalOfPRD_HOSS": 1,
+          "changeParts.approvalOfMTD_HOS": 1,
+          "changeParts.approvalOfPRD_HOS": 1,
+          "changeParts.approvalOfMTD_HOD": 1,
+          "changeParts.approvalOfPRD_HOD": 1,
+          "changeParts.approvalOfTOOL_ROOM": 1,
+        },
+      },
+    ]),
+  ]);
+
+  const masters = mastersRead.map((master) => ({
+    ...master,
+    cell: master.cell?._id ? master.cell : null,
+    receivedMonthKey: receivedMonthKeyOf(master),
+    legacyIssuedMonthKey: monthKeyOfDate(master.lastIssuedDate),
+  }));
+
+  const issues = issuanceSheets
+    .filter(({ changeParts }) => changeParts?.masterId)
+    .map(({ changeParts, updatedAt }) => ({
+      masterId: changeParts.masterId,
+      quantity: Number(changeParts.consumption?.quantity) || 0,
+      monthKey: issueMonthKeyOf(changeParts, updatedAt),
+    }))
+    .filter((issue) => issue.quantity > 0 && issue.monthKey !== null);
+
+  const rawData = buildCumulativeCellInventory({
+    masters,
+    issues,
+    fyStartYear,
+    lastMonthIndex,
+  });
+
+  return { rawData, lastMonthIndex };
+};
+
 exports.getInventoryBifurcationEachCellWise = tryCatchHandler(
   async (req, res, next) => {
     const { selectedYear } = req.query;
 
-    if (!selectedYear || typeof selectedYear !== "string") {
-      return res.status(400).json({ message: "selectedYear is required" });
-    }
+    const { rawData, lastMonthIndex, invalid } =
+      await loadCumulativeCellInventory(selectedYear);
 
-    const rawData = await SpareMaster.aggregate([
-      {
-        $match: {
-          "rsTimeStamp.year.inString": selectedYear,
-        },
-      },
-      {
-        $addFields: addFieldsForInventoryBifurcation,
-      },
-      {
-        $group: {
-          _id: {
-            cellId: "$cell._id",
-            month: "$rsTimeStamp.month.inString",
-            timeFrame: "$ageBucket",
-          },
-          cell: { $first: "$cell" },
-          availableQty: { $sum: "$budgetDetails.overAllAvailableQty" },
-          costInINR: {
-            $sum: "$budgetDetails.overAllCostInINR",
-          },
-        },
-      },
-      {
-        $group: {
-          _id: "$_id.cellId",
-          cell: { $first: "$cell" },
-          entries: {
-            $push: {
-              month: "$_id.month",
-              timeFrame: "$_id.timeFrame",
-              availableQty: "$availableQty",
-              costInINR: convertCostInMilUnitInMongoose("$costInINR"),
-            },
-          },
-        },
-      },
-    ]).allowDiskUse(true);
+    if (invalid) return res.status(400).json({ message: invalid });
 
     if (!rawData?.length)
       return res.status(404).json({ message: "No data found" });
@@ -1836,28 +2165,58 @@ exports.getInventoryBifurcationEachCellWise = tryCatchHandler(
       },
     ];
 
-    const chartData = rawData.map(({ _id: cellId, cell, entries }) => {
-      const lookup = new Map(
-        entries.map((e) => [`${e.timeFrame}_${e.month}`, e]),
-      );
+    // The targets set for these cells in this year, one line per cell.
+    const cellTargets = await SpareCellInventoryTarget.find(
+      {
+        financialYear: selectedYear,
+        cell: { $in: rawData.map(({ cell }) => cell?._id).filter(Boolean) },
+      },
+      { cell: 1, target: 1 },
+    ).lean();
 
+    const targetByCell = new Map(
+      cellTargets.map(({ cell, target }) => [String(cell), target]),
+    );
+
+    const reportedMonths = lastMonthIndex === null ? 12 : lastMonthIndex + 1;
+    const noStock = Array.from({ length: 12 }, (_, index) =>
+      index < reportedMonths ? 0 : null,
+    );
+
+    const chartData = rawData.map(({ cell, buckets }) => {
       const datasets = AGE_BUCKETS.map((bucket) => {
-        const data = [];
-        const costInINR = [];
-        for (const month of allMonths) {
-          const entry = lookup.get(`${bucket.key}_${month.monthName}`);
-          data.push(entry ? entry.availableQty : 0);
-          costInINR.push(entry ? entry.costInINR : 0);
-        }
+        const found = buckets[bucket.key];
 
         return {
           ...bucket,
-          data,
-          costInINR,
+          // The chart plots what the stock is worth, in millions of rupees.
+          data: (found?.cost ?? noStock).map((value) =>
+            value === null ? null : convertCostInMilUnitInJS(value),
+          ),
+          // Carried for downloads; deliberately not drawn on the chart.
+          quantity: found?.qty ?? noStock,
         };
       });
 
-      return { _id: cellId, cell, datasets };
+      const target = cell?._id ? targetByCell.get(String(cell._id)) : null;
+
+      // Drawn over the bars, on the same cost axis they use.
+      if (target)
+        datasets.unshift({
+          type: "line",
+          label: "Target",
+          data: target,
+          borderColor: "#9F0000",
+          backgroundColor: "#9F0000",
+          pointStyle: "rectRot",
+        });
+
+      return {
+        _id: cell?._id ?? null,
+        cell: cell ?? { cell_name: "Unassigned cell" },
+        datasets,
+        hasTarget: Boolean(target),
+      };
     });
 
     return res.status(200).json({
@@ -1869,6 +2228,62 @@ exports.getInventoryBifurcationEachCellWise = tryCatchHandler(
     });
   },
 );
+
+/**
+ * The target a cell has for a year, for the popup to open with. Cells without
+ * one come back as twelve zeros, so the form always has something to edit.
+ */
+exports.getCellInventoryTarget = tryCatchHandler(async (req, res, next) => {
+  const { selectedYear, cellId } = req.query;
+
+  const problem = validateCellTargetInput({
+    selectedYear,
+    cellId,
+    target: Array(12).fill(0),
+  });
+  if (problem)
+    return res.status(400).json({ message: problem, showToast: true });
+
+  const stored = await SpareCellInventoryTarget.findOne(
+    { financialYear: selectedYear, cell: cellId },
+    { target: 1 },
+  ).lean();
+
+  return res.status(201).json({
+    message: "Target get successfully",
+    target: stored?.target ?? Array(12).fill(0),
+  });
+});
+
+/** Saves (adds or replaces) one cell's monthly target for one financial year. */
+exports.saveCellInventoryTarget = tryCatchHandler(async (req, res, next) => {
+  const { selectedYear, cellId, target } = req.body ?? {};
+
+  const problem = validateCellTargetInput({ selectedYear, cellId, target });
+  if (problem)
+    return res.status(400).json({ message: problem, showToast: true });
+
+  const cell = await Cell.findById(cellId, { cell_name: 1 }).lean();
+  if (!cell)
+    return res.status(404).json({
+      message: "Cell does not exist",
+      showToast: true,
+    });
+
+  const saved = await SpareCellInventoryTarget.findOneAndUpdate(
+    { financialYear: selectedYear, cell: cellId },
+    {
+      $set: { target: normalizedTarget(target), updatedBy: req.rootUser?._id },
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true },
+  ).lean();
+
+  return res.status(201).json({
+    message: `Target for ${cell.cell_name} saved for ${selectedYear}`,
+    showToast: true,
+    target: saved.target,
+  });
+});
 
 exports.getNewSparesOrderingTrend = tryCatchHandler(async (req, res, next) => {
   const { selectedYear } = req.query;

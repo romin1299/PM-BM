@@ -41,6 +41,11 @@ const {
 const {
   logHistoryCellScope,
 } = require("../services/pm/logHistoryScopeService");
+const {
+  MAIN_DASHBOARD_MACHINE_PROJECTION,
+  toDashboardMachine,
+  createRolloverBatch,
+} = require("../services/pm/mainDashboardService");
 
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
@@ -48,13 +53,24 @@ const crypto = require("crypto");
 const cookieParser = require("cookie-parser");
 const { match } = require("assert");
 const path = require("path");
+const fs = require("fs");
 const { parse } = require("path");
 const { Console, log } = require("console");
 router.use(cookieParser());
 const truncValue = require("../utils/truncValue");
 const moment = require("moment");
 const logger = require("../utils/LoggingController/loggers");
+const {
+  validateImplementationInput,
+  jsonUploadErrors,
+} = require("../services/pm/implementationInputService");
 const maintenanceType = require("../utils/maintenanceType");
+const sendUploadedFile = require("../utils/sendUploadedFile");
+const {
+  hierarchyFieldsFor,
+  toolRoomHierarchyOverride,
+  resolveToolRoomSettings,
+} = require("../services/common/userAssignService");
 const RequestSheetOfBM = require("../model/requestSheetDataOfBM");
 const noLossBDData = require("../model/noLossBDSheetData");
 
@@ -129,7 +145,11 @@ router.post("/updateUserProfile", upload.single("photo"), async (req, res) => {
 const storage1 = multer.diskStorage({
   destination: function (req, file, cb) {
     // cb(null, pdfDestPath);
-    cb(null, "./PMimages/");
+    // multer does not create a folder it is given a function for, so a missing
+    // one failed every photo upload with ENOENT.
+    fs.mkdir("./PMimages/", { recursive: true }, (error) =>
+      cb(error, "./PMimages/"),
+    );
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "_" + file.originalname);
@@ -1911,18 +1931,25 @@ router.post("/postUserAssign", async (req, res) => {
       tm_no,
       isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
       toolRoomPerson,
+      alsoToolRoomPerson: req.body?.alsoToolRoomPerson,
       user_type,
       tm_grade,
       email,
       password: process.env.COMMON_PASSWORD,
       joining_date,
       plant_data,
-      section_data,
       tm_department,
-      subSection_data,
-      cell_data,
       contact_no,
       address,
+      // Dedicated tool-room staff are stored against the plant only; a PM user
+      // who also works in the tool room keeps their section - see
+      // services/common/userAssignService.js
+      ...hierarchyFieldsFor({
+        toolRoomPerson,
+        section_data,
+        subSection_data,
+        cell_data,
+      }),
     });
 
     const result = await addNewUser.save();
@@ -2006,6 +2033,32 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
       isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
     } = req.body;
 
+    /**
+     * The two tool-room settings, and what they force onto the record.
+     *
+     * Only an Admin may change either, and a field is omitted entirely when
+     * they may not - a Section-Admin's or TL/HOSS's edit popup has no such
+     * field, so sending `undefined` here would clear it for every user they
+     * edit. See services/common/userAssignService.js.
+     */
+    const storedUser = await User.findOne(
+      { tm_no },
+      { toolRoomPerson: 1, alsoToolRoomPerson: 1 },
+    );
+
+    const toolRoom = resolveToolRoomSettings({
+      caller: req.rootUser,
+      body: req.body,
+      stored: storedUser,
+    });
+
+    const toolRoomFields = {
+      ...toolRoom.fields,
+      // Only dedicated tool-room staff lose their section; a dual-role user
+      // needs theirs, because PM and BM are scoped by it.
+      ...toolRoomHierarchyOverride(toolRoom.effectiveToolRoomPerson),
+    };
+
     // console.log(tm_no,
     //     tm_name,
     //     user_type,
@@ -2061,6 +2114,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
             subSection_data,
             contact_no,
             joining_date,
+            ...toolRoomFields,
           },
         },
       );
@@ -2083,6 +2137,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
             cell_data,
             contact_no,
             joining_date,
+            ...toolRoomFields,
           },
         },
       );
@@ -2120,6 +2175,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
             cell_data,
             contact_no,
             joining_date,
+            ...toolRoomFields,
           },
         },
       );
@@ -2141,6 +2197,7 @@ router.post("/updateAssignUser", authenticate, async (req, res) => {
             cell_data,
             contact_no,
             joining_date,
+            ...toolRoomFields,
           },
         },
       );
@@ -3832,21 +3889,15 @@ router.post(
             isPM: "Yes",
           },
         },
-        {
-          $project: {
-            machine_code: 1,
-            machine_name: 1,
-            machine_nickname: 1,
-            machine_sequence: 1,
-            installation_date: 1,
-            maker_name: 1,
-            maker_sr_no: 1,
-            manufacturingDate: 1,
-            isPM: 1,
-            line_names: 1,
-            checkSheet_data: 1,
-          },
-        },
+        /**
+         * Only the fields the rollover pass below and the two dashboards read.
+         * This used to be `checkSheet_data: 1`, which brought every check sheet
+         * row of every machine - check points, descriptions, spare details,
+         * attachments - into node just to look at each row's planning array.
+         * Narrowing it takes UTILITY's fetch from 9.73MB to 2.65MB and 593ms to
+         * 279ms. See services/pm/mainDashboardService.
+         */
+        { $project: MAIN_DASHBOARD_MACHINE_PROJECTION },
         {
           $unwind: {
             path: "$checkSheet_data",
@@ -3866,147 +3917,144 @@ router.post(
       ]);
       // machineData = await Machine.populate(machineData, { path: "line_names", populate: { path: "cell_names", model: "Cells" } })
 
-      const updateOnesPerMonthStatusSkip = async (
+      /**
+       * The rollover pass below used to issue a loose, un-awaited
+       * Machine.updateOne per affected check sheet row. Those calls now go into
+       * one batch that is flushed once, just before the response - see
+       * createRolloverBatch for the measurements. Behaviour is unchanged: the
+       * same filters, the same $set paths, the same arrayFilters.
+       */
+      const rolloverBatch = createRolloverBatch();
+
+      const updateOnesPerMonthStatusSkip = (
         machine_code,
         tableRowId,
         yearOfCheckSheet,
       ) => {
-        updatePreviousMonth = await Machine.updateOne(
-          { machine_code: machine_code },
-          {
-            $set: {
-              [keyOfPreviousMonth]: arrayForSkipPerMonthPMData,
-              [keyOfCarriedSkipMonthPM]: "PM Skip",
-            },
+        rolloverBatch.add({
+          filter: { machine_code: machine_code },
+          set: {
+            [keyOfPreviousMonth]: arrayForSkipPerMonthPMData,
+            [keyOfCarriedSkipMonthPM]: "PM Skip",
           },
-          {
-            arrayFilters: [
-              { "outer.current_year": yearOfCheckSheet },
-              { "inner.tableRowId": tableRowId },
-            ],
-          },
-        );
+          arrayFilters: [
+            { "outer.current_year": yearOfCheckSheet },
+            { "inner.tableRowId": tableRowId },
+          ],
+        });
       };
 
-      const updateOtherCyclesStatusSkip = async (
+      const updateOtherCyclesStatusSkip = (
         machine_code,
         tableRowId,
         yearOfCheckSheet,
       ) => {
-        updatePreviousMonth = await Machine.updateOne(
-          { machine_code: machine_code, yearOfCheckSheet },
-          {
-            $set: {
-              [keyOfCarriedSkipMonthPMForPreviousToPrevious]: "PM Skip",
-              [keyOfPreviousMonth]: arrayForPreviousMonthSkipPMData,
-              [keyOfPreviousToPreviousMonthForSkipPM]:
-                arrayForSkipPerMonthPMData,
-            },
+        /**
+         * This filter used to carry a stray `yearOfCheckSheet` shorthand, which
+         * is not a path on the schema. strictQuery - on by default in Mongoose
+         * 6 - silently removed it, so the filter has always been machine_code
+         * alone; the year is applied by the arrayFilters below. Spelling that
+         * out keeps the behaviour identical and stops it changing under
+         * Mongoose 7, where strictQuery defaults to false and the stray key
+         * would start matching nothing.
+         */
+        rolloverBatch.add({
+          filter: { machine_code: machine_code },
+          set: {
+            [keyOfCarriedSkipMonthPMForPreviousToPrevious]: "PM Skip",
+            [keyOfPreviousMonth]: arrayForPreviousMonthSkipPMData,
+            [keyOfPreviousToPreviousMonthForSkipPM]: arrayForSkipPerMonthPMData,
           },
-          {
-            arrayFilters: [
-              { "outer.current_year": yearOfCheckSheet },
-              { "inner.tableRowId": tableRowId },
-            ],
-          },
-        );
+          arrayFilters: [
+            { "outer.current_year": yearOfCheckSheet },
+            { "inner.tableRowId": tableRowId },
+          ],
+        });
       };
 
-      const updatePMStatusOfPreviousMonthForNoCompletion = async (
+      /**
+       * Both call sites require PMStatus[previousMonth] to be "Current Plan",
+       * so this write always changes something and needs no `unchanged` check.
+       * It is reached once per check sheet row though, while the values it
+       * writes are per machine - so for a machine with fifteen rows it was
+       * fifteen identical updateOne calls. The batch collapses them.
+       */
+      const updatePMStatusOfPreviousMonthForNoCompletion = (
         machine_code,
         yearOfCheckSheet,
       ) => {
-        // console.log(machine_code, yearOfCheckSheet)
-        updatePreviousMonth = await Machine.updateOne(
-          { machine_code: machine_code },
-          {
-            $set: {
-              [keyOfCarriedSkipMonthPM]: "No Completion",
-              [keyForCurrentMonthNoCompletion]: "No Completion",
-            },
+        rolloverBatch.add({
+          filter: { machine_code: machine_code },
+          set: {
+            [keyOfCarriedSkipMonthPM]: "No Completion",
+            [keyForCurrentMonthNoCompletion]: "No Completion",
           },
-          {
-            arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-          },
-        );
+          arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
+        });
       };
-      let updateCarriedPMStatus;
-      const updateStatusOfLastMonthPendingForCount = async (
+
+      const updateStatusOfLastMonthPendingForCount = (
         machine_code,
         yearOfCheckSheet,
         carriedPMStatusExistsOrNot,
+        storedCarriedPMStatus,
       ) => {
-        // console.log(carriedPMStatusExistupdateStatusOfLastMonthPendingForCountsOrNot)
         if (carriedPMStatusExistsOrNot === 0) {
           CarriedPMStatusArray[monthForCompareSystemMonth] = "CarriedPM";
-          updateCarriedPMStatus = await Machine.updateOne(
-            { machine_code: machine_code },
-            {
-              $set: {
-                "checkSheet_data.$[outer].carriedPMStatus":
-                  CarriedPMStatusArray,
-              },
+          rolloverBatch.add({
+            filter: { machine_code: machine_code },
+            set: {
+              "checkSheet_data.$[outer].carriedPMStatus": CarriedPMStatusArray,
             },
-            {
-              arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-            },
-          );
+            arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
+          });
         } else {
           let keyOfCarriedPMStatus = `checkSheet_data.$[outer].carriedPMStatus.${monthForCompareSystemMonth}`;
-          updateCarriedPMStatus = await Machine.updateOne(
-            { machine_code: machine_code },
-            {
-              $set: {
-                [keyOfCarriedPMStatus]: "CarriedPM",
-              },
-            },
-            {
-              arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
-            },
-          );
+          rolloverBatch.add({
+            filter: { machine_code: machine_code },
+            set: { [keyOfCarriedPMStatus]: "CarriedPM" },
+            arrayFilters: [{ "outer.current_year": yearOfCheckSheet }],
+            /**
+             * This rule fires on the planning array, which the write does not
+             * touch, so it kept re-firing for the rest of the month and
+             * rewriting a value that was already there: 64 writes on every
+             * Powertrain load, 77 on Electronics, none of which changed
+             * anything. The real work happens on the first load after the month
+             * turns over.
+             */
+            unchanged:
+              storedCarriedPMStatus?.[monthForCompareSystemMonth] ===
+              "CarriedPM",
+          });
         }
       };
 
-      let carryData;
       let arrayForPMData = [];
       arrayForPMData.push(1, "dummy");
       let keyOfMonth = `checkSheet_data.$[outer].checkSheet.$[inner].planningTableAnimationArray2.${monthForCompareSystemMonth}`;
 
-      //for carry forward data at once
-      const carryForwardOtherCycleData = async (
+      /**
+       * Carry forward, previously two separate updateOne calls against the same
+       * machine and the same check sheet row. They address different paths, so
+       * one $set does both - halving the writes this rule costs and making the
+       * pair atomic, where before the second could fail on its own.
+       */
+      const carryForwardOtherCycleData = (
         machine_code,
         tableRowId,
         yearOfCheckSheet,
       ) => {
-        updatePreviousMonth = await Machine.updateOne(
-          { machine_code: machine_code },
-          {
-            $set: {
-              [keyOfPreviousMonth]: arrayForPMData,
-            },
+        rolloverBatch.add({
+          filter: { machine_code: machine_code },
+          set: {
+            [keyOfPreviousMonth]: arrayForPMData,
+            [keyOfMonth]: "2",
           },
-          {
-            arrayFilters: [
-              { "outer.current_year": yearOfCheckSheet },
-              { "inner.tableRowId": tableRowId },
-            ],
-          },
-        );
-
-        carryData = await Machine.updateOne(
-          { machine_code: machine_code },
-          {
-            $set: {
-              [keyOfMonth]: "2",
-            },
-          },
-          {
-            arrayFilters: [
-              { "outer.current_year": yearOfCheckSheet },
-              { "inner.tableRowId": tableRowId },
-            ],
-          },
-        );
+          arrayFilters: [
+            { "outer.current_year": yearOfCheckSheet },
+            { "inner.tableRowId": tableRowId },
+          ],
+        });
       };
 
       let updateCurrentMonthScheduleOrNotStatus;
@@ -4032,13 +4080,11 @@ router.post(
       //     }
       // }
 
-      let updatePreviousMonth,
-        carriedPMStatusExistsOrNot,
-        currentMonthPMScheduleOrNot;
+      let carriedPMStatusExistsOrNot;
       if (previousMonth != "Mar") {
-        machineData?.map((key) => {
+        machineData?.forEach((key) => {
           if (key?.checkSheet_data?.checksheet_status === "Implementation") {
-            key?.checkSheet_data?.checkSheet?.map((key1) => {
+            key?.checkSheet_data?.checkSheet?.forEach((key1) => {
               // if (key1?.isDeleted) {
               //     console.log(key.machine_code, "---->", key1.tableRowId)
               // }
@@ -4134,6 +4180,7 @@ router.post(
                     key.machine_code,
                     key.checkSheet_data.current_year,
                     carriedPMStatusExistsOrNot,
+                    key.checkSheet_data.carriedPMStatus,
                   );
                 }
                 if (
@@ -4239,6 +4286,28 @@ router.post(
         });
       }
 
+      /**
+       * One round trip for the rollover instead of one per affected row, and
+       * nothing at all once the month has settled. Deliberately not awaited, so
+       * the response does not wait on it - the loose updateOne calls were not
+       * awaited either - but unlike them it handles its own rejection rather
+       * than surfacing as an unhandled one.
+       */
+      if (rolloverBatch.size)
+        Machine.bulkWrite(rolloverBatch.operations, { ordered: false }).catch(
+          (error) =>
+            logger.error(error, { maintenanceType: maintenanceType?.[0] }),
+        );
+
+      /**
+       * The response carries only what the two dashboards read - see
+       * services/pm/mainDashboardService. The check sheet a user opens is
+       * fetched separately by machine_code in
+       * GettingMachineDataForCheckSheetImplementation, so none of the rest ever
+       * had a reader.
+       */
+      const machineDataForDashboard = machineData.map(toDashboardMachine);
+
       res.json({
         sectionInfo,
         subSectionsData,
@@ -4247,7 +4316,7 @@ router.post(
         cellIdArray,
         lineData,
         lineIdArray,
-        machineData,
+        machineData: machineDataForDashboard,
         defaultSubSectionArray,
       });
     } catch (error) {
@@ -9632,7 +9701,6 @@ router.post(
   },
 );
 
-let fileNameForLogHistory;
 //add data of implementation when operator worked on machine PM
 /**
  * POST: /postImplementationWorkedData/:dashboardName
@@ -9640,8 +9708,9 @@ let fileNameForLogHistory;
  */
 router.post(
   "/postImplementationWorkedData/:dashboardName",
-  upload1.single("photoUpload"),
+  // authenticate first: nobody signed out should be able to write a file.
   authenticate,
+  jsonUploadErrors(upload1.single("photoUpload")),
   async (req, res) => {
     try {
       const {
@@ -9661,6 +9730,10 @@ router.post(
         cost,
         completionDateOfInspection,
       } = req.body;
+
+const invalidMessage = validateImplementationInput(req.body);
+      if (invalidMessage)
+        return res.status(400).json({ message: invalidMessage, showToast: true });
 
       const loggedUserData = req.rootUser;
 
@@ -9762,6 +9835,23 @@ router.post(
         },
       ]);
 
+      if (!perticularMachine?.length)
+        return res.status(404).json({
+          message: `Machine ${machineId} has no check sheet for ${yearOfCheckSheet}`,
+          showToast: true,
+        });
+
+      if (
+        !perticularMachine[0].checkSheet_data?.checkSheet?.some(
+          (row) =>
+            String(row?.tableRowId) === String(tableRowId) && !row?.isDeleted,
+        )
+      )
+        return res.status(404).json({
+          message: "This check sheet row no longer exists",
+          showToast: true,
+        });
+
       let machinePopulateData = await Machine.populate(perticularMachine, {
         path: "line_names",
         populate: {
@@ -9808,7 +9898,7 @@ router.post(
       const sectionInfo = await Section.findOne({
         section_id: loggedUserData?.section_data?.split("-")?.[0],
       });
-      if (sectionInfo.dashboardLevel === "Yes") {
+      if (sectionInfo?.dashboardLevel === "Yes") {
         userInfo = await User.find({
           section_data: `${sectionInfo?.section_id}-${sectionInfo?.section_name}`,
         });
@@ -9965,7 +10055,6 @@ router.post(
             );
           } else {
             let PMuploadedImage = req.file.filename;
-            fileNameForLogHistory = req?.file?.filename;
             addPmData = await Machine.updateOne(
               { machine_code: machineId },
               {
@@ -10056,7 +10145,6 @@ router.post(
           }
         } else {
           let PMuploadedImage = req.file.filename;
-          fileNameForLogHistory = req?.file?.filename;
           let checkCarriedPM = 0;
 
           //for done with delay
@@ -10232,7 +10320,6 @@ router.post(
           }
         } else {
           let PMuploadedImage = req.file.filename;
-          fileNameForLogHistory = req?.file?.filename;
           let checkCarriedPM = 0;
 
           //for done with delay
@@ -10630,14 +10717,31 @@ router.post(
       }
 
       if (addPmData) {
-        return res.status(201).json("Checksheet worked data posted!!!");
+        /**
+         * The stored name goes back to the browser so it can pass it to
+         * /submitLogHistory, which is a separate request. It used to be left in
+         * a module-level variable for that request to pick up, which only
+         * worked while nobody else was uploading at the same time.
+         */
+        return res.status(201).json({
+          message: "Checksheet worked data posted!!!",
+          uploadedFileName: req?.file?.filename ?? null,
+        });
       } else {
-        return res.status(400).json("Checksheet worked data not posted!!!");
+        return res.status(400).json({
+          message: "Checksheet worked data not posted!!!",
+          showToast: true,
+        });
       }
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
       console.log(error);
       console.log("Data not valid or received !!!");
+      if (!res.headersSent)
+        res.status(500).json({
+          message: "Checksheet worked data could not be saved",
+          showToast: true,
+        });
     }
   },
 );
@@ -10660,6 +10764,19 @@ router.post("/submitLogHistory", authenticate, async (req, res) => {
       schedule_month,
 
       machineId,
+
+      /**
+       * The photo the operator attached, named by the upload that just stored
+       * it. /postImplementationWorkedData and /postSkipWorkedData return the
+       * stored name in their response and the browser passes it through here.
+       *
+       * It used to be read from a variable those two routes set at module
+       * scope. That variable was shared by every request in the process, so a
+       * second operator uploading at the same time replaced the first one's
+       * name before they submitted - measured at 97% loss with five concurrent
+       * users - and the log was written against the wrong photo, or none.
+       */
+      fileNameForLogHistory,
     } = req.body;
 
     let { machineAllData } = req.body;
@@ -11034,7 +11151,6 @@ router.post("/submitLogHistory", authenticate, async (req, res) => {
 
     const logSaved = await newLog.save();
 
-    fileNameForLogHistory = undefined;
 
     if (logSaved) {
       return res.status(201).json("Log data added successfully");
@@ -11237,7 +11353,6 @@ router.post(
 
       const logSaved = await newLog.save();
 
-      fileNameForLogHistory = undefined;
 
       if (logSaved) {
         return res.status(201).json("Log data added successfully");
@@ -11278,6 +11393,14 @@ router.post(
         target,
 
         machineId,
+
+        /**
+         * EditRemarksAfterRejectPopups has always sent this - the photo stored
+         * on the row being corrected - but the route never read it, so the
+         * module-level variable of the same name shadowed it and the log was
+         * written against whatever photo some other request had uploaded last.
+         */
+        fileNameForLogHistory,
       } = req.body;
 
       let { machineAllData } = req.body;
@@ -13395,38 +13518,26 @@ router.post(
   },
 );
 
-let downloadFileName;
-
 /**
- * POST: /postFileName
- * Stores filename reference for report download
- */
-router.post("/postFileName", authenticate, async (req, res) => {
-  try {
-    const { fileName } = req.body;
-    let filePath = path.join(__dirname, `../PMimages/${fileName}`);
-    downloadFileName = filePath;
-    if (downloadFileName) {
-      res.status(201).json({ message: "File name posted" });
-    }
-  } catch (error) {
-    logger.error(error, { maintenanceType: maintenanceType?.[0] });
-    // console.log("2032", error)
-    console.log("Filename not received");
-  }
-});
-/**
- * GET: /downloadFile
- * Downloads previously generated report file
+ * GET: /downloadFile?fileName=...
+ * Sends an uploaded abnormality photo.
+ *
+ * The name is a query parameter because it used to be POSTed to /postFileName
+ * first and held in a module-level variable until the download arrived - which
+ * handed concurrent users each other's files. See utils/sendUploadedFile.
  */
 router.get("/downloadFile", authenticate, async (req, res) => {
   try {
-    // console.log(downloadFileName)
-    res.download(downloadFileName);
+    return sendUploadedFile({
+      res,
+      folder: path.join(__dirname, "../PMimages"),
+      fileName: req.query.fileName,
+    });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
     console.log("2032", error);
-    console.log("Filename not received");
+    if (!res.headersSent)
+      res.status(500).json({ message: "File could not be sent" });
   }
 });
 
@@ -15758,8 +15869,6 @@ router.post(
         });
       }
 
-      console.log(onlyOpenAbnormalityWithAllMonths);
-
       res.json({ onlyOpenAbnormalityWithAllMonths, lineData });
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -17694,7 +17803,24 @@ router.get(
       if (sectionInfo?.dashboardLevel === "Yes") {
         res.json({ sectionInfo });
       } else {
-        console.log("No");
+        /**
+         * This used to log "No" and return without answering, leaving the
+         * browser's fetch pending until it gave up. It happens whenever the
+         * signed-in user's own section is not dashboard-level - the check here
+         * is on req.rootUser, not on the section being viewed - so a
+         * Powertrain or Electronics user opening UTILITY or Motor hung here
+         * every time. responseGuard caught one in SystemLog at 120s.
+         *
+         * A browser only keeps about six connections to an origin, so a
+         * request that never settles costs the dashboard one of them for the
+         * life of the page and the rest queue behind it.
+         *
+         * Answering with no sectionInfo renders exactly as before:
+         * GraphsInMainDashboard starts fetchedRemarks at "" and reads
+         * data?.sectionInfo?.remarksOnMainDashboard, which is undefined either
+         * way, so the remarks box stays hidden - it just stops waiting.
+         */
+        res.json({ sectionInfo: null });
       }
     } catch (error) {
       logger.error(error, { maintenanceType: maintenanceType?.[0] });
@@ -18832,38 +18958,26 @@ router.post("/deleteBackUpData", authenticate, async (req, res) => {
   }
 });
 
-let downloadDataSheetFileName;
 /**
- * POST: /postDataSheetFileName
- * Stores datasheet file reference for maintenance records
- */
-router.post("/postDataSheetFileName", authenticate, async (req, res) => {
-  // const file = fs.createWriteStream(filePath);
-
-  try {
-    const { fileName } = req.body;
-    let filePath = path.join(__dirname, `../data_sheets/${fileName}`);
-    downloadDataSheetFileName = filePath;
-    if (downloadDataSheetFileName) {
-      res.status(201).json({ message: "File name posted" });
-    }
-  } catch (error) {
-    logger.error(error, { maintenanceType: maintenanceType?.[0] });
-    // console.log("2032", error)
-    console.log("Filename not received");
-  }
-});
-/**
- * GET: /downloadDataSheetFile
- * Downloads datasheet file for maintenance records
+ * GET: /downloadDataSheetFile?fileName=...
+ * Sends a machine's uploaded data sheet.
+ *
+ * As with /downloadFile, the name is a query parameter because it used to be
+ * POSTed to /postDataSheetFileName first and parked in a module-level variable.
+ * See utils/sendUploadedFile.
  */
 router.get("/downloadDataSheetFile", authenticate, async (req, res) => {
   try {
-    // console.log(downloadDataSheetFileName)
-    res.download(downloadDataSheetFileName);
+    return sendUploadedFile({
+      res,
+      folder: path.join(__dirname, "../data_sheets"),
+      fileName: req.query.fileName,
+    });
   } catch (error) {
     logger.error(error, { maintenanceType: maintenanceType?.[0] });
-    console.log("Filename not received");
+    console.log(error);
+    if (!res.headersSent)
+      res.status(500).json({ message: "Data sheet could not be sent" });
   }
 });
 
@@ -19124,7 +19238,6 @@ router.post(
           );
         } else {
           let PMuploadedImage = req.file.filename;
-          fileNameForLogHistory = req?.file?.filename;
 
           addPmData = await Machine.updateOne(
             { machine_code: machineId },
@@ -19177,7 +19290,6 @@ router.post(
           );
         } else {
           let PMuploadedImage = req.file.filename;
-          fileNameForLogHistory = req?.file?.filename;
 
           addPmData = await Machine.updateOne(
             { machine_code: machineId },
@@ -19234,7 +19346,6 @@ router.post(
           );
         } else {
           let PMuploadedImage = req.file.filename;
-          fileNameForLogHistory = req?.file?.filename;
 
           addPmData = await Machine.updateOne(
             { machine_code: machineId },
@@ -19473,7 +19584,16 @@ router.post(
         updateTotalTimeAndWorkedAndSupportingOperator ||
         updatePMworkedTMName
       ) {
-        return res.status(201).json("Checksheet worked data posted!!!");
+        /**
+         * The stored name goes back to the browser so it can pass it to
+         * /submitLogHistory, which is a separate request. It used to be left in
+         * a module-level variable for that request to pick up, which only
+         * worked while nobody else was uploading at the same time.
+         */
+        return res.status(201).json({
+          message: "Checksheet worked data posted!!!",
+          uploadedFileName: req?.file?.filename ?? null,
+        });
       } else {
         return res.status(400).json("Checksheet worked data not posted!!!");
       }
@@ -24243,6 +24363,12 @@ router
   .post(authenticate, async (req, res) => {
     try {
       const { selectedYear, requestSheetRef } = req.query;
+
+      // Always a new form, so mongo issues the id. The browser keeps the
+      // loaded form's _id in its state and blanks it when the user picks
+      // Reset, and "" cannot be cast to an ObjectId; an _id it did send would
+      // either collide with the existing form or let it overwrite one.
+      delete req.body._id;
 
       req.body["financialYear"] = selectedYear;
       req.body["month"] = moment().month();

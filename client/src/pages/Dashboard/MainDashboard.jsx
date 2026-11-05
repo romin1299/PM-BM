@@ -1,26 +1,30 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import RoutingContext from "../../context/routing/RoutingContext";
 import "./MainDashboard.scss";
 import { Container, Row, Col } from "reactstrap";
-import CheckSheet from "./CheckSheet";
-import { useNavigate } from "react-router-dom";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Button } from "react-bootstrap";
-import CheckSheetForImplementation from "../Operator/CheckSheetForImplementation";
 import GettingMachineDataForCheckSheetImplementation from "../Operator/GettingMachineDataForCheckSheetImplementation";
 import RectangleIcon from "@mui/icons-material/Rectangle";
 
 import currentYear from "./DashboardComponent/currentYear";
-import YearDropDown from "./DashboardComponent/YearDropDown";
 import YearDropDownForMainDashboard from "./DashboardComponent/YearDropDownForMainDashboard";
-import MonthDropDown from "./DashboardComponent/MonthDropDown";
 import MonthDropDownForMainDashboard from "./DashboardComponent/MonthDropDownForMainDashboard";
 import currentMonth from "./DashboardComponent/currentMonth";
 
 import GraphsInMainDashboard from "./DashboardComponent/GraphsInMainDashboard";
-import { light } from "@mui/material/styles/createPalette";
+import CellGrid, {
+  SubSectionGrid,
+  buildHierarchyIndex,
+} from "./DashboardComponent/MachineHierarchyGrid";
 import LoadingAnimation from "../Reports/ReportComponents/LoadingAnimation";
 
 import Footer from "../../components/Footer/Footer";
@@ -30,8 +34,6 @@ const MainDashboard = () => {
   const [subSection, setSubSection] = useState("");
 
   const [stateForLoadingAnimation, setStateForLoadingAnimation] = useState();
-
-  // console.log("$$$$$$$$$$$$$$$$$$$", subSection);
 
   const [refFinancialYear, setRefFinancialYear] = useState({});
   const [refKeyForFinancialYear, setRefKeyForFinancialYear] = useState(0);
@@ -63,7 +65,6 @@ const MainDashboard = () => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
   const context = useContext(RoutingContext);
-  const navigate = useNavigate();
 
   const postPlantToGetSectionList = async (selectedPlant) => {
     setsections(undefined);
@@ -153,88 +154,28 @@ const MainDashboard = () => {
       console.log(error);
     }
   };
-  //for other user
-  const postSectionToGetAllDataForMainDashboardForOtherUser = async (
-    selectedSection
-  ) => {
-    // setSubSection(undefined);
-    try {
-      const res = await fetch(
-        "/postSectionToGetAllDataForMainDashboardForOtherUser",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            section: selectedSection,
-            selectedYear,
-          }),
-        }
-      );
-      const data = await res.json();
-
-      if (res.status === 400 || res.status === 422 || !data) {
-        console.log("Invalid");
-      } else {
-        // window.alert(data.abcd);
-        // console.log("Data post");
-        // console.log("======================>168", data);
-        setallDataSectionWise(data);
-        setDefaultSubSection(data.defaultSubSectionArray);
-        setDeafaultDataForNoDashboard(data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // console.log(subSection);
-
+  /**
+   * The sub-section select carries "<subSection_id>-<subSection_name>"; the
+   * grid needs the mongo _id. Reads the list the dropdown was built from,
+   * whichever of the two responses supplied it.
+   */
   const getSelectedSubsection = (selectedData) => {
-    if (subSectionList) {
-      subSectionList.subSectionsInfo.map((id) => {
-        // console.log(selectedData)
-        let subSectionSplit = selectedData.split("-");
-        // console.log(subSectionSplit[0]);
-        if (id.subSection_id === subSectionSplit[0]) {
-          // console.log(id._id)
-          setSelectedSubSectionId(id._id);
-        }
-      });
-    } else {
-      allDataSectionWise.subSectionsData.map((id) => {
-        // console.log(selectedData)
-        let subSectionSplit = selectedData.split("-");
-        // console.log(subSectionSplit[0]);
-        if (id.subSection_id === subSectionSplit[0]) {
-          // console.log(id._id)
-          setSelectedSubSectionId(id._id);
-        }
-      });
-    }
+    const subSectionId = selectedData.split("-")[0];
+    const list = subSectionList
+      ? subSectionList.subSectionsInfo
+      : allDataSectionWise.subSectionsData;
+
+    const match = list?.find((item) => item.subSection_id === subSectionId);
+    if (match) setSelectedSubSectionId(match._id);
   };
 
   const closeCheckSheet = () => {
     postSectionToGetAllDataForMainDashboard(context.section_data);
     postSectionToGetSectionInfo(sections || context.section_data);
-    // if (context.user_type === "Operator") {
-    // } else {
-    //   postSectionToGetAllDataForMainDashboardForOtherUser(context.section_data);
-    // }
     setMachineWiseCheckSheetForImplementation("");
-    // document.querySelector(".operatorDashboard").style.pointerEvents = "auto";
   };
 
   const pathToCheckSheet = (machine, lineName) => {
-    // context.user_type === "Operator"
-    //   ? navigate("/machineWiseCheckSheetForImplemetation", {
-    //       state: { machineData: machine, lineName: lineName },
-    //     })
-    //   : navigate("/machineWiseCheckSheet", {
-    //       state: { machineData: machine, lineName: lineName },
-    //     });
-
     setMachineWiseCheckSheetForImplementation(
       <GettingMachineDataForCheckSheetImplementation
         machineData={machine}
@@ -249,87 +190,50 @@ const MainDashboard = () => {
       />
     );
 
-    // console.log("***********245", context)
-
-    // document.querySelector(".operatorDashboard").style.pointerEvents = "none";
-
-    // const postMachineIdToGetAllDetailsOfMachine = async () => {
-    //   try {
-    //     const res = await fetch("/postMachineIdToGetAllDetailsOfMachine", {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify({
-    //         machineID: machine._id,
-    //       }),
-    //     });
-    //     const data = await res.json();
-
-    //     if (res.status === 400 || res.status === 422 || !data) {
-    //       console.log("Invalid");
-    //     } else {
-    //       console.log(data.machineData.checkSheet);
-
-    //       context.user_type === "Operator"
-    //         ? setMachineWiseCheckSheetForImplementation(
-    //             <CheckSheetForImplementation
-    //               machineData={data.machineData}
-    //               lineName={lineName}
-    //               closeCheckSheet={closeCheckSheet}
-    //             />
-    //           )
-    //         : setMachineWiseCheckSheetForImplementation(
-    //             <CheckSheet
-    //               machineData={data.machineData}
-    //               lineName={lineName}
-    //               closeCheckSheet={closeCheckSheet}
-    //             />
-    //           );
-
-    //       document.querySelector(".operatorDashboard").style.pointerEvents =
-    //         "none";
-    //     }
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
-
-    // postMachineIdToGetAllDetailsOfMachine();
-    // useEffect(() => {
-    // }, []);
   };
 
-  // console.log(subSectionList);
-  // console.log(subSection);
+  /**
+   * cell -> lines and line -> machines, grouped once per payload instead of on
+   * every render. The grid components below read these instead of scanning the
+   * flat arrays, and because the grouping keeps each array's original order the
+   * cells, lines and machines still appear exactly where they did before.
+   */
+  const hierarchyIndex = useMemo(
+    () => buildHierarchyIndex(allDataSectionWise),
+    [allDataSectionWise]
+  );
 
-  // console.log(selectedSubSectionId);
-  let subSectionArray = [];
+  /**
+   * A click handler that never changes identity, so the memoised grid is not
+   * rebuilt every render. The ref always points at the current
+   * pathToCheckSheet, which closes over selectedYear and the section, so the
+   * sheet that opens is the same one as before.
+   */
+  const pathToCheckSheetRef = useRef(pathToCheckSheet);
+  pathToCheckSheetRef.current = pathToCheckSheet;
+  const onMachineClick = useCallback(
+    (machine, lineName) => pathToCheckSheetRef.current(machine, lineName),
+    []
+  );
 
-  const defaultSubsectionListArray = () => {
-    for (let i = 0; i < allDataSectionWise.subSectionsData?.length; i++) {
-      subSectionArray.push(
-        `${allDataSectionWise.subSectionsData[i].subSection_id}-${allDataSectionWise.subSectionsData[i].subSection_name}`
-      );
-    }
-    setDefaultSubSection(subSectionArray);
-  };
+  /**
+   * Who may open a check sheet from the grid.
+   *
+   * A user can act on the sub-sections they are assigned to, and on their own
+   * section; anywhere else the buttons look the same but are disabled. Both
+   * tests were repeated across the branches below, each branch carrying its own
+   * near-identical copy of the grid, so they are named once here instead.
+   */
+  const userOwnsSelectedSubSection =
+    context.subSection_data.includes(subSection);
+  const viewingOwnSection = context.section_data === sections;
 
   useEffect(() => {
-    // if () {
-    // }
-
     postPlantToGetSectionList();
   }, []);
 
   useEffect(() => {
     postSectionToGetAllDataForMainDashboard(sections || context?.section_data);
-
-    // if (context.user_type === "Operator") {
-    //   postSectionToGetAllDataForMainDashboard(sections);
-    // } else {
-    //   postSectionToGetAllDataForMainDashboardForOtherUser(sections);
-    // }
   }, [sections, selectedYear, refKeyForFinancialYear]);
 
   useEffect(() => {
@@ -348,49 +252,20 @@ const MainDashboard = () => {
   //   // }
   // }, [context.section_data, selectedYear]);
 
+  /**
+   * On a section whose dashboardLevel is "No" the grid has to start on some
+   * sub-section, and that is the first one the signed-in user is assigned to.
+   */
   const setDeafaultDataForNoDashboard = (data) => {
-    // console.log("!!!!!!!!!!!!!!!!!!!!!!!!! 328", data);
-    if (data.sectionInfo) {
-      // console.log( context.subSection_data.length)
+    if (data.sectionInfo?.[0]?.dashboardLevel !== "No") return;
+    if (!context.subSection_data?.length) return;
 
-      if (data.sectionInfo[0].dashboardLevel === "No") {
-        if (context.subSection_data.length >= 1) {
-          data.subSectionsData.map((id) => {
-            // console.log(context.subSection_data[0]);
-            let subSectionSplit = context.subSection_data[0].split("-");
-            // console.log(subSectionSplit[0]);
-            if (id.subSection_id === subSectionSplit[0]) {
-              // console.log("***************** 339", id._id);
-              setSelectedSubSectionIdForDefaultDashboard(id._id);
-              // postSectionToGetAllDataForMainDashboardGraph(id._id, "No");
-            }
-          });
-        }
-      }
-    }
+    const subSectionId = context.subSection_data[0].split("-")[0];
+    const match = data.subSectionsData?.find(
+      (item) => item.subSection_id === subSectionId
+    );
+    if (match) setSelectedSubSectionIdForDefaultDashboard(match._id);
   };
-
-  // console.log(allDataSectionWise);
-
-  const monthKeyArray = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "June",
-    "July",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  // console.log(new Date().getMonth());
-  // let monthForCompareSystemMonth = monthKeyArray[new Date().getMonth()];
-  // let monthForCompareSystemMonth = monthKeyArray[selectedMonth];
-  // console.log(selectedMonth, monthKeyArray[new Date().getMonth()]);
 
   //for year not started yet
   const notifyForNotstartedYear = () => {
@@ -456,10 +331,6 @@ const MainDashboard = () => {
     }
   };
 
-  const navigateToSummeryDashboard = () => {
-    navigate("/summeryDashboard");
-  };
-
   useEffect(() => {
     setSelectedMonth(currentMonth);
   }, [selectedYear]);
@@ -500,8 +371,6 @@ const MainDashboard = () => {
         // console.log("457 ++++++++++++++++", data);
 
         setCurrentMonthGraphAndTableData(data);
-        // setGraphData(data);
-        // setTableData(data.lineDataWithCounter);
       }
     } catch (error) {
       console.log(error);
@@ -509,7 +378,6 @@ const MainDashboard = () => {
   };
 
   const postSectionToGetSectionInfo = async (sectionName) => {
-    // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   493");
     try {
       const res = await fetch("/postSectionToGetSectionInfo", {
         method: "POST",
@@ -537,7 +405,6 @@ const MainDashboard = () => {
             data?.sectionInfo?.dashboardLevel
           );
         } else {
-          // console.log("!!!!!!!!!!!!!!!!!!!", selectedSubSectionId);
           if (refKey === 0) {
             // console.log(
             //   "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
@@ -549,14 +416,24 @@ const MainDashboard = () => {
             //   selectedSubSectionIdForDefaultDashboard
             // );
             // console.log("----->", context);
-            await postSectionToGetAllDataForMainDashboardGraph(
-              selectedSubSectionIdForDefaultDashboard,
-              data?.sectionInfo?.dashboardLevel
-            );
-            await postSectionToGetAllDataForAnnualStatusReport(
-              selectedSubSectionIdForDefaultDashboard,
-              data?.sectionInfo?.dashboardLevel
-            );
+            /**
+             * Only ask once there is a sub-section to ask about. This effect
+             * also runs before the dashboard payload has arrived, when
+             * selectedSubSectionIdForDefaultDashboard is still undefined, and
+             * the server matches no cells for an undefined id - so the reply is
+             * a set of empty totals that would overwrite whatever the charts
+             * had just been given.
+             */
+            if (selectedSubSectionIdForDefaultDashboard) {
+              await postSectionToGetAllDataForMainDashboardGraph(
+                selectedSubSectionIdForDefaultDashboard,
+                data?.sectionInfo?.dashboardLevel
+              );
+              await postSectionToGetAllDataForAnnualStatusReport(
+                selectedSubSectionIdForDefaultDashboard,
+                data?.sectionInfo?.dashboardLevel
+              );
+            }
             if (selectedSubSectionId) {
               setRefKey((refKey) => refKey + 1);
             }
@@ -568,26 +445,22 @@ const MainDashboard = () => {
     }
   };
   useEffect(() => {
+    /**
+     * Same reason as above: with no sub-section selected these two requests
+     * scope to nothing and return empty totals. They used to fire on every
+     * mount and on every month and year change - including on sections whose
+     * dashboardLevel is "Yes", where the charts are driven by
+     * postSectionToGetSectionInfo instead - and whichever reply landed last
+     * won, so the charts could be blanked by the empty one.
+     *
+     * Clearing the charts when the section changes still happens where it
+     * always did, in the section select's onChange.
+     */
+    if (!selectedSubSectionId) return;
+
     postSectionToGetAllDataForMainDashboardGraph(selectedSubSectionId, "No");
     postSectionToGetAllDataForAnnualStatusReport(selectedSubSectionId, "No");
   }, [selectedSubSectionId, selectedYear, selectedMonth]);
-
-  // useEffect(() => {
-  //   postSectionToGetAllDataForMainDashboardGraph(
-  //     selectedSubSectionId
-  //       ? selectedSubSectionId
-  //       : selectedSubSectionIdForDefaultDashboard,
-  //     "No"
-  //   );
-  //   postSectionToGetAllDataForAnnualStatusReport(
-  //     selectedSubSectionId
-  //       ? selectedSubSectionId
-  //       : selectedSubSectionIdForDefaultDashboard,
-  //     "No"
-  //   );
-  // }, [selectedSubSectionIdForDefaultDashboard, selectedMonth]);
-
-  // console.log("========>", selectedSubSectionIdForDefaultDashboard);
 
   useEffect(() => {
     postSectionToGetSectionInfo(sections || context.section_data);
@@ -597,12 +470,6 @@ const MainDashboard = () => {
     sections,
     selectedSubSectionIdForDefaultDashboard,
   ]);
-
-  // useEffect(() => {
-  //   // setCurrentMonthGraphAndTableData("");
-  //   // console.log("@@@@@@@@@@@@@@@@@", sections, context.section_data);
-  //   postSectionToGetAllDataForMainDashboardGraph();
-  // }, [selectedYear, selectedMonth, sections]);
 
   const [annualGraph, setAnnualGraph] = useState();
 
@@ -635,41 +502,11 @@ const MainDashboard = () => {
         // console.log(data.machineData2[0][0].line_names.line_name);
         // console.log(data);
         setAnnualGraph(data);
-        // setTableData(data.lineDataWithCounter);
       }
     } catch (error) {
       console.log(error);
     }
   };
-
-  // useEffect(() => {
-  //   // setCurrentMonthGraphAndTableData("");
-  //   postSectionToGetAllDataForAnnualStatusReport();
-  // }, [selectedYear, sections]);
-
-  // const funForDummyApi = async () => {
-  //   try {
-  //     const res = await fetch("/dummyApi", {
-  //       method: "GET",
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Content-Type": "application/json",
-  //       },
-  //       credentials: "include",
-  //     });
-  //     const data = await res.json();
-
-  //     if (res.status === 400 || res.status === 422 || !data) {
-  //       return res.status(422).send("Data not recieved !!!");
-  //     } else {
-  //       return data;
-  //     }
-  //   } catch (error) {
-  //     console.log("No data found ( Unauthorized ) !!!");
-  //   }
-  // };
-
-  // console.log(selectedSubSectionIdForDefaultDashboard);
 
   const getFinancialYears = async () => {
     try {
@@ -702,7 +539,6 @@ const MainDashboard = () => {
     }
   }, [refKeyForFinancialYear]);
 
-  // console.log(">>>>>>>>>>>>>>>>>>>>>", allDataSectionWise?.sectionInfo?.[0]);
   return (
     <>
       {machineWiseCheckSheetForImplementation}
@@ -1091,306 +927,17 @@ const MainDashboard = () => {
 
                   {subSectionList.sectionInfo ? (
                     subSectionList.sectionInfo.dashboardLevel === "No" ? (
-                      context.subSection_data.includes(subSection) ? (
-                        selectedSubSectionId ? (
-                          <div className="cards">
-                            <Container fluid>
-                              <Row>
-                                {allDataSectionWise.cellData.map((cell) => {
-                                  return selectedSubSectionId ===
-                                    cell.subSection_names ? (
-                                    <>
-                                      <div className="cell">
-                                        <p>{cell.cell_name}</p>
-
-                                        <div>
-                                          <Row
-                                            style={{
-                                              display: "flex",
-                                              justifyContent: "flex-start",
-                                              // margin: "0.5rem",
-                                            }}
-                                          >
-                                            {allDataSectionWise.lineData.map(
-                                              (line) => {
-                                                return cell._id ===
-                                                  line.cell_names ? (
-                                                  <>
-                                                    <Col
-                                                      xs={12}
-                                                      md={6}
-                                                      lg={3}
-                                                      // key={subSection}
-                                                    >
-                                                      <div className="line">
-                                                        <div className="line_name">
-                                                          <p>
-                                                            {line.line_name}
-                                                          </p>
-                                                        </div>
-                                                        <div className="machineCard">
-                                                          {allDataSectionWise.machineData.map(
-                                                            (machine) => {
-                                                              return line._id ===
-                                                                machine.line_names ? (
-                                                                <>
-                                                                  <button
-                                                                    style={{
-                                                                      background:
-                                                                        machine
-                                                                          .checkSheet_data
-                                                                          ?.PMStatus
-                                                                          ? machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Current Plan"
-                                                                            ? "white"
-                                                                            : machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                              "Ongoing"
-                                                                            ? "#ffff59"
-                                                                            : // (!machine
-                                                                            //     ?.checkSheet_data
-                                                                            //     ?.implemetation_prd_tl_approval_status?.[
-                                                                            //     selectedMonth
-                                                                            //   ] ||
-                                                                            //     machine
-                                                                            //       ?.checkSheet_data
-                                                                            //       ?.implemetation_prd_tl_approval_status?.[
-                                                                            //       selectedMonth
-                                                                            //     ]
-                                                                            //       ?.length <
-                                                                            //       0) &&
-                                                                            //   machine
-                                                                            //     .checkSheet_data
-                                                                            //     ?.PMStatus[
-                                                                            //     selectedMonth
-                                                                            //   ] ===
-                                                                            //     "Completed"
-                                                                            // ? "#A0DEFF"
-                                                                            // :
-                                                                            machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                              "Completed"
-                                                                            ? "#5fe15f"
-                                                                            : machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                              "Done with delay"
-                                                                            ? "#ffc356"
-                                                                            : machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                                "PM Skip" ||
-                                                                              machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                                "No Completion"
-                                                                            ? "#ff8888"
-                                                                            : "#ababab"
-                                                                          : "#ababab",
-                                                                    }}
-                                                                    className="machine"
-                                                                    onClick={() =>
-                                                                      pathToCheckSheet(
-                                                                        machine,
-                                                                        line.line_name
-                                                                      )
-                                                                    }
-                                                                  >
-                                                                    {
-                                                                      machine.machine_nickname
-                                                                    }
-                                                                  </button>
-                                                                </>
-                                                              ) : (
-                                                                ""
-                                                              );
-                                                            }
-                                                          )}
-                                                        </div>
-                                                      </div>
-                                                    </Col>
-                                                  </>
-                                                ) : (
-                                                  ""
-                                                );
-                                              }
-                                            )}
-                                          </Row>
-                                        </div>
-                                      </div>
-                                    </>
-                                  ) : (
-                                    ""
-                                  );
-                                })}
-                              </Row>
-                            </Container>
-                          </div>
-                        ) : (
-                          ""
-                        )
-                      ) : selectedSubSectionId ? (
+                      selectedSubSectionId ? (
                         <div className="cards">
                           <Container fluid>
                             <Row>
-                              {allDataSectionWise.cellData.map((cell) => {
-                                return selectedSubSectionId ===
-                                  cell.subSection_names ? (
-                                  <>
-                                    <div className="cell">
-                                      <p>{cell.cell_name}</p>
-
-                                      <div>
-                                        <Row
-                                          style={{
-                                            display: "flex",
-                                            justifyContent: "flex-start",
-                                            // margin: "0.5rem",
-                                          }}
-                                        >
-                                          {allDataSectionWise.lineData.map(
-                                            (line) => {
-                                              return cell._id ===
-                                                line.cell_names ? (
-                                                <>
-                                                  <Col
-                                                    xs={12}
-                                                    md={6}
-                                                    lg={3}
-                                                    // key={subSection}
-                                                  >
-                                                    <div className="line">
-                                                      <div className="line_name">
-                                                        <p>{line.line_name}</p>
-                                                      </div>
-                                                      <div className="machineCard">
-                                                        {allDataSectionWise.machineData.map(
-                                                          (machine) => {
-                                                            return line._id ===
-                                                              machine.line_names ? (
-                                                              <>
-                                                                <button
-                                                                  style={{
-                                                                    background:
-                                                                      machine
-                                                                        .checkSheet_data
-                                                                        ?.PMStatus
-                                                                        ? machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                          "Current Plan"
-                                                                          ? "white"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Ongoing"
-                                                                          ? "#ffff59"
-                                                                          : //   (!machine
-                                                                          //       ?.checkSheet_data
-                                                                          //       ?.implemetation_prd_tl_approval_status?.[
-                                                                          //       selectedMonth
-                                                                          //     ] ||
-                                                                          //       machine
-                                                                          //         ?.checkSheet_data
-                                                                          //         ?.implemetation_prd_tl_approval_status?.[
-                                                                          //         selectedMonth
-                                                                          //       ]
-                                                                          //         ?.length <
-                                                                          //         0) &&
-                                                                          //     machine
-                                                                          //       .checkSheet_data
-                                                                          //       ?.PMStatus[
-                                                                          //       selectedMonth
-                                                                          //     ] ===
-                                                                          //       "Completed"
-                                                                          //   ? "#A0DEFF"
-                                                                          //   :
-                                                                          machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Completed"
-                                                                          ? "#5fe15f"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Done with delay"
-                                                                          ? "#ffc356"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "PM Skip" ||
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "No Completion"
-                                                                          ? "#ff8888"
-                                                                          : "#ababab"
-                                                                        : "#ababab",
-                                                                  }}
-                                                                  className="machine"
-                                                                  disabled
-                                                                  onClick={() =>
-                                                                    pathToCheckSheet(
-                                                                      machine,
-                                                                      line.line_name
-                                                                    )
-                                                                  }
-                                                                >
-                                                                  {
-                                                                    machine.machine_nickname
-                                                                  }
-                                                                </button>
-                                                              </>
-                                                            ) : (
-                                                              ""
-                                                            );
-                                                          }
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                  </Col>
-                                                </>
-                                              ) : (
-                                                ""
-                                              );
-                                            }
-                                          )}
-                                        </Row>
-                                      </div>
-                                    </div>
-                                  </>
-                                ) : (
-                                  ""
-                                );
-                              })}
+                              <CellGrid
+                                subSectionId={selectedSubSectionId}
+                                index={hierarchyIndex}
+                                selectedMonth={selectedMonth}
+                                disabled={!userOwnsSelectedSubSection}
+                                onMachineClick={onMachineClick}
+                              />
                             </Row>
                           </Container>
                         </div>
@@ -1401,355 +948,20 @@ const MainDashboard = () => {
                       <div className="cards">
                         <Container fluid>
                           <Row>
-                            {context.section_data === sections
-                              ? allDataSectionWise !== ""
-                                ? allDataSectionWise.subSectionsData.map(
-                                    (subSection) => {
-                                      return (
-                                        <>
-                                          <Col
-                                            xs={12}
-                                            md={12}
-                                            lg={12}
-                                            className="gx-0"
-                                            key={subSection}
-                                          >
-                                            <div className="subSection">
-                                              <div className="subSectionText">
-                                                {subSection.subSection_name}
-                                              </div>
-
-                                              {allDataSectionWise.cellData.map(
-                                                (cell) => {
-                                                  return subSection._id ===
-                                                    cell.subSection_names ? (
-                                                    <>
-                                                      <div className="cell">
-                                                        <p>{cell.cell_name}</p>
-
-                                                        <div>
-                                                          <Row
-                                                            style={{
-                                                              display: "flex",
-                                                              justifyContent:
-                                                                "flex-start",
-                                                              // margin: "0.5rem",
-                                                            }}
-                                                          >
-                                                            {allDataSectionWise.lineData.map(
-                                                              (line) => {
-                                                                return cell._id ===
-                                                                  line.cell_names ? (
-                                                                  <>
-                                                                    <Col
-                                                                      xs={12}
-                                                                      md={6}
-                                                                      lg={3}
-                                                                      // key={subSection}
-                                                                    >
-                                                                      <div className="line">
-                                                                        <div className="line_name">
-                                                                          <p>
-                                                                            {
-                                                                              line.line_name
-                                                                            }
-                                                                          </p>
-                                                                        </div>
-                                                                        <div className="machineCard">
-                                                                          {allDataSectionWise.machineData.map(
-                                                                            (
-                                                                              machine
-                                                                            ) => {
-                                                                              return line._id ===
-                                                                                machine.line_names ? (
-                                                                                <>
-                                                                                  <button
-                                                                                    style={{
-                                                                                      background:
-                                                                                        machine
-                                                                                          .checkSheet_data
-                                                                                          ?.PMStatus
-                                                                                          ? machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                            "Current Plan"
-                                                                                            ? "white"
-                                                                                            : machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                              "Ongoing"
-                                                                                            ? "#ffff59"
-                                                                                            : // (!machine
-                                                                                            //     ?.checkSheet_data
-                                                                                            //     ?.implemetation_prd_tl_approval_status?.[
-                                                                                            //     selectedMonth
-                                                                                            //   ] ||
-                                                                                            //     machine
-                                                                                            //       ?.checkSheet_data
-                                                                                            //       ?.implemetation_prd_tl_approval_status?.[
-                                                                                            //       selectedMonth
-                                                                                            //     ]
-                                                                                            //       ?.length <
-                                                                                            //       0) &&
-                                                                                            //   machine
-                                                                                            //     .checkSheet_data
-                                                                                            //     ?.PMStatus[
-                                                                                            //     selectedMonth
-                                                                                            //   ] ===
-                                                                                            //     "Completed"
-                                                                                            // ? "#A0DEFF"
-                                                                                            // :
-                                                                                            machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                              "Completed"
-                                                                                            ? "#5fe15f"
-                                                                                            : machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                              "Done with delay"
-                                                                                            ? "#ffc356"
-                                                                                            : machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                                "PM Skip" ||
-                                                                                              machine
-                                                                                                .checkSheet_data
-                                                                                                ?.PMStatus[
-                                                                                                selectedMonth
-                                                                                              ] ===
-                                                                                                "No Completion"
-                                                                                            ? "#ff8888"
-                                                                                            : "#ababab"
-                                                                                          : "#ababab",
-                                                                                    }}
-                                                                                    className="machine"
-                                                                                    onClick={() =>
-                                                                                      pathToCheckSheet(
-                                                                                        machine,
-                                                                                        line.line_name
-                                                                                      )
-                                                                                    }
-                                                                                  >
-                                                                                    {
-                                                                                      machine.machine_nickname
-                                                                                    }
-                                                                                  </button>
-                                                                                </>
-                                                                              ) : (
-                                                                                ""
-                                                                              );
-                                                                            }
-                                                                          )}
-                                                                        </div>
-                                                                      </div>
-                                                                    </Col>
-                                                                  </>
-                                                                ) : (
-                                                                  ""
-                                                                );
-                                                              }
-                                                            )}
-                                                          </Row>
-                                                        </div>
-                                                      </div>
-                                                    </>
-                                                  ) : (
-                                                    ""
-                                                  );
-                                                }
-                                              )}
-                                            </div>
-                                          </Col>
-                                        </>
-                                      );
-                                    }
-                                  )
-                                : ""
-                              : allDataSectionWise !== ""
-                              ? allDataSectionWise.subSectionsData.map(
-                                  (subSection) => {
-                                    return (
-                                      <>
-                                        <Col
-                                          xs={12}
-                                          md={12}
-                                          lg={12}
-                                          key={subSection}
-                                        >
-                                          <div className="subSection">
-                                            <div className="subSectionText">
-                                              {subSection.subSection_name}
-                                            </div>
-
-                                            {allDataSectionWise.cellData.map(
-                                              (cell) => {
-                                                return subSection._id ===
-                                                  cell.subSection_names ? (
-                                                  <>
-                                                    <div className="cell">
-                                                      <p>{cell.cell_name}</p>
-
-                                                      <div>
-                                                        <Row
-                                                          style={{
-                                                            display: "flex",
-                                                            justifyContent:
-                                                              "flex-start",
-                                                            // margin: "0.5rem",
-                                                          }}
-                                                        >
-                                                          {allDataSectionWise.lineData.map(
-                                                            (line) => {
-                                                              return cell._id ===
-                                                                line.cell_names ? (
-                                                                <>
-                                                                  <Col
-                                                                    xs={12}
-                                                                    md={6}
-                                                                    lg={3}
-                                                                    // key={subSection}
-                                                                  >
-                                                                    <div className="line">
-                                                                      <div className="line_name">
-                                                                        <p>
-                                                                          {
-                                                                            line.line_name
-                                                                          }
-                                                                        </p>
-                                                                      </div>
-                                                                      <div className="machineCard">
-                                                                        {allDataSectionWise.machineData.map(
-                                                                          (
-                                                                            machine
-                                                                          ) => {
-                                                                            return line._id ===
-                                                                              machine.line_names ? (
-                                                                              <>
-                                                                                <button
-                                                                                  style={{
-                                                                                    background:
-                                                                                      machine
-                                                                                        .checkSheet_data
-                                                                                        ?.PMStatus
-                                                                                        ? machine
-                                                                                            .checkSheet_data
-                                                                                            ?.PMStatus[
-                                                                                            selectedMonth
-                                                                                          ] ===
-                                                                                          "Current Plan"
-                                                                                          ? "white"
-                                                                                          : machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                            "Ongoing"
-                                                                                          ? "#ffff59"
-                                                                                          : //   (!machine
-                                                                                          //       ?.checkSheet_data
-                                                                                          //       ?.implemetation_prd_tl_approval_status?.[
-                                                                                          //       selectedMonth
-                                                                                          //     ] ||
-                                                                                          //       machine
-                                                                                          //         ?.checkSheet_data
-                                                                                          //         ?.implemetation_prd_tl_approval_status?.[
-                                                                                          //         selectedMonth
-                                                                                          //       ]
-                                                                                          //         ?.length <
-                                                                                          //         0) &&
-                                                                                          //     machine
-                                                                                          //       .checkSheet_data
-                                                                                          //       ?.PMStatus[
-                                                                                          //       selectedMonth
-                                                                                          //     ] ===
-                                                                                          //       "Completed"
-                                                                                          //   ? "#A0DEFF"
-                                                                                          //   :
-                                                                                          machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                            "Completed"
-                                                                                          ? "#5fe15f"
-                                                                                          : machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                            "Done with delay"
-                                                                                          ? "#ffc356"
-                                                                                          : machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                              "PM Skip" ||
-                                                                                            machine
-                                                                                              .checkSheet_data
-                                                                                              ?.PMStatus[
-                                                                                              selectedMonth
-                                                                                            ] ===
-                                                                                              "No Completion"
-                                                                                          ? "#ff8888"
-                                                                                          : "#ababab"
-                                                                                        : "#ababab",
-                                                                                  }}
-                                                                                  className="machine"
-                                                                                  disabled
-                                                                                  onClick={() =>
-                                                                                    pathToCheckSheet(
-                                                                                      machine,
-                                                                                      line.line_name
-                                                                                    )
-                                                                                  }
-                                                                                >
-                                                                                  {
-                                                                                    machine.machine_nickname
-                                                                                  }
-                                                                                </button>
-                                                                              </>
-                                                                            ) : (
-                                                                              ""
-                                                                            );
-                                                                          }
-                                                                        )}
-                                                                      </div>
-                                                                    </div>
-                                                                  </Col>
-                                                                </>
-                                                              ) : (
-                                                                ""
-                                                              );
-                                                            }
-                                                          )}
-                                                        </Row>
-                                                      </div>
-                                                    </div>
-                                                  </>
-                                                ) : (
-                                                  ""
-                                                );
-                                              }
-                                            )}
-                                          </div>
-                                        </Col>
-                                      </>
-                                    );
-                                  }
-                                )
-                              : ""}
+                            {allDataSectionWise !== "" ? (
+                              <SubSectionGrid
+                                subSections={allDataSectionWise.subSectionsData}
+                                index={hierarchyIndex}
+                                selectedMonth={selectedMonth}
+                                disabled={!viewingOwnSection}
+                                onMachineClick={onMachineClick}
+                                colClassName={
+                                  viewingOwnSection ? "gx-0" : undefined
+                                }
+                              />
+                            ) : (
+                              ""
+                            )}
                           </Row>
                         </Container>
                       </div>
@@ -1757,614 +969,36 @@ const MainDashboard = () => {
                   ) : allDataSectionWise ? (
                     allDataSectionWise.sectionInfo[0].dashboardLevel ===
                     "Yes" ? (
-                      allDataSectionWise !== "" ? (
-                        allDataSectionWise.subSectionsData.map((subSection) => {
-                          return (
-                            <>
-                              <Col xs={12} md={12} lg={12} key={subSection}>
-                                <div className="subSection">
-                                  <div className="subSectionText">
-                                    {subSection.subSection_name}
-                                  </div>
-
-                                  {allDataSectionWise.cellData.map((cell) => {
-                                    return subSection._id ===
-                                      cell.subSection_names ? (
-                                      <>
-                                        <div className="cell">
-                                          <p>{cell.cell_name}</p>
-
-                                          <div>
-                                            <Row
-                                              style={{
-                                                display: "flex",
-                                                justifyContent: "flex-start",
-                                                // margin: "0.5rem",
-                                              }}
-                                            >
-                                              {allDataSectionWise.lineData.map(
-                                                (line) => {
-                                                  return cell._id ===
-                                                    line.cell_names ? (
-                                                    <>
-                                                      <Col
-                                                        xs={12}
-                                                        md={6}
-                                                        lg={3}
-                                                        // key={subSection}
-                                                      >
-                                                        <div className="line">
-                                                          <div className="line_name">
-                                                            <p>
-                                                              {line.line_name}
-                                                            </p>
-                                                          </div>
-                                                          <div className="machineCard">
-                                                            {allDataSectionWise.machineData.map(
-                                                              (machine) => {
-                                                                return line._id ===
-                                                                  machine.line_names ? (
-                                                                  <>
-                                                                    {/* <Button variant="primary" onClick={handleShow}>Generate QR</Button> */}
-                                                                    <button
-                                                                      style={{
-                                                                        // border:
-                                                                        //   "1px solid black",
-                                                                        background:
-                                                                          machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus
-                                                                            ? machine
-                                                                                .checkSheet_data
-                                                                                ?.PMStatus[
-                                                                                selectedMonth
-                                                                              ] ===
-                                                                              "Current Plan"
-                                                                              ? "white"
-                                                                              : machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                "Ongoing"
-                                                                              ? "#ffff59"
-                                                                              : //   (!machine
-                                                                              //       ?.checkSheet_data
-                                                                              //       ?.implemetation_prd_tl_approval_status?.[
-                                                                              //       selectedMonth
-                                                                              //     ] ||
-                                                                              //       machine
-                                                                              //         ?.checkSheet_data
-                                                                              //         ?.implemetation_prd_tl_approval_status?.[
-                                                                              //         selectedMonth
-                                                                              //       ]
-                                                                              //         ?.length <
-                                                                              //         0) &&
-                                                                              //     machine
-                                                                              //       .checkSheet_data
-                                                                              //       ?.PMStatus[
-                                                                              //       selectedMonth
-                                                                              //     ] ===
-                                                                              //       "Completed"
-                                                                              //   ? "#A0DEFF"
-                                                                              //   :
-                                                                              machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                "Completed"
-                                                                              ? "#5fe15f"
-                                                                              : machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                "Done with delay"
-                                                                              ? "#ffc356"
-                                                                              : machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                  "PM Skip" ||
-                                                                                machine
-                                                                                  .checkSheet_data
-                                                                                  ?.PMStatus[
-                                                                                  selectedMonth
-                                                                                ] ===
-                                                                                  "No Completion"
-                                                                              ? "#ff8888"
-                                                                              : "#ababab"
-                                                                            : "#ababab",
-                                                                      }}
-                                                                      className="machine"
-                                                                      onClick={() => {
-                                                                        pathToCheckSheet(
-                                                                          machine,
-                                                                          line.line_name
-                                                                        );
-                                                                      }}
-                                                                    >
-                                                                      {
-                                                                        machine.machine_nickname
-                                                                      }
-                                                                    </button>
-                                                                  </>
-                                                                ) : (
-                                                                  ""
-                                                                );
-                                                              }
-                                                            )}
-                                                          </div>
-                                                        </div>
-                                                      </Col>
-                                                    </>
-                                                  ) : (
-                                                    ""
-                                                  );
-                                                }
-                                              )}
-                                            </Row>
-                                          </div>
-                                        </div>
-                                      </>
-                                    ) : (
-                                      ""
-                                    );
-                                  })}
-                                </div>
-                              </Col>
-                            </>
-                          );
-                        })
-                      ) : (
-                        ""
-                      )
+                      <SubSectionGrid
+                        subSections={allDataSectionWise.subSectionsData}
+                        index={hierarchyIndex}
+                        selectedMonth={selectedMonth}
+                        onMachineClick={onMachineClick}
+                      />
                     ) : selectedSubSectionId ? (
-                      context.subSection_data.includes(subSection) ? (
-                        <div className="cards">
-                          <Container fluid>
-                            <Row>
-                              {allDataSectionWise.cellData.map((cell) => {
-                                return selectedSubSectionId ===
-                                  cell.subSection_names ? (
-                                  <>
-                                    <div className="cell">
-                                      <p>{cell.cell_name}</p>
-
-                                      <div>
-                                        <Row
-                                          style={{
-                                            display: "flex",
-                                            justifyContent: "flex-start",
-                                            // margin: "0.5rem",
-                                          }}
-                                        >
-                                          {allDataSectionWise.lineData.map(
-                                            (line) => {
-                                              return cell._id ===
-                                                line.cell_names ? (
-                                                <>
-                                                  <Col
-                                                    xs={12}
-                                                    md={6}
-                                                    lg={3}
-                                                    // key={subSection}
-                                                  >
-                                                    <div className="line">
-                                                      <div className="line_name">
-                                                        <p>{line.line_name}</p>
-                                                      </div>
-                                                      <div className="machineCard">
-                                                        {allDataSectionWise.machineData.map(
-                                                          (machine) => {
-                                                            return line._id ===
-                                                              machine.line_names ? (
-                                                              <>
-                                                                <button
-                                                                  style={{
-                                                                    background:
-                                                                      machine
-                                                                        .checkSheet_data
-                                                                        ?.PMStatus
-                                                                        ? machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                          "Current Plan"
-                                                                          ? "white"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Ongoing"
-                                                                          ? "#ffff59"
-                                                                          : //   (!machine
-                                                                          //       ?.checkSheet_data
-                                                                          //       ?.implemetation_prd_tl_approval_status?.[
-                                                                          //       selectedMonth
-                                                                          //     ] ||
-                                                                          //       machine
-                                                                          //         ?.checkSheet_data
-                                                                          //         ?.implemetation_prd_tl_approval_status?.[
-                                                                          //         selectedMonth
-                                                                          //       ]
-                                                                          //         ?.length <
-                                                                          //         0) &&
-                                                                          //     machine
-                                                                          //       .checkSheet_data
-                                                                          //       ?.PMStatus[
-                                                                          //       selectedMonth
-                                                                          //     ] ===
-                                                                          //       "Completed"
-                                                                          //   ? "#A0DEFF"
-                                                                          //   :
-                                                                          machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Completed"
-                                                                          ? "#5fe15f"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Done with delay"
-                                                                          ? "#ffc356"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "PM Skip" ||
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "No Completion"
-                                                                          ? "#ff8888"
-                                                                          : "#ababab"
-                                                                        : "#ababab",
-                                                                  }}
-                                                                  className="machine"
-                                                                  onClick={() =>
-                                                                    pathToCheckSheet(
-                                                                      machine,
-                                                                      line.line_name
-                                                                    )
-                                                                  }
-                                                                >
-                                                                  {
-                                                                    machine.machine_nickname
-                                                                  }
-                                                                </button>
-                                                              </>
-                                                            ) : (
-                                                              ""
-                                                            );
-                                                          }
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                  </Col>
-                                                </>
-                                              ) : (
-                                                ""
-                                              );
-                                            }
-                                          )}
-                                        </Row>
-                                      </div>
-                                    </div>
-                                  </>
-                                ) : (
-                                  ""
-                                );
-                              })}
-                            </Row>
-                          </Container>
-                        </div>
-                      ) : (
-                        <div className="cards">
-                          <Container fluid>
-                            <Row>
-                              {allDataSectionWise.cellData.map((cell) => {
-                                return selectedSubSectionId ===
-                                  cell.subSection_names ? (
-                                  <>
-                                    <div className="cell">
-                                      <p>{cell.cell_name}</p>
-
-                                      <div>
-                                        <Row
-                                          style={{
-                                            display: "flex",
-                                            justifyContent: "flex-start",
-                                            // margin: "0.5rem",
-                                          }}
-                                        >
-                                          {allDataSectionWise.lineData.map(
-                                            (line) => {
-                                              return cell._id ===
-                                                line.cell_names ? (
-                                                <>
-                                                  <Col
-                                                    xs={12}
-                                                    md={6}
-                                                    lg={3}
-                                                    // key={subSection}
-                                                  >
-                                                    <div className="line">
-                                                      <div className="line_name">
-                                                        <p>{line.line_name}</p>
-                                                      </div>
-                                                      <div className="machineCard">
-                                                        {allDataSectionWise.machineData.map(
-                                                          (machine) => {
-                                                            return line._id ===
-                                                              machine.line_names ? (
-                                                              <>
-                                                                <button
-                                                                  style={{
-                                                                    background:
-                                                                      machine
-                                                                        .checkSheet_data
-                                                                        ?.PMStatus
-                                                                        ? machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                          "Current Plan"
-                                                                          ? "white"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Ongoing"
-                                                                          ? "#ffff59"
-                                                                          : //   (!machine
-                                                                          //       ?.checkSheet_data
-                                                                          //       ?.implemetation_prd_tl_approval_status?.[
-                                                                          //       selectedMonth
-                                                                          //     ] ||
-                                                                          //       machine
-                                                                          //         ?.checkSheet_data
-                                                                          //         ?.implemetation_prd_tl_approval_status?.[
-                                                                          //         selectedMonth
-                                                                          //       ]
-                                                                          //         ?.length <
-                                                                          //         0) &&
-                                                                          //     machine
-                                                                          //       .checkSheet_data
-                                                                          //       ?.PMStatus[
-                                                                          //       selectedMonth
-                                                                          //     ] ===
-                                                                          //       "Completed"
-                                                                          //   ? "#A0DEFF"
-                                                                          //   :
-                                                                          machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Completed"
-                                                                          ? "#5fe15f"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                            "Done with delay"
-                                                                          ? "#ffc356"
-                                                                          : machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "PM Skip" ||
-                                                                            machine
-                                                                              .checkSheet_data
-                                                                              ?.PMStatus[
-                                                                              selectedMonth
-                                                                            ] ===
-                                                                              "No Completion"
-                                                                          ? "#ff8888"
-                                                                          : "#ababab"
-                                                                        : "#ababab",
-                                                                  }}
-                                                                  className="machine"
-                                                                  disabled
-                                                                  onClick={() =>
-                                                                    pathToCheckSheet(
-                                                                      machine,
-                                                                      line.line_name
-                                                                    )
-                                                                  }
-                                                                >
-                                                                  {
-                                                                    machine.machine_nickname
-                                                                  }
-                                                                </button>
-                                                              </>
-                                                            ) : (
-                                                              ""
-                                                            );
-                                                          }
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                  </Col>
-                                                </>
-                                              ) : (
-                                                ""
-                                              );
-                                            }
-                                          )}
-                                        </Row>
-                                      </div>
-                                    </div>
-                                  </>
-                                ) : (
-                                  ""
-                                );
-                              })}
-                            </Row>
-                          </Container>
-                        </div>
-                      )
+                      <div className="cards">
+                        <Container fluid>
+                          <Row>
+                            <CellGrid
+                              subSectionId={selectedSubSectionId}
+                              index={hierarchyIndex}
+                              selectedMonth={selectedMonth}
+                              disabled={!userOwnsSelectedSubSection}
+                              onMachineClick={onMachineClick}
+                            />
+                          </Row>
+                        </Container>
+                      </div>
                     ) : selectedSubSectionIdForDefaultDashboard ? (
                       <div className="cards">
                         <Container fluid>
                           <Row>
-                            {allDataSectionWise.cellData.map((cell) => {
-                              return selectedSubSectionIdForDefaultDashboard ===
-                                cell.subSection_names ? (
-                                <>
-                                  <div className="cell">
-                                    <p>{cell.cell_name}</p>
-
-                                    <div>
-                                      <Row
-                                        style={{
-                                          display: "flex",
-                                          justifyContent: "flex-start",
-                                          // margin: "0.5rem",
-                                        }}
-                                      >
-                                        {allDataSectionWise.lineData.map(
-                                          (line) => {
-                                            return cell._id ===
-                                              line.cell_names ? (
-                                              <>
-                                                <Col
-                                                  xs={12}
-                                                  md={6}
-                                                  lg={3}
-                                                  // key={subSection}
-                                                >
-                                                  <div className="line">
-                                                    <div className="line_name">
-                                                      <p>{line.line_name}</p>
-                                                    </div>
-                                                    <div className="machineCard">
-                                                      {allDataSectionWise.machineData.map(
-                                                        (machine) => {
-                                                          return line._id ===
-                                                            machine.line_names ? (
-                                                            <>
-                                                              <button
-                                                                style={{
-                                                                  background:
-                                                                    machine
-                                                                      .checkSheet_data
-                                                                      ?.PMStatus
-                                                                      ? machine
-                                                                          .checkSheet_data
-                                                                          ?.PMStatus[
-                                                                          selectedMonth
-                                                                        ] ===
-                                                                        "Current Plan"
-                                                                        ? "white"
-                                                                        : machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                          "Ongoing"
-                                                                        ? "#ffff59"
-                                                                        : // (!machine
-                                                                        //     ?.checkSheet_data
-                                                                        //     ?.implemetation_prd_tl_approval_status?.[
-                                                                        //     selectedMonth
-                                                                        //   ] ||
-                                                                        //     machine
-                                                                        //       ?.checkSheet_data
-                                                                        //       ?.implemetation_prd_tl_approval_status?.[
-                                                                        //       selectedMonth
-                                                                        //     ]
-                                                                        //       ?.length <
-                                                                        //       0) &&
-                                                                        //   machine
-                                                                        //     .checkSheet_data
-                                                                        //     ?.PMStatus[
-                                                                        //     selectedMonth
-                                                                        //   ] ===
-                                                                        //     "Completed"
-                                                                        // ? "#A0DEFF"
-                                                                        // :
-                                                                        machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                          "Completed"
-                                                                        ? "#5fe15f"
-                                                                        : machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                          "Done with delay"
-                                                                        ? "#ffc356"
-                                                                        : machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                            "PM Skip" ||
-                                                                          machine
-                                                                            .checkSheet_data
-                                                                            ?.PMStatus[
-                                                                            selectedMonth
-                                                                          ] ===
-                                                                            "No Completion"
-                                                                        ? "#ff8888"
-                                                                        : "#ababab"
-                                                                      : "#ababab",
-                                                                }}
-                                                                className="machine"
-                                                                onClick={() =>
-                                                                  pathToCheckSheet(
-                                                                    machine,
-                                                                    line.line_name
-                                                                  )
-                                                                }
-                                                              >
-                                                                {
-                                                                  machine.machine_nickname
-                                                                }
-                                                              </button>
-                                                            </>
-                                                          ) : (
-                                                            ""
-                                                          );
-                                                        }
-                                                      )}
-                                                    </div>
-                                                  </div>
-                                                </Col>
-                                              </>
-                                            ) : (
-                                              ""
-                                            );
-                                          }
-                                        )}
-                                      </Row>
-                                    </div>
-                                  </div>
-                                </>
-                              ) : (
-                                ""
-                              );
-                            })}
+                            <CellGrid
+                              subSectionId={selectedSubSectionIdForDefaultDashboard}
+                              index={hierarchyIndex}
+                              selectedMonth={selectedMonth}
+                              onMachineClick={onMachineClick}
+                            />
                           </Row>
                         </Container>
                       </div>

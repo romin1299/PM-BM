@@ -5,6 +5,7 @@ import DynamicApproval from "./DynamicApproval";
 import OrderTrackingBackendData from "./OrderTrackingBackendData";
 import DynamicCRUDTable from "./DynamicCRUDTable";
 import RoutingContext from "../../../context/routing/RoutingContext";
+import { isToolRoomUser } from "../../../Utils/userScope";
 
 const SpareCustomized = () => {
   const context = useContext(RoutingContext);
@@ -24,10 +25,10 @@ const SpareCustomized = () => {
       </Row>
       <Row>
         <Col className="col-5">
-          <OrderTrackingBackendData toolRoomPerson={context?.toolRoomPerson} />
+          <OrderTrackingBackendData isToolRoom={isToolRoomUser(context)} />
         </Col>
         <Col>
-          <DynamicCRUDTable toolRoomPerson={context?.toolRoomPerson} />
+          <DynamicCRUDTable isToolRoom={isToolRoomUser(context)} />
         </Col>
       </Row>
       {/* <Row>

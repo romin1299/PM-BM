@@ -90,8 +90,27 @@ const mongoDBUserFilters = {
     tm_department: "PRD",
     tm_grade: "HOD",
   },
+  /**
+   * The tool room's own approval step: everyone registered for the tool room,
+   * whatever their level.
+   *
+   * Tool-room staff are made at every level of the tool-room hierarchy - HOD,
+   * HOS, HOSS, Supervisor and Office Person - and a PM user who also works
+   * there keeps their PM user_type. The one thing they share is the tool-room
+   * flag, so that is what is matched (and Office Person, which only the tool
+   * room uses, in case the flag was never set on an older account). Matching on
+   * Office Person alone left a plant whose tool room had no Office Person with
+   * an empty dropdown.
+   *
+   * Scoped to the plant, not the requester's section, by
+   * PLANT_WIDE_APPROVAL_KEYS in controller/spareManagement/userController.js.
+   */
   TOOL_ROOM: {
-    user_type: "Office Person",
+    $or: [
+      { user_type: "Office Person" },
+      { toolRoomPerson: "Yes" },
+      { alsoToolRoomPerson: "Yes" },
+    ],
   },
 };
 
@@ -189,6 +208,18 @@ const allMonthsStr = [
 
 const paginationRowLimit = 50;
 
+/**
+ * The budget check (OK / NG against the section's monthly budget, and the MTD
+ * HOD's approval of an NG) belongs to MTD parts only. A PRD part is not weighed
+ * against the budget: its sheet is simply recorded as budget OK, with no
+ * required amount, and goes straight to the approval chain. Recording OK is
+ * what lets it through everything that admits a sheet on its budget - the
+ * Ordering dashboard above all - with no special case.
+ */
+
+/** Whether a request-sheet for this department is subject to the budget check. */
+const isBudgetChecked = (partRequestFor) => partRequestFor !== "PRD";
+
 const timezone = "Asia/Kolkata";
 
 const generateRegexSearchString = (search) => {
@@ -248,6 +279,89 @@ const convertCostInMilUnitInMongoose = (costKey = "") => ({
   $round: [{ $divide: [costKey, oneMil] }, 2],
 });
 
+/** A non-negative number, or null for blank / invalid input. */
+const numberOrNull = (value) => {
+  if (value === "" || value === null || value === undefined) return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : null;
+};
+
+/**
+ * Lead time for "PO issue to vendor - Part receive", split by the part's
+ * supplier category.
+ *
+ * The single POIssueToVendorToPartReceive value predates the split and stays
+ * the fallback, so an upgrade never re-times orders already in flight and a
+ * plant that has not configured the pair behaves exactly as before. A category
+ * that is not "Imported" - "Local", blank on older records, anything else -
+ * is timed as local, which is also the form's default choice.
+ */
+const partReceiveLeadTimeKeys = {
+  local: "localPOIssueToVendorToPartReceive",
+  imported: "importedPOIssueToVendorToPartReceive",
+  legacy: "POIssueToVendorToPartReceive",
+};
+
+/** A lead time counts only when it is a positive number; 0 means "not set". */
+const leadTimeInDays = (value) => {
+  const days = Number(value);
+  return Number.isFinite(days) && days > 0 ? days : 0;
+};
+
+const isImportedSupplierCategory = (supplierCategory) =>
+  String(supplierCategory ?? "").trim().toLowerCase() === "imported";
+
+/**
+ * The part-receipt allowance for one part, in JavaScript. The Order Tracking
+ * dashboard's red cell and the escalation mail must never disagree on this, so
+ * both read the rule from here; the aggregation form below mirrors it.
+ */
+const partReceiveLeadTimeFor = (leadTime = {}, supplierCategory) => {
+  const specificKey = isImportedSupplierCategory(supplierCategory)
+    ? partReceiveLeadTimeKeys.imported
+    : partReceiveLeadTimeKeys.local;
+
+  return (
+    leadTimeInDays(leadTime?.[specificKey]) ||
+    leadTimeInDays(leadTime?.[partReceiveLeadTimeKeys.legacy])
+  );
+};
+
+/**
+ * The same rule as an aggregation expression, for the ordering projection.
+ * Supplier categories are compared case- and space-insensitively, matching
+ * isImportedSupplierCategory above; 0 is assembled here as a literal because
+ * the plant's lead times do not vary per document.
+ */
+const partReceiveLeadTimeExpression = (
+  leadTime = {},
+  supplierCategoryField = "$changeParts.supplierCategory",
+) => {
+  const local =
+    leadTimeInDays(leadTime?.[partReceiveLeadTimeKeys.local]) ||
+    leadTimeInDays(leadTime?.[partReceiveLeadTimeKeys.legacy]);
+  const imported =
+    leadTimeInDays(leadTime?.[partReceiveLeadTimeKeys.imported]) ||
+    leadTimeInDays(leadTime?.[partReceiveLeadTimeKeys.legacy]);
+
+  return {
+    $cond: [
+      {
+        $eq: [
+          {
+            $toLower: {
+              $trim: { input: { $ifNull: [supplierCategoryField, ""] } },
+            },
+          },
+          "imported",
+        ],
+      },
+      imported,
+      local,
+    ],
+  };
+};
+
 module.exports = {
   spareApprovalStatus,
   spareRejectedStatus,
@@ -266,5 +380,11 @@ module.exports = {
   sumArrayField,
   convertCostInMilUnitInJS,
   convertCostInMilUnitInMongoose,
+  numberOrNull,
+  partReceiveLeadTimeKeys,
+  isImportedSupplierCategory,
+  partReceiveLeadTimeFor,
+  partReceiveLeadTimeExpression,
   hooksFormReferenceOfEmailReminder,
+  isBudgetChecked,
 };

@@ -1,4 +1,5 @@
 const moment = require("moment");
+const { createColumnFilters, escapeRegex } = require("../../utils/columnFilters");
 const mongoose = require("mongoose");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 
@@ -9,6 +10,7 @@ const { spareMasterTypeFor } = require("../../model/spareMasterTypes");
 const unparseJSONData = require("../../utils/unparseJSONData");
 const {
   paginationRowLimit,
+  dynamicApprovalStatus,
 } = require("../../utils/spareManagementUtils");
 
 const { generateTimestampIndividually } = require("../../utils/spareTimestamp");
@@ -19,6 +21,39 @@ const {
   toFileEntry,
   removeDrawingFileIfUnreferenced,
 } = require("../../services/spare/masterDrawingService");
+const { isToolRoomUser } = require("../../utils/userScope");
+const { appendLedgerEntry } = require("../../services/spare/stockLedgerService");
+const {
+  CHANGE_REQUEST_CHAINS,
+  listApproversForStep,
+  applyApprovalDecision,
+  displayNameOf,
+} = require("../../services/spare/changeRequestApprovalService");
+
+/**
+ * Additional machine codes are selected from the hierarchy by Tool Room users.
+ * Keep only usable, unique codes and never duplicate the primary machine code.
+ */
+const normalizeAdditionalMachineCodes = ({ body, user, primaryMachineCode }) => {
+  if (!Object.hasOwn(body, "additionalMachineCodes")) return null;
+
+  if (!isToolRoomUser(user))
+    return "Only Tool Room-authorized users can manage additional machine codes";
+
+  body.additionalMachineCodes = [
+    ...new Set(
+      (Array.isArray(body.additionalMachineCodes)
+        ? body.additionalMachineCodes
+        : []
+      )
+        .filter((code) => typeof code === "string")
+        .map((code) => code.trim())
+        .filter((code) => code && code !== primaryMachineCode),
+    ),
+  ];
+
+  return null;
+};
 
 /**
  * The master form posts multipart when it carries drawings, with its fields
@@ -84,8 +119,19 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
           maxQuantity: 1,
           leadTime: 1,
           quantityRequired: 1,
+          additionalMachineCodes: 1,
           machine: 1,
           status: 1,
+          issueProblem: 1,
+          repairedItem: 1,
+          repairedOn: 1,
+          repairedBy: 1,
+          qualityConfirmedBy: 1,
+          qualityConfirmationMethod: 1,
+          qualityConfirmationDate: 1,
+          toolRoomRequestStatus: 1,
+          requestStatus: 1,
+          pendingApprovalBy: 1,
           drawingAttach: 1,
           budgetDetails: {
             $reduce: {
@@ -149,6 +195,7 @@ exports.getDefaultValueForMasterRegistration = tryCatchHandler(
         $project: {
           _id: 0,
           machine: 1,
+          masterId: "$changeParts.masterId",
           partName: "$changeParts.partName",
           partModel: "$changeParts.partModel",
           minQuantity: "$changeParts.minQuantity",
@@ -215,6 +262,36 @@ const spareMasterRowProjection = {
   previousIssuedDate: 1,
   totalIssuedQty: 1,
   status: 1,
+  issueProblem: 1,
+  repairedItem: 1,
+  repairedOn: 1,
+  repairedBy: 1,
+  qualityConfirmedBy: 1,
+  qualityConfirmationMethod: 1,
+  qualityConfirmationDate: 1,
+  toolRoomRequestStatus: 1,
+  requestStatus: 1,
+  pendingApprovalBy: 1,
+  currentApprovalIndex: 1,
+  approvals: 1,
+  /**
+   * The person the record is waiting on, for the "Pending With" column. Blank
+   * once the chain is closed; uploaded masters have no chain and show blank.
+   */
+  pendingWith: {
+    $cond: [
+      { $in: ["$requestStatus", ["Completed", "Rejected"]] },
+      "",
+      {
+        $let: {
+          vars: {
+            step: { $arrayElemAt: ["$approvals", "$currentApprovalIndex"] },
+          },
+          in: { $ifNull: ["$$step.user.tm_name", ""] },
+        },
+      },
+    ],
+  },
   additionalMachineCodes: 1,
   drawingAttach: 1,
   machineCode: "$machine.machine_code",
@@ -257,37 +334,10 @@ const FILTERABLE_COLUMNS = new Set(
   Object.keys(spareMasterRowProjection).filter((key) => key !== "drawingAttach"),
 );
 
-const parseColumnFilters = (raw) => {
-  if (!raw) return {};
-  let parsed;
-  try {
-    parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
-  } catch {
-    return {};
-  }
-  const filters = {};
-  Object.entries(parsed ?? {}).forEach(([column, values]) => {
-    if (FILTERABLE_COLUMNS.has(column) && Array.isArray(values) && values.length)
-      filters[column] = values;
-  });
-  return filters;
-};
-
-/** The $match over projected rows for the given filters; null when none. */
-const columnFilterMatch = (filters, { except } = {}) => {
-  const clauses = Object.entries(filters)
-    .filter(([column]) => column !== except)
-    .map(([column, values]) => {
-      const wantsBlank = values.includes(null) || values.includes("");
-      const present = values.filter((v) => v !== null && v !== "");
-      const alternatives = [];
-      if (present.length) alternatives.push({ [column]: { $in: present } });
-      if (wantsBlank) alternatives.push({ [column]: { $in: [null, ""] } });
-      return alternatives.length === 1 ? alternatives[0] : { $or: alternatives };
-    });
-  if (!clauses.length) return null;
-  return clauses.length === 1 ? clauses[0] : { $and: clauses };
-};
+const {
+  parse: parseColumnFilters,
+  match: columnFilterMatch,
+} = createColumnFilters(FILTERABLE_COLUMNS);
 
 /** The same $match with every field path under `prefix`. */
 const prefixMatch = (match, prefix) => {
@@ -457,8 +507,6 @@ exports.getSpareMasterDashboard = tryCatchHandler(async (req, res, next) => {
  * hundred values at a time. Blank cells come back as a single null entry.
  */
 const COLUMN_VALUES_LIMIT = 300;
-
-const escapeRegex = (text) => String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 exports.getSpareMasterColumnValues = tryCatchHandler(async (req, res, next) => {
   const { column, search = "" } = req.query;
@@ -831,6 +879,10 @@ exports.handleMasterConfiguration = tryCatchHandler(async (req, res, next) => {
       subSection: 1,
       section: 1,
       plant: 1,
+      requestSheetNo: 1,
+      createdAt: 1,
+      requestSheetCreatedBy: 1,
+      changeParts: 1,
     },
   );
 
@@ -848,6 +900,17 @@ exports.handleMasterConfiguration = tryCatchHandler(async (req, res, next) => {
   req.body["subSection"] = subSection;
   req.body["section"] = section;
   req.body["plant"] = plant;
+
+  const additionalMachineCodesError = normalizeAdditionalMachineCodes({
+    body: req.body,
+    user: req.rootUser,
+    primaryMachineCode: machine?.machine_code,
+  });
+  if (additionalMachineCodesError)
+    return res.status(403).json({
+      message: additionalMachineCodesError,
+      showToast: true,
+    });
 
   req.body["createdBy"] = req.rootUser;
   req.body["rsTimeStamp"] = generateTimestampIndividually();
@@ -896,6 +959,25 @@ exports.handleMasterConfiguration = tryCatchHandler(async (req, res, next) => {
     },
   );
 
+
+  // ── Stock-Ledger: Initial ORDER entry ────────────────────────────────
+  // When a master is newly created from a request sheet, log its very first
+  // ledger row: the order qty requested and the request sheet number as Order No.
+  const partData = existingRSSheet?.changeParts?.find(
+    (p) => p?._id?.toString() === partId?.toString(),
+  );
+
+  await appendLedgerEntry({
+    masterId: master._id,
+    entryType: "ORDER",
+    processingDate: existingRSSheet?.createdAt || new Date(),
+    orderQty: partData?.quantityRequired ?? req.body?.quantityRequired ?? null,
+    orderNo: null,
+    referenceId: sheetId,
+    referenceModel: "RequestSheetOfSpare",
+    createdBy: existingRSSheet?.requestSheetCreatedBy ?? req.rootUser,
+  }).catch(() => {});
+
   return res.status(201).json({
     message: "Master registered successfully",
   });
@@ -921,6 +1003,30 @@ exports.handleMasterUpdate = tryCatchHandler(async (req, res, next) => {
   // uniqueID identifies the part across every request-sheet ever raised for it,
   // so it is fixed once assigned and an update can never carry a new one.
   delete body["uniqueID"];
+
+  if (Object.hasOwn(body, "additionalMachineCodes")) {
+    const currentMaster = await masterModelOf(req).findOne(
+      { _id },
+      { machine: 1 },
+    );
+
+    if (!currentMaster)
+      return res.status(404).json({
+        message: "Master not found",
+        showToast: true,
+      });
+
+    const additionalMachineCodesError = normalizeAdditionalMachineCodes({
+      body,
+      user: req.rootUser,
+      primaryMachineCode: currentMaster.machine?.machine_code,
+    });
+    if (additionalMachineCodesError)
+      return res.status(403).json({
+        message: additionalMachineCodesError,
+        showToast: true,
+      });
+  }
 
   /**
    * Drawings. The form sends the list it kept only when it changed; new files
@@ -952,3 +1058,217 @@ exports.handleMasterUpdate = tryCatchHandler(async (req, res, next) => {
     message: "Master updated successfully",
   });
 });
+
+/**
+ * The Repaired Part Quality Confirmation Sheet (FO/MTD/05/09/00).
+ *
+ * One part per record. The paper's fields are stored on the master itself —
+ * part name / part no / maker in the master's own fields, the repair and
+ * quality details in the fields added for this sheet — so the submitted part
+ * appears in the Repaired Parts Master table and is maintained through the
+ * normal edit form.
+ *
+ * The route is the plant's MTD approval flow. There is no department choice:
+ * the sheet is only used by MTD. The chain is written with the record, with the
+ * same fixed steps the request sheets use, so it cannot shift later.
+ */
+exports.createRepairedQualityConfirmation = tryCatchHandler(
+  async (req, res, next) => {
+    const masterType = req.spareMasterType;
+
+    if (masterType?.key !== "repaired")
+      return res.status(400).json({
+        message:
+          "The quality confirmation sheet is only for the Repaired Parts Master",
+        showToast: true,
+      });
+
+    const {
+      partName,
+      partNo,
+      maker,
+      issueProblem,
+      repairedItem,
+      repairedOn,
+      repairedBy,
+      qualityConfirmedBy,
+      qualityConfirmationMethod,
+      qualityConfirmationDate,
+      toolRoomRequestStatus,
+    } = req.body ?? {};
+
+    if (!String(partName ?? "").trim() || !String(partNo ?? "").trim())
+      return res.status(400).json({
+        message: "Please enter the part name and number",
+        showToast: true,
+      });
+
+    const user = req.rootUser;
+
+    const steps = [];
+
+    for (const key of CHANGE_REQUEST_CHAINS.MTD) {
+      const [approver] = await listApproversForStep(key, {
+        plantData: user?.plant_data,
+        sectionData: user?.section_data,
+      });
+
+      if (!approver)
+        return res.status(400).json({
+          message: `No ${displayNameOf(key)} user is registered for ${
+            user?.plant_data ?? "this plant"
+          }. Register one before submitting.`,
+          showToast: true,
+        });
+
+      steps.push({
+        key,
+        userType: displayNameOf(key),
+        user: {
+          _id: approver._id,
+          tm_no: approver.tm_no,
+          tm_name: approver.tm_name,
+          email: approver.email,
+        },
+        approvalStatus: "Pending",
+      });
+    }
+
+    const master = new masterType.model({
+      partName: String(partName).trim(),
+      partNumber: String(partNo).trim(),
+      maker: String(maker ?? "").trim(),
+      issueProblem: String(issueProblem ?? "").trim(),
+      repairedItem: String(repairedItem ?? "").trim(),
+      repairedOn: String(repairedOn ?? "").trim(),
+      repairedBy: String(repairedBy ?? "").trim(),
+      qualityConfirmedBy: String(qualityConfirmedBy ?? "").trim(),
+      qualityConfirmationMethod: String(qualityConfirmationMethod ?? "").trim(),
+      qualityConfirmationDate: String(qualityConfirmationDate ?? "").trim(),
+      toolRoomRequestStatus:
+        isToolRoomUser(user) &&
+        ["OK", "NOT OK"].includes(toolRoomRequestStatus)
+          ? toolRoomRequestStatus
+          : null,
+      status: "masterCreated",
+      approvals: steps,
+      currentApprovalIndex: 0,
+      pendingApprovalBy: steps[0]?.user?._id,
+      requestStatus:
+        dynamicApprovalStatus?.[steps[0]?.key] ?? steps[0]?.userType,
+      createdBy: {
+        _id: user?._id,
+        tm_no: user?.tm_no,
+        tm_name: user?.tm_name,
+        email: user?.email,
+        plant_data: user?.plant_data,
+      },
+      dateTime: {
+        inString: moment().format("YYYY-MM-DDTHH:mm"),
+        inDate: new Date(),
+      },
+      rsTimeStamp: generateTimestampIndividually(),
+    });
+
+    master.uniqueID = await generateMasterUniqueId({
+      master,
+      fallbackUser: user,
+    });
+
+    await master.save();
+
+    return res.status(201).json({
+      message: "Repaired part quality confirmation submitted",
+      showToast: true,
+      master,
+    });
+  },
+);
+
+/**
+ * One approver on the MTD chain accepts or rejects a quality confirmation.
+ * Same decision helper as the request sheets, so the route advances by the
+ * same rules.
+ */
+exports.actOnRepairedQualityConfirmation = tryCatchHandler(
+  async (req, res, next) => {
+    const { _id } = req.query;
+    const { isApproved, remarks } = req.body ?? {};
+
+    if (req.spareMasterType?.key !== "repaired")
+      return res.status(400).json({
+        message:
+          "The quality confirmation sheet is only for the Repaired Parts Master",
+        showToast: true,
+      });
+
+    if (!mongoose.Types.ObjectId.isValid(_id))
+      return res.status(400).json({ message: "Invalid request id" });
+    if (!["Yes", "No"].includes(isApproved))
+      return res.status(400).json({
+        message: "Please accept or reject the request",
+        showToast: true,
+      });
+    if (isApproved === "No" && !String(remarks ?? "").trim())
+      return res.status(400).json({
+        message: "Please enter the rejection remarks",
+        showToast: true,
+      });
+
+    const master = await req.spareMasterType.model.findById(_id);
+    if (!master)
+      return res.status(404).json({ message: "Repaired part not found" });
+
+    const step = master.approvals?.[master.currentApprovalIndex];
+    if (!step || step.approvalStatus !== "Pending")
+      return res.status(400).json({
+        message: "This step has already been decided",
+        showToast: true,
+      });
+
+    /**
+     * Any user eligible for the current step may decide it, not only the one
+     * name the chain happened to carry: TL and HOSS share one pool, so naming
+     * a single person at creation left the rest of the level with no action.
+     * The person who actually decides is recorded on the step.
+     */
+    const eligible = await listApproversForStep(step.key, {
+      plantData: req.rootUser?.plant_data,
+      sectionData: req.rootUser?.section_data,
+    });
+    const actor = eligible.find(
+      (user) => String(user._id) === String(req.rootUser?._id ?? ""),
+    );
+
+    if (!actor)
+      return res.status(403).json({
+        message: "You are not an approver for this step",
+        showToast: true,
+      });
+
+    step.user = {
+      _id: actor._id,
+      tm_no: actor.tm_no,
+      tm_name: actor.tm_name,
+      email: actor.email,
+    };
+
+    const decisionError = applyApprovalDecision(master, {
+      isApproved,
+      remarks,
+    });
+    if (decisionError)
+      return res.status(400).json({ message: decisionError, showToast: true });
+
+    await master.save();
+
+    return res.status(201).json({
+      message:
+        isApproved === "Yes"
+          ? "Quality confirmation approved"
+          : "Quality confirmation rejected",
+      showToast: true,
+      master,
+    });
+  },
+);

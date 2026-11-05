@@ -1,5 +1,9 @@
 import React, { useMemo } from "react";
 import { ArcElement, Tooltip, Legend } from "chart.js";
+import {
+  pieDataLabels,
+  PIE_LABEL_PADDING,
+} from "../../../../Utils/chartDataLabels";
 
 const PIE_COLORS = [
   "#70AD47",
@@ -15,27 +19,24 @@ const PIE_COLORS = [
   "#255E91",
 ];
 
-const FONT_COLORS = [
-  "#000",
-  "#fff",
-  "#000",
-  "#000",
-  "#000",
-  "#000",
-  "#fff",
-  "#fff",
-  "#fff",
-  "#000",
-  "#fff",
-];
-
-const PieChart = ({ ChartComponent, counters }) => {
+const PieChart = ({
+  ChartComponent,
+  counters,
+  // Most pies keep the established right-side legend. Dense category charts
+  // can opt into the compact bottom layout to preserve the pie's diameter.
+  legendPosition = "right",
+  compactLegend = false,
+  showDataLabels = true,
+  tooltipValueSuffix = "",
+}) => {
   const dataset = useMemo(
     () => ({
       labels: counters?.labels,
       datasets: [
         {
           data: counters?.data1,
+          // Shown in brackets after the share, e.g. 45.39% (1482).
+          secondaryValues: counters?.data2,
           backgroundColor: PIE_COLORS,
           borderColor: "#fff",
           borderWidth: 1,
@@ -48,24 +49,40 @@ const PieChart = ({ ChartComponent, counters }) => {
   const options = useMemo(
     () => ({
       responsive: true,
+      // Room for the labels of slices too small to hold their own.
+      layout: { padding: PIE_LABEL_PADDING },
       plugins: {
         legend: {
           display: true,
-          position: "right",
+          position: legendPosition,
+          labels: compactLegend
+            ? {
+                boxWidth: 10,
+                boxHeight: 10,
+                padding: 8,
+                font: { size: 10 },
+              }
+            : undefined,
         },
         title: {
           display: false,
         },
-        datalabels: {
-          formatter: (value, context) => {
-            return `${value} %`;
-          },
-          color: FONT_COLORS,
-          font: { size: 12 },
-        },
+        ...(tooltipValueSuffix
+          ? {
+              tooltip: {
+                callbacks: {
+                  label: (context) =>
+                    `${context.label}: ${context.formattedValue}${tooltipValueSuffix}`,
+                },
+              },
+            }
+          : {}),
+        datalabels: showDataLabels
+          ? pieDataLabels({ percentage: true })
+          : { display: false },
       },
     }),
-    [],
+    [compactLegend, legendPosition, showDataLabels, tooltipValueSuffix],
   );
 
   return (

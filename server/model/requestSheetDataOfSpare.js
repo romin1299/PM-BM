@@ -99,6 +99,14 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
         rsPOIssueToVendorRemarks: String,
 
         /**
+         * The purchase-order number for this part, shown beside PO Made on the
+         * tracking dashboard. Unlike the lead-time stages it carries no
+         * timestamp or status and is not gated to Tool Room — any user may set
+         * or edit it. See handlePartPONumber in spareCRUDController.js.
+         */
+        poNumber: String,
+
+        /**
          * What was received against a "For use" part. Such a part is consumed
          * on the machine and never becomes a stock master, so the receipt has
          * nowhere else to go: a stock-in part records the same figures as a
@@ -123,6 +131,19 @@ const requestSheetOfSpareSchema = new mongoose.Schema(
         rsMRNIssuedRemarks: String,
         rsMRNApprovedTimeStamp: orderTrackingTimestamp,
         rsMRNApprovedRemarks: String,
+
+        /**
+         * One entry per ordering stage (PO Made / Part Receipt / Part
+         * Inspection) for which the daily lead-time escalation mail has already
+         * gone to the TL and HOSS, so the same overdue stage is never mailed
+         * twice. See services/spare/orderTrackingLeadTimeEscalationService.js.
+         */
+        leadTimeEscalationMails: [
+          {
+            stage: String,
+            sentAt: Date,
+          },
+        ],
       },
     ],
 

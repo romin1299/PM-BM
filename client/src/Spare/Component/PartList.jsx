@@ -261,6 +261,8 @@ const PartList = ({
   sectionBudget,
   budgetStatus,
   requiredBudget,
+  // False for a PRD sheet, which is not weighed against the budget.
+  showBudget = true,
 }) => {
   const { fields, append, remove, replace } = useFieldArray({
     control,
@@ -365,17 +367,21 @@ const PartList = ({
             </Col>
           )}
 
-        <Col className="col-auto">
-          <small>Section-wise budget:</small> {sectionBudget}
-        </Col>
+        {showBudget && (
+          <>
+            <Col className="col-auto">
+              <small>Section-wise budget:</small> {sectionBudget}
+            </Col>
 
-        <Col className="col-auto">
-          <small>Required budget:</small> {requiredBudget}
-        </Col>
+            <Col className="col-auto">
+              <small>Required budget:</small> {requiredBudget}
+            </Col>
 
-        <Col className="col-auto">
-          <small>Budget:</small> {budgetStatus}
-        </Col>
+            <Col className="col-auto">
+              <small>Budget:</small> {budgetStatus}
+            </Col>
+          </>
+        )}
       </Row>
     </div>
   );

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const moment = require("moment");
 const tryCatchHandler = require("../../errorHandler/tryCatchHandler");
 const getFY = require("../../utils/getFY");
+const { isToolRoomUser } = require("../../utils/userScope");
 
 /** `array` with `amount` added to the element at `index`, other months untouched. */
 const addAtMonth = (array, index, amount) => ({
@@ -63,19 +64,29 @@ const User = require("../../model/userSchema");
 const Plant = require("../../model/plantSchema");
 const SpareIssuanceSummary = require("../../model/spareIssuanceSummarySchema");
 const SpareMaster = require("../../model/spareMasterSchema");
+const {
+  SPARE_MASTER_TYPES,
+  spareMasterTypeFor,
+} = require("../../model/spareMasterTypes");
 const SpareBudget = require("../../model/spareBudgetSchema");
 const RequestSheetOfSpare = require("../../model/requestSheetDataOfSpare");
+const { appendLedgerEntry } = require("../../services/spare/stockLedgerService");
 
 const {
   spareApprovalStatus,
   generateRegexSearchString,
   paginationRowLimit,
   dynamicApprovalStatus,
+  hooksFormReferenceOfApproval,
 } = require("../../utils/spareManagementUtils");
 const {
   generateTimestampIndividually,
   generateTimeStampWithBothFormat,
 } = require("../../utils/spareTimestamp");
+const {
+  createColumnFilters,
+  escapeRegex,
+} = require("../../utils/columnFilters");
 
 const unparseJSONData = require("../../utils/unparseJSONData");
 const {
@@ -93,6 +104,51 @@ const {
 
 const getDynamicApprovalFromThePlant = async (plant_id) =>
   await Plant.findOne({ plant_id }, { spareIssuanceDynamicApproval: 1 });
+
+/**
+ * The parts on a sheet whose master has no stock left.
+ *
+ * A master with nothing available cannot be issued — there is no quantity to
+ * take out. Manual "Issue Other" lines have no master and are not checked.
+ * The repaired/recycle catalogues are checked against their own model.
+ */
+const partsWithoutAvailableStock = async (parts = []) => {
+  const names = [];
+
+  for (const part of parts) {
+    // Manual lines have neither a master id nor the master's budget snapshot.
+    const masterId =
+      part?.masterId ?? (part?.budgetDetails ? part?._id : null);
+
+    if (!masterId || !mongoose.Types.ObjectId.isValid(masterId)) continue;
+
+    const MasterModel =
+      spareMasterTypeFor(part?.masterType)?.model ?? SpareMaster;
+
+    const master = await MasterModel.findById(masterId, {
+      costDetails: 1,
+    }).lean();
+
+    const available = (master?.costDetails ?? []).reduce(
+      (sum, tranche) => sum + (tranche?.availableQty ?? 0),
+      0,
+    );
+
+    if (!master || available <= 0)
+      names.push(part?.partName ?? part?.partNumber ?? "part");
+  }
+
+  return [...new Set(names)];
+};
+
+const noStockRefusal = async (parts) => {
+  const names = await partsWithoutAvailableStock(parts);
+  return names.length
+    ? `No quantity available for: ${names.join(
+        ", ",
+      )}. Stock the part in before issuing it.`
+    : null;
+};
 
 exports.budgetDetailsProjection = budgetDetailsProjection = {
   $reduce: {
@@ -207,6 +263,15 @@ exports.handleSpareIssuanceSheet = tryCatchHandler(async (req, res, next) => {
     : "MTD";
   req.body["rsTimeStamp"] = generateTimestampIndividually();
 
+  /**
+   * A master with no stock left cannot be issued: there is nothing to take
+   * out. Refused here, before the sheet is written, so the requester sees
+   * which part has to be stocked in first.
+   */
+  const noStockError = await noStockRefusal(req.body?.changeParts);
+  if (noStockError)
+    return res.status(400).json({ message: noStockError, showToast: true });
+
   req.body?.changeParts?.map((item) => ({
     ...item,
     returnTargetDateIfTemporary: item?.returnTargetDateIfTemporary?.inString
@@ -255,6 +320,34 @@ exports.handleSpareIssuanceSheet = tryCatchHandler(async (req, res, next) => {
 
   return res.status(201).json({
     message: "Master registered successfully",
+  });
+});
+
+/**
+ * The names behind a machine id, for the issuance form to display.
+ *
+ * Request-sheet rows from BM and CM carry the cell / line / machine as bare
+ * references - the embedded copies of their names are empty in the stored
+ * sheets - so a form opened from one of them knew the ids but had nothing to
+ * show. The sheet itself is stamped server-side from the machine id (see
+ * handleSpareIssuanceSheet), so this only supplies what the screen prints.
+ */
+exports.getMachineHierarchy = tryCatchHandler(async (req, res, next) => {
+  const hierarchy = await resolveMachineHierarchy(req.query?.machineId);
+
+  if (hierarchy?.isError)
+    return res.status(400).json({
+      message: hierarchy?.message,
+      showToast: true,
+    });
+
+  return res.status(201).json({
+    message: "Machine hierarchy get successfully",
+    hierarchy: {
+      cell: hierarchy.cell,
+      line: hierarchy.line,
+      machine: hierarchy.machine,
+    },
   });
 });
 
@@ -402,6 +495,13 @@ exports.issuanceSummeryUpdate = tryCatchHandler(async (req, res, next) => {
     });
   }
 
+  // Editing the parts must not slip a no-stock master onto the sheet either.
+  if (req.body?.changeParts) {
+    const noStockError = await noStockRefusal(req.body.changeParts);
+    if (noStockError)
+      return res.status(400).json({ message: noStockError, showToast: true });
+  }
+
   const issuanceSheet = await SpareIssuanceSummary.updateOne(
     req.query,
     req.body,
@@ -427,6 +527,31 @@ exports.responseIssuanceSummeryUpdate = tryCatchHandler(
     });
   },
 );
+
+/** The dashboard columns, as the raw issuance document names them. */
+const ISSUANCE_FILTERABLE_COLUMNS = new Set([
+  "issuedFrom",
+  "cell.cell_name",
+  "line.line_name",
+  "machine.machine_code",
+  "changeParts.whichParts",
+  "changeParts.location",
+  "changeParts.partName",
+  "changeParts.partModel",
+  "changeParts.maker",
+  "changeParts.temporaryOrPermanent",
+  "changeParts.returnTargetDateIfTemporary.inString",
+  "changeParts.closingStatusIfTemporary",
+  "changeParts.issuanceApprovalStatus",
+  "createdBy.tm_name",
+]);
+
+const {
+  parse: parseColumnFilters,
+  match: columnFilterMatch,
+} = createColumnFilters(ISSUANCE_FILTERABLE_COLUMNS);
+
+const COLUMN_VALUES_LIMIT = 300;
 
 exports.spareIssuanceFilters = tryCatchHandler(async (req, res, next) => {
   let $match = req.queryObj,
@@ -463,6 +588,24 @@ exports.spareIssuanceFilters = tryCatchHandler(async (req, res, next) => {
     searchQuery = { $or };
   }
 
+  req.issuanceBaseMatch = $match;
+
+  const filterMatch = columnFilterMatch(parseColumnFilters(req.query.filters));
+
+  /**
+   * Column filters are applied at both levels. The sheet-level match narrows
+   * which sheets the page loads; the same match runs again after the parts are
+   * unwound, so only the matching parts of those sheets are shown. Pagination
+   * stays sheet-based (the cursor is the sheet _id).
+   */
+  if (filterMatch) {
+    $match = { $and: [$match, filterMatch] };
+    searchQuery = searchQuery?.$or
+      ? { $and: [searchQuery, filterMatch] }
+      : filterMatch;
+  }
+
+  req.columnFilterMatch = filterMatch;
   req.queryObj = $match;
   req.partQuery = searchQuery;
   return next();
@@ -482,26 +625,44 @@ exports.issuanceSummeryQueryGeneration = tryCatchHandler(
   },
 );
 
+/**
+ * Finds each part's master. A part can come from any of the three masters
+ * (stock-in, recycle, repaired), which are separate collections, so the part's
+ * masterId is looked up in all three; an id is unique across them, so at most
+ * one answers. A part whose master is in none of them is dropped, as the
+ * $unwind this replaces did.
+ */
+const masterLookupStages = Object.values(SPARE_MASTER_TYPES).map((type) => ({
+  $lookup: {
+    from: type.model.collection.name,
+    localField: "changeParts.masterId",
+    foreignField: "_id",
+    pipeline: [{ $project: { costDetails: 1 } }],
+    as: `spareMaster_${type.key}`,
+  },
+}));
+
+const masterLookupFields = Object.values(SPARE_MASTER_TYPES).map(
+  (type) => `spareMaster_${type.key}`,
+);
+
 exports.requiredBudgetCalculation = tryCatchHandler(async (req, res, next) => {
   req.budgetCalculationPipeline = [
+    ...masterLookupStages,
     {
-      $lookup: {
-        from: "sparemasters",
-        localField: "changeParts.masterId",
-        foreignField: "_id",
-        pipeline: [
-          {
-            $project: {
-              costDetails: 1,
+      $set: {
+        spareMaster: {
+          $arrayElemAt: [
+            {
+              $concatArrays: masterLookupFields.map((field) => `$${field}`),
             },
-          },
-        ],
-        as: "spareMaster",
+            0,
+          ],
+        },
       },
     },
-    {
-      $unwind: "$spareMaster",
-    },
+    { $unset: masterLookupFields },
+    { $match: { spareMaster: { $ne: null } } },
   ];
   return next();
 });
@@ -560,9 +721,13 @@ exports.issuanceSummeryProjection = tryCatchHandler(async (req, res, next) => {
         {
           $eq: ["$createdBy._id", req.rootUser?._id],
         },
-        {
-          $eq: [req.rootUser?.toolRoomPerson, true],
-        },
+        /**
+         * Decided here in node, not in the pipeline: this compared the stored
+         * string ("Yes" / "No") against the boolean `true`, which is never
+         * equal - so no tool-room user could edit an issuance sheet raised by
+         * anyone else, whatever their rights.
+         */
+        isToolRoomUser(req.rootUser),
       ],
     },
   };
@@ -649,6 +814,7 @@ exports.getIssuanceSummery = tryCatchHandler(async (req, res, next) => {
     {
       $project: req.$project,
     },
+    ...(req.columnFilterMatch ? [{ $match: req.columnFilterMatch }] : []),
     ...req.unitCostAddFieldPipeline,
   ]);
 
@@ -660,6 +826,79 @@ exports.getIssuanceSummery = tryCatchHandler(async (req, res, next) => {
 
   req.tableData = tableData;
   return next();
+});
+
+/**
+ * Distinct values of one issuance column with row counts, for its filter.
+ * Excel-style: narrowed by the other columns' filters, the search and the date
+ * range. Counts are part rows (the table's rows), so the collection is unwound
+ * the same way the list is.
+ */
+exports.getIssuanceColumnValues = tryCatchHandler(async (req, res, next) => {
+  const { column, search = "", from, to } = req.query;
+
+  if (!ISSUANCE_FILTERABLE_COLUMNS.has(column))
+    return res.status(400).json({
+      message: `"${column}" is not a filterable column`,
+      showToast: true,
+    });
+
+  const otherMatch = columnFilterMatch(parseColumnFilters(req.query.filters), {
+    except: column,
+  });
+
+  const baseMatch = req.queryObj ?? {};
+  const dateMatch = {};
+  if (from || to) {
+    dateMatch.createdAt = {};
+    if (from) dateMatch.createdAt.$gte = moment(from).startOf("day").toDate();
+    if (to) dateMatch.createdAt.$lte = moment(to).endOf("day").toDate();
+  }
+
+  const matches = [baseMatch, dateMatch, otherMatch].filter(
+    (match) => match && Object.keys(match).length,
+  );
+  const match = matches.length <= 1 ? matches[0] ?? {} : { $and: matches };
+
+  const values = await SpareIssuanceSummary.aggregate([
+    { $match: match },
+    { $unwind: "$changeParts" },
+    ...(otherMatch ? [{ $match: otherMatch }] : []),
+    {
+      $set: {
+        value: {
+          $cond: [{ $in: [`$${column}`, [null, ""]] }, null, `$${column}`],
+        },
+      },
+    },
+    ...(search
+      ? [
+          {
+            $match: {
+              $expr: {
+                $regexMatch: {
+                  input: { $toString: { $ifNull: ["$value", ""] } },
+                  regex: escapeRegex(search),
+                  options: "i",
+                },
+              },
+            },
+          },
+        ]
+      : []),
+    { $group: { _id: "$value", count: { $sum: 1 } } },
+    { $sort: { _id: 1 } },
+    { $limit: COLUMN_VALUES_LIMIT + 1 },
+    { $project: { _id: 0, value: "$_id", count: 1 } },
+  ]);
+
+  const truncated = values.length > COLUMN_VALUES_LIMIT;
+
+  return res.status(201).json({
+    message: "Column values get successfully",
+    values: truncated ? values.slice(0, COLUMN_VALUES_LIMIT) : values,
+    truncated,
+  });
 });
 
 exports.issuanceSummaryResponse = tryCatchHandler(async (req, res, next) => {
@@ -763,7 +1002,11 @@ exports.handleSetPartApproval = tryCatchHandler(async (req, res, next) => {
   for (let i = 0; i < dynamicApproval.length; i++) {
     if (!req.body?.[`approvalOf${dynamicApproval[i]}`]?.user?._id)
       return res.status(400).json({
-        message: "Please select all the approvals",
+        // Names the step, so a missing one is not a hunt through the dropdowns.
+        message: `Please select the ${
+          hooksFormReferenceOfApproval?.[dynamicApproval[i]]?.displayName ||
+          dynamicApproval[i]
+        } approval`,
         showToast: true,
       });
 
@@ -908,13 +1151,16 @@ exports.getPartApprovalResponse = tryCatchHandler(async (req, res, next) => {
 exports.acceptOrRejectApprovalProjection = tryCatchHandler(
   async (req, res, next) => {
     req.$project = {
-      ...(req.rootUser?.toolRoomPerson === "Yes"
+      ...(isToolRoomUser(req.rootUser)
         ? {
             cell: 1,
+            section: 1,
+            machine: 1,
             "changeParts.quantityRequired": 1,
             budgetDetails: budgetDetailsProjection,
           }
         : {}),
+      "changeParts.masterType": 1,
       "changeParts.dynamicApprovalKeys": 1,
       "changeParts.currentApprovalIndex": 1,
       "changeParts.approvalOfMTD_TL": 1,
@@ -934,7 +1180,7 @@ exports.acceptOrRejectApprovalProjection = tryCatchHandler(
 exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
   const { _id, partId } = req.query;
   const { isApproved, rejectedRemarks } = req.body;
-  const [{ changeParts }] = req.tableData;
+  const [{ changeParts, section, machine }] = req.tableData;
 
   if (!isApproved)
     return res.status(400).json({
@@ -995,8 +1241,12 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
 
       const masterId = req.query?.masterId;
 
+      // Stock goes out of the master the part came from.
+      const MasterModel =
+        spareMasterTypeFor(changeParts?.masterType)?.model ?? SpareMaster;
+
       const [updatedMaster] = await Promise.all([
-        SpareMaster.findOneAndUpdate(
+        MasterModel.findOneAndUpdate(
           { _id: masterId },
           [
             {
@@ -1142,7 +1392,13 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
       /****************************
        * Reordering - Min qty touch
        ****************************/
-      if (updatedMaster && isBelowReorderLevel(updatedMaster)) {
+      // Reorders are raised for the stock-in inventory only: the recycle and
+      // repaired masters are reference catalogues, not stock that is reordered.
+      if (
+        MasterModel === SpareMaster &&
+        updatedMaster &&
+        isBelowReorderLevel(updatedMaster)
+      ) {
         const openReorders = await findMastersWithOpenReorder([
           updatedMaster._id,
         ]);
@@ -1189,6 +1445,38 @@ exports.acceptOrRejectPartApproval = tryCatchHandler(async (req, res, next) => {
           }
         }
       }
+
+
+      // ── Stock-Ledger: STOCK_OUT entry ───────────────────────────────────
+      // Final approver (Tool Room) just accepted this issuance part.
+      // We look up the PO number from the most-recent request sheet that
+      // contains this master's part, since the issuance document itself
+      // does not store a PO number.
+      const targetMasterId = req.query?.masterId || changeParts?.masterId;
+      if (targetMasterId) {
+        const poSheet = await RequestSheetOfSpare.findOne(
+          { "changeParts.masterId": targetMasterId },
+          { "changeParts.$": 1, requestSheetNo: 1 },
+        )
+          .sort({ createdAt: -1 })
+          .lean();
+        const poNumber = poSheet?.changeParts?.[0]?.poNumber || null;
+
+        await appendLedgerEntry({
+          masterId: targetMasterId,
+          entryType: "STOCK_OUT",
+          processingDate: new Date(),
+          stockOutQtyNew: changeParts?.quantityRequired ?? null,
+          orderNo: poNumber,
+          // The issuance sheet's own hierarchy: where this stock was used.
+          section,
+          machine,
+          referenceId: _id,
+          referenceModel: "SpareIssuanceSummary",
+          createdBy: req.rootUser,
+        }).catch(() => {});
+      }
+      // ────────────────────────────────────────────────────────────────────
 
       isIssuanceCompleted = true;
     }

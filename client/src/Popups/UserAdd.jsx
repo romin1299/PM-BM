@@ -20,6 +20,10 @@ import {
   useRole,
   getUserTypeOptions,
   isAddingDepartmentHOS,
+  TOOL_ROOM_CHOICE,
+  TOOL_ROOM_OPTIONS,
+  toolRoomFlagsOf,
+  isToolRoomOnly,
 } from "./userManagementRoles";
 
 const MENU_PROPS = {
@@ -142,6 +146,17 @@ const ReadOnlyField = ({ label, value }) => (
   </div>
 );
 
+/**
+ * Dedicated tool-room staff belong to the plant, not to a section: the store
+ * serves every section, and Spare scopes their dashboards and the Tool Room
+ * approval step to the plant. So the form asks only for the plant, and the
+ * three hierarchy fields below it are neither shown nor sent.
+ *
+ * Someone who works in BOTH keeps their section, because their PM and BM
+ * dashboards are scoped by it.
+ */
+const isToolRoomPerson = (values) => isToolRoomOnly(values.toolRoomChoice);
+
 const buildSubmitPayload = (values, context, role, subsections, cells) => {
   const resolvedUserType =
     values.user_type || (role.isAdmin ? "Plant-Admin" : "Section-Admin");
@@ -163,6 +178,21 @@ const buildSubmitPayload = (values, context, role, subsections, cells) => {
     return values.tm_department;
   })();
 
+  /**
+   * Blank, not the logged-in Admin's own section.
+   *
+   * The fallback below is right for a Section-Admin or TL/HOSS adding into
+   * their own section, but an Admin adding a tool-room HOD leaves the field
+   * empty - and that used to file the new user under the Admin's section.
+   */
+  const hierarchy = isToolRoomPerson(values)
+    ? { section_data: "", subSection_data: [], cell_data: [] }
+    : {
+        section_data: values.section_data || context.section_data,
+        subSection_data: subsections,
+        cell_data: cells,
+      };
+
   return {
     tm_name: values.tm_name,
     tm_no: values.tm_no,
@@ -170,16 +200,14 @@ const buildSubmitPayload = (values, context, role, subsections, cells) => {
     tm_grade: resolvedGrade,
     tm_department: resolvedDepartment,
     plant_data: values.plant_data || context.plant_data,
-    section_data: values.section_data || context.section_data,
-    subSection_data: subsections,
-    cell_data: cells,
+    ...hierarchy,
     joining_date: values.joining_date,
     email: values.email,
     contact_no: values.contact_no,
     address: values.address,
     isAuthorizedUserForUpdatingRequestSheetInAnyStatus:
       values.isAuthorizedUserForUpdatingRequestSheetInAnyStatus,
-    toolRoomPerson: values.toolRoomPerson,
+    ...toolRoomFlagsOf(values.toolRoomChoice),
   };
 };
 
@@ -293,7 +321,7 @@ const UserAdd = () => {
       contact_no: "",
       address: "",
       isAuthorizedUserForUpdatingRequestSheetInAnyStatus: "",
-      toolRoomPerson: "No",
+      toolRoomChoice: TOOL_ROOM_CHOICE.NONE,
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -325,9 +353,15 @@ const UserAdd = () => {
   const showUserTypeDropdown =
     (role.isSectionAdmin && formik.values.tm_department) ||
     (role.isTLHOSS && role.isMTD);
-  const showSubSection = grade !== "HOD";
+  // Plant and nothing below it for a tool-room person.
+  const toolRoomPerson = isToolRoomPerson(formik.values);
+  const showSection = !toolRoomPerson;
+  const showSubSection = grade !== "HOD" && !toolRoomPerson;
   const showCell =
-    !["HOS", "HOD"].includes(grade) && !role.isAdmin && !role.isPlantAdmin;
+    !["HOS", "HOD"].includes(grade) &&
+    !role.isAdmin &&
+    !role.isPlantAdmin &&
+    !toolRoomPerson;
 
   return (
     <div id="main_div_reg1">
@@ -390,14 +424,11 @@ const UserAdd = () => {
 
           {role.isAdmin && (
             <div className="pwd-container">
-              <span>Tool room person:</span>
+              <span>Tool room:</span>
               <RadioGroup
-                name="toolRoomPerson"
-                options={[
-                  { label: "Yes", value: "Yes" },
-                  { label: "No", value: "No" },
-                ]}
-                value={formik.values.toolRoomPerson}
+                name="toolRoomChoice"
+                options={TOOL_ROOM_OPTIONS}
+                value={formik.values.toolRoomChoice}
                 onChange={formik.handleChange}
               />
             </div>
@@ -476,8 +507,8 @@ const UserAdd = () => {
             </div>
           ) : null}
 
-          {(grade === "HOS" || grade === "HOD") &&
-            formik.values.toolRoomPerson === "No" && (
+          {/* Dedicated tool-room staff have no department; a dual-role PM user does. */}
+          {(grade === "HOS" || grade === "HOD") && !toolRoomPerson && (
               <div className="pwd-container">
                 <span>TM Department:</span>
                 <RadioGroup
@@ -532,24 +563,25 @@ const UserAdd = () => {
           )}
 
           {/* Section */}
-          {role.isAdmin || role.isPlantAdmin ? (
-            <div className="pwd-container">
-              <span>Section:</span>
-              <SelectField
-                name="section_data"
-                value={formik.values.section_data}
-                options={sectionList}
-                onChange={(e) => {
-                  formik.handleChange(e);
-                  loadSubSections(e.target.value);
-                  formik.setFieldValue("subSection_data", "");
-                  formik.setFieldValue("cell_data", "");
-                }}
-              />
-            </div>
-          ) : (
-            <ReadOnlyField label="Section" value={context.section_data} />
-          )}
+          {showSection &&
+            (role.isAdmin || role.isPlantAdmin ? (
+              <div className="pwd-container">
+                <span>Section:</span>
+                <SelectField
+                  name="section_data"
+                  value={formik.values.section_data}
+                  options={sectionList}
+                  onChange={(e) => {
+                    formik.handleChange(e);
+                    loadSubSections(e.target.value);
+                    formik.setFieldValue("subSection_data", "");
+                    formik.setFieldValue("cell_data", "");
+                  }}
+                />
+              </div>
+            ) : (
+              <ReadOnlyField label="Section" value={context.section_data} />
+            ))}
 
           {/* Sub Section */}
           {showSubSection && (

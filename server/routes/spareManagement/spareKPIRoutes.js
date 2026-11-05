@@ -26,18 +26,21 @@ const {
   getStockLevelWiseAnalysis,
   getZeroStockPartList,
   exportZeroStockPartList,
+  getPartListColumnValues,
   getReasonForZeroStock,
   handleReasonForZeroStock,
 
   getMTDRAndPlanVsActual,
   getInventoryBifurcationEachCellWise,
+  getCellInventoryTarget,
+  saveCellInventoryTarget,
   getNewSparesOrderingTrend,
   getTemporaryPartIssueTrend,
   getReceivingInspectionManufacturingParts,
 } = require("../../controller/spareManagement/spareKPIController");
 
 const {
-  spareFilterMiddleware,
+  spareFilterMiddlewareWithOptionalYear,
 } = require("../../controller/spareManagement/spareMiddleware");
 
 const {
@@ -84,24 +87,28 @@ router
 router
   .route("/kpi/inventoryBifurcation/hierarchyWise")
   .get(
-    spareFilterMiddleware,
+    spareFilterMiddlewareWithOptionalYear,
     yearMonthFilter,
     getInventoryBifurcationHierarchyWise,
   );
 
 router
   .route("/kpi/topInventory")
-  .get(spareFilterMiddleware, yearMonthFilter, getTopInventoryItems);
+  .get(spareFilterMiddlewareWithOptionalYear, yearMonthFilter, getTopInventoryItems);
 
 router
   .route("/kpi/supplierCategoryWise")
   .get(
-    spareFilterMiddleware,
+    spareFilterMiddlewareWithOptionalYear,
     yearMonthFilter,
     getSpareDetailsSupplierCategoryWise,
   );
 
-router.route("/kpi/stockLevelWiseAnalysis").get(getStockLevelWiseAnalysis);
+// Year and month are optional: with neither it covers every master, and each
+// one chosen narrows it.
+router
+  .route("/kpi/stockLevelWiseAnalysis")
+  .get(yearMonthFilter, getStockLevelWiseAnalysis);
 
 /**
  * No yearMonthFilter: what is on the shelf is a fact about today, and these
@@ -110,6 +117,7 @@ router.route("/kpi/stockLevelWiseAnalysis").get(getStockLevelWiseAnalysis);
  */
 router.route("/kpi/partList").get(getZeroStockPartList);
 router.route("/kpi/partList/export").get(exportZeroStockPartList);
+router.route("/kpi/partList/columnValues").get(getPartListColumnValues);
 
 router
   .route("/kpi/remarks")
@@ -120,6 +128,13 @@ router.route("/kpi/mtdRAndPlanVsActual").get(getMTDRAndPlanVsActual);
 router
   .route("/kpi/inventoryBifurcation/eachCellWise")
   .get(getInventoryBifurcationEachCellWise);
+
+// Setting a target is tool-room work, like the other KPI targets and the
+// machine cost; reading one is open to everyone who can see the chart.
+router
+  .route("/kpi/inventoryBifurcation/eachCellWise/target")
+  .get(getCellInventoryTarget)
+  .post(IsToolRoomPerson, saveCellInventoryTarget);
 
 router.route("/kpi/newSparesOrderingTrend").get(getNewSparesOrderingTrend);
 router
