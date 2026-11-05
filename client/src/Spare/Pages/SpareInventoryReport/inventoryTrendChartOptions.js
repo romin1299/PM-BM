@@ -72,11 +72,11 @@ const segmentHeight = (context) => {
 const barValueAt = (context) => Number(context.dataset.data?.[context.dataIndex]);
 
 /**
- * Three labels per point (chartjs-plugin-datalabels multi-label):
+ * Four labels per point (chartjs-plugin-datalabels multi-label):
  *   - segment: each cell's own value, inside its segment when it fits;
  *   - total:   the stack total, in a green box above each bar;
- *   - ratio:   the holding-ratio percentage, above the total label.
- * The target line carries no label; its value is in the tooltip.
+ *   - ratio:   the holding-ratio percentage, above the total label;
+ *   - target:  the target line's value, right above each target point.
  */
 export const inventoryTrendDataLabels = {
   clamp: true,
@@ -123,6 +123,32 @@ export const inventoryTrendDataLabels = {
       borderRadius: 3,
       padding: 2,
       font: { weight: "bold", size: 11 },
+    },
+    target: {
+      // The target is a real inventory value, so its own value is shown at
+      // every point of the line instead of being available only on hover.
+      //
+      // The datalabels context has neither `parsed` (tooltip only) nor `raw`
+      // for this line series, so the value is read from the dataset itself;
+      // checking `parsed` kept the label switched off entirely.
+      display: (context) => {
+        const value = context.dataset?.data?.[context.dataIndex];
+        return (
+          context.dataset?.role === "target" &&
+          value !== null &&
+          value !== undefined
+        );
+      },
+      formatter: (value, context) =>
+        formatNumber(context.dataset?.data?.[context.dataIndex] ?? value),
+      anchor: "center",
+      align: "top",
+      offset: 2,
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+      color: "#9F0000",
+      borderRadius: 3,
+      padding: { top: 1, bottom: 1, left: 3, right: 3 },
+      font: { weight: "bold", size: 9 },
     },
   },
 };

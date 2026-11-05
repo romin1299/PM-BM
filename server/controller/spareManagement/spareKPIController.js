@@ -985,7 +985,9 @@ exports.getInventoryTrend = tryCatchHandler(async (req, res, next) => {
       order: 1,
       borderColor: "#9F0000",
       backgroundColor: "#9F0000",
-      borderDash: [6, 4],
+      // A solid line, so the target reads as a reference level rather than a
+      // forecast; the value labels are added by the client.
+      borderWidth: 2,
       pointStyle: "rectRot",
       pointRadius: 4,
     });
